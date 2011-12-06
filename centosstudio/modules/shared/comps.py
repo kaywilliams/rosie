@@ -220,6 +220,18 @@ class Group(object):
             if not self.translated_description.has_key(lang):
                 self.translated_description[lang] = obj.translated_description[lang]
 
+    def add_package(self, package, genre='mandatory', requires=None, 
+                    default=None):
+      """add a package to the group"""
+      if genre == 'mandatory':
+        self.mandatory_packages[package] = 1
+      elif genre == 'default':
+        self.default_packages[package] = 1
+      elif genre == 'optional':
+        self.optional_packages[package] = 1
+      elif genre == 'conditional':
+        self.conditional_packages[package] = requires
+
     def xml(self):
         """write out an xml stanza for the group object"""
         msg ="""
@@ -368,6 +380,13 @@ class Comps(object):
         self.compiled = False # have groups been compiled into avail/installed
                               # lists, yet.
 
+    @property
+    def all_packages(self):
+      packages = []
+      for group in self.groups:
+        packages.extend(group.packages)
+
+      return packages
 
     def __sort_order(self, item1, item2):
         if item1.display_order > item2.display_order:
@@ -480,6 +499,13 @@ class Comps(object):
             raise CompsException, "comps file is empty/damaged"
         finally:
           del parser
+
+    def remove_package(self, package):
+      for group in self.groups:
+        for l in [ group.mandatory_packages, group.optional_packages,
+                   group.default_packages, group.conditional_packages ]:
+          for pkgname in fnmatch.filter(l, package):
+            del l[pkgname] 
 
     def compile(self, pkgtuplist):
         """ compile the groups into installed/available groups """

@@ -28,7 +28,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                             PublishSetupEventMixin):
   def __init__(self):
 
-    self.configxpath = 'config'
+    self.configxpath = 'config-rpm'
 
     self.DATA =  {
       'config':    [],
@@ -50,7 +50,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.diff.setup(self.DATA)
 
     # sync compose output, excluding system-config rpm
-    config_rpm=self.cvars['rpmbuild-data']['config']['rpm-path'].split('/')[-1]
+    config_rpm=self.cvars['rpmbuild-data']['config-rpm']['rpm-path'].split('/')[-1]
     paths=self.cvars['os-dir'].findpaths(nglob=config_rpm, 
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:

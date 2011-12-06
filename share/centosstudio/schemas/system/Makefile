@@ -4,7 +4,7 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/usr/share/centosstudio/schemas/system
-	install -pm 644 config.rng $(DESTDIR)/usr/share/centosstudio/schemas/system/config.rng
+	install -pm 644 config-rpm.rng $(DESTDIR)/usr/share/centosstudio/schemas/system/config.rng
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/centosstudio/schemas/system/iso.rng
 	install -pm 644 kickstart.rng $(DESTDIR)/usr/share/centosstudio/schemas/system/kickstart.rng
 	install -pm 644 lib.rng $(DESTDIR)/usr/share/centosstudio/schemas/system/lib.rng

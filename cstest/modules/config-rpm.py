@@ -26,13 +26,13 @@ from cstest          import (BUILD_ROOT, TestBuild, EventTestCase,
 from cstest.core     import make_core_suite
 from cstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
-class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
-  moduleid = 'config'
-  eventid  = 'config'
-  _conf = """<config enabled="true">
+class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
+  moduleid = 'config-rpm'
+  eventid  = 'config-rpm'
+  _conf = """<config-rpm enabled="true">
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </config>"""
+  </config-rpm>"""
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -48,9 +48,9 @@ class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
 
     return repos
 
-class Test_ConfigRpmInputs(ConfigEventTestCase):
+class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
-    ConfigEventTestCase.__init__(self, distro, version, arch, conf=conf)
+    ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
@@ -60,7 +60,7 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
 
     self._add_config(
       """
-      <config enabled="true">
+      <config-rpm enabled="true">
         <files destdir="/etc/testdir">%(working-dir)s/file1</files>
         <files destdir="/etc/testdir" destname="file4">%(working-dir)s/file2</files>
         <files destdir="/etc/testdir" destname="file5" content="text">here is some text</files>
@@ -74,11 +74,11 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
         <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
         <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
         <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">print triggerpostun</trigger>
-      </config>
+      </config-rpm>
       """ % {'working-dir': self.working_dir})
 
   def setUp(self):
-    ConfigEventTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.file1.touch()
     self.file2.touch()
     self.dir1.mkdir()
@@ -89,51 +89,51 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)
-    ConfigEventTestCase.tearDown(self)
+    ConfigRpmEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.file2.rm(force=True)
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config')
+    self.tb.dispatch.execute(until='config-rpm')
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmBuild(ConfigEventTestCase):
+class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
   def setUp(self):
-    ConfigEventTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config')
+    self.tb.dispatch.execute(until='config-rpm')
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigEventTestCase):
+class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    ConfigEventTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config')
+    self.tb.dispatch.execute(until='config-rpm')
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigEventTestCase):
+class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    ConfigEventTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config')
+    self.tb.dispatch.execute(until='config-rpm')
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_OutputsGpgkeys(ConfigEventTestCase):
+class Test_OutputsGpgkeys(ConfigRpmEventTestCase):
   "creates output when gpgcheck enabled"
   def _make_repos_config(self):
-    return ConfigEventTestCase._make_repos_config(self)
+    return ConfigRpmEventTestCase._make_repos_config(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
@@ -146,26 +146,26 @@ class Test_OutputsGpgkeys(ConfigEventTestCase):
     self.failUnless(expected)
     self.failUnless(set(expected) == set(found))
 
-class Test_RemovesGpgkeys(ConfigEventTestCase):
+class Test_RemovesGpgkeys(ConfigRpmEventTestCase):
   "removes output when gpgcheck disabled"
-  _conf = """<config>
+  _conf = """<config-rpm>
     <updates gpgcheck='false'/>
-  </config>"""
+  </config-rpm>"""
 
   def _make_repos_config(self):
-    return ConfigEventTestCase._make_repos_config(self)
+    return ConfigRpmEventTestCase._make_repos_config(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless(not (self.event.SOFTWARE_STORE/'gpgkeys').
                          findpaths())
 
-class Test_ValidateDestnames(ConfigEventTestCase):
+class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
 
-  _conf = """<config>
+  _conf = """<config-rpm>
     <files content="text">test</files>
-  </config>"""
+  </config-rpm>"""
 
   def setUp(self): pass
 
@@ -186,9 +186,9 @@ class Test_ValidateDestnames(ConfigEventTestCase):
     del self.conf
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('config')
+  suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_core_suite(ConfigEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))

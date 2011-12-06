@@ -34,17 +34,17 @@ import yum
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['ConfigEvent'],
+  events      = ['ConfigRpmEvent'],
   description = 'creates a configuration RPM',
   group       = 'rpmbuild',
 )
 
-class ConfigEvent(ConfigEventMixin, Event):
+class ConfigRpmEvent(ConfigEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'config',
+      id = 'config-rpm',
       parentid = 'rpmbuild',
-      version = '1.25',
+      version = '1.26',
       provides = ['rpmbuild-data', 'config-release', 'gpgkeys', 
                   'gpgcheck-enabled', 'os-content'],
       requires = ['input-repos', 'pubkey', 'publish-setup-options'],
@@ -61,12 +61,12 @@ class ConfigEvent(ConfigEventMixin, Event):
 
   def setup(self):
     ConfigEventMixin.setup(self, 
-      webpath=self.cvars['publish-setup-options']['webpath']/'os')
+      webpath=self.cvars['publish-setup-options']['webpath'])
 
   def apply(self):
     self.rpm._apply()
 
-    self.cvars['config-release'] = (self.cvars['rpmbuild-data']['config']
+    self.cvars['config-release'] = (self.cvars['rpmbuild-data']['config-rpm']
                                               ['rpm-release'])
 
     if self.pklfile.exists():

@@ -25,10 +25,8 @@ class DatfileMixin:
 
   def datfile_setup(self):
     self.DATA['variables'].append('datfile_mixin_version')
-    self.datfn = (self._config.getpath(
-                        '/*/config/@datafile-dir', 
-                        self._config.file.dirname) / 
-                        self._config.file.basename + '.dat')
+    self.datfn = (self._config.file.dirname / 
+                  self._config.file.basename + '.dat')
     self.datfn.dirname.mkdirs()
 
     if self.datfn.exists():

@@ -71,9 +71,6 @@ class ReposEvent(RepoEventMixin, Event):
 
     self.setup_repos(updates)
     self.read_repodata()
-    # exclude config rpms in input repos as they will conflict with ours
-    for repo in self.repos.values():
-      repo.exclude.append('system-config') #fragile - see core/rpmbuild/config
 
   def run(self):
     self.sync_repodata()

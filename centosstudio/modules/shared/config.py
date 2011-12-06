@@ -36,15 +36,15 @@ import yum
 
 class ConfigEventMixin(RpmBuildMixin):
   configxpath = '.' # path to config element
-  config_mixin_version = "1.07"
+  config_mixin_version = "1.12"
 
   def __init__(self): # call after creating self.DATA
-    self.DATA['variables'].append('config_mixin_version')
+    self.conditionally_requires.add('packages')
     RpmBuildMixin.__init__(self,
-      'system-config', #if you change this, you must also change core/repos.py
-      "The system-config package provides scripts and supporting files for "
-		  "configuring %s systems." % self.fullname,
-      "%s configuration scripts and supporting files" % self.fullname,
+      'system-config-centosstudio-%s' % self.name,   
+      "The system-config-centosstudio-%s package provides scripts and files " 
+      "for configuring %s systems." % (self.name, self.fullname),
+      "%s system configuration" % self.fullname,
       requires = ['coreutils']
     )
 
@@ -61,16 +61,19 @@ class ConfigEventMixin(RpmBuildMixin):
                       hashlib.md5(self.systemid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
+
     RpmBuildMixin.setup(self, **kwargs)
+    self.rpm.requires.extend(self.add_requires())
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.installdir  = pps.path('/usr/local/system-config')
+    self.installdir  = pps.path('/etc/sysconfig/centosstudio/%s' 
+                                % self.name)
     self.filerelpath = self.installdir/'files'
+    self.srcfiledir  = self.rpm.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
     # add files for synchronization to the build folder
-    self.io.add_xpath(self.configxpath + '/files', 
-                      self.rpm.source_folder // self.filerelpath, 
+    self.io.add_xpath(self.configxpath + '/files', self.srcfiledir, 
                       destdir_fallback = self.filerelpath, 
                       id = 'files')
 
@@ -84,7 +87,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # copies of user-provided scripts and triggers go here for easier 
     # user debugging
-    self.debugdir    = self.rpm.source_folder/'root/.centosstudio'
+    self.debugdir    = self.rpm.source_folder // self.installdir
     self.debug_postfile = self.debugdir/'config-post-script'
 
     # compute input repos text and add to diff variables
@@ -133,17 +136,22 @@ class ConfigEventMixin(RpmBuildMixin):
       path.rm(recursive=True, force=True)
     RpmBuildMixin.run(self)
 
+  def add_requires(self):
+    requires = [ p for p in self.cvars['comps-object'].all_packages 
+                 if p.startswith('system-config-centosstudio-') ]
+    return requires
+
   def generate(self):
     for what in ['files', 'gpgkeys', 'triggers']:
       self.io.process_files(cache=True, callback=self.files_cb, 
                             text=self.files_text, what=what)
 
-    self.files = [ x[len(self.rpm.source_folder // self.filerelpath):] 
+    self.files = [ x[len(self.srcfiledir):] 
                    for x in self.io.list_output(what='files') ]
-    self._generate_files_checksums()
     self._generate_repofile()
     if self.config.getbool(self.configxpath + '/updates/@sync', True):
       self._include_sync_plugin()
+    self._generate_files_checksums()
 
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
@@ -153,7 +161,7 @@ class ConfigEventMixin(RpmBuildMixin):
     lines = []
 
     # compute checksums
-    strip = len(self.rpm.source_folder // self.filerelpath)
+    strip = len(self.srcfiledir)
 
     for file in self.io.list_output(what='files'):
       md5sum = file.checksum(type='md5')
@@ -166,7 +174,7 @@ class ConfigEventMixin(RpmBuildMixin):
     self.DATA['output'].append(md5file)
 
   def _generate_repofile(self):
-    repofile = ( self.rpm.source_folder/'etc/yum.repos.d/system.repo' )
+    repofile = ( self.srcfiledir / 'etc/yum.repos.d/%s.repo' % self.name )
 
     lines = []
     # include system repo
@@ -187,6 +195,7 @@ class ConfigEventMixin(RpmBuildMixin):
       repofile.dirname.mkdirs()
       repofile.write_lines(lines)
 
+      self.files.append(repofile[len(self.srcfiledir):])
       self.DATA['output'].append(repofile)
 
   def _include_sync_plugin(self):
@@ -194,20 +203,23 @@ class ConfigEventMixin(RpmBuildMixin):
     map = { 'masterrepo': self.masterrepo }
 
     # config
-    configfile = self.rpm.source_folder/'etc/yum/pluginconf.d/sync.conf'
+    configfile = (self.srcfiledir / 'etc/yum/pluginconf.d/sync.conf')
     configfile.dirname.mkdirs()
     # hackish - do %s replacement for masterrepo
     configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
+    self.files.append(configfile[len(self.srcfiledir):])
 
     # cronjob
-    #cronfile = self.rpm.source_folder/'etc/cron.daily/sync.cron'
+    #cronfile = (self.srcfiledir / 'etc/cron.daily/sync.cron')
     #cronfile.dirname.mkdirs()
     #cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
+    #self.files.append(cronfile[len(self.srcfiledir):])
 
     # plugin
-    plugin = self.rpm.source_folder/'usr/lib/yum-plugins/sync.py'
+    plugin = (self.srcfiledir / 'usr/lib/yum-plugins/sync.py')
     plugin.dirname.mkdirs()
     plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
+    self.files.append(plugin[len(self.srcfiledir):])
 
   def get_pre(self):
     scripts = [self._mk_pre()]
@@ -354,8 +366,8 @@ class ConfigEventMixin(RpmBuildMixin):
     script = ''
 
     sources = []
-    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
-                         type=pps.constants.TYPE_NOT_DIR):
+    for support_file in self.srcfiledir.findpaths(
+                        type=pps.constants.TYPE_NOT_DIR):
       src = '/' / support_file.relpathfrom(self.rpm.source_folder)
       dst = '/' / src.relpathfrom('/' / self.filerelpath)
 
@@ -363,7 +375,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     script += 'file="%s"' % '\n      '.join(sources)
     script += '\ns=%s\n' % ('/' / self.filerelpath)
-    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
+    script += 'mkdirs=%s/mkdirs\n' % self.installdir
 
     script += '\n'.join([
         '',
@@ -396,7 +408,7 @@ class ConfigEventMixin(RpmBuildMixin):
       ])
 
     # remove md5sums.prev file   
-    script += '\n/bin/rm -f /usr/share/system-config/md5sums.prev\n'
+    script += '\n/bin/rm -f %s/md5sums.prev\n' % self.installdir
     # remove mkdirs file on uninstall
     script += 'if [ $1 -eq 0 ]; then\n'
     script += '  rm -f $mkdirs\n'

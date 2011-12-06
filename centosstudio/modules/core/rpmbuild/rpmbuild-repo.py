@@ -42,10 +42,8 @@ class RpmbuildRepoEvent(Event):
       parentid = 'rpmbuild',
       version = 1.02,
       suppress_run_message = True,
-      requires = ['rpmbuild-data', 'pubkey'],
-      provides = ['repos', 'source-repos',
-                  'required-packages',
-                  'excluded-packages']
+      requires = ['rpmbuild-data', 'pubkey', 'comps-object'],
+      provides = ['repos', 'source-repos', 'comps-object']
     )
 
     self.cid =  '%s' % self.systemid
@@ -133,18 +131,16 @@ class RpmbuildRepoEvent(Event):
   def _populate(self):
     if not self.cvars.has_key('rpmbuild-data'): return
 
-    for v in self.cvars['rpmbuild-data'].values():
-      (self.cvars.setdefault('required-packages', set())
-         .add((v['rpm-name'],
-               v['packagereq-type'],
-               v['packagereq-requires'],
-               v['packagereq-default'])))
-      if v['rpm-obsoletes']:
-        (self.cvars.setdefault('excluded-packages', set())
-          .update(v['rpm-obsoletes']))
+    core_group = self.cvars['comps-object'].return_group('core')
 
-    for v in ['required-packages', 'excluded-packages']:
-      if v in self.cvars: self.cvars[v] = list(self.cvars[v])
+    for v in self.cvars['rpmbuild-data'].values():
+      core_group.add_package( package=v['rpm-name'], 
+                              genre=v['packagereq-type'],
+                              requires=v['packagereq-requires'],
+                              default=v['packagereq-default'])
+      if v['rpm-obsoletes']:
+        for package in v['rpm-obsoletes']:
+          self.cvars['comps-object'].remove_package(package)
 
   def _setup_repos(self, type, updates=None):
 

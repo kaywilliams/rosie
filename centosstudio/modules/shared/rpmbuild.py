@@ -184,10 +184,9 @@ class RpmBuildObject:
 
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')
-    self.fullname = kwargs.get('fullname', self.ptr.fullname)
     self.version  = kwargs.get('version',  self.ptr.version)
 
-    self.ptr.DATA['variables'].extend(['rpm.arch', 'rpm.author', 'rpm.fullname',
+    self.ptr.DATA['variables'].extend(['rpm.name', 'rpm.arch', 'rpm.author', 
                                        'rpm.version'])
 
   def save_release(self):
@@ -229,7 +228,7 @@ class RpmBuildObject:
     spec.add_section(B)
 
     spec.set(B, 'force_arch',        self.arch)
-    spec.set(B, 'distribution_name', self.fullname)
+    spec.set(B, 'distribution_name', self.name)
     spec.set(B, 'release',           self.release)
 
     if self.provides:  spec.set(B, 'provides',  ' '.join(self.provides))

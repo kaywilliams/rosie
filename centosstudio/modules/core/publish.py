@@ -177,7 +177,7 @@ class DeployEvent(DeployEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.webpath = self.cvars['publish-setup-options']['webpath'] / 'os'
+    self.webpath = self.cvars['publish-setup-options']['webpath'] 
     # allowing deploy event to run when the repocreate is disabled for 
     # improved testing performance
     if 'repomd-file' in self.cvars:

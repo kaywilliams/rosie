@@ -94,7 +94,10 @@ class PublishSetupEventMixin(DatfileMixin):
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
-    return remote / self.systemid
+    if self.moduleid == 'publish':
+      return remote / self.systemid / 'os'
+    else:
+      return remote / self.systemid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:

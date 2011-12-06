@@ -27,6 +27,7 @@ from centosstudio.event     import Event
 from centosstudio.cslogging   import L1
 
 from centosstudio.modules.shared.idepsolver import DepsolverMixin
+from centosstudio.util.depsolver.depsolver import DepsolveError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -48,9 +49,8 @@ class DepsolveEvent(Event, DepsolverMixin):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
-      provides = ['pkglist'],
-      requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
-                  'user-required-packages'],
+      provides = ['groupfile', 'pkglist'],
+      requires = ['comps-object', 'repos',  'user-required-packages'],
       conditionally_requires = ['excluded-packages'],
       version = '1.07'
     )
@@ -62,9 +62,7 @@ class DepsolveEvent(Event, DepsolverMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'all-packages\']',
-                    'cvars[\'comps-group-info\']',
-                    'cvars[\'user-required-packages\']',
+      'variables': ['cvars[\'user-required-packages\']',
                     'cvars[\'excluded-packages\']'],
       'input':     [],
       'output':    [],
@@ -73,7 +71,10 @@ class DepsolveEvent(Event, DepsolverMixin):
   def setup(self):
     self.diff.setup(self.DATA)
 
+    self.compsfile = self.mddir/'comps.xml'
     self.pkglistfile = self.mddir / 'pkglist'
+    self.all_packages = self.cvars['comps-object'].all_packages
+    self.DATA['variables'].append('all_packages')
 
     # add relevant input/variable sections
     for repoid, repo in self.cvars['repos'].items():
@@ -87,6 +88,11 @@ class DepsolveEvent(Event, DepsolverMixin):
         self.DATA['input'].append(repo.localurl/subrepo._relpath/'repodata')
 
   def run(self):
+    # write comps.xml
+    self.compsfile.write_text(self.cvars['comps-object'].xml())
+    self.compsfile.chmod(0644)
+    self.DATA['output'].append(self.compsfile)
+
     # create pkglist
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
@@ -95,8 +101,8 @@ class DepsolveEvent(Event, DepsolverMixin):
 
     try:
       pkgs_by_repo = self.resolve() # in DepsolverMixin
-    except yum.Errors.InstallError, e:
-      raise DepsolveError(str(e))
+    except (DepsolveError, yum.Errors.InstallError), e:
+      raise CentOSStudioDepsolveError(str(e))
 
     count = 0
     for tups in pkgs_by_repo.itervalues():
@@ -112,10 +118,20 @@ class DepsolveEvent(Event, DepsolverMixin):
                                 self.depsolve_repo])
 
   def apply(self):
+    # set groupfile cvars
+    self.cvars['groupfile'] = self.compsfile
+    assert_file_has_content(self.cvars['groupfile'])
+
+    # set pkglist cvars
     assert_file_has_content(self.pkglistfile)
     pklfile = open(self.pkglistfile, 'rb')
     self.cvars['pkglist'] = cPickle.load(pklfile)
     pklfile.close()
+
+  def verify_cvar_comps_file(self):
+    "cvars['groupfile'] exists"
+    self.verifier.failUnless(self.cvars['groupfile'].exists(),
+      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
@@ -160,5 +176,5 @@ class InvalidPkglistFormatError(CentOSStudioError):
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class DepsolveError(CentOSStudioError):
+class CentOSStudioDepsolveError(CentOSStudioError):
   message = "Error resolving package dependencies: %(message)s"

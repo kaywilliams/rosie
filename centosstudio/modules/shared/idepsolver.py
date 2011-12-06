@@ -100,7 +100,7 @@ class DepsolverMixin(object):
 
   def _get_old_packages(self):
     old_packages = []
-    difftup = self.diff.variables.difference('cvars[\'all-packages\']')
+    difftup = self.diff.variables.difference('all_packages')
     if difftup:
       prev, curr = difftup
       if ( prev is None or
@@ -112,7 +112,7 @@ class DepsolverMixin(object):
     return old_packages
 
   def _get_required_packages(self):
-    return self.cvars.get('all-packages', [])
+    return self.all_packages
 
   def _get_user_required_packages(self):
     return self.cvars.get('user-required-packages', [])

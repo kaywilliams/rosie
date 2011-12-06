@@ -155,7 +155,8 @@ class DeployEventMixin:
     if 'config-release' in triggers:
       # has the system_config packaged changed?
       if 'config_release' in self.diff.variables.diffdict:
-        self.log(1, L1("system-config package changed, reinstalling"))
+        self.log(1, L1("system-config-%s package changed, reinstalling" 
+                       % self.name))
         return True # reinstall
 
     if 'install-script' in triggers:
@@ -226,14 +227,15 @@ class DeployEventMixin:
       # copy script to remote machine
       self.log(2, L2("copying '%s' to '%s'" % (script, params['hostname'])))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-      if not '.centosstudio' in  sftp.listdir(): 
-        sftp.mkdir('.centosstudio')
-        sftp.chmod('.centosstudio', mode=0750)
-      sftp.put(self.io.list_output(what=script)[0], '.centosstudio/%s' % script)
-      sftp.chmod('.centosstudio/%s' % script, mode=0750)
+      if not 'centosstudio' in  sftp.listdir('/etc/sysconfig'): 
+        sftp.mkdir('/etc/sysconfig/centosstudio')
+        sftp.chmod('/etc/sysconfig/centosstudio', mode=0750)
+      sftp.put(self.io.list_output(what=script)[0], 
+               '/etc/sysconfig/centosstudio/%s' % script)
+      sftp.chmod('/etc/sysconfig/centosstudio/%s' % script, mode=0750)
   
       # execute script
-      cmd = './.centosstudio/%s' % script
+      cmd = '/etc/sysconfig/centosstudio/%s' % script
       self.log(2, L2("executing '%s' on '%s'" % (cmd, params['hostname'])))
       chan = client._transport.open_session()
       chan.exec_command(cmd)

@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import cPickle
 import fnmatch
 
 from centosstudio.util import magic
@@ -38,17 +39,14 @@ class PackagesEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'packages',
-      parentid = 'repocreate',
-      provides = ['groupfile', 'comps-object', 'comps-group-info',
-                  'user-required-packages', 'user-required-groups',
-                  'all-packages'],
+      parentid = 'setup-events',
+      provides = ['comps-object', 'user-required-packages', 
+                  'user-required-groups', 'excluded-packages'],
       requires = ['repos'],
-      conditionally_requires = ['required-packages', 'excluded-packages'],
       version = '1.01'
     )
 
     self.comps = None
-    self.app_gid = '%s-packages' % self.name
 
     self.DATA = {
       'variables': ['fullname'],
@@ -60,8 +58,8 @@ class PackagesEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.comps_out = self.mddir/'comps.xml'
     self.groupfiles = self._get_groupfiles()
+    self.pklfile = self.mddir/'packages.pkl'
 
     # track changes in repo/groupfile relationships
     self.DATA['variables'].append('groupfiles')
@@ -69,54 +67,34 @@ class PackagesEvent(Event):
     # track file changes
     self.DATA['input'].extend([gf for _,gf in self.groupfiles])
 
-    # set required packages and track
-    self.cvars.setdefault('required-packages', [])
-    self.DATA['variables'].append('cvars[\'required-packages\']')
-
     # set excluded packages and track
     self.cvars.setdefault('excluded-packages', [])
-    (self.cvars['excluded-packages']
-        .extend(self.config.xpath('exclude/text()', [])))
+    self.cvars['excluded-packages'].extend(
+        self.config.xpath('exclude/text()', []))
     self.DATA['variables'].append('cvars[\'excluded-packages\']')
 
   def run(self):
     self.io.clean_eventcache(all=True)
 
     self._generate_comps()
-    self.comps_out.write_text(self.comps.xml())
-    self.comps_out.chmod(0644)
-    self.DATA['output'].append(self.comps_out)
+    fo = self.pklfile.open('wb')
+    cPickle.dump(self.comps, fo, -1)
+    self.DATA['output'].append(self.pklfile)
+    fo.close()
 
   def apply(self):
-    # set groupfile control variable
-    self.cvars['groupfile'] = self.comps_out
+    if not self.pklfile.exists(): return
 
-    # set required packages variable
-    assert_file_has_content(self.cvars['groupfile'])
-    GF = comps.Comps()
-    GF.add(self.cvars['groupfile'])
-
-    self.cvars['comps-object'] = GF
-
-    self.cvars.setdefault('comps-group-info', [])
-    self.cvars.setdefault('all-packages', [])
-
-    for group in GF.groups:
-      self.cvars['all-packages'].extend(group.packages)
-
-      gxml = self.config.get('group[text()="%s"]' % group.groupid, None)
-      if gxml is not None:
-        self.cvars['comps-group-info'].append((group.groupid,
-                                         gxml.getbool('@default', True),
-                                         gxml.getbool('@optional', False)))
-      else:
-        self.cvars['comps-group-info'].append((group.groupid, True, False))
+    # read stored comps object 
+    fo = self.pklfile.open('rb')
+    self.cvars['comps-object'] = cPickle.load(fo)
+    fo.close()
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
       self.config.xpath('package/text()', [])
     self.cvars['user-required-groups'] = \
-      self.config.xpath('group/text()', []) + [self.app_gid]
+      self.config.xpath('group/text()', []) 
 
     # set packages-* cvars
     self.cvars['packages-ignoremissing'] = \
@@ -132,16 +110,10 @@ class PackagesEvent(Event):
     self.verifier.failUnless(len(self.io.list_output(what='comps.xml')) < 2,
       "more than one user-specified comps file; using the first one only")
 
-  def verify_cvar_comps_file(self):
-    "cvars['groupfile'] exists"
-    self.verifier.failUnless(self.cvars['groupfile'].exists(),
-      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
-
   def verify_cvars(self):
     "cvars set"
-    for cvar in  ['groupfile', 'comps-object', 'comps-group-info',
-                  'user-required-packages', 'user-required-groups',
-                  'all-packages']:
+    for cvar in  ['comps-object', 'user-required-packages', 
+                  'user-required-groups', ]:
       self.verifier.failUnlessSet(cvar)
 
 
@@ -207,20 +179,6 @@ class PackagesEvent(Event):
     for package in self.config.xpath('package', []):
       core_group.mandatory_packages[package.text] = 1
 
-    # its a shame I have to replicate this code from comps.py
-    for pkgtup in self.cvars['required-packages'] or []:
-      if not isinstance(pkgtup, tuple):
-        pkgtup = (pkgtup, 'mandatory', None, None)
-      package, genre, requires, default = pkgtup
-      if genre == 'mandatory':
-        core_group.mandatory_packages[package] = 1
-      elif genre == 'default':
-        core_group.default_packages[package] = 1
-      elif genre == 'optional':
-        core_group.optional_packages[package] = 1
-      elif genre == 'conditional':
-        core_group.conditional_packages[package] = requires
-
     # make sure a kernel package or equivalent exists
     kfound = False
     for group in self.comps.groups:
@@ -233,11 +191,7 @@ class PackagesEvent(Event):
 
     # remove excluded packages
     for pkg in self.cvars['excluded-packages']:
-      for group in self.comps.groups:
-        for l in [ group.mandatory_packages, group.optional_packages,
-                   group.default_packages, group.conditional_packages ]:
-          for pkgname in fnmatch.filter(l, pkg):
-            del l[pkgname]
+      self.comps.remove_package(pkg)
 
     # create a category
     category = comps.Category()
