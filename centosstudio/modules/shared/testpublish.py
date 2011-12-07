@@ -28,8 +28,6 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                             PublishSetupEventMixin):
   def __init__(self):
 
-    self.configxpath = 'config-rpm'
-
     self.DATA =  {
       'config':    [],
       'input':     [],
@@ -37,7 +35,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       'variables': [],
     }
 
-    ConfigEventMixin.__init__(self)
+    ConfigEventMixin.__init__(self, rpmxpath='/*/config-rpm')
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)

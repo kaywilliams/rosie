@@ -35,11 +35,12 @@ import hashlib
 import yum
 
 class ConfigEventMixin(RpmBuildMixin):
-  configxpath = '.' # path to config element
-  config_mixin_version = "1.12"
+  config_mixin_version = "1.21"
 
-  def __init__(self): # call after creating self.DATA
+  def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
+    self.rpmxpath = rpmxpath or '.'
+
     RpmBuildMixin.__init__(self,
       'system-config-centosstudio-%s' % self.name,   
       "The system-config-centosstudio-%s package provides scripts and files " 
@@ -50,11 +51,12 @@ class ConfigEventMixin(RpmBuildMixin):
 
   def validate(self):
     self.io.validate_destnames([ path for path in 
-      self.config.xpath((self.configxpath + '/files'), [] ) ])
+      self.config.xpath((self.rpmxpath + '/files'), [] ) ])
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             **kwargs):
     self.DATA['variables'].append('config_mixin_version')
+    self.DATA['config'].append(self.rpmxpath)
 
     self.webpath = webpath
     self.masterrepo = '%s-%s' % (self.name, 
@@ -66,19 +68,19 @@ class ConfigEventMixin(RpmBuildMixin):
     self.rpm.requires.extend(self.add_requires())
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.installdir  = pps.path('/etc/sysconfig/centosstudio/%s' 
-                                % self.name)
+    self.rootinstdir = pps.path('/etc/sysconfig/centosstudio')
+    self.installdir  = self.rootinstdir/self.name
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.rpm.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
     # add files for synchronization to the build folder
-    self.io.add_xpath(self.configxpath + '/files', self.srcfiledir, 
+    self.io.add_xpath('files', self.srcfiledir, 
                       destdir_fallback = self.filerelpath, 
                       id = 'files')
 
     # add triggers for synchronization to scripts folder
-    for script in self.config.xpath(self.configxpath + '/trigger', []):
+    for script in self.config.xpath('%s/trigger' % self.rpmxpath, []):
       self.io.add_xpath(self._configtree.getpath(script),
                         self.scriptdir, destname='%s-%s' % (
                         script.get('@type'), script.get('@trigger')), 
@@ -110,7 +112,8 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
-                                     'updates/@gpgcheck', True)
+                                     '%s/updates/@gpgcheck' % self.rpmxpath,
+                                     True)
     self.pklfile = self.mddir/'gpgkeys.pkl'
     self.gpgkey_dir = self.SOFTWARE_STORE/'gpgkeys'
 
@@ -137,21 +140,24 @@ class ConfigEventMixin(RpmBuildMixin):
     RpmBuildMixin.run(self)
 
   def add_requires(self):
-    requires = [ p for p in self.cvars['comps-object'].all_packages 
+    self.extra_requires = [ p for p in self.cvars['comps-object'].all_packages 
                  if p.startswith('system-config-centosstudio-') ]
-    return requires
+    self.DATA['variables'].append('extra_requires')             
+    return self.extra_requires
 
   def generate(self):
     for what in ['files', 'gpgkeys', 'triggers']:
       self.io.process_files(cache=True, callback=self.files_cb, 
                             text=self.files_text, what=what)
 
-    self.files = [ x[len(self.srcfiledir):] 
-                   for x in self.io.list_output(what='files') ]
     self._generate_repofile()
-    if self.config.getbool(self.configxpath + '/updates/@sync', True):
+    if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
+      self.rpm.requires.append('yum')
       self._include_sync_plugin()
     self._generate_files_checksums()
+    self.files =  [ x[len(self.srcfiledir):] 
+                    for x in self.srcfiledir.findpaths(
+                    type=pps.constants.TYPE_NOT_DIR, mindepth=1 )]
 
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
@@ -163,7 +169,7 @@ class ConfigEventMixin(RpmBuildMixin):
     # compute checksums
     strip = len(self.srcfiledir)
 
-    for file in self.io.list_output(what='files'):
+    for file in self.srcfiledir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       md5sum = file.checksum(type='md5')
       lines.append('%s %s' % (md5sum, file[strip:]))
 
@@ -195,7 +201,6 @@ class ConfigEventMixin(RpmBuildMixin):
       repofile.dirname.mkdirs()
       repofile.write_lines(lines)
 
-      self.files.append(repofile[len(self.srcfiledir):])
       self.DATA['output'].append(repofile)
 
   def _include_sync_plugin(self):
@@ -207,19 +212,16 @@ class ConfigEventMixin(RpmBuildMixin):
     configfile.dirname.mkdirs()
     # hackish - do %s replacement for masterrepo
     configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
-    self.files.append(configfile[len(self.srcfiledir):])
 
     # cronjob
     #cronfile = (self.srcfiledir / 'etc/cron.daily/sync.cron')
     #cronfile.dirname.mkdirs()
     #cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
-    #self.files.append(cronfile[len(self.srcfiledir):])
 
     # plugin
     plugin = (self.srcfiledir / 'usr/lib/yum-plugins/sync.py')
     plugin.dirname.mkdirs()
     plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
-    self.files.append(plugin[len(self.srcfiledir):])
 
   def get_pre(self):
     scripts = [self._mk_pre()]
@@ -245,7 +247,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     triggers.append(self._mk_triggerin())
 
-    for elem in self.config.xpath(self.configxpath + '/trigger', []):
+    for elem in self.config.xpath('%s/trigger' % self.rpmxpath, []):
       key   = elem.get('@trigger')
       id    = elem.get('@type')
       inter = elem.get('@interpreter', None)
@@ -373,18 +375,33 @@ class ConfigEventMixin(RpmBuildMixin):
 
       sources.append(dst)
 
-    script += 'file="%s"' % '\n      '.join(sources)
+    script += 'files="%s"' % '\n      '.join(sources)
     script += '\ns=%s\n' % ('/' / self.filerelpath)
     script += 'mkdirs=%s/mkdirs\n' % self.installdir
 
     script += '\n'.join([
         '',
-        'for f in $file; do',
-        '  if [ ! -e $s/$f ]; then',
-        '    if [ -e $f.rpmsave ]; then',
-       '      /bin/mv -f $f.rpmsave $f',
-        '    else',
-        '      /bin/rm -f $f',
+        'for f in $files; do',
+        '  if [ ! -e $s/$f ]; then', #file missing from source folder
+        '    if [ -e $f ]; then',    #file exists on disk
+        '      remove="true"',
+        '      for md5file in `find %s -name md5sums | grep -v %s`' % ( 
+               self.rootinstdir, self.md5file),
+        '      do',
+        '        while read line; do',
+        '          row=($line)',
+        '          if [[ ${row[1]} == $f ]]; then', #file listed in other rpm
+        '            remove="false"',
+        '          fi',
+        '        done < $md5file',
+        '      done',
+        '      if [[ $remove == true ]]; then',
+        '        if [ -e $f.rpmsave ]; then',
+        '          /bin/mv -f $f.rpmsave $f',
+        '        else',
+        '          /bin/rm -f $f',
+        '        fi',
+        '      fi',
         '    fi',
         '  fi',
         'done',
@@ -409,9 +426,9 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # remove md5sums.prev file   
     script += '\n/bin/rm -f %s/md5sums.prev\n' % self.installdir
-    # remove mkdirs file on uninstall
+    # remove per-system folder uninstall
     script += 'if [ $1 -eq 0 ]; then\n'
-    script += '  rm -f $mkdirs\n'
+    script += '  rm -rf %s\n' % self.installdir
     script += 'fi\n'
 
     return script
@@ -442,8 +459,8 @@ class ConfigEventMixin(RpmBuildMixin):
     Also, saves these to a file which is included in the rpm and installed
     to client machines for debugging purposes."""
     scripts = []
-    for elem in self.config.xpath(self.configxpath + '/script[@type="%s"]' 
-                                  % script_type, []):
+    for elem in self.config.xpath('%s/script[@type="%s"]' 
+                                   % (self.rpmxpath, script_type), []):
       scripts.append(elem.text)
 
     if scripts:

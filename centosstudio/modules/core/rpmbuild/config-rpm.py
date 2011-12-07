@@ -52,7 +52,7 @@ class ConfigRpmEvent(ConfigEventMixin, Event):
 
     self.DATA = {
       'variables': ['name', 'fullname', 'rpm.release',],
-      'config':    ['.'],
+      'config':    [], # set by ConfigEventMixin
       'input':     [],
       'output':    [],
     }

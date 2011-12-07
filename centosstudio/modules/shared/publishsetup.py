@@ -84,7 +84,6 @@ class PublishSetupEventMixin(DatfileMixin):
   
   def get_remote(self): 
     self.DATA['config'].append('remote-url')
-    self.DATA['variables'].append('webpath')
     if self.moduleid == 'publish':
       default = 'systems'
     else:

@@ -167,14 +167,17 @@ class RpmBuildObject:
     self.release = self.ptr.datfile.get('/*/rpms/%s/release/text()' %
                                    (self.ptr.id), '0')
 
-    self.obsoletes.extend(self.ptr.config.xpath('obsoletes/text()', []))
+    self.obsoletes.extend(self.ptr.config.xpath('%s/obsoletes/text()' % 
+                          self.ptr.rpmxpath, []))
     self.obsoletes.extend(kwargs.get('obsoletes', []))
 
     self.provides.extend([ x for x in self.obsoletes ])
-    self.requires.extend(self.ptr.config.xpath('provides/text()', []))
+    self.requires.extend(self.ptr.config.xpath('%s/provides/text()' %
+                          self.ptr.rpmxpath, []))
     self.provides.extend(kwargs.get('provides', []))
 
-    self.requires.extend(self.ptr.config.xpath('requires/text()', []))
+    self.requires.extend(self.ptr.config.xpath('%s/requires/text()' %
+                          self.ptr.rpmxpath, []))
     self.requires.extend(kwargs.get('requires', []))
 
     self.ptr.diff.setup(self.ptr.DATA)
@@ -273,7 +276,7 @@ class RpmBuildObject:
     spec.add_section(D)
 
     self.add_data_files(spec, D)
-    self.add_config_files(spec, B)
+    #self.add_config_files(spec, B) #config-rpm manages independently
     self.add_doc_files(spec, B)
 
     f = open(setupcfg, 'w')
