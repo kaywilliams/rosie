@@ -1,10 +1,10 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="system">
+    <element name="solution">
 
       <optional>
-      <element name="test-update">
+      <element name="publish">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -13,11 +13,11 @@
         <interleave>
         <ref name="element-kickstart"/>
         <ref name="content-publish-elements"/>
-        <ref name="content-activate-script-element"/>
-        <ref name="content-delete-script-element"/>
-        <ref name="content-install-script-element"/>
-        <ref name="content-verify-install-script-element"/>
-        <ref name="content-update-script-element"/>
+        <optional><ref name="content-activate-script-element"/></optional>
+        <optional><ref name="content-delete-script-element"/></optional>
+        <optional><ref name="content-install-script-element"/></optional>
+        <optional><ref name="content-verify-install-script-element"/></optional>
+        <optional><ref name="content-update-script-element"/></optional>
         <optional><ref name="content-post-script-element"/></optional>
         </interleave>
 

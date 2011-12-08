@@ -60,7 +60,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     self.webpath = webpath
     self.masterrepo = '%s-%s' % (self.name, 
-                      hashlib.md5(self.systemid).hexdigest()[-6:])
+                      hashlib.md5(self.solutionid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
 

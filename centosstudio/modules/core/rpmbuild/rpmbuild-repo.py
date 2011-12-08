@@ -46,8 +46,8 @@ class RpmbuildRepoEvent(Event):
       provides = ['repos', 'source-repos', 'comps-object']
     )
 
-    self.cid =  '%s' % self.systemid
-    self.csid = '%s-sources' % self.systemid
+    self.cid =  '%s' % self.solutionid
+    self.csid = '%s-sources' % self.solutionid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
