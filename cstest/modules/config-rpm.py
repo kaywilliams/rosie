@@ -215,7 +215,6 @@ class Test_GeneratesSigningKeys(ConfigRpmEventTestCase):
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('config-rpm')
-  print kwargs
 
   suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
