@@ -118,7 +118,7 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
     AutocleanEventTestCase.tearDown(self)
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('autoclean')
 
   # autoclean

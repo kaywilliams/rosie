@@ -26,7 +26,7 @@ class PxebootImagesEventTestCase(EventTestCase):
     "<rpmbuild enabled='false'/>",
   ]
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('pxeboot-images')
 
   suite.addTest(make_core_suite(PxebootImagesEventTestCase, distro, version, arch))

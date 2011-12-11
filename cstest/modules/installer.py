@@ -29,7 +29,7 @@ class InstallerEventTestCase(EventTestCase):
   ]
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('installer')
 
   # installer

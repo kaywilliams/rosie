@@ -80,7 +80,7 @@ class PublishEventTestCase(EventTestCase):
                                        ['localpath'])
     EventTestCase.tearDown(self)
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('publish')
 
   # publish-setup

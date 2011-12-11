@@ -61,7 +61,7 @@ class Test_KickstartFailsOnInvalidInput(PublishSetupEventTestCase):
      self.failUnlessRaises(CentOSStudioError, self.event)
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')
 
   # setup

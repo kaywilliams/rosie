@@ -105,7 +105,7 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
     self.failUnless(len(self.event.cvars['rpms']) == 
                     len(set(rpm.basename for rpm in self.event.cvars['rpms'])))
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('download')

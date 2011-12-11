@@ -34,7 +34,7 @@ class Test_CompsFile(RepomdEventTestCase):
     self.failUnlessExists(self.event.SOFTWARE_STORE / 'repodata' /
                           self.event.cvars['groupfile'].basename)
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repomd')
 
   suite.addTest(make_core_suite(RepomdEventTestCase, distro, version, arch))

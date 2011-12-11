@@ -57,7 +57,7 @@ class Test_Installclasses(_ProductImageEventTestCase):
 ## TODO - need a test case to check that installclass has the correct
 ## groups selected - specifically, when comps is enabled
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('product-image')
 
   suite.addTest(make_core_suite(ProductImageEventTestCase, distro, version, arch))

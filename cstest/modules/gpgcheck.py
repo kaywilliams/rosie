@@ -92,7 +92,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     self.failUnlessRaises(CentOSStudioError, self.event)
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('gpgcheck')
 
   suite.addTest(make_core_suite(GpgcheckEventTestCase, distro, version, arch))

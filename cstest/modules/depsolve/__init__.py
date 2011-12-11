@@ -420,7 +420,7 @@ class Test_MandatoryVsOptional(DepsolveEventTestCase):
     self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('mandatory') ]) != 1)
     self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('optional') ]) != 0)
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname)
 
   suite = ModuleTestSuite('depsolve')

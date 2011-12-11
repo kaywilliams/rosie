@@ -22,7 +22,7 @@ from centosstudio.validate import InvalidConfigError
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
-                            ModuleTestSuite)
+                            ModuleTestSuite, PUBKEY, SECKEY)
 from cstest.core     import make_core_suite
 from cstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
@@ -30,9 +30,13 @@ class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'
   eventid  = 'config-rpm'
   _conf = """<config-rpm enabled="true">
+    <gpgsign>
+      <public>%s</public>
+      <secret>%s</secret>
+    </gpgsign>
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </config-rpm>"""
+  </config-rpm>""" % (PUBKEY, SECKEY)
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -61,6 +65,10 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self._add_config(
       """
       <config-rpm enabled="true">
+        <gpgsign>
+          <public>%(pubkey)s</public>
+          <secret>%(seckey)s</secret>
+        </gpgsign>
         <files destdir="/etc/testdir">%(working-dir)s/file1</files>
         <files destdir="/etc/testdir" destname="file4">%(working-dir)s/file2</files>
         <files destdir="/etc/testdir" destname="file5" content="text">here is some text</files>
@@ -75,7 +83,9 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
         <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
         <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">print triggerpostun</trigger>
       </config-rpm>
-      """ % {'working-dir': self.working_dir})
+      """ % {'working-dir': self.working_dir, 
+             'pubkey': PUBKEY, 
+             'seckey': SECKEY})
 
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
@@ -149,8 +159,12 @@ class Test_OutputsGpgkeys(ConfigRpmEventTestCase):
 class Test_RemovesGpgkeys(ConfigRpmEventTestCase):
   "removes output when gpgcheck disabled"
   _conf = """<config-rpm>
+    <gpgsign>
+      <public>%s</public>
+      <secret>%s</secret>
+    </gpgsign>
     <updates gpgcheck='false'/>
-  </config-rpm>"""
+  </config-rpm>""" % (PUBKEY, SECKEY)
 
   def _make_repos_config(self):
     return ConfigRpmEventTestCase._make_repos_config(self)
@@ -164,8 +178,12 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
 
   _conf = """<config-rpm>
+    <gpgsign>
+      <public>%s</public>
+      <secret>%s</secret>
+    </gpgsign>
     <files content="text">test</files>
-  </config-rpm>"""
+  </config-rpm>""" % (PUBKEY, SECKEY)
 
   def setUp(self): pass
 
@@ -185,8 +203,19 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
     del self.tb
     del self.conf
 
-def make_suite(distro, version, arch):
+class Test_GeneratesSigningKeys(ConfigRpmEventTestCase):
+  "Generates signing keys"
+  _conf = """<config-rpm/>"""
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    xpath = '/*/rpms/%s' % self.event.id
+    self.failUnless(self.datfile.get('%s/pubkey' % xpath, None) is not None and
+                    self.datfile.get('%s/seckey' % xpath, None) is not None) 
+
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('config-rpm')
+  print kwargs
 
   suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
@@ -196,5 +225,7 @@ def make_suite(distro, version, arch):
   suite.addTest(Test_OutputsGpgkeys(distro, version, arch))
   suite.addTest(Test_RemovesGpgkeys(distro, version, arch))
   suite.addTest(Test_ValidateDestnames(distro, version, arch))
+  if not kwargs['skip_genkey_tests']:
+    suite.addTest(Test_GeneratesSigningKeys(distro, version, arch))
 
   return suite

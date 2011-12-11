@@ -23,7 +23,7 @@ class ComposeTestCase(EventTestCase):
   eventid  = 'compose'
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('compose')
 
   suite.addTest(make_core_suite(ComposeTestCase, distro, version, arch))

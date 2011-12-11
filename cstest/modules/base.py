@@ -22,7 +22,7 @@ class BaseInfoEventTestCase(EventTestCase):
   moduleid = 'base'
   eventid  = 'base-info'
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('base')
 
   suite.addTest(make_core_suite(BaseInfoEventTestCase, distro, version, arch))

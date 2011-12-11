@@ -22,7 +22,7 @@ class RepocreateEventTestCase(EventTestCase):
   moduleid = 'repocreate'
   eventid  = 'repocreate'
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repocreate')
 
   suite.addTest(make_core_suite(RepocreateEventTestCase, distro, version, arch))

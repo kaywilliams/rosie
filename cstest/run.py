@@ -41,6 +41,7 @@ opt_defaults = dict(
   libpath   = [],
   sharepath = [],
   clear_test_cache = True,
+  skip_genkey_tests = False,
 )
 
 def reconstruct_cmd(options):
@@ -60,6 +61,8 @@ def reconstruct_cmd(options):
   # the rest of these all imply their own defaults, so they don't need testing
   if not options.clear_test_cache:
     cmd += ['--no-clear-cache']
+  if options.skip_genkey_tests:
+    cmd += ['--skip-genkey-tests']
   if options.mainconfigpath:
     cmd += ['--distro-conf', options.mainconfigpath]
   for path in options.libpath:

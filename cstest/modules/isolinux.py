@@ -28,7 +28,7 @@ class IsolinuxTestCase(EventTestCase):
     "<config-rpm enabled='false'/>",
   ]
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('isolinux')
 
   suite.addTest(make_core_suite(IsolinuxTestCase, distro, version, arch))

@@ -29,7 +29,7 @@ class Test_NoDefaults(RpmbuildRepoTestCase):
     self.failIf('everything' in self.event.repos)
     self.failIf('updates'    in self.event.repos)
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild-repo')
 
   suite.addTest(make_core_suite(RpmbuildRepoTestCase, distro, version, arch))

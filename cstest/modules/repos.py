@@ -70,7 +70,7 @@ class Test_RepoDefaults(ReposEventTestCase):
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
     self.failUnless(self.event.repos['base'].mirrorlist is None)
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repos')
 
   suite.addTest(make_core_suite(ReposEventTestCase, distro, version, arch))

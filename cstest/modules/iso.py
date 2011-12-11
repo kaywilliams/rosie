@@ -150,7 +150,7 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
     self.do_defaults = True
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('iso')
 
   # pkgorder

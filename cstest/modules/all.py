@@ -22,7 +22,7 @@ class AllEventTestCase(EventTestCase):
   moduleid = 'all'
   eventid  = 'all'
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('all')
   suite.addTest(make_core_suite(AllEventTestCase, distro, version, arch))
 

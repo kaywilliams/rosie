@@ -370,7 +370,7 @@ def make_logger(logfile, threshold):
   logfile = logger.Logger(threshold=2, file_object=logfile) #! write eventhing to file
   return EventTestLogContainer([console, logfile])
 
-def make_suite(distro, version, arch='i386'):
+def make_suite(distro, version, arch='i386', *args, **kwargs):
   suite = unittest.TestSuite()
 
   for module in pps.path('modules').findpaths(mindepth=1, maxdepth=1):

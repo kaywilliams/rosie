@@ -34,7 +34,7 @@ class OSEventTestCase(EventTestCase):
   eventid  = 'os-events'
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('init')
 
   # init

@@ -96,6 +96,12 @@ def parse_cmd_args(defaults=None):
     action='store_false',
     help='don\'t clear event cache when done testing')
 
+  parser.add_option('--skip-genkey-tests',
+    dest='skip_genkey_tests',
+    default=False,
+    action='store_true',
+    help='don\'t run tests that generate a signing key')
+
   parser.set_defaults(**(defaults or {}))
 
   return parser.parse_args(sys.argv[1:])
@@ -130,7 +136,8 @@ def main():
     mod = imp.load_module('test-%s' % modname, fp, p, d)
     suite.addTest(mod.make_suite(distro=options.distro,
                                  version=options.version,
-                                 arch=options.basearch))
+                                 arch=options.basearch,
+                                 skip_genkey_tests=options.skip_genkey_tests))
   finally:
     fp and fp.close()
 

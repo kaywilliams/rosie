@@ -23,7 +23,7 @@ class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'
   eventid  = 'packages'
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('packages')
 
   suite.addTest(make_core_suite(PackagesEventTestCase, distro, version, arch))

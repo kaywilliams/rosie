@@ -65,7 +65,7 @@ class Test_Kickstart(_InitrdImageEventTestCase):
     self.ksfile.remove()
 
 
-def make_suite(distro, version, arch):
+def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('initrd-image')
 
   suite.addTest(make_core_suite(InitrdImageEventTestCase, distro, version, arch))
