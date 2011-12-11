@@ -85,3 +85,5 @@ class DiffObject:
     for handler in self.handlers.values():
       if handler.difference(): return True
     return False
+
+

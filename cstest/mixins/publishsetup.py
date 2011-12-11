@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from centosstudio.util.rxml import tree
+from centosstudio.util.rxml import datfile
 
 from cstest      import EventTestCase, decorate
 from cstest.core import CoreTestSuite
@@ -66,7 +66,7 @@ def PSMTest_Password(self):
   return self
 
 def saved(self, xpath):
-  return tree.parse(self.event.datfn).getroot().get(
+  return datfile.parse(self.event._config.file).getroot().get(
                                      '/*/%s/%s' % (self.moduleid, xpath), '')
 
 def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):

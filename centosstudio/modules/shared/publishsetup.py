@@ -25,12 +25,11 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.modules.shared import DatfileMixin, uElement
-
 from centosstudio.util import pps
+from centosstudio.util.rxml import datfile
 
 # Include this mixin in any event that requires hostname and password 
-class PublishSetupEventMixin(DatfileMixin):
+class PublishSetupEventMixin:
   publish_mixin_version = "1.00"
 
   def __init__(self):
@@ -39,7 +38,7 @@ class PublishSetupEventMixin(DatfileMixin):
 
     # doing everything in init so that we can define macros
     # prior to validation
-    DatfileMixin.datfile_setup(self)
+    self.datfile = datfile.parse(basefile=self._config.file) 
 
     self.DATA['variables'].append('publish_mixin_version')
 
@@ -193,7 +192,9 @@ class PublishSetupEventMixin(DatfileMixin):
     return crypt(password, salt)
 
   def write_datfile(self):
-    root = self.datfile.get('/*')
+    root = self.datfile
+    uElement = datfile.uElement
+
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
@@ -217,7 +218,7 @@ class PublishSetupEventMixin(DatfileMixin):
       if elem.text == None: elem.getparent().remove(elem)
     if len(parent) == 0: parent.getparent().remove(parent)
 
-    root.write(self.datfn, self._config.file)
+    root.write()
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like

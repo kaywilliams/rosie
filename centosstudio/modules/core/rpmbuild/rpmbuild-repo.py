@@ -42,7 +42,8 @@ class RpmbuildRepoEvent(Event):
       parentid = 'rpmbuild',
       version = 1.02,
       suppress_run_message = True,
-      requires = ['rpmbuild-data', 'pubkey', 'comps-object'],
+      requires = ['rpmbuild-data', 'comps-object'],
+      conditionally_requires = ['gpgsign'],
       provides = ['repos', 'source-repos', 'comps-object']
     )
 
@@ -53,8 +54,9 @@ class RpmbuildRepoEvent(Event):
     self.RPMBUILD_SRPMS = self.mddir/self.csid
 
     self.DATA = {
-      'input':  [],
-      'output': [],
+      'input':     [],
+      'output':    [],
+      'variables': [],
     }
 
     self.repos = RepoContainer()
@@ -62,7 +64,11 @@ class RpmbuildRepoEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.DATA['input'].append(self.cvars['pubkey'])
+    if 'gpgsign' in self.cvars:
+      self.pubkey = self.cvars['gpgsign']['pubkey']
+      self.DATA['input'].append(self.cvars['gpgsign']['pubkey'])
+    else:
+      self.pubkey = ''
 
     if self.cvars['rpmbuild-data']:
       for id in self.cvars['rpmbuild-data'].keys():
@@ -73,7 +79,7 @@ class RpmbuildRepoEvent(Event):
 
       rpmbuild_rpms  = CentOSStudioRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
-                              gpgkey='file://'+self.cvars['pubkey'],)
+                              gpgkey='file://%s' % self.pubkey,)
       rpmbuild_srpms = CentOSStudioRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.RPMBUILD_SRPMS)
 

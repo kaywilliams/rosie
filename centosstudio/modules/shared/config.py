@@ -40,6 +40,7 @@ class ConfigEventMixin(RpmBuildMixin):
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
     self.rpmxpath = rpmxpath or '.'
+    self.conditionally_requires.add('gpgsign')
 
     RpmBuildMixin.__init__(self,
       'system-config-centosstudio-%s' % self.name,   
@@ -120,9 +121,14 @@ class ConfigEventMixin(RpmBuildMixin):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    for repo in (self.cvars['repos'].values() +
-                 # using a dummy repo since rpmbuild repo not yet created
-                 [YumRepo(id='dummy', gpgkey=self.cvars['pubkey'])]):
+    # setup gpgkeys
+    repos = self.cvars['repos'].values()
+    if 'gpgsign' in self.cvars: 
+      repos = (repos +
+              # using a dummy repo since rpmbuild repo not yet created
+               [YumRepo(id='dummy', gpgkey=self.cvars['gpgsign']['pubkey'])])
+
+    for repo in repos:
       for url in repo.gpgkey:
         try:
           self.io.add_fpath(url,

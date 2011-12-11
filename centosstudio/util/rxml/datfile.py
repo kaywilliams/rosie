@@ -18,59 +18,63 @@
 
 import lxml
 
-from centosstudio.util import rxml
+from centosstudio.util import pps
+from centosstudio.util.rxml import config, tree
 
-class DatfileMixin:
-  datfile_mixin_version = "1.00"
-
-  def datfile_setup(self):
-    self.DATA['variables'].append('datfile_mixin_version')
-    self.datfn = (self._config.file.dirname / 
-                  self._config.file.basename + '.dat')
-    self.datfn.dirname.mkdirs()
-
-    if self.datfn.exists():
-      self.datfile = parse(self.datfn).getroot().get('/*')
-    else:
-      self.datfile = Element('data')
-
-class DatfileElement(rxml.config.ConfigElement):
+class DatfileElement(config.ConfigElement):
   "An element in a Datfile XML tree."
 
-  def write(self, datfn, configfn):
-    rxml.config.ConfigElement.write(self, datfn)
+  def write(self):
+    datfn = self.file
+    configfn = datfn[:-len('.dat')]
+
+    config.ConfigElement.write(self, datfn)
 
     if configfn.exists():
-      # set the mode and ownership of .dat file to match definition file.
+      # set the mode and ownership of .dat file to match basefile.
       st = configfn.stat()
       datfn.chown(st.st_uid, st.st_gid)
       datfn.chmod(st.st_mode)
 
-class DatfileTreeSaxHandler(rxml.config.ConfigTreeSaxHandler):
+class DatfileTreeSaxHandler(config.ConfigTreeSaxHandler):
   def __init__(self, makeelement=None):
-    rxml.config.ConfigTreeSaxHandler.__init__(self, makeelement=makeelement)
+    config.ConfigTreeSaxHandler.__init__(self, makeelement=makeelement)
 
 #--------FACTORY FUNCTIONS--------#
 PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=True)
 PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(
                              element=DatfileElement, 
-                             comment=rxml.tree.XmlTreeComment))
+                             comment=tree.XmlTreeComment))
 
 def Element(name, parent=None, text=None, attrs=None, parser=PARSER, **kwargs):
-  t = rxml.tree.Element(name, parent=parent, text=text, attrs=attrs,
+  t = tree.Element(name, parent=parent, text=text, attrs=attrs,
                          parser=parser, **kwargs)
   if text is None: t.text = None
   return t
 
 def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
-  t =  rxml.tree.uElement(name, parent=parent, text=text, attrs=attrs,
+  t = tree.uElement(name, parent=parent, text=text, attrs=attrs,
                            parser=parser, **kwargs)
   if text is None: t.text = None
   return t
 
-def parse(file, handler=None, parser=PARSER):
-  datfile = rxml.tree.parse(file,
+def parse(basefile, handler=None, parser=PARSER):
+  """Accepts a base filename and parses a corresponding '.dat' file, creating
+the datfile if necessary"""
+
+  pps.path(basefile)
+  datfn = (basefile.dirname / basefile.basename + '.dat')
+  datfn.dirname.mkdirs()
+
+  if datfn.exists():
+    datfile = tree.parse(datfn,
                        handler or DatfileTreeSaxHandler(parser.makeelement),
-                       parser=parser)
+                       parser=parser).getroot()
+
+  else:
+    datfile = Element('data')
+
+  datfile.file = datfn
+
   return datfile
 

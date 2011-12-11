@@ -19,10 +19,9 @@
 import paramiko
 import select
 import signal
+import subprocess 
 import sys
 import traceback
-
-import subprocess as sub
 
 from centosstudio.cslogging import L0, L1, L2
 from centosstudio.errors import CentOSStudioError
@@ -199,7 +198,7 @@ class DeployEventMixin:
     cmd = self.io.list_output(what=script)[0]
     if not self.scripts[script]['ssh']: 
     # run cmd on the local machine
-      r = sub.call(cmd, shell=True)
+      r = subprocess.call(cmd, shell=True)
       if r != 0:
         raise ScriptFailedError(script=script)
       return

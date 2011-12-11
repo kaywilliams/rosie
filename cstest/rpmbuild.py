@@ -48,7 +48,7 @@ class RpmBuildMixinTestCase(object):
       ts = rpm.TransactionSet()
       ts.initDB()
       ts.pgpImportPubkey(yum.misc.procgpgkey(
-                         self.event.cvars['pubkey'].read_text()))
+                         self.event.cvars['gpgsign']['pubkey'].read_text()))
       fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)

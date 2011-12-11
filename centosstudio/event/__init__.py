@@ -111,7 +111,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
             self.log(1, L0('%s' % self.id))
           self.run()
           t_run = time.time()
-          self.postrun() ## FIXME: this is ugly
+          self.postrun() 
         else:
           t_run = t_setup # we didn't run run()
       self.clean_eventcache()

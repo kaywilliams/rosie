@@ -25,6 +25,14 @@
         </element>
         </optional>
 
+        <optional>
+        <element name="gpgsign">
+          <element name="public"><text/></element>
+          <element name="secret"><text/></element>
+          <optional><element name="secret"><text/></element></optional>
+        </element>
+        </optional>
+
         <zeroOrMore>
         <element name="files">
           <ref name="attribute-destdir-absolute"/>

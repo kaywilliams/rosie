@@ -92,6 +92,9 @@ class EventTestCase(unittest.TestCase):
     repos = self._make_repos_config()
     if repos is not None: top.append(repos)
 
+    config_rpm  = self._make_config_rpm_config()
+    if config_rpm is not None: top.append(config_rpm)
+
     gpgcheck = self._make_gpgcheck_config()
     if gpgcheck is not None: top.append(gpgcheck)
 
@@ -130,6 +133,14 @@ class EventTestCase(unittest.TestCase):
     repos.append(base.toxml())
 
     return repos
+
+  def _make_config_rpm_config(self):
+    config_rpm = config.Element('config-rpm')
+    gpgsign = config.Element('gpgsign', parent=config_rpm)
+    config.Element('public', parent=gpgsign, text=PUBKEY)
+    config.Element('secret', parent=gpgsign, text=SECKEY)
+
+    return config_rpm
 
   def _make_gpgcheck_config(self):
     gpgcheck = config.Element('gpgcheck', attrs={'enabled': 'false'})
@@ -195,14 +206,17 @@ class EventTestCase(unittest.TestCase):
   def _runEvent(self, event):
     "paired down duplicate of Event.execute()"
     ran = False
-    event.setup()
-    if not event.skipped:
+    if event.skipped:
+      event.setup()
+    else:
       if event.forced:
         event.clean()
+      event.setup()
       if event.check():
         event.run()
         event.postrun()
         ran = True
+    event.clean_eventcache()
     event.apply()
     event.verify()
     return ran
@@ -395,3 +409,54 @@ def _run_make(dir):
   os.chdir(dir)
   shlib.execute('make')
   os.chdir(cwd)
+
+PUBKEY = """-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+mQGiBE7iLHkRBACbHdCzgO5Jac4LRbQwKoX+1ltYHrvvc/WsnhuPN5HXhvkPTA+/
+rbsCxm8oqzP5puu7rimcnZkHN7pN/8uKj5Vd7EbaVNSWUg7rfhDlxg/KxDAnXPuI
+JBhER92JfU0y5D1SOb4SmSJ32E79zrDVFt0XFlOP6biwFS/RGHRJxzjGlwCgnOcN
+AYveV6pXd8Ec9OX6Lea+46sD/289sU6VeSg9KruXM67LjDei/P8aDAGsABdhq57F
+L7eOcWewZ0UZDQh1zSB+r0DoWF6rpj7oQ/yRWoHWXgFfUX8tL5AV7HuNmsxAfvy/
+/xBs8YVgBxieeiWrBGxcBQRdXZDSSOz2WYExir5y4/ehn3Upn5WKeUqkP5uAsQkB
+XFOyA/wOOd4azDKd0uouLgluJbqYMSlRDoigNbHWVPAM3PvZdusgzP2JO91IxCHD
+JeCpZWgfN29g8py66PkXg7EfsisQqVO3/42me96Tqb/77Y8kSbubWQ4uVQd5YB8z
+0sGT71S6NrAnhqyqs7toMjUGO5JuMfnP/hgITk967nV5jZowX7QQdGVzdCBzaWdu
+aW5nIGtleYhgBBMRAgAgBQJO4ix5AhsjBgsJCAcDAgQVAggDBBYCAwECHgECF4AA
+CgkQyubdJwqXVrONfQCfUS5Qb14tm2ADjxLoZRuYtEpn9WsAoJwnvOfR7XE/Qjqq
+s6JooAwdguR6uQENBE7iLHoQBACvveBthapADqBic6ijcQbt1Hb6E/9HAwxubRpj
+yl0g8uC1ZxfcQKJ1GT983Bx/okvP73olKOxV1xnlpT7DV+6EYucIGVyW55mrxI3H
+P7o1Ox1wvh7fP/pm6Yf//OLF9lFUh3h0/mYziqAaf0L/Vm3aWu9Hl02IJToVifAC
+GemE7wADBQQAovTMQ5k8RG1k5jCUqRV280FKInE24M/75YbNXwdTkGfp9pl1ceNJ
+1vhlZg3JuHnZ0uw0p3la7WUCut0afy7vCRQPD4g8E57vfBFzOpiifXbEP5VHa37e
+hY3hoknv0N3UP7EjWxUoifSi1VsV8WMHcJVxKgu6//oXsHQ6GSypR1aISQQYEQIA
+CQUCTuIsegIbDAAKCRDK5t0nCpdWs0DuAKCXthQjeX5H4DL9sZUkxk+k4wiHtgCf
+TBefZqqYtL+kacCEgCIYH2Fhm0I=
+=9xNj
+-----END PGP PUBLIC KEY BLOCK-----"""
+
+SECKEY = """-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+lQG7BE7iLHkRBACbHdCzgO5Jac4LRbQwKoX+1ltYHrvvc/WsnhuPN5HXhvkPTA+/
+rbsCxm8oqzP5puu7rimcnZkHN7pN/8uKj5Vd7EbaVNSWUg7rfhDlxg/KxDAnXPuI
+JBhER92JfU0y5D1SOb4SmSJ32E79zrDVFt0XFlOP6biwFS/RGHRJxzjGlwCgnOcN
+AYveV6pXd8Ec9OX6Lea+46sD/289sU6VeSg9KruXM67LjDei/P8aDAGsABdhq57F
+L7eOcWewZ0UZDQh1zSB+r0DoWF6rpj7oQ/yRWoHWXgFfUX8tL5AV7HuNmsxAfvy/
+/xBs8YVgBxieeiWrBGxcBQRdXZDSSOz2WYExir5y4/ehn3Upn5WKeUqkP5uAsQkB
+XFOyA/wOOd4azDKd0uouLgluJbqYMSlRDoigNbHWVPAM3PvZdusgzP2JO91IxCHD
+JeCpZWgfN29g8py66PkXg7EfsisQqVO3/42me96Tqb/77Y8kSbubWQ4uVQd5YB8z
+0sGT71S6NrAnhqyqs7toMjUGO5JuMfnP/hgITk967nV5jZowXwAAnA12xL8lKygY
+avXfoZC4hAHepi0VCaS0EHRlc3Qgc2lnbmluZyBrZXmIYAQTEQIAIAUCTuIseQIb
+IwYLCQgHAwIEFQIIAwQWAgMBAh4BAheAAAoJEMrm3ScKl1azjX0An1EuUG9eLZtg
+A48S6GUbmLRKZ/VrAKCcJ7zn0e1xP0I6qrOiaKAMHYLkep0BMgRO4ix6EAQAr73g
+bYWqQA6gYnOoo3EG7dR2+hP/RwMMbm0aY8pdIPLgtWcX3ECidRk/fNwcf6JLz+96
+JSjsVdcZ5aU+w1fuhGLnCBlclueZq8SNxz+6NTsdcL4e3z/6ZumH//zixfZRVId4
+dP5mM4qgGn9C/1Zt2lrvR5dNiCU6FYnwAhnphO8AAwUEAKL0zEOZPERtZOYwlKkV
+dvNBSiJxNuDP++WGzV8HU5Bn6faZdXHjSdb4ZWYNybh52dLsNKd5Wu1lArrdGn8u
+7wkUDw+IPBOe73wRczqYon12xD+VR2t+3oWN4aJJ79Dd1D+xI1sVKIn0otVbFfFj
+B3CVcSoLuv/6F7B0OhksqUdWAAD5AfL1s+wz653stZOKhxMX1S9gbq4A9nQesx45
+o2iyjegR7ohJBBgRAgAJBQJO4ix6AhsMAAoJEMrm3ScKl1azQO4An3vR7ZjQ80tD
+MkKc5Q91TmwC5A7jAJ9jvRPHOVwYC+sHFL4mOt/9XVaFdg==
+=k9wN
+-----END PGP PRIVATE KEY BLOCK-----"""

@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import config
+import datfile
 import imerge
 import merge
 import serialize
@@ -23,6 +24,7 @@ import tree
 
 __all__ = [
  'config',
+ 'datfile',
  'imerge',
  'merge',
  'serialize',

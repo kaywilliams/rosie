@@ -27,16 +27,16 @@ from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared import DatfileMixin, uElement 
+from centosstudio.util.rxml import datfile 
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
-class RpmBuildMixin(DatfileMixin):
+class RpmBuildMixin:
   def __init__(self, *args, **kwargs):
     self.rpm = RpmBuildObject(self, *args,**kwargs)
 
   def setup(self, **kwargs):
-    DatfileMixin.datfile_setup(self)
+    self.datfile = datfile.parse(basefile=self._config.file)
     self.rpm.setup_build(**kwargs)
 
   def run(self):
@@ -66,9 +66,10 @@ class RpmBuildMixin(DatfileMixin):
     except mkrpm.rpmbuild.RpmBuilderException, e:
       raise RpmBuildFailedException(message=str(e))
 
-    self.log(4, L1("signing %s-%s-%s.%s.rpm" % \
-                   (R.name, R.version, R.release, R.arch)))
-    R.sign()
+    if 'gpgsign' in self.cvars:
+      self.log(4, L1("signing %s-%s-%s.%s.rpm" % \
+                     (R.name, R.version, R.release, R.arch)))
+      R.sign()
 
     R.save_release()
     self.DATA['output'].append(R.rpm_path)
@@ -114,6 +115,7 @@ class RpmBuildObject:
                packagereq_type='mandatory', packagereq_default=None,
                packagereq_requires=None):
     self.ptr = ptr
+    self.ptr.conditionally_requires.add('gpgsign')
 
     self.desc    = desc
     self.name    = name
@@ -182,8 +184,11 @@ class RpmBuildObject:
 
     self.ptr.diff.setup(self.ptr.DATA)
 
-    self.ptr.DATA['input'].extend([self.ptr.cvars['pubkey'], 
-                                   self.ptr.cvars['seckey']])
+    if 'gpgsign' in self.ptr.cvars:
+      self.gpgsign = self.ptr.cvars['gpgsign'] # convenience variable
+      self.ptr.DATA['input'].extend([self.gpgsign['pubkey'], 
+                                     self.gpgsign['seckey']])
+      self.ptr.DATA['variables'].append('cvars[\'gpgsign\'][\'passphrase\']')
 
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')
@@ -193,13 +198,14 @@ class RpmBuildObject:
                                        'rpm.version'])
 
   def save_release(self):
-    root = self.ptr.datfile.get('/*')
+    root = self.ptr.datfile
+    uElement = datfile.uElement
 
     rpms     = uElement('rpms', parent=root)
     parent   = uElement(self.ptr.id, parent=rpms)
     release  = uElement('release', parent=parent, text=self.release)
 
-    root.write(self.ptr.datfn, self.ptr._config.file)
+    root.write()
 
   def check_release(self):
     if ( self.release == '0' or
@@ -313,9 +319,10 @@ class RpmBuildObject:
     if doc: spec.set(section, 'doc_files', '\n\t'.join(doc))
 
   def sign(self):
-    mkrpm.signRpms([self.rpm_path], public=self.ptr.cvars['pubkey'], 
-                   secret=self.ptr.cvars['seckey'], 
-                   passphrase='', working_dir=self.ptr.TEMP_DIR)
+    mkrpm.signRpms([self.rpm_path], public=self.gpgsign['pubkey'], 
+                   secret=self.gpgsign['seckey'], 
+                   passphrase=self.gpgsign['passphrase'], 
+                   working_dir=self.ptr.TEMP_DIR)
 
   def _apply(self):
     rpmbuild_data = {}
