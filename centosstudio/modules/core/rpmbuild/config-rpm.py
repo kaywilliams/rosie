@@ -160,7 +160,7 @@ class ConfigRpmEvent(ConfigEventMixin, Event):
 
     name = "%s signing key" % self.solutionid
 
-    cmd = """gpg --batch --gen-key <<EOF
+    cmd = """gpg --quiet --batch --gen-key <<EOF
      Key-Type: DSA
      Key-Length: 1024
      Subkey-Type: ELG-E
