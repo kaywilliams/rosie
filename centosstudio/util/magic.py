@@ -59,6 +59,8 @@ FILE_TYPE_SQUASHFS = 'application/x-squashfs'
 FILE_TYPE_EXT2FS   = 'application/x-linux-ext2fs'
 FILE_TYPE_CPIO     = 'application/x-cpio'
 FILE_TYPE_GPGKEY   = 'application/x-gpg-key'
+FILE_TYPE_GPGPUBKEY = 'application/x-gpg-key'
+FILE_TYPE_GPGSECKEY = 'application/x-gpg-key'
 FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
 FILE_TYPE_FAT      = 'FAT filesystem'
 FILE_TYPE_JPG      = 'JPEG image data'
@@ -87,6 +89,10 @@ magic = {
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070701'),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070702'),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070707')],
+  FILE_TYPE_GPGPUBKEY:[(
+    0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP PUBLIC')],
+  FILE_TYPE_GPGSECKEY:[(
+    0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP PRIVATE')],
   FILE_TYPE_GPGKEY:   [(0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP')],
   FILE_TYPE_LSS:      [(0,    TYPE_LONG,   ENDIAN_LITTLE, 0x1413f33d)],
   FILE_TYPE_FAT:      [(510,  TYPE_SHORT,  ENDIAN_LITTLE, 43605L)], # 0xAA55

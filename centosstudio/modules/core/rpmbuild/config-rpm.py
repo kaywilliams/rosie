@@ -128,7 +128,7 @@ class ConfigRpmEvent(ConfigEventMixin, Event):
     if self.config.get('gpgsign/passphrase/text()', None) is None:
       self.passphrase=''
     else:
-      self.passphrase = self.config.get('gpgsign/passphrase')
+      self.passphrase = str(self.config.get('gpgsign/passphrase/text()'))
 
     # remove generated keys from datfile, if exist
     for key in ['pubkey', 'seckey']:
@@ -199,8 +199,9 @@ EOF""" % (name, pubring, secring)
 
   def validate_keys(self, map):
     for key in map:
-      if not magic.match(key) == magic.FILE_TYPE_GPGKEY:
-        raise InvalidKeyError(map.value())
+      if not magic.match(key) == eval(
+        'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
+        raise InvalidKeyError(map[key])
 
 class InvalidKeyError(CentOSStudioError):
   message = "The %(type)s key provided does not appear to be valid."
