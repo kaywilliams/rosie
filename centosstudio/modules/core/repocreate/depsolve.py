@@ -52,7 +52,7 @@ class DepsolveEvent(Event, DepsolverMixin):
       provides = ['groupfile', 'pkglist'],
       requires = ['comps-object', 'repos',  'user-required-packages'],
       conditionally_requires = ['excluded-packages'],
-      version = '1.07'
+      version = '1.08'
     )
 
     DepsolverMixin.__init__(self)

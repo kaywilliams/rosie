@@ -360,9 +360,10 @@ class IDepsolver(Depsolver):
 
     pos = Depsolver.getPackageObjects(self, unresolved=unresolved)
 
-    f = self.cached_file.open('wb')
-    cPickle.dump(self.resolved_deps, f, -1)
-    f.close()
+    # hack to disable incremental depsolve, much cleanup remains
+    #f = self.cached_file.open('wb')
+    #cPickle.dump(self.resolved_deps, f, -1)
+    #f.close()
 
     return pos
 
