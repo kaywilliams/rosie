@@ -23,6 +23,7 @@ from centosstudio.util import difftest
 from centosstudio.util import pps
 
 from centosstudio.util.depsolver import Depsolver
+from centosstudio.util.depsolver.depsolver import DepsolveError
 
 from centosstudio.callback import PkglistCallback, TimerCallback
 from centosstudio.cslogging  import L1
@@ -59,7 +60,7 @@ class DepsolverMixin(object):
   def resolve(self):
     self._create_repoconfig()
 
-    solver = IDepsolver(
+    solver = CentOSStudioDepsolver(
       all_packages = self.all_packages,
       required = self.user_required,
       config = str(self.depsolve_repo),
@@ -96,7 +97,7 @@ class DepsolverMixin(object):
     self.depsolve_repo.write_lines(conf)
 
 
-class IDepsolver(Depsolver):
+class CentOSStudioDepsolver(Depsolver):
   def __init__(self, all_packages=None, required=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):
@@ -132,7 +133,7 @@ class IDepsolver(Depsolver):
     retcode, errors = self.resolveDeps()
 
     if retcode == 1:
-      raise RuntimeError(errors)
+      raise DepsolveError('\n--> '.join(errors))
 
     return [ x.po for x in self.tsInfo.getMembers() ]
 

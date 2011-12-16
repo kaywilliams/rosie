@@ -238,85 +238,8 @@ class Test_MultipleGroupfiles(_PackagesEventTestCase):
     # still need to check that 'base-x' contains all packages listed in #!
     # both 'base' and 'livna' groupfiles in 'base-x' group #!
 
-
-class Test_DepsolveBug84_1(DepsolveEventTestCase):
-  "Bug 84 #1: Force 'depsolve' without base group"
-  caseid = 'bug84_1'
-  clean  =  True
-
-class Test_DepsolveBug84_2(DepsolveEventTestCase):
-  "Bug 84 #2: Run 'depsolve' with base group"
-  "with base group"
-  _conf = """<packages>
-    <group>base</group>
-  </packages>"""
-  caseid = 'bug84_2'
-
-class Test_DepsolveBug84_3(DepsolveEventTestCase):
-  "Bug 84 #3: Run 'depsolve' without base group"
-  caseid = 'bug84_3'
-
-  def runTest(self):
-    DepsolveEventTestCase.runTest(self)
-    count1 = self.getPkglistCount('bug84_1')
-    count2 = self.getPkglistCount('bug84_3')
-    self.failUnless(count1 == count2,
-      "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
-
-class Test_DepsolveBug85_1(DepsolveEventTestCase):
-  "Bug 85 #1: Force 'depsolve' without updates repository"
-  caseid = 'bug85_1'
-  clean  = True
-
-class Test_DepsolveBug85_2(DepsolveEventTestCase):
-  "Bug 85 #2: Run 'depsolve' with updates repository"
-  caseid = 'bug85_2'
-  repos = ['base', 'updates']
-
-class Test_DepsolveBug85_3(DepsolveEventTestCase):
-  "Bug 85 #3: Run 'depsolve' without updates repository"
-  caseid = 'bug85_3'
-
-  def runTest(self):
-    DepsolveEventTestCase.runTest(self)
-    count1 = self.getPkglistCount('bug85_1')
-    count2 = self.getPkglistCount('bug85_3')
-    self.failUnless(count1 == count2, "bug85_1: %d packages; bug85_3: %d packages" % \
-                    (count1, count2))
-
-class Test_DepsolveBug163_1(DepsolveEventTestCase):
-  "Bug 163 #1: Newer package is not the desired package"
-  _conf = """<packages>
-    <package>depsolve-bug163-req</package>
-  </packages>"""
-  caseid = 'bug163_1'
-  clean  = True
-
-  def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
-
-    repos.append(rxml.config.Element('repofile',
-                 text='/tmp/cstest/depsolve-test-repos4.repo'))
-    return repos
-
-  def runTest(self):
-    DepsolveEventTestCase.runTest(self)
-    self.failUnless('depsolve-bug163-prov-1.0-1.noarch.rpm' in self.getPkgFiles())
-    self.failIf('depsolve-bug163-prov-2.0-1.noarch.rpm' in self.getPkgFiles())
-
-class Test_Supplied(DummyDepsolveEventTestCase):
-  "Package list file is supplied"
-  _conf = "<depsolve>depsolve/depsolve</depsolve>"
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='depsolve')
-    depsolve_in  = (pps.path(__file__).abspath().dirname.dirname /
-                   self.event.config.get('text()')).read_lines()
-    depsolve_out = self.event.cvars['pkglist']
-    self.failUnlessEqual(sorted(depsolve_in), sorted(depsolve_out))
-
 class Test_PackageAdded(DepsolveEventTestCase):
-  "Misc. Test #1: Package Added"
+  "Package Added"
   _conf = """<packages>
     <package>depsolve-test-package1</package>
   </packages>"""
@@ -336,7 +259,7 @@ class Test_PackageAdded(DepsolveEventTestCase):
     self.failUnless('depsolve-test-package1-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ObsoletedPackage(DepsolveEventTestCase):
-  "Misc. Test #2: Package obsoleted"
+  "Package obsoleted"
   _conf = """<packages>
     <package>depsolve-test-package2</package>
   </packages>"""
@@ -359,7 +282,7 @@ class Test_ObsoletedPackage(DepsolveEventTestCase):
     self.failIf('depsolve-test-package1-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_RemovedPackage(DepsolveEventTestCase):
-  "Misc. Test #3: Package removed"
+  "Package removed"
   caseid = 'pkgremoved'
 
   def runTest(self):
@@ -367,7 +290,7 @@ class Test_RemovedPackage(DepsolveEventTestCase):
     self.failIf('depsolve-test-package2-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ExclusivePackage_1(DepsolveEventTestCase):
-  "Misc. Test #4: A package is required by only one other package..."
+  "A package is required by only one other package..."
   _conf = """<packages>
     <package>depsolve-test-package3</package>
   </packages>"""
@@ -387,7 +310,7 @@ class Test_ExclusivePackage_1(DepsolveEventTestCase):
     self.failUnless('depsolve-test-package4-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ExclusivePackage_2(DepsolveEventTestCase):
-  "Misc. Test #4 (contd.): ...and it should go away now"
+  "...and it should go away now"
   caseid = 'exclusive_2'
 
   def setUp(self):
@@ -398,27 +321,28 @@ class Test_ExclusivePackage_2(DepsolveEventTestCase):
     self.failIf('depsolve-test-package3-1.0-1.noarch.rpm' in self.getPkgFiles())
     self.failIf('depsolve-test-package4-1.0-1.noarch.rpm' in self.getPkgFiles())
 
-class Test_MandatoryVsOptional(DepsolveEventTestCase):
-  """Ensure that if a mandatory package provides something that is also
-     provided by an optional package, the optional package is only
-     selected if it provides something else that no other package does."""
+class Test_ConflictingPackages(DepsolveEventTestCase):
+  "error with conflicting packages"
+  caseid = 'conflicting_package'
   _conf = """<packages>
-    <group>core</group>
+    <package>package1</package>
+    <package>package2</package>
   </packages>"""
-  clean = True
 
   def _make_repos_config(self):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/cstest/depsolve-test-repos5.repo'))
-
+                 text='/tmp/cstest/depsolve-test-repos6.repo'))
     return repos
 
+  def setUp(self):
+    DepsolveEventTestCase.setUp(self)
+
   def runTest(self):
-    self.tb.dispatch.execute(until='depsolve')
-    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('mandatory') ]) != 1)
-    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('optional') ]) != 0)
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
 
 def make_suite(distro, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname)
@@ -435,25 +359,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_GroupsByRepo(distro, version, arch))
   ##suite.addTest(Test_MultipleGroupfiles(distro, version, arch))
 
-  # bug 84
-  bug84 = ModuleTestSuite('depsolve')
-  bug84.addTest(Test_DepsolveBug84_1(distro, version, arch))
-  bug84.addTest(Test_DepsolveBug84_2(distro, version, arch))
-  bug84.addTest(Test_DepsolveBug84_3(distro, version, arch))
-  suite.addTest(bug84)
-
-  # bug 85
-  bug85 = ModuleTestSuite('depsolve')
-  bug85.addTest(Test_DepsolveBug85_1(distro, version, arch))
-  bug85.addTest(Test_DepsolveBug85_2(distro, version, arch))
-  bug85.addTest(Test_DepsolveBug85_3(distro, version, arch))
-  suite.addTest(bug85)
-
-  # bug 163
-  bug163 = ModuleTestSuite('depsolve')
-  bug163.addTest(Test_DepsolveBug163_1(distro, version, arch))
-  suite.addTest(bug163)
-
   # package added, obsoleted, and removed
   suite.addTest(Test_PackageAdded(distro, version, arch))
   suite.addTest(Test_ObsoletedPackage(distro, version, arch))
@@ -464,7 +369,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_ExclusivePackage_1(distro, version, arch))
   suite.addTest(Test_ExclusivePackage_2(distro, version, arch))
 
-  # optional packages only included if absolutely necessary
-  suite.addTest(Test_MandatoryVsOptional(distro, version, arch))
+  # conflicting packages
+  suite.addTest(Test_ConflictingPackages(distro, version, arch))
 
   return suite

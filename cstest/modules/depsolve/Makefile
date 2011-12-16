@@ -1,4 +1,5 @@
-all : depsolve-test-repos1.repo depsolve-test-repos2.repo depsolve-test-repos3.repo depsolve-test-repos4.repo depsolve-test-repos5.repo
+all : depsolve-test-repos1.repo depsolve-test-repos2.repo depsolve-test-repos3.repo depsolve-test-repos4.repo depsolve-test-repos5.repo depsolve-test-repos6.repo
+
 
 depsolve-test-repos1.repo: depsolve-test-repos1.xml
 	buildrepos --config-file depsolve-test-repos1.xml \
@@ -20,6 +21,11 @@ depsolve-test-repos5.repo: depsolve-test-repos5.xml
 	buildrepos --config-file depsolve-test-repos5.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos5.repo
 
+depsolve-test-repos6.repo: depsolve-test-repos6.xml
+	buildrepos --config-file depsolve-test-repos6.xml \
+	--repo-file /tmp/cstest/depsolve-test-repos6.repo
+
 clean :
 	rm -rf repo1; rm -rf repo2; rm -rf repo3; \
-	rm -rf repo4; rm -rf repo5; rm -f depsolve-test-*.repo
+	rm -rf repo4; rm -rf repo5; rm -rf repo6; \
+	rm -f depsolve-test-*.repo

@@ -26,7 +26,7 @@ from centosstudio.errors    import assert_file_has_content, CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging   import L1
 
-from centosstudio.modules.shared.idepsolver import DepsolverMixin
+from centosstudio.modules.shared.depsolver import DepsolverMixin
 from centosstudio.util.depsolver.depsolver import DepsolveError
 
 MODULE_INFO = dict(
@@ -175,4 +175,5 @@ class InvalidPkglistFormatError(CentOSStudioError):
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
 class CentOSStudioDepsolveError(CentOSStudioError):
-  message = "Error resolving package dependencies: %(message)s"
+  message = ( "Error(s) resolving package dependencies: \n"
+              "--> %(message)s" )

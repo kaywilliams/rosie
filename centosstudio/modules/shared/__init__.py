@@ -19,8 +19,8 @@ from centosstudio.util import listcompare
 
 from centosstudio.modules.shared.bootoptions  import *
 from centosstudio.modules.shared.deploy       import *
+from centosstudio.modules.shared.depsolver    import *
 from centosstudio.modules.shared.installer    import *
-from centosstudio.modules.shared.idepsolver   import *
 from centosstudio.modules.shared.kickstart    import *
 from centosstudio.modules.shared.publishsetup import *
 from centosstudio.modules.shared.repomd       import *
