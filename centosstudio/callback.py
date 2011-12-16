@@ -230,7 +230,7 @@ class BuildDepsolveCallback(object):
     logger  : the logger object to which output should be written
     """
     self.logger = logger
-    self.loop = 1
+    self.loop = 0
     self.count = 0
     self.grpcount = 0 # current group number
     self.grptotal = 0 # total number of groups
@@ -251,7 +251,7 @@ class BuildDepsolveCallback(object):
       self.bar = None
 
   def start(self):
-    pass
+    self.loop += 1
 
   def groupAdded(self, desc):
     """
@@ -268,7 +268,7 @@ class BuildDepsolveCallback(object):
     self.logger.log(2, L1('group %d/%d (%s)' % (self.grpcount, self.grptotal, desc)))
 
   def tscheck(self, unresolved=0):
-    self.count = unresolved
+    self.count = unresolved 
     if self.logger.test(2):
       msg = 'loop %d (%d package%s)' % (self.loop, self.count, self.count != 1 and 's' or '')
       self.bar = ProgressBar(size=self.count, title=L2(msg),
@@ -292,16 +292,44 @@ class BuildDepsolveCallback(object):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
+      self.bar = None
 
 
 class PkglistCallback(BuildDepsolveCallback):
+  """
+  Much simplified version of BuildDepsolveCallback - no loop processing status
+  bar. Depsolving is much, much faster in EL6, so less need for status.
+  Eventually, we should simplify BuilDepsolveCallback as well.
+  """
   def __init__(self, logger, reqpkgs=None):
     BuildDepsolveCallback.__init__(self, logger)
     self.reqpkgs = reqpkgs or []
     self.obsoletes = []
 
+  def start(self):
+    self.loop += 1
+    if self.logger.test(2):
+      msg = 'resolving package dependencies'
+      self.bar = ProgressBar(title=L1(msg),
+                             layout=LAYOUT_TIMER,
+                             throttle=10)
+      self.bar.start()
+
+  def tscheck(self):
+    pass
+
+  def pkgAdded(self, pkgtup=None, state=None):
+    pass
+    
+  def restartLoop(self):
+    self.loop += 1
+
   def end(self):
-    BuildDepsolveCallback.end(self)
+    if self.logger.test(2):
+      self.bar.finish()
+      self.bar = None
+      self.logger.logfile.log(2, str(self.bar))
+
     if self.obsoletes:
       warnings = []
       for o, n in [ (x[0], y[0]) for x, y in self.obsoletes ]:
@@ -318,6 +346,12 @@ class PkglistCallback(BuildDepsolveCallback):
 
   def foundObsolete(self, old, new):
     self.obsoletes.append((old, new))
+
+  def procReq(self, name, formatted_req):
+    pass
+
+  def procConflict(self, name, confname):
+    pass    
 
 class TimerCallback(object):
   def __init__(self, logger):

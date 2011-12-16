@@ -50,8 +50,8 @@ class DepsolveEvent(Event, DepsolverMixin):
       id = 'depsolve',
       parentid = 'repocreate',
       provides = ['groupfile', 'pkglist'],
-      requires = ['comps-object', 'repos',  'user-required-packages'],
-      conditionally_requires = ['excluded-packages'],
+      requires = ['repos'], #extended in Depsolver mixin
+      conditionally_requires = [], # set in Depsolver Mixin
       version = '1.08'
     )
 
@@ -62,19 +62,17 @@ class DepsolveEvent(Event, DepsolverMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'user-required-packages\']',
-                    'cvars[\'excluded-packages\']'],
+      'variables': [],
       'input':     [],
       'output':    [],
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
+    DepsolverMixin.setup(self)
 
     self.compsfile = self.mddir/'comps.xml'
     self.pkglistfile = self.mddir / 'pkglist'
-    self.all_packages = self.cvars['comps-object'].all_packages
-    self.DATA['variables'].append('all_packages')
 
     # add relevant input/variable sections
     for repoid, repo in self.cvars['repos'].items():

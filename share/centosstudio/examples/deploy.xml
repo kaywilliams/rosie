@@ -39,7 +39,7 @@ virt-install --name %{hostname} --ram 1000 \
 <verify-install-script>
 #!/bin/bash
 if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
-  grep -v "NOKEY$" /root/install.log | \
+  grep -v "NOKEY" /root/install.log | \
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
   grep -v "^Installing "
   exit 1

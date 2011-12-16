@@ -58,7 +58,7 @@ class DeployEventMixin:
     self.scripts = {
              'activate-script': dict(ssh=False,
                               enabled = False),
-             'delete-script': dict(message='running clean script',
+             'delete-script': dict(message='running delete script',
                               enabled = False,
                               ssh=False),
              'install-script': dict(message='running install script',
