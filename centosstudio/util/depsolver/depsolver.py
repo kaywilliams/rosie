@@ -73,6 +73,85 @@ class CentOSStudioYum(yum.YumBase):
   def doLoggingSetup(self, *args, **kwargs): pass
   def getDownloadPkgs(self, *args, **kwargs): pass
 
+  def getBestAvailablePackages(self, name, ver=None, rel=None, arch=None, epoch=None,
+                               **kwargs):
+    """
+    Returns the list of best available packages that meet the
+    parameters to this method.  The second return value is a boolean;
+    this value is True if the package providing the @param=name
+    doesn't have the same name as @param=name.
+    """
+    pkgs = self.pkgSack.searchNevra(
+             name = name,
+             ver = ver,
+             rel = rel,
+             arch = arch,
+             epoch = epoch
+           )
+    if pkgs:
+      pkgSack = yum.packageSack.ListPackageSack(pkgs)
+    else:
+      # If the search for the package return nothing, search for what
+      # provides it because the requirement might be provided by
+      # something that doesn't have the same name as the requirement.
+      pkgSack = self.whatProvides(name, kwargs.get('flag', 'EQ'), (epoch, ver, rel))
+
+    pkgs = pkgSack.returnNewestByName()
+
+    # yum version 3.0.1 returns a list of lists in returnNewestByName()
+    pkgsflat = []
+    for pkg in pkgs:
+      if type(pkg) == type([]):
+        pkgsflat.extend(pkg)
+      else:
+        pkgsflat.append(pkg)
+    pkgs = pkgsflat
+
+    del pkgSack
+
+    pkgbyname = {}
+    for pkg in pkgs:
+      pkgbyname.setdefault(pkg.name, []).append(pkg)
+
+    lst = []
+    for pkgs in pkgbyname.values():
+      lst.extend(self.bestPackagesFromList(pkgs, arch=self.archstr))
+    pkgs = lst
+
+    # give preference to packages with matching names
+    name_matches = []
+    for pkg in pkgs: 
+      if pkg.name == name:
+        name_matches.append(pkg)
+    if name_matches:
+      pkgs = name_matches
+
+    return pkgs 
+
+  def getBestAvailablePackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
+    pkgs = self.getBestAvailablePackages(
+             name = name,
+             ver = ver,
+             rel = rel,
+             arch = arch,
+             epoch = epoch
+           )
+    if pkgs:
+      return pkgs[0]
+    else:
+      return None
+
+  def install(self, po=None, name=None, **kwargs):
+    if po is None and name is None:
+      raise yum.Errors.InstallError("nothing specified to install")
+    if not po:
+      po = self.getBestAvailablePackage(name=name, arch=self.arch)
+      if isinstance(po, yum.packages.YumAvailablePackage):
+        return yum.YumBase.install(self, po=po)
+      else:
+        if name in self.required:
+          raise yum.Errors.InstallError("No packages provide '%s'" % name)
+
   def teardown(self):
     self.close()
     self.closeRpmDB()
@@ -89,7 +168,7 @@ class CentOSStudioYum(yum.YumBase):
 
 class Depsolver(CentOSStudioYum):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
-               arch=None, callback=None):
+               arch=None, required=None, callback=None):
 
     CentOSStudioYum.__init__(self,
       config = str(config),
@@ -101,6 +180,8 @@ class Depsolver(CentOSStudioYum):
     self.resolved_deps = {}
     self.deps = {}
     self.final_pkgobjs = {}
+    self.arch = arch
+    self.required = required
 
   def getPackageDeps(self, txmbr, errors):
     return_list = []

@@ -105,9 +105,11 @@ class CentOSStudioDepsolver(Depsolver):
       config = str(config),
       root = str(root),
       arch = arch,
+      required = required,
       callback = PkglistCallback(logger, reqpkgs=required)
     )
     self.all_packages = all_packages
+    self.arch = arch
     self.required = required
     self.logger = logger
 
@@ -119,16 +121,7 @@ class CentOSStudioDepsolver(Depsolver):
     else:           inscb = None
 
     for package in self.all_packages:
-      try:
-        self.install(pattern=package)
-      except TypeError, e:
-        # silly yum bug
-        if str(e) == (
-          "returnPackages() got an unexpected keyword argument 'patterns'"):
-          self.failIfRequired(package)
-        else: raise
-      except yum.Errors.InstallError, e:
-        self.failIfRequired(package) 
+      self.install(name=package)
 
     retcode, errors = self.resolveDeps()
 
@@ -136,7 +129,3 @@ class CentOSStudioDepsolver(Depsolver):
       raise DepsolveError('\n--> '.join(errors))
 
     return [ x.po for x in self.tsInfo.getMembers() ]
-
-  def failIfRequired(self, package):
-    if package in self.required:
-      raise yum.Errors.InstallError("No packages provide '%s'" % package)
