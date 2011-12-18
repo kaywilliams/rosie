@@ -145,12 +145,11 @@ class CentOSStudioYum(yum.YumBase):
     if po is None and name is None:
       raise yum.Errors.InstallError("nothing specified to install")
     if not po:
-      po = self.getBestAvailablePackage(name=name, arch=self.arch)
-      if isinstance(po, yum.packages.YumAvailablePackage):
-        return yum.YumBase.install(self, po=po)
-      else:
-        if name in self.required:
-          raise yum.Errors.InstallError("No packages provide '%s'" % name)
+      po = self.getBestAvailablePackage(name=name, arch=self.archstr)
+    if isinstance(po, yum.packages.YumAvailablePackage):
+      return yum.YumBase.install(self, po=po)
+    else:
+      raise yum.Errors.InstallError("No packages provide '%s'" % name)
 
   def teardown(self):
     self.close()
@@ -168,7 +167,7 @@ class CentOSStudioYum(yum.YumBase):
 
 class Depsolver(CentOSStudioYum):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
-               arch=None, required=None, callback=None):
+               arch=None, callback=None):
 
     CentOSStudioYum.__init__(self,
       config = str(config),
@@ -180,8 +179,6 @@ class Depsolver(CentOSStudioYum):
     self.resolved_deps = {}
     self.deps = {}
     self.final_pkgobjs = {}
-    self.arch = arch
-    self.required = required
 
   def getPackageDeps(self, txmbr, errors):
     return_list = []

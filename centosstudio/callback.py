@@ -301,10 +301,8 @@ class PkglistCallback(BuildDepsolveCallback):
   bar. Depsolving is much, much faster in EL6, so less need for status.
   Eventually, we should simplify BuilDepsolveCallback as well.
   """
-  def __init__(self, logger, reqpkgs=None):
+  def __init__(self, logger):
     BuildDepsolveCallback.__init__(self, logger)
-    self.reqpkgs = reqpkgs or []
-    self.obsoletes = []
 
   def start(self):
     self.loop += 1
@@ -329,23 +327,6 @@ class PkglistCallback(BuildDepsolveCallback):
       self.bar.finish()
       self.bar = None
       self.logger.logfile.log(2, str(self.bar))
-
-    if self.obsoletes:
-      warnings = []
-      for o, n in [ (x[0], y[0]) for x, y in self.obsoletes ]:
-        if o not in self.reqpkgs:
-          # We were smart about getting a newer package for something
-          # that is not a required package. We don't want to print any
-          # warnings in this case.
-          continue
-        warnings.append("Warning: No package '%s' found in any of the input repositories. "
-          "However, the '%s' package obsoletes '%s'. Replace '%s' with '%s' in your "
-          "<packages> section to resolve this warning." % (o, n, o, o, n))
-      if warnings:
-        self.logger.log(0, '\n'.join(warnings))
-
-  def foundObsolete(self, old, new):
-    self.obsoletes.append((old, new))
 
   def procReq(self, name, formatted_req):
     pass

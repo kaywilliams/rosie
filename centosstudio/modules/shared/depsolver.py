@@ -62,7 +62,7 @@ class DepsolverMixin(object):
 
     solver = CentOSStudioDepsolver(
       all_packages = self.all_packages,
-      required = self.user_required,
+      user_required = self.user_required,
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
       arch = self.arch,
@@ -98,19 +98,17 @@ class DepsolverMixin(object):
 
 
 class CentOSStudioDepsolver(Depsolver):
-  def __init__(self, all_packages=None, required=None,
+  def __init__(self, all_packages=None, user_required=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):
     Depsolver.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,
-      required = required,
-      callback = PkglistCallback(logger, reqpkgs=required)
+      callback = PkglistCallback(logger)
     )
     self.all_packages = all_packages
-    self.arch = arch
-    self.required = required
+    self.user_required = user_required
     self.logger = logger
 
   def setup(self):
@@ -121,7 +119,11 @@ class CentOSStudioDepsolver(Depsolver):
     else:           inscb = None
 
     for package in self.all_packages:
-      self.install(name=package)
+      try:
+        self.install(name=package)
+      except yum.Errors.InstallError:
+        if package in self.user_required:
+          raise yum.Errors.InstallError("No packages provide '%s'" % package)
 
     retcode, errors = self.resolveDeps()
 

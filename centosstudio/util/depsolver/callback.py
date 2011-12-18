@@ -64,5 +64,3 @@ class DepSolverCallback:
     print "Populating transaction set with selected packages. Please wait."
   def downloadHeader(self, name):
     print "Downloading header for %s to pack into transaction set" % name
-  def foundObsolete(self, old, new):
-    print "WARNING: %s is now provided by %s" % (old, new)
