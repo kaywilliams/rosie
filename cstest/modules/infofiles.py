@@ -24,6 +24,7 @@ class BuildstampEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
+    "<config-rpm enabled='false'/>",
   ]
 
 class DiscinfoEventTestCase(EventTestCase):
@@ -32,6 +33,7 @@ class DiscinfoEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
+    "<config-rpm enabled='false'/>",
   ]
 
 class TreeinfoEventTestCase(EventTestCase):
@@ -40,6 +42,7 @@ class TreeinfoEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
+    "<config-rpm enabled='false'/>",
   ]
 
 def make_suite(distro, version, arch, *args, **kwargs):

@@ -29,6 +29,7 @@ class BootisoEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
+    "<config-rpm enabled='false'/>",
   ]
 
 class _BootisoEventTestCase(BootOptionsMixinTestCase, BootisoEventTestCase):

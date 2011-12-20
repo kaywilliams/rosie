@@ -83,7 +83,9 @@ class CentOSStudioValidationHandler:
       if self.definition.pathexists(eid):
         tle_elements.add(eid)
 
-    self._verify_tle_elements(tle_elements.union(self.disabled_modules))
+    expected_elements = tle_elements.union(self.disabled_modules)
+    expected_elements.add('all')
+    self._verify_tle_elements(expected_elements)
 
     # allow events to validate other things not covered in schemas
     for event in self.dispatch:

@@ -26,7 +26,8 @@ class InstallerEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
-  ]
+    "<config-rpm enabled='false'/>",
+    ]
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

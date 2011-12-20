@@ -27,7 +27,8 @@ class ProductImageEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
-  ]
+    "<config-rpm enabled='false'/>",
+    ]
 
 class _ProductImageEventTestCase(ImageModifyMixinTestCase,
                                  ProductImageEventTestCase):

@@ -15,8 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from cstest      import EventTestCase, ModuleTestSuite
+import unittest
+
+from cstest      import EventTestCase, ModuleTestSuite, TestBuild
 from cstest.core import make_core_suite
+
+from centosstudio.validate import InvalidConfigError
 
 class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
@@ -26,15 +30,14 @@ class Test_NoBase(ReposEventTestCase):
   "without base-info and repos sections, raises RuntimeError"
   _conf = ["<base/>","<repos/>"]
 
+  def setUp(self): pass
+
   def runTest(self):
-    try:
-      self.tb.dispatch.execute(until='repos')
-      # we actually get a runtime error earlier than repos (installer, atm)
-    except RuntimeError:
-      return
-    # if we don't raise a runtime error, we have to fail
-    self.fail()
-    ##self.failUnlessRaises(RuntimeError, self.event)
+    unittest.TestCase.failUnlessRaises(self, InvalidConfigError,
+      TestBuild, self.conf, self.options, [])
+
+  def tearDown(self):
+    del self.conf
 
 class Test_RepoDefaults(ReposEventTestCase):
   "defaults defined in repos section are used"

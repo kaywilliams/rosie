@@ -28,6 +28,7 @@ class InitrdImageEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
+    "<config-rpm enabled='false'/>",
   ]
 
 class _InitrdImageEventTestCase(ImageModifyMixinTestCase,

@@ -128,7 +128,7 @@ class EventTestCase(unittest.TestCase):
                                            arch=self.arch,
                                            include_baseurl=True,
                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
+    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None})
 
     repos.append(base.toxml())
 
