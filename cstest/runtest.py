@@ -41,7 +41,8 @@ opt_defaults = dict(
   disabled_modules = [],
   list_modules = False,
   list_events = False,
-  no_validate = True,
+  no_validate = False,
+  validate_only = False,
   clear_cache = False,
   debug = True,
 )

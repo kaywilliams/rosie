@@ -22,7 +22,6 @@ from centosstudio.util.repo import YumRepo
 
 from centosstudio.event        import Event
 from centosstudio.event.fileio import MissingXpathInputFileError 
-from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.modules.shared import (RpmBuildMixin, 
                                           Trigger, 

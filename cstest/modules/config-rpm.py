@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import unittest
+
 from centosstudio.errors   import CentOSStudioError
 from centosstudio.util     import pps
 from centosstudio.util     import repo
@@ -234,7 +236,6 @@ class Test_RemovesGpgkeys(ConfigRpmEventTestCase):
 
 class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
-
   _conf = """<config-rpm>
     <gpgsign>
       <public>%s</public>
@@ -246,19 +247,10 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    self.tb = TestBuild(self.conf, self.options, [])
-    # can't get unittest.TestCase.failUnlessRaises to work so, sigh, 
-    # here's a copy of the code...
-    try:
-      self.tb.validate_configs()
-    except InvalidConfigError:
-      return
-    else: 
-      raise self.failureException, "InvalidConfigError not raised"
+    unittest.TestCase.failUnlessRaises(self, InvalidConfigError, 
+      TestBuild, self.conf, self.options, [])
 
   def tearDown(self):
-    self.tb._lock.release()
-    del self.tb
     del self.conf
 
 class Test_SigningKeysValid(ConfigRpmEventTestCase):
