@@ -108,7 +108,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_PackagesDownloaded(distro, version, arch))
   suite.addTest(Test_AddedPackageDownloaded(distro, version, arch))
   suite.addTest(Test_RemovedPackageDeleted(distro, version, arch))
-  suite.addTest(Test_ArchChanges(distro, version, arch))
   suite.addTest(Test_MultipleReposWithSamePackage(distro, version, arch))
 
   return suite
