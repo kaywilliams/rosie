@@ -49,7 +49,11 @@ def PSMTest_Password(self):
   self._testMethodDoc = "password used if provided"
 
   def pre_setUp():
-    self._add_config("<%s password='password'/>" % self.moduleid)
+    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    if mod is not None:
+      mod.set("password", "password")
+    else:
+      self._add_config("<%s password='password'/>" % self.moduleid)
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)

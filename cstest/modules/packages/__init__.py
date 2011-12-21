@@ -23,6 +23,8 @@ class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'
   eventid  = 'packages'
 
+  _conf = "<packages><package>kernel</package></packages>"
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('packages')
 

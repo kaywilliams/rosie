@@ -39,7 +39,7 @@ opt_defaults = dict(
   testlogfile = 'test.log',
   testloglevel = 2,
   libpath   = [],
-  sharepath = [],
+  sharepath = [ pps.path(__file__).dirname.abspath() / '../share/centosstudio' ],
   clear_test_cache = True,
   skip_genkey_tests = False,
 )

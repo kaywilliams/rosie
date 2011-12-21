@@ -37,7 +37,7 @@ class GpgcheckEventTestCase(EventTestCase):
                                            arch=self.arch,
                                            include_baseurl=True,
                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-    base.update({'mirrorlist': None})
+    base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml()) 
 
@@ -83,7 +83,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
            version=self.version, arch=self.arch, include_baseurl=True,
            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
     # set gpgkeys to none
-    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'yes'})
+    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,})
     repos.append(base.toxml())
     return repos 
 

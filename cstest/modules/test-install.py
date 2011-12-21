@@ -22,9 +22,19 @@ from cstest.core import make_extension_suite
 
 from cstest.mixins import psm_make_suite
 
+SCRIPTS = """<activate-script>echo "in activate script"</activate-script>
+  <delete-script>echo "in delete script"</delete-script>
+  <install-script>echo "in install script"</install-script>
+  <verify-install-script ssh='no'>echo "in verify-install-script"</verify-install-script>"""
+
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install-setup'
+
+  _conf = """<test-install>
+  <kickstart></kickstart>
+  %s
+  </test-install>""" % SCRIPTS
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion
@@ -35,7 +45,6 @@ class PublishSetupEventTestCase(EventTestCase):
 # TODO - move into shared module
 class Test_KickstartIncludesAdditions(PublishSetupEventTestCase):
   "kickstart includes additional items"
-  _conf = "<test-install><kickstart></kickstart></test-install>"
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -51,7 +60,8 @@ class Test_KickstartIncludesAdditions(PublishSetupEventTestCase):
 # TODO - move into shared module
 class Test_KickstartFailsOnInvalidInput(PublishSetupEventTestCase):
   "kickstart fails on invalid input"
-  _conf = "<test-install><kickstart>invalid</kickstart></test-install>"
+  _conf = "<test-install><kickstart>invalid</kickstart>%s</test-install>" % (
+          SCRIPTS)
 
   def runTest(self):
    self.execute_predecessors(self.event)

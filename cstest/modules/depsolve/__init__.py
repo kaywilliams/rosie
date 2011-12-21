@@ -83,7 +83,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             arch=self.arch,
                                             include_baseurl=True,
                                             baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
+        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None})
         if repoid == 'updates' and 'systemid' in r:
           # look for systemid in cstest folder 
           r['systemid'] = (pps.path(('/').join(__file__.split('/')[:-3]))

@@ -29,7 +29,7 @@
         <element name="gpgsign">
           <element name="public"><text/></element>
           <element name="secret"><text/></element>
-          <optional><element name="secret"><text/></element></optional>
+          <optional><element name="passphrase"><text/></element></optional>
         </element>
         </optional>
 
@@ -86,7 +86,6 @@
     </choice>
   </define>
 
-  <include href="rpmbuild.rng"/>
   <include href="lib.rng"/>
 
 </grammar>
