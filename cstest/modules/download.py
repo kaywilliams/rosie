@@ -89,12 +89,6 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
       pkgname = self._deformat(package)[1]
       self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
-class Test_ArchChanges(DownloadEventTestCase):
-  "Test arch changes in <main/>"
-  def __init__(self, distro, version, arch):
-    DownloadEventTestCase.__init__(self, distro, version, arch)
-    rxml.tree.uElement('arch', self.conf.get('/*/main'), text='i386')
-
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."
   def runTest(self):
