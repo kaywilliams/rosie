@@ -37,22 +37,22 @@ class CentOSStudioValidationHandler:
     try:
       self._validate_configs()
     except InvalidSchemaError, e:
+      if self.debug: raise
       self.logger.log(0, L0("Schema file used in validation appears to be invalid"))
       self.logger.log(0, L0(e))
-      if self.debug: raise
       sys.exit(1)
     except InvalidConfigError, e:
+      if self.debug: raise
       self.logger.log(0, L0("Validation against schema failed"))
       self.logger.log(0, L0(e))
-      if self.debug: raise
       sys.exit(1)
     except (InvalidXmlError, rxml.errors.ConfigError), e:
-      self.logger.log(0, L0(e))
       if self.debug: raise
+      self.logger.log(0, L0(e))
       sys.exit(1)
     except Exception, e:
-      self.logger.log(0, L0("Unhandled exception while performing validation: %s" % e))
       if self.debug: raise
+      self.logger.log(0, L0("Unhandled exception while performing validation: %s" % e))
       sys.exit(1)
 
   def _validate_configs(self):
