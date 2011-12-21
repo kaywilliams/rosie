@@ -50,9 +50,6 @@ class DepsolveEventTestCase(EventTestCase):
     if self.clean:
       self.clean_event_md()
 
-  def tearDown(self):
-    EventTestCase.tearDown(self)
-
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
     count = 0

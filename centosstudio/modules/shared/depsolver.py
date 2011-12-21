@@ -88,6 +88,9 @@ class DepsolverMixin(object):
       self.depsolve_repo.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
+    conf.append('installroot=%s' % self.dsdir) 
+    conf.append('persistdir=%s/var/lib/yum' % self.dsdir) 
+    conf.append('releasever=%s' % self.version) 
     if self.excluded_packages:
       line = 'exclude=' + ' '.join(self.excluded_packages)
       conf.append(line)

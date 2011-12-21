@@ -36,20 +36,8 @@ class CentOSStudioYum(yum.YumBase):
     self.archstr = arch
     self.dsCallback = callback
 
-    self._rpmdb = None
-
   def __del__(self):
     pass
-
-  def doRpmDBSetup(self):
-    pass
-  def _getRpmDB(self):
-    if self._rpmdb is None:
-      self._rpmdb = DummyRpmDBPackageSack(self.conf.installroot)
-    return self._rpmdb
-  rpmdb = property(fget=lambda self:        self._getRpmDB(),
-                   fset=lambda self, value: setattr(self, '_rpmdb', value),
-                   fdel=lambda self:        setattr(self, '_rpmdb', None))
 
   def setup(self):
     "Prepare to resolve dependencies by setting up metadata."
@@ -297,72 +285,3 @@ class Depsolver(CentOSStudioYum):
         errormsg = '%s * %s\n' % (errormsg, error)
       raise DepsolveError(errormsg)
     return self.final_pkgobjs.keys()
-
-class DummyRpmDBPackageSack(yum.rpmsack.RPMDBPackageSack):
-  def __init__(self, root='/'):
-    yum.rpmsack.RPMDBPackageSack.__init__(self)
-
-  def _get_pkglist(self):
-    return []
-  pkglist = property(_get_pkglist, None)
-
-  def dropCachedData(self):
-    pass
-
-  def readOnlyTS(self):
-    return None
-
-  def searchAll(self, name, query_type='like'):
-    return []
-
-  def searchFiles(self, name):
-    return []
-
-  def searchPrco(self, name, prcotype):
-    return []
-
-  def installed(self, name=None, arch=None, epoch=None, ver=None, rel=None, po=None):
-    return False
-
-  def returnNewestByNameArch(self, naTup=None):
-    return None
-
-  def returnNewestByName(self, name=None):
-    return None
-
-  def returnPackages(self, repoid=None):
-    return []
-
-  def searchPrimaryFieldsMultipleStrings(self, fields, searchstrings,
-                                         lowered=False):
-    return []
-
-  def searchNevra(self, name=None, epoch=None, ver=None, rel=None, arch=None):
-    return []
-
-  def contains(self, name=None, arch=None, epoch=None, ver=None, rel=None, po=None):
-    return False
-
-  def getPkgList(self):
-    return self.pkglist
-
-  def getHdrList(self):
-    return []
-
-  def getNameArchPkgList(self):
-    return []
-
-  def getNamePkgList(self):
-    return []
-
-  def returnTupleByKeyword(self, name=None, arch=None, epoch=None, ver=None, rel=None):
-    return []
-
-  def returnHeaderByTuple(self, pkgtuple):
-    return []
-
-  def returnIndexByTuple(self, pkgtuple):
-    return []
-
-  def whatProvides(self, name, flags, version):
-    return []
