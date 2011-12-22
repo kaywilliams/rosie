@@ -107,10 +107,8 @@ class ReposEvent(RepoEventMixin, Event):
           # set base-treeinfo control variable
           self.cvars['base-treeinfo'] = treeinfo
 
-          # map distribution version to anaconda version
-          map = {'5':'11.1.2',
-                 '6':'13.21.82'}
-          self.cvars['anaconda-version'] = map[dv]
+          # set anaconda version
+          self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
       
     if not self.cvars['installer-repo']:
       raise InstallerRepoNotFoundError()

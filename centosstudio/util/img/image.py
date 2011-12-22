@@ -25,7 +25,7 @@ from centosstudio.util.img import acquire_mount_point, release_mount_point, MODE
 from centosstudio.util.img.errors import *
 
 class Image:
-  def __init__(self, image, zipped=False):
+  def __init__(self, image, zipped=False, zip_format='gzip'):
     image = pps.path(image)
     if not image.exists():
       raise ImageIOError, "The image file '%s' does not exist" % image
@@ -40,6 +40,7 @@ class Image:
     self.changed = False # whether image has changed since opening
 
     self.zipped = self.compress # zip status, is this image zipped now?
+    self.zip_format = zip_format
     self.closed = True
     self.size   = None # initialized by getsize()
     self.capacity = None # -1 for images that have no capacity, initialized by getcapacity()
@@ -50,7 +51,12 @@ class Image:
     "Unzip the image"
     if self.zipped:
       newloc = acquire_mount_point()/self.name
-      shlib.execute('gunzip -c %s > %s' % (self.imgfile, newloc))
+      if self.zip_format == 'gzip':
+         shlib.execute('gunzip -c %s > %s' % (self.imgfile, newloc))
+      elif self.zip_format == 'lzma':
+         shlib.execute('xz -dc %s > %s' % (self.imgfile, newloc))
+      else:
+         raise ImageIOError, "Invalid zip format: %s" % self.zip_format
       self.imgloc = newloc
       self.zipped = False
     else:
@@ -60,7 +66,13 @@ class Image:
     "Zip the image"
     if not self.zipped:
       try:
-        shlib.execute('gzip -c %s > %s' % (self.imgloc, self.imgfile))
+        if self.zip_format == 'gzip':
+          shlib.execute('gzip -c %s > %s' % (self.imgloc, self.imgfile))
+        elif self.zip_format == 'lzma':
+          shlib.execute('xz -9 -c --format=lzma %s > %s' % (self.imgloc, 
+                                                            self.imgfile))
+        else:
+          raise ImageIOError, "Invalid zip format: %s" % self.zip_format
       except:
         self.imgfile.rm(force=True)
         raise
@@ -106,7 +118,8 @@ class Image:
 
     self.handler.close()
 
-    if self.compress: self.zip()
+    if self.mode == MODE_WRITE and self.changed and self.compress:
+      self.zip()
 
     # make sure file metadata (owner, group, permissions, times, etc) is unchanged
     if self.mode == MODE_READ or not self.changed: # atime, mtime

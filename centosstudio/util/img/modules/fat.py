@@ -54,7 +54,7 @@ class FatImageHandler(MountableImageHandler):
     newimgpath.move(self.base.imgloc)
     release_mount_point(point)
 
-def MakeFatImage(file, zipped=False, size=1*1024**2):
+def MakeFatImage(file, zipped=False, size=1*1024**2, **kwargs):
   "Create a new FAT image.  If size is not specified, defaults to 1MB"
   return MakeMountableImage(FatImageHandler, '/sbin/mkdosfs %s' % file,
-                            file, zipped=zipped, size=size)
+                            file, zipped=zipped, size=size, **kwargs)

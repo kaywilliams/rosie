@@ -44,6 +44,6 @@ class IsoImageHandler(ReadOnlyImageHandler, MountableImageHandler):
     raise ReadOnlyError()
 
 
-def MakeIsoImage(file, zipped=False):
+def MakeIsoImage(file, zipped=False, **kwargs):
   "Create an iso image.  If size is not specified, defaults to 1MB"
-  return MakeReadOnlyImage(IsoImageHandler, file, zipped=zipped)
+  return MakeReadOnlyImage(IsoImageHandler, file, zipped=zipped, **kwargs)

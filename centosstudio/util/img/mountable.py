@@ -136,7 +136,8 @@ class MountableImageHandler:
     raise NotImplementedError
 
 
-def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2):
+def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2, 
+                       **kwargs):
   file = pps.path(file)
   if not file.isfile():
     if size % 512 != 0:

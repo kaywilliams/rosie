@@ -21,7 +21,8 @@ from centosstudio.util import img
 from centosstudio.util import magic
 from centosstudio.util import pps
 
-from centosstudio.cslogging      import L1
+from centosstudio.errors       import CentOSStudioError
+from centosstudio.cslogging    import L1
 from centosstudio.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
@@ -32,6 +33,12 @@ class ImageModifyMixin:
   "This class downloads and modifies images"
   # Classes that extend this must require 'anaconda-version',
   # 'installer-repo', and 'buildstamp-file'
+
+  path    = property(lambda self: ( self.SOFTWARE_STORE /
+                                    self.image_locals['path'] %
+                                    self.cvars['distribution-info']) )
+  zipped  = property(lambda self: self.image_locals.get('zipped', False))
+  zip_format = property(lambda self: self.image_locals.get('zip_format', 'gzip'))
   def __init__(self, name):
     self.imagedir = self.mddir/'image'
 
@@ -60,11 +67,16 @@ class ImageModifyMixin:
     # check the image format before adding it; if it doesn't match what we're
     # expecting (such as a 404 HTML page), skip it
     try:
-      if self.image_locals.get('zipped', False):
+      if self.zipped and self.zip_format == 'gzip':
         expected = magic.FILE_TYPE_GZIP
+        got = magic.match(ip)
+      elif self.zipped and self.zip_format == 'lzma':
+        # need to implement in magic
+        expected = "not-implemented"
+        got = "not-implemented"
       else:
         expected = self.image_locals['format']
-      got = magic.match(ip)
+        got = magic.match(ip)
       if expected != got:
         raise InvalidImageFormatError(self.image_locals['path'], expected, got)
     except (IOError, pps.Path.error.PathError): # file not found, usually
@@ -91,7 +103,8 @@ class ImageModifyMixin:
 
   def _open(self):
     self.path.dirname.mkdirs()
-    self.image = img.MakeImage(self.path, self.image_locals['format'], self.zipped)
+    self.image = img.MakeImage(self.path, self.image_locals['format'], 
+                               self.zipped, self.zip_format)
     self.image.open()
 
   def _close(self):
@@ -125,17 +138,17 @@ class ImageModifyMixin:
   def _write_directory(self, dir, dst='/'):
     self.image.write([ f for f in dir.listdir() ], dst)
 
-  path    = property(lambda self: ( self.SOFTWARE_STORE /
-                                    self.image_locals['path'] %
-                                    self.cvars['distribution-info']) )
-  zipped  = property(lambda self: self.image_locals.get('zipped', False))
 
   def verify_image(self):
     "verify image existence."
     self.verifier.failUnlessExists(self.path)
-    if self.zipped:
+    if self.zipped and self.zip_format == 'gzip':
       self.verifier.failUnless(magic.match(self.path) == magic.FILE_TYPE_GZIP,
-                               "expected gzipped image file")
+                               "expected gzip compressed image file")
+    elif self.zipped and self.zip_format == 'lzma':
+      pass # not yet implemented
+      #self.verifier.failUnless(magic.match(self.path) == magic.FILE_TYPE_LZMA,
+      #                         "expected lzma compressed image file")
     else:
       self.verifier.failUnless(magic.match(self.path) == self.image_locals['format'],
                                "expected %s image format" % self.image_locals['format'])
@@ -164,6 +177,6 @@ class FileDownloadMixin:
     self.io.process_files(what='FileDownloadMixin', cache=True)
 
 
-class InvalidImageFormatError(StandardError):
+class InvalidImageFormatError(CentOSStudioError, StandardError):
   message = ( "Error reading image file '%(image)s': invalid format: expected "
               "%(expected)s, got %(got)s" )

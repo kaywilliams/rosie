@@ -109,12 +109,12 @@ class CpioImageHandler:
     else:
       return f.open()
 
-def MakeCpioImage(file, zipped=False):
+def MakeCpioImage(file, zipped=False, **kwargs):
   "Make a new CPIO image"
   file = pps.path(file)
   if not file.isfile():
     shlib.execute('echo | cpio --quiet -c -o -a > "%s"' % file) # create empty cpio archive
 
-  image = Image(file, zipped=zipped)
+  image = Image(file, zipped=zipped, **kwargs)
   image.handler = CpioImageHandler(image)
   return image

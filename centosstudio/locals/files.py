@@ -11,7 +11,8 @@ L_FILES = LocalsDict({
     'isolinux': { # isolinux files
       'boot.msg':     dict(path='isolinux/boot.msg'),
       'general.msg':  dict(path='isolinux/general.msg'),
-      'initrd.img':   dict(path='isolinux/initrd.img', format=EXT2, zipped=True),
+      'initrd.img':   dict(path='isolinux/initrd.img', format=EXT2, 
+                           zipped=True, zip_format='gzip'),
       'isolinux.bin': dict(path='isolinux/isolinux.bin'),
       'isolinux.cfg': dict(path='isolinux/isolinux.cfg'),
       'memtest':      dict(path='isolinux/memtest'),
@@ -34,7 +35,7 @@ L_FILES = LocalsDict({
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
-      'initrd.img':   dict(format=CPIO, zipped=True),
+      'initrd.img':   dict(format=CPIO, zipped=True, zip_format='gzip'),
     },
   },
   "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2
@@ -48,7 +49,7 @@ L_FILES = LocalsDict({
 # loadUrlImages() in urlinstall.c
 #  "anaconda-11.1.0.11-1": { # updates.img to cpio format
 #    'installer': {
-#      'updates.img':  dict(format=CPIO, zipped=True),
+#      'updates.img':  dict(format=CPIO, zipped=True, zip_format='gzip'),
 #    },
 #  },
   "anaconda-11.1.0.51-1": { # stage 2 images moved to images/ folder
@@ -82,6 +83,11 @@ L_FILES = LocalsDict({
       'general.msg':  REMOVE,
       'param.msg':  REMOVE,
       'rescue.msg':  REMOVE,
+    },
+  },
+  "anaconda-13.21.149-1": { # initrd images using LZMA compression
+    'isolinux': {
+      'initrd.img':   dict(format=CPIO, zipped=True, zip_format='lzma'),
     },
   },
 })

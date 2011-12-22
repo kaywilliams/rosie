@@ -50,6 +50,7 @@ class LocalsObject:
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
 
   # base distribution and version based
+  L_ANACONDA_VERSION  = property(lambda self: L_ANACONDA_VERSION[self.base_ver])
   L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
 
   # pykickstart version based

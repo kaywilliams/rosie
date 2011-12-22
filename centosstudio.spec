@@ -21,6 +21,7 @@ BuildRequires: python
 Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
+Requires: gzip 
 Requires: mkisofs
 Requires: pykickstart
 Requires: python-devel
@@ -31,6 +32,7 @@ Requires: rhn-client-tools
 Requires: rpm-build
 Requires: syslinux
 Requires: yum
+Requires: xz
 
 %description
 CentOS Studio is a complete platform for IT professionals to automate build, 

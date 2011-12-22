@@ -39,7 +39,7 @@ class Ext2ImageHandler(MountableImageHandler):
   def _resize(self, size):
     shlib.execute('/sbin/resize2fs -f "%s" %sK' % (self.base.imgloc, int(size/1000)))
 
-def MakeExt2Image(file, zipped=False, size=1*1024**2):
+def MakeExt2Image(file, zipped=False, size=1*1024**2, **kwargs):
   "Create an ext2 image.  If size is not specified, defaults to 1MB"
   return MakeMountableImage(Ext2ImageHandler, '/sbin/mke2fs -F "%s"' % file,
-                            file, zipped=zipped, size=size)
+                            file, zipped=zipped, size=size, **kwargs)

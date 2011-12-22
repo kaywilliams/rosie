@@ -77,7 +77,9 @@ class BaseInfoEvent(Event):
 
     # extract buildstamp
     image = self.locals.L_FILES['isolinux']['initrd.img']
-    self.image = img.MakeImage(self.initrd_out, image['format'], image.get('zipped', False))
+    self.image = img.MakeImage(self.initrd_out, image['format'], 
+                 image.get('zipped', False), 
+                 image.get('zip_format', 'gzip'))
     self.image.open('r')
     self.image.read('.buildstamp', self.mddir)
     self.image.close()

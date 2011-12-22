@@ -39,17 +39,24 @@ NEW_IMAGE_FACTORY = {}
 
 
 #---------FACTORY FUNCTIONS---------#
-def MakeImage(file, format, zipped=False, **kwargs):
+def MakeImage(file, format, zipped=False, zip_format='gzip', **kwargs):
   if format not in IMAGE_FORMATS:
     raise ValueError("Image format '%s' not supported; must be one of %s" % \
                       (format, IMAGE_FORMATS))
 
   file = pps.path(file)
   ex = file.exists()
-  img = NEW_IMAGE_FACTORY[format](file, zipped=zipped, **kwargs)
+  img = NEW_IMAGE_FACTORY[format](file, zipped=zipped, zip_format=zip_format,
+                                  **kwargs)
+
+  # not clear why we're zipping a file that doesn't exist
   if not ex and zipped:
-    shlib.execute('gzip %s' % file)
-    file.rename('%s.gz', file)
+    if zip_format == 'gzip':
+      shlib.execute('gzip %s' % file)
+      file.rename('%s.gz' % file)
+    if zip_format == 'lzma':
+      shlib.execute('xz -9 --format=lzma %s' % file)
+      file.rename('%s.lzma' % file)
 
   return img
 
