@@ -230,4 +230,59 @@ class InstallClass(BaseInstallClass):
   def __init__(self):
     BaseInstallClass.__init__(self)
 ''',
+  "anaconda-13.21.149.1":
+'''
+from installclass import BaseInstallClass
+from constants import *
+from product import *
+from flags import flags
+import os
+import types
+
+import installmethod
+import yuminstall
+
+class InstallClass(BaseInstallClass):
+  id = "custom"
+  name = N_("Custom")
+  _description = N_("The %s installation includes the following software.")
+  _descriptionFields = (productName,)
+  sortPriority = 10006 
+  hidden = 0
+
+  bootloaderTimeoutDefault = 5
+  bootloaderExtraArgs = ["crashkernel=auto"]
+
+  tasks = [(N_("Minimal"),
+            ["core"])]
+
+  def getPackagePaths(self, uri):
+    if not type(uri) == types.ListType:
+      uri = [uri,]
+
+    return {productName: uri}
+
+  def setInstallData(self, anaconda):
+    BaseInstallClass.setInstallData(self, anaconda)
+    BaseInstallClass.setDefaultPartitioning(self,
+                                            anaconda.id.storage,
+                                            anaconda.platform)
+
+
+  def setSteps(self, anaconda):
+    BaseInstallClass.setSteps(self, anaconda);
+    anaconda.dispatch.skipStep("partition")
+    anaconda.dispatch.skipStep("tasksel", skip=1, permanent=1)
+    anaconda.dispatch.skipStep("group-selection", skip=1, permanent=1)
+
+  def setGroupSelection(self, anaconda):
+    BaseInstallClass.setGroupSelection(self, anaconda)
+    map(lambda x: anaconda.backend.selectGroup(x), ["core"])
+
+  def getBackend(self):
+    return yuminstall.YumBackend
+
+  def __init__(self):
+    BaseInstallClass.__init__(self)
+''',
 })
