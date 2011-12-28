@@ -21,6 +21,7 @@ from centosstudio.util import img
 from centosstudio.util import magic
 from centosstudio.util import pps
 
+from centosstudio.callback     import TimerCallback
 from centosstudio.errors       import CentOSStudioError
 from centosstudio.cslogging    import L1
 from centosstudio.event.fileio import MissingInputFileError
@@ -49,6 +50,11 @@ class ImageModifyMixin:
     # dictionary of dest, sourcelist pairs for files to be placed inside
     # the image
     self.cvars['%s-content' % self.id] = {}
+
+    if self.logger:
+      self.imgcb = TimerCallback(self.logger)
+    else:
+      self.imgcb = None
 
   def setup(self):
     # input images
@@ -123,10 +129,11 @@ class ImageModifyMixin:
     self.io.process_files(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
 
     # modify image
-    self.log(1, L1("modifying %s" % self.name))
+    if self.imgcb: self.imgcb.start("modifying %s" % self.name)
     self._open()
     self._generate()
     self._close()
+    if self.imgcb: self.imgcb.end()
 
   def _generate(self):
     if self.imagedir.exists():
