@@ -45,10 +45,7 @@ class DeployEventMixin:
     # setup ssh  values
     self.cvar_root = '%s-setup-options' % self.moduleid
     self.ssh = dict(
-      hostname = ((self.cvars[self.cvar_root]['domain'] and '%s.%s' % 
-                  (self.cvars[self.cvar_root]['hostname'],
-                   self.cvars[self.cvar_root]['domain'])) 
-                  or self.cvars[self.cvar_root]['hostname']),
+      hostname = self.cvars[self.cvar_root]['hostname'],
       port     = 22,
       username = 'root',
       password = self.cvars[self.cvar_root]['password'],

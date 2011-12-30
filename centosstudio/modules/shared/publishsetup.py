@@ -46,7 +46,6 @@ class PublishSetupEventMixin:
     self.localpath= self.get_local()
     self.webpath  = self.get_remote()
     self.hostname = self.get_hostname()
-    self.domain   = self.get_domain()
     self.password, self.crypt_password  = self.get_password()
     self.boot_options = self.get_bootoptions()
     self.write_datfile()
@@ -56,14 +55,14 @@ class PublishSetupEventMixin:
                    '%{hostname}': self.hostname,
                    '%{password}': self.password,
                    '%{crypt-password}': self.crypt_password}
-    for attribute in ['domain', 'boot_options']:
+    for attribute in ['boot_options']:
       if len(eval('self.%s' % attribute)) > 0:
         self.macros['%%{%s}' % attribute.replace('_','-')] = \
                     eval('self.%s' % attribute)
 
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'domain', 'password', 'webpath', 'localpath', 
+    for attribute in ['hostname', 'password', 'webpath', 'localpath', 
                       'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -125,15 +124,6 @@ class PublishSetupEventMixin:
       default = '%s-%s' % (self.solutionid, self.moduleid)
 
     return self.config.get('@hostname', default)
-
-  def get_domain(self):
-    self.DATA['config'].append('@domain')
-    if self.moduleid == 'publish':
-      default = ''
-    else:
-      default = self.cvars['publish-setup-options']['domain']
-
-    return self.config.get('@domain', default)
 
   def get_bootoptions(self):
     self.DATA['config'].append('boot-options')
