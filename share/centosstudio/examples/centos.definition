@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<solution xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!-- Minimal solution based on Centos -->
+
+  <main>
+    <fullname>Basic CentOS Studio Solution</fullname>
+    <name>basic-solution</name>
+    <version>5</version>
+    <arch>x86_64</arch>
+  </main>
+
+  <packages>
+    <group repoid='base'>core</group>
+    <group repoid='base'>base</group>
+  </packages>
+
+  <repos>
+    <!-- See www.centos.org for a list of public mirrors -->
+    <repo id="base">
+      <name>CentOS-%{version} - Base</name>
+      <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/os/%{arch}/</baseurl>
+    </repo>
+    <repo id="updates">
+      <name>CentOS-%{version} - Updates</name>
+      <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/updates/%{arch}/</baseurl>
+      <enabled>1</enabled>
+    </repo>
+  </repos>
+
+</solution>
