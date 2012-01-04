@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- scripts for deploying to a local virtual machine - these can be used
-     across test-install, test-update and deploy elements -->
+<!-- scripts for installing and updating a local virtual machine -->
 
 <activate-script>
 #!/usr/bin/python
@@ -50,11 +49,17 @@ fi
 
 <update-script>
 #!/bin/bash
+set -e
 yum sync -y
 if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
   echo "running kernel differs from installed - restarting machine"
   shutdown -r now
 fi
 </update-script>
+
+<post-script>
+#!/bin/bash
+poweroff
+</post-script>
 
 </root>

@@ -1,20 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<solution xmlns:xi="http://www.w3.org/2001/XInclude">
-
-<!-- test-update element -->
-<test-update domain="local">
-
-<kickstart>
-<xi:include href="ks.cfg" parse="text"/>
-</kickstart>
-
-<xi:include href="deploy.xml"
-            xpointer="xpointer(/root/activate-script |
-                               /root/delete-script |
-                               /root/install-script |
-                               /root/verify-install-script |
-                               /root/update-script)"/>
-
+<test-update hostname="samba-server-test-update" password="testpw">
+  <kickstart> <xi:include href="ks.cfg" parse="text"/> </kickstart>
+  <xi:include href="deploy.xml" xpointer="xpointer(/root/*)"/>
 </test-update>
-
-</solution>

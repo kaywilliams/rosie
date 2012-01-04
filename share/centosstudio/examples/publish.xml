@@ -1,0 +1,6 @@
+<publish>
+  <remote-url>https://solutions.company.com/</remote-url>
+  <post-script ssh="false">
+# script to sync the solution repository to the server(s) serving the url above.
+  </post-script>
+</publish>

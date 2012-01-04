@@ -1,19 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<solution xmlns:xi="http://www.w3.org/2001/XInclude">
-
-<!-- test-install element -->
-<test-install domain="local">
-
-<kickstart>
-<xi:include href="ks.cfg" parse="text"/>
-</kickstart>
-
-<xi:include href="deploy.xml"
-            xpointer="xpointer(/root/activate-script |
-                               /root/delete-script |
-                               /root/install-script |
-                               /root/verify-install-script)"/>
-
+<test-install hostname="samba-server-test-install" password="testpw">
+  <kickstart><xi:include href="ks.cfg" parse="text"/></kickstart>
+  <xi:include href="deploy.xml"
+              xpointer="xpointer(/root/*[name()!='update-script']"/>
 </test-install>
-
-</solution>
