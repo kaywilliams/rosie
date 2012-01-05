@@ -11,7 +11,6 @@ install:
 	install -pm 644 packages.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/packages.rng
 	install -pm 644 publish.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/publish.rng
 	install -pm 644 repos.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/repos.rng
-	install -pm 644 rpmbuild.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/rpmbuild.rng
 	install -pm 644 test-install.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/test-install.rng
 	install -pm 644 test-update.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/test-update.rng
 
