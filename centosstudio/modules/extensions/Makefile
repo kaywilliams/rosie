@@ -1,4 +1,4 @@
-SUBDIRS = installer repocreate 
+SUBDIRS = repocreate 
 
 PYFILES = $(wildcard *.py)
 
