@@ -171,8 +171,17 @@ class ConfigRpmEvent(ConfigEventMixin, Event):
      %%secring %s
 EOF""" % (name, pubring, secring)
 
+    rngd = pps.path('/sbin/rngd') 
+
     self.logger.log(2, L2('generating GPG Signing Key'))
+    if rngd.exists(): 
+      # use rngd to speed gpgkey generation, slightly less secure, but
+      # sufficient for RPM-GPG-KEY scenarios.
+      p = subprocess.Popen('%s -f -r /dev/urandom' % rngd, 
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
+                           shell=True)
     r = subprocess.call(cmd, shell=True)
+    if rngd.exists(): p.kill()
     if r != 0 : raise RuntimeError
 
     shlib.execute('gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
