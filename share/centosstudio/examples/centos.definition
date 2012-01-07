@@ -4,8 +4,8 @@
   <!-- Minimal solution based on Centos -->
 
   <main>
-    <fullname>Basic CentOS Studio Solution</fullname>
-    <name>basic-solution</name>
+    <fullname>Example CentOS Studio Solution</fullname>
+    <name>example</name>
     <version>5</version>
     <arch>x86_64</arch>
   </main>
@@ -20,11 +20,11 @@
     <repo id="base">
       <name>CentOS-%{version} - Base</name>
       <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/os/%{arch}/</baseurl>
+      <gpgkey>http://www.centosstudio.org/mirrors/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
     </repo>
     <repo id="updates">
       <name>CentOS-%{version} - Updates</name>
       <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/updates/%{arch}/</baseurl>
-      <enabled>1</enabled>
     </repo>
   </repos>
 
