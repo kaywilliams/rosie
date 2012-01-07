@@ -1,4 +1,4 @@
-EXAMPLE_FILES = $(wildcard *.py)
+EXAMPLE_FILES = $(wildcard *)
 
 .PHONY: all clean install
 
