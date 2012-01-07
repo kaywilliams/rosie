@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.0.7
+Version: 1.0.8
 Release: 1%{?dist}
-Summary: Platform for provisioning CentOS and Red Hat Enterprise Linux Systems
+Summary: Platform for building CentOS and Red Hat Enterprise Linux systems
 
 License:   GPL
 Group:     Applications/System
@@ -60,7 +60,6 @@ http://www.centosstudio.org for more information.
 %{_bindir}/centosstudio
 %{_datadir}/centosstudio
 %doc COPYING
-%doc ChangeLog
 %doc AUTHORS
 %doc INSTALL
 %doc README

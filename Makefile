@@ -12,7 +12,7 @@ define COMPILE_PYTHON
 	python -O -c "import compileall as C; C.compile_dir('$(1)', force=1)"
 endef
 
-.PHONY: all clean install tag changelog archive srpm bumpver
+.PHONY: all clean install tag archive srpm 
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -45,9 +45,6 @@ tag:
 	fi
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
-changelog:
-	@hg log --style changelog > ChangeLog
-
 archive: tag
 	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) \
         $(PKGNAME)-$(VERSION).tar.gz
@@ -56,16 +53,3 @@ srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
 	@rm -f $(PKGNAME)-$(VERSION).tar.gz
 
-bumpver:
-	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
-	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --exclude .hgtags --exclude centosstudio.spec --exclude ChangeLog --exclude Makefile -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
-	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
-	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
-	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \
-	tail --lines=+$$(($$cl + 1)) $(SPECFILE) > speclog ; \
-	(head -n $$cl $(SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(SPECFILE).new ; \
-	mv $(SPECFILE).new $(SPECFILE); rm -f speclog; \
-	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE)
-	chmod 644 $(SPECFILE)
-	make changelog
