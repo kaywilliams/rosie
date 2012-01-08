@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import os
+import signal 
 import subprocess
 
 from StringIO import StringIO
@@ -177,11 +179,10 @@ EOF""" % (name, pubring, secring)
     if rngd.exists(): 
       # use rngd to speed gpgkey generation, slightly less secure, but
       # sufficient for RPM-GPG-KEY scenarios.
-      p = subprocess.Popen('%s -f -r /dev/urandom' % rngd, 
-                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
-                           shell=True)
+      p = subprocess.Popen([rngd, '-f', '-r', '/dev/urandom'], 
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     r = subprocess.call(cmd, shell=True)
-    if rngd.exists(): p.kill()
+    if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
     if r != 0 : raise RuntimeError
 
     shlib.execute('gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
