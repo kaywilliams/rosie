@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2011
-# CentOS Studio Foundation. All rights reserved.
+# Copyright (c) 2012
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ A configuration reading library.
 Provides parse() and get() functions, complete with fallback support.
 """
 
-__author__   = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__   = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
 __version__  = '3.0'
 __date__     = 'June 13th, 2007'
 

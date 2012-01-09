@@ -7,7 +7,7 @@ Summary: Platform for building CentOS and Red Hat Enterprise Linux systems
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.centosstudio.org/centosstudio
+URL:       http://www.centossolutions.com/centosstudio
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -24,6 +24,7 @@ Requires: gnupg
 Requires: gzip 
 Requires: mkisofs
 Requires: pykickstart
+Requires: python-crypto
 Requires: python-devel
 Requires: python-hashlib
 Requires: python-lxml
@@ -40,7 +41,7 @@ Requires: /sbin/rngd
 CentOS Studio is a complete platform for IT professionals to automate build, 
 test, deployment and maintenance of CentOS and Red Hat Enterprise Linux
 systems for use in any physical, virtual or cloud environment. See 
-http://www.centosstudio.org for more information. 
+http://www.centossolutions.com for more information. 
 
 %prep
 %setup -q
@@ -70,5 +71,5 @@ http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Mon Jul 08 2011 Kay Williams <kwilliams@centosstudio.org> - 0.9.1-1
+* Mon Jul 08 2011 Kay Williams <kwilliams@centossolutions.com> - 0.9.1-1
 - Initial Build

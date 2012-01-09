@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2011
-# CentOS Studio Foundation. All rights reserved.
+# Copyright (c) 2012
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ simple list.  This library may or may not be of actual use; it was originally
 based on the bash version of seqlib, where it served a much more useful purpose.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.com>"
 __version__ = "1.0"
 __date__    = "17 November 2006"
 __credits__ = "Me, because I'm so awesome"

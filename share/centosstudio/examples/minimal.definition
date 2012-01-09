@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <solution xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <!-- Minimal solution based on Centos -->
+<!-- Minimal solution based on Centos -->
 
-  <main>
-    <fullname>Example CentOS Studio Solution</fullname>
-    <name>example</name>
-    <version>5</version>
-    <arch>x86_64</arch>
-  </main>
+<main>
+<fullname>Example CentOS Studio Solution</fullname>
+<name>example</name>
+<version>5</version>
+<arch>x86_64</arch>
+</main>
 
-  <packages>
-    <group repoid='base'>core</group>
-    <group repoid='base'>base</group>
-  </packages>
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
 
-  <repos>
-    <!-- See www.centos.org for a list of public mirrors -->
-    <repo id="base">
-      <name>CentOS-%{version} - Base</name>
-      <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/os/%{arch}/</baseurl>
-      <gpgkey>http://www.centosstudio.org/mirrors/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
-    </repo>
-    <repo id="updates">
-      <name>CentOS-%{version} - Updates</name>
-      <baseurl>http://www.centosstudio.org/mirrors/centos/%{version}/updates/%{arch}/</baseurl>
-    </repo>
-  </repos>
+<!-- See www.centos.org for a list of public mirrors -->
+<repos>
+<repo id="base">
+<name>CentOS-%{version} - Base</name>
+<baseurl>http://mirror.centos.org/centos/%{version}/os/%{arch}/</baseurl>
+<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</repo>
+
+<repo id="updates">
+<name>CentOS-%{version} - Updates</name>
+<baseurl>http://mirror.centos.org/centos/%{version}/updates/%{arch}/</baseurl>
+</repo>
+</repos>
 
 </solution>
