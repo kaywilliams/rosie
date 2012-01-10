@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <solution xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- Minimal solution based on Centos -->
+<!-- Minimal solution based on CentOS -->
 
 <main>
 <fullname>Example CentOS Studio Solution</fullname>

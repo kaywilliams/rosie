@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ Our additions:
  1. RPM_LEAD_SIZE
 """
 
-__author__  = 'Uday Prakash <uprakash@centossolutions.com>'
+__author__  = 'Uday Prakash <uprakash@centosstudio.org>'
 __date__    = 'March 30, 2007'
 __credits__ = 'The PyRPM Team'
 
