@@ -38,7 +38,8 @@ from centosstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 from centosstudio.validate  import InvalidConfigError
 
 from centosstudio.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
-from centosstudio.util.repo.repo     import YumRepo, RepoContainer, NSMAP
+from centosstudio.util.repo.repo     import (YumRepo, RepoContainer, NSMAP, 
+                                             InvalidFileError)
 from centosstudio.util.repo.defaults import TYPE_ALL
 
 __all__ = ['RepoEventMixin', 'CentOSStudioRepo', 'CentOSStudioRepoGroup',
@@ -315,7 +316,10 @@ class RepoEventMixin:
       # set localurl
       repo.localurl = self.mddir/repo.id
       # read metadata
-      repo.read_repomd()
+      try:
+        repo.read_repomd()
+      except InvalidFileError, e:
+        raise InvalidRepomdFileError(message=e)
 
       # add .treeinfo to io sync
       src = repo.url/repo.treeinfofile
@@ -405,6 +409,9 @@ class NoReposEnabledError(CentOSStudioError, RuntimeError):
 
 class RepodataNotFoundError(CentOSStudioError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
+
+class InvalidRepomdFileError(CentOSStudioError, RuntimeError):
+  message = "%(message)s"
 
 class InconsistentRepodataError(CentOSStudioError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "

@@ -200,7 +200,13 @@ class IORepo(BaseRepo):
     return iter(datafiles)
 
   def read_repomd(self):
-    self.repomd = rxml.tree.parse((self.url//self.repomdfile).open()).getroot()
+    try:
+      self.repomd = rxml.tree.parse((self.url//self.repomdfile).open()
+                                     ).getroot()
+    except rxml.errors.XmlSyntaxError:
+      raise InvalidFileError("The repository metadata file at %s does not "
+                             "appear to be valid"
+                             % (self.url.realm//self.repomdfile)) 
 
     for data in self.repomd.xpath('repo:data', namespaces=NSMAP):
       self.datafiles[data.get('@type')] = RepoDataFile(data)
@@ -523,3 +529,5 @@ def pkgtup(pkgpath):
     return (n,a,'0',v,r)
   except AttributeError:
     return (None, None, None, None, None)
+
+class InvalidFileError(RuntimeError): pass
