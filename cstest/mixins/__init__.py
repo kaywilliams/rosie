@@ -22,6 +22,7 @@ from cstest import decorate
 from cstest.core import CoreTestSuite
 
 from cstest.mixins.publishsetup import *
+from cstest.mixins.rpmbuild     import *
 
 #------ FileDownloadMixin ------#
 class FDMTest_Files:

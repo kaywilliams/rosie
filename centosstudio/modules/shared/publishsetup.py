@@ -43,9 +43,9 @@ class PublishSetupEventMixin:
     self.DATA['variables'].append('publish_mixin_version')
 
     # set attributes
-    self.localpath= self.get_local()
-    self.webpath  = self.get_remote()
-    self.hostname = self.get_hostname()
+    self.localpath = self.get_local()
+    self.webpath   = self.get_remote()
+    self.hostname  = self.get_hostname()
     self.password, self.crypt_password  = self.get_password()
     self.boot_options = self.get_bootoptions()
     self.write_datfile()

@@ -1,5 +1,6 @@
-<test-install hostname="samba-server-test-install" password="testpw">
+<test-install hostname="%{name}-test-install.local" password="testpw" 
+              xmlns:xi="http://www.w3.org/2001/XInclude">
   <kickstart><xi:include href="ks.cfg" parse="text"/></kickstart>
   <xi:include href="deploy.xml"
-              xpointer="xpointer(/root/*[name()!='update-script']"/>
+              xpointer="xpointer(/root/*[name()!='update-script'])"/>
 </test-install>

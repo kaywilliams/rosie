@@ -43,7 +43,7 @@ class RpmbuildRepoEvent(Event):
       version = 1.02,
       suppress_run_message = True,
       requires = ['rpmbuild-data', 'comps-object'],
-      conditionally_requires = ['gpgsign'],
+      conditionally_requires = ['gpg-signing-keys'],
       provides = ['repos', 'source-repos', 'comps-object']
     )
 
@@ -64,9 +64,9 @@ class RpmbuildRepoEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    if 'gpgsign' in self.cvars:
-      self.pubkey = self.cvars['gpgsign']['pubkey']
-      self.DATA['input'].append(self.cvars['gpgsign']['pubkey'])
+    if 'gpg-signing-keys' in self.cvars:
+      self.pubkey = self.cvars['gpg-signing-keys']['pubkey']
+      self.DATA['input'].append(self.cvars['gpg-signing-keys']['pubkey'])
     else:
       self.pubkey = ''
 

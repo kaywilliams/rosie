@@ -40,7 +40,6 @@ class RpmBuildMixinTestCase(object):
   def rpm_header(self):
     if self.event.rpm.rpm_path.exists():
       # we need an rpmdb with the pubkey imported to read the signed rpm header
-      # or we could disable signature checking, but this works so here we go.
       rpmdb_dir = self.event.mddir/'rpmdb'
       rpmdb_dir.rm(force=True)
       rpmdb_dir.mkdirs()
@@ -48,7 +47,8 @@ class RpmBuildMixinTestCase(object):
       ts = rpm.TransactionSet()
       ts.initDB()
       ts.pgpImportPubkey(yum.misc.procgpgkey(
-                         self.event.cvars['gpgsign']['pubkey'].read_text()))
+                         self.event.cvars['gpg-signing-keys']
+                                         ['pubkey'].read_text()))
       fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)
@@ -75,8 +75,11 @@ class RpmBuildMixinTestCase(object):
       return img_path
     return None
 
-  def check_inputs(self):
-    for file in self.event.io.list_output(what='build-input'):
+  def check_inputs(self, what):
+    if not self.event.io.list_output(what=what):
+      raise RuntimeError("No '%s' specified. Probable error in test case." %
+                         what)
+    for file in self.event.io.list_output(what=what):
       self.failUnlessExists(file)
       self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.source_folder))
 
@@ -151,6 +154,8 @@ class RpmCvarsTestCase(object):
     self.failUnless(self.event.rpm.packagereq_requires == cvars['packagereq-requires'])
     self.failUnless(self.event.rpm.packagereq_type == cvars['packagereq-type'])
     self.failUnless(self.event.rpm.name == cvars['rpm-name'])
+    self.failUnless(self.event.rpm.version == cvars['rpm-version'])
+    self.failUnless(self.event.rpm.release == cvars['rpm-release'])
     self.failUnless(self.event.rpm.obsoletes == cvars['rpm-obsoletes'])
     self.failUnless(self.event.rpm.provides == cvars['rpm-provides'])
     self.failUnless(self.event.rpm.requires == cvars['rpm-requires'])

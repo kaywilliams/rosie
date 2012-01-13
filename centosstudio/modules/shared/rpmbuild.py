@@ -66,7 +66,7 @@ class RpmBuildMixin:
     except mkrpm.rpmbuild.RpmBuilderException, e:
       raise RpmBuildFailedException(message=str(e))
 
-    if 'gpgsign' in self.cvars:
+    if 'gpg-signing-keys' in self.cvars:
       self.log(4, L1("signing %s-%s-%s.%s.rpm" % \
                      (R.name, R.version, R.release, R.arch)))
       R.sign()
@@ -115,7 +115,7 @@ class RpmBuildObject:
                packagereq_type='mandatory', packagereq_default=None,
                packagereq_requires=None):
     self.ptr = ptr
-    self.ptr.conditionally_requires.add('gpgsign')
+    self.ptr.conditionally_requires.add('gpg-signing-keys')
 
     self.desc    = desc
     self.name    = name
@@ -184,11 +184,11 @@ class RpmBuildObject:
 
     self.ptr.diff.setup(self.ptr.DATA)
 
-    if 'gpgsign' in self.ptr.cvars:
-      self.gpgsign = self.ptr.cvars['gpgsign'] # convenience variable
+    if 'gpg-signing-keys' in self.ptr.cvars:
+      self.gpgsign = self.ptr.cvars['gpg-signing-keys'] # convenience variable
       self.ptr.DATA['input'].extend([self.gpgsign['pubkey'], 
                                      self.gpgsign['seckey']])
-      self.ptr.DATA['variables'].append('cvars[\'gpgsign\'][\'passphrase\']')
+      self.ptr.DATA['variables'].append('cvars[\'gpg-signing-keys\'][\'passphrase\']')
 
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')

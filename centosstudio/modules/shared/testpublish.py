@@ -21,10 +21,11 @@ from centosstudio.util      import pps
 
 from centosstudio.modules.shared import RepomdMixin
 from centosstudio.modules.shared import PublishSetupEventMixin
-from centosstudio.modules.shared import ConfigEventMixin
+from centosstudio.modules.shared import ReleaseRpmEventMixin
 from centosstudio.modules.shared import KickstartEventMixin
 
-class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
+class TestPublishEventMixin(ReleaseRpmEventMixin, 
+                            RepomdMixin, KickstartEventMixin, 
                             PublishSetupEventMixin):
   def __init__(self):
 
@@ -35,7 +36,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       'variables': [],
     }
 
-    ConfigEventMixin.__init__(self, rpmxpath='/*/config-rpm')
+    ReleaseRpmEventMixin.__init__(self, rpmxpath='/*/release-rpm')
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
@@ -47,22 +48,28 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # sync compose output, excluding system-config rpm
-    config_rpm=self.cvars['rpmbuild-data']['config-rpm']['rpm-path'].split('/')[-1]
-    paths=self.cvars['os-dir'].findpaths(nglob=config_rpm, 
+    # sync compose output, excluding release-rpm
+    release_rpm = (self.cvars['rpmbuild-data']['release-rpm']
+                             ['rpm-path'].split('/')[-1])
+    paths=self.cvars['os-dir'].findpaths(nglob=release_rpm, 
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:
       dirname =  '/'.join(p.split('/')
                  [len(self.SOFTWARE_STORE.split('/')):])
       self.io.add_item(p, self.SOFTWARE_STORE/dirname, id='os-dir')
 
-    # config-rpm
-    if 'config-release' in self.cvars:
-      ConfigEventMixin.setup(self, webpath=self.webpath, 
-                         release=self.cvars['config-release'],
+    # release-rpm
+    try:
+      self.release = self.cvars['rpmbuild-data']['release-rpm']['rpm-release']
+      ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
+                         release=self.release,
                          files_cb=self.link_callback, 
-                         files_text=self.log(4, L2("gathering config content")))
-      self.DATA['variables'].append('cvars[\'config-release\']')
+                         files_text=self.log(4, L2(
+                                             "gathering release-rpm content")))
+      self.DATA['variables'].append('release')
+    except KeyError:
+      # release rpm not created
+      pass
 
     # kickstart 
     self.ksxpath = 'kickstart'
@@ -73,17 +80,20 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     else:
       self.kstext = ''
 
-
   def run(self):
     # sync files from compose (os-dir) folder
     self.SOFTWARE_STORE.rm(force=True)
     self.io.process_files(link=True, text="preparing %s repository" 
                           % self.moduleid, what='os-dir')
 
-    # modify config-rpm
-    if 'config-release' in self.cvars:
-      ConfigEventMixin.run(self)
-      (self.rpm.rpm_path).cp(self.SOFTWARE_STORE/'Packages')
+    # modify release-rpm
+    try:
+      release = self.cvars['rpmbuild-data']['release-rpm']['rpm-release']
+    except KeyError: # release-rpm does not exist, no need to modify
+      pass
+    else: # release-rpm exists, modify it
+      ReleaseRpmEventMixin.run(self)
+      self.rpm.rpm_path.cp(self.SOFTWARE_STORE/'Packages')
       self.DATA['output'].append(self.SOFTWARE_STORE/'Packages'/
                                  self.rpm.rpm_path.basename)
 

@@ -135,7 +135,7 @@ class EventTestCase(unittest.TestCase):
     return repos
 
   def _make_config_rpm_config(self):
-    config_rpm = config.Element('config-rpm')
+    config_rpm = config.Element('rpmbuild')
     gpgsign = config.Element('gpgsign', parent=config_rpm)
     config.Element('public', parent=gpgsign, text=PUBKEY)
     config.Element('secret', parent=gpgsign, text=SECKEY)

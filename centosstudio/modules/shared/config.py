@@ -15,37 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from StringIO import StringIO
+import hashlib
 
-from centosstudio.util import pps
-from centosstudio.util.repo import YumRepo
-
-from centosstudio.event        import Event
-from centosstudio.event.fileio import MissingXpathInputFileError 
+from centosstudio.util  import pps
+from centosstudio.event import Event
 
 from centosstudio.modules.shared import (RpmBuildMixin, 
                                           Trigger, 
                                           TriggerContainer)
-from centosstudio.errors         import (assert_file_readable, 
-                                          CentOSStudioError)
 
-import cPickle
-import hashlib
-import yum
-
-class ConfigEventMixin(RpmBuildMixin):
+class ConfigRpmEventMixin(RpmBuildMixin):
   config_mixin_version = "1.21"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
     self.rpmxpath = rpmxpath or '.'
-    self.conditionally_requires.add('gpgsign')
 
     RpmBuildMixin.__init__(self,
-      'system-config-centosstudio-%s' % self.name,   
-      "The system-config-centosstudio-%s package provides scripts and files " 
-      "for configuring %s systems." % (self.name, self.fullname),
-      "%s system configuration" % self.fullname,
+      '%s-config' % self.name,   
+      "The %s-config package provides scripts and files for configuring " 
+      "packages from the %s repository." % (self.name, self.fullname),
+      "%s configuration" % self.fullname,
       requires = ['coreutils']
     )
 
@@ -53,12 +43,11 @@ class ConfigEventMixin(RpmBuildMixin):
     self.io.validate_destnames([ path for path in 
       self.config.xpath((self.rpmxpath + '/files'), [] ) ])
 
-  def setup(self, webpath, files_cb=None, files_text="downloading files",
+  def setup(self, files_cb=None, files_text="downloading files",
             **kwargs):
     self.DATA['variables'].append('config_mixin_version')
     self.DATA['config'].append(self.rpmxpath)
 
-    self.webpath = webpath
     self.masterrepo = '%s-%s' % (self.name, 
                       hashlib.md5(self.solutionid).hexdigest()[-6:])
     self.files_cb = files_cb
@@ -92,56 +81,7 @@ class ConfigEventMixin(RpmBuildMixin):
     self.debugdir    = self.rpm.source_folder // self.installdir
     self.debug_postfile = self.debugdir/'config-post-script'
 
-    # compute input repos text and add to diff variables
-    self.input_repos_text = []
-
-    for repo in self.cvars['repos'].values(): #include input repos
-      try:
-        #  exclude rhn repos
-        if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
-          continue
-        # exclude local file repos
-        if "file:///" in repo.url:
-          continue
-        self.input_repos_text.extend(repo.lines(pretty=True))
-        self.input_repos_text.append('')
-      except AttributeError:
-        pass
-
-    self.DATA['variables'].extend(['input_repos_text', 'masterrepo', 'webpath'])
-
-    # setup gpgkeys
-    self.cvars['gpgcheck-enabled'] = self.config.getbool(
-                                     '%s/updates/@gpgcheck' % self.rpmxpath,
-                                     True)
-    self.pklfile = self.mddir/'gpgkeys.pkl'
-    self.gpgkey_dir = self.SOFTWARE_STORE/'gpgkeys'
-
-    if not self.cvars['gpgcheck-enabled']:
-      return
-
-    # setup gpgkeys
-    repos = self.cvars['repos'].values()
-    if 'gpgsign' in self.cvars: 
-      repos = (repos +
-              # using a dummy repo since rpmbuild repo not yet created
-               [YumRepo(id='dummy', gpgkey=self.cvars['gpgsign']['pubkey'])])
-
-    for repo in repos:
-      for url in repo.gpgkey:
-        try:
-          self.io.add_fpath(url,
-            self.gpgkey_dir,
-            destname='RPM-GPG-KEY-%s' % \
-              yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
-              str(repo)))[0]['hexkeyid'].lower(),
-            id='gpgkeys')
-        except yum.Errors.YumBaseError, e:
-          raise MissingGPGKeyError(file=url, repo=repo.id)
-
   def run(self):
-    for path in [ self.pklfile, self.gpgkey_dir ]:
-      path.rm(recursive=True, force=True)
     RpmBuildMixin.run(self)
 
   def add_requires(self):
@@ -151,14 +91,10 @@ class ConfigEventMixin(RpmBuildMixin):
     return self.extra_requires
 
   def generate(self):
-    for what in ['files', 'gpgkeys', 'triggers']:
+    for what in ['files', 'triggers']:
       self.io.process_files(cache=True, callback=self.files_cb, 
                             text=self.files_text, what=what)
 
-    self._generate_repofile()
-    if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
-      self.rpm.requires.append('yum')
-      self._include_sync_plugin()
     self._generate_files_checksums()
     self.files =  [ x[len(self.srcfiledir):] 
                     for x in self.srcfiledir.findpaths(
@@ -183,50 +119,6 @@ class ConfigEventMixin(RpmBuildMixin):
     md5file.chmod(0640)
 
     self.DATA['output'].append(md5file)
-
-  def _generate_repofile(self):
-    repofile = ( self.srcfiledir / 'etc/yum.repos.d/%s.repo' % self.name )
-
-    lines = []
-    # include system repo
-    if self.webpath is not None:
-      baseurl = self.webpath
-      lines.extend([ '[%s]' % self.masterrepo, 
-                     'name      = %s - %s' % (self.fullname, self.basearch),
-                     'baseurl   = %s' % baseurl,
-                     'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
-                     ])
-      lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
-
-    # include input repos
-    lines.append('') 
-    lines.extend(self.input_repos_text)
-
-    if len(lines) > 0:
-      repofile.dirname.mkdirs()
-      repofile.write_lines(lines)
-
-      self.DATA['output'].append(repofile)
-
-  def _include_sync_plugin(self):
-    # replacement map for config file
-    map = { 'masterrepo': self.masterrepo }
-
-    # config
-    configfile = (self.srcfiledir / 'etc/yum/pluginconf.d/sync.conf')
-    configfile.dirname.mkdirs()
-    # hackish - do %s replacement for masterrepo
-    configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
-
-    # cronjob
-    #cronfile = (self.srcfiledir / 'etc/cron.daily/sync.cron')
-    #cronfile.dirname.mkdirs()
-    #cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
-
-    # plugin
-    plugin = (self.srcfiledir / 'usr/lib/yum-plugins/sync.py')
-    plugin.dirname.mkdirs()
-    plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
 
   def get_pre(self):
     scripts = [self._mk_pre()]
@@ -481,7 +373,6 @@ class ConfigEventMixin(RpmBuildMixin):
     return scripts
 
   def _make_script(self, iterable, id):
-
     """For each item in the iterable concat it onto the script. Write the
     completed script to a file for inclusion in the rpm spec file."""
     script = ''
@@ -499,41 +390,5 @@ class ConfigEventMixin(RpmBuildMixin):
     else:
       return None
 
-  def _gpgkeys(self):
-    if not self.cvars['gpgcheck-enabled']:
-      self.pklfile.rm(force=True)
-      return []
-
-    # get list of keys
-    gpgkeys = set(self.io.list_output(what='gpgkeys'))
-
-    # cache for future
-    fo = self.pklfile.open('wb')
-    cPickle.dump(gpgkeys, fo, -1)
-    self.DATA['output'].append(self.pklfile)
-    fo.close()
-
-    # create gpgkey list for use by yum sync plugin
-    listfile = self.gpgkey_dir/'gpgkey.list'
-    lines = [x.basename for x in gpgkeys]
-    listfile.write_lines(lines)
-    self.DATA['output'].append(listfile)
-
-    # convert keys to remote urls for use in repofile
-    remotekeys = set([(self.webpath/x[len(self.SOFTWARE_STORE+'/'):])
-                       for x in gpgkeys])
-
-    return remotekeys
-
   def apply(self):
     self.rpm._apply()
-
-    if self.pklfile.exists():
-      fo = self.pklfile.open('rb')
-      self.cvars['gpgkeys']=cPickle.load(fo)
-      fo.close()
-    else:
-      self.cvars['gpgkeys']=[]
-
-class MissingGPGKeyError(CentOSStudioError):
-  message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"

@@ -148,10 +148,15 @@ class DeployEventMixin:
     including 'install-script', 'treeinfo', 'kickstart' and 'activate'.
     '''
 
-    if 'config-release' in triggers:
-      # has the system_config packaged changed?
-      if 'config_release' in self.diff.variables.diffdict:
-        self.log(1, L1("system-config-%s package changed, reinstalling" 
+    if 'release-rpm-release' in triggers:
+      if 'release_rpm_release' in self.diff.variables.diffdict:
+        self.log(1, L1("%s-release package changed, reinstalling" 
+                       % self.name))
+        return True # reinstall
+
+    if 'config-rpm-release' in triggers:
+      if 'config_rpm_release' in self.diff.variables.diffdict:
+        self.log(1, L1("%s-release package changed, reinstalling" 
                        % self.name))
         return True # reinstall
 

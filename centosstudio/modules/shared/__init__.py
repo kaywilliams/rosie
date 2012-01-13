@@ -27,6 +27,7 @@ from centosstudio.modules.shared.repomd       import *
 from centosstudio.modules.shared.repos        import *
 from centosstudio.modules.shared.rpmbuild     import *
 from centosstudio.modules.shared.config       import * # requires rpmbuild
+from centosstudio.modules.shared.release      import * # requires rpmbuild
 from centosstudio.modules.shared.testpublish  import * # requires config
 
 class ListCompareMixin:

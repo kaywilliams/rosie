@@ -8,30 +8,8 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <optional>
-        <attribute name="datafile-dir"/>
-        </optional>
 
         <interleave>
-
-        <optional>
-        <element name="updates">
-          <optional>
-          <attribute name="sync"><ref name="value-boolean"/></attribute>
-          </optional>
-          <optional>
-          <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
-          </optional>
-        </element>
-        </optional>
-
-        <optional>
-        <element name="gpgsign">
-          <element name="public"><text/></element>
-          <element name="secret"><text/></element>
-          <optional><element name="passphrase"><text/></element></optional>
-        </element>
-        </optional>
 
         <zeroOrMore>
         <element name="files">

@@ -41,7 +41,7 @@ class TestInstallSetupEvent(TestPublishEventMixin, Event):
       parentid = 'test-events',
       version = 1.0,
       requires = ['os-dir'],
-      conditionally_requires = [ 'kickstart-file', 'config-release'],
+      conditionally_requires = [ 'kickstart-file', 'rpmbuild-data'],
       provides = [ 'test-install-repomdfile', 'test-install-kstext'],
     ) 
 
@@ -54,7 +54,7 @@ class TestInstallEvent(DeployEventMixin, Event):
       id = 'test-install',
       parentid = 'test-events',
       requires = [ 'test-install-kstext', 'treeinfo-text'], 
-      conditionally_requires = [ 'test-install-repomdfile', 'config-release'],
+      conditionally_requires = [ 'test-install-repomdfile', 'rpmbuild-data'],
     )
 
     self.DATA =  {
@@ -71,15 +71,18 @@ class TestInstallEvent(DeployEventMixin, Event):
     self.kstext = self.cvars['test-install-kstext']
     self.titext = self.cvars['treeinfo-text']
     self.repomdfile = self.cvars['test-install-repomdfile']
-    if 'config-release' in self.cvars:
-      self.config_release = self.cvars['config-release']
-    else:
-      self.config_release = None
-    self.DATA['variables'].extend([ 'kstext', 'titext', 'config_release'])
+    for r in ['release-rpm', 'config-rpm']:
+      try:
+        setattr(self, '%s_release' % r.replace('-', '_'), 
+                self.cvars['rpmbuild-data'][r]['rpm-release'])
+      except KeyError:
+        setattr(self, '%s_release' % r.replace('-', '_'), None)
+    self.DATA['variables'].extend([ 'kstext', 'titext', 'release_rpm_release',
+                                    'config_rpm_release'])
     DeployEventMixin.setup(self)
 
   def run(self):
     self.install_triggers = [ 'install-script', 'kickstart', 'treeinfo',
-                              'config-release', ]
+                              'release-rpm-release', 'config-rpm-release' ]
     DeployEventMixin.run(self)
 
