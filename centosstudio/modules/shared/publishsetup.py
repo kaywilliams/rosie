@@ -73,9 +73,9 @@ class PublishSetupEventMixin:
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
     if self.moduleid == 'publish':
-      default = '/var/www/html/repos'
+      default = '/var/www/html/solutions'
     else:
-      default = '/var/www/html/repos/%s' % self.moduleid
+      default = '/var/www/html/solutions/%s' % self.moduleid
 
     local = self.config.getpath('local-dir/text()', default)
     return local / self.solutionid
@@ -83,9 +83,9 @@ class PublishSetupEventMixin:
   def get_remote(self): 
     self.DATA['config'].append('remote-url')
     if self.moduleid == 'publish':
-      default = 'repos'
+      default = 'solutions'
     else:
-      default = 'repos/%s' % self.moduleid
+      default = 'solutions/%s' % self.moduleid
 
     remote = pps.path(self.config.getpath('/*/%s/remote-url/text()'
                       % self.moduleid, 
