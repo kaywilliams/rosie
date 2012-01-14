@@ -23,7 +23,11 @@
 </refnamediv>
 
 <refsect1 id='centosstudio.conf.5-description'><title>DESCRIPTION</title>
-<para>CentOS Studio uses an optional configuration file centosstudio.conf located at <filename>/etc/centosstudio/</filename>. The location of this file can be overridden using the <command>-c</command> or <command>--config</command> CentOS Studio command line option. The default CentOS Studio installation does not include a centosstudio.conf file.</para>
+<para>CentOS Studio uses an optional configuration file centosstudio.conf
+located at <filename>/etc/centosstudio/</filename>. The location of this file
+can be overridden using the <command>-c</command> or
+<command>--config</command> CentOS Studio command line option. The default
+CentOS Studio installation does not include a centosstudio.conf file.</para>
 </refsect1>
 
 <refsect1 id='centosstudio.conf.5-optional-elements'><title>ELEMENTS</title>
@@ -35,7 +39,13 @@
 <varlistentry>
   <term><option>lib-path</option></term>
   <listitem>
-    <para>By default, CentOS Studio searches directories listed on the system path to locate CentOS Studio modules. The lib-path element allows specifying additional directory <replaceable class="parameter">PATHs</replaceable> in which one or more CentOS Studio modules can be found. Multiple path elements are allowed.  This element corresponds to the <command>--lib-path</command> command-line option.</para>
+    <para>By default, CentOS Studio searches directories listed on the system
+    path to locate CentOS Studio modules. The lib-path element allows
+    specifying additional directory <replaceable
+    class="parameter">PATHs</replaceable> in which one or more CentOS Studio
+    modules can be found. Multiple path elements are allowed.  This element
+    corresponds to the <command>--lib-path</command> command-line
+    option.</para>
 <programlisting>
 &lt;lib-path&gt;PATH&lt;/lib-path&gt;
 </programlisting>
@@ -45,7 +55,12 @@
 <varlistentry>
   <term><option>log-file</option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which CentOS Studio writes logging information.  The default path is <filename>/var/log/centosstudio.log</filename>.   CentOS Studio creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
+    <para>Specifies the directory and filename <replaceable
+    class="parameter">PATH</replaceable> to which CentOS Studio writes logging
+    information.  The default path is
+    <filename>/var/log/centosstudio.log</filename>.   CentOS Studio creates the
+    log file if none exists. This element corresponds to the
+    <command>--log-file</command> command-line option.</para>
 <programlisting>
 &lt;log-file&gt;PATH&lt;/log-file&gt;
 </programlisting>
@@ -56,7 +71,14 @@
 <varlistentry>
   <term><option>share-path</option></term>
   <listitem>
-    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of CentOS Studio's shared files can be found; the directory contains a hierarchy enabling CentOS Studio to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/centosstudio</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
+    <para>Specifies a directory <replaceable
+    class="parameter">PATH</replaceable> in which one or more of CentOS
+    Studio's shared files can be found; the directory contains a hierarchy
+    enabling CentOS Studio to extract files for schemas,
+    <filename>*.rng</filename>, fonts and images.  The default path is
+    <filename>/usr/share/centosstudio</filename>.  Multiple path elements are
+    allowed.  This element corresponds to the <option>--share-path</option>
+    command-line option .</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
 </programlisting>
@@ -66,7 +88,10 @@
 <varlistentry>
   <term><option>debug</option></term>
   <listitem>
-    <para>Specifies a boolean value which enables or disables debug mode in CentOS Studio.  Enabling debug mode causes exception tracebacks, which are normally visible only in the log file, to be additionally displayed on the command line.</para>
+    <para>Specifies a boolean value which enables or disables debug mode in
+    CentOS Studio.  Enabling debug mode causes exception tracebacks, which are
+    normally visible only in the log file, to be additionally displayed on the
+    command line.</para>
 <programlisting>
 &lt;debug&gt;BOOLEAN&lt;/debug&gt;
 </programlisting>
@@ -78,13 +103,16 @@
 
 <refsect1 id='centosstudio.conf.5-optional-cache'>
 <title>CACHE ELEMENTS</title>
-<para>CentOS Studio caches data across sessions for improved performance.  The cache element allows specifying cache-related options.</para>
+<para>CentOS Studio caches data across sessions for improved performance.  The
+cache element allows specifying cache-related options.</para>
 
 <variablelist>
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where CentOS Studio stores both shared and per-solution cache data.  The default is <filename>/var/cache/centosstudio</filename>.
+<para>The <literal>path</literal> child element specifies where CentOS Studio
+stores both shared and per-solution cache data.  The default is
+<filename>/var/cache/centosstudio</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -97,9 +125,15 @@
 <varlistentry>
   <term><option>max-size</option></term>
   <listitem>
-    <para>The <literal>max-size</literal> child element specifies the maximum size for the shared cache located at <filename>CACHEDIR/.cache</filename>. The shared cache contains a copy of all files downloaded by CentOS Studio. There is no human-readable form of the shared cache. The default size is 30GB. The recommended minimum size is 5GB. The default suffix is GB; other common suffixes are MB, GiB and TB.</para>
+    <para>The <literal>max-size</literal> child element specifies the maximum
+    size for the shared cache located at <filename>CACHEDIR/.cache</filename>.
+    The shared cache contains a copy of all files downloaded by CentOS Studio.
+    There is no human-readable form of the shared cache. The default size is
+    30GB. The recommended minimum size is 5GB. The default suffix is GB; other
+    common suffixes are MB, GiB and TB.</para>
 
-<para>CentOS Studio deletes files from the shared cache on a least-recently used basis.</para>
+<para>CentOS Studio deletes files from the shared cache on a least-recently
+used basis.</para>
 <programlisting>
 &lt;cache&gt;
     &lt;max-size&gt;TEXT&lt;/max-size&gt;
@@ -120,28 +154,32 @@
 <varlistentry>
   <term>BOOLEAN</term>
   <listitem>
-    <para>BOOLEAN is one of the following values: Yes, yes, True, true, On, on, 1, No, no, False, false, Off, off, 0.</para>
+    <para>BOOLEAN is one of the following values: Yes, yes, True, true, On, on,
+    1, No, no, False, false, Off, off, 0.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where CentOS Studio stores shared and per-solution cache data.</para>
+    <para>CACHEDIR is the directory location where CentOS Studio stores shared
+    and per-solution cache data.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para>PATH is a local absolute or relative file path. CentOS Studio resolves relative paths from the current working directory.</para>
+    <para>PATH is a local absolute or relative file path. CentOS Studio
+    resolves relative paths from the current working directory.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>TEXT</term>
   <listitem>
-    <para>TEXT is a string value.  The description of each element explains that element's expected values or acceptable variations.</para>
+    <para>TEXT is a string value.  The description of each element explains
+    that element's expected values or acceptable variations.</para>
   </listitem>
 </varlistentry>
 
@@ -151,7 +189,8 @@
  <refsect1 id="centosstudio.conf.5-examples">
     <title>EXAMPLES</title>
     <para>
-      An example CentOS Studio configuration file with multiple listings for share-path and lib-path elements is shown below:
+      An example CentOS Studio configuration file with multiple listings for
+      share-path and lib-path elements is shown below:
     </para>
 
     <programlisting>
