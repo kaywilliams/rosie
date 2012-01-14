@@ -153,9 +153,10 @@ EOF""" % (name, pubring, secring)
       # sufficient for RPM-GPG-KEY scenarios.
       p = subprocess.Popen([rngd, '-f', '-r', '/dev/urandom'],
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    r = subprocess.call(cmd, shell=True)
-    if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
-    if r != 0 : raise RuntimeError
+    try:
+      shlib.execute(cmd)
+    finally:
+      if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
 
     shlib.execute('gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
                    self.pubkey))
