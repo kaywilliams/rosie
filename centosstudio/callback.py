@@ -182,7 +182,7 @@ class SyncCallbackCompressed(SyncCallback):
     count : the 'size' of the progress bar (number of rpms)
     """
     SyncCallback.sync_start(self, text=text, count=count)
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar = ProgressBar(size=count, title=L2(''), layout=LAYOUT_GPG)
       self.bar.start()
 
@@ -191,7 +191,7 @@ class SyncCallbackCompressed(SyncCallback):
     At log level 1 and below, do nothing
     At log level 2 and above, update the progress bar's title
     """
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.tags['title'] = L2(text)
 
   def _cp_update(self, amount_read): pass
@@ -200,7 +200,7 @@ class SyncCallbackCompressed(SyncCallback):
     At log level 1 and below, do nothing
     At log level 2 and above, update the progress bar's position
     """
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.status.position += 1
 
   def sync_end(self):
@@ -209,7 +209,7 @@ class SyncCallbackCompressed(SyncCallback):
     At log level 2 and above, finish off the progress bar and write it to the
     logfile
     """
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.tags['title'] = L2('done')
       self.bar.update(self.bar.status.size)
       self.bar.finish()
@@ -237,7 +237,7 @@ class BuildDepsolveCallback(object):
     self.bar = None
 
   def setupStart(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       msg = 'reading package metadata'
       self.bar = ProgressBar(title=L1(msg),
                              layout=LAYOUT_TIMER,
@@ -245,7 +245,7 @@ class BuildDepsolveCallback(object):
       self.bar.start()
 
   def setupEnd(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
       self.bar = None
@@ -269,7 +269,7 @@ class BuildDepsolveCallback(object):
 
   def tscheck(self, unresolved=0):
     self.count = unresolved 
-    if self.logger.test(2):
+    if self.logger.test(3):
       msg = 'loop %d (%d package%s)' % (self.loop, self.count, self.count != 1 and 's' or '')
       self.bar = ProgressBar(size=self.count, title=L2(msg),
                              layout=LAYOUT_DEPSOLVE,
@@ -277,18 +277,18 @@ class BuildDepsolveCallback(object):
       self.bar.start()
 
   def pkgAdded(self, pkgtup=None, state=None):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.status.position += 1
 
   def restartLoop(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
     self.loop += 1
 
   def end(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
@@ -306,7 +306,7 @@ class PkglistCallback(BuildDepsolveCallback):
 
   def start(self):
     self.loop += 1
-    if self.logger.test(2):
+    if self.logger.test(3):
       msg = 'resolving package dependencies'
       self.bar = ProgressBar(title=L1(msg),
                              layout=LAYOUT_TIMER,
@@ -323,7 +323,7 @@ class PkglistCallback(BuildDepsolveCallback):
     self.loop += 1
 
   def end(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.finish()
       self.bar = None
       self.logger.logfile.log(2, str(self.bar))
@@ -340,12 +340,12 @@ class TimerCallback(object):
     self.bar = None
 
   def start(self, message):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar = ProgressBar(layout=LAYOUT_TIMER, title=L1(message))
       self.bar.start()
 
   def end(self):
-    if self.logger.test(2):
+    if self.logger.test(3):
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
       self.bar = None
