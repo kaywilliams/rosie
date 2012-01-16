@@ -133,11 +133,12 @@ class DeployEventMixin:
       self._execute('install-script')
       self._execute('activate-script')
       self._execute('verify-install-script')
+      self._execute('post-script')
 
     else:
+      self._execute('activate-script')
       self._execute('update-script')
- 
-    self._execute('post-script')
+      self._execute('post-script')
  
  
   #------ Helper Functions ------#
