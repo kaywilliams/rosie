@@ -69,18 +69,21 @@ class DepsolverMixin(object):
       logger = self.logger
     )
 
-    solver.setup()
+    try:
+      solver.setup()
 
-    pos = solver.getPackageObjects()
-    pkgdict = {}
-    for po in pos:
-      if not pkgdict.has_key(po.repoid):
-        pkgdict[po.repoid] = []
-      pkgdict[po.repoid].append( (po.name, po.arch, po.remote_path,
-                                  po.size, po.filetime) )
+      pos = solver.getPackageObjects()
+      pkgdict = {}
+      for po in pos:
+        if not pkgdict.has_key(po.repoid):
+          pkgdict[po.repoid] = []
+        pkgdict[po.repoid].append( (po.name, po.arch, po.remote_path,
+                                    po.size, po.filetime) )
 
-    solver.teardown()
-    solver = None
+    finally:
+      solver.teardown()
+      solver = None
+
     return pkgdict
 
   def _create_repoconfig(self):
