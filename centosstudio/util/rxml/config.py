@@ -26,6 +26,7 @@ __version__  = '3.0'
 __date__     = 'June 13th, 2007'
 
 import lxml
+import re
 
 from xml.sax.saxutils import escape
 
@@ -258,6 +259,22 @@ class ConfigElement(tree.XmlTreeElement):
           raise errors.ConfigError(message)
 
         elem.getparent().remove(elem)
+
+    # resolve macros in map - recursive
+    p = re.compile('%{[^}]*}')
+    for macro in map:
+      unknown = set() # ignore unknown macros, perhaps they aren't really macros
+      resolved = False
+      while resolved == False: # loop until all macros are resolved or unknown
+        remaining = set(p.findall(map[macro])).difference(unknown)
+        if remaining: 
+          for match in remaining:
+            if match in map.keys():
+              map[macro] = map[macro].replace(match, map[match])
+            else:
+              unknown.add(match)
+        else: 
+          resolved = True
 
     # expand macros
     for item in xpaths:
