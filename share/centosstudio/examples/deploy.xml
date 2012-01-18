@@ -42,8 +42,6 @@ if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
   grep -v "^Installing "
   exit 1
-else
-  exit 0
 fi
 </verify-install-script>
 
