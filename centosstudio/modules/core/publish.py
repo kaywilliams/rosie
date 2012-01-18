@@ -23,7 +23,6 @@ import struct
 
 from centosstudio.util import pps
 
-from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging   import L1
 
@@ -191,20 +190,3 @@ class DeployEvent(DeployEventMixin, Event):
 
   def run(self):
     DeployEventMixin.run(self)
-
-
-#------ Error Classes ------#
-class InterfaceIOError(CentOSStudioError):
-  message = ( "Error looking up information for interface '%(interface)s': "
-              "%(message)s" )
-
-class FQDNNotFoundError(CentOSStudioError):
-  message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
-              "IP address '%(ipaddr)s' on interface '%(interface)s'. "
-              "Valid FQDNs must contain at least one '.' to separate host "
-              "and domain parts. The hostname(s) found for this address "
-              "include %(hostname)s. If this IP address is correct, please "
-              "check with your network administrator to ensure the DNS reverse "
-              "record is correctly configured. Otherwise, please specify an "
-              "alternative interface for obtaining the IP address. See the "
-              "CentOS Studio documentation on 'Publish' for more information.") 

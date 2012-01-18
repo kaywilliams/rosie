@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import unittest
 
-from centosstudio.util.rxml import datfile
+from centosstudio.errors    import CentOSStudioError
+from centosstudio.util.rxml import config, datfile
 
 from cstest      import EventTestCase, decorate
 from cstest.core import CoreTestSuite
@@ -24,7 +26,80 @@ from cstest.core import CoreTestSuite
 class PublishSetupMixinTestCase:
   pass
 
-def PSMTest_NoPassword(self):
+def PublishSetupMixinTest_Config(self):
+  self._testMethodDoc = "config values correctly populate macros and cvars"
+
+  self.values = { 
+    'password':     'test-password',
+    'hostname':     'test-hostname',
+    'localpath':    '/test/local/path',
+    'webpath':      'http://test/web/path',
+    'boot_options': 'test boot options',
+    }
+
+  def pre_setUp():
+    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    mod.set("password", self.values['password'])
+    mod.set("hostname", self.values['hostname'])
+    config.Element('local-dir', text=self.values['localpath'], parent=mod)
+    config.Element('remote-url', text=self.values['webpath'], parent=mod)
+    config.Element('boot-options', text=self.values['boot_options'], parent=mod)
+
+  def runTest():
+    self.tb.dispatch.execute(until=self.event.id)
+    self.failUnless(check_results()) 
+
+  def check_results():
+    errors = [] 
+
+    # check attributes
+    for k in self.values:
+      if k in ['webpath', 'localpath']:
+        test = eval('self.event.%s' % k).startswith(self.values[k])
+      else:
+        test = eval('self.event.%s' % k) == self.values[k] 
+      if not test: 
+        errors.append("%s attribute does not match: %s, %s" % 
+                     (k, eval('self.event.%s' % k), self.values[k])) 
+
+    # check macros
+    for k in self.values:
+      if k == 'localpath':
+        continue
+      elif k == 'webpath':
+        test = self.event.macros['%{url}'].startswith(self.values[k])
+      else:
+        test = (eval('self.event.macros["%%{%s}"]' % k.replace('_', '-')) 
+                == self.values[k])
+      if not test:
+        errors.append("%s macro does not match: %s, %s" % 
+                     (k, eval('self.event.%s' % k), self.values[k])) 
+
+
+    #check cvars
+    for k in self.values:
+      if k in ['webpath', 'localpath']:
+        test = (eval('self.event.cvars["%s-setup-options"]["%s"]' % 
+               (self.moduleid, k)).startswith(self.values[k]))
+      else:
+        test = (eval('self.event.cvars["%s-setup-options"]["%s"]' % 
+               (self.moduleid, k.replace('_', '-'))) == self.values[k])
+      if not test:
+        errors.append("%s cvar does not match: %s, %s" % 
+                     (k, eval('self.event.%s' % k), self.values[k])) 
+
+    if errors:
+      print errors
+      return False
+    else:
+      return True
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
+def PublishSetupMixinTest_NoPassword(self):
   self._testMethodDoc = "password generated if not provided"
 
   def runTest():
@@ -45,15 +120,12 @@ def PSMTest_NoPassword(self):
 
   return self
 
-def PSMTest_Password(self):
+def PublishSetupMixinTest_Password(self):
   self._testMethodDoc = "password used if provided"
 
   def pre_setUp():
     mod = self.conf.get('/*/%s' % self.moduleid, None)
-    if mod is not None:
-      mod.set("password", "password")
-    else:
-      self._add_config("<%s password='password'/>" % self.moduleid)
+    mod.set("password", "password")
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
@@ -75,7 +147,8 @@ def saved(self, xpath):
 
 def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
   suite = CoreTestSuite()
-  suite.addTest(PSMTest_NoPassword(TestCase(distro, version, arch, conf)))
-  suite.addTest(PSMTest_Password(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_Config(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_NoPassword(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_Password(TestCase(distro, version, arch, conf)))
   return suite
 

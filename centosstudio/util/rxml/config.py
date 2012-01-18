@@ -320,6 +320,8 @@ def _make_path(element, path, fallback=None, relative=False, multiple=True):
 
   # does the path query returns results?
   try:
+    if path[0] != '/':
+      path = '%s/%s' % (roottree.getpath(element), path)
     strings = roottree.xpath(path)
     test = strings[0] # trick to force an IndexError if list is empty
 

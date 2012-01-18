@@ -25,7 +25,8 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.util import pps
+from centosstudio.errors import CentOSStudioError
+from centosstudio.util   import pps
 from centosstudio.util.rxml import datfile
 
 # Include this mixin in any event that requires hostname and password 
@@ -87,8 +88,7 @@ class PublishSetupEventMixin:
     else:
       default = 'solutions/%s' % self.moduleid
 
-    remote = pps.path(self.config.getpath('/*/%s/remote-url/text()'
-                      % self.moduleid, 
+    remote = pps.path(self.config.getpath('remote-url/text()',
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
     if self.moduleid == 'publish':
@@ -188,7 +188,7 @@ class PublishSetupEventMixin:
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
-    if (len(self.config.get('/*/%s/@password' % self.moduleid, '')) == 0 and 
+    if (len(self.config.get('@password', '')) == 0 and 
         self.moduleid == 'publish'):
       password = uElement('password', parent=parent, text=self.password)
     else:
@@ -246,3 +246,19 @@ def get_interfaces():
                socket.inet_ntoa(namestr[i+20:i+24]) )
              for i in range(0, outbytes, roffset) ] )
 
+
+#------ Error Classes ------#
+class InterfaceIOError(CentOSStudioError):
+  message = ( "Error looking up information for interface '%(interface)s': "
+              "%(message)s" )
+
+class FQDNNotFoundError(CentOSStudioError):
+  message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
+              "IP address '%(ipaddr)s' on interface '%(interface)s'. "
+              "Valid FQDNs must contain at least one '.' to separate host "
+              "and domain parts. The hostname(s) found for this address "
+              "include %(hostname)s. If this IP address is correct, please "
+              "check with your network administrator to ensure the DNS reverse "
+              "record is correctly configured. Otherwise, please specify an "
+              "alternative interface for obtaining the IP address. See the "
+              "CentOS Studio documentation on 'Publish' for more information.") 
