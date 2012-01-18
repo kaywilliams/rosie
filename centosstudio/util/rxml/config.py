@@ -244,7 +244,13 @@ class ConfigElement(tree.XmlTreeElement):
     # locate and remove macro definitions
     for item in xpaths:
       for elem in self.xpath('%s/macro' % item, []):
-        name = '%%{%s}' % elem.attrib['id']
+
+        try:
+          name = '%%{%s}' % elem.attrib['id']
+        except KeyError:
+          message = ("\nError resolving macros in '%s'\n  Missing required 'id' attribute. The invalid section is:\n%s\n" % (self.getroot().file, tree.XmlTreeElement.tostring(elem, lineno=True)))
+          raise errors.ConfigError(message)
+
         if name not in map:
           map[name] = elem.text
         else:
