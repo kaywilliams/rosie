@@ -82,7 +82,7 @@ class TestInstallEvent(DeployEventMixin, Event):
     DeployEventMixin.setup(self)
 
   def run(self):
-    self.install_triggers = [ 'install-script', 'kickstart', 'treeinfo',
+    self.install_triggers = [ 'install-scripts', 'kickstart', 'treeinfo',
                               'release-rpm-release', 'config-rpm-release' ]
     DeployEventMixin.run(self)
 

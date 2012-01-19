@@ -161,14 +161,13 @@ class DeployEventMixin:
                        % self.name))
         return True # reinstall
 
-    if 'install-script' in triggers:
-      # did install script change (either file or text)?
-      script_file = self.io.list_input(what='install-script')
-      if (( script_file and script_file[0] in self.diff.input.diffdict) 
-           or '/*/%s/install-script' % self.id 
-           in self.diff.config.diffdict):
-        self.log(1, L1("'install-script' changed, reinstalling...")) 
-        return True # reinstall
+    if 'install-scripts' in triggers:
+      # did install or verify install scripts change?
+      for script in ['install-script', 'verify-install-script']:
+        if ('/solution/%s/%s' % (self.id, script)
+            in self.diff.config.diffdict):
+          self.log(1, L1("'%s' changed, reinstalling..." % script)) 
+          return True # reinstall
   
     if 'kickstart' in triggers:
       # did kickstart change?
