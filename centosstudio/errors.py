@@ -94,7 +94,7 @@ class ShLibError(CentOSStudioError):
 
 class RhnSupportError(RuntimeError, CentOSStudioError):
   def __str__(self):
-    return ( "RHN support not enabled - please install then 'rhnlib' and "
+    return ( "RHN support not enabled - please install the 'rhnlib' and "
              "'rhn-client-tools' packages from the centosstudio software repo "
              "at www.centosstudio.org" )
 
