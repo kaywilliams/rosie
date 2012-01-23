@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from StringIO import StringIO
-
 import unittest
 
 from centosstudio.util import pps
@@ -88,152 +86,6 @@ class DepsolveEventTestCase(EventTestCase):
         repos.append(r.toxml())
 
     return repos
-
-class _PackagesEventTestCase(DepsolveEventTestCase):
-  def __init__(self, distro, version, arch, conf=None):
-    DepsolveEventTestCase.__init__(self, distro, version, arch, conf)
-    self.included_groups = []
-    self.included_pkgs = []
-    self.excluded_pkgs = []
-
-  def setUp(self):
-    DepsolveEventTestCase.setUp(self)
-    self.clean_event_md()
-
-  def read_groupfile(self):
-    return rxml.tree.parse(self.event.compsfile).getroot()
-
-  def check_all(self, groupfile):
-    self.check_core(groupfile)
-    self.check_category(groupfile)
-    self.check_excluded(groupfile)
-
-  def check_core(self, groupfile):
-    #still need to check if packages from included_groups in core
-
-    packages = groupfile.xpath('/comps/group[\'core\']/packagelist/packagereq/text()')
-    for pkg in self.included_pkgs:
-      self.failUnless(pkg in packages, '%s not in %s' % (pkg, packages))
-
-    kfound = False
-    for kernel in KERNELS:
-      if kernel in packages:
-        kfound = True; break
-    self.failUnless(kfound)
-
-  def check_category(self, groupfile):
-    self.failUnlessEqual(
-      sorted(groupfile.xpath('/comps/category/grouplist/groupid/text()')),
-      sorted(['core'])
-    )
-
-  def check_excluded(self, groupfile):
-    pkgs = groupfile.xpath('/comps/group/packagelist/packagreq/text()')
-    for pkg in self.excluded_pkgs:
-      self.failIf(pkg in pkgs)
-
-class Test_IncludePackages(_PackagesEventTestCase):
-  "groupfile generated, groups included in core, kernel unlisted"
-  _conf = \
-  """<packages>
-    <group>core</group>
-    <group>base</group>
-    <package>createrepo</package>
-    <package>httpd</package>
-  </packages>"""
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-
-    groupfile = self.read_groupfile()
-
-    self.included_pkgs = ['createrepo', 'httpd']
-    self.check_all(groupfile)
-
-class Test_IncludeGroupsAndPackages(_PackagesEventTestCase):
-  "groupfile generated, groups and packages included"
-  def __init__(self, distro, version, arch, conf=None):
-    _PackagesEventTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config({ 
-    '5': \
-    """<packages>
-      <group>base</group>
-      <group>printing</group>
-    </packages>""",
-    '6': \
-    """<packages>
-      <group>base</group>
-      <group>console-internet</group>
-    </packages>""",
-    }[version[:1]])
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-
-    self.check_all(self.read_groupfile())
-
-class Test_ExcludePackages(_PackagesEventTestCase):
-  "groupfile generated, packages excluded"
-  _conf = \
-  """<packages>
-    <group>core</group>
-    <package>httpd</package>
-    <exclude>httpd</exclude> 
-  </packages>"""
-
-  def setUp(self):
-    # Consider moving comps writing to a separate event for improved test perf
-    # as well as to eliminate issues where comps write succeeds but depsolve
-    # fails
-    _PackagesEventTestCase.setUp(self)
-    self.event.cvars['excluded-packages'] = ['authconfig'] #must be a leaf node
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-
-    self.excluded_pkgs = ['httpd', 'authconfig']
-    self.check_all(self.read_groupfile())
-
-class Test_GroupsByRepo(_PackagesEventTestCase):
-  "groupfile generated, group included from specific repo"
-  def __init__(self, distro, version, arch, conf=None):
-    _PackagesEventTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config({ 
-    '5':
-    """<packages>
-      <group repoid="base">core</group>
-      <group>base</group>
-      <group repoid="base">printing</group>
-    </packages>""",
-    '6':
-    """<packages>
-      <group repoid="base">core</group>
-      <group>base</group>
-      <group repoid="base">console-internet</group>
-    </packages>""",}[version[:1]])
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-
-    self.check_all(self.read_groupfile())
-
-    # still need to check 'core' and 'printing' came from 'base' #!
-
-class Test_MultipleGroupfiles(_PackagesEventTestCase):
-  "groupfile generated, multiple repositories with groupfiles"
-  _conf = \
-  """<packages>
-    <group repoid="base">core</groups>
-    <group>base-x</group>
-  </packages>"""
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-
-    self.check_all(self.read_groupfile())
-
-    # still need to check that 'base-x' contains all packages listed in #!
-    # both 'base' and 'livna' groupfiles in 'base-x' group #!
 
 class Test_PackageAdded(DepsolveEventTestCase):
   "Package Added"
@@ -348,13 +200,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
 
   # core tests
   suite.addTest(make_core_suite(DummyDepsolveEventTestCase, distro, version, arch))
-
-  # groupfile tests
-  suite.addTest(Test_IncludePackages(distro, version, arch))
-  suite.addTest(Test_IncludeGroupsAndPackages(distro, version, arch))
-  suite.addTest(Test_ExcludePackages(distro, version, arch))
-  suite.addTest(Test_GroupsByRepo(distro, version, arch))
-  ##suite.addTest(Test_MultipleGroupfiles(distro, version, arch))
 
   # package added, obsoleted, and removed
   suite.addTest(Test_PackageAdded(distro, version, arch))

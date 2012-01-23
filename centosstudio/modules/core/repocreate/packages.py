@@ -17,6 +17,7 @@
 #
 
 import cPickle
+import hashlib 
 import fnmatch
 
 from centosstudio.util import magic
@@ -30,7 +31,7 @@ from centosstudio.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['PackagesEvent'],
+  events      = ['PackagesEvent', 'CompsEvent'],
   description = 'defines the required packages and groups for the system',
   group       = 'repocreate',
 )
@@ -218,6 +219,49 @@ class PackagesEvent(Event):
 
       if rid not in [ x for x,_ in self.groupfiles ]:
         raise RepoHasNoGroupfileError(gid, rid)
+
+
+class CompsEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'comps',
+      parentid = 'repocreate',
+      provides = ['groupfile'],
+      requires = ['repos'], #extended in Depsolver mixin
+      conditionally_requires = [], # set in Depsolver Mixin
+      version = '1.00'
+    )
+
+    self.DATA = {
+      'variables': [],
+      'output':    [],
+    }
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+    self.compsfile = self.mddir/'comps.xml'
+
+    # track changes to comps file content
+    self.comps_hash = hashlib.sha224(
+                      self.cvars['comps-object'].xml()).hexdigest()
+    self.DATA['variables'].append('comps_hash')
+
+  def run(self):
+    # write comps.xml
+    self.log(1, L1("writing comps.xml"))
+    self.compsfile.write_text(self.cvars['comps-object'].xml())
+    self.compsfile.chmod(0644)
+    self.DATA['output'].append(self.compsfile)
+
+  def apply(self):
+    # set groupfile cvars
+    self.cvars['groupfile'] = self.compsfile
+    assert_file_has_content(self.cvars['groupfile'])
+
+  def verify_cvar_comps_file(self):
+    "cvars['groupfile'] exists"
+    self.verifier.failUnless(self.cvars['groupfile'].exists(),
+      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
 
 #------ ERRORS ------#

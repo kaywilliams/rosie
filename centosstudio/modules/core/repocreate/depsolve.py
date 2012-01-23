@@ -49,7 +49,7 @@ class DepsolveEvent(Event, DepsolverMixin):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
-      provides = ['groupfile', 'pkglist'],
+      provides = ['pkglist'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin
       version = '1.08'
@@ -71,7 +71,6 @@ class DepsolveEvent(Event, DepsolverMixin):
     self.diff.setup(self.DATA)
     DepsolverMixin.setup(self)
 
-    self.compsfile = self.mddir/'comps.xml'
     self.pkglistfile = self.mddir / 'pkglist'
 
     # add relevant input/variable sections
@@ -86,11 +85,6 @@ class DepsolveEvent(Event, DepsolverMixin):
         self.DATA['input'].append(repo.localurl/subrepo._relpath/'repodata')
 
   def run(self):
-    # write comps.xml
-    self.compsfile.write_text(self.cvars['comps-object'].xml())
-    self.compsfile.chmod(0644)
-    self.DATA['output'].append(self.compsfile)
-
     # create pkglist
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
@@ -116,20 +110,11 @@ class DepsolveEvent(Event, DepsolverMixin):
                                 self.depsolve_repo])
 
   def apply(self):
-    # set groupfile cvars
-    self.cvars['groupfile'] = self.compsfile
-    assert_file_has_content(self.cvars['groupfile'])
-
     # set pkglist cvars
     assert_file_has_content(self.pkglistfile)
     pklfile = open(self.pkglistfile, 'rb')
     self.cvars['pkglist'] = cPickle.load(pklfile)
     pklfile.close()
-
-  def verify_cvar_comps_file(self):
-    "cvars['groupfile'] exists"
-    self.verifier.failUnless(self.cvars['groupfile'].exists(),
-      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
