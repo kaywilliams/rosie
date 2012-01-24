@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.0.28
+Version: 1.0.29
 Release: 1%{?dist}
 Summary: Platform for building CentOS and Red Hat Enterprise Linux systems
 
@@ -71,8 +71,8 @@ http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Fri Jan 20 2012 Kay Williams <kwilliams@centosstudio.org> - 1.0.28-1
+* Mon Jan 23 2012 Kay Williams <kwilliams@centossolutions.com> - 1.0.29-1
 - Beta 1 Build
 
-* Mon Jul 08 2011 Kay Williams <kwilliams@centosstudio.org> - 0.9.1-1
+* Mon Jul 08 2011 Kay Williams <kwilliams@centossolutions.com> - 0.9.1-1
 - Initial Build
