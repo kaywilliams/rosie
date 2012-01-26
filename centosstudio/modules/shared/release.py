@@ -58,6 +58,15 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
 
     self.DATA['variables'].extend(['masterrepo', 'webpath'])
 
+    # setup yum plugin
+    if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
+      self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
+      # hackish - do %s replacement for masterrepo
+      map = { 'masterrepo': self.masterrepo }
+      self.plugin_conf_lines = [ x % map for
+                                 x in self.locals.L_YUM_PLUGIN['config'] ]
+      self.DATA['variables'].extend(['plugin_lines', 'plugin_conf_lines'])
+
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
                                      '%s/updates/@gpgcheck' % self.rpmxpath,
@@ -68,7 +77,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    # setup gpgkeys
+    # setup signing keys
     repos = self.cvars['repos'].values()
     if 'gpg-signing-keys' in self.cvars: 
       repos = (repos +
@@ -124,14 +133,10 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
       self.DATA['output'].append(repofile)
 
   def _include_sync_plugin(self):
-    # replacement map for config file
-    map = { 'masterrepo': self.masterrepo }
-
     # config
     configfile = (self.rpm.source_folder / 'etc/yum/pluginconf.d/sync.conf')
     configfile.dirname.mkdirs()
-    # hackish - do %s replacement for masterrepo
-    configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
+    configfile.write_lines(self.plugin_conf_lines)
 
     # cronjob
     #cronfile = (self.rpm.source_folder / 'etc/cron.daily/sync.cron')
@@ -141,7 +146,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     # plugin
     plugin = (self.rpm.source_folder / 'usr/lib/yum-plugins/sync.py')
     plugin.dirname.mkdirs()
-    plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
+    plugin.write_lines(self.plugin_lines)
 
   def _gpgkeys(self):
     if not self.cvars['gpgcheck-enabled']:
