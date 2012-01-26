@@ -43,7 +43,6 @@ class RepomdEvent(Event, RepomdMixin):
     self.DATA = {
       'config':    ['.'],
       'variables': ['packagepath', 
-                    'cvars[\'rpms\']', 
                     'cvars[\'rpms-directory\']'],
       'input':     [],
       'output':    [],
@@ -51,6 +50,8 @@ class RepomdEvent(Event, RepomdMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
+
+    self.DATA['input'].extend(self.cvars['rpms'])
 
     if self.cvars['groupfile']:
       self.DATA['input'].append(self.cvars['groupfile'])
