@@ -61,11 +61,16 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     # setup yum plugin
     if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
       self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
+      self.plugin_hash = hashlib.sha224('/n'.join(
+                         self.plugin_lines)).hexdigest()
       # hackish - do %s replacement for masterrepo
       map = { 'masterrepo': self.masterrepo }
       self.plugin_conf_lines = [ x % map for
                                  x in self.locals.L_YUM_PLUGIN['config'] ]
-      self.DATA['variables'].extend(['plugin_lines', 'plugin_conf_lines'])
+      self.plugin_conf_hash = hashlib.sha224('/n'.join(
+                              self.plugin_conf_lines)).hexdigest()
+      self.DATA['variables'].extend(['plugin_hash', 'plugin_conf_hash'])
+
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
