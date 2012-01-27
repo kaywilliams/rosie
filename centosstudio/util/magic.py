@@ -28,7 +28,7 @@ scripts.  By reading these bits and comparing them to a list of expected
 values, we can attempt to determine the type of a file.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __version__ = "1.0"
 __date__    = "April 17th, 2007"
 

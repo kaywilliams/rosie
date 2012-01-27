@@ -23,7 +23,7 @@ DirectedEdge, and DirectedGraph objects.  Also supports topological sorting and 
 detection.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '0.1'
 __date__    = 'June 8th, 2007'
 

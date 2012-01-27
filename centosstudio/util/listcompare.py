@@ -24,7 +24,7 @@ Iteratively compares two lists, returning elements unique to each list and the
 ones in common.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __version__ = "1.0"
 __date__    = "17 November 2006"
 

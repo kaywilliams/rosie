@@ -56,7 +56,7 @@ TODO:
   * add support for ngettext
 """
 
-__author__ = "Uday Prakash <uprakash@centosstudio.org>"
+__author__ = "Uday Prakash <uprakash@centossolutions.org>"
 __date__ = "March 7, 2007"
 
 #

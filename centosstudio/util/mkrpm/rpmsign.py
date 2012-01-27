@@ -30,7 +30,7 @@ Some handy things to know:
      > PRIVATE-KEY'.
 """
 
-__author__  = 'Uday Prakash <uprakash@centosstudio.org>'
+__author__  = 'Uday Prakash <uprakash@centossolutions.org>'
 __date__    = 'March 30, 2007'
 __version__ = '0.1'
 

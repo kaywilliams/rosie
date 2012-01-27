@@ -22,7 +22,7 @@ Our additions:
  1. RPM_LEAD_SIZE
 """
 
-__author__  = 'Uday Prakash <uprakash@centosstudio.org>'
+__author__  = 'Uday Prakash <uprakash@centossolutions.org>'
 __date__    = 'March 30, 2007'
 __credits__ = 'The PyRPM Team'
 

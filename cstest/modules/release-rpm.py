@@ -41,7 +41,7 @@ class ReleaseRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.centossolutions.org/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults

@@ -31,7 +31,7 @@ primary tree.  The final result is returned.
 See merge for details on the merge API and its behavior.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __date__    = "February 15th, 2007"
 __version__ = "1.0"
 

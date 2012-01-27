@@ -22,7 +22,7 @@ signifies the least.  For example, in the RPM name 'example-1.0-25', the
 ('0') version numbers.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __version__ = "2.0"
 __date__    = "April 3rd, 2008"
 

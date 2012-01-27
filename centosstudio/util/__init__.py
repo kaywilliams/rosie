@@ -22,9 +22,9 @@ See individual module documentation for more information.
 """
 
 __author__  = \
-"""Daniel Musgrave <dmusgrave@centosstudio.org>
-Uday Prakash <uprakash@centosstudio.org>
-Kay Williams <kay@centosstudio.org>"""
+"""Daniel Musgrave <dmusgrave@centossolutions.org>
+Uday Prakash <uprakash@centossolutions.org>
+Kay Williams <kay@centossolutions.org>"""
 __version__ = "1.0"
 __date__    = "January 26, 2007"
 

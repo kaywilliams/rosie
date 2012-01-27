@@ -20,7 +20,7 @@ cache.py - a CopyHandler and SyncCallback for caching files as they are synched
 to improve performance on subsequent sync() calls
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 

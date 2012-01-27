@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 

@@ -21,7 +21,7 @@ main.py
 Python script defining the Build class, the primary controller for the CentOS Studio.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 

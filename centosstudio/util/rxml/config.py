@@ -21,7 +21,7 @@ A configuration reading library.
 Provides parse() and get() functions, complete with fallback support.
 """
 
-__author__   = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__   = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__  = '3.0'
 __date__     = 'June 13th, 2007'
 

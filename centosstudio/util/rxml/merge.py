@@ -44,7 +44,7 @@ which allows trusted code to use the unconstrained interface
 a confined domain (XmlMerge).
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __version__ = "2.0"
 __date__    = "Janary 25, 2007"
 
@@ -59,7 +59,7 @@ BOOLEANS = {
   'no':  False, 'No':  False, 'false': False, 'False': False, '0': False,
 }
 
-NSMAP = {'xm': 'http://www.centosstudio.org/ns/merge'}
+NSMAP = {'xm': 'http://www.centossolutions.org/ns/merge'}
 
 class XmlMergeHandler:
   """

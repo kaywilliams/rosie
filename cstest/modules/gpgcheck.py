@@ -36,7 +36,7 @@ class GpgcheckEventTestCase(EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.centossolutions.org/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml()) 
@@ -81,7 +81,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     repos = rxml.config.Element('repos')
     base = repo.getDefaultRepoById('base', distro=self.distro,
            version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+           baseurl='http://www.centossolutions.org/mirrors/%s' % self.distro)
     # set gpgkeys to none
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,})
     repos.append(base.toxml())

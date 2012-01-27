@@ -19,7 +19,7 @@
 Python module that can be used to read, write, build and modify RPMs.
 """
 
-__author__ = 'Uday Prakash <uprakash@centosstudio.org>'
+__author__ = 'Uday Prakash <uprakash@centossolutions.org>'
 __date__   = 'September 11, 2007'
 
 from rpmsign  import *

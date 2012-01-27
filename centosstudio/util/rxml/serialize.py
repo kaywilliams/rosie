@@ -25,7 +25,7 @@ Supported types are very limited right now; see SUPPORTED_TYPES for exactly what
 is currently handled.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '1.5'
 __date__    = 'April 4th, 2008'
 

@@ -7,7 +7,7 @@ Summary: Platform for building CentOS and Red Hat Enterprise Linux systems
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.centosstudio.org/centosstudio
+URL:       http://www.centossolutions.org/centosstudio
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -41,7 +41,7 @@ Requires: /sbin/rngd
 CentOS Studio is a complete platform for IT professionals to automate build, 
 test, deployment and maintenance of CentOS and Red Hat Enterprise Linux
 solutions for use in any physical, virtual or cloud environment. See 
-http://www.centosstudio.org for more information. 
+http://www.centossolutions.org for more information. 
 
 %prep
 %setup -q

@@ -19,7 +19,7 @@
 callback.py - Defines callback objects for use with sync.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 

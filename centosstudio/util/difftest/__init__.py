@@ -46,7 +46,7 @@ Handlers must implement the following interface:
     while returning a len 0 object means that no change has occurred.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 

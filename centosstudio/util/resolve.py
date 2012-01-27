@@ -57,7 +57,7 @@ as an RPM dependency solver; rather, it is intended to provide RPM-like
 dependency resolution for other tasks that requires similar functionality.)
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '3.1'
 __date__    = 'September 7th, 2007'
 

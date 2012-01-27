@@ -96,7 +96,7 @@ class RhnSupportError(RuntimeError, CentOSStudioError):
   def __str__(self):
     return ( "RHN support not enabled - please install the 'rhnlib' and "
              "'rhn-client-tools' packages from the centosstudio software repo "
-             "at www.centosstudio.org" )
+             "at www.centossolutions.org" )
 
 class CentOSStudioErrorHandler:
   def _handle_Exception(self, e):
@@ -115,7 +115,7 @@ class CentOSStudioErrorHandler:
             "the '%s' event.  The traceback has been recorded in the log "
             "file at '%s'.  Please report this error by sending a copy "
             "of your log file, system definition file and any other "
-            "relevant information to centosstudio@centosstudio.org\n\n"
+            "relevant information to centosstudio@centossolutions.org\n\n"
             "Error message was: "
             % (self.dispatch.currevent.id, self.logfile))
         self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,

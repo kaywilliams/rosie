@@ -19,7 +19,7 @@
 Module that can be used to build RPMs.
 """
 
-__author__ = 'Uday Prakash <uprakash@centosstudio.org>'
+__author__ = 'Uday Prakash <uprakash@centossolutions.org>'
 __date__   = 'April 19, 2007'
 
 import os

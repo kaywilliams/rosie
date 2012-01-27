@@ -19,7 +19,7 @@
 #
 # simple tools for parsing si-style strings into their equivalent integer size
 
-__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
 __version__ = '1.0'
 __date__    = 'January 14th, 2007'
 

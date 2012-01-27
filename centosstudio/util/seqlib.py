@@ -25,7 +25,7 @@ simple list.  This library may or may not be of actual use; it was originally
 based on the bash version of seqlib, where it served a much more useful purpose.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centosstudio.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
 __version__ = "1.0"
 __date__    = "17 November 2006"
 __credits__ = "Me, because I'm so awesome"
