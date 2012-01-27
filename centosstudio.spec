@@ -71,8 +71,8 @@ http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Mon Jan 23 2012 Kay Williams <kwilliams@centossolutions.com> - 1.0.29-1
+* Mon Jan 23 2012 Kay Williams <kwilliams@centossolutions.org> - 1.0.29-1
 - Beta 1 Build
 
-* Mon Jul 08 2011 Kay Williams <kwilliams@centossolutions.com> - 0.9.1-1
+* Mon Jul 08 2011 Kay Williams <kwilliams@centossolutions.org> - 0.9.1-1
 - Initial Build

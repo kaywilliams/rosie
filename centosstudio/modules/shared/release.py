@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Solutions Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,7 +82,6 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    # setup signing keys
     repos = self.cvars['repos'].values()
     if 'gpg-signing-keys' in self.cvars: 
       repos = (repos +
