@@ -45,8 +45,9 @@ class DepsolverMixin(object):
   depsolver_mixin_version = "1.00"
 
   def __init__(self):
-    self.requires.update(['comps-object', 'user-required-packages'])
-    self.conditionally_requires.add('excluded-packages')
+    self.requires.update(['comps-object'])
+    self.conditionally_requires.update(['user-required-packages', 
+                                        'excluded-packages'])
     self.depsolve_repo = self.mddir / 'depsolve.repo'
 
   def setup(self):
