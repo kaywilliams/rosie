@@ -113,7 +113,8 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
                             text=self.files_text, what=what)
 
     self._generate_repofile()
-    if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
+    if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
+        self.type == "system"):
       self.rpm.requires.append('yum')
       self._include_sync_plugin()
 
