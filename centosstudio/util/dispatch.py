@@ -216,7 +216,8 @@ class Loader:
     for event in mod.MODULE_INFO.get('events', []):
       getattr(mod, event).moduleid = modname
       e = getattr(mod, event)(*args, **kwargs)
-      self.events.append(e)
+      if e.enabled:
+        self.events.append(e)
       self.module_map.setdefault(modname, []).append(e.id)
 
   def _resolve_events(self):
@@ -232,7 +233,9 @@ class Loader:
         raise UnregisteredEventError(E.id)
       except UnregisteredEventError:
         if E == firstunreg:
-          raise ValueError("Unable to completely register all events: %s" % (self.events + [E]))
+          # parent event does not exist, skip
+          firstunreg=None
+          continue
         self.events.append(E)
         if firstunreg is None: firstunreg = E
 
