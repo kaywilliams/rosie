@@ -54,7 +54,6 @@ class ConfigRpmEventMixin(RpmBuildMixin):
     self.files_text = files_text
 
     RpmBuildMixin.setup(self, **kwargs)
-    self.rpm.requires.extend(self.add_requires())
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
     self.rootinstdir = pps.path('/etc/sysconfig/centosstudio')
@@ -83,12 +82,6 @@ class ConfigRpmEventMixin(RpmBuildMixin):
 
   def run(self):
     RpmBuildMixin.run(self)
-
-  def add_requires(self):
-    self.extra_requires = [ p for p in self.cvars['comps-object'].all_packages 
-                 if p.startswith('system-config-centosstudio-') ]
-    self.DATA['variables'].append('extra_requires')             
-    return self.extra_requires
 
   def generate(self):
     for what in ['files', 'triggers']:
