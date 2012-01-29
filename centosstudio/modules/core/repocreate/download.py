@@ -59,6 +59,7 @@ class DownloadEvent(Event):
     self.diff.setup(self.DATA)
 
     for repo in self.cvars['repos'].values():
+      if not repo.download: continue
       for subrepo in repo.subrepos.values():
         now = time.time()
         # populate rpm time and size from repodata values (for performance)
