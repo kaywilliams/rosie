@@ -8,6 +8,14 @@
           <ref name="element-version"/>
           <ref name="element-arch"/>
           <optional>
+          <element name="type">
+            <choice>
+              <value type="string">system</value>
+              <value type="string">application</value>
+            </choice>
+          </element>
+          </optional>
+          <optional>
           <element name="id"><text/></element>
           </optional>
           <optional>

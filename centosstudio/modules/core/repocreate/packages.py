@@ -152,7 +152,7 @@ class PackagesEvent(Event):
 
     self.comps = comps.Comps()
 
-    if 'comps' not in self.config.xpath('group', []):
+    if 'core' not in self.config.xpath('group', []):
       core_group             = comps.Group()
       core_group.name        = 'Core'
       core_group.groupid     = 'core'
@@ -180,15 +180,16 @@ class PackagesEvent(Event):
     for package in self.config.xpath('package', []):
       core_group.mandatory_packages[package.text] = 1
 
-    # make sure a kernel package or equivalent exists
-    kfound = False
-    for group in self.comps.groups:
-      if set(group.packages).intersection(KERNELS):
-        kfound = True; break
-    if not kfound:
-      core_group.mandatory_packages['kernel'] = 1
+    # make sure a kernel package or equivalent exists for system solutions
+    if self.type == 'system':
+      kfound = False
+      for group in self.comps.groups:
+        if set(group.packages).intersection(KERNELS):
+          kfound = True; break
+      if not kfound:
+        core_group.mandatory_packages['kernel'] = 1
 
-    self.comps.add_group(core_group)
+      self.comps.add_group(core_group)
 
     # remove excluded packages
     for pkg in self.cvars['excluded-packages']:
@@ -231,6 +232,10 @@ class CompsEvent(Event):
       conditionally_requires = [], # set in Depsolver Mixin
       version = '1.00'
     )
+
+    if self.type == 'application':
+      self.enabled = False
+      return
 
     self.DATA = {
       'variables': [],

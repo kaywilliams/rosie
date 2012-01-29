@@ -138,6 +138,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       if self.debug: raise
       sys.exit(1)
       
+    self.type        = self.definition.get(qstr % 'type', 'system')
     self.basearch    = getBaseArch(self.arch)
     self.solutionid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
@@ -411,6 +412,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     di['name']              = self.name 
     di['version']           = self.version
     di['arch']              = self.arch
+    di['type']              = self.type
     di['basearch']          = self.basearch
     di['solutionid']        = self.solutionid
     di['anaconda-version']  = None

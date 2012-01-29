@@ -58,8 +58,9 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
 
     self.DATA['variables'].extend(['masterrepo', 'webpath'])
 
-    # setup yum plugin
-    if self.config.getbool('%s/updates/@sync' % self.rpmxpath, True):
+    # setup yum plugin (unless disabled or application-type solution)
+    if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
+        self.type == 'system'):
       self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
       self.plugin_hash = hashlib.sha224('/n'.join(
                          self.plugin_lines)).hexdigest()

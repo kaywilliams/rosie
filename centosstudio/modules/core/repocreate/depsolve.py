@@ -130,6 +130,9 @@ class DepsolveEvent(Event, DepsolverMixin):
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
+
+    if not self.type == 'system': return
+
     matched = False
     pkgs = []
     for v in self.cvars['pkglist'].itervalues():
