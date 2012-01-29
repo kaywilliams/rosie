@@ -24,6 +24,7 @@ from centosstudio.util import shlib
 from centosstudio import splittree
 
 from centosstudio.callback import BuildDepsolveCallback
+from centosstudio.validate import InvalidEventError
 from centosstudio.event    import Event, CLASS_META
 from centosstudio.cslogging  import L1, L2, L3
 
@@ -111,6 +112,9 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
                   'boot-config-file', 'treeinfo-text'],
       conditionally_requires = ['srpms-dir', 'ks-path', 'boot-options'],
     )
+    if not self.type == 'system':
+      raise InvalidEventError(event=self.id, message="iso images can only be created when the 'main/type' element is set to the default value, 'system'.")
+
     ListCompareMixin.__init__(self)
 
     self.lfn = self._delete_isotree

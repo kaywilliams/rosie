@@ -53,7 +53,8 @@ from centosstudio.constants import *
 from centosstudio.errors    import CentOSStudioErrorHandler, CentOSStudioError
 from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import make_log, L0, L1, L2
-from centosstudio.validate  import (CentOSStudioValidationHandler)
+from centosstudio.validate  import (CentOSStudioValidationHandler,
+                                    InvalidEventError)
 
 from centosstudio.event.loader import Loader
 
@@ -216,6 +217,11 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core centosstudio files: %s" % e))
+      if self.debug: raise
+      sys.exit(1)
+
+    except InvalidEventError, e:
+      Event.logger.log(0, L0("\n%s" % e))
       if self.debug: raise
       sys.exit(1)
 

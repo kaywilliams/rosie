@@ -21,8 +21,6 @@ import copy
 import os
 import sys
 
-from centosstudio.errors import CentOSStudioError
-
 from centosstudio.util import pps
 from centosstudio.util import rxml
 
@@ -245,6 +243,7 @@ class InvalidXmlError(StandardError):
     for err in self.args[1]: # relaxNG error log object
       msg += 'line %d: %s\n' % (err.line, err.message)
     return msg
+
 class InvalidConfigError(InvalidXmlError):
   def __str__(self):
     if len(self.args) == 4:
@@ -256,7 +255,17 @@ class InvalidConfigError(InvalidXmlError):
     else:
       return 'Validation of "%s" failed: \n' % self.args[0] + \
              InvalidXmlError.__str__(self)
+
 class InvalidSchemaError(InvalidXmlError):
   def __str__(self):
     return 'Error parsing schema file "%s":\n' % self.args[0] + \
       InvalidXmlError.__str__(self)
+
+class InvalidEventError(StandardError):
+  def __init__(self, event, message):
+    self.event = event
+    self.message = message
+  def __str__(self):
+    return "Validation of the %s element failed:\n%s" % (self.event, 
+                                                         self.message)
+
