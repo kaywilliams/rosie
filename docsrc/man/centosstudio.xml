@@ -73,7 +73,7 @@ SOLUTION_DEFINITION.</para>
 <para>OPTIONS refers to the command-line options described below.
 SOLUTION_DEFINITION refers to a solution definition file, see the System
 Definition File Reference at <ulink
-url="http://www.centosstudio.org/centosstudio/docs"/> for more
+url="http://www.centossolutions.com/centosstudio/docs"/> for more
 information.</para>
 </refsect1>
 
@@ -287,7 +287,7 @@ option.
 </refsect1>
 
 <refsect1 id="centosstudio.1-bugs"><title>BUGS</title>
-<para>Submit bugs at <ulink url="http://www.centosstudio.org/bugs"/></para>
+<para>Submit bugs at <ulink url="http://www.centossolutions.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-files"><title>FILES</title>
@@ -303,13 +303,13 @@ option.
 <refsect1 id="centosstudio.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>centosstudio.conf(5)</member>
-<member><ulink url="http://www.centosstudio.org/centosstudio"/></member>
+<member><ulink url="http://www.centossolutions.com/centosstudio"/></member>
 
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-author"><title>AUTHOR</title>
-<para><author><othername>CentOS Studio Foundation.</othername>
+<para><author><othername>CentOS Solutions, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>
