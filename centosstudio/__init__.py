@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,6 +45,6 @@ up valuable time.
 See main.py for information on more specific implementation details.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
 __version__ = '3.0'
 __date__    = 'March 8th, 2007'

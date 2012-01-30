@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 callback.py - Defines callback objects for use with sync.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 

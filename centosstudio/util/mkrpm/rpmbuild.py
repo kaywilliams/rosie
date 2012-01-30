@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 Module that can be used to build RPMs.
 """
 
-__author__ = 'Uday Prakash <uprakash@centossolutions.org>'
+__author__ = 'Uday Prakash <uprakash@centossolutions.com>'
 __date__   = 'April 19, 2007'
 
 import os

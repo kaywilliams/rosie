@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://www.centossolutions.org/mirrors/%s' % self.distro)
+                                            baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None})
         if repoid == 'updates' and 'systemid' in r:
           # look for systemid in cstest folder 

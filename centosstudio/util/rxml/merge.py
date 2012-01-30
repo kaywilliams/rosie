@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ which allows trusted code to use the unconstrained interface
 a confined domain (XmlMerge).
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@centossolutions.org>"
+__author__  = "Daniel Musgrave <dmusgrave@centossolutions.com>"
 __version__ = "2.0"
 __date__    = "Janary 25, 2007"
 
@@ -59,7 +59,7 @@ BOOLEANS = {
   'no':  False, 'No':  False, 'false': False, 'False': False, '0': False,
 }
 
-NSMAP = {'xm': 'http://www.centossolutions.org/ns/merge'}
+NSMAP = {'xm': 'http://www.centossolutions.com/ns/merge'}
 
 class XmlMergeHandler:
   """

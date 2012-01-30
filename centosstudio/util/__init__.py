@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ See individual module documentation for more information.
 """
 
 __author__  = \
-"""Daniel Musgrave <dmusgrave@centossolutions.org>
-Uday Prakash <uprakash@centossolutions.org>
-Kay Williams <kay@centossolutions.org>"""
+"""Daniel Musgrave <dmusgrave@centossolutions.com>
+Uday Prakash <uprakash@centossolutions.com>
+Kay Williams <kay@centossolutions.com>"""
 __version__ = "1.0"
 __date__    = "January 26, 2007"
 

@@ -1,6 +1,6 @@
 
 # Copyright (c) 2012
-# CentOS Solutions Foundation. All rights reserved.
+# CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ main.py
 Python script defining the Build class, the primary controller for the CentOS Studio.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.org>'
+__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 

@@ -1,5 +1,5 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
-         xmlns:xm="http://www.centossolutions.org/ns/merge"
+         xmlns:xm="http://www.centossolutions.com/ns/merge"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="xm:merge">
@@ -35,7 +35,7 @@
       <element>
         <anyName>
         <except>
-        <nsName ns="http://www.centossolutions.org/ns/merge"/>
+        <nsName ns="http://www.centossolutions.com/ns/merge"/>
         </except>
         </anyName>
         <ref name="anything"/>
@@ -103,7 +103,7 @@
     <attribute>
       <anyName>
       <except>
-      <nsName ns="http://www.centossolutions.org/ns/merge"/>
+      <nsName ns="http://www.centossolutions.com/ns/merge"/>
       </except>
       </anyName>
     </attribute>
