@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="test-install"
+         xreflabel="Test-Install"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>
+  Test-install (optional)
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    The <emphasis>test-install</emphasis> top-level element supports automated
+    installation testing. The test-install element is based on the Deployment
+    Elements Common Model.  See <xref
+    linkend="deployment-elements-common-model"/> for a complete description of
+    macros, attributes and elements.
+    </para>
+
+    <para>
+    CentOS Studio accomplishes installation testing using deployment scripts
+    described in the Common Model. Should any of the scripts fail to complete
+    successfully, CentOS Studio halts processing prior running the
+    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis> events.
+    </para>
+
+    <para>
+    Because its focus is on installation testing, the test-install event
+    attempts to perform a clean client installation each time install-related
+    changes occur in the solution. The list of factors that trigger a clean
+    client installation are described under <xref linkend='install-triggers'/>.
+    </para>
+
+    <para>
+    <emphasis>Test-install</emphasis> is an optional element.
+    </para>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;test-install <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-ssh-attributes']/text())"/>&gt;
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-local-dir-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-remote-url-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-kickstart-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
+&lt;test-install/&gt;]
+    </programlisting>
+  </section>
+
+
+  <section id="test-install-examples" xreflabel="Test-Install Examples">
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <para>
+    The following examples configure CentOS Studio to perform a test
+    install to a local virtual machine. See the <emphasis>CentOS Studio User
+    Manual</emphasis> for information on configuring the build machine to
+    support virtual machine installations.
+    </para>
+
+    <para>
+    This example makes use of three files:
+    
+    <itemizedlist>
+    <listitem>
+    The main solution definition containing a <emphasis>test-install</emphasis>
+    element.
+    </listitem>
+
+    <listitem>
+    A text file named <filename>ks.cfg</filename> which contains kickstart
+    parameters. In this document, the <filename>ks.cfg</filename> file is  used
+    across <emphasis>test-install</emphasis>, <emphasis>test-deploy</emphasis>
+    examples.
+    </listitem>
+
+    <listitem>
+    An xml file named <filename>deploy.xml</filename> containing deployment
+    scripts. The <filename>deploy.xml</filename> file is also used across
+    <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
+    top-level element examples.
+    </listitem>
+    
+    </itemizedlist>
+    </para>
+
+    <section>
+    <title>
+    Example - Test-Install Element
+    </title>
+
+    <para>
+    This test-install element accomplishes the following:
+
+    <itemizedlist>
+    <listitem>
+    Sets a hostname and root password for the client machine. These values are
+    accessed from the kickstart and deployment script elements using the <xref
+    linkend="hostname-macro"/>, <xref linkend="password-macro"/> and <xref
+    linkend="crypt-password-macro"/> macros.
+    </listitem>
+
+    <listitem>
+    Uses XInclude to include text from the file <filename>ks.cfg</filename>.
+    </listitem>
+
+    <listitem>
+    Uses XInclude to include <emphasis>activate-script</emphasis>,
+    <emphasis>delete-script</emphasis>, <emphasis>install-script</emphasis> and
+    <emphasis>verify-install-script</emphasis> from the file
+    <varname>deploy.xls</varname>.
+    </listitem>
+    </itemizedlist>
+    </para>
+
+    <programlisting><xi:include href="examples/test-install.xml" parse="text"/></programlisting>
+    </section>
+
+    <section id="ks.cfg" xreflabel="ks.cfg">
+    <title>
+    Example external kickstart file - <filename>ks.cfg</filename>
+    </title>
+
+    <para>
+    Makes use of <emphasis>%{hostname}</emphasis> and
+    <emphasis>%{password}</emphasis> macros.
+    </para>
+
+    <programlisting><xi:include href='examples/ks.cfg' parse="text" /></programlisting>
+    </section>
+
+    <section id="deploy.xml" xreflabel="deploy.xml">
+    <title>
+    Example deployment scripts in external file - <filename>deploy.xml</filename>
+    </title>
+
+    <para>
+    Makes use of the <emphasis>%{hostname}</emphasis> macro in the
+    <emphasis>activate-script</emphasis> and <emphasis>delete-script</emphasis>
+    elements. Also makes use of the <emphasis>webroot</emphasis> command line
+    parameter, <emphasis>$1</emphasis>, in the
+    <emphasis>install-script</emphasis> element. See the
+    <emphasis>install-script</emphasis> element above for more information on
+    <emphasis>webroot</emphasis>.
+    </para>
+
+    <programlisting><xi:include href='examples/deploy.xml' parse="text" /></programlisting>
+    </section>
+    </informalexample>
+
+  </section>
+
+</section>

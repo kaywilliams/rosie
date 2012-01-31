@@ -8,17 +8,17 @@
   </title>
 
   <para>
-  The solution definition contains instructions for building Linux operating
-  solutions for use in installing client machines. It defines solution 
-  content and configuration, including name, version, and architecture; package
-  repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. CentOS Studio uses the solution file
-  to assemble, create and publish the solution. Other programs, such as
-  <application class="software">YUM</application>,
-  <application class="software">Anaconda</application>, and
-  <application class="software">RPM</application>
-  use files created by <application class="software">CentOS Studio</application>
-  to install and update the solution on the client system.
+  The solution definition contains instructions for building solutions for use
+  in installing client machines. It defines solution content and configuration,
+  including name, version, and architecture; package repository locations;
+  which packages to include; and the locations of configuration scripts, files
+  and custom graphics. CentOS Studio uses the solution definition to assemble,
+  create and publish the solution. Other programs, such as <application
+  class="software">YUM</application>, <application
+  class="software">Anaconda</application>, and <application
+  class="software">RPM</application> use files created by <application
+  class="software">CentOS Studio</application> to install and update the
+  solution on client machines.
   </para>
 
   <para>
@@ -31,7 +31,7 @@
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the solution file in any order. Indentation is for readability
+  in the solution definition in any order. Indentation is for readability
   purposes only.
   </para>
 
@@ -71,11 +71,11 @@
 
   &lt;repos&gt;
     &lt;repo id="base"&gt;
-      &lt;name&gt;CentOS-$releasever - Base&lt;/name&gt;
+      &lt;name&gt;CentOS-%{version} - Base&lt;/name&gt;
       &lt;baseurl&gt;http://mirror.centos.org/centos/5/os/i386/&lt;/baseurl&gt;
     &lt;/repo&gt;
     &lt;repo id="updates"&gt;
-      &lt;name&gt;CentOS-$releasever - Updates&lt;/name&gt;
+      &lt;name&gt;CentOS-%{version} - Updates&lt;/name&gt;
       &lt;baseurl&gt;http://mirror.centos.org/centos/5/updates/i386/&lt;/baseurl&gt;
     &lt;/repo&gt;
   &lt;/repos&gt;

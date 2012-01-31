@@ -40,7 +40,7 @@
 
     <variablelist>
     <varlistentry id="main-name"
-                  xreflabel="\$name">
+                  xreflabel="name">
       <term>
       name
       </term>
@@ -53,7 +53,7 @@
       <para>
       The text value of this element can be accessed within other elements 
       and attributes of the definition using the builtin macro 
-      <varname>$name</varname>.
+      <varname>%{name}</varname>.
       </para>
 
       <para>
@@ -63,7 +63,7 @@
     </varlistentry>
 
     <varlistentry id="main-version"
-                  xreflabel="\$version">
+                  xreflabel="version">
       <term>
       version
       </term>
@@ -77,7 +77,7 @@
       <para>
       The text value of this element can be accessed within other elements 
       and attributes of the definition using the builtin macro 
-      <varname>$version</varname>.
+      <varname>%{version}</varname>.
       </para>
 
       <para>
@@ -87,7 +87,7 @@
     </varlistentry>
 
     <varlistentry id="main-arch"
-                  xreflabel="\$arch">
+                  xreflabel="arch">
       <term>
       arch
       </term>
@@ -100,7 +100,7 @@
       <para>
       The text value of this element can be accessed within other elements 
       and attributes of the definition using the builtin macro 
-      <varname>$arch</varname>.
+      <varname>%{arch}</varname>.
       </para>
 
       <para>
@@ -121,13 +121,13 @@
       </para>
 
       <para>
-      The default value is <xref linkend="main-name"/>.
+      The default value is <varname>%{name}</varname>.
       </para>
       </listitem>
     </varlistentry>
 
     <varlistentry id="main-id"
-                  xreflabel="\$id">
+                  xreflabel="id">
       <term>
       id
       </term>
@@ -141,14 +141,13 @@
       </para>
 
       <para>
-      The default value is <xref linkend="main-name"/>-<xref
-      linkend="main-version"/>-<xref linkend="main-arch"/>.
+      The default value is <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>.
       </para>
 
       <para>
       The text value of this element can be accessed within other elements and
       attributed of the definition using the builtin macro 
-      <varname>$id</varname>.
+      <varname>%{id}</varname>.
       </para>
 
       </listitem>

@@ -7,12 +7,12 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>November 2011</pubdate>
+    <pubdate>January 2012</pubdate>
 
     <copyright id="copyright">
-      <year>2011</year>
+      <year>2012</year>
 
-      <holder>CentOS Studio Foundation.</holder>
+      <holder>CentOS Solutions, Inc.</holder>
     </copyright>
 
     <legalnotice id="legal-notice">
@@ -21,11 +21,12 @@
 
     <author id="author">
       <affiliation>
-        <orgname>CentOS Studio Foundation.</orgname>
+        <orgname>CentOS Solutions, Inc.</orgname>
       </affiliation>
 
       <authorblurb>
-        <para><email>centosstudio@centosstudio.org</email></para>
+        <para><email>centosstudio@centossolutions.com</email></para>
+        <para><email>centosstudio@centossolutions.com</email></para>
       </authorblurb>
     </author>
 
@@ -62,13 +63,13 @@
   <xi:include href="MacrosandXIncludes.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="CoreElements.xml"
+  <xi:include href="BasicElements.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TestElements.xml"
+  <xi:include href="RpmElements.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="PublishElements.xml"
+  <xi:include href="DeploymentElements.xml"
               xpointer="element(/1)" />
 
   <xi:include href="CommonComponents.xml"

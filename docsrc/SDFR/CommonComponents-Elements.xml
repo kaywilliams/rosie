@@ -3,249 +3,6 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="CommonComponents-Elements">
 
-  <section id="boot-args"
-           xreflabel="boot-args">
-    <title>
-    Element: boot-args
-    </title>
-
-    <section>
-      <title>
-      Definition
-      </title>
-
-      <para>
-      Modifies the behavior of the  <emphasis role="strong">bootiso</emphasis>,
-      and <emphasis role="strong">iso</emphasis> boot media by supplying
-      supplemental or alternate kernel boot arguments.
-      </para>
-
-      <para>
-      The <emphasis>boot-args</emphasis> element's text value should be a
-      space-separated list of kernel arguments to append to each
-      "append" line in the syslinux configuration file. If
-      <emphasis>boot-args/@use-defaults</emphasis> is
-      <constant>TRUE</constant>, the default set of kernel arguments, 
-      defined by the parent bootiso or iso element,
-      are appended as well.
-      </para>
-
-    </section>
-
-    <section id="boot-args-macros"
-             xreflabel="Using boot-args Macros">
-      <title>
-      boot-args macros
-      </title>
-
-      <para>
-      The <emphasis>boot-args</emphasis> element has support for two macros,
-      described below. These macros can be used in combination with each 
-      other and any other boot arguments.
-      </para>
-
-      <variablelist>
-      <varlistentry>
-        <term>
-        <constant>%{ks}</constant>
-        </term>
-
-        <listitem>
-        <para>
-        If the <emphasis role="strong">kickstart</emphasis> top-level element
-        is present in the definition, this macro will be replaced by
-        the string <constant>ks=$path</constant>, where
-        <varname>$path</varname> is the path to the kickstart file on the
-        installation image. If the <emphasis role="strong">kickstart</emphasis>
-        top-level element is not present, this macro is ignored.
-        </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-        <constant>%{method}</constant>
-        </term>
-
-        <listitem>
-        <para>
-        This macro will be replaced by the string
-        <constant>method=$path</constant>, where <varname>$path</varname>
-        is the remote URL to the solution's published output directory,
-        as determined by the
-        <emphasis role="strong"><xref linkend="publish"/></emphasis>
-        module.
-        </para>
-        </listitem>
-      </varlistentry>
-
-      </variablelist>
-    </section>
-
-    <section>
-      <title>
-      Syntax
-      </title>
-
-      <programlisting>
-[&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
-      </programlisting>
-    </section>
-
-    <section>
-      <title>
-      Attributes
-      </title>
-
-      <variablelist>
-      <varlistentry id="boot-args-use-defaults"
-                    xreflabel="boot-args/@use-defaults">
-        <term>
-        use-defaults
-        </term>
-
-        <listitem>
-        <para>
-        <varname>BOOLEAN</varname> value indicating whether the
-        top-level element's default set of kernel arguments should
-        be appended to the syslinux configuration file. Each top-level
-        element defines its own set of default kernel arguments. The
-        default value for this attribute is <constant>TRUE</constant>.
-        </para>
-        </listitem>
-      </varlistentry>
-      </variablelist>
-    </section>
-
-    <section>
-      <title>
-      Examples
-      </title>
-
-      <para>
-      In the following examples, the default set of kernel arguments
-      is <constant>method=http://server/solutions/mysystemos</constant> 
-      and <constant>ks=ks.cfg</constant>.
-      </para>
-
-      <section>
-        <title>
-        Example 1 - default set plus append-args
-        </title>
-
-        <para>
-        In this example, the default set of kernel arguments is included
-        along with arguments defined in
-        <emphasis>boot-args</emphasis>.
-
-        <informalexample>
-        <programlisting>     
-&lt;boot-args&gt;noipv6&lt;/boot-args&gt;
-        </programlisting>
-        </informalexample>
-
-        The final set of kernel append arguments is
-
-        <literallayout>method=http://server/solutions/mysystemos ks=ks.cfg noipv6</literallayout>
-        </para>
-      </section>
-
-      <section>
-        <title>
-        Example 2 - only append-args
-        </title>
-
-        <para>
-        In this example, the default set of kernel arguments are not
-        appended and a macro is used to include a 
-        <constant>method</constant> parameter. No <constant>ks</constant> 
-        parameter is included.
-
-        <informalexample>
-        <programlisting>
-&lt;boot-args use-defaults="false"&gt;%{method} noipv6&lt;/boot-args&gt;
-        </programlisting>
-        </informalexample>
-
-      The final set of kernel append arguments is
-
-        <literallayout>method=http://server/solutions/mysystemos noipv6</literallayout>
-        </para>
-      </section>
-
-    </section>
-
-    <section>
-      <title>
-      See Also
-      </title>
-
-      <para>
-      <varname><xref linkend="content-boolean" /></varname>,
-      <varname><xref linkend="content-text" /></varname>,
-      <varname><xref linkend="content-path" /></varname>
-      </para>
-    </section>
-  </section>
-
-  <section id="obsoletes"
-           xreflabel="obsoletes">
-    <title>
-    Element: obsoletes
-    </title>
-
-    <section>
-      <title>
-      Definition
-      </title>
-      <para>
-      A <varname>CAPABILITY</varname> to add to a top-level element RPM's
-      obsoletes list. Each RPM CentOS Studio builds has a pre-determined set of
-      capabilities it uses if the top-level element's
-      <emphasis>@use-default-obsoletes</emphasis> attribute
-      is <constant>TRUE</constant>. The default set of obsoletes can be 
-      overridden by setting <emphasis>@use-default-obsoletes</emphasis> to
-      <constant>FALSE</constant>. See the individual top-level element sections
-      for the list of default capabilities each RPM obsoletes.
-      </para>
-    </section>
-
-    <section>
-      <title>
-      Examples
-      </title>
-
-      <informalexample>
-      <programlisting>     
-&lt;obsoletes&gt;kernel &amp;lt; 2.4.1&lt;/obsoletes&gt; &lt;!-- kernel &lt; 2.4.1 --&gt;
-&lt;obsoletes&gt;X11R6-contrib&lt;/obsoletes&gt;
-&lt;obsoletes&gt;entrance gdm kdm wdm xdm&lt;/obsoletes&gt;
-      </programlisting>
-      </informalexample>
-
-      <note>
-      <para>When specifying <varname>CAPABILITY</varname> strings, remember
-      to escape <constant>&lt;</constant> and <constant>&gt;</constant>
-      with <constant>&amp;lt;</constant> and <constant>&amp;gt;</constant>,
-      respectively.
-      </para>
-      </note>
-    </section>
-
-    <section>
-      <title>
-      See Also
-      </title>
-
-      <para>
-      <varname><xref linkend="content-capability" /></varname>,
-      <emphasis><xref linkend="requires" /></emphasis>,
-      <emphasis role="strong"><xref linkend="config" /></emphasis>,
-      </para>
-    </section>
-  </section>
-
-
   <section id="path-like-element"
            xreflabel="PATH-like Element">
     <title>
@@ -258,17 +15,14 @@
       </title>
 
       <para>
-      <varname>PATH</varname>-like elements generally are used to copy an
-      input file or folder to some other location, such as within a disk image,
-      into a RPM in order to be installed to a specific location on client
-      systems, or into a folder within the solution tree itself.
-      A <varname>PATH</varname>-like element's text value is the
-      <varname>PATH</varname> to some file or folder <varname>$input</varname>
-      to use, while the <emphasis>@destdir</emphasis>,
-      <emphasis>@destname</emphasis>, and <emphasis>@mode</emphasis>
-      attributes control the location, filename, and mode of the destination
-      file. In the case of a folder, the mode is applied to all files within
-      the folder and any subfolders.
+      <varname>PATH</varname>-like elements generally are used to include an
+      input file or folder within the solution.  A <varname>PATH</varname>-like
+      element's text value is the <varname>PATH</varname> to some file or
+      folder <varname>$input</varname> to use, while the
+      <emphasis>@destdir</emphasis>, <emphasis>@destname</emphasis>, and
+      <emphasis>@mode</emphasis> attributes control the location, filename, and
+      mode of the destination file. In the case of a folder, the mode is
+      applied to all files within the folder and any subfolders.
       </para>
 
       <para>
@@ -292,7 +46,7 @@
       <varname>PATH</varname>-like elements have two important properties
       when determining the final destination of the
       <varname>$input</varname>. The first, <varname>$root</varname>
-      may be an absolute path on the build system or a specific disk image.
+      may be an absolute path on the build machine or a specific disk image.
       The second, <varname>$default</varname>, is the default location
       to which the <varname>$input</varname> is copied if no
       <emphasis>@destdir</emphasis> is specified. These values are combined
@@ -371,60 +125,6 @@ $root/var/www/html/outfile.txt
       <varname><xref linkend="content-path" /></varname>,
       <varname><xref linkend="content-basename" /></varname>,
       <varname><xref linkend="content-dirname" /></varname>
-      </para>
-    </section>
-  </section>
-
-  <section id="requires"
-           xreflabel="requires">
-    <title>
-    Element: requires
-    </title>
-
-    <section>
-      <title>
-      Definition
-      </title>
-
-      <para>
-      A <varname>CAPABILITY</varname> to add to the top-level element RPM's
-      requires list.
-      </para>
-    </section>
-
-    <section>
-      <title>
-      Examples
-      </title>
-
-      <informalexample>
-      <programlisting>
-&lt;requires&gt;samba&lt;/requires&gt;
-&lt;requires&gt;bash = 3.2.33&lt;/requires&gt;
-&lt;requires&gt;rpmlib(CompressedFileNames) &amp;lt;= 3.0.4-1
-          rpmlib(PayloadFilesHavePrefix) &amp;lt;= 4.0-1 
-          rpmlib(VersionedDependencies) &amp;lt;= 3.0.3-1&lt;/requires&gt;
-      </programlisting>
-      </informalexample>
-
-      <note>
-      <para>When specifying <varname>CAPABILITY</varname> strings, remember
-      to escape <constant>&lt;</constant> and <constant>&gt;</constant>
-      with <constant>&amp;lt;</constant> and <constant>&amp;gt;</constant>,
-      respectively.
-      </para>
-      </note>
-    </section>
-
-    <section>
-      <title>
-      See Also
-      </title>
-
-      <para>
-      <varname><xref linkend="content-capability" /></varname>,
-      <emphasis><xref linkend="obsoletes" /></emphasis>,
-      <emphasis role="strong"><xref linkend="config" /></emphasis>,
       </para>
     </section>
   </section>

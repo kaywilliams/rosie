@@ -21,30 +21,37 @@
   
     <para>
     Macros can be used to replace text values in the content of elements and
-    attributes. CentOS Studio supports two types of macros, user-defined and
-    builtin.
+    attributes. CentOS Studio supports two types of macros, builtin and 
+    user-defined.
     </para>
 
     <para>
-    User-defined macros are specified using macro elements, located anywhere
-    within the definition or included content. Macro elements take a single
-    attribute, "id", which identifies the name of the macro. The text of the
-    macro element identifies text to substitute in place of the macro. For
-    example, <varname>&lt;macro id="mymacro"&gt;my text&lt;/macro&gt;</varname>.
+    Builtin macros are <varname>%{name}</varname>,
+    <varname>%{version}</varname>, <varname>%{arch}</varname> and
+    <varname>%{id}</varname>. The values of these macros correspond to elements
+    in the <varname>/main</varname> element. See <xref linkend="main"/> for
+    more information. Certain elements provide additional built-in macros that
+    are relevant only within the element. These include the
+    <varname>%{hostname}</varname>, <varname>%{password}</varname>,
+    <varname>%{crypt-password}</varname>, <varname>%{url}</varname>, and
+    <varname>%{boot-options}</varname> macros. See the chapter on <xref
+    linkend="deployment-elements" /> for more information on these macros.
+    </para>
+
+    <para>
+    User-defined macros are specified using macro elements. These elements must
+    be located at the top level of the document, or within the main element.
+    They cannot be located within any other element.  Macro elements take a
+    single attribute, "id", which identifies the name of the macro. The text of
+    the macro element identifies text to substitute in place of the macro. For
+    example, <varname>&lt;macro id="mymacro"&gt;my
+    text&lt;/macro&gt;</varname>.
     </para>
     
     <para>
-    Builtin macros are <xref linkend="main-name"/>, <xref
-    linkend="main-version"/>, <xref linkend="main-arch"/> and <xref
-    linkend="main-id"/>. The values of these macros correspond to elements in
-    the <varname>/main</varname> element. See <xref linkend="main"/> for more
-    information.
-    </para>
-
-    <para>
-    Macro variables are identified using the dollar sign character preceding a
-    macro name. These variables can be used anywhere within element and
-    attribute text, with one exception. Macro variables
+    Macro variables are identified using the percent sign character preceding
+    a macro name enclosed in braces. These variables can be used anywhere
+    within element and attribute text, with one exception. Macro variables
     <emphasis>cannot</emphasis> be used with attribute values of XInclude
     elements. This is because CentOS studio resolves macros after reading and
     processing all XIncluded content. See <xref linkend="xincludes"/> for more
@@ -61,8 +68,8 @@
       Example 1 - Using Builtin Macros
       </title>
       <para>
-      In this example the variables <varname>$version</varname> and
-      <varname>$arch</varname>, used within the <varname>repos</varname> 
+      In this example the variables <varname>%{version}</varname> and
+      <varname>%{arch}</varname>, used within the <varname>repos</varname> 
       element, will be substituted with the values "5" and "i386" respectively.
       </para>
 
@@ -75,10 +82,10 @@
 &lt;/main&gt;
 
 &lt;repos&gt;
-  &lt;repo id="base-$version"&gt;
-    &lt;name&gt;CentOS-$version-$arch&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;repo id="base-%{version}"&gt;
+    &lt;name&gt;CentOS-%{version}-%{arch}&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 &lt;/repos&gt;
       </programlisting>
@@ -90,18 +97,19 @@
       Example 2 - Using User-Defined Macros
       </title>
       <para>
-      In this example the variable <varname>$mirror</varname> will be
+      In this example the variable <varname>%{mirror}</varname> will be
       substituted with the value specified in the corresponding macro element.
-      The macro element can be located anywhere within the definition.</para>
+      The macro element is located at the top level of the document,
+      specifically, outside of the repos element.</para>
 
       <informalexample>
       <programlisting>
+&lt;macro id="mirror"&gt;http://mirror.centos.org/centos/%{version}&lt;/macro&gt;
 &lt;repos&gt;
-  &lt;macro id="mirror"&gt;http://mirror.centos.org/centos/$version&lt;/macro&gt;
-  &lt;repo id="base-$version"&gt;
-    &lt;name&gt;CentOS-$version-$arch&lt;/name&gt;
-    &lt;baseurl&gt;$mirror/os/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;$mirror/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;repo id="base-%{version}"&gt;
+    &lt;name&gt;CentOS-%{version}-%{arch}&lt;/name&gt;
+    &lt;baseurl&gt;%{mirror}/os/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;%{mirror}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 &lt;/repos&gt;
       </programlisting>
@@ -116,9 +124,10 @@
       <para>
       In this example CentOS Studio will fail while reading the definition
       because it will attempt to perform the XInclude before the
-      <varname>$version</varname> and <varname>$arch</varname> macros been
-      resolved. See the following section
-      for more information on using XIncludes.</para>
+      <varname>%{version}</varname> and <varname>%{arch}</varname> macros have
+      been resolved. See the following section for more information on using
+      XIncludes.
+      </para>
 
       <informalexample>
       <programlisting>
@@ -128,7 +137,7 @@
 ...
 
 &lt;repos&gt;
-  &lt;xi:include href="centos-$version-$arch.xml"
+  &lt;xi:include href="centos-%{version}-%{arch}.xml"
               xpointer="xpointer(element(/1)" /&gt;
 &lt;/repos&gt;
 
@@ -164,7 +173,7 @@
       do not.</listitem>
 
       <listitem>Macros can be used within attribute text, e.g.
-      <varname>&lt;repo id="centos-$version-$arch"&gt;</varname>. XIncludes
+      <varname>&lt;repo id="centos-%{version}-%{arch}"&gt;</varname>. XIncludes
       cannot.</listitem>
 
     </itemizedlist>
@@ -219,19 +228,19 @@
 
   &lt;repo id="base"&gt;
     &lt;name&gt;CentOS Base&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
     &lt;name&gt;CentOS Updates&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/cento/$version/os/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/cento/%{version}/os/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
   &lt;repo id="epel"&gt;
     &lt;name&gt;Extra Packages for Enterprise Linux&lt;/name&gt;
-    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/epel/$version/$arch/&lt;/baseurl&gt;
+    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/epel/%{version}/%{arch}/&lt;/baseurl&gt;
     &lt;gpgkey&gt;http://download.fedora.redhat.com/pub/epel/RPM-GPG-KEY-EPEL&lt;/gpgkey&gt;
   &lt;/repo&gt;
 

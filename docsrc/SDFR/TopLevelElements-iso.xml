@@ -4,7 +4,7 @@
 <section id="iso"
          xreflabel="iso">
   <title>
-  ISO
+  ISO (optional)
   </title>
 
   <section>
@@ -24,7 +24,6 @@
 
     <programlisting>
 [&lt;iso&gt;
-  [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
    &lt;set&gt;TEXT&lt;/set&gt;*
  &lt;/iso&gt;]
     </programlisting>
@@ -36,24 +35,6 @@
     </title>
 
     <variablelist>
-    <varlistentry>
-      <term>
-      boot-args
-      </term>
-
-      <listitem>
-      <para>
-      Modify the kernel boot arguments used in the ISO images.
-      The default append arguments for
-      <emphasis role="strong">iso</emphasis> are
-      <constant>%{ks}</constant> and
-      <constant>method=cdrom</constant>
-      See Also Common Element
-      <emphasis><xref linkend="boot-args" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-
     <varlistentry>
       <term>
       set
@@ -97,11 +78,12 @@
     </title>
 
     <para>
-    In the following example, <application class="software">CentOS Studio</application>
-    will create four sets of ISO images; one with 4.7 gigabytes per disc
-    ("DVD"), one with 400 megabytes per disc ("400000000"), one with 640
-    megabytes per disc ("640 mb"), and one with 640 mebibytes per disc
-    ("640 mib").
+    In the following example, <application class="software">CentOS
+    Studio</application> will create four sets of ISO images; one with 4.7
+    gigabytes per disc ("DVD"), one with 400 megabytes per disc ("400000000"),
+    one with 640 megabytes per disc ("640 mb"), and one with 640 mebibytes per
+    disc ("640 mib"). Each set will be configured with
+    <constant>keymap</constant> and <constant>lang</constant> boot arguments.
     </para>
 
     <informalexample>
@@ -122,9 +104,7 @@
     </title>
 
     <para>
-    <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-text" /></varname>,
-    <xref linkend="boot-args-macros" />
     </para>
   </section>
 </section>

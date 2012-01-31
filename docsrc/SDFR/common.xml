@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div id="attribute-content">
+  <para>
+  <emphasis>@content</emphasis>: Accepts either "file" or "text".  When
+  <emphasis>content</emphasis> is "file", the element's text value is treated
+  as a <varname>PATH</varname> to a file, whereas when it is "text", the
+  element's text value is interpreted as the raw text to use for creating a
+  file. The default value is "file".
+  </para>
+</div>
+
+<div id="syntax-kickstart-element">[&lt;kickstart&gt;TEXT&lt;/kickstart&gt;]</div>
+
+<div id="element-kickstart">
+  <para>
+  The kickstart file is used by <application
+  class="software">Anaconda</application>, the CentOS system installer, for
+  obtaining options, such as language, timezone, network and machine
+  configuration, during automated installation.
+   </para>
+
+  <para>
+  Kickstart is an optional element.
+  </para>
+
+  <para>
+  For more information on creating and using kickstart files, see the
+  <emphasis>CentOS Studio User Manual</emphasis>. In addition, the chapter on
+  <emphasis>Kickstart Installations</emphasis> in the <emphasis>Red Hat
+  Enterprise Linux Installation Guide</emphasis> provides complete details on
+  available kickstart parameters.
+  </para>
+
+  <note>It is not necessary to specify a '%packages' section in the kickstart
+  file. CentOS Studio automatically configures the installer to install all
+  packages in the solution. If a '%packages' section is
+  provided, it is ignored.</note>
+</div>
+
+<div id="syntax-ssh-attributes">[hostname=TEXT] [password=TEXT]</div>
+
+<div id="syntax-ssh-attribute">[ssh=BOOLEAN]</div>
+
+<div id="content-deploy-element">
+  <para>
+  This element accepts one attribute, <emphasis>@ssh</emphasis>
+  </para>
+
+  <para>
+  <emphasis>@ssh</emphasis>: <varname>BOOLEAN</varname> value that determines
+  whether CentOS Studio should attempt to execute the script via SSH using the
+  parameters provided by the <emphasis>@hostname</emphasis> and
+  <emphasis>@password</emphasis> attributes described later in this section.
+  The default value is <emphasis>TRUE</emphasis>.
+  </para>
+
+  <para>
+  If the ssh attribute is <varname>TRUE</varname>, CentOS Studio attempts to
+  copy the script to the specified host and execute it from the
+  <filename>/etc/sysconfig/centosstudio/</filename> folder with root privileges.
+  </para>
+
+  <para>
+  If the ssh attribute is <varname>FALSE</varname>, CentOS Studio relies on the
+  script to perform all steps to connect, authenticate, and execute the script
+  on one or more host machines.
+  </para>
+</div>
+
+<div id="syntax-local-dir-element">[&lt;local-dir&gt;PATH&lt;/local-dir&gt;]</div>
+
+<div id="syntax-remote-url-element">[&lt;remote-url [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/remote-url&gt;]</div>
+
+<div id="syntax-boot-options-element">[&lt;boot-options&gt;TEXT&lt;/boot-options&gt;]</div>
+
+<div id="syntax-activate-script-element">&lt;activate-script&gt;TEXT&lt;/activate-script&gt;</div>
+  
+<div id="syntax-delete-script-element">&lt;delete-script&gt;TEXT&lt;/delete-script&gt;</div>
+
+<div id="syntax-install-script-element">&lt;install-script&gt;TEXT&lt;/install-script&gt;</div>
+
+<div id="syntax-verify-install-script-element">&lt;verify-install-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>&gt;TEXT&lt;/verify-install-script&gt;</div>
+
+<div id="syntax-update-script-element">&lt;update-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>/&gt;TEXT&lt;update-script&gt;</div>
+
+<div id="syntax-post-script-element">&lt;post-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>&gt;TEXT&lt;/post-script&gt;</div>
+
+</div>

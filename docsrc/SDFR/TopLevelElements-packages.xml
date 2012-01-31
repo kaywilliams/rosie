@@ -156,7 +156,7 @@
   &lt;package&gt;samba*&lt;/package&gt;
   &lt;package&gt;createrepo&lt;/package&gt;
 
-  &lt;!-- exclude system-config-soundcard from the solution --&gt;
+  &lt;!-- exclude system-config-soundcard from the system --&gt;
   &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
 &lt;/packages&gt;  
     </programlisting>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="config"
-         xreflabel="config"
+<section id="config-rpm"
+         xreflabel="config-rpm"
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
-  Config
+  Config-rpm (optional)
   </title>
 
   <section>
@@ -14,15 +14,47 @@
     </title>
 
     <para>
-    Creates an RPM used to install and update system-specific configuration on
-    the client system.  The RPM is named <filename>system-config</filename>.
-    The system-config RPM completes three primary functions. It installs
-    automatically-generated YUM plugin and repository definition files. It
-    installs user-provided configuration files specified via
-    <emphasis>config/files</emphasis> elements. And it runs user-provided
-    scripts specified via <emphasis>config/script</emphasis> and
-    <emphasis>config/trigger</emphasis> elements.
+    Creates an RPM used to install and update solution-specific configuration on
+    the client machine.  The RPM is named:
     </para>
+
+    <synopsis>%{name}-config</synopsis> 
+    
+    <para>
+    See the <emphasis>main/name</emphasis> element for information on
+    <emphasis>%{name}</emphasis>.
+    </para>
+
+    <para>
+    The config-rpm completes three primary functions.
+    </para>
+    
+    <itemizedlist>
+    <listitem>
+    It installs user-provided configuration files specified via
+    <emphasis>config-rpm/files</emphasis> elements. 
+    </listitem>
+    
+    <listitem>
+    It runs user-provided scripts specified via
+    <emphasis>config-rpm/script</emphasis> and
+    <emphasis>config-rpm/trigger</emphasis> elements.
+    </listitem>
+
+    <listitem>
+    It places copies of user-provided scripts in the
+    <filename>/etc/sysconfig/centosstudio/%{name}</filename> folder on
+    installed client machines. This assists with troubleshooting "scriptlet
+    failed" errors during config-rpm installation and updates.
+    Scripts are named with the prefix <varname>config-</varname> followed by
+    the script type, e.g. <filename>config-post-script</filename>. Triggers
+    are similarly named, but they also include the name provided in the
+    <emphasis>@package</emphasis> attribute, e.g.
+    <filename>config-triggerin-drupal-script</filename>. See the
+    <emphasis>CentOS Studio User Guide</emphasis> for more information on
+    testing and troubleshooting client machine installation and updates.
+    </listitem>
+    </itemizedlist>
 
   </section>
 
@@ -32,8 +64,9 @@
     </title>
 
     <programlisting>
-&lt;config&gt;
-  [&lt;updates [sync=boolean] [gpgcheck=boolean]) /&gt;
+[&lt;config-rpm&gt;
+  [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
+  [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
           [content=("file"|"text")]&gt;
@@ -44,14 +77,11 @@
     TEXT
    &lt;/script&gt;]*
 
-  [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
-  [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
-
   [&lt;trigger package=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
            [interpreter=PATH]&gt;
     TEXT
    &lt;/trigger&gt;]*
-&lt;/config&gt;
+&lt;/config-rpm&gt;]
     </programlisting>
   </section>
 
@@ -61,61 +91,117 @@
     </title>
 
     <variablelist>
-
-    <varlistentry id="config-updates"
-                  xreflabel="config/updates">
+    <varlistentry id="config-rpm-requires"
+                  xreflabel="config-rpm/requires">
       <term>
-      updates
+      requires
       </term>
 
       <listitem>
       <para>
-      Controls inclusion of the <application class="software">YUM</application>
-      sync plugin; also controls whether gpgchecking is performed. 
+      Specifies a <varname>CAPABILITY</varname> that must be available on
+      client machines prior to installation of the config-rpm. Capabilities are
+      provided by RPM packages. They can be specified as the name of a package,
+      or as a file or virtual capability provided by one or more packages.
       </para>
 
       <para>
-      Accepts two attributes,
-      <emphasis>@sync</emphasis> and
-      <emphasis>@gpgcheck</emphasis>.
+      The <emphasis>requires</emphasis> element can occur zero or more times
       </para>
 
       <para>
-      <emphasis>@sync</emphasis>: <varname>BOOLEAN</varname> value indicating
-      whether to include the <application
-      class="software">CentOS Studio</application>-provided <application
-      class="software">YUM</application> sync plugin in the config RPM. The
-      sync plugin overrides <application class="software">YUM</application>'s
-      default behavior 1) to disable all repositories other than the
-      solution and 2) to provide a <emphasis>sync</emphasis>
-      argument that allows adding <emphasis>and removing</emphasis> installed
-      packages on client machines in alignment with with available packages in
-      the solution. The default value is
-      <constant>TRUE</constant>. 
+      Capabilities have the following syntax:
+      <programlisting>
+capability [ comparison_operator  version ]
+      </programlisting></para>
+
+      <para>
+      Comparison operators can be one of the following. Note that "&gt;"
+      and "&lt;" characters must be escaped as shown below, as these characters
+      have special meaning in XML documents.
+      <simplelist type='horiz' columns='2'>
+      <member><emphasis role='strong'>Operator</emphasis></member>
+      <member><emphasis role='strong'>Meaning</emphasis></member>
+      <member>&amp;gt;</member><member>greater than</member>
+      <member>&amp;lt;</member><member>less than</member>
+      <member>=</member><member>equal</member>
+      <member>&amp;gt;=</member><member>greater than or equal</member>
+      <member>&amp;lt;=</member><member>less than or equal</member>
+      </simplelist>
       </para>
 
       <para>
-      <emphasis>@gpgcheck</emphasis>: <varname>BOOLEAN</varname> value
-      indicating whether packages should be checked for valid GPG signatures.
-      This value controls whether CentOS Studio performs gpgchecking when
-      creating the solution. It also controls whether YUM checks
-      packages from the solution prior to performing client machine 
-      updates. The default value is <constant>TRUE</constant>.
+      Following are example <emphasis>requires</emphasis> elements.
+      <programlisting>
+&lt;requires&gt;samba&lt;/requires&gt;
+&lt;requires&gt;samba &amp;gt; 3.0&lt;/requires&gt; &lt;!-- samba > 3.0 --&gt;
+&lt;requires&gt;config(samba)&lt;/requires&gt;
+&lt;requires&gt;shadow_copy.so&lt;/requires&gt;
+      </programlisting></para>
+
+      <note>
+      <para>
+      You can view the capabilities provided by a package using the
+      <command>rpm</command> command. 
+      <programlisting>
+# list capabilities of an installed package
+rpm -q --provides samba 
+
+# list capabilities of a file on disk
+rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm
+      </programlisting>
       </para>
+      </note>
 
       </listitem>
     </varlistentry>
 
-    <varlistentry id="config-files"
-                  xreflabel="config/files">
+    <varlistentry id="config-rpm-obsoletes"
+                  xreflabel="config-rpm/obsoletes">
+      <term>
+      obsoletes
+      </term>
+
+      <listitem>
+      <para>
+      Specifies a <varname>CAPABILITY</varname>, typically an RPM package, that
+      must be removed from the client machines prior to installation of the
+      config-rpm. Useful for removing conflicting or undesirable software from
+      client machines, particularly for machines without the YUM sync plugin.
+      See the <xref linkend="config-rpm-requires"/> element above for more
+      information on specifying capabilities. See also the <xref
+      linkend="release-rpm-updates"/> element for information on the YUM sync
+      plugin.
+      </para>
+
+      <para>
+      Can occur zero or more times.
+      </para>
+
+      <para>
+      Examples
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;obsoletes&gt;kernel &amp;lt; 2.4.1&lt;/obsoletes&gt; &lt;!-- kernel &lt; 2.4.1 --&gt;
+&lt;obsoletes&gt;X11R6-contrib&lt;/obsoletes&gt;
+      </programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-files"
+                  xreflabel="config-rpm/files">
       <term>
       files
       </term>
 
       <listitem>
       <para>
-      Specifies a file or folder containing files to install to the client
-      system. Can occur zero or more times.
+      Specifies a file or folder containing files to install to client
+      machines. Can occur zero or more times.
       </para>
 
       <para>
@@ -139,9 +225,9 @@
       <para>
       <emphasis>@destdir</emphasis>: See the path-like attribute
       <emphasis><xref linkend="destdir" /></emphasis>. Controls the
-      location to which this file should be installed on the client
-      system. The default value is
-      <filename>/usr/share/system-config/files</filename>.
+      location to which this file should be installed on client
+      machines. The default value is
+      <filename>/etc/sysconfig/centosstudio/%{name}/files</filename>.
       </para>
 
       <para>
@@ -154,11 +240,13 @@
       <emphasis>@mode</emphasis>: See the path-like attribute
       <emphasis><xref linkend="mode" /></emphasis>.
       </para>
+
+      <para>See <xref linkend="path-like-element"/> for more information.</para>
     </listitem>
     </varlistentry>
 
-    <varlistentry id="config-script"
-                  xreflabel="config/script">
+    <varlistentry id="config-rpm-script"
+                  xreflabel="config-rpm/script">
       <term>
       script
       </term>
@@ -205,37 +293,8 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="config-requires"
-                  xreflabel="config/requires">
-      <term>
-      requires
-      </term>
-
-      <listitem>
-      <para>
-      See Common Element
-      <emphasis><xref linkend="requires" /></emphasis>. Can occur zero or more
-      times.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="config-obsoletes"
-                  xreflabel="config/obsoletes">
-      <term>
-      obsoletes
-      </term>
-
-      <listitem>
-      <para>
-      See Common Element <emphasis><xref linkend="obsoletes" /></emphasis>. 
-      Can occur zero or more times.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="config-trigger"
-                  xreflabel="config/trigger">
+    <varlistentry id="config-rpm-trigger"
+                  xreflabel="config-rpm/trigger">
       <term>
       trigger
       </term>
@@ -286,8 +345,8 @@
 
     <informalexample>
     <programlisting>
-&lt;config&gt;
-  &lt;!-- put smb.conf in /etc/samba on the client system --&gt;
+&lt;config-rpm&gt;
+  &lt;!-- put smb.conf in /etc/samba on the client machine --&gt;
   &lt;files destdir="/etc/samba"&gt;
     smb.conf
   &lt;/files&gt;
@@ -305,12 +364,6 @@
 ::1         localhost.localdomain localhost
   &lt;/files&gt;
 
-  &lt;!-- exclude the yum sync plugin --&gt;
-  &lt;updates sync="false" /&gt;
-
-  &lt;!-- disable gpgchecking --&gt;
-  &lt;updates gpgcheck="false" /&gt;
-
   &lt;!-- required packages --&gt;
   &lt;requires&gt;samba&lt;/requires&gt;
   &lt;requires&gt;samba-common&lt;/requires&gt;
@@ -327,7 +380,7 @@ chkconfig smb on
   &lt;trigger package="samba" type="triggerin"&gt;
     scripts/smb-triggerin.sh
   &lt;/trigger&gt;
-&lt;/config&gt;
+&lt;/config-rpm&gt;
     </programlisting>
     </informalexample>
   </section>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="test-update"
+         xreflabel="Test-Update"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>
+  Test-update (optional)
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    <emphasis>Test-update</emphasis> is the second CentOS Studio module related
+    to solution testing. It allows testing solution updates. As with
+    <emphasis>test-install</emphasis> this testing occurs prior to publishing
+    the final solution repository.  The <emphasis>test-update</emphasis> event
+    follows the <emphasis>test-install</emphasis> event in the solution build
+    process.
+    </para>
+
+    <para>
+    For complete information on macros, attributes and elements for the
+    test-install top-level element, see the Deployment Elements Common Model at
+    <xref linkend="deployment-elements-common-model"/>
+    </para>
+
+    <para>
+    <emphasis>Test-update</emphasis> is an optional element.
+    </para>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;test-update <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-ssh-attributes']/text())"/>&gt;
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-local-dir-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-remote-url-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-kickstart-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-update-script-element']/text())"/>
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
+&lt;test-update/&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <para>
+    The following example configures CentOS Studio to perform a test
+    update to a local virtual machine. See the <emphasis>CentOS Studio User
+    Manual</emphasis> for information on configuring the build machine to
+    support virtual machine installations.
+    </para>
+
+    <para>
+    Similar to the solution definition shown under <xref
+    linkend="test-install-examples"/>, this example makes use of three files:
+    the main solution definition, <xref linkend="ks.cfg"/> and <xref
+    linkend="deploy.xml"/>. The test-update element of the main solution
+    definition is shown below. The latter two files are described under <xref
+    linkend="test-install-examples"/>.
+    </para>
+
+    <programlisting>
+<xi:include href="examples/test-update.xml" parse="text"/>
+    </programlisting>
+    </informalexample>
+  </section>
+
+</section>

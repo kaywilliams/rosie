@@ -5,7 +5,7 @@
          xreflabel="publish"
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
-  Publish
+  Publish (optional)
   </title>
 
   <section>
@@ -14,36 +14,22 @@
     </title>
 
     <para>
-    Publishes the solution to a <varname>PATH</varname> on the build
-    machine (<emphasis>publish/local-dir</emphasis>) and enables client
-    systems to obtain their updates from a solution download server
-    by using a URL <varname>PATH</varname>
-    (<emphasis>publish/remote-url</emphasis>).
+    The <emphasis>publish</emphasis> top-level element provides information
+    necessary for publishing the final solution, installing the solution on
+    production client machines, and updating existing production client
+    machines.
     </para>
-
-    <para>Because solutions are intended for automatic installation
-    and update to client machines, to ensure that correct content is 
-    distributed, you should ensure that only trusted users and groups have
-    <emphasis>write</emphasis> access to the <emphasis>local-dir</emphasis>. In
-    addition, to prevent man-in-the-middle style security attacks, you may
-    wish to configure the <emphasis>remote-url</emphasis> for SSL access.
-    See your web server documentation for information on configuring SSL. Also
-    see <emphasis>Example 5</emphasis> below for specifying an SSL (https) 
-    <emphasis>remote-url</emphasis>.
+    
+    <para>
+    The publish element is based on the Deployment Elements Common Model. See
+    <xref linkend="deployment-elements-common-model"/> for a complete
+    description of macros, attributes and elements. 
     </para>
 
     <para>
-    The web-accessible download server can be either the CentOS Studio build
-    system or another machine. To utilize the CentOS Studio build system's fully qualified domain name (FQDN) 
-    instead of its IP address, set
-    <emphasis>publish/remote-url/@fqdn</emphasis> to
-    <constant>TRUE</constant>. Use
-    <emphasis>publish/remote-url/@interface</emphasis> to
-    specify the network interface from which to obtain the IP address.
-    To specify a full <varname>PATH</varname> to the solution download
-    server, use the <emphasis>publish/remote-url</emphasis> element with
-    a <varname>PATH</varname> in its text value.
+    Publish is an optional element.
     </para>
+
   </section>
 
   <section>
@@ -52,226 +38,34 @@
     </title>
 
     <programlisting>
-[&lt;publish&gt;
+[&lt;publish <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-ssh-attributes']/text())"/>&gt;
   <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-local-dir-element']/node())"/>
   <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-remote-url-element']/node())"/>
-&lt;/publish&gt;]
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-boot-options-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-kickstart-element']/text())"/>
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-update-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
+&lt;publish/&gt;]
     </programlisting>
   </section>
 
   <section>
-    <title>
-    Elements
-    </title>
+  <title>
+  Examples
+  </title>
 
-    <variablelist>
-    <varlistentry>
-      <term>
-      local-dir
-      </term>
+  <para>
+  The following example shows a publish element configured to sync and deliver
+  solution content from a remote web server.
+  </para>
 
-      <listitem>
-      <para>
-      The <varname>PATH</varname> to a directory where CentOS Studio will
-      publish this, and potentially other solution repositories. For solution
-      repositories to be accessible on the web, the directory must be in the
-      system’s local webroot, e.g. the Apache <varname>DocumentRoot</varname>.
-      </para>
-
-      <para>
-      The default value is
-      <filename>/var/www/html/solutions/<xref linkend="main-id"/></filename>.
-      </para>
-
-      <para>
-      This element is optional.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>
-      remote-url
-      </term>
-
-      <listitem>
-      <para>
-      The URL <varname>PATH</varname> to a directory from which client
-      systems can access this, and potentially other, solution repositories.
-      </para>
-
-      <para>
-      The default behavior is to use
-      <filename>http://$ipaddress/solutions/<xref linkend="main-id"/></filename>,
-      where <varname>$ipaddress</varname> is computed using the value
-      of the <emphasis>@interface</emphasis> attribute.
-      </para>
-
-      <para>
-      This element is optional.
-      </para>
-
-      <para>
-      This element accepts two attributes:
-      <emphasis>@interface</emphasis> and
-      <emphasis>@fqdn</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@interface</emphasis>: The network interface name,
-      e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
-      of the solution's update repository. This attribute only has
-      an effect if <emphasis>publish/remote-url/@fqdn</emphasis>
-      is <constant>FALSE</constant>. By default, CentOS Studio uses the first
-      active, non-loopback network interface.
-      </para>
-
-      <para>
-      <emphasis>@fqdn</emphasis>: <varname>BOOLEAN</varname>
-      that determines whether <application class="software">CentOS Studio</application>
-      uses the build machine's fully qualified domain name or IP address in the
-      automatically-computed remote url. The default value for
-      this attribute is <constant>FALSE</constant>.
-      </para>
-
-      </listitem>
-    </varlistentry>
-    </variablelist>
+  <programlisting>
+<xi:include href="examples/publish.xml" parse="text"/>
+  </programlisting>
   </section>
 
-  <section>
-    <title>
-    Examples
-    </title>
-
-    <para>
-    In the following examples, the build system's fully qualified domain name is
-    <filename>buildserver.company.com</filename> and the IP addresses of "eth0" and
-    "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building a
-    solution with an <xref linkend="main-id"/> of
-    "samba-server-5-i386".
-    </para>
-
-    <section>
-      <title>
-      Example 1 - automatic remote url computation using IP address
-      </title>
-
-      <para>
-      In this example, the remote url is automatically computed using
-      the IP address of the first active network interface ("eth0"). The
-      resulting remote url is
-      <literallayout>http://10.10.1.105/solutions/samba-server-5-i386</literallayout>
-      In addition, it is using a different file system location, 
-      <filename>/var/webroot/html/solutions/</filename>, rather than the 
-      default location.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish&gt;
-  &lt;local-dir&gt;/var/webroot/html/solutions/&lt;/local-dir&gt;
-&lt;/publish&gt;
-      </programlisting>
-      </informalexample>
-    </section>
-
-    <section>
-      <title>
-      Example 2 - automatic remote url computation using FQDN
-      </title>
-
-      <para>
-      In this example, the remote url is automatically computed using
-      the FQDN of the build system. The resulting remote url is
-      <literallayout>http://buildserver.company.com/solutions/samba-server-5-i386</literallayout>
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish&gt;
-  &lt;remote-url fqdn="true" /&gt;
-&lt;/publish&gt;
-      </programlisting>
-      </informalexample>
-
-    </section>
-
-    <section>
-      <title>
-      Example 3 - automatic remote url computation using a specific interface
-      </title>
-
-      <para>
-      In this example, the remote url is automatically computed using
-      the IP address of the specified interface, "eth1". The resulting
-      remote url is
-      <literallayout>http://192.168.0.10/solutions/samba-server-5-i386</literallayout>
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish&gt;
-  &lt;remote-url interface="eth1"/&gt;
-&lt;/publish&gt;
-      </programlisting>
-      </informalexample>
-
-    </section>
-
-    <section>
-      <title>
-      Example 4 - manual configuration of remote url
-      </title>
-
-      <para>
-      In this example, the solution is created on the build machine, but later
-      moved to a web server, or web server farm, for final publication. In this
-      case, the remote url must be  manually specified. The resulting remote
-      url is
-      <literallayout>http://solutions.company.com/samba-server-5-i386</literallayout>
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish&gt;
-  &lt;remote-url&gt;http://solutions.company.com/&lt;/remote-url&gt;
-&lt;/publish&gt;
-      </programlisting>
-      </informalexample>
-
-    </section>
- 
-    <section>
-      <title>
-      Example 5 - manual configuration of remote url using SSL
-      </title>
-
-      <para>
-      This example is similar to Example 4, except that the remote url is
-      manually configured to use an SSL web location. The resulting remote url
-      is
-      <literallayout>https://solutions.company.com/samba-server-5-i386</literallayout>
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish&gt;
-  &lt;remote-url&gt;https://solutions.company.com/&lt;/remote-url&gt;
-&lt;/publish&gt;
-      </programlisting>
-      </informalexample>
-    </section>
-  </section>
-
-  <section>
-    <title>
-    See Also
-    </title>
-
-    <para>
-    <varname><xref linkend="content-boolean" /></varname>,
-    <varname><xref linkend="content-path" /></varname>
-    </para>
-  </section>
 </section>

@@ -119,7 +119,7 @@ samba
 
       <note>
       <para>
-      Be sure when defining capabilities within a solution file to
+      Be sure when defining capabilities within a solution definition to
       escape the <constant>&lt;</constant> and <constant>&gt;</constant>
       characters using <constant>&amp;lt;</constant> and
       <constant>&amp;gt;</constant>, respectively.
@@ -328,7 +328,7 @@ kernel-0:2.4.1-10.i686
       <varname>PATH</varname>s may originate in file, http, or https
       schemes. Specifying the scheme of file paths is optional; absolute
       file paths may simply start with a forward slash ("/"). All relative
-      paths are relative to the solution file unless otherwise specified.
+      paths are relative to the solution definition unless otherwise specified.
       </para>
 
     </section>
