@@ -40,14 +40,14 @@ class InitEvent(Event):
       self.METADATA_DIR.rm(recursive=True)
 
   def apply(self):
-    for folder in [self.TEMP_DIR, self.METADATA_DIR]:
+    for folder in [self.METADATA_DIR]:
       if not folder.exists():
         self.log(4, L1("making directory '%s'" % folder))
         folder.mkdirs()
 
   def verify_directories_exist(self):
     "output directories exist"
-    for folder in [self.TEMP_DIR, self.METADATA_DIR]:
+    for folder in [self.METADATA_DIR]:
       self.verifier.failUnless(folder.exists(), "folder '%s' does not exist" % folder)
 
 class SetupEvents(Event):

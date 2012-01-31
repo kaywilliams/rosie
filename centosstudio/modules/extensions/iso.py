@@ -78,7 +78,7 @@ class PkgorderEvent(Event):
     self.log(1, L1("generating package ordering"))
 
     # create yum config needed by pkgorder
-    cfg = self.TEMP_DIR/'pkgorder'
+    cfg = self.mddir/'yum.conf'
     repoid = self.solutionid
     cfg.write_lines([ YUMCONF % (self.solutionid, self.solutionid, self.cvars['os-dir']) ])
 

@@ -67,7 +67,6 @@ from centosstudio.event.loader import Loader
 
 API_VERSION = 5.0
 
-DEFAULT_TEMP_DIR = pps.path('/tmp/centosstudio')
 DEFAULT_CACHE_DIR = pps.path('/var/cache/centosstudio')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/centosstudio')
 DEFAULT_LOG_FILE = pps.path('/var/log/centosstudio.log')
@@ -253,7 +252,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock('centosstudio.pid')
+    self._lock = lock.Lock( 'centosstudio-%s.pid' % self.solutionid )
 
   def main(self):
     "Build a solution repository"
@@ -266,11 +265,11 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
           self._handle_Exception(e)
       finally:
         self._lock.release()
-      DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir
       self._log_footer()
     else:
-      self.logger.log(0, L0("Another instance of centosstudio (pid %d) is already "
-                            "running" % self._lock._readlock()[0]))
+      self.logger.log(0, L0("Another instance of centosstudio (pid %d) is "
+                            "already modifying '%s'" % 
+                            (self._lock._readlock()[0], self.solutionid )))
       sys.exit()
 
   def _get_config(self, options, arguments):
@@ -445,7 +444,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     Event.CACHE_DIR    = self.mainconfig.getpath(
                            '/centosstudio/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
-    Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['solutionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]

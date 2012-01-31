@@ -322,7 +322,7 @@ class RpmBuildObject:
     mkrpm.signRpms([self.rpm_path], public=self.gpgsign['pubkey'], 
                    secret=self.gpgsign['seckey'], 
                    passphrase=self.gpgsign['passphrase'], 
-                   working_dir=self.ptr.TEMP_DIR)
+                   working_dir=self.ptr.mddir)
 
   def _apply(self):
     rpmbuild_data = {}
