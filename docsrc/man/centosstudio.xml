@@ -47,9 +47,6 @@
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
-<option>--list-modules</option>
-</arg>
-<arg choice="opt">
 <option>--share-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
@@ -71,7 +68,7 @@ SOLUTION_DEFINITION.</para>
 <refsect1 id="centosstudio.1-usage"><title>USAGE</title>
 <para><command>centosstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
 <para>OPTIONS refers to the command-line options described below.
-SOLUTION_DEFINITION refers to a solution definition file, see the System
+SOLUTION_DEFINITION refers to a solution definition file, see the Solution
 Definition File Reference at <ulink
 url="http://www.centossolutions.com/centosstudio/docs"/> for more
 information.</para>
@@ -122,19 +119,6 @@ class="parameter">MODULE3</replaceable></para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path
 <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable
 class="parameter">PATH3</replaceable></para>
-<para>See the MODULES section below for more information.</para>
-  </listitem>
-</varlistentry>
-
-<varlistentry>
-  <term><option>--list-modules</option></term>
-  <listitem>
-    <para> Displays a list of CentOS Studio modules including name,
-    description, and child modules, then exits without building the solution.
-    Note: CentOS Studio requires a solution definition on the command line when
-    using this option, for example:</para>
-<para>centosstudio --list-modules
-<filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -265,19 +249,14 @@ MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 <refsect1 id="centosstudio.1-modules"><title>MODULES</title>
 <para>
 A module performs an individual step in the build process, such as
-downloading software packages or creating ISO images. To display a list of
-available modules use the option <command>--list-modules</command> with the
-centosstudio command. Note: CentOS Studio requires a solution definition on the
-command line when using this option, for example:
-</para>
-<para>
-centosstudio --list-modules <filename>SOLUTION_DEFINITION</filename>
-</para>
-<para>
+downloading software packages or creating ISO images. 
 On subsequent builds of the same solution, CentOS Studio automatically
 determines whether a module can be skipped in favor of using cached data from a
 previous build. Users can override the default determination using the
 <command>--skip</command> and <command>--force</command> options.
+</para>
+<para>
+Module names correspond to top-level elements in the SOLUTION_DEFINITION.
 </para>
 <para>
 Developers can write custom CentOS Studio modules and direct CentOS

@@ -213,12 +213,19 @@ class Loader:
     if not mod: return
     check_api_version(mod, self.api_ver)
     modname = mod.__name__.split('.')[-1]
-    for event in mod.MODULE_INFO.get('events', []):
+    mod_events = mod.MODULE_INFO.get('events', [])
+    for event in mod_events:
       getattr(mod, event).moduleid = modname
       e = getattr(mod, event)(*args, **kwargs)
       if e.enabled:
         self.events.append(e)
-      self.module_map.setdefault(modname, []).append(e.id)
+        self.module_map.setdefault(modname, []).append(e.id)
+
+    # if we haven't added the module to the module_map, i.e. because none of
+    # its events are enabled, remove it from the list of modules
+    if modname not in self.module_map: 
+      self.modules.pop(modname)
+      
 
   def _resolve_events(self):
     "'Stitch' together events into an event tree according to the parent"
@@ -233,12 +240,23 @@ class Loader:
         raise UnregisteredEventError(E.id)
       except UnregisteredEventError:
         if E == firstunreg:
-          # parent event does not exist, skip
+          # parent event does not exist, remove event
+          self._remove_event(E.id)
           firstunreg=None
           continue
         self.events.append(E)
         if firstunreg is None: firstunreg = E
 
+  def _remove_event(self, event):
+    for key in self.module_map.keys():
+      if key == event:
+        self.module_map.pop(event)
+        self.modules.pop(event)
+      elif event in self.module_map[key]:
+        self.module_map[key] = self.module_map[key].remove(event)
+        if self.module_map[key] is None:
+          self.module_map.pop(key)
+          self.modules.pop(key)
 
 def load_modules(name, dir, err=True):
   "Recursively load the module with name name located underneath dir"

@@ -124,11 +124,6 @@ def main():
     dest='skip_events',
     default=[],
     help=SUPPRESS_HELP)
-  event_group.add_option('--list-modules',
-    action='store_true',
-    default=False,
-    dest='list_modules',
-    help='list all loaded modules and module groups')
   event_group.add_option('--list-events',
     action='store_true',
     default=False,

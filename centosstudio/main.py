@@ -188,11 +188,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     enabled, disabled = self._compute_modules(options)
 
     load_extensions = False
-    if options.list_modules:
-      # remove all disabled modules - we want to see them all
-      disabled = ['__init__']
-      # load all extension modules explicitly
-      load_extensions = True
 
     # load all enabled modules, register events, set up dispatcher
     loader = Loader(top = AllEvent(), api_ver = API_VERSION,
@@ -223,11 +218,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       Event.logger.log(0, L0("\n%s" % e))
       if self.debug: raise
       sys.exit(1)
-
-    # list modules, if requested
-    if options.list_modules:
-      self._pprint_modules(loader)
-      sys.exit()
 
     # list events, if requested
     if options.list_events:
@@ -484,62 +474,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     except:
       pass
     Event.cvars['selinux-enabled'] = selinux_enabled
-
-  def _pprint_modules(self, loader):
-    width = 74
-
-    modgrps = {}
-    for modid, module in loader.modules.items():
-      grp = module.MODULE_INFO.get('group')
-      if grp and module.MODULE_INFO.get('description') is not None:
-        modgrps.setdefault(grp, []).append(modid)
-
-    longest = 0
-    sep = ' : '
-    for modid in loader.modules:
-      longest = max(longest, len(modid))
-    s = '%%-%ds' % longest
-
-    lfmt = listfmt.ListFormatter(start='including ', sep=', ', last=' and ', end=' modules')
-    twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)), width=width)
-
-    print "\nFollowing is a list of modules by group:"
-
-    for grp in sorted(modgrps.keys()):
-      if loader.modules.has_key(grp):
-        if loader.modules[grp].MODULE_INFO.get('description') is None:
-          continue
-        r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
-      else:
-        continue
-      print ""
-      print twrp.fill('%s%s%s' % r)
-      print "="*width
-
-      for modid in sorted(modgrps[grp]):
-        if loader.modules.has_key(modid):
-          if loader.modules[modid].MODULE_INFO.get('description') is None:
-            continue
-          r = (s % modid, sep, loader.modules[modid].MODULE_INFO.get('description', ''))
-        else:
-          r = (s % modid, '', '')
-        print twrp.fill('%s%s%s' % r)
-
-    r = (s % 'none', sep, 'modules not associated with a group')
-    print ""
-    print twrp.fill('%s%s%s' % r)
-    print "="*width
-    r = (s % 'none', sep, 'modules not associated with a group')
-    for modid in sorted([ x for x in loader.modules if
-                              x not in modgrps.keys() and
-                              not loader.modules[x].MODULE_INFO.get('group')]):
-      if loader.modules.has_key(modid):
-        if loader.modules[modid].MODULE_INFO.get('description') is None:
-          continue
-        r = (s % modid, sep, loader.modules[modid].MODULE_INFO.get('description', ''))
-      else:
-        r = (s % modid, '', '')
-      print twrp.fill('%s%s%s' % r)
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
