@@ -113,7 +113,7 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
       conditionally_requires = ['srpms-dir', 'ks-path', 'boot-options'],
     )
     if not self.type == 'system':
-      raise InvalidEventError(event=self.id, message="iso images can only be created when the 'main/type' element is set to the default value, 'system'.")
+      self.enabled = False
 
     ListCompareMixin.__init__(self)
 

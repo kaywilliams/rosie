@@ -35,6 +35,9 @@ class ConfigRpmEvent(ConfigRpmEventMixin, Event):
       provides = ['rpmbuild-data'],
     )
 
+    if self.type == 'component':
+      self.enabled = False
+
     self.DATA = {
       'variables': ['name', 'fullname', 'rpm.release',],
       'config':    [], # set by ConfigRpmEventMixin

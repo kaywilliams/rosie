@@ -38,6 +38,9 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
       requires = ['publish-setup-options'],
     )
 
+    if self.type == 'component':
+      self.enabled = False
+
     self.DATA = {
       'variables': ['name', 'fullname', 'rpm.release',],
       'config':    [], # set by ReleaseRpmEventMixin

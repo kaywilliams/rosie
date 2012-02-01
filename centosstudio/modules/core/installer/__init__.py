@@ -35,6 +35,6 @@ class InstallerEvent(Event):
       suppress_run_message = True,
     )
 
-    if self.type == 'application':
+    if not self.type == 'system':
       self.enabled = False
 
