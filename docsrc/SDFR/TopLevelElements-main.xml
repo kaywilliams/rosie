@@ -109,6 +109,27 @@
       </listitem>
     </varlistentry>
 
+    <varlistentry id="main-type"
+                  xreflabel="type">
+      <term>
+      type
+      </term>
+
+      <listitem>
+      <para>
+      The type of repository to create. Valid values are "application",
+      "component" or "system".
+      </para>
+
+      <para>
+      </para>
+
+      <para>
+      The default value is 'system'.
+      </para>
+      </listitem>
+    </varlistentry>
+
     <varlistentry>
       <term>
       fullname

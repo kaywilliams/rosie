@@ -56,6 +56,11 @@
     </listitem>
     </itemizedlist>
 
+    <para>
+    The config-rpm element is ignored if <xref linkend="main-type"/> is set to
+    "component".
+    </para>
+
   </section>
 
   <section>

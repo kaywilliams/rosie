@@ -15,7 +15,7 @@
 
     <para>
     Creates an RPM used to install and update solution-specific YUM repository
-    configuration on client machines.  The RPM is named:
+    configuration on client machines. The RPM is named:
     </para>
 
     <synopsis>%{name}-release</synopsis>
@@ -24,6 +24,12 @@
     See the <emphasis>main/name</emphasis> element for information on
     <emphasis>%{name}</emphasis>.
     </para>
+
+    <para>
+    The release-rpm element is ignored and no RPM is created if <xref
+    linkend="main-type"/> is set to "component".
+    </para>
+
 
   </section>
 

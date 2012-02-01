@@ -65,6 +65,10 @@
       In order to use 1024 bytes per megabyte, insert a 'i' after the
       order designator; for example, "640 MIB" or "4.7GiB".
       </para>
+      <para>
+      The iso element is ignored if <xref linkend="main-type"/> is set to
+      "component" or "application".
+      </para>
       </note>
 
       </listitem>
