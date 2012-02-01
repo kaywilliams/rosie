@@ -209,10 +209,15 @@
   </define>
 
   <!-- ssh attributes -->
-  <define name="content-ssh-attributes">
+  <define name="content-deploy-attributes">
     <optional>
     <optional><attribute name="hostname"/></optional>
     <optional><attribute name="password"/></optional>
+    <optional>
+      <attribute name="allow-reinstall">
+        <ref name="value-boolean"/>
+      </attribute>
+    </optional>
     </optional>
   </define>
 

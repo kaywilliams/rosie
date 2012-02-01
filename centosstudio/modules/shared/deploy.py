@@ -128,6 +128,11 @@ class DeployEventMixin:
     except:
       install_triggers = [ 'activate' ]
 
+    # extend triggers if user specified in config
+    if self.cvars[self.cvar_root]['allow-reinstall']:
+      install_triggers.extend(['kickstart', 'install-script', 
+                               'verify-install-script'])
+
     if self._reinstall(triggers = install_triggers):
       self._execute('delete-script')
       self._execute('install-script')

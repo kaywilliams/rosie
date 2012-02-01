@@ -48,6 +48,7 @@ class PublishSetupEventMixin:
     self.webpath   = self.get_remote()
     self.hostname  = self.get_hostname()
     self.password, self.crypt_password  = self.get_password()
+    self.allow_reinstall = self.get_allow_reinstall()
     self.boot_options = self.get_bootoptions()
     self.write_datfile()
 
@@ -63,8 +64,8 @@ class PublishSetupEventMixin:
 
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'password', 'webpath', 'localpath', 
-                      'boot_options']:
+    for attribute in ['hostname', 'password', 'allow_reinstall', 'webpath', 
+                      'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
@@ -124,6 +125,15 @@ class PublishSetupEventMixin:
       default = '%s-%s' % (self.solutionid, self.moduleid)
 
     return self.config.get('@hostname', default)
+
+  def get_allow_reinstall(self):
+    self.DATA['config'].append('@allow-reinstall')
+    if self.moduleid == 'test-install':
+      allow_reinstall = True
+    else:
+      allow_reinstall = self.config.get('@allow-reinstall', False)
+
+    return allow_reinstall
 
   def get_bootoptions(self):
     self.DATA['config'].append('boot-options')

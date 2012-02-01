@@ -8,7 +8,7 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <ref name='content-ssh-attributes'/>
+        <ref name='content-deploy-attributes'/>
 
         <interleave>
         <ref name="element-kickstart"/>
