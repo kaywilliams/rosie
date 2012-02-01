@@ -9,13 +9,20 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <interleave>
         <optional>
         <element name="gpgsign">
+          <interleave>
           <element name="public"><text/></element>
           <element name="secret"><text/></element>
           <optional><element name="passphrase"><text/></element></optional>
+          </interleave>
         </element>
         </optional>
+
+        <optional><element name="definition"><text/></element></optional>
+        
+        </interleave>
       </element>
       </optional>
     </element>

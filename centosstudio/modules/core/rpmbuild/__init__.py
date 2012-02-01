@@ -28,6 +28,7 @@ from centosstudio.util.rxml.errors import XmlPathError
 
 from centosstudio.cslogging    import L1
 from centosstudio.errors       import CentOSStudioError
+from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.event import Event, CLASS_META
 
@@ -45,7 +46,8 @@ class RpmbuildEvent(Event):
       properties = CLASS_META,
       version = '1.00',
       requires = ['publish-setup-options'],
-      provides = ['rpmbuild-data','gpg-signing-keys', 'os-content'],
+      provides = ['rpmbuild-data','gpg-signing-keys', 'os-content', 
+                  'build-machine-data', ],
       suppress_run_message = False 
     )
 
@@ -55,7 +57,14 @@ class RpmbuildEvent(Event):
       'variables': [],
       'output':    []
     }
-   
+  
+  def validate(self):
+    self.definition = self.config.get('definition/text()','')
+    if self.type == 'component' and not self.definition:
+      raise InvalidConfigError(self.config.getroot().file,
+      "\n[%(id)s] Validation Error: a 'definition' element is required "
+      "when the value of main/type is set to 'component'." % {'id': self.id,})
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.cvars['rpmbuild-data'] = {}
@@ -77,6 +86,8 @@ class RpmbuildEvent(Event):
     self.cvars['gpg-signing-keys'] = { 'pubkey': self.pubkey,
                                        'seckey': self.seckey,
                                        'passphrase': self.passphrase }
+    self.cvars.setdefault('build-machine-data', {})[
+                          'definition'] = self.definition
 
   def verify_pubkey_exists(self):
     "pubkey exist"
