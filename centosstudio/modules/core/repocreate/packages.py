@@ -39,6 +39,8 @@ MODULE_INFO = dict(
 def is_enabled(*args, **kwargs):
   if kwargs['type'] == 'component':
     return False
+  else:
+    return True
 
 class PackagesEvent(Event):
   def __init__(self, *args, **kwargs):
@@ -157,12 +159,7 @@ class PackagesEvent(Event):
     self.comps = comps.Comps()
 
     if 'core' not in self.config.xpath('group', []):
-      core_group             = comps.Group()
-      core_group.name        = 'Core'
-      core_group.groupid     = 'core'
-      core_group.description = 'Core Packages'
-      core_group.default     = True
-      self.comps.add_group(core_group)
+      self.comps.add_core_group()
 
     # add groups
     for group in self.config.xpath('group', []):

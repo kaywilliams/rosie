@@ -464,6 +464,14 @@ class Comps(object):
         else:
             self._groups[groupid] = group
 
+    def add_core_group(self):
+      core_group             = Group()
+      core_group.name        = 'Core'
+      core_group.groupid     = 'core'
+      core_group.description = 'Core Packages'
+      core_group.default     = True
+      self.add_group(core_group)
+
     def add_category(self, category):
         if self._categories.has_key(category.categoryid):
             thatcat = self._categories[category.categoryid]

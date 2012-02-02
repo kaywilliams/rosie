@@ -24,6 +24,7 @@ from centosstudio.util import repo
 from centosstudio.event   import Event
 from centosstudio.cslogging import L1, L2
 
+from centosstudio.modules.shared import comps
 from centosstudio.modules.shared import CentOSStudioRepoGroup
 
 from centosstudio.util.repo.repo import RepoContainer
@@ -42,8 +43,8 @@ class RpmbuildRepoEvent(Event):
       parentid = 'rpmbuild',
       version = 1.02,
       suppress_run_message = True,
-      requires = ['rpmbuild-data', 'comps-object'],
-      conditionally_requires = ['gpg-signing-keys'],
+      requires = ['rpmbuild-data', ],
+      conditionally_requires = ['gpg-signing-keys', 'comps-object'],
       provides = ['repos', 'source-repos', 'comps-object']
     )
 
@@ -111,6 +112,10 @@ class RpmbuildRepoEvent(Event):
         self.DATA['output'].append(repo.localurl/'repodata')
 
   def apply(self):
+    if not 'comps-object' in self.cvars:
+      self.cvars['comps-object'] = comps.Comps()
+      self.cvars['comps-object'].add_core_group()
+
     self._populate()
     if self.cvars['rpmbuild-data']:
       self.cvars['repos'].add_repo(self.repos[self.cid])
