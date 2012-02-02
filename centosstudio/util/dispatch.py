@@ -213,6 +213,14 @@ class Loader:
     if not mod: return
     check_api_version(mod, self.api_ver)
     modname = mod.__name__.split('.')[-1]
+
+    # remove module if disabled
+    if hasattr(mod, 'is_enabled'):
+      if not mod.is_enabled(self, *args, **kwargs):
+        self.modules.pop(modname)
+        return
+
+    # process events    
     mod_events = mod.MODULE_INFO.get('events', [])
     for event in mod_events:
       getattr(mod, event).moduleid = modname

@@ -35,7 +35,7 @@ SSH_SLEEP = 5
 class DeployEventMixin:
   deploy_mixin_version = "1.00"
 
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.requires.add('%s-setup-options' % self.moduleid)
 
     # we're doing this in init rather than in validate (where it 

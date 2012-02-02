@@ -35,7 +35,7 @@ MODULE_INFO = dict(
 )
 
 class ReposEvent(RepoEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'repos',
       parentid = 'setup-events',

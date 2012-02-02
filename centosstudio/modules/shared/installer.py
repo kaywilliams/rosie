@@ -165,7 +165,7 @@ class FileDownloadMixin:
   "This class downloads files to a directory of your choosing"
   # Classes that extend this must require 'anaconda-version',
   # 'base-info' and 'installer-repo'.
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.file_locals = None
 
   def setup(self):

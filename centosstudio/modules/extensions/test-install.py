@@ -35,7 +35,7 @@ MODULE_INFO = dict(
 
 
 class TestInstallSetupEvent(TestPublishEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'test-install-setup',
       parentid = 'test-events',
@@ -49,7 +49,7 @@ class TestInstallSetupEvent(TestPublishEventMixin, Event):
 
 
 class TestInstallEvent(DeployEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'test-install',
       parentid = 'test-events',

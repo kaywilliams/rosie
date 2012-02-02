@@ -26,7 +26,7 @@ MODULE_INFO = dict(
 )
 
 class InitEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'init',
       parentid = 'all',
@@ -51,7 +51,7 @@ class InitEvent(Event):
       self.verifier.failUnless(folder.exists(), "folder '%s' does not exist" % folder)
 
 class SetupEvents(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'setup-events',
       parentid = 'all',
@@ -62,7 +62,7 @@ class SetupEvents(Event):
     )
 
 class OSEvents(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'os-events',
       parentid = 'all',
@@ -72,7 +72,7 @@ class OSEvents(Event):
     )
 
 class TestEvents(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'test-events',
       parentid = 'all',
@@ -82,7 +82,7 @@ class TestEvents(Event):
     )
 
 class PublishEvents(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'publish-events',
       parentid = 'all',

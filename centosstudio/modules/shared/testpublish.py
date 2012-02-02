@@ -27,7 +27,7 @@ from centosstudio.modules.shared import KickstartEventMixin
 class TestPublishEventMixin(ReleaseRpmEventMixin, 
                             RepomdMixin, KickstartEventMixin, 
                             PublishSetupEventMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
 
     self.DATA =  {
       'config':    [],

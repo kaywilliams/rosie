@@ -33,7 +33,7 @@ from centosstudio.util.rxml import datfile
 class PublishSetupEventMixin:
   publish_mixin_version = "1.00"
 
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
 

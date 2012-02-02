@@ -44,7 +44,7 @@ YUMCONF_HEADER = [
 class DepsolverMixin(object):
   depsolver_mixin_version = "1.00"
 
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.requires.update(['comps-object'])
     self.conditionally_requires.update(['user-required-packages', 
                                         'excluded-packages'])

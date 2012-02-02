@@ -28,7 +28,7 @@ MODULE_INFO = dict(
 )
 
 class RepomdEvent(Event, RepomdMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'repomd',
       version = '1.03',

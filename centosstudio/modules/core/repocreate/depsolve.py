@@ -45,7 +45,7 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '(?P<arch>.+)')   # rpm architecture
 
 class DepsolveEvent(Event, DepsolverMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',

@@ -25,7 +25,7 @@ from centosstudio.util import magic
 from centosstudio.constants import KERNELS
 from centosstudio.errors    import assert_file_has_content, CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.cslogging   import L1
+from centosstudio.cslogging import L1
 
 from centosstudio.modules.shared import comps
 
@@ -36,8 +36,12 @@ MODULE_INFO = dict(
   group       = 'repocreate',
 )
 
+def is_enabled(*args, **kwargs):
+  if kwargs['type'] == 'component':
+    return False
+
 class PackagesEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
       parentid = 'setup-events',
@@ -223,7 +227,7 @@ class PackagesEvent(Event):
 
 
 class CompsEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'comps',
       parentid = 'repocreate',

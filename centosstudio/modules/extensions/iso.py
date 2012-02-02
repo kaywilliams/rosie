@@ -49,7 +49,7 @@ baseurl = file://%s
 '''
 
 class PkgorderEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'pkgorder',
       parentid = 'publish-events',
@@ -102,7 +102,7 @@ class PkgorderEvent(Event):
 
 
 class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'iso',
       version = '1.01',

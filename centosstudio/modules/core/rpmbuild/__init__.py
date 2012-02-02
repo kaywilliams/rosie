@@ -39,7 +39,7 @@ MODULE_INFO = dict(
 )
 
 class RpmbuildEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'rpmbuild',
       parentid = 'os-events',

@@ -27,7 +27,7 @@ MODULE_INFO = dict(
 )
 
 class IsolinuxEvent(Event, FileDownloadMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'isolinux',
       parentid = 'installer',

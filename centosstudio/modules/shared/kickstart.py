@@ -23,7 +23,7 @@ from centosstudio.util.versort import Version
 class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
 
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.DATA['config'].append('kickstart')
     self.DATA['variables'].append('kickstart_mixin_version')
 

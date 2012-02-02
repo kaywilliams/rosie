@@ -18,7 +18,7 @@
 from centosstudio.util import pps
 
 class BootOptionsMixin(object):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.conditionally_requires.add('publish-setup-options')
     self.bootoptions = BootOptionsDummy(self)
     self.boot_options_mixin_version = '1.00'

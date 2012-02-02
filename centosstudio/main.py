@@ -196,7 +196,8 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     try:
       self.dispatch = dispatch.Dispatch(
-                        loader.load(import_dirs, prefix='centosstudio/modules')
+                        loader.load(import_dirs, prefix='centosstudio/modules',
+                                    type = self.type)
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled

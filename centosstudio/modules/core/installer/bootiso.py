@@ -29,7 +29,7 @@ MODULE_INFO = dict(
 )
 
 class BootisoEvent(Event, BootOptionsMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'bootiso',
       parentid = 'installer',

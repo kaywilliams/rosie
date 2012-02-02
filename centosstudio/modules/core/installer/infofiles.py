@@ -37,7 +37,7 @@ MODULE_INFO = dict(
 )
 
 class DiscinfoEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'discinfo',
       version = '1.01',
@@ -79,7 +79,7 @@ class DiscinfoEvent(Event):
 
 
 class TreeinfoEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'treeinfo',
       version = '1.01',
@@ -144,7 +144,7 @@ class TreeinfoEvent(Event):
 
 
 class BuildstampEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'buildstamp',
       version = '1',

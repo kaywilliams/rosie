@@ -31,7 +31,7 @@ __all__ = ['RepomdMixin']
 CREATEREPO_ATTEMPTS = 2
 
 class RepomdMixin:
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.cvars['createrepo-version'] = Version(
       shlib.execute('createrepo --version')[0].lstrip("createrepo "))
     if self.logger:

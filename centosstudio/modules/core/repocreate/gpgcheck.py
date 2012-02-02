@@ -43,7 +43,7 @@ MODULE_INFO = dict(
 )
 
 class GpgCheckEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'repocreate',

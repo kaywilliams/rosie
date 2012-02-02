@@ -229,7 +229,7 @@ class CentOSStudioRepoGroup(CentOSStudioRepo):
     return self._repos
 
 class RepoEventMixin:
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self.repos = RepoContainer()
 
   def validate(self):

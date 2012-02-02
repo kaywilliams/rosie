@@ -29,7 +29,7 @@ MODULE_INFO = dict(
 )
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'stage2-images',
       parentid = 'installer',

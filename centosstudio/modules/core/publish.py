@@ -41,7 +41,7 @@ TYPE_DIR = pps.constants.TYPE_DIR
 TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 
 class PublishSetupEvent(PublishSetupEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'publish-setup',
       parentid = 'setup-events',
@@ -65,7 +65,7 @@ class PublishSetupEvent(PublishSetupEventMixin, Event):
 
 
 class KickstartEvent(KickstartEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'kickstart',
       parentid = 'installer',
@@ -105,7 +105,7 @@ class KickstartEvent(KickstartEventMixin, Event):
 
 
 class PublishEvent(Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'publish',
       parentid = 'publish-events',
@@ -155,7 +155,7 @@ class PublishEvent(Event):
 
 
 class DeployEvent(DeployEventMixin, Event):
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     Event.__init__(self,
       id = 'deploy',
       parentid = 'publish-events',
