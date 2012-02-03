@@ -18,6 +18,7 @@
 from centosstudio.util import listcompare
 
 from centosstudio.modules.shared.bootoptions  import *
+from centosstudio.modules.shared.cspickle     import *
 from centosstudio.modules.shared.deploy       import *
 from centosstudio.modules.shared.depsolver    import *
 from centosstudio.modules.shared.installer    import *

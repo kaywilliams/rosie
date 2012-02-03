@@ -16,18 +16,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-import cPickle
 import hashlib
 import yum
 
 from centosstudio.errors         import CentOSStudioError
 from centosstudio.event          import Event
 from centosstudio.util.repo      import YumRepo
-from centosstudio.modules.shared import (RpmBuildMixin, 
-                                          Trigger, 
-                                          TriggerContainer)
+from centosstudio.modules.shared import (PickleMixin, RpmBuildMixin,
+                                         Trigger, TriggerContainer)
 
-class ReleaseRpmEventMixin(RpmBuildMixin):
+class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
   release_mixin_version = "1.21"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
@@ -42,6 +40,8 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
       "%s repository configuration" % self.fullname,
       requires = ['coreutils']
     )
+
+    PickleMixin.__init__(self)
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             **kwargs):
@@ -77,7 +77,6 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
                                      '%s/updates/@gpgcheck' % self.rpmxpath,
                                      True)
-    self.pklfile = self.mddir/'gpgkeys.pkl'
     self.gpgkey_dir = self.SOFTWARE_STORE/'gpgkeys'
 
     if not self.cvars['gpgcheck-enabled']:
@@ -163,10 +162,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
     gpgkeys = set(self.io.list_output(what='gpgkeys'))
 
     # cache for future
-    fo = self.pklfile.open('wb')
-    cPickle.dump(gpgkeys, fo, -1)
-    self.DATA['output'].append(self.pklfile)
-    fo.close()
+    self.pickle({'gpgkeys': gpgkeys})
 
     # create gpgkey list for use by yum sync plugin
     listfile = self.gpgkey_dir/'gpgkey.list'
@@ -182,12 +178,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin):
 
   def apply(self):
     self.rpm._apply()
-    if self.pklfile.exists():
-      fo = self.pklfile.open('rb')
-      self.cvars['gpgkeys'] = cPickle.load(fo)
-      fo.close()
-    else:
-      self.cvars['gpgkeys'] = []
+    self.cvars['gpgkeys'] = self.unpickle().get('gpgkeys', [])
 
 class MissingGPGKeyError(CentOSStudioError):
   message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"

@@ -78,7 +78,7 @@ def make_extension_suite(TestCase, distro, version, arch, conf=None):
 
 
 def CoreEventTestCase00(self):
-  self._testMethodDoc = "Event.verify() errors if DATA['output'] and --skip'd first"
+  self._testMethodDoc = "Event.verify() errors if DATA['output'] and skip'd first"
 
   def post_setup():
     self.event.status = False
@@ -98,7 +98,7 @@ def CoreEventTestCase00(self):
   return self
 
 def CoreEventTestCase01(self):
-  self._testMethodDoc = "Event.run() executes if neither --force nor --skip specified"
+  self._testMethodDoc = "Event.run() executes if neither force nor skip specified"
 
   def post_setup():
     self.event.status = None

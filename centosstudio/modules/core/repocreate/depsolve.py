@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import cPickle
 import re
 import rpmUtils.arch
 import yum.Errors
@@ -24,9 +23,10 @@ from centosstudio.callback  import PkglistCallback
 from centosstudio.constants import KERNELS
 from centosstudio.errors    import assert_file_has_content, CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.cslogging   import L1
+from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared.depsolver import DepsolverMixin
+from centosstudio.modules.shared import DepsolverMixin, PickleMixin
+
 from centosstudio.util.depsolver.depsolver import DepsolveError
 
 MODULE_INFO = dict(
@@ -50,7 +50,7 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
 
-class DepsolveEvent(Event, DepsolverMixin):
+class DepsolveEvent(DepsolverMixin, PickleMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
@@ -65,7 +65,6 @@ class DepsolveEvent(Event, DepsolverMixin):
     DepsolverMixin.__init__(self)
 
     self.dsdir = self.mddir / 'depsolve'
-    self.pkglistfile = self.mddir / 'pkglist'
 
     self.DATA = {
       'config':    ['.'],
@@ -73,6 +72,8 @@ class DepsolveEvent(Event, DepsolverMixin):
       'input':     [],
       'output':    [],
     }
+
+    PickleMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -109,23 +110,13 @@ class DepsolveEvent(Event, DepsolverMixin):
     self.log(1, L1("pkglist closure achieved in %d packages" % count))
 
     self.log(1, L1("writing pkglist"))
-    pklfile = self.pkglistfile.open('wb')
-    cPickle.dump(pkgs_by_repo, pklfile, -1)
-    pklfile.close()
+    self.pickle({'pkglist': pkgs_by_repo})
 
-    self.DATA['output'].extend([self.dsdir, self.pkglistfile,
-                                self.depsolve_repo])
+    self.DATA['output'].extend([self.dsdir, self.depsolve_repo])
 
   def apply(self):
     # set pkglist cvars
-    assert_file_has_content(self.pkglistfile)
-    pklfile = open(self.pkglistfile, 'rb')
-    self.cvars['pkglist'] = cPickle.load(pklfile)
-    pklfile.close()
-
-  def verify_pkglistfile_exists(self):
-    "pkglist file exists"
-    self.verifier.failUnlessExists(self.pkglistfile)
+    self.cvars['pkglist'] = self.unpickle().get('pkglist', {})
 
   def verify_pkglistfile_has_content(self):
     "pkglist file has content"

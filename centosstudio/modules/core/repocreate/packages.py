@@ -16,7 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-import cPickle
 import hashlib 
 import fnmatch
 
@@ -27,7 +26,7 @@ from centosstudio.errors    import assert_file_has_content, CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared import comps
+from centosstudio.modules.shared import comps, PickleMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -42,7 +41,7 @@ def is_enabled(*args, **kwargs):
   else:
     return True
 
-class PackagesEvent(Event):
+class PackagesEvent(PickleMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
@@ -63,11 +62,12 @@ class PackagesEvent(Event):
       'output':    []
     }
 
+    PickleMixin.__init__(self)
+
   def setup(self):
     self.diff.setup(self.DATA)
 
     self.groupfiles = self._get_groupfiles()
-    self.pklfile = self.mddir/'packages.pkl'
 
     # track changes in repo/groupfile relationships
     self.DATA['variables'].append('groupfiles')
@@ -85,18 +85,13 @@ class PackagesEvent(Event):
     self.io.clean_eventcache(all=True)
 
     self._generate_comps()
-    fo = self.pklfile.open('wb')
-    cPickle.dump(self.comps, fo, -1)
-    self.DATA['output'].append(self.pklfile)
-    fo.close()
+    self.pickle({'comps': self.comps})
 
   def apply(self):
     if not self.pklfile.exists(): return
 
     # read stored comps object 
-    fo = self.pklfile.open('rb')
-    self.cvars['comps-object'] = cPickle.load(fo)
-    fo.close()
+    self.cvars['comps-object'] = self.unpickle()['comps'] 
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
