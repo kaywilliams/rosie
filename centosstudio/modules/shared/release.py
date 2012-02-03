@@ -26,7 +26,7 @@ from centosstudio.modules.shared import (PickleMixin, RpmBuildMixin,
                                          Trigger, TriggerContainer)
 
 class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
-  release_mixin_version = "1.21"
+  release_mixin_version = "1.22"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')

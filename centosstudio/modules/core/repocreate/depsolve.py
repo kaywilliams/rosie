@@ -59,7 +59,7 @@ class DepsolveEvent(DepsolverMixin, PickleMixin):
       provides = ['pkglist'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin
-      version = '1.08'
+      version = '1.09'
     )
 
     DepsolverMixin.__init__(self)

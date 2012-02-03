@@ -50,7 +50,7 @@ class PackagesEvent(PickleMixin):
       provides = ['comps-object', 'user-required-packages', 
                   'user-required-groups', 'excluded-packages'],
       requires = ['repos'],
-      version = '1.01'
+      version = '1.02'
     )
 
     self.comps = None
