@@ -160,8 +160,8 @@ class GpgCheckEvent(Event):
         self.log(3, L1("keys removed"))
 
   def verify_mdfile_exists(self):
-    # this is silly but it keeps cstest from complaining 
-    self.verifier.failUnlessExists(self.mdfile)
+    # cstest likes us to verify that output exists
+    self.verifier.failUnlessExists(self.mddir/'rpmdb')
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(CentOSStudioError):

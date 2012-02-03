@@ -78,7 +78,7 @@ def make_extension_suite(TestCase, distro, version, arch, conf=None):
 
 
 def CoreEventTestCase00(self):
-  self._testMethodDoc = "Event.verify() might raise an error if --skip'd first"
+  self._testMethodDoc = "Event.verify() errors if DATA['output'] and --skip'd first"
 
   def post_setup():
     self.event.status = False
@@ -90,7 +90,7 @@ def CoreEventTestCase00(self):
       self.failIfRuns(self.event)
     except (AssertionError, RuntimeError, CentOSStudioError), e:
       pass
-    if self.event.diff.handlers.has_key('output'):
+    if 'output' in self.event.diff.handlers: 
       self.failIf(self.event.verifier.unittest().wasSuccessful())
 
   decorate(self, 'setUp', postfn=post_setup)
