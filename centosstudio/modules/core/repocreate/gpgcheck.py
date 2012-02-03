@@ -160,8 +160,15 @@ class GpgCheckEvent(Event):
         self.log(3, L1("keys removed"))
 
   def verify_mdfile_exists(self):
+    # more hackery related rpmdb folder... 
     # cstest likes us to verify that output exists
-    self.verifier.failUnlessExists(self.mddir/'rpmdb')
+    # what we should be doing is: 
+    #
+    # self.verifier.failUnlessExists(self.mddir/'rpmdb')
+    #
+    # but since yum likes to clean this folder up when it goes away, it is not
+    # guaranteed to be around. So instead we are doing:
+    self.verifier.failUnlessExists(self.mddir/self.mdfile)
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(CentOSStudioError):
