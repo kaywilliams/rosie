@@ -94,7 +94,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
   the build process.
   """
 
-  def __init__(self, options, arguments):
+  def __init__(self, options, arguments, logger=None):
     """
     Initialize a Build object
 
@@ -108,23 +108,28 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     """
 
     # set up temporary logger - console only
-    self.logger = make_log(options.logthresh)
+    if logger is None:
+      self.logger = make_log(options.logthresh)
+    else:
+      self.logger = logger
+
+    # set initial debug value from options
+    self.debug = False
+    if options.debug is not None:
+      self.debug = options.debug
 
     # set up configs
     try:
       self._get_config(options, arguments)
       self._get_definition(options, arguments)
     except Exception, e:
+      if self.debug: raise
       self.logger.log(0, L0(e))
       sys.exit(1)
 
-    # set debug mode
-    if options.debug is not None:
-      self.debug = options.debug
-    elif self.mainconfig.pathexists('/centosstudio/debug'):
+    # now that we have mainconfig, use it to set debug mode, if specified
+    if self.mainconfig.pathexists('/centosstudio/debug'):
       self.debug = self.mainconfig.getbool('/centosstudio/debug', False)
-    else:
-      self.debug = False
 
     # set up initial variables
     qstr = '/*/main/%s/text()'
@@ -269,6 +274,8 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                             "already modifying '%s'" % 
                             (self._lock._readlock()[0], self.solutionid )))
       sys.exit()
+
+    return self
 
   def _get_config(self, options, arguments):
     """
