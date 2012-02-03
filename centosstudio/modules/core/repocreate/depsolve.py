@@ -36,6 +36,12 @@ MODULE_INFO = dict(
   group       = 'repocreate',
 )
 
+# def is_enabled(*args, **kwargs):
+#   if kwargs['type'] == 'component':
+#     return False
+#   else:
+#     return True
+
 NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '-'
                         '(?P<version>.+)' # rpm version
@@ -45,10 +51,11 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '(?P<arch>.+)')   # rpm architecture
 
 class DepsolveEvent(Event, DepsolverMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
+      ptr = ptr,
       provides = ['pkglist'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin

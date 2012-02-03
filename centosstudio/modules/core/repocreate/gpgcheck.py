@@ -43,10 +43,11 @@ MODULE_INFO = dict(
 )
 
 class GpgCheckEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'repocreate',
+      ptr = ptr,
       version = '1.03',
       requires = ['rpms'],
       conditionally_requires = ['gpgcheck-enabled', 'gpgkeys'],

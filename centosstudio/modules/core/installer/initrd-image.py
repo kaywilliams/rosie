@@ -27,10 +27,11 @@ MODULE_INFO = dict(
 )
 
 class InitrdImageEvent(Event, ImageModifyMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'initrd-image',
       parentid = 'installer',
+      ptr = ptr,
       version = '1.01',
       provides = ['isolinux-files', 'os-content'],
       requires = ['anaconda-version', 'buildstamp-file'],

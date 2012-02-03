@@ -29,10 +29,11 @@ MODULE_INFO = dict(
 )
 
 class AutocleanEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'autoclean',
       parentid = 'all',
+      ptr = ptr,
       comes_after  = ['init'],
       comes_before = ['setup-events'],
     )

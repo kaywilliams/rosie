@@ -27,10 +27,11 @@ MODULE_INFO = dict(
 )
 
 class IsolinuxEvent(Event, FileDownloadMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'isolinux',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['isolinux-files', 'boot-config-file', 'os-content'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
       conditionally_requires = ['installer-splash'],

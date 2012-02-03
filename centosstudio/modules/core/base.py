@@ -36,10 +36,11 @@ MODULE_INFO = dict(
 )
 
 class BaseInfoEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'base-info',
       parentid = 'setup-events',
+      ptr = ptr,
       requires = ['anaconda-version', 'installer-repo'],
       provides = ['base-info'],
     )
@@ -72,7 +73,7 @@ class BaseInfoEvent(Event):
     self.log(2, L1("reading buildstamp file from base repository"))
 
     # download initrd.img
-    self.io.process_files(cache=True, callback=Event.link_callback,
+    self.io.process_files(cache=True, callback=self.link_callback,
                        text=None, what='initrd.img')
 
     # extract buildstamp

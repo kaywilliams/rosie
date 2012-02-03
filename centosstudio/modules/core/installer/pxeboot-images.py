@@ -27,10 +27,11 @@ MODULE_INFO = dict(
 )
 
 class PxebootImagesEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'pxeboot-images',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['pxeboot', 'treeinfo-checksums', 'os-content'],
       requires = ['isolinux-files'],
     )

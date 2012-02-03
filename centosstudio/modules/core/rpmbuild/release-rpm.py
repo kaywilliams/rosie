@@ -28,10 +28,11 @@ MODULE_INFO = dict(
 )
 
 class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'release-rpm',
       parentid = 'rpmbuild',
+      ptr = ptr,
       version = '1.00',
       provides = ['rpmbuild-data', 'gpgkeys',
                   'gpgcheck-enabled', 'os-content'],

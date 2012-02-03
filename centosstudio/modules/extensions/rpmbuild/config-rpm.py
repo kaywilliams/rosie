@@ -27,10 +27,11 @@ MODULE_INFO = dict(
 )
 
 class ConfigRpmEvent(ConfigRpmEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'config-rpm',
       parentid = 'rpmbuild',
+      ptr = ptr,
       version = '1.27',
       provides = ['rpmbuild-data'],
     )

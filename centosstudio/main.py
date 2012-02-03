@@ -137,7 +137,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                             (self.definition.getroot().file, e)))
       if self.debug: raise
       sys.exit(1)
-      
+
     self.type        = self.definition.get(qstr % 'type', 'system')
     self.basearch    = getBaseArch(self.arch)
     self.solutionid  = self.definition.get(qstr % 'id',
@@ -145,6 +145,15 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                                           self.version,
                                           self.basearch))
 
+    # validate initial variables
+    for elem in ['name', 'version', 'solutionid']:
+      if not FILENAME_REGEX.match(eval('self.%s' % elem)):
+        self.logger.log(0, L0("Validation of %s failed. \n"
+          "Invalid value '%s' for <%s> element in <main>: "
+          "accepted characters are a-z, A-Z, 0-9, _, ., and -."
+          % (self.definition.getroot().file, eval('self.%s' % elem), elem)))
+        sys.exit(1)
+      
     # expand global macros, module macros handled during validation
     map = {'%{name}':     self.name,
            '%{version}':  self.version,
@@ -175,8 +184,8 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       if self.debug: raise
       sys.exit(1)
 
-    # set up event superclass so that it contains good default values
-    self._seed_event_defaults(options)
+    # set up additional attributes for use by events
+    self._compute_event_attrs(options)
 
     # change working dir to config dir so relative paths expand properly
     os.chdir(self.definition.file.dirname)
@@ -187,17 +196,15 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     # set up lists of enabled and disabled modules
     enabled, disabled = self._compute_modules(options)
 
-    load_extensions = False
-
     # load all enabled modules, register events, set up dispatcher
-    loader = Loader(top = AllEvent(), api_ver = API_VERSION,
+    loader = Loader(top = AllEvent(ptr = self), api_ver = API_VERSION,
                     enabled = enabled, disabled = disabled,
-                    load_extensions = load_extensions)
+                    load_extensions = False)
 
     try:
       self.dispatch = dispatch.Dispatch(
                         loader.load(import_dirs, prefix='centosstudio/modules',
-                                    type = self.type)
+                                    ptr = self)
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
@@ -211,12 +218,12 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      Event.logger.log(0, L0("Error loading core centosstudio files: %s" % e))
+      self.logger.log(0, L0("Error loading core centosstudio files: %s" % e))
       if self.debug: raise
       sys.exit(1)
 
     except InvalidEventError, e:
-      Event.logger.log(0, L0("\n%s" % e))
+      self.logger.log(0, L0("\n%s" % e))
       if self.debug: raise
       sys.exit(1)
 
@@ -308,7 +315,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       try:
         r.update(self.module_map[moduleid])
       except KeyError:
-        Event.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
+        self.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
         sys.exit(1)
     r.update(events or [])
     return r
@@ -327,10 +334,10 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try:
       e = self.dispatch.get(eventid)
     except dispatch.UnregisteredEventError:
-      Event.logger.log(0, L0("Unregistered event '%s'" % eventid))
+      self.logger.log(0, L0("Unregistered event '%s'" % eventid))
       sys.exit(1)
     if not e._check_status(status):
-      Event.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
+      self.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
       sys.exit(1)
     e.status = status
 
@@ -381,61 +388,31 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     return enabled, disabled
 
-  def _seed_event_defaults(self, options):
+  def _compute_event_attrs(self, options):
     """
-    Set up a bunch of variables in the Event superclass that all subclasses
-    inherit automatically.
+    Set up a bunch of additional variables for use by events. The Event
+    object sets these up as convenience variables by calling get_event_attrs
+    in its __init__ method.
 
-    options: an  OptionParser.Options  object  with  the  command  line
+    options: an OptionParser.Options  object  with  the  command  line
              arguments encountered during command line parsing
     """
     # Event.cvars is a list of program 'control variables' - modules can use
     # this to communicate between themselves as necessary
-    Event.cvars = CvarsDict()
+    self.cvars = CvarsDict()
 
-    # set up loggers
-    Event.logger = self.logger
-
-    # set up config dirs
-    Event.mainconfig  = self.mainconfig
-    Event._config     = self.definition
-    Event._configtree = self.definitiontree
-
-    # set up base variables
-    di = Event.cvars['distribution-info'] = {}
+    # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
-
-    di['name']              = self.name 
-    di['version']           = self.version
-    di['arch']              = self.arch
-    di['type']              = self.type
-    di['basearch']          = self.basearch
-    di['solutionid']        = self.solutionid
-    di['anaconda-version']  = None
-    di['fullname']          = Event._config.get(qstr % 'fullname', di['name'])
-    di['packagepath']       = 'Packages'
-    di['webloc']            = Event._config.get(qstr % 'bug-url', 
-                                                'No bug url provided')
-
-    for k,v in di.items():
-      setattr(Event, k, v)
-
-    # validate name, version, and solutionid to ensure they don't have
-    # invalid characters
-    for check in ['name', 'version', 'solutionid']:
-      if not FILENAME_REGEX.match(di[check]):
-        raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
-          "accepted characters are a-z, A-Z, 0-9, _, ., and -."
-          % (di[check], check))
-
-    # make solutionid available to external programs via the Build object
-    Build.solutionid = di['solutionid']
+    self.fullname    = self.definition.get(qstr % 'fullname', self.name)
+    self.packagepath = 'Packages'
+    self.webloc      = self.definition.get(qstr % 'bug-url', 
+                                                  'No bug url provided')
 
     # set up other directories
-    Event.CACHE_DIR    = self.mainconfig.getpath(
-                           '/centosstudio/cache/path/text()',
-                           DEFAULT_CACHE_DIR).expand().abspath()
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['solutionid']
+    self.CACHE_DIR    = self.mainconfig.getpath(
+                        '/centosstudio/cache/path/text()',
+                        DEFAULT_CACHE_DIR).expand().abspath()
+    self.METADATA_DIR = self.CACHE_DIR  / self.solutionid
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -450,41 +427,91 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
-    Event.SHARE_DIRS=self.sharedirs
 
     cache_max_size = self.mainconfig.get('/centosstudio/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
-    Event.CACHE_MAX_SIZE = si.parse(cache_max_size)
+    self.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
-    Event.cache_handler = cache.CachedSyncHandler(
-                            cache_dir = Event.CACHE_DIR / '.cache',
-                            cache_max_size = Event.CACHE_MAX_SIZE)
-    Event.copy_handler = sync.CopyHandler()
-    Event.link_handler = link.LinkHandler(allow_xdev=True)
+    self.cache_handler = cache.CachedSyncHandler(
+                         cache_dir = self.CACHE_DIR / '.cache',
+                         cache_max_size = self.CACHE_MAX_SIZE)
+    self.copy_handler = sync.CopyHandler()
+    self.link_handler = link.LinkHandler(allow_xdev=True)
 
-    Event.copy_callback  = SyncCallback(Event.logger, Event.METADATA_DIR)
-    Event.cache_callback = CachedSyncCallback(Event.logger, Event.METADATA_DIR)
-    Event.link_callback  = LinkCallback(Event.logger, Event.METADATA_DIR)
-    Event.copy_callback_compressed = SyncCallbackCompressed(
-                                     Event.logger, Event.METADATA_DIR)
+    self.copy_callback  = SyncCallback(self.logger, self.METADATA_DIR)
+    self.cache_callback = CachedSyncCallback(self.logger, self.METADATA_DIR)
+    self.link_callback  = LinkCallback(self.logger, self.METADATA_DIR)
+    self.copy_callback_compressed = SyncCallbackCompressed(
+                                     self.logger, self.METADATA_DIR)
 
     selinux_enabled = False
     try:
       selinux_enabled = shlib.execute('/usr/sbin/getenforce')[0] != 'Disabled'
     except:
       pass
-    Event.cvars['selinux-enabled'] = selinux_enabled
+    self.cvars['selinux-enabled'] = selinux_enabled
+
+    # Expose options object for events (e.g. build-machine) that run parallel
+    # instances of the Build object
+    self.options = options
 
   def _log_header(self):
-    Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.solutionid, time.strftime('%Y-%m-%d %X')))
-    Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
-    Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
+    self.logger.logfile.write(0, "\n\n\n")
+    self.logger.log(1, "Starting build of '%s' at %s" % (self.solutionid, time.strftime('%Y-%m-%d %X')))
+    self.logger.log(4, "Loaded modules: %s" % self.cvars['loaded-modules'])
+    self.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
-    Event.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
+    self.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
 
+  ###### Helper Methods ######
+  def get_event_attrs(self, ptr):
+    """
+    Called by Event.__init__() to set up a bunch of convenience variables for
+    event instances.
+    """
+    ptr.cvars = self.cvars 
+    ptr.logger = self.logger
+    ptr.mainconfig  = self.mainconfig
+    ptr._config     = self.definition
+    ptr._configtree = self.definitiontree
+  
+    # set up base variables
+    di = ptr.cvars['distribution-info'] = {}
+    qstr = '/*/main/%s/text()'
+  
+    di['name']              = self.name 
+    di['version']           = self.version
+    di['arch']              = self.arch
+    di['type']              = self.type
+    di['basearch']          = self.basearch
+    di['solutionid']        = self.solutionid
+    di['anaconda-version']  = None
+    di['fullname']          = self.fullname
+    di['packagepath']       = 'Packages'
+    di['webloc']            = self.webloc
+  
+    for k,v in di.items():
+      setattr(ptr, k, v)
+  
+    # set up other directories
+    ptr.CACHE_DIR    = self.CACHE_DIR
+    ptr.METADATA_DIR = self.METADATA_DIR 
+    ptr.SHARE_DIRS   = self.sharedirs
+    ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
+  
+    ptr.cache_handler = self.cache_handler
+    ptr.copy_handler = self.copy_handler
+    ptr.link_handler = self.link_handler
+
+    ptr.copy_callback  = self.copy_callback
+    ptr.cache_callback = self.cache_callback
+    ptr.link_callback  = self.link_callback
+    ptr.copy_callback_compressed = self.copy_callback_compressed
+
+
+###### Classes ######
 class CvarsDict(dict):
   def __getitem__(self, key):
     return self.get(key, None)
@@ -494,9 +521,10 @@ class AllEvent(Event):
   "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
   moduleid = None
-  def __init__(self):
+  def __init__(self, ptr):
     Event.__init__(self,
       id = 'all',
+      ptr = ptr,
       version = 1.01,
       properties = CLASS_META,
       suppress_run_message = True

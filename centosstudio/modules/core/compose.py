@@ -28,10 +28,11 @@ MODULE_INFO = dict(
 )
 
 class ComposeEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'compose',
       parentid = 'os-events',
+      ptr = ptr,
       provides = ['os-dir', 'publish-content',],
       requires = ['os-content'],
     )

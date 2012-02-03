@@ -35,10 +35,11 @@ MODULE_INFO = dict(
 
 
 class TestInstallSetupEvent(TestPublishEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'test-install-setup',
       parentid = 'test-events',
+      ptr = ptr,
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'rpmbuild-data'],
@@ -49,10 +50,11 @@ class TestInstallSetupEvent(TestPublishEventMixin, Event):
 
 
 class TestInstallEvent(DeployEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'test-install',
       parentid = 'test-events',
+      ptr = ptr,
       requires = [ 'test-install-kstext', 'treeinfo-text'], 
       conditionally_requires = [ 'test-install-repomdfile', 'rpmbuild-data'],
     )

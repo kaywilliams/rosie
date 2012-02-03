@@ -29,10 +29,11 @@ MODULE_INFO = dict(
 )
 
 class BootisoEvent(Event, BootOptionsMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'bootiso',
       parentid = 'installer',
+      ptr = ptr,
       version = '1.03',
       requires = ['isolinux-files', 'boot-config-file'],
       provides = ['treeinfo-checksums', 'os-content'],

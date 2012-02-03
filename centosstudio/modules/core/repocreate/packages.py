@@ -37,16 +37,17 @@ MODULE_INFO = dict(
 )
 
 def is_enabled(*args, **kwargs):
-  if kwargs['type'] == 'component':
+  if kwargs['ptr'].type == 'component':
     return False
   else:
     return True
 
 class PackagesEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
       parentid = 'setup-events',
+      ptr = ptr,
       provides = ['comps-object', 'user-required-packages', 
                   'user-required-groups', 'excluded-packages'],
       requires = ['repos'],
@@ -224,10 +225,11 @@ class PackagesEvent(Event):
 
 
 class CompsEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'comps',
       parentid = 'repocreate',
+      ptr = ptr,
       provides = ['groupfile'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin

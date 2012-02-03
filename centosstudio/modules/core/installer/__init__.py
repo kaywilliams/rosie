@@ -27,10 +27,11 @@ MODULE_INFO = dict(
 )
 
 class InstallerEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'installer',
       parentid = 'os-events',
+      ptr = ptr,
       properties = CLASS_META,
       suppress_run_message = True,
     )

@@ -51,19 +51,15 @@ STATUS_SKIP  = False
 
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
-  """
-  The Event superclass also has quite a few attributes set up by main.py
-  - these attributes are shared across all Event subclasses, but are
-  computed just once.  See _seed_event_defaults() inside main.py for
-  more details.
-  """
-  def __init__(self, id, version=0, suppress_run_message=False, parentid=None,
-                         *args, **kwargs):
+  def __init__(self, id, ptr, version=0, suppress_run_message=False, 
+                              parentid=None, *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version
     self.suppress_run_message = suppress_run_message
     self.parentid = parentid
     self._status = None
+
+    ptr.get_event_attrs(self) # get shared attributes from main.py
 
     IOMixin.__init__(self)
     DiffMixin.__init__(self)

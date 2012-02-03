@@ -34,11 +34,12 @@ MODULE_INFO = dict(
 )
 
 class DownloadEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'download',
       version = 1.01,
       parentid = 'repocreate',
+      ptr = ptr,
       provides = ['rpms',
                   'rpms-directory',
                   'os-content'],

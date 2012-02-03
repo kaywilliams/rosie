@@ -37,11 +37,12 @@ MODULE_INFO = dict(
 )
 
 class DiscinfoEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'discinfo',
       version = '1.01',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['.discinfo', 'os-content'],
       requires = ['anaconda-version'],
     )
@@ -79,11 +80,12 @@ class DiscinfoEvent(Event):
 
 
 class TreeinfoEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'treeinfo',
       version = '1.01',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['treeinfo-text', 'os-content'],
       requires = ['anaconda-version', 'treeinfo-checksums'],
     )
@@ -144,11 +146,12 @@ class TreeinfoEvent(Event):
 
 
 class BuildstampEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'buildstamp',
       version = '1',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['buildstamp-file'],
       requires = ['anaconda-version', 'base-info'],
     )

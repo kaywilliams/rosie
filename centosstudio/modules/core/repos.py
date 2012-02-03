@@ -35,10 +35,11 @@ MODULE_INFO = dict(
 )
 
 class ReposEvent(RepoEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'repos',
       parentid = 'setup-events',
+      ptr = ptr,
       version = 1.3,
       provides = ['anaconda-version', 
                   'repos', 'installer-repo', 'base-treeinfo',

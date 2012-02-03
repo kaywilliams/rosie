@@ -26,10 +26,11 @@ MODULE_INFO = dict(
 )
 
 class InitEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'init',
       parentid = 'all',
+      ptr = ptr,
       provides = ['option-parser'],
       suppress_run_message = True
     )
@@ -51,10 +52,11 @@ class InitEvent(Event):
       self.verifier.failUnless(folder.exists(), "folder '%s' does not exist" % folder)
 
 class SetupEvents(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'setup-events',
       parentid = 'all',
+      ptr = ptr,
       properties = CLASS_META,
       comes_after = ['init'],
       conditionally_comes_after = ['autoclean'],
@@ -62,30 +64,33 @@ class SetupEvents(Event):
     )
 
 class OSEvents(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'os-events',
       parentid = 'all',
+      ptr = ptr,
       properties = CLASS_META,
       comes_after = ['setup-events'],
       suppress_run_message = True
     )
 
 class TestEvents(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'test-events',
       parentid = 'all',
+      ptr = ptr,
       properties = CLASS_META,
       comes_before = [ 'publish-events' ],
       suppress_run_message = True
     )
 
 class PublishEvents(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'publish-events',
       parentid = 'all',
+      ptr = ptr,
       properties = CLASS_META,
       comes_after = [ 'os-events', 'test-events' ],
       suppress_run_message = True

@@ -31,10 +31,11 @@ MODULE_INFO = dict(
 )
 
 class ProductImageEvent(Event, ImageModifyMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'product-image',
       parentid = 'installer',
+      ptr = ptr,
       version = 1.09,
       provides = ['product.img', 'treeinfo-checksums', 'os-content'],
       requires = ['anaconda-version', 'buildstamp-file',

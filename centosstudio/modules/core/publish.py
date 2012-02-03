@@ -41,10 +41,11 @@ TYPE_DIR = pps.constants.TYPE_DIR
 TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 
 class PublishSetupEvent(PublishSetupEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'publish-setup',
       parentid = 'setup-events',
+      ptr = ptr,
       version = 1.00,
       provides = ['publish-content' ],
       suppress_run_message=True,
@@ -65,10 +66,11 @@ class PublishSetupEvent(PublishSetupEventMixin, Event):
 
 
 class KickstartEvent(KickstartEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'kickstart',
       parentid = 'installer',
+      ptr = ptr,
       version = 1.02,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content', 
                   'os-content'],
@@ -105,10 +107,11 @@ class KickstartEvent(KickstartEventMixin, Event):
 
 
 class PublishEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'publish',
       parentid = 'publish-events',
+      ptr = ptr,
       requires = ['publish-content', 'publish-setup-options'],
       provides = ['published-repository']
     )
@@ -135,7 +138,7 @@ class PublishEvent(Event):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.io.process_files(text="publishing to '%s'" % 
                           self.cvars['publish-setup-options']['localpath'],
-                       callback=Event.link_callback)
+                       callback=self.link_callback)
     self.io.chcon(self.cvars['publish-setup-options']['localpath'])
 
   def clean_eventcache(self):
@@ -155,10 +158,11 @@ class PublishEvent(Event):
 
 
 class DeployEvent(DeployEventMixin, Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'deploy',
       parentid = 'publish-events',
+      ptr = ptr,
       conditionally_requires = ['repomd-file'],
       requires = ['published-repository'],
     )

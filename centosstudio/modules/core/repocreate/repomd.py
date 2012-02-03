@@ -28,11 +28,12 @@ MODULE_INFO = dict(
 )
 
 class RepomdEvent(Event, RepomdMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'repomd',
       version = '1.03',
       parentid = 'repocreate',
+      ptr = ptr,
       requires = ['rpms-directory', 'rpms'],
       provides = ['repomd-file', 'treeinfo-checksums', 'os-content'],
       conditionally_requires = ['groupfile', 'checked-rpms'],

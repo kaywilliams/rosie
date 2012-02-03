@@ -37,10 +37,11 @@ MODULE_INFO = dict(
 )
 
 class RpmbuildRepoEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'rpmbuild-repo',
       parentid = 'rpmbuild',
+      ptr = ptr,
       version = 1.02,
       suppress_run_message = True,
       requires = ['rpmbuild-data', ],

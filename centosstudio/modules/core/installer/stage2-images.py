@@ -29,10 +29,11 @@ MODULE_INFO = dict(
 )
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'stage2-images',
       parentid = 'installer',
+      ptr = ptr,
       provides = ['stage2-images', 'treeinfo-checksums', 'os-content'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
     )
