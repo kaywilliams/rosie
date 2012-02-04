@@ -157,7 +157,7 @@ class GpgCheckEvent(Event):
           removed.append(k)
     if removed:
         self.tochecks = self.cvars['rpms']
-        self.log(3, L1("keys removed"))
+        self.log(4, L1("keys removed"))
 
   def verify_mdfile_exists(self):
     # more hackery related rpmdb folder... 
