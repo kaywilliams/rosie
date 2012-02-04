@@ -138,7 +138,7 @@ class PublishSetupEventMixin:
   def get_bootoptions(self):
     self.DATA['config'].append('boot-options')
     if self.moduleid == 'publish':
-      default = ''
+      default = 'lang=en_US keymap=us'
     else:
       default = self.cvars['publish-setup-options']['boot-options']
 
