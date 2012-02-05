@@ -41,6 +41,8 @@ def L4(s): return FORMAT_L4 % s
 
 MSG_MAXWIDTH = 75
 
+LINE_SEP = "=" * MSG_MAXWIDTH
+
 class Logger(logger.Logger):
   """
   Logging class used in all centosstudio output.  Extends the logger.Logger class
@@ -147,6 +149,30 @@ class LogContainer(logger.LogContainer):
     for log_obj in self.list:
       if logger.LogContainer.test(self, priority, message, self.threshold, log_obj):
         log_obj.log(priority, message, **kwargs)
+
+  def log_header(self, level, msg):
+    """
+    Convenience function to create a bold, three-line, full-width header with
+    leading newline.
+    """
+    self.log(level, L0("\n"))
+    self.log_bold(level, msg)
+
+  def log_footer(self, level, msg):
+    """
+    Convenience function to create a bold, three-line, full-width footer with
+    trailing newline
+    """
+    self.log_bold(level, msg)
+    self.log(level, L0("\n"))
+
+  def log_bold(self, level, msg):
+    """
+    Bold, three-line, full-width footer without leading or trailing spaces
+    """
+    self.log(level, L0("%s" % LINE_SEP))
+    self.log(level, L0(msg.upper().center(MSG_MAXWIDTH)))
+    self.log(level, L0("%s" % LINE_SEP))
 
   def write(self, priority, message, **kwargs):
     for log_obj in self.list:

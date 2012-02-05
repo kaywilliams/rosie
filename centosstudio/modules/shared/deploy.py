@@ -53,7 +53,8 @@ class DeployEventMixin:
 
     # set up script default parameters
     self.scripts = {
-             'activate-script': dict(ssh=False,
+             'activate-script': dict(message='running activate script',
+                              ssh=False,
                               enabled = False),
              'delete-script': dict(message='running delete script',
                               enabled = False,
@@ -141,7 +142,7 @@ class DeployEventMixin:
       self._execute('post-script')
 
     else:
-      self._execute('activate-script')
+      if not 'activate' in install_triggers: self._execute('activate-script')
       self._execute('update-script')
       self._execute('post-script')
  
@@ -191,7 +192,7 @@ class DeployEventMixin:
       try:
         self._execute('activate-script')
       except (ScriptFailedError, SSHFailedError), e:
-        self.log(1, L1(e))
+        self.log(4, L1(e))
         self.log(1, L1("unable to activate machine, reinstalling...")) 
         return True # reinstall
 
@@ -205,9 +206,31 @@ class DeployEventMixin:
     cmd = self.io.list_output(what=script)[0]
     if not self.scripts[script]['ssh']: 
     # run cmd on the local machine
-      r = subprocess.call(cmd, shell=True)
-      if r != 0:
-        raise ScriptFailedError(script=script)
+      proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+                                               stderr=subprocess.PIPE)
+
+      errlines = []
+      header_logged = False
+      while True:
+        outline = proc.stdout.readline().rstrip()
+        errline = proc.stderr.readline().rstrip()
+        if outline != '' or errline != '' or proc.poll() is None:
+          if outline: 
+            if not header_logged:
+              self.logger.log_header(4, "%s event - begin '%s' output" %
+                                    (self.id, script))
+              header_logged = True
+            self.log(4, L0(outline))
+          if errline: errlines.append(errline) 
+        else:
+          break
+
+      if header_logged:
+        self.logger.log_footer(4, "%s event - end '%s' output" % (
+                                   self.id, script))
+
+      if proc.returncode != 0:
+        raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
       return
   
     # else run cmd on remote machine
@@ -231,7 +254,7 @@ class DeployEventMixin:
           params=str(params)) 
   
       # copy script to remote machine
-      self.log(2, L2("copying '%s' to '%s'" % (script, params['hostname'])))
+      self.log(2, L2("copying %s to host" % script))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
       if not 'centosstudio' in  sftp.listdir('/etc/sysconfig'): 
         sftp.mkdir('/etc/sysconfig/centosstudio')
@@ -242,10 +265,12 @@ class DeployEventMixin:
   
       # execute script
       cmd = '/etc/sysconfig/centosstudio/%s' % script
-      self.log(2, L2("executing '%s' on '%s'" % (cmd, params['hostname'])))
+      self.log(2, L2("executing '%s' on host" % cmd))
       chan = client._transport.open_session()
       chan.exec_command(cmd)
 
+      errlines = []
+      header_logged = False
       while True:
         r, w, x = select.select([chan], [], [], 0.0)
         if len(r) > 0:
@@ -254,27 +279,35 @@ class DeployEventMixin:
             data = chan.recv(1024)
             if data:
               got_data = True
-              self.log(0, L0(data.rstrip()))
+              if header_logged is False:
+                self.logger.log_header(4, "%s event - begin '%s' output" % 
+                                      (self.id, script))
+                header_logged = True
+              self.log(4, L0(data.rstrip('\n')))
           if chan.recv_stderr_ready():
             data = chan.recv_stderr(1024)
             if data:
               got_data = True
-              self.log(0, L0(data.rstrip()))
+              errlines.extend(data.rstrip('\n').split('\n'))
           if not got_data:
             break
 
+      if header_logged:
+        self.logger.log_footer(4, "%s event - end '%s' output" % 
+                               (self.id, script))
+        
       status = chan.recv_exit_status()
       chan.close()
       client.close()
       if status != 0:
-        raise ScriptFailedError(script=script)
+        raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
   
     except:
       if 'client' in locals():
         client.close()
       raise
 
-    self.log(2, L2("'%s' completed successfully" % script))
+    self.log(2, L2("%s completed successfully" % script))
 
 class SSHParameters(DictMixin):
   def __init__(self, ptr, script):
@@ -300,7 +333,7 @@ class SSHParameters(DictMixin):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
 class ScriptFailedError(CentOSStudioError):
-  message = "Error occured running '%(script)s'. See above for error message." 
+  message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s" 
 
 class SSHFailedError(ScriptFailedError):
   message = """Error occured running '%(script)s'.

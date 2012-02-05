@@ -151,9 +151,9 @@ class="parameter">PATH3</replaceable></para>
 <programlisting>
 * Level 0: Displays errors only.
 * Level 1: Displays build status.
-* Level 2: Displays module status.  See MODULES.
-* Level 3: Displays file download and creation status.
-* Level 4: Displays file copy and deletion status.
+* Level 2: Displays module status. See MODULES.
+* Level 3: Displays file download and creation status (default).
+* Level 4: Displays deploy and rpmbuild script output, as well as file copy and deletion status. 
 * Level 5: Displays complete debug-level status.
 </programlisting>
 </para>
