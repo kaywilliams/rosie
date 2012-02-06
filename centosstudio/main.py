@@ -50,7 +50,9 @@ from centosstudio.util.sync import link
 from centosstudio.callback  import (SyncCallback, CachedSyncCallback,
                                     LinkCallback, SyncCallbackCompressed)
 from centosstudio.constants import *
-from centosstudio.errors    import CentOSStudioErrorHandler, CentOSStudioError
+from centosstudio.errors    import (CentOSStudioEventErrorHandler, 
+                                    CentOSStudioEventError,
+                                    CentOSStudioError)
 from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import make_log, L0, L1, L2
 from centosstudio.validate  import (CentOSStudioValidationHandler,
@@ -77,7 +79,7 @@ ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
 # the following chars are allowed in filenames...
 FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
-class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
+class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object):
   """
   Primary build class - framework upon which a custom centosstudio is generated
 
@@ -94,42 +96,41 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
   the build process.
   """
 
-  def __init__(self, options, arguments, logger=None):
+  def __init__(self, options, arguments, callback=None):
     """
     Initialize a Build object
 
-    Accepts two parameters:
+    Accepts three parameters:
       options:   an  optparse.Options  object  with  the  command  line
                  arguments encountered during command line parsing
       arguments: a list of arguments not processed by the parser
+      callback:  a callback object providing set_debug and set_logger functions
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/centosstudio')
     """
 
     # set up temporary logger - console only
-    if logger is None:
-      self.logger = make_log(options.logthresh)
-    else:
-      self.logger = logger
+    self.logger = make_log(options.logthresh)
+    if callback: callback.set_logger(self.logger)
 
     # set initial debug value from options
     self.debug = False
     if options.debug is not None:
       self.debug = options.debug
+    if callback: callback.set_debug(self.debug)
 
     # set up configs
     try:
       self._get_config(options, arguments)
       self._get_definition(options, arguments)
     except Exception, e:
-      if self.debug: raise
-      self.logger.log(0, L0(e))
-      sys.exit(1)
+      raise CentOSStudioError(e)
 
     # now that we have mainconfig, use it to set debug mode, if specified
     if self.mainconfig.pathexists('/centosstudio/debug'):
       self.debug = self.mainconfig.getbool('/centosstudio/debug', False)
+    if callback: callback.set_debug(self.debug)
 
     # set up initial variables
     qstr = '/*/main/%s/text()'
@@ -138,10 +139,8 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       self.version  = self.definition.get(qstr % 'version')
       self.arch     = ARCH_MAP[self.definition.get(qstr % 'arch', 'i386')]
     except rxml.errors.XmlPathError, e:
-      self.logger.log(0, L0("Validation of %s failed. %s" % 
-                            (self.definition.getroot().file, e)))
-      if self.debug: raise
-      sys.exit(1)
+      raise CentOSStudioError("Validation of %s failed. %s" % 
+                            (self.definition.getroot().file, e))
 
     self.type        = self.definition.get(qstr % 'type', 'system')
     self.basearch    = getBaseArch(self.arch)
@@ -153,11 +152,10 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     # validate initial variables
     for elem in ['name', 'version', 'solutionid']:
       if not FILENAME_REGEX.match(eval('self.%s' % elem)):
-        self.logger.log(0, L0("Validation of %s failed. \n"
-          "Invalid value '%s' for <%s> element in <main>: "
+        raise CentOSStudioError("Validation of %s failed. \n"
+          "Invalid value '%s' for 'main/%s': "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
-          % (self.definition.getroot().file, eval('self.%s' % elem), elem)))
-        sys.exit(1)
+          % (self.definition.getroot().file, eval('self.%s' % elem), elem))
       
     # expand global macros, module macros handled during validation
     map = {'%{name}':     self.name,
@@ -170,12 +168,9 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       # top-level macros
       self.definition.resolve_macros(xpaths=['/*', '/*/main/'], map=map)
     except rxml.errors.ConfigError, e:
-      if self.debug: raise 
-      else: 
-        self.logger.log(0, L0(e))
-        sys.exit(1)
+      raise CentOSStudioError(e)
 
-    # set up real logger - console and file
+    # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
                         '/*/main/log-file/text()', None)
@@ -185,9 +180,15 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try:
       self.logger = make_log(options.logthresh, self.logfile)
     except IOError, e:
-      self.logger.log(0, L0("Error opening log file for writing: %s" % e))
-      if self.debug: raise
-      sys.exit(1)
+      raise CentOSStudioError("Error opening log file for writing: %s" % e)
+    if callback: callback.set_logger(self.logger)
+
+  # def setup(self):
+  #   # Splitting what was init() into two methods (init and setup).
+  #   # The init method reads the config and definition files. The setup 
+  #   # method completes remaining build configuration. This approach gives
+  #   # callers the ability to access properties, primarily the debug and log
+  #   # file location options, prior to continuing with build setup activities.
 
     # set up additional attributes for use by events
     self._compute_event_attrs(options)
@@ -223,14 +224,10 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      self.logger.log(0, L0("Error loading core centosstudio files: %s" % e))
-      if self.debug: raise
-      sys.exit(1)
+      raise CentOSStudioError("Error loading core centosstudio files: %s" % e)
 
     except InvalidEventError, e:
-      self.logger.log(0, L0("\n%s" % e))
-      if self.debug: raise
-      sys.exit(1)
+      raise CentOSStudioError("\n%s" % e)
 
     # list events, if requested
     if options.list_events:
@@ -264,7 +261,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except (CentOSStudioError, Exception, KeyboardInterrupt), e:
+        except CentOSStudioEventError, e:
           self._handle_Exception(e)
       finally:
         self._lock.release()
@@ -322,8 +319,8 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       try:
         r.update(self.module_map[moduleid])
       except KeyError:
-        self.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
-        sys.exit(1)
+        raise CentOSStudioError("Module '%s' does not exist or was not loaded"
+                                % moduleid)
     r.update(events or [])
     return r
 
@@ -341,11 +338,9 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try:
       e = self.dispatch.get(eventid)
     except dispatch.UnregisteredEventError:
-      self.logger.log(0, L0("Unregistered event '%s'" % eventid))
-      sys.exit(1)
+      raise CentOSStudioError("Unregistered event '%s'" % eventid)
     if not e._check_status(status):
-      self.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
-      sys.exit(1)
+      raise CentOSStudioError("Cannot %s protected event '%s'" % (str, eventid))
     e.status = status
 
   def _compute_import_dirs(self, options):

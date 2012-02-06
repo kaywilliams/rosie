@@ -21,7 +21,7 @@ from centosstudio.util import shlib
 
 from centosstudio.util.pps.constants import *
 
-from centosstudio.errors   import CentOSStudioError
+from centosstudio.errors   import CentOSStudioEventError
 from centosstudio.validate import InvalidConfigError
 
 class IOMixin:
@@ -330,8 +330,8 @@ class TransactionData(object):
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
-class MissingXpathInputFileError(CentOSStudioError):
+class MissingXpathInputFileError(CentOSStudioEventError):
   message = "Cannot find the file or folder '%(file)s'. Check that it exists and that the '%(xpath)s' element is correct. If you are providing text rather than a file, add the attribute 'content=\"text\"' to the '%(xpath)s' element. [errno %(errno)d] %(message)s."
 
-class MissingInputFileError(CentOSStudioError):
+class MissingInputFileError(CentOSStudioEventError):
   message = "Cannot find the specified file or folder '%(file)s'. [errno %(errno)d] %(message)s."

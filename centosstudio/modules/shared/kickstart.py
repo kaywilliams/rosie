@@ -17,7 +17,7 @@
 #
 import rpm
 
-from centosstudio.errors import CentOSStudioError
+from centosstudio.errors import CentOSStudioEventError
 from centosstudio.util.versort import Version
 
 class KickstartEventMixin:
@@ -73,5 +73,5 @@ class KickstartEventMixin:
 
     self.DATA['output'].append(self.ksfile)
 
-class KickstartValidationError(CentOSStudioError):
+class KickstartValidationError(CentOSStudioEventError):
   message = ( "%(message)s" ) 

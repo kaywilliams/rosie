@@ -31,7 +31,7 @@ from centosstudio.util.difftest.filesdiff import DiffTuple
 
 from centosstudio.util.pps.constants import TYPE_DIR
 
-from centosstudio.errors    import (CentOSStudioError, CentOSStudioIOError, RhnSupportError,
+from centosstudio.errors    import (CentOSStudioEventError, CentOSStudioIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
 from centosstudio.cslogging   import L1, L2
 from centosstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
@@ -407,16 +407,16 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.checksum()
 
 
-class NoReposEnabledError(CentOSStudioError, RuntimeError):
+class NoReposEnabledError(CentOSStudioEventError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(CentOSStudioError, RuntimeError):
+class RepodataNotFoundError(CentOSStudioEventError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InvalidRepomdFileError(CentOSStudioError, RuntimeError):
+class InvalidRepomdFileError(CentOSStudioEventError, RuntimeError):
   message = "%(message)s"
 
-class InconsistentRepodataError(CentOSStudioError, RuntimeError):
+class InconsistentRepodataError(CentOSStudioEventError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
@@ -424,10 +424,10 @@ class SystemidIOError(CentOSStudioIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(CentOSStudioError, InvalidConfigError):
+class SystemidUndefinedError(CentOSStudioEventError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(CentOSStudioError):
+class SystemidInvalidError(CentOSStudioEventError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
@@ -435,15 +435,15 @@ class PkgsfileIOError(CentOSStudioIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class CentOSStudioRepoFileParseError(CentOSStudioError):
+class CentOSStudioRepoFileParseError(CentOSStudioEventError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(CentOSStudioError):
+class RepomdCsumMismatchError(CentOSStudioEventError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(CentOSStudioError):
+class MirrorlistFormatInvalidError(CentOSStudioEventError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

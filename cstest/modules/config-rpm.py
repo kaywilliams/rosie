@@ -17,10 +17,10 @@
 #
 import unittest
 
-from centosstudio.util     import pps
-from centosstudio.util     import repo
-from centosstudio.util     import rxml
-from centosstudio.validate import InvalidConfigError
+from centosstudio.errors  import CentOSStudioError
+from centosstudio.util    import pps
+from centosstudio.util    import repo
+from centosstudio.util    import rxml
 
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
@@ -141,7 +141,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, InvalidConfigError, 
+    unittest.TestCase.failUnlessRaises(self, CentOSStudioError, 
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):

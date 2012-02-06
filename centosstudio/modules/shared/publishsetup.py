@@ -25,7 +25,7 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.errors import CentOSStudioError
+from centosstudio.errors import CentOSStudioEventError
 from centosstudio.util   import pps
 from centosstudio.util.rxml import datfile
 
@@ -258,11 +258,11 @@ def get_interfaces():
 
 
 #------ Error Classes ------#
-class InterfaceIOError(CentOSStudioError):
+class InterfaceIOError(CentOSStudioEventError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )
 
-class FQDNNotFoundError(CentOSStudioError):
+class FQDNNotFoundError(CentOSStudioEventError):
   message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
               "IP address '%(ipaddr)s' on interface '%(interface)s'. "
               "Valid FQDNs must contain at least one '.' to separate host "

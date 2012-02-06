@@ -23,7 +23,7 @@ import lxml
 from centosstudio.util import mkrpm
 from centosstudio.util import pps
 
-from centosstudio.errors    import CentOSStudioError
+from centosstudio.errors    import CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
@@ -396,6 +396,6 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildFailedException(CentOSStudioError):
+class RpmBuildFailedException(CentOSStudioEventError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"
 

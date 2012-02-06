@@ -22,7 +22,7 @@ from rpmUtils.arch import getArchList
 
 from centosstudio.util.repo import RPM_PNVRA_REGEX
 
-from centosstudio.errors    import CentOSStudioError
+from centosstudio.errors    import CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging   import L1, L2
 
@@ -98,5 +98,5 @@ class DownloadEvent(Event):
       self.mdfile.rename(debugdir / self.mdfile.basename)
 
 
-class RpmsNotFoundError(CentOSStudioError):
+class RpmsNotFoundError(CentOSStudioEventError):
   message = "The following RPMs were not found in any input repos:\n%(rpms)s"

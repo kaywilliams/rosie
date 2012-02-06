@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import traceback
 
 from centosstudio.util     import shlib
 from centosstudio.util     import pps
@@ -46,7 +45,10 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
   finally:
     fp and fp.close()
 
-class CentOSStudioError:
+
+class CentOSStudioError(Exception): pass
+
+class CentOSStudioEventError(CentOSStudioError):
   message = None
   def __init__(self, *args, **kwargs):
     self.map = {}
@@ -78,49 +80,31 @@ class CentOSStudioError:
   def __str__(self):
     return self.message % self.map
 
-class CentOSStudioIOError(CentOSStudioError, IOError):
+class CentOSStudioIOError(CentOSStudioEventError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
-class PpsPathError(CentOSStudioError):
+class PpsPathError(CentOSStudioEventError):
   def __str__(self):
     if self.error.errno == 21: # EISDIR
       pass
 
-class ShLibError(CentOSStudioError):
+class ShLibError(CentOSStudioEventError):
   def __init__(self, e):
     self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, CentOSStudioError):
+class RhnSupportError(RuntimeError, CentOSStudioEventError):
   def __str__(self):
     return ( "RHN support not enabled - please install the 'rhnlib' and "
              "'rhn-client-tools' packages from the centosstudio software repo "
              "at www.centossolutions.com" )
 
-class CentOSStudioErrorHandler:
+class CentOSStudioEventErrorHandler:
   def _handle_Exception(self, e):
-    traceback.print_exc(file=self.logger.logfile.file_object)
-    if self.logger.test(4) or self.debug:
-      raise
-    else:
-      self.logger.write(0, '\n') # start on a new line
-      if isinstance(e, KeyboardInterrupt):
-        self.logger.log(0, "CentOS Studio halted on user input")
-      else:
-        if (not isinstance(e, CentOSStudioError) and 
-            not isinstance(e, KeyboardInterrupt)):
-          self.logger.write(0,
-            "An unhandled exception has been generated while processing "
-            "the '%s' event.  The traceback has been recorded in the log "
-            "file at '%s'.  Please report this error by sending a copy "
-            "of your log file, system definition file and any other "
-            "relevant information to centosstudio@centossolutions.com\n\n"
-            "Error message was: "
-            % (self.dispatch.currevent.id, self.logfile))
-        self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,
-                                        handle_Exception(e)))
-    sys.exit(1)
+    e = '[%s] %s' % (self.dispatch.currevent.id, handle_Exception(e))
+    raise CentOSStudioError(e)
+
 
 def handle_Exception(e):
   try:

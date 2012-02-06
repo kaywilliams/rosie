@@ -24,7 +24,7 @@ import sys
 import traceback
 
 from centosstudio.cslogging import L0, L1, L2
-from centosstudio.errors import CentOSStudioError
+from centosstudio.errors import CentOSStudioEventError
 from centosstudio.util import sshlib
 
 from UserDict import DictMixin
@@ -332,7 +332,7 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
-class ScriptFailedError(CentOSStudioError):
+class ScriptFailedError(CentOSStudioEventError):
   message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s" 
 
 class SSHFailedError(ScriptFailedError):
@@ -340,7 +340,7 @@ class SSHFailedError(ScriptFailedError):
 Error message: '%(message)s'
 SSH parameters: '%(params)s"""
 
-class DeployValidationError(CentOSStudioError):
+class DeployValidationError(CentOSStudioEventError):
   message = """\n
 [%(id)s] Validation Error: %(script)s requires a %(attribute)s for
 SSH execution. Please correct using one of the following methods: 

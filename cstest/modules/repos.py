@@ -20,7 +20,7 @@ import unittest
 from cstest      import EventTestCase, ModuleTestSuite, TestBuild
 from cstest.core import make_core_suite
 
-from centosstudio.validate import InvalidConfigError
+from centosstudio.errors import CentOSStudioError
 
 class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
@@ -33,7 +33,7 @@ class Test_NoBase(ReposEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, InvalidConfigError,
+    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):

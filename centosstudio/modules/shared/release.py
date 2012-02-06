@@ -19,7 +19,7 @@
 import hashlib
 import yum
 
-from centosstudio.errors         import CentOSStudioError
+from centosstudio.errors         import CentOSStudioEventError
 from centosstudio.event          import Event
 from centosstudio.util.repo      import YumRepo
 from centosstudio.modules.shared import (PickleMixin, RpmBuildMixin,
@@ -180,5 +180,5 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     self.rpm._apply()
     self.cvars['gpgkeys'] = self.unpickle().get('gpgkeys', [])
 
-class MissingGPGKeyError(CentOSStudioError):
+class MissingGPGKeyError(CentOSStudioEventError):
   message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"

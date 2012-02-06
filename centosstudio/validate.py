@@ -21,8 +21,9 @@ import copy
 import os
 import sys
 
-from centosstudio.util import pps
-from centosstudio.util import rxml
+from centosstudio.errors import CentOSStudioError
+from centosstudio.util   import pps
+from centosstudio.util   import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
@@ -35,23 +36,15 @@ class CentOSStudioValidationHandler:
     try:
       self._validate_configs()
     except InvalidSchemaError, e:
-      if self.debug: raise
-      self.logger.log(0, L0("Schema file used in validation appears to be invalid"))
-      self.logger.log(0, L0(e))
-      sys.exit(1)
+      raise CentOSStudioError("Schema file used in validation appears to be invalid:\n%s" % e)
+ 
     except InvalidConfigError, e:
-      if self.debug: raise
-      self.logger.log(0, L0("Validation against schema failed"))
-      self.logger.log(0, L0(e))
-      sys.exit(1)
+      raise CentOSStudioError("Validation against schema failed:\n%s" % e)
     except (InvalidXmlError, rxml.errors.ConfigError), e:
-      if self.debug: raise
-      self.logger.log(0, L0(e))
-      sys.exit(1)
+      raise CentOSStudioError(e)
     except Exception, e:
-      if self.debug: raise
-      self.logger.log(0, L0("Unhandled exception while performing validation: %s" % e))
-      sys.exit(1)
+      raise CentOSStudioError("Unhandled exception while performing validation: %s" % e)
+ 
 
   def _validate_configs(self):
     "Validate centosstudio config and solution definition"

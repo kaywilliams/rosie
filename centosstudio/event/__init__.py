@@ -27,7 +27,7 @@ from centosstudio.util import sync
 
 from centosstudio.cslogging import L0, L1
 
-from centosstudio.errors import CentOSStudioError
+from centosstudio.errors import CentOSStudioEventError
 
 from centosstudio.event.diff   import DiffMixin
 from centosstudio.event.fileio import IOMixin
@@ -115,10 +115,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
       self.apply()
       t_apply = time.time()
       self.verify()
-    except EventExit, e:
-      self.log(0, e)
-      sys.exit()
-    except (CentOSStudioError, Exception, KeyboardInterrupt), e:
+    except (CentOSStudioEventError, Exception, KeyboardInterrupt), e:
       self.error(e)
       raise
     t_end = time.time()
@@ -200,9 +197,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 
-
-class EventExit:
-  "Error an event can raise in order to exit program execution"
 
 class DummyConfig(object):
   "Dummy config class that matches no xpath queries"

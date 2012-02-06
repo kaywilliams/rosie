@@ -21,7 +21,7 @@ import ConfigParser
 from centosstudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from centosstudio.util.versort import Version
 
-from centosstudio.errors   import assert_file_has_content, assert_file_readable, CentOSStudioError
+from centosstudio.errors   import assert_file_has_content, assert_file_readable, CentOSStudioEventError
 from centosstudio.event    import Event
 from centosstudio.cslogging  import L1, L2
 from centosstudio.validate import InvalidConfigError
@@ -134,14 +134,14 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
-class InstallerRepoNotFoundError(CentOSStudioError):
+class InstallerRepoNotFoundError(CentOSStudioEventError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository." )
 
-class TreeinfoNotFoundError(CentOSStudioError):
+class TreeinfoNotFoundError(CentOSStudioEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
               "at '%(repourl)s' " )
 
-class UnsupportedInstallerRepoError(CentOSStudioError):
+class UnsupportedInstallerRepoError(CentOSStudioEventError):
   message = ( "The '%(repoid)s' repository containing '%(family)s %(version)s' "
               "at '%(repourl)s' is not supported." )

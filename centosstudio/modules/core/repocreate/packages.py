@@ -22,7 +22,7 @@ import fnmatch
 from centosstudio.util import magic
 
 from centosstudio.constants import KERNELS
-from centosstudio.errors    import assert_file_has_content, CentOSStudioError
+from centosstudio.errors    import assert_file_has_content, CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
@@ -268,7 +268,7 @@ class CompsEvent(Event):
 
 
 #------ ERRORS ------#
-class CompsError(CentOSStudioError): pass
+class CompsError(CentOSStudioEventError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

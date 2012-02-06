@@ -27,7 +27,7 @@ from centosstudio.util.rxml import datfile
 from centosstudio.util.rxml.errors import XmlPathError
 
 from centosstudio.cslogging    import L1
-from centosstudio.errors       import CentOSStudioError
+from centosstudio.errors       import CentOSStudioEventError
 from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.event import Event, CLASS_META
@@ -198,5 +198,5 @@ EOF""" % (name, pubring, secring)
         'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
         raise InvalidKeyError(map[key])
 
-class InvalidKeyError(CentOSStudioError):
+class InvalidKeyError(CentOSStudioEventError):
   message = "The %(type)s key provided does not appear to be valid."

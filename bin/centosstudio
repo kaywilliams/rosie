@@ -26,130 +26,173 @@ CentOS Studio wrapper
 import imp
 import os
 import sys
+import traceback
 
 from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 
-from centosstudio.util import pps
+from centosstudio.errors    import CentOSStudioError
+from centosstudio.cslogging import L0
+from centosstudio.util      import pps
 
 from centosstudio.util.CleanHelpFormatter import CleanHelpFormatter
 
-def main():
-  parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
-                        formatter=CleanHelpFormatter(),
-                        description="build, test, deploy and maintain systems"
-                                    "as defined in the file at "
-                                    "SYSTEM_DEFINITION"
-                        )
+class BuildCliCallback:
+  def init(self, debug=False, logger=None):
+    self.debug=debug
+    self.logger=logger
 
-  parser.add_option('--debug',
-    dest='debug',
-    action='store_true',
-    default=None,
-    help=SUPPRESS_HELP)
-  parser.add_option('--no-debug',
-    dest='debug',
-    action='store_false',
-    help=SUPPRESS_HELP)
+  def set_debug(self, debug):
+    self.debug=debug
 
-  config_group = OptionGroup(parser, "config options")
-  config_group.add_option('-c', '--config', metavar='PATH',
-    default='/etc/centosstudio/centosstudio.conf',
-    dest='mainconfigpath',
-    help="specify path to the centosstudio config file")
-  config_group.add_option('--no-validate',
-    dest='no_validate',
-    action='store_true',
-    default=False,
-    help="do not validate config/definition files")
-  config_group.add_option('--validate-only',
-    dest='validate_only',
-    default=False,
-    action='store_true',
-    help="validate config/definition files and exit")
-  parser.add_option_group(config_group)
+  def set_logger(self, logger):
+    self.logger=logger
 
-  log_group = OptionGroup(parser, "logging options")
-  log_group.add_option('-l', '--log-level', metavar='N',
-    dest='logthresh',
-    type='int',
-    default=3,
-    help="specify a level (0-6) of verbosity for the output log")
-  log_group.add_option('--log-file', metavar='PATH',
-    dest='logfile',
-    default=None,
-    help="specify a file in which to log output")
-  parser.add_option_group(log_group)
+class BuildCli:
+  def __init__(self):
+    parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
+                          formatter=CleanHelpFormatter(),
+                          description="build, test, deploy and maintain systems"
+                                      "as defined in the file at "
+                                      "SYSTEM_DEFINITION"
+                          )
+  
+    parser.add_option('--debug',
+      dest='debug',
+      action='store_true',
+      default=None,
+      help=SUPPRESS_HELP)
+    parser.add_option('--no-debug',
+      dest='debug',
+      action='store_false',
+      help=SUPPRESS_HELP)
+  
+    config_group = OptionGroup(parser, "config options")
+    config_group.add_option('-c', '--config', metavar='PATH',
+      default='/etc/centosstudio/centosstudio.conf',
+      dest='mainconfigpath',
+      help="specify path to the centosstudio config file")
+    config_group.add_option('--no-validate',
+      dest='no_validate',
+      action='store_true',
+      default=False,
+      help="do not validate config/definition files")
+    config_group.add_option('--validate-only',
+      dest='validate_only',
+      default=False,
+      action='store_true',
+      help="validate config/definition files and exit")
+    parser.add_option_group(config_group)
+  
+    log_group = OptionGroup(parser, "logging options")
+    log_group.add_option('-l', '--log-level', metavar='N',
+      dest='logthresh',
+      type='int',
+      default=3,
+      help="specify a level (0-6) of verbosity for the output log")
+    log_group.add_option('--log-file', metavar='PATH',
+      dest='logfile',
+      default=None,
+      help="specify a file in which to log output")
+    parser.add_option_group(log_group)
+  
+    module_group = OptionGroup(parser, "module and library options")
+    module_group.add_option('--lib-path', metavar='PATH',
+      action='append',
+      dest='libpath',
+      default=[],
+      help="specify directory containing centosstudio library files")
+    module_group.add_option('--share-path', metavar='PATH',
+      action='append',
+      dest='sharepath',
+      default=[],
+      help="specify directory containing centosstudio shared files")
+    module_group.add_option('--enable-module', metavar='MODULE',
+      action='append',
+      dest='enabled_modules',
+      default=[],
+      help=SUPPRESS_HELP)
+    module_group.add_option('--disable-module', metavar='MODULE',
+      action='append',
+      dest='disabled_modules',
+      default=[],
+      help=SUPPRESS_HELP)
+    parser.add_option_group(module_group)
+  
+    event_group = OptionGroup(parser, "module control options")
+    event_group.add_option('--force', metavar='MODULE',
+      action='append',
+      dest='force_modules',
+      default=[],
+      help="force a module's events to execute")
+    event_group.add_option('--skip', metavar='MODULE',
+      action='append',
+      dest='skip_modules',
+      default=[],
+      help="skip execution of a module's events")
+    event_group.add_option('--force-event', metavar='EVENT',
+      action='append',
+      dest='force_events',
+      default=[],
+      help=SUPPRESS_HELP)
+    event_group.add_option('--skip-event', metavar='EVENT',
+      action='append',
+      dest='skip_events',
+      default=[],
+      help=SUPPRESS_HELP)
+    event_group.add_option('--list-events',
+      action='store_true',
+      default=False,
+      dest='list_events',
+      help=SUPPRESS_HELP)
+    parser.add_option_group(event_group)
+  
+    opts,args = parser.parse_args(args=sys.argv[1:])
+  
+    if len(args) != 1:
+      print "Invalid number of arguments (expecting 1, got %d)" % len(args)
+      parser.print_help()
+      sys.exit(1)
+  
+    # import centosstudio from some path in sys.path
+    try:
+      import centosstudio.main
+    except ImportError, e:
+      print "Unable to load core centosstudio files"
+      raise #!
+      sys.exit(1)
+ 
+    cb = BuildCliCallback()
 
-  module_group = OptionGroup(parser, "module and library options")
-  module_group.add_option('--lib-path', metavar='PATH',
-    action='append',
-    dest='libpath',
-    default=[],
-    help="specify directory containing centosstudio library files")
-  module_group.add_option('--share-path', metavar='PATH',
-    action='append',
-    dest='sharepath',
-    default=[],
-    help="specify directory containing centosstudio shared files")
-  module_group.add_option('--enable-module', metavar='MODULE',
-    action='append',
-    dest='enabled_modules',
-    default=[],
-    help=SUPPRESS_HELP)
-  module_group.add_option('--disable-module', metavar='MODULE',
-    action='append',
-    dest='disabled_modules',
-    default=[],
-    help=SUPPRESS_HELP)
-  parser.add_option_group(module_group)
-
-  event_group = OptionGroup(parser, "module control options")
-  event_group.add_option('--force', metavar='MODULE',
-    action='append',
-    dest='force_modules',
-    default=[],
-    help="force a module's events to execute")
-  event_group.add_option('--skip', metavar='MODULE',
-    action='append',
-    dest='skip_modules',
-    default=[],
-    help="skip execution of a module's events")
-  event_group.add_option('--force-event', metavar='EVENT',
-    action='append',
-    dest='force_events',
-    default=[],
-    help=SUPPRESS_HELP)
-  event_group.add_option('--skip-event', metavar='EVENT',
-    action='append',
-    dest='skip_events',
-    default=[],
-    help=SUPPRESS_HELP)
-  event_group.add_option('--list-events',
-    action='store_true',
-    default=False,
-    dest='list_events',
-    help=SUPPRESS_HELP)
-  parser.add_option_group(event_group)
-
-  opts,args = parser.parse_args(args=sys.argv[1:])
-
-  if len(args) != 1:
-    print "Invalid number of arguments (expecting 1, got %d)" % len(args)
-    parser.print_help()
-    sys.exit(1)
-
-  # import centosstudio from some path in sys.path
-  try:
-    import centosstudio.main
-  except ImportError, e:
-    print "Unable to load core centosstudio files"
-    raise #!
-    sys.exit(1)
-
-  # initialize our software builder with opts and make it go!
-  sbuilder = centosstudio.main.Build(opts, args)
-  sbuilder.main()
-  sys.exit()
+    # initialize our software builder with opts and make it go!
+    try:
+      sbuilder = centosstudio.main.Build(opts, args, callback=cb)
+      sbuilder.main()
+      sys.exit()
+    except (KeyboardInterrupt, SystemExit):
+      cb.logger.write(0, '\n') # start on a new line
+      cb.logger.log(0, "CentOS Studio halted on user input")
+      sys.exit(1)
+    except CentOSStudioError, e: 
+      if cb.debug: raise
+      cb.logger.write(0, '\n') # start on a new line
+      cb.logger.log(0, L0(e))
+      sys.exit(1)
+    except Exception, e:
+      traceback.print_exc(file=cb.logger.logfile.file_object)
+      if cb.logger.test(4) or cb.debug: 
+        raise
+      else:
+        cb.logger.write(0, '\n') # start on a new line
+        cb.logger.write(0,
+            "An unhandled exception has been generated while running "
+            "CentOS Studio.  The traceback has been recorded in the log "
+            "file at '%s'.  Please report this error by sending a copy "
+            "of your log file, system definition file and any other "
+            "relevant information to centosstudio@centossolutions.com\n\n"
+            "Error message was: %s"
+            % (cb.logger.logfile.file_object.name, e))
+      sys.exit(1)
 
 
-if __name__ == '__main__': main()
+
+if __name__ == '__main__': BuildCli()

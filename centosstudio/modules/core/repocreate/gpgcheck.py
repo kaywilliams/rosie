@@ -18,7 +18,7 @@
 import rpmUtils
 import yum
 
-from centosstudio.errors   import CentOSStudioError, CentOSStudioIOError, assert_file_has_content
+from centosstudio.errors   import CentOSStudioEventError, CentOSStudioIOError, assert_file_has_content
 from centosstudio.event    import Event
 from centosstudio.cslogging  import L1
 
@@ -171,7 +171,7 @@ class GpgCheckEvent(Event):
     self.verifier.failUnlessExists(self.mddir/self.mdfile)
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(CentOSStudioError):
+class RpmSignatureInvalidError(CentOSStudioEventError):
   message = "One or more RPMs failed GPG key check. You may need to list additional gpgkeys in your repo definition(s). \n %(rpms)s"
 
 class GpgkeyIOError(CentOSStudioIOError):

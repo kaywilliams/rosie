@@ -21,7 +21,7 @@ import yum.Errors
 
 from centosstudio.callback  import PkglistCallback
 from centosstudio.constants import KERNELS
-from centosstudio.errors    import assert_file_has_content, CentOSStudioError
+from centosstudio.errors    import assert_file_has_content, CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
@@ -155,11 +155,11 @@ class DepsolveEvent(DepsolverMixin, PickleMixin):
         break
 
 
-class InvalidPkglistFormatError(CentOSStudioError):
+class InvalidPkglistFormatError(CentOSStudioEventError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class CentOSStudioDepsolveError(CentOSStudioError):
+class CentOSStudioDepsolveError(CentOSStudioEventError):
   message = ( "Error(s) resolving package dependencies: \n"
               "--> %(message)s" )

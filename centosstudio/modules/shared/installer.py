@@ -22,7 +22,7 @@ from centosstudio.util import magic
 from centosstudio.util import pps
 
 from centosstudio.callback     import TimerCallback
-from centosstudio.errors       import CentOSStudioError
+from centosstudio.errors       import CentOSStudioEventError
 from centosstudio.cslogging    import L1
 from centosstudio.event.fileio import MissingInputFileError
 
@@ -184,6 +184,6 @@ class FileDownloadMixin:
     self.io.process_files(what='FileDownloadMixin', cache=True)
 
 
-class InvalidImageFormatError(CentOSStudioError, StandardError):
+class InvalidImageFormatError(CentOSStudioEventError, StandardError):
   message = ( "Error reading image file '%(image)s': invalid format: expected "
               "%(expected)s, got %(got)s" )
