@@ -252,7 +252,7 @@ class DeployEventMixin:
           message="Unable to establish connection with remote host: '%s'"
                   % params['hostname'],
           params=str(params)) 
-  
+
       # copy script to remote machine
       self.log(2, L2("copying %s to host" % script))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
@@ -262,11 +262,16 @@ class DeployEventMixin:
       sftp.put(self.io.list_output(what=script)[0], 
                '/etc/sysconfig/centosstudio/%s' % script)
       sftp.chmod('/etc/sysconfig/centosstudio/%s' % script, mode=0750)
-  
+ 
+      # setting keepalive causes client to cancel processes started by the
+      # server after the SSH session is terminated. It takes a few seconds for
+      # the client to notice and cancel the process. 
+      client.get_transport().set_keepalive(1)
+
       # execute script
       cmd = '/etc/sysconfig/centosstudio/%s' % script
       self.log(2, L2("executing '%s' on host" % cmd))
-      chan = client._transport.open_session()
+      chan = client.get_transport().open_session()
       chan.exec_command(cmd)
 
       errlines = []
