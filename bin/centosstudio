@@ -182,14 +182,24 @@ class BuildCli:
         raise
       else:
         cb.logger.write(0, '\n') # start on a new line
-        cb.logger.write(0,
+        if hasattr(cb.logger.logfile.file_object, 'name'):
+          cb.logger.write(0,
             "An unhandled exception has been generated while running "
-            "CentOS Studio.  The traceback has been recorded in the log "
-            "file at '%s'.  Please report this error by sending a copy "
+            "CentOS Studio. The traceback has been recorded in the log "
+            "file at '%s'. Please report this error by sending a copy "
             "of your log file, system definition file and any other "
             "relevant information to centosstudio@centossolutions.com\n\n"
             "Error message was: %s\n"
             % (cb.logger.logfile.file_object.name, e))
+          sys.exit(1)
+        else:
+          cb.logger.write(0,           
+            "An unhandled exception has been generated while running "
+            "CentOS Studio. Please report this error by sending a copy "
+            "of the error message, your system definition file and any other "
+            "relevant information to centosstudio@centossolutions.com\n\n"
+            "Error message was:\n")
+          raise
       sys.exit(1)
 
     # else we're done - exit with success

@@ -137,30 +137,25 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
-      self.arch     = ARCH_MAP[self.definition.get(qstr % 'arch', 'i386')]
+      self.arch     = self.definition.get(qstr % 'arch', 'i386')
+      self.type        = self.definition.get(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.type        = self.definition.get(qstr % 'type', 'system')
-    self.basearch    = getBaseArch(self.arch)
     self.solutionid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                           self.version,
-                                          self.basearch))
+                                          self.arch))
+
 
     # validate initial variables
-    for elem in ['name', 'version', 'solutionid']:
-      if not FILENAME_REGEX.match(eval('self.%s' % elem)):
-        raise CentOSStudioError("Validation of %s failed. \n"
-          "Invalid value '%s' for 'main/%s': "
-          "accepted characters are a-z, A-Z, 0-9, _, ., and -."
-          % (self.definition.getroot().file, eval('self.%s' % elem), elem))
-      
+    self._validate_initial_variables()
+
     # expand global macros, module macros handled during validation
     map = {'%{name}':     self.name,
            '%{version}':  self.version,
-           '%{arch}':     self.basearch,
+           '%{arch}':     self.arch,
            '%{id}':       self.solutionid,
            }
 
@@ -295,6 +290,39 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     self.definitiontree = dt
     self.definition = dt.getroot()
 
+  def _validate_initial_variables(self):
+    for elem in ['name', 'version', 'solutionid']:
+      if not FILENAME_REGEX.match(eval('self.%s' % elem)):
+        raise CentOSStudioError("Validation of %s failed. "
+          "The 'main/%s' element contains an invalid value '%s'. "
+          "Accepted characters are a-z, A-Z, 0-9, _, ., and -."
+          % (self.definition.getroot().file, elem, eval('self.%s' % elem)))
+      
+    if not self.arch in ARCH_MAP:
+      raise CentOSStudioError("Validation of %s failed. "
+        "The 'main/arch' element contains an invalid value '%s'. "
+        "Accepted values are 'i386' and 'x86_64'."
+        % (self.definition.getroot().file, self.arch))
+
+    if not self.version in ['5', '6']:
+      raise CentOSStudioError("Validation of %s failed. "
+        "The 'main/version' element contains an invalid value '%s'. "
+        "Accepted values are '5' and '6'."
+        % (self.definition.getroot().file, self.version))
+
+    # if type is component, ensure system is configured host virtual machines
+    if self.type == 'component':
+      try:
+        import libvirt
+      except ImportError:
+        raise CentOSStudioError(
+          "Error: The 'main/type' element of the definition file at '%s' is "
+          "set to 'component', but this machine is not configured to build "
+          "components. See the CentOS Studio User Manual for information "
+          "on system requirements for building components, which include "
+          "hardware and software support for hosting virtual machines."
+          % (self.definition.getroot().file))
+
   def _compute_events(self, modules=None, events=None):
     """
     Compute the set of events contained in the list of modules and events
@@ -395,6 +423,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
+    self.basearch    = getBaseArch(ARCH_MAP[self.arch])
     self.fullname    = self.definition.get(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
     self.webloc      = self.definition.get(qstr % 'bug-url', 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<main>
+<name>rpmbuild</name>
+<fullname>RPM Build Virtual Machine</fullname>
+</main>
+
+<publish password='rpmbuild' hostname='%{id}.local' allow-reinstall='true'>
+<remote-url>http://192.168.122.1/solutions</remote-url>
+<kickstart>
+<xi:include href="../ks.cfg" parse="text"/>
+skipx
+</kickstart>
+
+<xi:include href="../deploy.xml" xpointer="xpointer(/*/*)"/>
+</publish>
+
+</solution>

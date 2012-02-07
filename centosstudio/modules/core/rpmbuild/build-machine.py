@@ -68,72 +68,69 @@ class BuildMachineEvent(PickleMixin):
     self.DATA['input'].append(self.definition)
 
   def run(self):
-    builder = CentOSStudioInterface(self, self.definition)
-
     # start timer
-    msg = "creating/updating virtual machine"
+    msg = "creating/updating build machine"
     if self.logger:
       timer = TimerCallback(self.logger)
       timer.start(msg)
     else:
       timer = None
 
-    # build machine
+    # initialize builder
     try:
-      info = builder.build()
-    except (KeyboardInterrupt, SystemExit):
-      raise
+      builder = Build(self._get_options(), [self.definition])
     except CentOSStudioError, e:
-      # provide solutionid in error msg, if available
       raise BuildMachineCreationError(definition=self.definition, 
                                       error=e,
+                                      idstr='',
+                                      sep = MSG_MAXWIDTH * '=',)
+
+    # build machine
+    try:
+      builder.main()
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(definition=self.definition, 
+                                      error=e,
+                                      idstr="--> build machine id: %s\n" %
+                                            builder.solutionid,
                                       sep = MSG_MAXWIDTH * '=',)
 
     # stop timer
     if timer: timer.end()
 
     # cache hostname
-    self.pickle({'hostname': info.cvars['publish-setup-options']['hostname']})
+    self.pickle({'hostname': builder.cvars['publish-setup-options']['hostname']})
 
   def apply(self):
     self.cvars['build-machine-data']['hostname'] = self.unpickle(
                                                    ).get('hostname', None)
 
 
-class CentOSStudioInterface(object):
-    def __init__(self, ptr, definition):
-        self.definition = definition
-        self.ptr = ptr
+  def _get_options(self):
+    parser = optparse.OptionParser()
+    parser.set_defaults(**dict(
+      logthresh = 0,
+      logfile   = self.options.logfile,
+      libpath   = self.options.libpath,
+      sharepath = self.options.sharepath,
+      force_modules = [],
+      skip_modules  = [],
+      force_events  = [],
+      skip_events   = [],
+      mainconfigpath = self.options.mainconfigpath,
+      enabled_modules  = [],
+      disabled_modules = [],
+      list_modules = False,
+      list_events = False,
+      no_validate = False,
+      validate_only = False,
+      clear_cache = False,
+      debug = self.options.debug,))
 
-    def build(self):
-        parser = optparse.OptionParser()
-        parser.set_defaults(**dict(
-          logthresh = 0,
-          logfile   = self.ptr.options.logfile,
-          libpath   = self.ptr.options.libpath,
-          sharepath = self.ptr.options.sharepath,
-          force_modules = [],
-          skip_modules  = [],
-          force_events  = [],
-          skip_events   = [],
-          mainconfigpath = self.ptr.options.mainconfigpath,
-          enabled_modules  = [],
-          disabled_modules = [],
-          list_modules = False,
-          list_events = False,
-          no_validate = False,
-          validate_only = False,
-          clear_cache = False,
-          debug = self.ptr.options.debug,))
-
-        opts, _ = parser.parse_args([])
-     
-        # initialize our builder with opts and make it go!
-        rpmbuilder = Build(opts, [self.definition])
-        rpmbuilder.main()
-
-        return rpmbuilder
+    opts, _ = parser.parse_args([])
+    
+    return opts
 
 
 class BuildMachineCreationError(CentOSStudioEventError):
-  message = "Error creating or updating RPM build machine.\n%(sep)s\n--> build machine definition: %(definition)s'\n--> error:%(error)s\n"
+  message = "Error creating or updating RPM build machine.\n%(sep)s\n%(idstr)s--> build machine definition: %(definition)s\n--> error:%(error)s\n"

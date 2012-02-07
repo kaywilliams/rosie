@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- rpmbuild-6-x86_64 -->
+
+<main>
+<xi:include href="rpmbuild-5-i386.definition" 
+            xpointer="xpointer(/*/main/*[name()!='arch'])"/>
+<arch>x86_64</arch>
+</main>
+
+<xi:include href="rpmbuild-5-i386.definition"
+            xpointer="xpointer(/*/*[name()!='main'])"/>  
+
+</solution>
