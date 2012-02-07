@@ -167,7 +167,6 @@ class BuildCli:
     try:
       sbuilder = centosstudio.main.Build(opts, args, callback=cb)
       sbuilder.main()
-      sys.exit()
     except (KeyboardInterrupt, SystemExit):
       cb.logger.write(0, '\n') # start on a new line
       cb.logger.log(0, "CentOS Studio halted on user input")
@@ -189,10 +188,11 @@ class BuildCli:
             "file at '%s'.  Please report this error by sending a copy "
             "of your log file, system definition file and any other "
             "relevant information to centosstudio@centossolutions.com\n\n"
-            "Error message was: %s"
+            "Error message was: %s\n"
             % (cb.logger.logfile.file_object.name, e))
       sys.exit(1)
 
-
+    # else we're done - exit with success
+    sys.exit()
 
 if __name__ == '__main__': BuildCli()

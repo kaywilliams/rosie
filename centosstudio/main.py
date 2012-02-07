@@ -183,13 +183,6 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       raise CentOSStudioError("Error opening log file for writing: %s" % e)
     if callback: callback.set_logger(self.logger)
 
-  # def setup(self):
-  #   # Splitting what was init() into two methods (init and setup).
-  #   # The init method reads the config and definition files. The setup 
-  #   # method completes remaining build configuration. This approach gives
-  #   # callers the ability to access properties, primarily the debug and log
-  #   # file location options, prior to continuing with build setup activities.
-
     # set up additional attributes for use by events
     self._compute_event_attrs(options)
 
@@ -267,12 +260,9 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         self._lock.release()
       self._log_footer()
     else:
-      self.logger.log(0, L0("Another instance of centosstudio (pid %d) is "
-                            "already modifying '%s'" % 
-                            (self._lock._readlock()[0], self.solutionid )))
-      sys.exit()
-
-    return self
+      raise CentosStudioError("Another instance of centosstudio (pid %d) is "
+                              "already modifying '%s'" % 
+                              (self._lock._readlock()[0], self.solutionid ))
 
   def _get_config(self, options, arguments):
     """

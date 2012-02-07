@@ -102,7 +102,7 @@ class RhnSupportError(RuntimeError, CentOSStudioEventError):
 
 class CentOSStudioEventErrorHandler:
   def _handle_Exception(self, e):
-    e = '[%s] %s' % (self.dispatch.currevent.id, handle_Exception(e))
+    e = '\n[%s] %s' % (self.dispatch.currevent.id, handle_Exception(e))
     raise CentOSStudioError(e)
 
 
