@@ -18,7 +18,6 @@
 
 import copy
 import optparse
-import libvirt
 
 from centosstudio.callback       import TimerCallback
 from centosstudio.cslogging      import L1, MSG_MAXWIDTH
@@ -28,6 +27,10 @@ from centosstudio.main           import Build
 
 from centosstudio.event          import Event
 from centosstudio.modules.shared import PickleMixin
+
+# don't error on non-libvirt machines
+try: import libvirt
+except ImportError: pass
 
 MODULE_INFO = dict(
   api         = 5.0,
