@@ -137,8 +137,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
-      self.arch     = self.definition.get(qstr % 'arch', 'i386')
-      self.type        = self.definition.get(qstr % 'type', 'system')
+      self.userarch = self.definition.get(qstr % 'arch', 'i386')
+      self.type     = self.definition.get(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
@@ -146,7 +146,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     self.solutionid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                           self.version,
-                                          self.arch))
+                                          self.userarch))
 
 
     # validate initial variables
@@ -155,7 +155,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     # expand global macros, module macros handled during validation
     map = {'%{name}':     self.name,
            '%{version}':  self.version,
-           '%{arch}':     self.arch,
+           '%{arch}':     self.userarch,
            '%{id}':       self.solutionid,
            }
 
@@ -298,11 +298,11 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
           "Accepted characters are a-z, A-Z, 0-9, _, ., and -."
           % (self.definition.getroot().file, elem, eval('self.%s' % elem)))
       
-    if not self.arch in ARCH_MAP:
+    if not self.userarch in ARCH_MAP:
       raise CentOSStudioError("Validation of %s failed. "
         "The 'main/arch' element contains an invalid value '%s'. "
         "Accepted values are 'i386' and 'x86_64'."
-        % (self.definition.getroot().file, self.arch))
+        % (self.definition.getroot().file, self.userarch))
 
     if not self.version in ['5', '6']:
       raise CentOSStudioError("Validation of %s failed. "
@@ -423,7 +423,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
-    self.basearch    = getBaseArch(ARCH_MAP[self.arch])
+    self.arch        = ARCH_MAP[self.userarch]
+    self.basearch    = getBaseArch(self.arch)
     self.fullname    = self.definition.get(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
     self.webloc      = self.definition.get(qstr % 'bug-url', 
