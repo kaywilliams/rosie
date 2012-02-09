@@ -17,11 +17,12 @@
 #
 from centosstudio.event import Event, CLASS_META
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['RepocreateMetaEvent'],
-  description = 'modules that create a package repository',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['RepocreateMetaEvent'],
+    description = 'modules that create a package repository',
+  )
 
 class RepocreateMetaEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

@@ -21,12 +21,13 @@ from centosstudio.event import Event
 
 from centosstudio.modules.shared import FileDownloadMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['Stage2ImagesEvent'],
-  description = 'downloads stage2 image(s)',
-  group       = 'installer',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['Stage2ImagesEvent'],
+    description = 'downloads stage2 image(s)',
+    group       = 'installer',
+  )
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
   def __init__(self, ptr, *args, **kwargs):

@@ -235,7 +235,7 @@ class RepoEventMixin:
   def validate(self):
     # repos config must contain at least one repo or repofile
     if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
-      raise InvalidConfigError(self.config.getroot().file,
+      raise InvalidConfigError(self._config.file,
         "<%s> must contain at least one <repo> or <repofile> element" % self.id)
 
   def setup_repos(self, repos=None):

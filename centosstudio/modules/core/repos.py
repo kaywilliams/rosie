@@ -28,11 +28,12 @@ from centosstudio.validate import InvalidConfigError
 
 from centosstudio.modules.shared import RepoEventMixin, CentOSStudioRepoGroup, CentOSStudioRepoFileParseError
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['ReposEvent'],
-  description = 'downloads metadata for input repositories',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['ReposEvent'],
+    description = 'downloads metadata for input repositories',
+  )
 
 class ReposEvent(RepoEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):

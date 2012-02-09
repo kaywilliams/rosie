@@ -35,12 +35,13 @@ YUMCONF_HEADER = [
   '\n',
 ]
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['GpgCheckEvent'],
-  description = 'gpgchecks package list RPMs',
-  group       = 'repocreate',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['GpgCheckEvent'],
+    description = 'gpgchecks package list RPMs',
+    group       = 'repocreate',
+  )
 
 class GpgCheckEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

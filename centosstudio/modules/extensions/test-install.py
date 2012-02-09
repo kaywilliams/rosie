@@ -27,11 +27,12 @@ from centosstudio.modules.shared import TestPublishEventMixin
 
 P = pps.path
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['TestInstallSetupEvent', 'TestInstallEvent'],
-  description = 'performs test installations on client systems',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['TestInstallSetupEvent', 'TestInstallEvent'],
+    description = 'performs test installations on client systems',
+  )
 
 
 class TestInstallSetupEvent(TestPublishEventMixin, Event):

@@ -19,9 +19,9 @@ from centosstudio.util import dispatch
 from centosstudio.util import pps
 
 class Loader(dispatch.Loader):
-  def __init__(self, enabled=None, disabled=None, load_extensions=False,
+  def __init__(self, ptr, enabled=None, disabled=None, load_extensions=False,
                      *args, **kwargs):
-    dispatch.Loader.__init__(self, *args, **kwargs)
+    dispatch.Loader.__init__(self, ptr, *args, **kwargs)
 
     self.enabled  = enabled  or []
     self.disabled = disabled or []
@@ -42,7 +42,7 @@ class Loader(dispatch.Loader):
       self._process_path(p/prefix/'extensions', self.load_extensions)
 
     for mod in self.modules.values():
-      self._process_module(mod, *args, **kwargs)
+      self._process_module(mod, ptr = self.ptr, *args, **kwargs)
 
     self._resolve_events()
     return self.top
@@ -64,5 +64,5 @@ class Loader(dispatch.Loader):
       if skip: continue
 
       m = dispatch.load_modules(modname, path, err=False)
-      if hasattr(m, 'MODULE_INFO'):
+      if hasattr(m, 'get_module_info'):
         self.modules.setdefault(modid, m) # only load if not already loaded

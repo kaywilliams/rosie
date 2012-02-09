@@ -178,10 +178,14 @@ class Dispatch:
     return self._top.get(eventid, fallback)
 
 class Loader:
-  def __init__(self, top=None, api_ver=0, ignore=None):
+  def __init__(self, ptr, top=None, api_ver=0, ignore=None):
+    self.ptr = ptr
     self.module_map = {} # map of moduleid to events
     self.events  = []
     self.modules = {}
+    self.module_info = {} # map of moduleid to module_info; allows modules
+                          # to calculate their info based on runtime properties
+                          # rather than using module global variables
 
     self.top = top or Event('ALL')
     self.api_ver = api_ver
@@ -197,34 +201,41 @@ class Loader:
         modname = mod.relpathfrom(dir).splitext()[0].replace('/', '.')
         if modid in self.ignore: continue
         m = load_modules(modname, dir, err=False)
-        if hasattr(m, 'MODULE_INFO'):
+        if hasattr(m, 'get_module_info'):
           self.modules[modid] = m
 
     for mod in self.modules.values():
-      self._process_module(mod, *args, **kwargs)
+      self._process_module(mod, ptr=self.ptr, *args, **kwargs)
 
     self._resolve_events()
     return self.top
 
-  def _process_module(self, mod, *args, **kwargs):
+  def _process_module(self, mod, ptr, *args, **kwargs):
     """Process a module and recursively process all submodules as well.
     Creates an instance of each event in EVENTS dictionary, adds event to
     self.events and module info to self.module_map"""
     if not mod: return
-    check_api_version(mod, self.api_ver)
+
+    # get module info 
+    if not hasattr(mod, 'get_module_info'):
+      raise ImportError("Module '%s' does not have get_module_info method" % \
+                      mod.__file__)
+
+    modinfo = mod.get_module_info(ptr, *args, **kwargs)
+
+    check_api_version(mod, modinfo, self.api_ver)
     modname = mod.__name__.split('.')[-1]
 
     # remove module if disabled
-    if hasattr(mod, 'is_enabled'):
-      if not mod.is_enabled(self, *args, **kwargs):
-        self.modules.pop(modname)
-        return
+    if not modinfo.get('enabled', True):
+      self.modules.pop(modname)
+      return
 
     # process events    
-    mod_events = mod.MODULE_INFO.get('events', [])
+    mod_events = modinfo.get('events', [])
     for event in mod_events:
       getattr(mod, event).moduleid = modname
-      e = getattr(mod, event)(*args, **kwargs)
+      e = getattr(mod, event)(ptr, *args, **kwargs)
       if e.enabled:
         self.events.append(e)
         self.module_map.setdefault(modname, []).append(e.id)
@@ -233,7 +244,8 @@ class Loader:
     # its events are enabled, remove it from the list of modules
     if modname not in self.module_map: 
       self.modules.pop(modname)
-      
+
+    self.module_info[modname] = modinfo
 
   def _resolve_events(self):
     "'Stitch' together events into an event tree according to the parent"
@@ -288,7 +300,7 @@ def load_modules(name, dir, err=True):
 
   return module
 
-def check_api_version(module, api_ver):
+def check_api_version(module, modinfo, api_ver):
   """
   Examine the module m to ensure that the API it is expecting is provided
   by this Build instance.   A given API version  can support modules with
@@ -300,11 +312,7 @@ def check_api_version(module, api_ver):
     * 3.5-X.x is rejected
   where X and x are any positive integers.
   """
-  if not hasattr(module, 'MODULE_INFO'):
-    raise ImportError("Module '%s' does not have MODULE_INFO variable" % \
-                      module.__file__)
-
-  mod_api = Version(str(module.MODULE_INFO.get('api', 0)), delims=['.'])
+  mod_api = Version(str(modinfo.get('api', 0)), delims=['.'])
   max_api = Version(str(api_ver), delims=['.'])
   min_api = Version('%s.%s' % (max_api[0], 0), delims=['.'])
 

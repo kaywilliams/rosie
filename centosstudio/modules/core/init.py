@@ -18,12 +18,13 @@
 from centosstudio.event   import Event, CLASS_META
 from centosstudio.cslogging import L1
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['InitEvent', 'SetupEvents', 'OSEvents', 
-                 'TestEvents', 'PublishEvents'],
-  description = 'creates temporary and cache folders',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['InitEvent', 'SetupEvents', 'OSEvents', 
+                   'TestEvents', 'PublishEvents'],
+    description = 'creates temporary and cache folders',
+  )
 
 class InitEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

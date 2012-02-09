@@ -21,11 +21,12 @@ from centosstudio.util.pps.constants import TYPE_NOT_DIR
 from centosstudio.event   import Event
 from centosstudio.cslogging import L1
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['ComposeEvent'],
-  description = 'creates an os folder',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['ComposeEvent'],
+    description = 'creates an os folder',
+  )
 
 class ComposeEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

@@ -21,7 +21,24 @@
         </optional>
 
         <optional><element name="definition"><text/></element></optional>
-        
+
+        <zeroOrMore>
+        <element name="rpm">
+          <attribute name="id">
+            <data type="ID"/>
+          </attribute>
+          <attribute name="type">
+            <choice>
+              <value type="string">mercurial</value>
+              <value type="string">srpm</value>
+            </choice>
+          </attribute>
+          <interleave>
+          <element name="location"><text/></element>
+          </interleave>
+        </element>
+        </zeroOrMore>
+
         </interleave>
       </element>
       </optional>

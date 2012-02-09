@@ -29,12 +29,13 @@ from centosstudio.util import FormattedFile as ffile
 from centosstudio.event  import Event
 from centosstudio.locals import sort_keys
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent'],
-  description = 'creates .buildstamp, .treeinfo, and .discinfo files',
-  group       = 'installer',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent'],
+    description = 'creates .buildstamp, .treeinfo, and .discinfo files',
+    group       = 'installer',
+  )
 
 class DiscinfoEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

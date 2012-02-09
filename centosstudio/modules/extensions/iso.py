@@ -30,11 +30,12 @@ from centosstudio.cslogging  import L1, L2, L3
 
 from centosstudio.modules.shared import ListCompareMixin, BootOptionsMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['PkgorderEvent', 'IsoEvent'],
-  description = 'creates CD/DVD install images',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['PkgorderEvent', 'IsoEvent'],
+    description = 'creates CD/DVD install images',
+  )
 
 YUMCONF = '''
 [main]

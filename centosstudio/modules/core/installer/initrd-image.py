@@ -19,12 +19,13 @@ from centosstudio.event   import Event
 
 from centosstudio.modules.shared import ImageModifyMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['InitrdImageEvent'],
-  description = 'creates an initrd.img file',
-  group       = 'installer',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['InitrdImageEvent'],
+    description = 'creates an initrd.img file',
+    group       = 'installer',
+  )
 
 class InitrdImageEvent(Event, ImageModifyMixin):
   def __init__(self, ptr, *args, **kwargs):

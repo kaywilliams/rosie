@@ -29,11 +29,12 @@ from centosstudio.errors  import assert_file_has_content
 from centosstudio.event   import Event
 from centosstudio.cslogging import L1
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['BaseInfoEvent'],
-  description = 'reads the .buildstamp file from the base distribution',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['BaseInfoEvent'],
+    description = 'reads the .buildstamp file from the base distribution',
+  )
 
 class BaseInfoEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

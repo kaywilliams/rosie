@@ -19,12 +19,13 @@
 from centosstudio.event                 import Event
 from centosstudio.modules.shared.config import ConfigRpmEventMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['ConfigRpmEvent'],
-  description = 'creates a configuration RPM',
-  group       = 'rpmbuild',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['ConfigRpmEvent'],
+    description = 'creates a configuration RPM',
+    group       = 'rpmbuild',
+  )
 
 class ConfigRpmEvent(ConfigRpmEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
@@ -35,9 +36,6 @@ class ConfigRpmEvent(ConfigRpmEventMixin, Event):
       version = '1.27',
       provides = ['rpmbuild-data'],
     )
-
-    if self.type == 'component':
-      self.enabled = False
 
     self.DATA = {
       'variables': ['name', 'fullname', 'rpm.release',],

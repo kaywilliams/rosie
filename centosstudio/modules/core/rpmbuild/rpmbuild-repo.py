@@ -29,12 +29,13 @@ from centosstudio.modules.shared import CentOSStudioRepoGroup
 
 from centosstudio.util.repo.repo import RepoContainer
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['RpmbuildRepoEvent'],
-  description = 'creates repository metadata for rpmbuild RPMs',
-  group       = 'rpmbuild',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['RpmbuildRepoEvent'],
+    description = 'creates repository metadata for rpmbuild RPMs',
+    group       = 'rpmbuild',
+  )
 
 class RpmbuildRepoEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

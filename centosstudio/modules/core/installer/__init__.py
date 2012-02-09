@@ -20,11 +20,12 @@ from centosstudio.util import versort
 
 from centosstudio.event import Event, CLASS_META
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['InstallerEvent'],
-  description = 'modules that create core install images',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['InstallerEvent'],
+    description = 'modules that create core install images',
+  )
 
 class InstallerEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import cPickle
+import optparse
 import os 
 import signal 
 import subprocess
@@ -23,22 +23,66 @@ import subprocess
 from centosstudio.util import magic
 from centosstudio.util import pps 
 from centosstudio.util import shlib 
-from centosstudio.util.rxml import datfile
+
+from centosstudio.util.rxml        import datfile
 from centosstudio.util.rxml.errors import XmlPathError
 
-from centosstudio.cslogging    import L1
-from centosstudio.errors       import CentOSStudioEventError
+from centosstudio.callback     import TimerCallback
+from centosstudio.cslogging    import L1, MSG_MAXWIDTH
+from centosstudio.errors       import (CentOSStudioError, 
+                                       CentOSStudioEventError)
+from centosstudio.main         import Build
 from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.event import Event, CLASS_META
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['RpmbuildEvent'],
-  description = 'modules that create system-specific RPMs',
-)
+from centosstudio.modules.shared import PickleMixin
 
-class RpmbuildEvent(Event):
+
+# -------- Metaclass for creating RPM Events -------- #
+class RPMEvent(type):
+  def __new__(meta, classname, supers, classdict):
+    return type.__new__(meta, classname, supers, classdict)
+
+
+# -------- Methods for RPM Events -------- #
+def __init__(self, ptr, *args, **kwargs):
+  Event.__init__(self,
+    id = self.__class__.__name__.replace('RpmEvent', '-rpm').lower(),
+    parentid = 'rpmbuild',
+    ptr = ptr,
+    version = 1.00,
+    requires = ['rpmbuild-data', 'build-machine'],
+    provides = ['repos', 'source-repos', 'comps-object']
+  )
+
+  self.DATA = {
+    'input':     [],
+    'output':    [],
+    'variables': [],
+  }
+
+
+# -------- provide module information to dispatcher -------- #
+def get_module_info(ptr, *args, **kwargs):
+  module_info = dict(
+    api         = 5.0,
+    events      = ['RpmBuildEvent', 'BuildMachineEvent',],
+    description = 'modules that create system-specific RPMs',
+  )
+
+  # create event classes based on user configuration
+  for config in ptr.definition.xpath('/*/rpmbuild/rpm', []):
+    name = '%sRpmEvent' % config.get('@id').capitalize()
+    module_info['events'].append(name)
+    exec "%s = RPMEvent('%s', (Event,), {'__init__': __init__})" % (name, name) in globals()
+    #print name 
+    #print eval(name)
+
+  return module_info
+
+# -------- Events -------- #
+class RpmBuildEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'rpmbuild',
@@ -47,8 +91,7 @@ class RpmbuildEvent(Event):
       properties = CLASS_META,
       version = '1.00',
       requires = ['publish-setup-options'],
-      provides = ['rpmbuild-data','gpg-signing-keys', 'os-content', 
-                  'build-machine-data', ],
+      provides = ['rpmbuild-data','gpg-signing-keys', 'os-content',],
       suppress_run_message = False 
     )
 
@@ -58,13 +101,6 @@ class RpmbuildEvent(Event):
       'variables': [],
       'output':    []
     }
-  
-  def validate(self):
-    self.definition = self.config.get('definition/text()','')
-    if self.type == 'component' and not self.definition:
-      raise InvalidConfigError(self.config.getroot().file,
-      "\n[%(id)s] Validation Error: a 'definition' element is required "
-      "when the value of main/type is set to 'component'." % {'id': self.id,})
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -87,8 +123,6 @@ class RpmbuildEvent(Event):
     self.cvars['gpg-signing-keys'] = { 'pubkey': self.pubkey,
                                        'seckey': self.seckey,
                                        'passphrase': self.passphrase }
-    self.cvars.setdefault('build-machine-data', {})[
-                          'definition'] = self.definition
 
   def verify_pubkey_exists(self):
     "pubkey exist"
@@ -197,6 +231,117 @@ EOF""" % (name, pubring, secring)
       if not magic.match(key) == eval(
         'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
         raise InvalidKeyError(map[key])
+
+
+class BuildMachineEvent(PickleMixin):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'build-machine',
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      version = '1.00',
+      requires = ['base-treeinfo', ],
+      provides = ['build-machine'],
+      conditional = True,
+    )
+
+    self.options = ptr.options # options not exposed as shared event attr
+
+    self.DATA = {
+      'variables': [], 
+      'config':    [],
+      'input':     [],
+    }
+
+    PickleMixin.__init__(self)
+
+  def validate(self):
+    try:
+      import libvirt
+    except ImportError:
+      raise CentOSStudioError(
+        "[%s] System Configuration Error: The definition file at '%s' specifies RPMs to build. However, this machine is not configured for general-purpose RPM building. See the CentOS Studio User Manual for information on system requirements for building RPMs, which include hardware and software support for building and hosting virtual machines."
+        % (self.moduleid, self._config.file))
+
+    if not self.config.get('definition/text()', ''):
+      raise InvalidConfigError(self._config.file,
+      "\n[%s]: a 'definition' element is required for building rpms" 
+      % self.id)
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+
+    self.definition = self.config.get('definition/text()', '')
+    self.io.validate_input_file(self.definition)
+    self.DATA['input'].append(self.definition)
+
+  def run(self):
+    # start timer
+    msg = "creating/updating build machine"
+    if self.logger:
+      timer = TimerCallback(self.logger)
+      timer.start(msg)
+    else:
+      timer = None
+
+    # initialize builder
+    try:
+      builder = Build(self._get_options(), [self.definition])
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(definition=self.definition, 
+                                      error=e,
+                                      idstr='',
+                                      sep = MSG_MAXWIDTH * '=',)
+
+    # build machine
+    try:
+      builder.main()
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(definition=self.definition, 
+                                      error=e,
+                                      idstr="--> build machine id: %s\n" %
+                                            builder.solutionid,
+                                      sep = MSG_MAXWIDTH * '=',)
+
+    # stop timer
+    if timer: timer.end()
+
+    # cache hostname
+    self.pickle({'hostname': builder.cvars['publish-setup-options']['hostname']})
+
+  def apply(self):
+    self.cvars['build-machine'] = self.unpickle().get('hostname', None)
+
+
+  def _get_options(self):
+    parser = optparse.OptionParser()
+    parser.set_defaults(**dict(
+      logthresh = 0,
+      logfile   = self.options.logfile,
+      libpath   = self.options.libpath,
+      sharepath = self.options.sharepath,
+      force_modules = [],
+      skip_modules  = [],
+      force_events  = [],
+      skip_events   = [],
+      mainconfigpath = self.options.mainconfigpath,
+      enabled_modules  = [],
+      disabled_modules = [],
+      list_modules = False,
+      list_events = False,
+      no_validate = False,
+      validate_only = False,
+      clear_cache = False,
+      debug = self.options.debug,))
+
+    opts, _ = parser.parse_args([])
+    
+    return opts
+
+
+# -------- Error Classes --------#
+class BuildMachineCreationError(CentOSStudioEventError):
+  message = "Error creating or updating RPM build machine.\n%(sep)s\n%(idstr)s--> build machine definition: %(definition)s\n--> error:%(error)s\n"
 
 class InvalidKeyError(CentOSStudioEventError):
   message = "The %(type)s key provided does not appear to be valid."

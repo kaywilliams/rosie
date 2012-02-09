@@ -18,6 +18,7 @@
 import unittest
 
 from centosstudio.errors   import CentOSStudioError
+from centosstudio.util     import pps 
 from centosstudio.util     import rxml
 
 from cstest       import EventTestCase, ModuleTestSuite, PUBKEY, SECKEY
@@ -162,6 +163,32 @@ class Test_KeysRemovedFromDatfile(RpmbuildTestCase):
       self.event.datfile.get('%s/pubkey' % xpath, None) is None and 
       self.event.datfile.get('%s/seckey' % xpath, None) is None)
 
+class BuildMachineTestCase(EventTestCase):
+  moduleid = 'rpmbuild'
+  eventid  = 'build-machine'
+
+  def __init__(self, distro, version, arch, conf=None):
+    EventTestCase.__init__(self, distro, version, arch, conf=conf)
+    self._add_config(
+      """
+      <rpmbuild>
+      <gpgsign>
+        <public>%s</public>
+        <secret>%s</secret>
+      </gpgsign>
+      <definition>
+        %s/../../share/centosstudio/examples/rpmbuild/rpmbuild-%s-%s.definition
+      </definition>
+      <rpm id='test' type='srpm'>
+        <location>test</location>
+      </rpm>
+      </rpmbuild>
+      """ % (PUBKEY, SECKEY, pps.path(__file__).dirname.abspath(), 
+             version, arch))
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')
 
@@ -172,5 +199,12 @@ def make_suite(distro, version, arch, *args, **kwargs):
     suite.addTest(Test_GeneratesSigningKeys(distro, version, arch))
     suite.addTest(Test_ReadsKeysFromDatfile(distro, version, arch))
     suite.addTest(Test_KeysRemovedFromDatfile(distro, version, arch))
+
+  # build-machine - skip on non-libvirt machines
+  try:
+    import libvirt
+    suite.addTest(make_core_suite(BuildMachineTestCase, distro, version, arch))
+  except ImportError:
+    print "unable to import libvirt, skipping build-machine tests"
 
   return suite

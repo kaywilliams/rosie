@@ -20,12 +20,13 @@ from centosstudio.event import Event
 
 from centosstudio.modules.shared import RepomdMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['RepomdEvent'],
-  description = 'creates repository metadata for package list RPMS',
-  group       = 'repocreate',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['RepomdEvent'],
+    description = 'creates repository metadata for package list RPMS',
+    group       = 'repocreate',
+  )
 
 class RepomdEvent(Event, RepomdMixin):
   def __init__(self, ptr, *args, **kwargs):

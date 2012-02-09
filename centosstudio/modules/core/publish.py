@@ -30,12 +30,13 @@ from centosstudio.modules.shared import DeployEventMixin
 from centosstudio.modules.shared import KickstartEventMixin
 from centosstudio.modules.shared import PublishSetupEventMixin 
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
-                 'DeployEvent'],
-  description = 'publishes system repository to a web accessible location',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
+                   'DeployEvent'],
+    description = 'publishes system repository to a web accessible location',
+  )
 
 TYPE_DIR = pps.constants.TYPE_DIR
 TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR

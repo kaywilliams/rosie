@@ -28,18 +28,14 @@ from centosstudio.cslogging import L1
 
 from centosstudio.modules.shared import comps, PickleMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['PackagesEvent', 'CompsEvent'],
-  description = 'defines the required packages and groups for the system',
-  group       = 'repocreate',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['PackagesEvent', 'CompsEvent'],
+    description = 'defines the required packages and groups for the system',
+    group       = 'repocreate',
+  )
 
-def is_enabled(*args, **kwargs):
-  if kwargs['ptr'].type == 'component':
-    return False
-  else:
-    return True
 
 class PackagesEvent(PickleMixin):
   def __init__(self, ptr, *args, **kwargs):

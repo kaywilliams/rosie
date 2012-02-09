@@ -20,12 +20,13 @@ from centosstudio.event          import Event
 from centosstudio.modules.shared import ReleaseRpmEventMixin
 
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['ReleaseRpmEvent'],
-  description = 'creates a release RPM',
-  group       = 'rpmbuild',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['ReleaseRpmEvent'],
+    description = 'creates a release RPM',
+    group       = 'rpmbuild',
+  )
 
 class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
@@ -38,9 +39,6 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
                   'gpgcheck-enabled', 'os-content'],
       requires = ['publish-setup-options'],
     )
-
-    if self.type == 'component':
-      self.enabled = False
 
     self.DATA = {
       'variables': ['name', 'fullname', 'rpm.release',],

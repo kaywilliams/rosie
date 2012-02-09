@@ -191,14 +191,13 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     enabled, disabled = self._compute_modules(options)
 
     # load all enabled modules, register events, set up dispatcher
-    loader = Loader(top = AllEvent(ptr = self), api_ver = API_VERSION,
-                    enabled = enabled, disabled = disabled,
-                    load_extensions = False)
+    loader = Loader(ptr=self, top=AllEvent(ptr = self), api_ver=API_VERSION,
+                    enabled=enabled, disabled=disabled,
+                    load_extensions=False)
 
     try:
       self.dispatch = dispatch.Dispatch(
-                        loader.load(import_dirs, prefix='centosstudio/modules',
-                                    ptr = self)
+                        loader.load(import_dirs, prefix='centosstudio/modules',)
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
@@ -207,7 +206,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       # add module mappings for pseudo events
       for modid, module in loader.modules.items():
         self.module_map.setdefault('all', []).extend(self.module_map[modid])
-        grp = module.MODULE_INFO.get('group')
+        grp = loader.module_info[modid].get('group', '')
         if grp:
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
@@ -309,19 +308,6 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         "The 'main/version' element contains an invalid value '%s'. "
         "Accepted values are '5' and '6'."
         % (self.definition.getroot().file, self.version))
-
-    # if type is component, ensure system is configured host virtual machines
-    if self.type == 'component':
-      try:
-        import libvirt
-      except ImportError:
-        raise CentOSStudioError(
-          "Error: The 'main/type' element of the definition file at '%s' is "
-          "set to 'component', but this machine is not configured to build "
-          "components. See the CentOS Studio User Manual for information "
-          "on system requirements for building components, which include "
-          "hardware and software support for hosting virtual machines."
-          % (self.definition.getroot().file))
 
   def _compute_events(self, modules=None, events=None):
     """

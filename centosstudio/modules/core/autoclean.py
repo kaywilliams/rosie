@@ -22,11 +22,12 @@ from centosstudio.util.difftest.handlers import DiffHandler
 from centosstudio.event   import Event
 from centosstudio.cslogging import L1, L2
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['AutocleanEvent'],
-  description = 'cleans the cache when modules are disabled or updated',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['AutocleanEvent'],
+    description = 'cleans the cache when modules are disabled or updated',
+  )
 
 class AutocleanEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

@@ -29,18 +29,13 @@ from centosstudio.modules.shared import DepsolverMixin, PickleMixin
 
 from centosstudio.util.depsolver.depsolver import DepsolveError
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['DepsolveEvent'],
-  description = 'depsolves required packages and groups to create a package list',
-  group       = 'repocreate',
-)
-
-# def is_enabled(*args, **kwargs):
-#   if kwargs['type'] == 'component':
-#     return False
-#   else:
-#     return True
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['DepsolveEvent'],
+    description = 'depsolves required packages and groups to create a package list',
+    group       = 'repocreate',
+  )
 
 NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '-'

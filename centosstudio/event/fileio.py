@@ -84,7 +84,7 @@ class IOObject(object):
     # expects a list of path-like elements
     for path in xpaths: #allow python to raise an error of no paths provided
       if path.get('@content', None) and not path.get('@destname', None):
-        raise InvalidConfigError(self.ptr.config.getroot().file,
+        raise InvalidConfigError(self.ptr._config.file,
           "[%s] missing 'destname' attribute at '%s':"
           "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(path), path))
 

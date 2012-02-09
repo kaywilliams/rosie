@@ -19,12 +19,13 @@ from centosstudio.util import pps
 
 from centosstudio.event import Event
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['PxebootImagesEvent'],
-  description = 'creates a pxeboot folder',
-  group       = 'installer',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['PxebootImagesEvent'],
+    description = 'creates a pxeboot folder',
+    group       = 'installer',
+  )
 
 class PxebootImagesEvent(Event):
   def __init__(self, ptr, *args, **kwargs):

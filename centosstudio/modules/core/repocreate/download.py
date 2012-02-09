@@ -26,12 +26,13 @@ from centosstudio.errors    import CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging   import L1, L2
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['DownloadEvent'],
-  description = 'downloads package list RPMs',
-  group       = 'repocreate',
-)
+def get_module_info(ptr, *args, **kwargs):
+  return dict(
+    api         = 5.0,
+    events      = ['DownloadEvent'],
+    description = 'downloads package list RPMs',
+    group       = 'repocreate',
+  )
 
 class DownloadEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
