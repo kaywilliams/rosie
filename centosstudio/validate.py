@@ -42,6 +42,8 @@ class CentOSStudioValidationHandler:
       raise CentOSStudioError("Validation against schema failed:\n%s" % e)
     except (InvalidXmlError, rxml.errors.ConfigError), e:
       raise CentOSStudioError(e)
+    except CentOSStudioError:
+      raise
     except Exception, e:
       raise CentOSStudioError("Unhandled exception while performing validation: %s" % e)
  
@@ -80,7 +82,8 @@ class CentOSStudioValidationHandler:
 
     # allow events to validate other things not covered in schemas
     for event in self.dispatch:
-      event.validate()
+      if event.enabled:
+        event.validate()
 
   def _verify_tle_elements(self, expected_elements):
     processed = set()
