@@ -88,7 +88,7 @@ class IOObject(object):
           "[%s] missing 'destname' attribute at '%s':"
           "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(path), path))
 
-  def validate_input_file(self, f, xpath=None):
+  def validate_input_file(self, f, allow_text=False, xpath=None):
     # method called by add_item() to ensure the source is a valid file
     if not f: return
     f = self.abspath(f)
@@ -96,13 +96,20 @@ class IOObject(object):
       f.stat()
     except pps.Path.error.PathError, e:
       if xpath is not None:
+        if allow_text:
+          suggest = ("If you are providing text rather than a file, add the "
+                     "attribute 'content=\"text\"' to the '%s' "
+                     "element. " % xpath)
+        else:
+          suggest = ""
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                      file=f, xpath=xpath)
+                                      file=f, suggest=suggest, xpath=xpath)
       else:
         raise MissingInputFileError(errno=e.errno, message=e.strerror, 
                                     file=f)
 
-  def add_item(self, src, dst, id=None, mode=None, content='file', xpath=None):
+  def add_item(self, src, dst, id=None, mode=None, content='file',
+               allow_text='false', xpath=None):
     """
     Adds source/destination pairs to list of possible files to be processed.
 
@@ -124,7 +131,7 @@ class IOObject(object):
       src = self.abspath(src).normpath()
 
       # make sure the source file is a valid file
-      self.validate_input_file(src, xpath)
+      self.validate_input_file(src, xpath=xpath, allow_text=allow_text)
 
       if src not in self.ptr.diff.input.idata:
         self.ptr.diff.input.idata.append(src)
@@ -143,19 +150,26 @@ class IOObject(object):
       self.i_dst[d] = td # but multiple srcs can't go to one dst
 
   def add_xpath(self, xpath, dst, id=None, mode=None, destname=None, 
-                content=None, destdir_fallback=None):
+                content=None, allow_text=False, destdir_fallback=None):
     """
     @param xpath : xpath query into the config file that contains zero or
                    more path elements to add to the possible input list
     """
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
+      # ensure item has text content
+      if item.text is None: 
+        raise InvalidConfigError(self.ptr._config.file,
+          "[%s] no path specified for '%s':"
+          "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(item), item))
+
+      # if item has content...
       s,d,f,m,c = self._process_path_xml(item, destname=destname,
                                          mode=mode, content=content,
                                          destdir_fallback=destdir_fallback)
       item_xpath = self.ptr._configtree.getpath(item)
       self.add_item(s, dst//d/f, id=id, mode=m or mode, content=c, 
-                                 xpath=item_xpath )
+                    allow_text=allow_text, xpath=item_xpath )
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
@@ -331,7 +345,10 @@ class TransactionData(object):
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
 class MissingXpathInputFileError(CentOSStudioEventError):
-  message = "Cannot find the file or folder '%(file)s'. Check that it exists and that the '%(xpath)s' element is correct. If you are providing text rather than a file, add the attribute 'content=\"text\"' to the '%(xpath)s' element. [errno %(errno)d] %(message)s."
+  message = ("Cannot find the file or folder '%(file)s'. Check that it exists "
+             "and that the '%(xpath)s' element is correct. %(suggest)s"
+             "[errno %(errno)d] %(message)s.")
 
 class MissingInputFileError(CentOSStudioEventError):
-  message = "Cannot find the specified file or folder '%(file)s'. [errno %(errno)d] %(message)s."
+  message = ("Cannot find the specified file or folder '%(file)s'. "
+             "[errno %(errno)d] %(message)s.")

@@ -65,14 +65,14 @@ class ConfigRpmEventMixin(RpmBuildMixin):
     # add files for synchronization to the build folder
     self.io.add_xpath('files', self.srcfiledir, 
                       destdir_fallback = self.filerelpath, 
-                      id = 'files')
+                      id = 'files', allow_text=True)
 
     # add triggers for synchronization to scripts folder
     for script in self.config.xpath('%s/trigger' % self.rpmxpath, []):
       self.io.add_xpath(self._configtree.getpath(script),
                         self.scriptdir, destname='%s-%s' % (
                         script.get('@type'), script.get('@trigger')), 
-                        content='text',
+                        content='text', allow_text=True,
                         id='triggers')
 
     # copies of user-provided scripts and triggers go here for easier 
