@@ -5,6 +5,9 @@
     <element name="solution">
       <optional>
       <element name="download">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
 
         <zeroOrMore>
         <element name="skip-repo"><text/></element>
