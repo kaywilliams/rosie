@@ -142,7 +142,7 @@ class DeployEventMixin:
       self._execute('post-script')
 
     else:
-      if not 'activate' in install_triggers: self._execute('activate-script')
+      self._execute('activate-script')
       self._execute('update-script')
       self._execute('post-script')
  
