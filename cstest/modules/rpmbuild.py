@@ -179,8 +179,8 @@ class BuildMachineTestCase(EventTestCase):
       <definition>
         %s/../../share/centosstudio/examples/rpmbuild/rpmbuild-%s-%s.definition
       </definition>
-      <rpm id='test' type='srpm'>
-        <location>test</location>
+      <rpm id='test'>
+        <srpm-script></srpm-script>
       </rpm>
       </rpmbuild>
       """ % (PUBKEY, SECKEY, pps.path(__file__).dirname.abspath(), 

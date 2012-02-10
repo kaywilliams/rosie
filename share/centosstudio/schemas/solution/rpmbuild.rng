@@ -24,18 +24,25 @@
 
         <zeroOrMore>
         <element name="rpm">
+
           <attribute name="id">
             <data type="ID"/>
           </attribute>
-          <attribute name="type">
-            <choice>
-              <value type="string">mercurial</value>
-              <value type="string">srpm</value>
-            </choice>
-          </attribute>
+
           <interleave>
-          <element name="location"><text/></element>
+
+          <choice>
+          <element name="srpm-repo"><text/></element>
+          <element name="srpm-path"><text/></element>
+          <element name="srpm-script"><text/></element>
+          </choice>
+
+          <optional>
+          <element name="verify-script"><text/></element>
+          </optional>
+
           </interleave>
+
         </element>
         </zeroOrMore>
 

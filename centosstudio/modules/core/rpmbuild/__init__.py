@@ -301,7 +301,7 @@ class BuildMachineEvent(PickleMixin):
                                       error=e,
                                       idstr="--> build machine id: %s\n" %
                                             builder.solutionid,
-                                      sep = MSG_MAXWIDTH * '=',)
+                                      sep = MSG_MAXWIDTH * '=')
 
     # stop timer
     if timer: timer.end()

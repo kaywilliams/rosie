@@ -44,12 +44,6 @@
       <ref name="element-exclude"/>
       </zeroOrMore>
 
-      <optional>
-      <element name="download">
-        <ref name="value-boolean"/>
-      </element>
-      </optional>
-
       <zeroOrMore>
       <element name="gpgkey"><text/></element>
       </zeroOrMore>

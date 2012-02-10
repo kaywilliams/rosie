@@ -58,9 +58,6 @@ class CentOSStudioRepo(YumRepo):
     self.localurl = None
     self._systemid = None # system id, for redhat mirrors
 
-  @property
-  def download(self):  return self._boolparse(self.get('download', 'yes'))
-
   def _boolparse(self, s):
     if s.lower() in BOOLEANS_FALSE:
       return False

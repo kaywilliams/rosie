@@ -60,8 +60,13 @@ class DownloadEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
+    # get list of repos to skip downloading from
+    skip = [ r.get('text()') for r in self.config.xpath('skip-repo', []) ]
+    if self.type != 'system': skip.extend(['base', 'updates'])
+
+    # setup for downloads
     for repo in self.cvars['repos'].values():
-      if not repo.download: continue
+      if repo.id in skip: continue
       for subrepo in repo.subrepos.values():
         now = time.time()
         # populate rpm time and size from repodata values (for performance)

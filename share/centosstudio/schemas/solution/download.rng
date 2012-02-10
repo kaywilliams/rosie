@@ -1,0 +1,20 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+
+    <element name="solution">
+      <optional>
+      <element name="download">
+
+        <zeroOrMore>
+        <element name="skip-repo"><text/></element>
+        </zeroOrMore>
+
+      </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+</grammar>
