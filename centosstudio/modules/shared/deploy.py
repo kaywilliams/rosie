@@ -107,7 +107,7 @@ class DeployEventMixin:
 
     self.webpath = self.cvars[self.cvar_root]['webpath']
 
-    self.DATA['variables'].extend(['webpath', 'kstext'])
+    self.DATA['variables'].extend(['webpath', 'kstext', 'deploy_mixin_version'])
     self.DATA['input'].append(self.repomdfile)
 
     for script in self.scripts:
