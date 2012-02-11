@@ -52,11 +52,12 @@ STATUS_SKIP  = False
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def __init__(self, id, ptr, version=0, suppress_run_message=False, 
-                              parentid=None, *args, **kwargs):
+                              parentid=None, config_base=None, *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version
     self.suppress_run_message = suppress_run_message
     self.parentid = parentid
+    self.config_base = config_base or '/*/%s' % self.moduleid
     self._status = None
 
     ptr.get_event_attrs(self) # get shared attributes from main.py
@@ -193,7 +194,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def config(self):
     try:
-      return self._config.get('/*/%s' % self.moduleid)
+      return self._config.get(self.config_base)
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 
