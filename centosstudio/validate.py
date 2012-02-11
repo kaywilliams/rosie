@@ -67,14 +67,14 @@ class CentOSStudioValidationHandler:
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
-
     for event in self.dispatch:
-      eid = event.__module__.split('.')[-1]
-      if eid in tle_elements: continue # don't re-validate
-      v.resolve_macros(tree=self, moduleid=eid, event=event)
-      v.validate(eid, schema_file='%s.rng' % eid)
-      if self.definition.pathexists(eid):
-        tle_elements.add(eid)
+      self.definition.resolve_macros(xpaths=[event.config_base],
+                                     map=getattr(event, 'macros', {}))
+      moduleid = event.__module__.split('.')[-1]
+      if moduleid in tle_elements: continue # don't re-validate
+      v.validate(moduleid, schema_file='%s.rng' % moduleid)
+      if self.definition.pathexists(moduleid):
+        tle_elements.add(moduleid)
 
     expected_elements = tle_elements.union(self.disabled_modules)
     expected_elements.add('all')
@@ -106,10 +106,6 @@ class BaseConfigValidator:
     self.config = config
 
     self.curr_schema = None
-
-  def resolve_macros(self, moduleid, event, tree, map=None):
-    tree.definition.resolve_macros(xpaths=['/*/%s/' % moduleid], 
-                                   map=getattr(event, 'macros', {}))
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if schema_file and schema_contents:
