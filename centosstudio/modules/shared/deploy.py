@@ -42,15 +42,6 @@ class DeployEventMixin:
     # should technically be) so that if no scripts are present
     # (i.e. scripts_provided is False) parent events can disable themselves.
 
-    # setup ssh  values
-    self.cvar_root = '%s-setup-options' % self.moduleid
-    self.ssh = dict(
-      hostname = self.cvars[self.cvar_root]['hostname'],
-      port     = 22,
-      username = 'root',
-      password = self.cvars[self.cvar_root]['password'],
-      )
-
     # set up script default parameters
     self.scripts = {
              'activate-script': dict(message='running activate script',
@@ -73,7 +64,6 @@ class DeployEventMixin:
                               enabled = False,
                               ssh=True)}
 
-
     # update scripts dict using config and validate script attributes
     self.scripts_provided = False
     for script in self.scripts:
@@ -86,16 +76,9 @@ class DeployEventMixin:
         if self.config.get('%s/@ssh' % script, []):
           self.scripts[script]['ssh'] = self.config.getbool('%s/@ssh' % script)
 
-  def validate(self):
-    # validate that hostname and password have been provided
-    for script in self.scripts:
-      for attribute in ['hostname', 'password']:
-        if self.scripts[script]['ssh'] and not self.ssh[attribute]:
-          raise DeployValidationError(id = self.id, script = script, 
-                                      attribute = attribute)
-
   def setup(self): 
     # needs to be called after self.repomdfile and self.kstext are set
+    self.cvar_root = '%s-setup-options' % self.moduleid
 
     # strip trailing whitespace from kstext so that diff testing works
     # as expected. using shelve for metadata storage (someday) will 
@@ -110,8 +93,23 @@ class DeployEventMixin:
     self.DATA['variables'].extend(['webpath', 'kstext', 'deploy_mixin_version'])
     self.DATA['input'].append(self.repomdfile)
 
+    # setup ssh values
+    self.ssh = dict(
+      hostname = self.cvars[self.cvar_root]['hostname'],
+      port     = 22,
+      username = 'root',
+      password = self.cvars[self.cvar_root]['password'],
+      )
+
+    # setup scripts
     for script in self.scripts:
       if self.scripts[script]['enabled']:
+        # validate ssh attributes
+        for attribute in ['hostname', 'password']:
+          if self.scripts[script]['ssh'] and not self.ssh[attribute]:
+            raise DeployValidationError(id = self.id, script = script, 
+                                        attribute = attribute)
+        # setup script for processing
         self.io.add_xpath(script, self.mddir, destname=script, id=script, 
                           mode='750', content='text')
 

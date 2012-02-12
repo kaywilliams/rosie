@@ -47,6 +47,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
   def setup(self):
     self.diff.setup(self.DATA)
+    PublishSetupEventMixin.setup(self)
 
     # sync compose output, excluding release-rpm
     release_rpm = (self.cvars['rpmbuild-data']['release-rpm']

@@ -61,6 +61,7 @@ class PublishSetupEvent(PublishSetupEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+    PublishSetupEventMixin.setup(self)
 
   def apply(self):
     self.cvars['publish-content'] = set()

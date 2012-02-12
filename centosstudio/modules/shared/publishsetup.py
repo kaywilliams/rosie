@@ -36,21 +36,10 @@ class PublishSetupEventMixin:
   def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
-
-    # doing everything in init so that we can define macros
-    # prior to validation
-    self.datfile = datfile.parse(basefile=self._config.file) 
-
     self.DATA['variables'].append('publish_mixin_version')
 
-    # set attributes
-    self.localpath = self.get_local()
-    self.webpath   = self.get_remote()
-    self.hostname  = self.get_hostname()
-    self.password, self.crypt_password  = self.get_password()
-    self.allow_reinstall = self.get_allow_reinstall()
-    self.boot_options = self.get_bootoptions()
-    self.write_datfile()
+    # get attributes the first time prior to macro resolution
+    self.get_attribs()
 
     # set macros
     self.macros = {'%{url}':  str(self.webpath),
@@ -62,6 +51,12 @@ class PublishSetupEventMixin:
         self.macros['%%{%s}' % attribute.replace('_','-')] = \
                     eval('self.%s' % attribute)
 
+  def setup(self):
+    # get attributes again after macros have been resolved
+    self.get_attribs()
+    self.write_datfile()
+
+    # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'password', 'allow_reinstall', 'webpath', 
@@ -71,6 +66,15 @@ class PublishSetupEventMixin:
 
 
   #------ Helper Methods ------#
+  def get_attribs(self):
+    self.datfile = datfile.parse(basefile=self._config.file) 
+    self.localpath = self.get_local()
+    self.webpath   = self.get_remote()
+    self.hostname  = self.get_hostname()
+    self.password, self.crypt_password  = self.get_password()
+    self.allow_reinstall = self.get_allow_reinstall()
+    self.boot_options = self.get_bootoptions()
+
   def get_local(self):
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
