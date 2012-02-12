@@ -23,7 +23,7 @@ import subprocess
 import sys
 import traceback
 
-from centosstudio.cslogging import L0, L1, L2
+from centosstudio.cslogging import L0, L1, L2, MSG_MAXWIDTH
 from centosstudio.errors import CentOSStudioEventError
 from centosstudio.util import sshlib
 
@@ -226,8 +226,7 @@ class DeployEventMixin:
           break
 
       if header_logged:
-        self.logger.log_footer(4, "%s event - end '%s' output" % (
-                                   self.id, script))
+        self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
 
       if proc.returncode != 0:
         raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
@@ -254,7 +253,6 @@ class DeployEventMixin:
           params=str(params)) 
 
       # copy script to remote machine
-      self.log(2, L2("copying %s to host" % script))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
       if not 'centosstudio' in  sftp.listdir('/etc/sysconfig'): 
         sftp.mkdir('/etc/sysconfig/centosstudio')
@@ -285,7 +283,7 @@ class DeployEventMixin:
             if data:
               got_data = True
               if header_logged is False:
-                self.logger.log_header(4, "%s event - begin '%s' output" % 
+                self.logger.log_header(4, "%s event - '%s' output" % 
                                       (self.id, script))
                 header_logged = True
               self.log(4, L0(data.rstrip('\n')))
@@ -298,8 +296,7 @@ class DeployEventMixin:
             break
 
       if header_logged:
-        self.logger.log_footer(4, "%s event - end '%s' output" % 
-                               (self.id, script))
+        self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
         
       status = chan.recv_exit_status()
       chan.close()
@@ -312,7 +309,6 @@ class DeployEventMixin:
         client.close()
       raise
 
-    self.log(2, L2("%s completed successfully" % script))
 
 class SSHParameters(DictMixin):
   def __init__(self, ptr, script):
