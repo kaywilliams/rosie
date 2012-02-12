@@ -16,9 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import optparse
-import os 
+import os
+import re
 import signal 
 import subprocess
+import yum
 
 from centosstudio.util import magic
 from centosstudio.util import pps 
@@ -32,12 +34,27 @@ from centosstudio.cslogging    import L1, MSG_MAXWIDTH
 from centosstudio.errors       import (CentOSStudioError, 
                                        CentOSStudioEventError)
 from centosstudio.main         import Build
-from centosstudio.validate     import InvalidConfigError
+from centosstudio.validate     import (DefinitionValidator,
+                                       InvalidConfigError)
 
 from centosstudio.event import Event, CLASS_META
 
 from centosstudio.modules.shared import PickleMixin
+from centosstudio.modules.shared import ExecuteMixin
 
+YUMCONF = '''
+[main]
+cachedir=
+logfile=/depsolve.log
+gpgcheck=0
+reposdir=/
+reposdir=/
+exclude=*debuginfo*
+
+[srpm_repo]
+name = Source RPM Repo
+baseurl = %s
+'''
 
 # -------- Metaclass for creating RPM Events -------- #
 class RPMEvent(type):
@@ -48,21 +65,77 @@ class RPMEvent(type):
 # -------- Methods for RPM Events -------- #
 def __init__(self, ptr, *args, **kwargs):
   Event.__init__(self,
-    id = self.__class__.__name__.replace('RpmEvent', '-rpm').lower(),
+    id = self.rpmid + "-rpm", # self.rpmid provided during class creation
     parentid = 'rpmbuild',
     ptr = ptr,
-    version = 1.00,
+    version = 1.01,
     requires = ['rpmbuild-data', 'build-machine'],
-    provides = ['repos', 'source-repos', 'comps-object']
+    provides = ['repos', 'source-repos', 'comps-object'],
+    config_base = '/*/rpmbuild/rpm[@id=\'%s\']' % self.rpmid,
   )
 
   self.DATA = {
     'input':     [],
-    'output':    [],
+    'config':    ['.'],
     'variables': [],
+    'output':    [],
   }
 
+  self.srpm_dir = self.mddir / 'srpm'
+  self.srpm_dir.mkdirs()
 
+  self.macros = {'%{rpmid}': self.rpmid,
+                 '%{srpm-dir}': self.srpm_dir,
+                }
+
+
+def setup(self):
+  self.diff.setup(self.DATA)
+  ExecuteMixin.setup(self)
+
+  # add srpm if path provided (add_xpath ignores request if xpath missing)
+  self.io.add_xpath('srpm-path', self.srpm_dir)
+
+  # find srpm in srpm repository if repository provided
+  url = pps.path(self.config.get('srpm-repo/text()', ''))
+  if url:
+    yumconf = self.mddir / 'yum/yum.conf'
+    yumconf.dirname.mkdirs()
+    yumconf.write_text(YUMCONF % url)
+
+    try:
+      yb = yum.YumBase()
+      yb.preconf.fn = fn=str(yumconf)
+      yb.preconf.root = str(self.mddir / 'yum')
+      yb.preconf.init_plugins = False
+      yb.doRpmDBSetup()
+      yb.conf.cache = 0
+      yb.doRepoSetup()
+      yb.doSackSetup(archlist=['src'])
+      pl = yb.doPackageLists(patterns=[self.rpmid])
+    except yum.Errors.RepoError, e:
+      raise InvalidRepoError(url=url)
+
+    if pl.available:
+      self.io.add_fpath( url / '%s.rpm' % str(pl.available[0]), self.srpm_dir )
+    else:
+      raise SrpmNotFoundError(name=self.rpmid, url=url)
+
+  # execute user-provided script to create and copy srpm to a dir we specify
+  if self.config.get('srpm-script/text()', ''):
+    script = self.mddir / 'srpm_script'
+    script.write_text(self.config.get('srpm-script/text()'))
+    script.chmod(0750)
+
+    self._execute_local(script)
+    
+
+
+
+
+def run(self):
+  self.io.process_files(cache=True)
+  
 # -------- provide module information to dispatcher -------- #
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
@@ -73,11 +146,24 @@ def get_module_info(ptr, *args, **kwargs):
 
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/rpmbuild/rpm', []):
-    name = '%sRpmEvent' % config.get('@id').capitalize()
+
+    # convert user provided id to a valid class name
+    id = config.get('@id')
+    name = re.sub('[^0-9a-zA-Z_]', '', id)
+    name = '%sRpmEvent' % name.capitalize()
+
+    # create new class
+    exec """%s = RPMEvent('%s', 
+                          (ExecuteMixin, Event), 
+                          { 'rpmid'   : '%s',
+                            '__init__': __init__,
+                            'setup'   : setup,
+                            'run'     : run,
+                          }
+                         )""" % (name, name, id) in globals()
+
+    # update module info with new classname
     module_info['events'].append(name)
-    exec "%s = RPMEvent('%s', (Event,), {'__init__': __init__})" % (name, name) in globals()
-    #print name 
-    #print eval(name)
 
   return module_info
 
@@ -340,6 +426,13 @@ class BuildMachineEvent(PickleMixin):
 
 
 # -------- Error Classes --------#
+class InvalidRepoError(CentOSStudioEventError):
+  message = ("Cannot retrieve repository metadata (repomd.xml) for repository "
+             "'%(url)s'. Please verify its path and try again.\n")
+
+class SrpmNotFoundError(CentOSStudioEventError):
+  message = "No srpm '%(name)s' found at '%(url)s'\n" 
+
 class BuildMachineCreationError(CentOSStudioEventError):
   message = "Error creating or updating RPM build machine.\n%(sep)s\n%(idstr)s--> build machine definition: %(definition)s\n--> error:%(error)s\n"
 
