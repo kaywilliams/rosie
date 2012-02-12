@@ -65,29 +65,12 @@ class CentOSStudioValidationHandler:
     v = DefinitionValidator([ x/'schemas/solution' for x in self.sharedirs ],
                            self.definition)
 
-    # expand event macros (depth first)
-    self.dispatch.reverse()
+    # expand macros - per event, depth first
     unresolved = [event for event in self.dispatch]
-    resolved = []
     while unresolved:
       event = unresolved.pop()
-      children = event.get_children()
-      if not children or set(children).issubset(set(resolved)):
-        self.definition.resolve_macros(xpaths=[event.config_base],
-                                       map=getattr(event, 'macros', {}))
-        resolved.append(event)
-      else:
-        unresolved.insert(0, event)
-    self.dispatch.reverse()
-
-    # expand global macros
-    map = {'%{name}':     self.name,
-           '%{version}':  self.version,
-           '%{arch}':     self.userarch,
-           '%{id}':       self.solutionid,
-           }
-
-    self.definition.resolve_macros(xpaths=['/*', '/*/main/'], map=map)
+      self.definition.resolve_macros(xpaths=[event.config_base],
+                                     map=getattr(event, 'macros', {}))
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)

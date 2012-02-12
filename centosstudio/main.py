@@ -481,6 +481,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     di['arch']              = self.arch
     di['type']              = self.type
     di['basearch']          = self.basearch
+    di['userarch']          = self.userarch
     di['solutionid']        = self.solutionid
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
@@ -522,5 +523,14 @@ class AllEvent(Event):
       ptr = ptr,
       version = 1.01,
       properties = CLASS_META,
-      suppress_run_message = True
+      suppress_run_message = True,
+      config_base = '/*',
     )
+
+    # expand global macros
+    self.macros = {'%{name}':     self.name,
+                   '%{version}':  self.version,
+                   '%{arch}':     self.userarch,
+                   '%{id}':       self.solutionid,
+                   }
+
