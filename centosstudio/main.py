@@ -152,19 +152,6 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     # validate initial variables
     self._validate_initial_variables()
 
-    # expand global macros, module macros handled during validation
-    map = {'%{name}':     self.name,
-           '%{version}':  self.version,
-           '%{arch}':     self.userarch,
-           '%{id}':       self.solutionid,
-           }
-
-    try: 
-      # top-level macros
-      self.definition.resolve_macros(xpaths=['/*', '/*/main/'], map=map)
-    except rxml.errors.ConfigError, e:
-      raise CentOSStudioError(e)
-
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
