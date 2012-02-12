@@ -81,7 +81,7 @@ pmFkVxnj7uI6X3CSrX7nW1dJoSRQdg7Ak86g/z6HdDxxjr9T5s5JJkXU1h6rIcJe
 PASSPHRASE = "The quick brown fox jumped over the lazy dog."
 
 
-#------- Classes -------#
+#------- Rpmbuild Classes -------#
 
 class RpmbuildTestCase(EventTestCase):
   moduleid = 'rpmbuild'
@@ -163,6 +163,9 @@ class Test_KeysRemovedFromDatfile(RpmbuildTestCase):
       self.event.datfile.get('%s/pubkey' % xpath, None) is None and 
       self.event.datfile.get('%s/seckey' % xpath, None) is None)
 
+
+#------- BuildMachine Classes -------#
+
 class BuildMachineTestCase(EventTestCase):
   moduleid = 'rpmbuild'
   eventid  = 'build-machine'
@@ -189,9 +192,45 @@ class BuildMachineTestCase(EventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
 
+
+#------- RPM Classes -------#
+
+class TestRPMTestCase(EventTestCase):
+  """
+  The rpmbuild reads user config and generates classes at runtime. In our test
+  case we provide config that causes a class to be generated, and then we test
+  the functioning of that class
+  """
+
+  moduleid = 'rpmbuild'
+  eventid  = 'test-rpm'
+
+  def __init__(self, distro, version, arch, conf=None):
+    EventTestCase.__init__(self, distro, version, arch, conf=conf)
+    self._add_config(
+      """
+      <rpmbuild>
+      <gpgsign>
+        <public>%s</public>
+        <secret>%s</secret>
+      </gpgsign>
+      <definition>
+        %s/../../share/centosstudio/examples/rpmbuild/rpmbuild-%s-%s.definition
+      </definition>
+      <rpm id='test'>
+        <srpm-script>echo hello</srpm-script>
+      </rpm>
+      </rpmbuild>
+      """ % (PUBKEY, SECKEY, pps.path(__file__).dirname.abspath(), 
+             version, arch))
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')
 
+  # rpmbuild cases
   suite.addTest(make_core_suite(RpmbuildTestCase, distro, version, arch))
   suite.addTest(Test_SigningKeysValid(distro, version, arch))
   suite.addTest(Test_SigningKeysPassphrase(distro, version, arch))
@@ -200,10 +239,11 @@ def make_suite(distro, version, arch, *args, **kwargs):
     suite.addTest(Test_ReadsKeysFromDatfile(distro, version, arch))
     suite.addTest(Test_KeysRemovedFromDatfile(distro, version, arch))
 
-  # build-machine - skip on non-libvirt machines
-  try:
+  # build-machine and test-rpm test cases require libvirt
+  try: 
     import libvirt
     suite.addTest(make_core_suite(BuildMachineTestCase, distro, version, arch))
+    suite.addTest(make_core_suite(TestRPMTestCase, distro, version, arch))
   except ImportError:
     print "unable to import libvirt, skipping build-machine tests"
 
