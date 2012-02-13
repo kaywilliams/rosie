@@ -230,8 +230,8 @@ class ConfigElement(tree.XmlTreeElement):
     xpaths -- a list of xpath queries to be searched for macros. The
     provided queries must return element nodes. The default value is '['/*']',
     meaning that resolve_macros will search for macros only at the top-level
-    of the element. To search for macros at any level, provide a forward slash,
-    in the xpath string, e.g. ['/'].
+    of the element. To search for macros at any level, provide a dot character 
+    in the xpath string, e.g. ['.'].
     
     map -- a dictionary containing existing macro definitions to use in
     addition to any discovered macros, e.g.
@@ -244,6 +244,8 @@ class ConfigElement(tree.XmlTreeElement):
 
     # locate and remove macro definitions
     for item in xpaths:
+      if item == '.':
+        item = '/'
       for elem in self.xpath('%s/macro' % item, []):
 
         try:
