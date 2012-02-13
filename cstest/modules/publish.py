@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from centosstudio.errors import CentOSStudioError
+from centosstudio.util   import pps
 
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
@@ -29,7 +30,13 @@ class PublishSetupEventTestCase(EventTestCase):
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'kickstart'
-  _conf = "<publish><kickstart></kickstart></publish>"
+  _conf = """<publish>
+  <kickstart >
+  <include xmlns='http://www.w3.org/2001/XInclude'
+           href='%s/../../share/centosstudio/examples/ks.cfg'
+           parse='text'/>
+  </kickstart>
+  </publish>""" % pps.path(__file__).dirname.abspath() 
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -39,7 +46,6 @@ class KickstartEventTestCase(EventTestCase):
 
 class Test_KickstartIncludesAdditions(KickstartEventTestCase):
   "kickstart includes additional items"
-  _conf = "<publish><kickstart></kickstart></publish>"
 
   def setUp(self):
     EventTestCase.setUp(self)
