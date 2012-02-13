@@ -524,10 +524,10 @@ class AllEvent(Event):
       version = 1.01,
       properties = CLASS_META,
       suppress_run_message = True,
-      config_base = '/*',
+      config_base = '.', # used for global macro expansion (done in validate)
     )
 
-    # expand global macros
+    # global macros
     self.macros = {'%{name}':     self.name,
                    '%{version}':  self.version,
                    '%{arch}':     self.userarch,

@@ -48,7 +48,10 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     self.DATA['variables'].append('release_mixin_version')
     self.DATA['config'].append(self.rpmxpath)
 
-    self.webpath = webpath
+    # use webpath property if already set (i.e. in test-install and test-update
+    # modules) otherwise use passed in value
+    if not hasattr(self, 'webpath'): self.webpath = webpath
+
     self.masterrepo = '%s-%s' % (self.name, 
                       hashlib.md5(self.solutionid).hexdigest()[-6:])
     self.files_cb = files_cb

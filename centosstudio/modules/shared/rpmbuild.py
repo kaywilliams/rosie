@@ -198,7 +198,7 @@ class RpmBuildObject:
                                        'rpm.version'])
 
   def save_release(self):
-    root = self.ptr.datfile
+    root = datfile.parse(basefile=self.ptr._config.file)
     uElement = datfile.uElement
 
     rpms     = uElement('rpms', parent=root)
