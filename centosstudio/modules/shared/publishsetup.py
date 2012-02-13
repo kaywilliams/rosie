@@ -38,8 +38,7 @@ class PublishSetupEventMixin:
     self.conditionally_requires.add('publish-setup-options')
     self.DATA['variables'].append('publish_mixin_version')
 
-    # get attributes the first time prior to macro resolution
-    self.get_attribs()
+    self.datfile = datfile.parse(basefile=self._config.file)
 
     # set macros
     self.macros = {'%{url}':  str(self.webpath),
@@ -51,11 +50,6 @@ class PublishSetupEventMixin:
         self.macros['%%{%s}' % attribute.replace('_','-')] = \
                     eval('self.%s' % attribute)
 
-  def setup(self):
-    # get attributes again after macros have been resolved
-    self.get_attribs()
-    self.write_datfile()
-
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
@@ -64,20 +58,50 @@ class PublishSetupEventMixin:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
+  # set our attributes using properties so they will update dynamically 
+  # after macros have been resolved
+  @property
+  def localpath(self):
+    return self.get_local()
 
-  #------ Helper Methods ------#
-  def get_attribs(self):
-    self.datfile = datfile.parse(basefile=self._config.file) 
-    self.localpath = self.get_local()
-    self.webpath   = self.get_remote()
-    self.hostname  = self.get_hostname()
-    self.password, self.crypt_password  = self.get_password()
-    self.allow_reinstall = self.get_allow_reinstall()
-    self.boot_options = self.get_bootoptions()
+  @property
+  def webpath(self):
+    return self.get_remote()
 
-  def get_local(self):
+  @property
+  def hostname(self):
+    return self.get_hostname()
+
+  @property
+  def password(self):
+    return self.get_password()
+
+  @property
+  def crypt_password(self):
+    return self.get_cryptpw(self.password)
+
+  @property
+  def allow_reinstall(self):
+    return self.get_allow_reinstall()
+
+  @property
+  def boot_options(self):
+    return self.get_bootoptions()
+
+  def setup(self):
+
+    # set DATA in setup after macros have been resolved in validate
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
+    self.DATA['config'].append('remote-url')
+    self.DATA['config'].append('@hostname')
+    self.DATA['config'].append('@allow-reinstall')
+    self.DATA['config'].append('boot-options')
+
+    self.write_datfile()
+
+  #------ Helper Methods ------#
+  def get_local(self):
     if self.moduleid == 'publish':
       default = '/var/www/html/solutions'
     else:
@@ -87,7 +111,6 @@ class PublishSetupEventMixin:
     return local / self.solutionid
   
   def get_remote(self): 
-    self.DATA['config'].append('remote-url')
     if self.moduleid == 'publish':
       default = 'solutions'
     else:
@@ -122,7 +145,6 @@ class PublishSetupEventMixin:
     return 'http://'+realm+'/'+default
 
   def get_hostname(self):
-    self.DATA['config'].append('@hostname')
     if self.moduleid == 'publish':
       default = self.solutionid
     else:
@@ -131,7 +153,6 @@ class PublishSetupEventMixin:
     return self.config.get('@hostname', default)
 
   def get_allow_reinstall(self):
-    self.DATA['config'].append('@allow-reinstall')
     if self.moduleid == 'test-install':
       allow_reinstall = True
     else:
@@ -140,7 +161,6 @@ class PublishSetupEventMixin:
     return allow_reinstall
 
   def get_bootoptions(self):
-    self.DATA['config'].append('boot-options')
     if self.moduleid == 'publish':
       default = 'lang=en_US keymap=us'
     else:
@@ -160,11 +180,7 @@ class PublishSetupEventMixin:
       password = (self.config.get('@password', '') or 
                   self.cvars['publish-setup-options']['password'])
 
-    crypt_password = self.get_cryptpw(password)
-
-    #print "final password: ", password
-    #print "final crypt_password: ", crypt_password
-    return (password, crypt_password)
+    return password
 
   def gen_password(self):
     size = 8 
@@ -196,7 +212,8 @@ class PublishSetupEventMixin:
     return crypt(password, salt)
 
   def write_datfile(self):
-    root = self.datfile
+  
+    root = datfile.parse(basefile=self._config.file)
     uElement = datfile.uElement
 
     parent   = uElement(self.moduleid, parent=root)
