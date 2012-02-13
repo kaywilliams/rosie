@@ -169,13 +169,13 @@ class PublishSetupEventMixin:
     return self.config.get('boot-options/text()', default)
 
   def get_password(self):
-    #print "\nmodule: ", self.moduleid
-    #print "saved password: ", self.datfile.get('/*/%s/password/text()' % self.moduleid, None) 
-    #print "saved cryptpw: ", self.datfile.get('/*/%s/crypt-password/text()' % self.moduleid, None)
+    if hasattr(self, '_password'):
+      return self._password # only generate a password once
     if self.moduleid == 'publish':
       password = (self.config.get('@password', '') or 
-                  self.datfile.get('/*/%s/password/text()' % self.moduleid, '') 
-                  or self.gen_password())
+                  self.datfile.get('/*/%s/password/text()' % self.moduleid, ''))
+      if not password:
+        self._password = self.gen_password()
     else:
       password = (self.config.get('@password', '') or 
                   self.cvars['publish-setup-options']['password'])
@@ -203,13 +203,16 @@ class PublishSetupEventMixin:
     return cryptpw or self.encrypt_password(password)
 
   def encrypt_password(self, password, salt=None):
+    if hasattr(self, '_crypt_password'): 
+      return self._crypt_password # only generate new encryption once
     if salt is None:
       salt_pop = string.letters + string.digits + '.' + '/'
       salt = ''
       for i in range(8):
         salt = salt + choice(salt_pop)
       salt = '$6$' + salt
-    return crypt(password, salt)
+    self._crypt_password = crypt(password, salt)
+    return self._crypt_password
 
   def write_datfile(self):
   
@@ -226,9 +229,10 @@ class PublishSetupEventMixin:
       password = uElement('password', parent=parent, text=None)
 
     # set crypt_password
-    if self.password != self.cvars.setdefault(
-                        'publish-setup-options', {}).setdefault(
-                        'password', ''):
+    if (self.moduleid == 'publish' or 
+        self.password != self.cvars.setdefault(
+                         'publish-setup-options', {}).setdefault(
+                         'password', '')):
       crypt_password = uElement('crypt-password', parent=parent, 
                        text=self.crypt_password)
     else:
