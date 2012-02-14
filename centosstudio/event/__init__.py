@@ -248,3 +248,6 @@ class DummyConfig(object):
       return pps.path(fallback) 
     else:
       return fallback 
+
+  def resolve_macros(self, xpaths=None, map=None):
+    pass
