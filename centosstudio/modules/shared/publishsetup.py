@@ -38,9 +38,19 @@ class PublishSetupEventMixin:
     self.conditionally_requires.add('publish-setup-options')
     self.DATA['variables'].append('publish_mixin_version')
 
+  def setup(self):
     self.datfile = datfile.parse(basefile=self._config.file)
 
-    # set macros
+    # set attributes
+    self.localpath = self.get_local()
+    self.webpath = self.get_remote()
+    self.hostname = self.get_hostname()
+    self.password = self.get_password()
+    self.crypt_password = self.get_cryptpw(self.password)
+    self.allow_reinstall = self.get_allow_reinstall()
+    self.boot_options = self.get_bootoptions()
+
+    # resolve module macros
     self.macros = {'%{url}':  str(self.webpath),
                    '%{hostname}': self.hostname,
                    '%{password}': self.password,
@@ -50,6 +60,8 @@ class PublishSetupEventMixin:
         self.macros['%%{%s}' % attribute.replace('_','-')] = \
                     eval('self.%s' % attribute)
 
+    self.config.resolve_macros('.', self.macros)
+
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
@@ -58,39 +70,7 @@ class PublishSetupEventMixin:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
-  # set our attributes using properties so they will update dynamically 
-  # after macros have been resolved
-  @property
-  def localpath(self):
-    return self.get_local()
-
-  @property
-  def webpath(self):
-    return self.get_remote()
-
-  @property
-  def hostname(self):
-    return self.get_hostname()
-
-  @property
-  def password(self):
-    return self.get_password()
-
-  @property
-  def crypt_password(self):
-    return self.get_cryptpw(self.password)
-
-  @property
-  def allow_reinstall(self):
-    return self.get_allow_reinstall()
-
-  @property
-  def boot_options(self):
-    return self.get_bootoptions()
-
-  def setup(self):
-
-    # set DATA in setup after macros have been resolved in validate
+    # set DATA 
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
     self.DATA['config'].append('remote-url')
