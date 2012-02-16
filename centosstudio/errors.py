@@ -80,6 +80,9 @@ class CentOSStudioEventError(CentOSStudioError):
   def __str__(self):
     return self.message % self.map
 
+class SimpleCentOSStudioEventError(CentOSStudioEventError):
+  message = "%(message)s\n"
+
 class CentOSStudioIOError(CentOSStudioEventError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
