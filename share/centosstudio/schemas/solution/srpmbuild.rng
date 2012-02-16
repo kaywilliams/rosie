@@ -4,14 +4,12 @@
 
     <element name="solution">
       <optional>
-      <element name="rpmbuild">
+      <element name="srpmbuild">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <interleave>
-
-        <optional><element name="definition"><text/></element></optional>
 
         <zeroOrMore>
         <element name="srpm">

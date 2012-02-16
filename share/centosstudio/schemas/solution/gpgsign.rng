@@ -1,0 +1,27 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+
+    <element name="solution">
+      <optional>
+      <element name="gpgsign">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <optional>
+        <interleave>
+        <element name="public"><text/></element>
+        <element name="secret"><text/></element>
+        <optional><element name="passphrase"><text/></element></optional>
+        </interleave>
+        </optional>
+
+      </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+</grammar>
