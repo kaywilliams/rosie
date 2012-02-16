@@ -166,7 +166,7 @@ class RpmBuildObject:
   def setup_build(self, release=None, **kwargs):
     self.force_release = release
 
-    self.release = self.ptr.datfile.get('/*/rpms/%s/release/text()' %
+    self.release = self.ptr.datfile.get('/*/%s/release/text()' %
                                    (self.ptr.id), '0')
 
     self.obsoletes.extend(self.ptr.config.xpath('%s/obsoletes/text()' % 
@@ -202,8 +202,7 @@ class RpmBuildObject:
     root = datfile.parse(basefile=self.ptr._config.file)
     uElement = datfile.uElement
 
-    rpms     = uElement('rpms', parent=root)
-    parent   = uElement(self.ptr.id, parent=rpms)
+    parent   = uElement(self.ptr.id, parent=root)
     release  = uElement('release', parent=parent, text=self.release)
 
     root.write()
