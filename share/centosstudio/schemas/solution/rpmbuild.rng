@@ -10,20 +10,11 @@
         </optional>
 
         <interleave>
-        <optional>
-        <element name="gpgsign">
-          <interleave>
-          <element name="public"><text/></element>
-          <element name="secret"><text/></element>
-          <optional><element name="passphrase"><text/></element></optional>
-          </interleave>
-        </element>
-        </optional>
 
         <optional><element name="definition"><text/></element></optional>
 
         <zeroOrMore>
-        <element name="rpm">
+        <element name="srpm">
 
           <attribute name="id">
             <data type="ID"/>
@@ -32,9 +23,9 @@
           <interleave>
 
           <choice>
-          <element name="srpm-repo"><text/></element>
-          <element name="srpm-path"><text/></element>
-          <element name="srpm-script"><text/></element>
+          <element name="repo"><text/></element>
+          <element name="path"><text/></element>
+          <element name="script"><text/></element>
           </choice>
 
           <optional>

@@ -149,13 +149,11 @@ class PublishSetupEventMixin:
     return self.config.get('boot-options/text()', default)
 
   def get_password(self):
-    if hasattr(self, '_password'):
-      return self._password # only generate a password once
     if self.moduleid == 'publish':
       password = (self.config.get('@password', '') or 
                   self.datfile.get('/*/%s/password/text()' % self.moduleid, ''))
       if not password:
-        self._password = self.gen_password()
+        password = self.gen_password()
     else:
       password = (self.config.get('@password', '') or 
                   self.cvars['publish-setup-options']['password'])
@@ -183,16 +181,13 @@ class PublishSetupEventMixin:
     return cryptpw or self.encrypt_password(password)
 
   def encrypt_password(self, password, salt=None):
-    if hasattr(self, '_crypt_password'): 
-      return self._crypt_password # only generate new encryption once
     if salt is None:
       salt_pop = string.letters + string.digits + '.' + '/'
       salt = ''
       for i in range(8):
         salt = salt + choice(salt_pop)
       salt = '$6$' + salt
-    self._crypt_password = crypt(password, salt)
-    return self._crypt_password
+    return crypt(password, salt)
 
   def write_datfile(self):
   

@@ -186,9 +186,10 @@ class RpmBuildObject:
 
     if 'gpg-signing-keys' in self.ptr.cvars:
       self.gpgsign = self.ptr.cvars['gpg-signing-keys'] # convenience variable
-      self.ptr.DATA['input'].extend([self.gpgsign['pubkey'], 
-                                     self.gpgsign['seckey']])
-      self.ptr.DATA['variables'].append('cvars[\'gpg-signing-keys\'][\'passphrase\']')
+      self.pubtext = self.gpgsign['pubkey'].read_text().rstrip()
+      self.sectext = self.gpgsign['seckey'].read_text().rstrip()
+      self.ptr.DATA['variables'].extend(['rpm.pubtext', 'rpm.sectext', 
+                                         'rpm.gpgsign[\'passphrase\']'])
 
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')

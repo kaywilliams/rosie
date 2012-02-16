@@ -18,6 +18,7 @@
 import optparse
 import os
 import re
+import rpmUtils 
 import signal 
 import subprocess
 import yum
@@ -29,10 +30,13 @@ from centosstudio.util import shlib
 from centosstudio.util.rxml        import datfile
 from centosstudio.util.rxml.errors import XmlPathError
 
+from centosstudio.util.pps.constants import TYPE_NOT_DIR
+
 from centosstudio.callback     import TimerCallback
 from centosstudio.cslogging    import L1, MSG_MAXWIDTH
 from centosstudio.errors       import (CentOSStudioError, 
-                                       CentOSStudioEventError)
+                                       CentOSStudioEventError,
+                                       SimpleCentOSStudioEventError)
 from centosstudio.main         import Build
 from centosstudio.validate     import (DefinitionValidator,
                                        InvalidConfigError)
@@ -57,7 +61,7 @@ baseurl = %s
 '''
 
 # -------- Metaclass for creating RPM Events -------- #
-class RPMEvent(type):
+class SRPMEvent(type):
   def __new__(meta, classname, supers, classdict):
     return type.__new__(meta, classname, supers, classdict)
 
@@ -65,13 +69,13 @@ class RPMEvent(type):
 # -------- Methods for RPM Events -------- #
 def __init__(self, ptr, *args, **kwargs):
   Event.__init__(self,
-    id = self.rpmid + "-rpm", # self.rpmid provided during class creation
+    id = self.srpmid + "-srpm", # self.srpmid provided during class creation
     parentid = 'rpmbuild',
     ptr = ptr,
     version = 1.01,
     requires = ['rpmbuild-data', 'build-machine'],
     provides = ['repos', 'source-repos', 'comps-object'],
-    config_base = '/*/rpmbuild/rpm[@id=\'%s\']' % self.rpmid,
+    config_base = '/*/rpmbuild/srpm[@id=\'%s\']' % self.srpmid,
   )
 
   self.DATA = {
@@ -84,7 +88,7 @@ def __init__(self, ptr, *args, **kwargs):
   self.srpm_dir = self.mddir / 'srpm'
   self.srpm_dir.mkdirs()
 
-  self.macros = {'%{rpmid}': self.rpmid,
+  self.macros = {'%{srpmid}': self.srpmid,
                  '%{srpm-dir}': self.srpm_dir,
                 }
 
@@ -93,15 +97,38 @@ def setup(self):
   self.diff.setup(self.DATA)
   ExecuteMixin.setup(self)
 
-  # add srpm if path provided (add_xpath ignores request if xpath missing)
-  self.io.add_xpath('srpm-path', self.srpm_dir)
+  path = pps.path(self.config.get('path/text()', ''))
+  repo = pps.path(self.config.get('repo/text()', ''))
+  script = self.config.get('script/text()', '')
 
-  # find srpm in srpm repository if repository provided
-  url = pps.path(self.config.get('srpm-repo/text()', ''))
-  if url:
+  if path: # add srpm from file path
+    if path.endswith('.src.rpm'): # add the file
+      self.io.add_xpath('path', self.srpm_dir) # fileio performs validation
+
+    else: # add the most current matching srpm
+      srpms = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
+                             glob='%s*' % self.srpmid)
+      if not srpms: 
+        raise SrpmNotFoundError(name=self.srpmid, path=path)
+
+      while len(srpms) > 1:
+        print "srpms:", srpms
+        srpm1 = srpms.pop()
+        srpm2 = srpms.pop()
+        _,v1,r1,e1,_  = rpmUtils.misc.splitFilename(srpm1.basename)
+        _,v2,r2,e2,_  = rpmUtils.misc.splitFilename(srpm2.basename)
+        result = rpmUtils.misc.compareEVR((e1,v1,r1),(e2,v2,r2))
+        if result < 1: # srpm2 is newer, return it to the list
+          srpms.insert(0, srpm2)
+        else: # srpm1 is newer, or they are the same
+          srpms.insert(0, srpm1)
+
+      self.io.add_xpath('path', self.srpm_dir)
+
+  elif repo: # find srpm in srpm repository
     yumconf = self.mddir / 'yum/yum.conf'
     yumconf.dirname.mkdirs()
-    yumconf.write_text(YUMCONF % url)
+    yumconf.write_text(YUMCONF % repo)
 
     try:
       yb = yum.YumBase()
@@ -112,29 +139,43 @@ def setup(self):
       yb.conf.cache = 0
       yb.doRepoSetup()
       yb.doSackSetup(archlist=['src'])
-      pl = yb.doPackageLists(patterns=[self.rpmid])
+      pl = yb.doPackageLists(patterns=[self.srpmid])
+      del yb; yb = None
     except yum.Errors.RepoError, e:
-      raise InvalidRepoError(url=url)
+      raise InvalidRepoError(url=repo)
 
     if pl.available:
-      self.io.add_fpath( url / '%s.rpm' % str(pl.available[0]), self.srpm_dir )
+      self.io.add_fpath( repo / '%s.rpm' % str(pl.available[0]), self.srpm_dir )
     else:
-      raise SrpmNotFoundError(name=self.rpmid, url=url)
+      raise SrpmNotFoundError(name=self.srpmid, path=repo)
 
-  # execute user-provided script to create and copy srpm to a dir we specify
-  if self.config.get('srpm-script/text()', ''):
-    script = self.mddir / 'srpm_script'
-    script.write_text(self.config.get('srpm-script/text()'))
-    script.chmod(0750)
+  elif script: # execute user-provided script 
+    script_file = self.mddir / 'script'
+    script_file.write_text(self.config.get('script/text()'))
+    script_file.chmod(0750)
 
-    self._execute_local(script)
-    
+    self._execute_local(script_file)
 
+    results = self.srpm_dir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
+                                      maxdepth=1)
 
-
+    if not results:
+      message = ("The script provided for the '%s' srpm did not output an "
+                 "srpm beginning with '%s' and ending with '.src.rpm' in the "
+                 "location specified by the %%{srpm-dir} macro. See the "
+                 "CentOS Studio documentation for information on using the "
+                 "srpm/script element." % (self.srpmid, self.srpmid))
+      raise SimpleCentOSStudioEventError(message=message)
+    elif len(results) > 1:
+      message = "more than one result: %s" % results
+      raise SimpleCentOSStudioEventError(message=message)
+    else:
+      self.DATA['input'].append(results[0])
 
 def run(self):
   self.io.process_files(cache=True)
+  
+  #test if rpm with same nevra already exists
   
 # -------- provide module information to dispatcher -------- #
 def get_module_info(ptr, *args, **kwargs):
@@ -145,7 +186,7 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
   # create event classes based on user configuration
-  for config in ptr.definition.xpath('/*/rpmbuild/rpm', []):
+  for config in ptr.definition.xpath('/*/rpmbuild/srpm', []):
 
     # convert user provided id to a valid class name
     id = config.get('@id')
@@ -153,9 +194,9 @@ def get_module_info(ptr, *args, **kwargs):
     name = '%sRpmEvent' % name.capitalize()
 
     # create new class
-    exec """%s = RPMEvent('%s', 
+    exec """%s = SRPMEvent('%s', 
                           (ExecuteMixin, Event), 
-                          { 'rpmid'   : '%s',
+                          { 'srpmid'   : '%s',
                             '__init__': __init__,
                             'setup'   : setup,
                             'run'     : run,
@@ -176,147 +217,12 @@ class RpmBuildEvent(Event):
       ptr = ptr,
       properties = CLASS_META,
       version = '1.00',
-      requires = ['publish-setup-options'],
-      provides = ['rpmbuild-data','gpg-signing-keys', 'os-content',],
-      suppress_run_message = False 
+      provides = ['rpmbuild-data',],
+      suppress_run_message = True 
     )
 
-    self.DATA = {
-      'config':    ['.'],
-      'input':     [],
-      'variables': [],
-      'output':    []
-    }
-
   def setup(self):
-    self.diff.setup(self.DATA)
     self.cvars['rpmbuild-data'] = {}
-
-    self.pubkey = self.mddir/'RPM-GPG-KEY-%s' % self.solutionid
-    self.seckey = self.mddir/'RPM-GPG-KEY-%s-secret' % self.solutionid
-    if self.config.get('gpgsign/passphrase/text()', None) is None:
-      self.passphrase=''
-    else:
-      self.passphrase = str(self.config.get('gpgsign/passphrase/text()'))
-
-    self.DATA['variables'].extend(['pubkey', 'seckey', 'passphrase'])
-
-  def run(self):
-    self.get_signing_keys()
-    self.DATA['output'].extend([self.pubkey, self.seckey])
-
-  def apply(self):
-    self.cvars['gpg-signing-keys'] = { 'pubkey': self.pubkey,
-                                       'seckey': self.seckey,
-                                       'passphrase': self.passphrase }
-
-  def verify_pubkey_exists(self):
-    "pubkey exist"
-    self.verifier.failUnlessExists(self.pubkey)
-
-  def verify_seckey_exists(self):
-    "seckey exist"
-    self.verifier.failUnlessExists(self.seckey)
-
-  #------- Helper Methods -------#
-
-  def get_signing_keys(self):
-    if not hasattr(self, 'datfile'): 
-      self.datfile = datfile.parse(self._config.file)
-
-    if self.config.get('gpgsign', None) is None:
-      self.get_keys_from_datfile() or self.create_keys()
-    else:
-      self.get_keys_from_config() 
-
-  def get_keys_from_config(self):
-    pubtext = self.config.get('gpgsign/public/text()', '')
-    sectext = self.config.get('gpgsign/secret/text()', '')
-    self.write_keys(pubtext, sectext)
-    self.validate_keys(map = { self.pubkey: 'public', self.seckey: 'secret' })
-
-
-    # remove generated keys from datfile, if exist
-    for key in ['pubkey', 'seckey']:
-      elem = self.datfile.get('/*/rpms/%s/%s' % (self.id, key), None)
-      if elem is not None:
-        elem.getparent().remove(elem)
-
-    self.datfile.write()
-
-  def get_keys_from_datfile(self):
-    try:
-      pubtext = self.datfile.get('/*/rpms/%s/pubkey/text()' % self.id,)
-      sectext = self.datfile.get('/*/rpms/%s/seckey/text()' % self.id,)
-    except XmlPathError:
-      return False # no keys in datfile
-   
-    self.write_keys(pubtext, sectext)
-
-    return True # keys in datfile
-
-  def create_keys(self):
-    homedir = self.mddir/'homedir'
-    pubring = homedir/'pubring.gpg'
-    secring = homedir/'secring.gpg'
-
-    homedir.rm(recursive=True, force=True)
-    homedir.mkdir()
-    homedir.chmod(0700)
-
-    name = "%s signing key" % self.solutionid
-
-    cmd = """gpg --quiet --batch --gen-key <<EOF
-     Key-Type: DSA
-     Key-Length: 1024
-     Subkey-Type: ELG-E
-     Subkey-Length: 1024
-     Name-Real: %s
-     Expire-Date: 0
-     %%pubring %s
-     %%secring %s
-EOF""" % (name, pubring, secring)
-
-    rngd = pps.path('/sbin/rngd')
-
-    self.logger.log(2, L1('generating GPG Signing Key'))
-    if rngd.exists():
-      # use rngd to speed gpgkey generation, slightly less secure, but
-      # sufficient for RPM-GPG-KEY scenarios.
-      p = subprocess.Popen([rngd, '-f', '-r', '/dev/urandom'],
-                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    try:
-      shlib.execute(cmd)
-    finally:
-      if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
-
-    shlib.execute('gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
-                   self.pubkey))
-    shlib.execute('gpg --export-secret-key -a --homedir %s "%s" > %s' % (
-                   homedir, name, self.seckey))
-
-    # write to datfile
-    root = self.datfile
-    uElement = datfile.uElement
-
-    rpms     = uElement('rpms', parent=root)
-    parent   = uElement(self.id, parent=rpms)
-    pubkey   = uElement('pubkey', parent=parent, text=self.pubkey.read_text())
-    seckey   = uElement('seckey', parent=parent, text=self.seckey.read_text())
-
-    root.write()
-
-  def write_keys(self, pubtext, sectext):
-    if not self.pubkey.exists() or not pubtext == self.pubkey.read_text():
-      self.pubkey.write_text(pubtext)
-    if not self.seckey.exists() or not sectext == self.seckey.read_text():
-      self.seckey.write_text(sectext)
-
-  def validate_keys(self, map):
-    for key in map:
-      if not magic.match(key) == eval(
-        'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
-        raise InvalidKeyError(map[key])
 
 
 class BuildMachineEvent(PickleMixin):
@@ -431,7 +337,7 @@ class InvalidRepoError(CentOSStudioEventError):
              "'%(url)s'. Please verify its path and try again.\n")
 
 class SrpmNotFoundError(CentOSStudioEventError):
-  message = "No srpm '%(name)s' found at '%(url)s'\n" 
+  message = "No srpm '%(name)s' found at '%(path)s'\n" 
 
 class BuildMachineCreationError(CentOSStudioEventError):
   message = "Error creating or updating RPM build machine.\n%(sep)s\n%(idstr)s--> build machine definition: %(definition)s\n--> error:%(error)s\n"

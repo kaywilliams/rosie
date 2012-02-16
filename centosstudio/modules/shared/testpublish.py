@@ -41,10 +41,6 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
 
-  def clean(self):
-    Event.clean(self)
-    self.localpath.rm(recursive=True, force=True) #publish path
-
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
@@ -81,7 +77,11 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     else:
       self.kstext = ''
 
-  def run(self):
+  def run(self): 
+    #clean publish path if event was forced
+    if self.forced:
+      self.localpath.rm(recursive=True, force=True)
+
     # sync files from compose (os-dir) folder
     self.SOFTWARE_STORE.rm(force=True)
     self.io.process_files(link=True, text="preparing %s repository" 

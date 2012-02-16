@@ -26,7 +26,7 @@ from centosstudio.modules.shared import (PickleMixin, RpmBuildMixin,
                                          Trigger, TriggerContainer)
 
 class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
-  release_mixin_version = "1.22"
+  release_mixin_version = "1.23"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
@@ -92,17 +92,18 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
                [YumRepo(id='dummy', gpgkey=self.cvars['gpg-signing-keys']
                                                      ['pubkey'])])
 
+    self.gpgkeys = {}
     for repo in repos:
       for url in repo.gpgkey:
         try:
-          self.io.add_fpath(url,
-            self.gpgkey_dir,
-            destname='RPM-GPG-KEY-%s' % \
-              yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
-              str(repo)))[0]['hexkeyid'].lower(),
-            id='gpgkeys')
+          id = yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
+               str(repo)))[0]['hexkeyid']
+          self.gpgkeys[id] = url
         except yum.Errors.YumBaseError, e:
           raise MissingGPGKeyError(file=url, repo=repo.id)
+
+    self.keyids = self.gpgkeys.keys() # only track changes to keyids, not urls
+    self.DATA['variables'].append('keyids')
 
   def run(self):
     for path in [ self.pklfile, self.gpgkey_dir ]:
@@ -110,10 +111,21 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     RpmBuildMixin.run(self)
 
   def generate(self):
-    for what in ['gpgkeys']:
-      self.io.process_files(cache=True, callback=self.files_cb, 
-                            text=self.files_text, what=what)
+    if self.cvars['gpgcheck-enabled']:
+      # download gpgkeys - we're doing this manually rather than using 
+      # process_files because we don't want to track keys as input. Doing so 
+      # causes the release rpm to be regenerated each time the url to an input 
+      # gpgkey changes, and we want the release rpm to be immune to this class
+      # of changes
+      self.gpgkey_dir.mkdirs()
+      self.localkeys = []
+      for url in self.gpgkeys.values():
+        url.cp(self.gpgkey_dir)
+        local = self.gpgkey_dir / url.basename
+        self.localkeys.append(local)
+        self.DATA['output'].append(local)
 
+    # generate repofile
     self._generate_repofile()
     if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
         self.type == "system"):
@@ -161,21 +173,18 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
       self.pklfile.rm(force=True)
       return []
 
-    # get list of keys
-    gpgkeys = set(self.io.list_output(what='gpgkeys'))
-
     # cache for future
-    self.pickle({'gpgkeys': gpgkeys})
+    self.pickle({'gpgkeys': self.localkeys})
 
     # create gpgkey list for use by yum sync plugin
     listfile = self.gpgkey_dir/'gpgkey.list'
-    lines = [x.basename for x in gpgkeys]
+    lines = [x.basename for x in self.localkeys]
     listfile.write_lines(lines)
     self.DATA['output'].append(listfile)
 
     # convert keys to remote urls for use in repofile
     remotekeys = set([(self.webpath/x[len(self.SOFTWARE_STORE+'/'):])
-                       for x in gpgkeys])
+                       for x in self.localkeys])
 
     return remotekeys
 

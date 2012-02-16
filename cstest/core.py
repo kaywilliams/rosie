@@ -17,7 +17,7 @@
 #
 import unittest
 
-from cstest import EventTestCaseDummy, decorate
+from cstest import EventTestCase, EventTestCaseDummy, decorate
 
 from centosstudio.errors import CentOSStudioError
 
@@ -203,6 +203,10 @@ def ExtensionEventTestCase01(self):
   def runTest():
     self.failUnlessExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
+  def tearDown(): # go straight to base tearDown since event didn't actually run
+    EventTestCase.tearDown(self)
+
   decorate(self, 'setUp', prefn=pre_setup)
   self.runTest = runTest
+  self.tearDown = tearDown
   return self

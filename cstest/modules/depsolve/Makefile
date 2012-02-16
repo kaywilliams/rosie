@@ -1,28 +1,29 @@
+BUILDREPOS = $(PWD)/../shared/buildrepos
+
 all : depsolve-test-repos1.repo depsolve-test-repos2.repo depsolve-test-repos3.repo depsolve-test-repos4.repo depsolve-test-repos5.repo depsolve-test-repos6.repo
 
-
 depsolve-test-repos1.repo: depsolve-test-repos1.xml
-	buildrepos --config-file depsolve-test-repos1.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos1.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos1.repo
 
 depsolve-test-repos2.repo: depsolve-test-repos2.xml
-	buildrepos --config-file depsolve-test-repos2.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos2.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos2.repo
 
 depsolve-test-repos3.repo: depsolve-test-repos3.xml
-	buildrepos --config-file depsolve-test-repos3.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos3.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos3.repo
 
 depsolve-test-repos4.repo: depsolve-test-repos4.xml
-	buildrepos --config-file depsolve-test-repos4.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos4.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos4.repo
 
 depsolve-test-repos5.repo: depsolve-test-repos5.xml
-	buildrepos --config-file depsolve-test-repos5.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos5.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos5.repo
 
 depsolve-test-repos6.repo: depsolve-test-repos6.xml
-	buildrepos --config-file depsolve-test-repos6.xml \
+	$(BUILDREPOS) --config-file depsolve-test-repos6.xml \
 	--repo-file /tmp/cstest/depsolve-test-repos6.repo
 
 clean :
