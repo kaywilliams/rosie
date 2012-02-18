@@ -27,18 +27,20 @@ from centosstudio.errors  import (CentOSStudioEventError,
                                   SimpleCentOSStudioEventError)
 from centosstudio.event    import Event, CLASS_META
 
-from centosstudio.modules.shared import ExecuteMixin
+from centosstudio.modules.shared import (ExecuteMixin, PickleMixin, 
+                                         SystemVirtConfigError)
+
 
 YUMCONF = '''
 [main]
-cachedir=
+cachedir=/
+persistdir=/
 logfile=/depsolve.log
 gpgcheck=0
 reposdir=/
-reposdir=/
 exclude=*debuginfo*
 
-[srpm_repo]
+[%s]
 name = Source RPM Repo
 baseurl = %s
 '''
@@ -52,13 +54,13 @@ class SrpmBuildEvent(type):
 # -------- Methods for SRPM Build Events -------- #
 def __init__(self, ptr, *args, **kwargs):
   Event.__init__(self,
-    id = self.srpmid + "-srpm", # self.srpmid provided during class creation
+    id = '%s-%s' % (self.moduleid, self.srpmid), 
     parentid = 'rpmbuild',
     ptr = ptr,
-    version = 1.01,
+    version = 1.02,
     requires = ['rpmbuild-data', 'build-machine'],
     provides = ['repos', 'source-repos', 'comps-object'],
-    config_base = '/*/rpmbuild/srpm[@id=\'%s\']' % self.srpmid,
+    config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
   )
 
   self.DATA = {
@@ -68,84 +70,106 @@ def __init__(self, ptr, *args, **kwargs):
     'output':    [],
   }
 
-  self.srpm_dir = self.mddir / 'srpm'
-  self.srpm_dir.mkdirs()
+  self.srpmfile = ''
+  self.srpmdir  = self.mddir / 'srpm'
+  PickleMixin.__init__(self)
 
-  self.macros = {'%{srpmid}': self.srpmid,
-                 '%{srpm-dir}': self.srpm_dir,
-                }
-
+def validate(self):
+  try:
+    exec "import libvirt" in globals()
+    exec "from virtinst import CloneManager" in globals()
+  except ImportError:
+    raise SystemVirtConfigError(file=self._config.file)
 
 def setup(self):
   self.diff.setup(self.DATA)
   ExecuteMixin.setup(self)
 
+  # resolve macros
+  srpmlast = self.unpickle().get('srpmlast', '')
+  macros = {'%{srpm-id}': self.srpmid,
+            '%{srpm-dir}': self.srpmdir,
+            '%{srpm-last}': srpmlast,
+           }
+  self.config.resolve_macros('.', macros)
+
   path = pps.path(self.config.get('path/text()', ''))
   repo = pps.path(self.config.get('repo/text()', ''))
   script = self.config.get('script/text()', '')
 
-  if path: # add srpm from file path
+  # add srpm from file path
+  if path: 
     if path.endswith('.src.rpm'): # add the file
-      self.io.add_xpath('path', self.srpm_dir) # fileio performs validation
+      if not path.exists(): 
+        raise SrpmNotFoundError(name=self.srpmid, path=path)
+      self.io.add_fpath(path, self.srpmdir, id='srpm') 
 
     else: # add the most current matching srpm
-      srpms = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
+      paths = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
                              glob='%s*' % self.srpmid)
-      if not srpms: 
+      if not paths: 
         raise SrpmNotFoundError(name=self.srpmid, path=path)
 
-      while len(srpms) > 1:
-        print "srpms:", srpms
-        srpm1 = srpms.pop()
-        srpm2 = srpms.pop()
-        _,v1,r1,e1,_  = rpmUtils.misc.splitFilename(srpm1.basename)
-        _,v2,r2,e2,_  = rpmUtils.misc.splitFilename(srpm2.basename)
-        result = rpmUtils.misc.compareEVR((e1,v1,r1),(e2,v2,r2))
-        if result < 1: # srpm2 is newer, return it to the list
-          srpms.insert(0, srpm2)
-        else: # srpm1 is newer, or they are the same
-          srpms.insert(0, srpm1)
+      while len(paths) > 1:
+        path1 = paths.pop()
+        path2 = paths.pop()
+        _,v1,r1,e1,_  = rpmUtils.miscutils.splitFilename(path1.basename)
+        _,v2,r2,e2,_  = rpmUtils.miscutils.splitFilename(path2.basename)
+        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
+        if result < 1: # path2 is newer, return it to the list
+          paths.insert(0, path2)
+        else: # path1 is newer, or they are the same
+          paths.insert(0, path1)
 
-      self.io.add_xpath('path', self.srpm_dir)
+      self.io.add_fpath(paths[0], self.srpmdir, id='srpm')
 
-  elif repo: # find srpm in srpm repository
-    yumconf = self.mddir / 'yum/yum.conf'
-    yumconf.dirname.mkdirs()
-    yumconf.write_text(YUMCONF % repo)
+  # add srpm from package repository
+  elif repo:
+    yumdir = self.mddir / 'yum'
+    yumdir.mkdirs()
+    yumconf = yumdir / 'yum.conf'
+    yumconf.write_text(YUMCONF % (self.id, repo))
+    yb = yum.YumBase()
+    yb.preconf.fn = fn=str(yumconf)
+    yb.preconf.root = str(yumdir)
+    yb.preconf.init_plugins = False
+    yb.doRpmDBSetup()
+    yb.conf.cache = 0
+    yb.doRepoSetup(self.id)
 
     try:
-      yb = yum.YumBase()
-      yb.preconf.fn = fn=str(yumconf)
-      yb.preconf.root = str(self.mddir / 'yum')
-      yb.preconf.init_plugins = False
-      yb.doRpmDBSetup()
-      yb.conf.cache = 0
-      yb.doRepoSetup()
-      yb.doSackSetup(archlist=['src'])
-      pl = yb.doPackageLists(patterns=[self.srpmid])
-      del yb; yb = None
-    except yum.Errors.RepoError, e:
+      yb.doSackSetup(archlist=['src'], thisrepo=self.id)
+    except yum.Errors.RepoError:
       raise InvalidRepoError(url=repo)
 
-    if pl.available:
-      self.io.add_fpath( repo / '%s.rpm' % str(pl.available[0]), self.srpm_dir )
-    else:
+    try:
+      srpm = (yb.repos.getRepo(self.id).getPackageSack()
+              .returnNewestByName(name=self.srpmid)[0])
+    except yum.Errors.PackageSackError:
       raise SrpmNotFoundError(name=self.srpmid, path=repo)
+      
+    self.io.add_fpath(srpm.remote_url, self.srpmdir, id='srpm')
+    del yb; yb = None
 
-  elif script: # execute user-provided script 
+  # add srpm from user-provided script 
+  elif script:
+    # start with a clean srpmdir
+    self.srpmdir.rm(recursive=True, force=True) 
+    self.srpmdir.mkdirs()
+
     script_file = self.mddir / 'script'
     script_file.write_text(self.config.get('script/text()'))
     script_file.chmod(0750)
 
     self._execute_local(script_file)
 
-    results = self.srpm_dir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
+    results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
                                       maxdepth=1)
 
     if not results:
       message = ("The script provided for the '%s' srpm did not output an "
                  "srpm beginning with '%s' and ending with '.src.rpm' in the "
-                 "location specified by the %%{srpm-dir} macro. See the "
+                 "location specified by the %%{srpmdir} macro. See the "
                  "CentOS Studio documentation for information on using the "
                  "srpm/script element." % (self.srpmid, self.srpmid))
       raise SimpleCentOSStudioEventError(message=message)
@@ -153,13 +177,50 @@ def setup(self):
       message = "more than one result: %s" % results
       raise SimpleCentOSStudioEventError(message=message)
     else:
-      self.DATA['input'].append(results[0])
+      self.srpmfile = results[0]
+      self.DATA['input'].append(self.srpmfile)
 
 def run(self):
   self.io.process_files(cache=True)
+
+  # cache srpm file and info
+  if self.srpmfile: # srpm provided by script
+    self.DATA['output'].append(self.srpmfile)
+  else: # srpm provided by path or repo
+    self.srpmfile = self.io.list_output(what='srpm')[0] 
+  self.pickle({'srpmlast': self.srpmfile.basename})
   
-  #test if rpm with same nevra already exists
+  #clone build machine
+  self._clone()
+
+  #build rpm
+  #verify rpm
+
+def _clone(self):
+  clone_name = '%s-%s-%s-%s' % (self.moduleid, self.srpmid, self.version,
+                                self.userarch)
+
+  connection = libvirt.open('qemu:///system')
+  domain = connection.lookupByName(self.cvars['build-machine'])
+
+  design = CloneManager.CloneDesign(conn=connection) #fix qemu errors
+  design.original_guest = self.cvars['build-machine']
+  design.clone_name = clone_name #fix qemu errors
+  design.set_preserve(True)
   
+  design.setup_original() # needed to get original_devices below
+
+  for device in design.original_devices:
+    design.clone_devices = CloneManager.generate_clone_disk_path(device, design)
+
+  design.setup()
+
+  #fix spurious warnings
+  #raise RuntimeError
+
+  #pause machine if running
+  #try/finally block to destroy, undefine and delete storage
+
 # -------- provide module information to dispatcher -------- #
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
@@ -178,11 +239,13 @@ def get_module_info(ptr, *args, **kwargs):
 
     # create new class
     exec """%s = SrpmBuildEvent('%s', 
-                          (ExecuteMixin, Event), 
+                          (ExecuteMixin, PickleMixin, Event), 
                           { 'srpmid'   : '%s',
                             '__init__': __init__,
+                            'validate': validate,
                             'setup'   : setup,
                             'run'     : run,
+                            '_clone'  : _clone,
                           }
                          )""" % (name, name, id) in globals()
 

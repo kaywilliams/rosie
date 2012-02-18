@@ -1,7 +1,7 @@
 all: test-repos.repo
 
 test-repos.repo: test-repos.xml
-	buildrepos --config-file test-repos.xml \
+	./buildrepos --config-file test-repos.xml \
 	--repo-file test-repos.repo
 
 clean:

@@ -26,6 +26,7 @@ from centosstudio.main         import Build
 from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.modules.shared import PickleMixin
+from centosstudio.modules.shared import SystemVirtConfigError 
 
 
 def get_module_info(ptr, *args, **kwargs):
@@ -62,9 +63,7 @@ class BuildMachineEvent(PickleMixin):
     try:
       import libvirt
     except ImportError:
-      raise CentOSStudioError(
-        "[%s] System Configuration Error: The definition file at '%s' specifies RPMs to build. However, this machine is not configured for general-purpose RPM building. See the CentOS Studio User Manual for information on system requirements for building RPMs, which include hardware and software support for building and hosting virtual machines."
-        % (self.moduleid, self._config.file))
+      raise SystemVirtConfigError(file=self._config.file)
 
     if not self.config.get('definition/text()', ''):
       raise InvalidConfigError(self._config.file,

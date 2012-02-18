@@ -29,7 +29,8 @@ from centosstudio.cslogging import L1
 
 from centosstudio.util.rxml import datfile 
 
-__all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
+__all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer', 
+           'SystemVirtConfigError']
 
 class RpmBuildMixin:
   def __init__(self, *args, **kwargs):
@@ -398,4 +399,12 @@ class Trigger(dict):
 
 class RpmBuildFailedException(CentOSStudioEventError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"
+
+class SystemVirtConfigError(CentOSStudioEventError):
+  message = ("Virt Configuration Error: The definition "
+             "file at '%(file)s' specifies SRPMs to build. However, this "
+             "machine is not configured for general-purpose RPM building. "
+             "See the CentOS Studio User Manual for information on system "
+             "requirements for building RPMs, which include hardware and "
+             "software support for building and hosting virtual machines.\n")
 

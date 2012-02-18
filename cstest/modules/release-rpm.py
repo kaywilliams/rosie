@@ -21,7 +21,6 @@ from centosstudio.errors   import CentOSStudioError
 from centosstudio.util     import pps
 from centosstudio.util     import repo
 from centosstudio.util     import rxml
-from centosstudio.validate import InvalidConfigError
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 

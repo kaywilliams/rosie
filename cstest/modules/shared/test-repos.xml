@@ -9,6 +9,12 @@
       <force-arch>noarch</force-arch>
     </package>
     <package>
+      <name>package1</name>
+      <version>1.0</version>
+      <release>2</release>
+      <force-arch>noarch</force-arch>
+    </package>
+    <package>
       <name>package2</name>
       <version>1.0</version>
       <release>1</release>
