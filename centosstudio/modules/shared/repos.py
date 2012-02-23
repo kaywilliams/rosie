@@ -266,8 +266,10 @@ class RepoEventMixin:
       # extend gpgkey to include keys from gpgkey.list
       listfile = repo.url.realm / 'gpgkeys/gpgkey.list'
       if listfile.exists():
-        repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url.realm, x) 
-                            for x in listfile.read_lines()])
+        lines = listfile.read_lines()
+        if lines[0].startswith("RPM-GPG-KEY"):
+          repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url.realm, x) 
+                              for x in lines])
 
     # make sure we got at least one repo out of that mess
     if not len(self.repos) > 0:
