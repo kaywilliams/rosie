@@ -26,6 +26,7 @@ from crypt import crypt
 from random import choice
 
 from centosstudio.errors import CentOSStudioEventError
+from centosstudio.errors import SimpleCentOSStudioEventError
 from centosstudio.util   import pps
 from centosstudio.util.rxml import datfile
 
@@ -51,15 +52,24 @@ class PublishSetupEventMixin:
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
-    self.macros = {'%{url}':  str(self.webpath),
-                   '%{hostname}': self.hostname,
-                   '%{password}': self.password,
-                   '%{crypt-password}': self.crypt_password}
-    for attribute in ['boot_options']:
-      if len(eval('self.%s' % attribute)) > 0:
-        self.macros['%%{%s}' % attribute.replace('_','-')] = \
-                    eval('self.%s' % attribute)
-
+    map = {'%{url}':            {'conf':  'remote-url\' element',
+                                  'value':  str(self.webpath)},
+           '%{hostname}':       {'conf':  '@hostname\' attribute',
+                                  'value':  self.hostname},
+           '%{password}':       {'conf':  '@password\' attribute',
+                                  'value':  self.password},
+           '%{crypt-password}': {'value':  self.crypt_password},
+           '%{boot-options}':   {'conf':  'boot-options\' element',
+                                  'value':  self.boot_options},
+           }
+    for key in ['%{url}', '%{hostname}', '%{password}', '%{boot-options}']:
+      if key in map[key]['value']:
+        raise SimpleCentOSStudioEventError(
+          "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
+          (key, self.moduleid, map[key]['conf']))
+    self.macros = {} # making this an instance attr so cstest can access
+    for key in map:
+      self.macros[key] = map[key]['value']
     self.config.resolve_macros('.', self.macros)
 
     # set cvars

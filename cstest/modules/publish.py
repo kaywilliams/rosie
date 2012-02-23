@@ -21,7 +21,8 @@ from centosstudio.util   import pps
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
 
-from cstest.mixins import psm_make_suite
+from cstest.mixins import (psm_make_suite, dm_make_suite, DeployMixinTestCase,
+                           check_vm_config)
 
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
@@ -86,6 +87,13 @@ class PublishEventTestCase(EventTestCase):
                                        ['localpath'])
     EventTestCase.tearDown(self)
 
+class DeployEventTestCase(DeployMixinTestCase):
+  moduleid = 'publish'
+  eventid  = 'deploy'
+
+  def __init__(self, distro, version, arch, conf=None):
+    DeployMixinTestCase.__init__(self, distro, version, arch, conf)
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('publish')
 
@@ -101,4 +109,8 @@ def make_suite(distro, version, arch, *args, **kwargs):
   # publish
   suite.addTest(make_core_suite(PublishEventTestCase, distro, version, arch))
 
+  # deploy
+  if check_vm_config():
+    suite.addTest(make_core_suite(DeployEventTestCase, distro, version, arch))
+    suite.addTest(dm_make_suite(DeployEventTestCase, distro, version, arch))
   return suite

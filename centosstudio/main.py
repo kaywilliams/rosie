@@ -241,7 +241,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         self._lock.release()
       self._log_footer()
     else:
-      raise CentosStudioError("Another instance of centosstudio (pid %d) is "
+      raise CentOSStudioError("\nAnother instance of centosstudio (pid %d) is "
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.solutionid ))
 

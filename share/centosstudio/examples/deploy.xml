@@ -11,11 +11,19 @@ connection = libvirt.open('qemu:///system')
 try: #vm exists?
   vm = connection.lookupByName('%{hostname}')
 except libvirt.libvirtError:
-  sys.exit(1) # vm does not exist
-if vm.isActive() ==1:
-  sys.exit(0) # vm is active
-elif vm.create() != 0:
-  sys.exit(1) # vm inactive, and failed to start
+  raise RuntimeError("vm does not exist")
+state = vm.state(0)[0]
+if state == 1: # vm is active
+  sys.exit(0) 
+elif state == 3: # vm is paused 
+  if vm.resume() == 0: 
+    sys.exit(0) #resume succeded
+  else:
+    raise RuntimeError("vm is paused and failed to resume")
+elif vm.create() == 0: # vm is inactive
+  sys.exit(0)
+else:
+  raise RuntimeError("vm is inactive and failed to start")
 </activate-script>
 
 <delete-script>

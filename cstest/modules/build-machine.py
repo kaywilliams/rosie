@@ -17,9 +17,9 @@
 #
 from centosstudio.util     import pps 
 
-from cstest       import EventTestCase, ModuleTestSuite
-from cstest.core  import make_core_suite
-
+from cstest        import EventTestCase, ModuleTestSuite
+from cstest.core   import make_core_suite
+from cstest.mixins import check_vm_config
 
 class BuildMachineTestCase(EventTestCase):
   moduleid = 'build-machine'
@@ -52,11 +52,7 @@ class BuildMachineTestCase(EventTestCase):
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('build-machine')
 
-  # build-machine test cases require libvirt
-  try: 
-    import libvirt
+  if check_vm_config(): 
     suite.addTest(make_core_suite(BuildMachineTestCase, distro, version, arch))
-  except ImportError:
-    print "unable to import libvirt, skipping build-machine tests"
 
   return suite

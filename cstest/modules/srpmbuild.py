@@ -20,10 +20,10 @@ import unittest
 from centosstudio.errors   import CentOSStudioError
 from centosstudio.util     import pps 
 
-from cstest       import (EventTestCase, ModuleTestSuite, _run_make,
-                          TestBuild)
-from cstest.core  import make_core_suite
-
+from cstest        import (EventTestCase, ModuleTestSuite, _run_make,
+                           TestBuild)
+from cstest.core   import make_core_suite
+from cstest.mixins import check_vm_config
 
 class TestSrpmTestCase(EventTestCase):
   """
@@ -32,7 +32,7 @@ class TestSrpmTestCase(EventTestCase):
   we test the functioning of that class
   """
   moduleid = 'srpmbuild'
-  eventid  = 'package1-srpm'
+  eventid  = 'srpmbuild-package1'
   repodir  = pps.path(__file__).dirname/'shared' 
 
   _run_make(repodir)
@@ -137,15 +137,10 @@ class TestSrpmBuildSrpmScript(TestSrpmTestCase):
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
-  # srpm test cases require libvirt
-  try: 
-    import libvirt
-  except ImportError:
-    print "unable to import libvirt, skipping srpmbuild tests"
-
-  suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
-  suite.addTest(TestSrpmBuildConfig(distro, version, arch))
-  suite.addTest(TestSrpmBuildSrpmFolder(distro, version, arch))
-  suite.addTest(TestSrpmBuildSrpmRepo(distro, version, arch))
-  suite.addTest(TestSrpmBuildSrpmScript(distro, version, arch))
-  return suite
+  if check_vm_config():
+    suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
+    suite.addTest(TestSrpmBuildConfig(distro, version, arch))
+    suite.addTest(TestSrpmBuildSrpmFolder(distro, version, arch))
+    suite.addTest(TestSrpmBuildSrpmRepo(distro, version, arch))
+    suite.addTest(TestSrpmBuildSrpmScript(distro, version, arch))
+    return suite

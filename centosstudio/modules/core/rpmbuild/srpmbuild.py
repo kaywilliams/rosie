@@ -63,6 +63,12 @@ def __init__(self, ptr, *args, **kwargs):
     config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
   )
 
+  try:
+    exec "import libvirt" in globals()
+    exec "from virtinst import CloneManager" in globals()
+  except ImportError:
+    raise SystemVirtConfigError(file=self._config.file)
+
   self.DATA = {
     'input':     [],
     'config':    ['.'],
@@ -73,13 +79,6 @@ def __init__(self, ptr, *args, **kwargs):
   self.srpmfile = ''
   self.srpmdir  = self.mddir / 'srpm'
   PickleMixin.__init__(self)
-
-def validate(self):
-  try:
-    exec "import libvirt" in globals()
-    exec "from virtinst import CloneManager" in globals()
-  except ImportError:
-    raise SystemVirtConfigError(file=self._config.file)
 
 def setup(self):
   self.diff.setup(self.DATA)
@@ -242,7 +241,6 @@ def get_module_info(ptr, *args, **kwargs):
                           (ExecuteMixin, PickleMixin, Event), 
                           { 'srpmid'   : '%s',
                             '__init__': __init__,
-                            'validate': validate,
                             'setup'   : setup,
                             'run'     : run,
                             '_clone'  : _clone,

@@ -21,9 +21,6 @@ from centosstudio.util.rxml.config import Element
 from cstest import decorate
 from cstest.core import CoreTestSuite
 
-from cstest.mixins.publishsetup import *
-from cstest.mixins.rpmbuild     import *
-
 #------ FileDownloadMixin ------#
 class FDMTest_Files:
   "all files downloaded successfully"
@@ -177,6 +174,10 @@ class BootOptionsMixinTestCase:
           self.failUnless(arg in label, "'%s' not in '%s'" % (arg, label))
 
 
+
+
+#------ Helper Functions ------#
+
 # input file creation function
 import time
 
@@ -192,3 +193,22 @@ def touch_input_files(dir):
 def remove_input_files(dir):
   for file in files:
     (dir/file).remove()
+
+# check vm configuration
+def check_vm_config():
+  try: 
+    import libvirt
+    import virtinst
+    return True
+  except ImportError:
+    print "unable to import libvirt and/or virtinst, skipping vm tests"
+    return False
+
+
+#------ Convenience Imports ------#
+
+# done at end since some sub-modules rely on helper functions defined above
+from cstest.mixins.deploy       import *
+from cstest.mixins.publishsetup import *
+from cstest.mixins.rpmbuild     import *
+

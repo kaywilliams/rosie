@@ -278,6 +278,14 @@ class ConfigElement(tree.XmlTreeElement):
         else: 
           resolved = True
 
+    # check for circular references
+    for key in map:
+      if key in map[key]:
+        message = ("Macro Resolution Error: The macro value '%s' contains "
+                   "a circular reference to the macro name '%s'." % 
+                   (map[key], key))
+        raise errors.ConfigError(message)
+
     # expand macros
     for item in xpaths:
       for elem in self.xpath(item.rstrip('/'), []):
