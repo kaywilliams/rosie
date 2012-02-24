@@ -96,7 +96,9 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     for repo in repos:
       for url in repo.gpgkey:
         try:
-          id = yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
+          yb = yum.YumBase()
+          yb.verbose_logger = self.logger 
+          id = yb._retrievePublicKey(url, yum.yumRepo.YumRepository(
                str(repo)))[0]['hexkeyid']
           self.gpgkeys[id] = url
         except yum.Errors.YumBaseError, e:

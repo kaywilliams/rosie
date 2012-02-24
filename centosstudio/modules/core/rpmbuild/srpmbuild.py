@@ -196,28 +196,52 @@ def run(self):
   #verify rpm
 
 def _clone(self):
+  build_machine = self.cvars['build-machine']
   clone_name = '%s-%s-%s-%s' % (self.moduleid, self.srpmid, self.version,
                                 self.userarch)
 
-  connection = libvirt.open('qemu:///system')
-  domain = connection.lookupByName(self.cvars['build-machine'])
+  # setup error handler to ignore libvirt non-errors
+  def libvirt_callback(ignore, err):
+    if err[3] != libvirt.VIR_ERR_ERROR: pass
+  libvirt.registerErrorHandler(f=libvirt_callback, ctx=None)
 
+  # establish libvirt connection
+  connection = libvirt.open('qemu:///system')
+  bm = connection.lookupByName(build_machine)
+
+  # if build_machine is active, pause it
+  orig_state = bm.state(0)[0]
+  if orig_state == 1: # vm is active
+    if bm.suspend() != 0: # pause it
+      raise SimpleCentOSStudioEventError(
+        "The build machine '%s' is active and pause failed. Please pause or "
+        "shut down the machine manually and try again." % build_machine)
+
+  # setup clone information
   design = CloneManager.CloneDesign(conn=connection) #fix qemu errors
-  design.original_guest = self.cvars['build-machine']
+  design.original_guest = build_machine
   design.clone_name = clone_name #fix qemu errors
   design.set_preserve(True)
-  
-  design.setup_original() # needed to get original_devices below
 
+  # setup clone device
+  design.setup_original()
   for device in design.original_devices:
     design.clone_devices = CloneManager.generate_clone_disk_path(device, design)
 
+  # finish setup
   design.setup()
 
-  #fix spurious warnings
-  #raise RuntimeError
+  #proceed with cloning
 
-  #pause machine if running
+  #unpause machine if running before
+  if orig_state == 1 and bm.state(0)[0] == 3: #current state is paused
+    if bm.resume() != 0:
+      raise SimpleCentOSStudioEventError(
+        "CentOS Studio paused the build machine '%s' in order to clone it, "
+        "and an attempt to restore it post-cloning failed. Please manually "
+        "restore the build machine." % build_machine)
+      
+
   #try/finally block to destroy, undefine and delete storage
 
 # -------- provide module information to dispatcher -------- #

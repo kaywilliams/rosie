@@ -43,7 +43,7 @@ class BuildMachineEvent(PickleMixin):
       id = 'build-machine',
       parentid = 'rpmbuild',
       ptr = ptr,
-      version = '1.00',
+      version = '1.01',
       requires = ['base-treeinfo', ],
       provides = ['build-machine'],
       conditional = True,
@@ -109,11 +109,11 @@ class BuildMachineEvent(PickleMixin):
     if timer: timer.end()
 
     # cache hostname
-    self.pickle({'hostname': builder.cvars['publish-setup-options']['hostname']})
+    self.pickle({'hostname': builder.cvars['publish-setup-options']
+                                          ['hostname']})
 
   def apply(self):
     self.cvars['build-machine'] = self.unpickle().get('hostname', None)
-
 
   def _get_options(self):
     parser = optparse.OptionParser()
@@ -124,7 +124,7 @@ class BuildMachineEvent(PickleMixin):
       sharepath = self.options.sharepath,
       force_modules = [],
       skip_modules  = [],
-      force_events  = [],
+      force_events  = ['deploy'],
       skip_events   = [],
       mainconfigpath = self.options.mainconfigpath,
       enabled_modules  = [],
