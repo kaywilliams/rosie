@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<main>
+<name>srpmbuild</name>
+<fullname>RPM Build Virtual Machine</fullname>
+</main>
+
+<publish password='srpmbuild' hostname='%{id}.local' allow-reinstall='true'>
+<install-script>
+virt-install --name %{hostname} --ram 1000 \
+             --file /var/lib/libvirt/images/%{hostname}.img \
+             --file-size 10 \
+             --location %{url} \
+             --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
+               ks=%{url}/ks.cfg"\
+             --noreboot
+</install-script>
+
+<post-script>
+#!/bin/bash
+
+# install srpm
+rpm -Uvh --nodeps %{srpm}
+if [[ $? != 0 ]]; then echo 'srpm install failed: %{srpm}' >2; exit 1 ; fi
+
+# rebuild srpm
+rpmbuild -bs --target %{arch} --define='dist el%{version}' %{spec} 
+if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >2; exit 1; fi
+
+# build rpm
+rpmbuild -ba --target %{arch} --define='dist el%{version}' %{spec}
+if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >2; exit 1; fi
+
+# poweroff
+poweroff
+</post-script>
+
+<kickstart>
+<xi:include href="../common/ks.cfg" parse="text"/>
+skipx
+</kickstart>
+
+<remote-url>http://192.168.122.1/solutions</remote-url>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/*[name()!='install-script' and
+                                    name()!='post-script'])"/>
+</publish>
+
+</solution>

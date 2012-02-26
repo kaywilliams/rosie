@@ -9,6 +9,8 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <optional><element name="definition"><text/></element></optional>
+
         <interleave>
 
         <zeroOrMore>
@@ -26,9 +28,8 @@
           <element name="script"><text/></element>
           </choice>
 
-          <optional>
-          <element name="verify-script"><text/></element>
-          </optional>
+          <optional><element name="definition"><text/></element></optional>
+          <optional><element name="verify-script"><text/></element></optional>
 
           </interleave>
 

@@ -1,5 +1,5 @@
 <test-update hostname="%{name}-test-update.local" password="testpw"
              xmlns:xi="http://www.w3.org/2001/XInclude">
-  <kickstart> <xi:include href="ks.cfg" parse="text"/> </kickstart>
-  <xi:include href="deploy.xml" xpointer="xpointer(/root/*)"/>
+  <kickstart> <xi:include href="common/ks.cfg" parse="text"/> </kickstart>
+  <xi:include href="common/deploy.xml" xpointer="xpointer(/root/*)"/>
 </test-update>

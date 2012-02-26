@@ -148,6 +148,103 @@ class ExecuteMixin:
         client.close()
       raise
 
+  def _execute_remote_sftp(self, cmd, params):
+    "run cmd on a remote machine using SFTP"
+    try:
+      # establish connection
+      try:
+        self.log(2, L2('connecting to host \'%s\'' % params['hostname'])) 
+        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
+        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
+                                   callback=SSHConnectCallback(self.logger),
+                                   **dict(params))
+  
+      except paramiko.BadAuthenticationType, e:
+        raise SSHFailedError(script=script, message=str(e), params=str(params))
+  
+      except sshlib.ConnectionFailedError:
+        raise SSHFailedError(script=script, 
+          message="Unable to establish connection with remote host: '%s'"
+                  % params['hostname'],
+          params=str(params)) 
+  
+      # copy script to remote machine
+      self.log(2, L2("copying %s to host" % script))
+      sftp = paramiko.SFTPClient.from_transport(client.get_transport())
+      if not 'centosstudio' in  sftp.listdir('/etc/sysconfig'): 
+        sftp.mkdir('/etc/sysconfig/centosstudio')
+        sftp.chmod('/etc/sysconfig/centosstudio', mode=0750)
+      sftp.put(self.io.list_output(what=script)[0], 
+               '/etc/sysconfig/centosstudio/%s' % script)
+      sftp.chmod('/etc/sysconfig/centosstudio/%s' % script, mode=0750)
+   
+      # setting keepalive causes client to cancel processes started by the
+      # server after the SSH session is terminated. It takes a few seconds for
+      # the client to notice and cancel the process. 
+      client.get_transport().set_keepalive(1)
+  
+      # execute script
+      cmd = '/etc/sysconfig/centosstudio/%s' % script
+      self.log(2, L2("executing '%s' on host" % cmd))
+      chan = client.get_transport().open_session()
+      chan.exec_command(cmd)
+  
+      errlines = []
+      header_logged = False
+      while True:
+        r, w, x = select.select([chan], [], [], 0.0)
+        if len(r) > 0:
+          got_data = False
+          if chan.recv_ready():
+            data = chan.recv(1024)
+            if data:
+              got_data = True
+              if header_logged is False:
+                self.logger.log_header(4, "%s event - begin '%s' output" % 
+                                      (self.id, script))
+                header_logged = True
+              self.log(4, L0(data.rstrip('\n')))
+          if chan.recv_stderr_ready():
+            data = chan.recv_stderr(1024)
+            if data:
+              got_data = True
+              errlines.extend(data.rstrip('\n').split('\n'))
+          if not got_data:
+            break
+  
+      if header_logged:
+        self.logger.log_footer(4, "%s event - end '%s' output" % 
+                               (self.id, script))
+        
+      status = chan.recv_exit_status()
+      chan.close()
+      client.close()
+      if status != 0:
+        raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
+    
+    except:
+      if 'client' in locals():
+        client.close()
+      raise
+
+  def _connect(self, hostname,)
+    # establish connection
+    try:
+      self.log(2, L2('connecting to host \'%s\'' % params['hostname'])) 
+      signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
+      client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
+                                 callback=SSHConnectCallback(self.logger),
+                                 **dict(params))
+  
+    except paramiko.BadAuthenticationType, e:
+      raise SSHFailedError(script=script, message=str(e), params=str(params))
+  
+    except sshlib.ConnectionFailedError:
+      raise SSHFailedError(script=script, 
+        message="Unable to establish connection with remote host: '%s'"
+                % params['hostname'],
+        params=str(params)) 
+    
 
 class ScriptFailedError(CentOSStudioEventError):
   message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s" 

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- rpmbuild-5-i386 -->
+<!-- srpmbuild-6-i386 -->
 
 <main>
-<xi:include href="rpmbuild.xml" xpointer="xpointer(/*/main/*)"/>
-<version>5</version>
+<xi:include href="srpmbuild.xml" xpointer="xpointer(/*/main/*)"/>
+<version>6</version>
 <arch>i386</arch>
 </main>
 
 <repos>
-<!--centos-buildsys-5 repo provides buildsys-build package-->
-<xi:include href="../repos.xml"
+<!--epel-6 repo defines the buildsys-build group-->
+<xi:include href="../common/repos.xml"
             xpointer="xpointer(/*/repo[@id='base'] | 
                                /*/repo[@id='updates'] |
-                               /*/repo[@id='centos-buildsys-5'])"/>
+                               /*/repo[@id='epel-6'])"/>
 </repos>
 
 <packages>
 <group>core</group>
-<package>buildsys-build</package>
+<group>buildsys-build</group>
 </packages>
 
-<xi:include href="rpmbuild.xml"
+<xi:include href="srpmbuild.xml"
             xpointer="xpointer(/*/*[name()!='main' and 
                                     name()!='repos' and
                                     name()!='packages'])"/>

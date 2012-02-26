@@ -41,16 +41,9 @@ class TestSrpmTestCase(EventTestCase):
     EventTestCase.__init__(self, distro, version, arch, conf=conf)
     sections = [
       """
-      <build-machine>
-      <definition>
-        %s/../../share/centosstudio/examples/rpmbuild/rpmbuild-%s-%s.definition
-      </definition>
-      </build-machine>
-      """ % (pps.path(__file__).dirname.abspath(), version, arch),
-      """
       <srpmbuild>
       <srpm id='package1'>
-        <path>%s/repo1/SRPMS/package1-1.0-1.src.rpm</path>
+        <repo>file://%s/repo1</repo>
       </srpm>
       </srpmbuild>
       """ % self.repodir ,
@@ -80,24 +73,8 @@ class TestSrpmBuildConfig(TestSrpmTestCase):
   def tearDown(self):
     del self.conf
 
-class TestSrpmBuildSrpmFolder(TestSrpmTestCase):
-  "downloads srpm file from folder"
-  def __init__(self, distro, version, arch, conf=None):
-    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( """
-      <srpmbuild>
-      <srpm id='package1'>
-        <path>%s/repo1/SRPMS</path>
-      </srpm>
-      </srpmbuild>
-      """ % self.repodir )
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
-    self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
-
 class TestSrpmBuildSrpmRepo(TestSrpmTestCase):
-  "downloads srpm file from repository"
+  "downloads srpm file from repository - FIXME to download specific srpm"
   def __init__(self, distro, version, arch, conf=None):
     TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
     self._add_config( """
@@ -110,7 +87,8 @@ class TestSrpmBuildSrpmRepo(TestSrpmTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
-    self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
+    self.failUnless(self.event.io.list_output(what='srpm')[0].basename  == 
+                   'package1-1.0-2.src.rpm')
 
 class TestSrpmBuildSrpmScript(TestSrpmTestCase):
   "uses srpm provided by script"
@@ -140,7 +118,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
   if check_vm_config():
     suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
     suite.addTest(TestSrpmBuildConfig(distro, version, arch))
-    suite.addTest(TestSrpmBuildSrpmFolder(distro, version, arch))
     suite.addTest(TestSrpmBuildSrpmRepo(distro, version, arch))
     suite.addTest(TestSrpmBuildSrpmScript(distro, version, arch))
     return suite

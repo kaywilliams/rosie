@@ -70,6 +70,7 @@ from centosstudio.event.loader import Loader
 API_VERSION = 5.0
 
 DEFAULT_CACHE_DIR = pps.path('/var/cache/centosstudio')
+DEFAULT_LIB_DIR = pps.path('/var/lib/centosstudio')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/centosstudio')
 DEFAULT_LOG_FILE = pps.path('/var/log/centosstudio.log')
 
@@ -404,6 +405,9 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
                                                   'No bug url provided')
 
     # set up other directories
+    self.LIB_DIR      = self.mainconfig.getpath(
+                        '/centosstudio/libdir/path/text()',
+                        DEFAULT_LIB_DIR).expand().abspath()
     self.CACHE_DIR    = self.mainconfig.getpath(
                         '/centosstudio/cache/path/text()',
                         DEFAULT_CACHE_DIR).expand().abspath()
@@ -492,6 +496,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       setattr(ptr, k, v)
   
     # set up other directories
+    ptr.LIB_DIR      = self.LIB_DIR
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs

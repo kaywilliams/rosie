@@ -15,21 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import lxml
+import optparse
 import re
-import rpmUtils 
+import rpm
+import rpmUtils
+import signal
 import yum
 
-from centosstudio.util import pps 
+from centosstudio.callback     import TimerCallback
+from centosstudio.cslogging    import MSG_MAXWIDTH
+from centosstudio.errors       import (CentOSStudioError,
+                                       CentOSStudioEventError,
+                                       SimpleCentOSStudioEventError)
+from centosstudio.event        import Event, CLASS_META
+from centosstudio.main         import Build
+from centosstudio.util         import pps 
+from centosstudio.util         import rxml 
 
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
-from centosstudio.errors  import (CentOSStudioEventError,
-                                  SimpleCentOSStudioEventError)
-from centosstudio.event    import Event, CLASS_META
 
 from centosstudio.modules.shared import (ExecuteMixin, PickleMixin, 
                                          SystemVirtConfigError)
 
+from fnmatch import fnmatch
 
 YUMCONF = '''
 [main]
@@ -45,85 +55,115 @@ name = Source RPM Repo
 baseurl = %s
 '''
 
-# -------- Metaclass for creating SRPM Build Events -------- #
-class SrpmBuildEvent(type):
-  def __new__(meta, classname, supers, classdict):
-    return type.__new__(meta, classname, supers, classdict)
 
+class SrpmBuildMixinEvent(Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = '%s-%s' % (self.moduleid, self.srpmid), 
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      version = 1.02,
+      requires = ['rpmbuild-data', ],
+      provides = ['repos', 'source-repos', 'comps-object'],
+      config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
+    )
+  
+    try:
+      exec "import libvirt" in globals()
+      exec "from virtinst import CloneManager" in globals()
+    except ImportError:
+      raise SystemVirtConfigError(file=self._config.file)
+  
+    self.options = ptr.options # options not exposed as shared event attr
 
-# -------- Methods for SRPM Build Events -------- #
-def __init__(self, ptr, *args, **kwargs):
-  Event.__init__(self,
-    id = '%s-%s' % (self.moduleid, self.srpmid), 
-    parentid = 'rpmbuild',
-    ptr = ptr,
-    version = 1.02,
-    requires = ['rpmbuild-data', 'build-machine'],
-    provides = ['repos', 'source-repos', 'comps-object'],
-    config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
-  )
+    self.DATA = {
+      'input':     [],
+      'config':    ['.'],
+      'variables': [],
+      'output':    [],
+    }
+  
+    self.srpmfile = ''
+    self.srpmdir  = self.mddir / 'srpm'
+    self.datdir   = self.LIB_DIR / '%s' % self.moduleid
+    self.datdir.mkdirs()
 
-  try:
-    exec "import libvirt" in globals()
-    exec "from virtinst import CloneManager" in globals()
-  except ImportError:
-    raise SystemVirtConfigError(file=self._config.file)
+    if self.version == "5":
+      self.build_dir = pps.path('/usr/src/redhat')
+    else:
+      self.build_dir = pps.path('/root/rpmbuild')
 
-  self.DATA = {
-    'input':     [],
-    'config':    ['.'],
-    'variables': [],
-    'output':    [],
-  }
+    PickleMixin.__init__(self)
+  
+  def setup(self):
+    self.diff.setup(self.DATA)
+    ExecuteMixin.setup(self)
+  
+    # resolve macros
+    srpmlast = self.unpickle().get('srpmlast', '')
+    macros = {'%{srpm-id}': self.srpmid,
+              '%{srpm-dir}': self.srpmdir,
+              '%{srpm-last}': srpmlast,
+             }
+    self.config.resolve_macros('.', macros)
+  
+    # get srpm
+    repo = pps.path(self.config.get('repo/text()', ''))
+    script = self.config.get('script/text()', '')
+    if repo: self._get_srpm_from_repo(repo)
+    elif script: self._get_srpm_from_script(script)
 
-  self.srpmfile = ''
-  self.srpmdir  = self.mddir / 'srpm'
-  PickleMixin.__init__(self)
+    # get base build machine definition
+    search_dirs = self.SHARE_DIRS
+    search_dirs.insert(0, self.mainconfig.file.dirname)
+    default = ''
+    for d in search_dirs:
+      results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
+                            glob='%s-%s-%s.definition' % 
+                            (self.moduleid, self.version, self.userarch))
+      if results:
+        default = results[0]
+        break
 
-def setup(self):
-  self.diff.setup(self.DATA)
-  ExecuteMixin.setup(self)
+    self.definition = self.config.get('definition/text()', 
+                      self.config.get('/*/%s/definition/text()' % self.moduleid,
+                      default))
+    self.io.validate_input_file(self.definition)
+    self.DATA['input'].append(self.definition)
 
-  # resolve macros
-  srpmlast = self.unpickle().get('srpmlast', '')
-  macros = {'%{srpm-id}': self.srpmid,
-            '%{srpm-dir}': self.srpmdir,
-            '%{srpm-last}': srpmlast,
-           }
-  self.config.resolve_macros('.', macros)
+  def run(self):
+    self.io.process_files(cache=True)
+  
+    # cache srpm file and info
+    if self.srpmfile: # srpm provided by script
+      self.DATA['output'].append(self.srpmfile)
+    else: # srpm provided by path or repo
+      self.srpmfile = self.io.list_output(what='srpm')[0]
+    self.pickle({'srpmlast': self.srpmfile.basename})
+    # update definition
+    definition = self._update_definition()
 
-  path = pps.path(self.config.get('path/text()', ''))
-  repo = pps.path(self.config.get('repo/text()', ''))
-  script = self.config.get('script/text()', '')
+    # initialize builder
+    try:
+      builder = SrpmBuild(definition, self._get_build_machine_options(), [])
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(
+              definition='based on \'%s\'' % self.definition, 
+              error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
 
-  # add srpm from file path
-  if path: 
-    if path.endswith('.src.rpm'): # add the file
-      if not path.exists(): 
-        raise SrpmNotFoundError(name=self.srpmid, path=path)
-      self.io.add_fpath(path, self.srpmdir, id='srpm') 
+    # build machine
+    timer = TimerCallback(self.logger)
+    timer.start("building '%s'" % self.srpmid)
+    try:
+      builder.main()
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(
+                    definition='based on \'%s\'' % self.definition, 
+                    error=e, idstr="--> build machine id: %s\n" %
+                    builder.solutionid, sep = MSG_MAXWIDTH * '=')
+    timer.end()
 
-    else: # add the most current matching srpm
-      paths = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
-                             glob='%s*' % self.srpmid)
-      if not paths: 
-        raise SrpmNotFoundError(name=self.srpmid, path=path)
-
-      while len(paths) > 1:
-        path1 = paths.pop()
-        path2 = paths.pop()
-        _,v1,r1,e1,_  = rpmUtils.miscutils.splitFilename(path1.basename)
-        _,v2,r2,e2,_  = rpmUtils.miscutils.splitFilename(path2.basename)
-        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
-        if result < 1: # path2 is newer, return it to the list
-          paths.insert(0, path2)
-        else: # path1 is newer, or they are the same
-          paths.insert(0, path1)
-
-      self.io.add_fpath(paths[0], self.srpmdir, id='srpm')
-
-  # add srpm from package repository
-  elif repo:
+  def _get_srpm_from_repo(self, repo):
     yumdir = self.mddir / 'yum'
     yumdir.mkdirs()
     yumconf = yumdir / 'yum.conf'
@@ -132,15 +172,16 @@ def setup(self):
     yb.preconf.fn = fn=str(yumconf)
     yb.preconf.root = str(yumdir)
     yb.preconf.init_plugins = False
+    yb.preconf.errorlevel = 0
     yb.doRpmDBSetup()
     yb.conf.cache = 0
     yb.doRepoSetup(self.id)
-
+  
     try:
       yb.doSackSetup(archlist=['src'], thisrepo=self.id)
     except yum.Errors.RepoError:
       raise InvalidRepoError(url=repo)
-
+  
     try:
       srpm = (yb.repos.getRepo(self.id).getPackageSack()
               .returnNewestByName(name=self.srpmid)[0])
@@ -150,21 +191,20 @@ def setup(self):
     self.io.add_fpath(srpm.remote_url, self.srpmdir, id='srpm')
     del yb; yb = None
 
-  # add srpm from user-provided script 
-  elif script:
+  def _get_srpm_from_script(self, script):
     # start with a clean srpmdir
     self.srpmdir.rm(recursive=True, force=True) 
     self.srpmdir.mkdirs()
-
+  
     script_file = self.mddir / 'script'
     script_file.write_text(self.config.get('script/text()'))
     script_file.chmod(0750)
-
+  
     self._execute_local(script_file)
-
+  
     results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
                                       maxdepth=1)
-
+  
     if not results:
       message = ("The script provided for the '%s' srpm did not output an "
                  "srpm beginning with '%s' and ending with '.src.rpm' in the "
@@ -179,70 +219,170 @@ def setup(self):
       self.srpmfile = results[0]
       self.DATA['input'].append(self.srpmfile)
 
-def run(self):
-  self.io.process_files(cache=True)
+  def _update_definition(self):
+    name, spec, requires = self._get_srpm_info(self.srpmfile)
 
-  # cache srpm file and info
-  if self.srpmfile: # srpm provided by script
-    self.DATA['output'].append(self.srpmfile)
-  else: # srpm provided by path or repo
-    self.srpmfile = self.io.list_output(what='srpm')[0] 
-  self.pickle({'srpmlast': self.srpmfile.basename})
-  
-  #clone build machine
-  self._clone()
+    root = rxml.config.parse(self.definition).getroot()
 
-  #build rpm
-  #verify rpm
+    name =    self.id
+    version = self.version
+    arch =    self.userarch
 
-def _clone(self):
-  build_machine = self.cvars['build-machine']
-  clone_name = '%s-%s-%s-%s' % (self.moduleid, self.srpmid, self.version,
-                                self.userarch)
+    # provide meaningful filename since it is also used for the .dat file
+    root.file = self.datdir / '%s-%s-%s.definition' % (name, version, arch)
 
-  # setup error handler to ignore libvirt non-errors
-  def libvirt_callback(ignore, err):
-    if err[3] != libvirt.VIR_ERR_ERROR: pass
-  libvirt.registerErrorHandler(f=libvirt_callback, ctx=None)
+    # add main element
+    if root.find('main') is not None: 
+      root.remove(root.find('main'))
 
-  # establish libvirt connection
-  connection = libvirt.open('qemu:///system')
-  bm = connection.lookupByName(build_machine)
+    main = rxml.config.Element('main')
+    rxml.config.Element('name',    text=name, parent=main)
+    rxml.config.Element('version', text=version, parent=main)
+    rxml.config.Element('arch',    text=arch, parent=main)
 
-  # if build_machine is active, pause it
-  orig_state = bm.state(0)[0]
-  if orig_state == 1: # vm is active
-    if bm.suspend() != 0: # pause it
-      raise SimpleCentOSStudioEventError(
-        "The build machine '%s' is active and pause failed. Please pause or "
-        "shut down the machine manually and try again." % build_machine)
+    root.append(main)
 
-  # setup clone information
-  design = CloneManager.CloneDesign(conn=connection) #fix qemu errors
-  design.original_guest = build_machine
-  design.clone_name = clone_name #fix qemu errors
-  design.set_preserve(True)
+    # add srpm requires to config-rpm
+    if root.find('config-rpm') is None:
+        config = rxml.config.Element('config-rpm')
+    else:
+        config = root.find('config-rpm')
 
-  # setup clone device
-  design.setup_original()
-  for device in design.original_devices:
-    design.clone_devices = CloneManager.generate_clone_disk_path(device, design)
+    child = rxml.config.Element('files', parent=config)
+    child.set('destdir', self.build_dir / 'originals')
+    child.text = self.srpmfile
 
-  # finish setup
-  design.setup()
+    for req in requires:
+      child = rxml.config.Element('requires', parent=config)
+      child.text = req
 
-  #proceed with cloning
+    if root.find('config') is None:
+      root.append(config)
 
-  #unpause machine if running before
-  if orig_state == 1 and bm.state(0)[0] == 3: #current state is paused
-    if bm.resume() != 0:
-      raise SimpleCentOSStudioEventError(
-        "CentOS Studio paused the build machine '%s' in order to clone it, "
-        "and an attempt to restore it post-cloning failed. Please manually "
-        "restore the build machine." % build_machine)
-      
+    #resolve macros
+    root.resolve_macros('.', {
+      '%{srpm}': self.build_dir / 'originals' / self.srpmfile.basename,
+      '%{spec}': self.build_dir / 'SPECS' / spec, })
 
-  #try/finally block to destroy, undefine and delete storage
+    return root
+
+  def _get_srpm_info(self, srpm):
+    ts = rpmUtils.transaction.initReadOnlyTransaction()
+    hdr = rpmUtils.miscutils.hdrFromPackage(ts, srpm)
+    name = hdr[rpm.RPMTAG_NAME]
+    spec = [ f for f in hdr['FILENAMES'] if '.spec' in f ][0]
+    requires = [ r.DNEVR()[2:] for r in hdr.dsFromHeader('requirename') ]
+    del ts
+    del hdr
+    return (name, spec, requires) 
+
+  def _get_build_machine_options(self):
+    parser = optparse.OptionParser()
+    parser.set_defaults(**dict(
+      logthresh = 0,
+      logfile   = self.options.logfile,
+      libpath   = self.options.libpath,
+      sharepath = self.options.sharepath,
+      force_modules = [],
+      skip_modules  = [],
+      force_events  = ['deploy'],
+      skip_events   = [],
+      mainconfigpath = self.options.mainconfigpath,
+      enabled_modules  = [],
+      disabled_modules = [],
+      list_modules = False,
+      list_events = False,
+      no_validate = False,
+      validate_only = False,
+      clear_cache = False,
+      debug = self.options.debug,))
+
+    opts, _ = parser.parse_args([])
+    
+    return opts
+
+  def _copy_results(self, hostname, password):
+    # the better way to do this, evenutally, is to add sftp support to pps
+    # for now, using paramiko directly...
+
+    # activate system
+    connection = libvirt.open('qemu:///system')
+    vm = connection.lookupByName(hostname)
+    if vm.isActive() == 1:
+      pass # vm is active, continue...
+    elif vm.create() != 0:
+      raise RuntimeError("vm inactive, and failed to start: %s" % hostname)
+
+    try:
+      # establish ssh connection
+      signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
+      client = sshlib.get_client(username = 'root', hostname = hostname, 
+                                 port = 22, password = password, 
+                                 callback = SSHConnectCallback(log))
+      sftp = paramiko.SFTPClient.from_transport(client.get_transport())
+
+      # copy files
+      rpms = set()
+      srpms = set()
+      for dir in sftp.listdir(str(self.build_dir/'RPMS')):
+          for rpm in sftp.listdir(str(self.build_dir/'RPMS'/dir)):
+              if (fnmatch(rpm, self.rpm_glob) and not 
+                  fnmatch(rpm, self.rpm_nglob)):
+                  rpms.add(self.build_dir/'RPMS'/dir/rpm)
+
+      for srpm in sftp.listdir(str(self.build_dir/'SRPMS')):
+          if fnmatch(srpm, self.srpm_glob):
+              if self.srpm_nglob and fnmatch(srpm, self.srpm_nglob): 
+                  continue # filter out unwanted srpms
+              else:
+                  srpms.add(self.build_dir/'SRPMS'/srpm)
+
+      for rpm in rpms:
+          for dir in self.rpms_dirs:
+              sftp.get(str(rpm), str(dir/rpm.basename))
+
+      for srpm in srpms:
+          sftp.get(str(srpm), str(self.srpms_dir/srpm.basename))
+
+      # shutdown machine
+      chan = client._transport.open_session()
+      chan.exec_command('poweroff')
+      stdin = chan.makefile('wb', -1)
+      stdout = chan.makefile('rb', -1)
+      stderr = chan.makefile_stderr('rb', -1)
+      for f in ['out', 'err']:
+        text = eval('std%s.read()' % f).rstrip()
+        if text:
+          log(text)
+      status = chan.recv_exit_status()
+      chan.close()
+      client.close()
+      if status != 0:
+        raise RuntimeError("unable to poweroff vm: %s" % hostname)
+
+    finally:
+      # close connection
+      if 'sftp' in locals(): sftp.close()
+      if 'client' in locals(): client.close()
+
+class SrpmBuild(Build):
+  def __init__(self, definition, *args, **kwargs):
+    self.definition = definition
+    Build.__init__(self, *args, **kwargs)
+
+  def _get_definition(self, options, arguments):
+    self.definition = self.definition
+    self.definitiontree = lxml.etree.ElementTree(self.definition)
+
+
+# ------ Metaclass for creating SRPM Build Events -------- #
+class SrpmBuildEvent(type):
+  def __new__(meta, classname, supers, classdict):
+    return type.__new__(meta, classname, supers, classdict)
+
+def __init__(self, ptr, *args, **kwargs):
+  SrpmBuildMixinEvent.__init__(self, ptr, *args, **kwargs)
+
 
 # -------- provide module information to dispatcher -------- #
 def get_module_info(ptr, *args, **kwargs):
@@ -262,12 +402,9 @@ def get_module_info(ptr, *args, **kwargs):
 
     # create new class
     exec """%s = SrpmBuildEvent('%s', 
-                          (ExecuteMixin, PickleMixin, Event), 
+                          (SrpmBuildMixinEvent, ExecuteMixin, PickleMixin,), 
                           { 'srpmid'   : '%s',
                             '__init__': __init__,
-                            'setup'   : setup,
-                            'run'     : run,
-                            '_clone'  : _clone,
                           }
                          )""" % (name, name, id) in globals()
 
@@ -283,4 +420,9 @@ class InvalidRepoError(CentOSStudioEventError):
              "'%(url)s'. Please verify its path and try again.\n")
 
 class SrpmNotFoundError(CentOSStudioEventError):
-  message = "No srpm '%(name)s' found at '%(path)s'\n" 
+  message = "No srpm '%(name)s' found at '%(path)s'\n"
+
+class BuildMachineCreationError(CentOSStudioEventError):
+  message = ("Error creating or updating RPM build machine.\n%(sep)s\n"
+             "%(idstr)s--> build machine definition: %(definition)s\n--> "
+             "error:\n%(error)s\n")
