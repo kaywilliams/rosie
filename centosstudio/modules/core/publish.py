@@ -114,6 +114,7 @@ class PublishEvent(Event):
       id = 'publish',
       parentid = 'publish-events',
       ptr = ptr,
+      conditionally_comes_after = ['test-events'],
       requires = ['publish-content', 'publish-setup-options'],
       provides = ['published-repository']
     )
