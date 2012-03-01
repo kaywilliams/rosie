@@ -102,6 +102,10 @@ def PublishSetupMixinTest_Config(self):
 def PublishSetupMixinTest_NoPassword(self):
   self._testMethodDoc = "password generated if not provided"
 
+  def pre_setUp():
+    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    mod.attrib.pop("password", '')
+
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
     # print "password: ", self.event.password
@@ -116,6 +120,7 @@ def PublishSetupMixinTest_NoPassword(self):
 
     self.failUnless(self.event.password and additional_tests) 
 
+  decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
 
   return self
@@ -129,12 +134,10 @@ def PublishSetupMixinTest_Password(self):
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
-    # print "password: ", self.event.password
-    # print "saved password: ", saved(self, 'password/text()')
-    # print "saved cryptpw: ", saved(self, 'crypt-password/text()')
-    self.failUnless(self.event.password == 'password' and 
-                                    saved(self, 'password/text()') == '' and
-                                    saved(self, 'crypt-password/text()') != '')
+    self.failUnless(self.event.cvars['%s-setup-options' % self.moduleid]
+                    ['password'] == 'password')
+    self.failUnless(saved(self, 'password/text()') == '')
+    self.failUnless(saved(self, 'crypt-password/text()') != '')
 
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
