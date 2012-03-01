@@ -72,7 +72,6 @@ class TestInstallEvent(DeployEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
     self.kstext = self.cvars['test-install-kstext']
-    self.titext = self.cvars['treeinfo-text']
     self.repomdfile = self.cvars['test-install-repomdfile']
     for r in ['release-rpm', 'config-rpm']:
       try:
@@ -80,8 +79,9 @@ class TestInstallEvent(DeployEventMixin, Event):
                 self.cvars['rpmbuild-data'][r]['rpm-release'])
       except KeyError:
         setattr(self, '%s_release' % r.replace('-', '_'), None)
-    self.DATA['variables'].extend([ 'kstext', 'titext', 'release_rpm_release',
-                                    'config_rpm_release'])
+    self.DATA['variables'].extend([ 'kstext', 'release_rpm_release',
+                                    'config_rpm_release',
+                                    'cvars[\'base-treeinfo-text\']' ])
     DeployEventMixin.setup(self)
 
   def run(self):

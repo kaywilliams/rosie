@@ -109,8 +109,8 @@ class ReposEvent(RepoEventMixin, Event):
 
           # set base-treeinfo control variables
           self.cvars['base-treeinfo'] = treeinfo
-          self.cvars['base-treeinfo-text'] = (self.mddir/repo.id/
-                                              repo.treeinfofile).read_text()
+          self.cvars['base-treeinfo-text'] = ( 
+            (self.mddir/repo.id/repo.treeinfofile).read_text().rstrip())
 
           # set anaconda version
           self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
