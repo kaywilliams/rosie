@@ -54,7 +54,7 @@
   <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>
   <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>
   <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>
-  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-install-script-element']/text())"/>
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
 &lt;test-install/&gt;]
     </programlisting>
@@ -123,7 +123,7 @@
     <listitem>
     Uses XInclude to include <emphasis>activate-script</emphasis>,
     <emphasis>delete-script</emphasis>, <emphasis>install-script</emphasis> and
-    <emphasis>verify-install-script</emphasis> from the file
+    <emphasis>post-install-script</emphasis> from the file
     <varname>deploy.xls</varname>.
     </listitem>
     </itemizedlist>

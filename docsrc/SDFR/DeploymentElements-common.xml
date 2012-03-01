@@ -39,7 +39,7 @@
     <para>
     Optionally, exceute one or more user-provided deployment script. See <xref
     linkend="activate-script"/>, <xref linkend="delete-script"/>, <xref
-    linkend="install-script"/>, <xref linkend="verify-install-script"/>, <xref
+    linkend="install-script"/>, <xref linkend="post-install-script"/>, <xref
     linkend="update-script"/> and <xref linkend="post-script"/>.
     </para>
     </listitem>
@@ -65,7 +65,7 @@
     <listitem>delete-script </listitem>
     <listitem>install-script </listitem>
     <listitem>activate-script</listitem>
-    <listitem>verify-install-script</listitem>
+    <listitem>post-install-script</listitem>
     <listitem>post-script</listitem>
     </itemizedlist>
     </listitem>
@@ -90,7 +90,7 @@
     
     <para>
     By default, CentOS Studio executes the activate-script, delete-script and
-    install-script on the build machine and the verify-install-script,
+    install-script on the build machine and the post-install-script,
     update-script and post-script on a client machine specified using the
     @hostname attribute. Script execution on client machines is accomplished
     using <application class="software">Secure Shell (SSH)</application>.
@@ -127,7 +127,7 @@
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>]
-  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-install-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-update-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
 &lt;ELEMENTNAME/&gt;]
@@ -258,7 +258,7 @@
     <para>
     Also used for establishing an SSH connection to a client machine prior to
     executing scripts that support the <emphasis>@ssh</emphasis> attribute,
-    i.e.  <emphasis>verify-install-script</emphasis>,
+    i.e.  <emphasis>post-install-script</emphasis>,
     <emphasis>update-script</emphasis>, and <emphasis>post-script</emphasis>.
     </para>
 
@@ -948,9 +948,9 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="verify-install-script">
+    <varlistentry id="post-install-script">
       <term>
-      verify-install-script 
+      post-install-script 
       </term>
 
       <listitem>
@@ -983,7 +983,7 @@
 
       <para>
       <emphasis role='bold'>Example</emphasis> - In this example the <emphasis>
-      verify-install-script</emphasis> element provides a bash script which
+      post-install-script</emphasis> element provides a bash script which
       uses the <command>grep</command> to scan for scriptlet failed errors in
       the install.log. If errors are found, the script returns an exit status
       of '1', indicating that verification failed.
@@ -993,8 +993,8 @@
       <programlisting>
 &lt;publish hostname="samba-live" password="secret" &gt;
 
-&lt;verify-install-script&gt;<xi:include href='examples/deploy.xml' 
-            xpointer="xpointer(/*/verify-install-script/text())"/>&lt;/verify-install-script&gt;
+&lt;post-install-script&gt;<xi:include href='examples/deploy.xml' 
+            xpointer="xpointer(/*/post-install-script/text())"/>&lt;/post-install-script&gt;
 
 &lt;/publish&gt;
       </programlisting>

@@ -81,7 +81,7 @@
 
 <div id="syntax-install-script-element">&lt;install-script&gt;TEXT&lt;/install-script&gt;</div>
 
-<div id="syntax-verify-install-script-element">&lt;verify-install-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>&gt;TEXT&lt;/verify-install-script&gt;</div>
+<div id="syntax-post-install-script-element">&lt;post-install-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>&gt;TEXT&lt;/post-install-script&gt;</div>
 
 <div id="syntax-update-script-element">&lt;update-script <xi:include xpointer="xpointer(//*[@id='syntax-ssh-attribute']/node())"/>/&gt;TEXT&lt;update-script&gt;</div>
 

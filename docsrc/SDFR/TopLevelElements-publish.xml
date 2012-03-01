@@ -46,7 +46,7 @@
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-activate-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-delete-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-install-script-element']/text())"/>]
-  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-verify-install-script-element']/text())"/>]
+  [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-install-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-update-script-element']/text())"/>]
   [<xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-post-script-element']/text())"/>]
 &lt;publish/&gt;]
