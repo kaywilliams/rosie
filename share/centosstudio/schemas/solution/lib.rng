@@ -202,73 +202,46 @@
 
   </define>
 
-  <!-- ssh attributes -->
+  <!-- deploy attributes -->
   <define name="content-deploy-attributes">
     <optional>
+
     <optional><attribute name="hostname"/></optional>
     <optional><attribute name="password"/></optional>
     <optional>
-      <attribute name="allow-reinstall">
-        <ref name="value-boolean"/>
-      </attribute>
+    <attribute name="ssh"><ref name="value-boolean"/></attribute>
     </optional>
+
     </optional>
-  </define>
-
-  <!-- ssh attribute -->
-  <define name="content-ssh-attribute">
-    <optional>
-    <attribute name="ssh">
-      <ref name="value-boolean"/>
-    </attribute>
-    </optional>
-  </define>
-
-  <!-- deploy element content -->
-  <define name="content-deploy-element">
-    <text/>
-  </define>
-
-  <define name="content-deploy-element-with-ssh">
-    <ref name="content-ssh-attribute"/>
-    <text/>
   </define>
 
   <!-- deploy elements -->
+  <define name="content-trigger-install-script-element">
+    <element name="trigger-install-script"><text/></element>
+  </define>
+
   <define name="content-activate-script-element">
-    <element name="activate-script">
-    <ref name="content-deploy-element"/>
-    </element>
+    <element name="activate-script"><text/></element>
   </define>
 
   <define name="content-delete-script-element">
-    <element name="delete-script">
-    <ref name="content-deploy-element"/>
-    </element>
+    <element name="delete-script"><text/></element>
   </define>
 
   <define name="content-install-script-element">
-    <element name="install-script">
-    <ref name="content-deploy-element"/>
-    </element>
+    <element name="install-script"><text/></element>
   </define>
 
-  <define name="content-verify-install-script-element">
-    <element name="verify-install-script">
-    <ref name="content-deploy-element-with-ssh"/>
-    </element>
+  <define name="content-post-install-script-element">
+    <element name="post-install-script"><text/></element>
   </define>
 
   <define name="content-update-script-element">
-    <element name="update-script">
-    <ref name="content-deploy-element-with-ssh"/>
-    </element>
+    <element name="update-script"><text/></element>
   </define>
 
   <define name="content-post-script-element">
-    <element name="post-script">
-    <ref name="content-deploy-element-with-ssh"/>
-    </element>
+    <element name="post-script"><text/></element>
   </define>
 
 </grammar>
