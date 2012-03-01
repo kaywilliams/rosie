@@ -2,6 +2,34 @@
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- scripts for installing and updating a local virtual machine -->
+<trigger-install-script>
+#!/bin/bash
+INSTALL_INFO=/etc/sysconfig/centosstudio/install_info
+
+FAIL=0
+
+# create function to handle trigger failures
+fail () {
+FAIL=1
+echo "$1 has changed" >&amp;2
+}
+
+# include install_info
+if [[ -f $INSTALL_INFO ]]; then
+  source $INSTALL_INFO
+fi
+
+# process triggers
+[[ '%{trigger_list}' = ${install_trigger_list} ]] || fail 'trigger_list'
+[[ '%{release_rpm}' == ${install_release_rpm} ]] || fail 'release-rpm'
+[[ '%{config_rpm}' == ${install_config_rpm} ]] || fail 'config-rpm' 
+[[ '%{kickstart}' == ${install_kickstart} ]] || fail 'kickstart'
+[[ '%{treeinfo}' == ${install_treeinfo} ]] || fail 'treeinfo'
+[[ '%{install_script}' == ${install_install_script} ]] || fail 'install-script'
+[[ '%{post_install_script}' == ${install_post_install_script} ]] || fail 'post-install-script'
+
+exit $FAIL
+</trigger-install-script>
 
 <activate-script>
 #!/usr/bin/python
@@ -11,7 +39,8 @@ connection = libvirt.open('qemu:///system')
 try: #vm exists?
   vm = connection.lookupByName('%{hostname}')
 except libvirt.libvirtError:
-  raise RuntimeError("vm does not exist")
+  print "vm does not exist"
+  sys.exit(1)
 state = vm.state(0)[0]
 if state == 1: # vm is active
   sys.exit(0) 
@@ -19,11 +48,13 @@ elif state == 3: # vm is paused
   if vm.resume() == 0: 
     sys.exit(0) #resume succeded
   else:
-    raise RuntimeError("vm is paused and failed to resume")
+    print "vm is paused and failed to resume"
+    sys.exit(1)
 elif vm.create() == 0: # vm is inactive
   sys.exit(0)
 else:
-  raise RuntimeError("vm is inactive and failed to start")
+  print "vm is inactive and failed to start"
+  sys.exit(1)
 </activate-script>
 
 <delete-script>
@@ -43,15 +74,30 @@ virt-install --name %{hostname} --ram 1000 \
              --noreboot
 </install-script>
 
-<verify-install-script>
+<post-install-script>
 #!/bin/bash
+INSTALL_INFO=/etc/sysconfig/centosstudio/install_info
+
+#check install.log for errors
 if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
   grep -v "NOKEY" /root/install.log | \
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
   grep -v "^Installing "
   exit 1
 fi
-</verify-install-script>
+
+# create INSTALL_INFO file
+echo "
+install_trigger_list='%{trigger_list}'
+install_release_rpm='%{release_rpm}'
+install_config_rpm='%{config_rpm}'
+install_kickstart='%{kickstart}'
+install_treeinfo='%{treeinfo}'
+install_install_script='%{install_script}'
+install_post_install_script='%{post_install_script}'
+" > $INSTALL_INFO
+
+</post-install-script>
 
 <update-script>
 #!/bin/bash

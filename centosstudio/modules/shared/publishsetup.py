@@ -47,8 +47,8 @@ class PublishSetupEventMixin:
     self.webpath = self.get_remote()
     self.hostname = self.get_hostname()
     self.password = self.get_password()
+    self.ssh = self.config.get('@ssh', True)
     self.crypt_password = self.get_cryptpw(self.password)
-    self.allow_reinstall = self.get_allow_reinstall()
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
@@ -75,8 +75,8 @@ class PublishSetupEventMixin:
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'password', 'allow_reinstall', 'webpath', 
-                      'localpath', 'boot_options']:
+    for attribute in ['hostname', 'password', 'ssh', 
+                      'webpath', 'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
@@ -85,7 +85,6 @@ class PublishSetupEventMixin:
     self.DATA['variables'].append('localpath')
     self.DATA['config'].append('remote-url')
     self.DATA['config'].append('@hostname')
-    self.DATA['config'].append('@allow-reinstall')
     self.DATA['config'].append('boot-options')
 
     self.write_datfile()
@@ -142,14 +141,6 @@ class PublishSetupEventMixin:
 
     return self.config.get('@hostname', default)
 
-  def get_allow_reinstall(self):
-    if self.moduleid == 'test-install':
-      allow_reinstall = True
-    else:
-      allow_reinstall = self.config.get('@allow-reinstall', False)
-
-    return allow_reinstall
-
   def get_bootoptions(self):
     if self.moduleid == 'publish':
       default = 'lang=en_US keymap=us'
@@ -180,7 +171,7 @@ class PublishSetupEventMixin:
 
     if self.moduleid != 'publish':
       cryptpw = self.datfile.get('/*/%s/crypt-password/text()' % self.moduleid,
-                                 cryptpw) 
+                                 cryptpw)
 
     if len(cryptpw) > 0:
       # discard saved cryptpw if it is no longer valid

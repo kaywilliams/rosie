@@ -32,9 +32,9 @@ class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'kickstart'
   _conf = """<publish>
-  <kickstart >
+  <kickstart>
   <include xmlns='http://www.w3.org/2001/XInclude'
-           href='%s/../../share/centosstudio/examples/ks.cfg'
+           href='%s/../../share/centosstudio/examples/common/ks.cfg'
            parse='text'/>
   </kickstart>
   </publish>""" % pps.path(__file__).dirname.abspath() 
@@ -87,12 +87,6 @@ class PublishEventTestCase(EventTestCase):
                                        ['localpath'])
     EventTestCase.tearDown(self)
 
-class DeployEventTestCase(DeployMixinTestCase):
-  moduleid = 'publish'
-  eventid  = 'deploy'
-
-  def __init__(self, distro, version, arch, conf=None):
-    DeployMixinTestCase.__init__(self, distro, version, arch, conf)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('publish')
@@ -109,8 +103,4 @@ def make_suite(distro, version, arch, *args, **kwargs):
   # publish
   suite.addTest(make_core_suite(PublishEventTestCase, distro, version, arch))
 
-  # deploy
-  if check_vm_config():
-    suite.addTest(make_core_suite(DeployEventTestCase, distro, version, arch))
-    suite.addTest(dm_make_suite(DeployEventTestCase, distro, version, arch))
   return suite
