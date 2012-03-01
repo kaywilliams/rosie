@@ -25,54 +25,25 @@ from cstest.mixins import check_vm_config
 
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
-class DeployMixinTestCase(EventTestCase):
-  def __init__(self, distro, version, arch, conf):
-    self.hostname = 'test-%s-%s-%s.local' % (self.moduleid, version, arch)
-    self._conf = [ 
-      """
-      <packages>
-        <group>core</group>
-        <group>base</group>
-      </packages>
-      """,
-      """
-      <%(module)s hostname='%(hostname)s' password='password'>
-        <kickstart>
-        <include xmlns='http://www.w3.org/2001/XInclude'
-                 href='%(root)s/../../share/centosstudio/examples/ks.cfg'
-                 parse='text'/>
-        </kickstart>
-        <include xmlns='http://www.w3.org/2001/XInclude'
-                 href='%(root)s/../../share/centosstudio/examples/deploy.xml' 
-                 xpointer="xpointer(/*/*[name()!='post-script'])"/>
-      </%(module)s>
-      """ % {'module'   : self.moduleid,
-             'hostname' : self.hostname,
-             'root'     : pps.path(__file__).dirname.abspath()}]
-    EventTestCase.__init__(self, distro, version, arch, conf)
+class DeployMixinTestCase:
+  pass
 
 def DeployMixinTest_Teardown(self):
-  self._testMethodDoc = "dummy test to teardown virtual machine"
+  self._testMethodDoc = "dummy test to shutoff virtual machine"
 
   def post_tearDown():
     exec "import libvirt" in globals()
 
-    # destroy and underfine vm
+    # shutdown vm
     conn = libvirt.open("qemu:///system")
     vm = conn.lookupByName(self.hostname)
     vm.destroy()
-    vm.undefine()
-
-    # delete vm image
-    pool = conn.storagePoolLookupByName('default')
-    vol = pool.storageVolLookupByName('%s.img' % self.hostname)
-    vol.delete(0)
 
   decorate(self, 'tearDown', postfn=post_tearDown)
   
   return self
 
-def dm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
+def dm_make_suite(TestCase, distro, version, arch):
   suite = CoreTestSuite()
-  suite.addTest(DeployMixinTest_Teardown(TestCase(distro, version, arch, conf)))
+  suite.addTest(DeployMixinTest_Teardown(TestCase(distro, version, arch)))
   return suite
