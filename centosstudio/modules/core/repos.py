@@ -44,6 +44,7 @@ class ReposEvent(RepoEventMixin, Event):
       version = 1.3,
       provides = ['anaconda-version', 
                   'repos', 'installer-repo', 'base-treeinfo',
+                  'base-treeinfo-text'
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
                   ],
     )
@@ -106,8 +107,10 @@ class ReposEvent(RepoEventMixin, Event):
                   version=treeinfo.get('general', 'version'), 
                   repourl=repo.url.realm)
 
-          # set base-treeinfo control variable
+          # set base-treeinfo control variables
           self.cvars['base-treeinfo'] = treeinfo
+          self.cvars['base-treeinfo-text'] = (self.mddir/repo.id/
+                                              repo.treeinfofile).read_text()
 
           # set anaconda version
           self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
