@@ -61,7 +61,6 @@ def make_core_suite(TestCase, distro, version, arch, conf=None):
   # hack-ish solution to get a pretty header
   suite.addTest(EventTestCaseHeader(TestCase.eventid, distro, version, arch))
 
-  suite.addTest(CoreEventTestCase00(TestCase(distro, version, arch, conf)))
   suite.addTest(CoreEventTestCase01(TestCase(distro, version, arch, conf)))
   suite.addTest(CoreEventTestCase02(TestCase(distro, version, arch, conf)))
   suite.addTest(CoreEventTestCase03(TestCase(distro, version, arch, conf)))
@@ -76,26 +75,6 @@ def make_extension_suite(TestCase, distro, version, arch, conf=None):
   suite.addTest(ExtensionEventTestCase01(TestCase(distro, version, arch, conf)))
   return suite
 
-
-def CoreEventTestCase00(self):
-  self._testMethodDoc = "Event.verify() errors if DATA['output'] and skip'd first"
-
-  def post_setup():
-    self.event.status = False
-    self.clean_event_md()
-
-  def runTest():
-    self.execute_predecessors(self.event)
-    try:
-      self.failIfRuns(self.event)
-    except (AssertionError, RuntimeError, CentOSStudioError), e:
-      pass
-    if 'output' in self.event.diff.handlers: 
-      self.failIf(self.event.verifier.unittest().wasSuccessful())
-
-  decorate(self, 'setUp', postfn=post_setup)
-  self.runTest = runTest
-  return self
 
 def CoreEventTestCase01(self):
   self._testMethodDoc = "Event.run() executes if neither force nor skip specified"
