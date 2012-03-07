@@ -451,7 +451,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       pass
     self.cvars['selinux-enabled'] = selinux_enabled
 
-    # Expose options object for events (e.g. build-machine) that run parallel
+    # Expose options object for events (e.g. srpmbuild) that run parallel
     # instances of the Build object
     self.options = options
 

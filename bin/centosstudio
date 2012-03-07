@@ -174,7 +174,7 @@ class BuildCli:
     except CentOSStudioError, e: 
       if cb.debug: raise
       cb.logger.write(0, '\n') # start on a new line
-      cb.logger.log(0, L0(e))
+      cb.logger.log(0, e)
       sys.exit(1)
     except Exception, e:
       traceback.print_exc(file=cb.logger.logfile.file_object)

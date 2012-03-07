@@ -41,13 +41,16 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
 
+    self.conditionally_requires.update(['release-rpm-name', 'rpmbuild-data'])
+
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
+    self.release_rpmdata = (self.cvars['rpmbuild-data']
+                            [self.cvars['release-rpm-name']])
 
     # sync compose output, excluding release-rpm
-    release_rpm = (self.cvars['rpmbuild-data']['release-rpm']
-                             ['rpm-path'].split('/')[-1])
+    release_rpm = self.release_rpmdata['rpm-path'].split('/')[-1]
     paths=self.cvars['os-dir'].findpaths(nglob=release_rpm, 
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:
@@ -57,12 +60,12 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
     # release-rpm
     try:
-      self.release = self.cvars['rpmbuild-data']['release-rpm']['rpm-release']
+      self.release = self.release_rpmdata['rpm-release']
       ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
                          release=self.release,
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2(
-                                             "gathering release-rpm content")))
+                           "gathering release-rpm content")))
       self.DATA['variables'].append('release')
     except KeyError:
       # release rpm not created
@@ -89,7 +92,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
     # modify release-rpm
     try:
-      release = self.cvars['rpmbuild-data']['release-rpm']['rpm-release']
+      release = self.release_rpmdata['rpm-release']
     except KeyError: # release-rpm does not exist, no need to modify
       pass
     else: # release-rpm exists, modify it

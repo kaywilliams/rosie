@@ -216,8 +216,11 @@
   </define>
 
   <!-- deploy elements -->
-  <define name="content-trigger-install-script-element">
-    <element name="trigger-install-script"><text/></element>
+  <define name="content-trigger-script-element">
+    <element name="trigger-script">
+      <optional><attribute name="triggers"/></optional>
+      <text/>
+    </element>
   </define>
 
   <define name="content-activate-script-element">

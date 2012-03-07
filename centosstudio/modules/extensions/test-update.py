@@ -43,7 +43,7 @@ class TestUpdateSetupEvent(TestPublishEventMixin, Event):
       ptr = ptr,
       version = 1.0,
       requires = ['os-dir'],
-      conditionally_requires = [ 'kickstart-file', 'rpmbuild-data'],
+      conditionally_requires = [ 'kickstart-file'],
       # don't run if test-install event fails
       conditionally_comes_after = [ 'test-install' ],
       provides = ['test-update-repomdfile', 'test-update-kstext'],

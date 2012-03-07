@@ -23,6 +23,8 @@ from centosstudio.util   import rxml
 
 from centosstudio.util.rxml  import datfile 
 
+from centosstudio.modules.shared.deploy import InvalidInstallTriggerError
+
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_extension_suite
 
@@ -94,6 +96,19 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   def tearDown(self):
     EventTestCase.tearDown(self) 
 
+class Test_RaisesErrorOnInvalidTriggers(TestInstallEventTestCase):
+  "raises an error if invalid triggers are provided"
+
+  def setUp(self):
+    TestInstallEventTestCase.setUp(self)
+    self.conf.get('/*/%s/trigger-script' % self.moduleid).set(
+                  'triggers', 'kickstart, install-script junk1, junk2')
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(InvalidInstallTriggerError, self.event)
+
+
 class Test_NoReinstall(TestInstallEventTestCase):
   "does not reinstall if triggers unchanged"
 
@@ -109,7 +124,7 @@ class ReinstallTestInstallEventTestCase(TestInstallEventTestCase):
 
     # tell event to raise an error rather than reinstall if install
     # triggers fail
-    self.event.fail_on_reinstall = True
+    self.event.test_fail_on_reinstall = True
 
 
 class Test_ReinstallOnReleaseRpmChange(ReinstallTestInstallEventTestCase):
@@ -117,7 +132,8 @@ class Test_ReinstallOnReleaseRpmChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.event.cvars['rpmbuild-data']['release-rpm']['rpm-release'] += '1'
+    self.event.cvars['rpmbuild-data'][self.event.cvars['release-rpm-name']][
+                     'rpm-release'] += '1'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
 
@@ -185,6 +201,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
   # deploy
   if check_vm_config():
     suite.addTest(make_extension_suite(TestInstallEventTestCase, distro, version, arch))
+    suite.addTest(Test_RaisesErrorOnInvalidTriggers(distro, version, arch))
     suite.addTest(Test_NoReinstall(distro, version, arch))
     suite.addTest(Test_ReinstallOnReleaseRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnConfigRpmChange(distro, version, arch))

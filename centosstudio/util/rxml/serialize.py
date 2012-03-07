@@ -19,7 +19,7 @@
 xmlserialize.py
 
 A python serialization module for converting back and forth between python types
-and XmlTrees, similar to the idea of the pickle module.
+and XmlTrees, similar to the idea of the shelve module.
 
 Supported types are very limited right now; see SUPPORTED_TYPES for exactly what
 is currently handled.

@@ -22,10 +22,10 @@ import yum
 from centosstudio.errors         import CentOSStudioEventError
 from centosstudio.event          import Event
 from centosstudio.util.repo      import YumRepo
-from centosstudio.modules.shared import (PickleMixin, RpmBuildMixin,
+from centosstudio.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
                                          Trigger, TriggerContainer)
 
-class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
+class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
   release_mixin_version = "1.23"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
@@ -33,7 +33,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     self.rpmxpath = rpmxpath or '.'
     self.conditionally_requires.add('gpg-signing-keys')
 
-    RpmBuildMixin.__init__(self,
+    MkrpmRpmBuildMixin.__init__(self,
       '%s-release' % self.name,   
       "The %s-release package provides yum configuration for the  " 
       "%s repository." % (self.name, self.fullname),
@@ -41,7 +41,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
       requires = ['coreutils']
     )
 
-    PickleMixin.__init__(self)
+    ShelveMixin.__init__(self)
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             **kwargs):
@@ -57,7 +57,7 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     self.files_cb = files_cb
     self.files_text = files_text
 
-    RpmBuildMixin.setup(self, **kwargs)
+    MkrpmRpmBuildMixin.setup(self, **kwargs)
 
     self.DATA['variables'].extend(['masterrepo', 'webpath'])
 
@@ -108,9 +108,9 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     self.DATA['variables'].append('keyids')
 
   def run(self):
-    for path in [ self.pklfile, self.gpgkey_dir ]:
+    for path in [ self.shelvefile, self.gpgkey_dir ]:
       path.rm(recursive=True, force=True)
-    RpmBuildMixin.run(self)
+    MkrpmRpmBuildMixin.run(self)
 
   def generate(self):
     if self.cvars['gpgcheck-enabled']:
@@ -172,11 +172,11 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
 
   def _gpgkeys(self):
     if not self.cvars['gpgcheck-enabled']:
-      self.pklfile.rm(force=True)
+      self.shelvefile.rm(force=True)
       return []
 
     # cache for future
-    self.pickle({'gpgkeys': self.localkeys})
+    self.shelve('gpgkeys', self.localkeys)
 
     # create gpgkey list for use by yum sync plugin
     listfile = self.gpgkey_dir/'gpgkey.list'
@@ -191,8 +191,8 @@ class ReleaseRpmEventMixin(RpmBuildMixin, PickleMixin):
     return remotekeys
 
   def apply(self):
-    self.rpm._apply()
-    self.cvars['gpgkeys'] = self.unpickle().get('gpgkeys', [])
+    MkrpmRpmBuildMixin.apply(self) 
+    self.cvars['gpgkeys'] = self.unshelve('gpgkeys', [])
 
 class MissingGPGKeyError(CentOSStudioEventError):
   message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"

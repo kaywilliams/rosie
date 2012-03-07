@@ -6,7 +6,12 @@
 <fullname>RPM Build Virtual Machine</fullname>
 </main>
 
-<publish password='srpmbuild' hostname='%{id}.local' allow-reinstall='true'>
+<publish password='srpmbuild' hostname='%{id}.local'>
+<trigger-script triggers='kickstart, install-script, release-rpm'>
+  <xi:include href="../common/deploy.xml" 
+              xpointer="xpointer(/*/trigger-script/text())"/>
+</trigger-script>
+
 <install-script>
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
@@ -20,20 +25,35 @@ virt-install --name %{hostname} --ram 1000 \
 <post-script>
 #!/bin/bash
 
+### build and verify rpm packages ###
+
+# start clean
+(set -e
+ for d in BUILD SRPMS SPECS SOURCES RPMS; do 
+   rm -rf %{build-dir}/$d
+   mkdir %{build-dir}/$d
+ done)
+if [[ $? != 0 ]]; then echo 'setup failed' >&amp;2; exit 1 ; fi
+
 # install srpm
 rpm -Uvh --nodeps %{srpm}
-if [[ $? != 0 ]]; then echo 'srpm install failed: %{srpm}' >2; exit 1 ; fi
+if [[ $? != 0 ]]; then echo 'srpm install failed: %{srpm}' >&amp;2; exit 1 ; fi
 
 # rebuild srpm
 rpmbuild -bs --target %{arch} --define='dist el%{version}' %{spec} 
-if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >2; exit 1; fi
+if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >&amp;2; exit 1; fi
 
 # build rpm
 rpmbuild -ba --target %{arch} --define='dist el%{version}' %{spec}
-if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >2; exit 1; fi
+if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >&amp;2; exit 1; fi
 
-# poweroff
-poweroff
+# validate rpm
+for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do 
+  rpmlint $f
+  if [[ $? == 66 ]]; then 
+    echo 'rpmlint badness threshold exceeded: $f' >&amp;2; exit 1; 
+  fi
+done
 </post-script>
 
 <kickstart>
@@ -43,7 +63,8 @@ skipx
 
 <remote-url>http://192.168.122.1/solutions</remote-url>
 <xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='install-script' and
+            xpointer="xpointer(/*/*[name()!='trigger-script' and
+                                    name()!='install-script' and
                                     name()!='post-script'])"/>
 </publish>
 

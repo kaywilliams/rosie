@@ -26,10 +26,10 @@ from centosstudio.util.pps.constants import TYPE_NOT_DIR
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from cstest.core     import make_core_suite
-from cstest.mixins   import RpmBuildMixinTestCase, RpmCvarsTestCase
+from cstest.mixins   import MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase
 
 
-class ReleaseRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
+class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'release-rpm'
   eventid  = 'release-rpm'
 
@@ -56,7 +56,6 @@ class Test_ReleaseRpmBuild(ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_header()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ReleaseRpmCvars1(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def setUp(self):
@@ -67,7 +66,6 @@ class Test_ReleaseRpmCvars1(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_cvars()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def setUp(self):
@@ -77,7 +75,6 @@ class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_cvars()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_OutputsGpgkeys(ReleaseRpmEventTestCase):
   "creates output when gpgcheck enabled"

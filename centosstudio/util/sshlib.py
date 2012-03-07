@@ -48,9 +48,7 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
   try/finally block with the finally block similar to the following:
 
   finally:
-    if 'client' in locals():
-      client.close()
-    raise
+    if 'client' in locals(): client.close()
   """
   params = kwargs
 
@@ -62,6 +60,9 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
     try:
       client.connect(**dict(params))
       break
+    except (paramiko.AuthenticationException, 
+            paramiko.BadAuthenticationType), e:
+      raise ConnectionFailedError(str(e), params)
     except (socket.error, paramiko.SSHException), e:
       if i == 0:
         max = Decimal(retries) * sleep / 60
@@ -77,10 +78,19 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
       pass
 
   else:
-    raise ConnectionFailedError(
-    "Unable to establish connection with remote host: '%s'" % 
-    params['hostname'])
+    raise ConnectionFailedError(str(e), params)
 
   return client
 
-class ConnectionFailedError(Exception): pass
+class ConnectionFailedError(Exception):
+  def  __init__(self, message, params):
+    self.hostname = params['hostname']
+    self.message = message
+    self.params = ', '.join([ '%s=\'%s\'' % (k,params[k]) 
+                              for k in params ])
+
+  def __str__(self):
+    return ("Unable to establish connection with remote host: '%s':\n"
+            "Error Message: %s\n"
+            "SSH Parameters: %s" 
+            % (self.hostname, self.message, self.params))

@@ -16,38 +16,40 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-import cPickle
-import types 
+import shelve as Shelve
 
 from centosstudio.event import Event
 
-__all__ = ['PickleMixin']
+__all__ = ['ShelveMixin']
 
 
-class PickleMixin(Event):
+class ShelveMixin(Event):
   def __init__(self, *args, **kwargs):
+    self.shelve_mixin_version = '1.00'
     self.DATA.setdefault('output', [])
-    self.pklfile = self.mddir/ '%s.pkl' % self.id
+    self.DATA.setdefault('variables', []).append('shelve_mixin_version')
+    self.shelvefile = self.mddir/ '%s.shelve' % self.id
      
-  def pickle(self, dict):
-    "call in the run function"
-    if not type(dict) == types.DictType:
-      raise RuntimeError("pickle expecting a dict, got %s") % type(dict)
-    fo = self.pklfile.open('wb')
-    cPickle.dump(dict, fo, -1)
-    self.DATA['output'].append(self.pklfile)
-    fo.close()
+  def shelve(self, key, value):
+    "use this method in the run function to store output"
+    d = Shelve.open(self.shelvefile)
+    d[key] = value
+    if self.shelvefile not in self.DATA['output']:
+      self.DATA['output'].append(self.shelvefile)
+    d.close()
 
-  def unpickle(self):
-    "call in the apply function"
-    if self.pklfile.exists():
-      fo = self.pklfile.open('rb')
-      unpickled = cPickle.load(fo)
-      fo.close
+  def unshelve(self, key, default=None):
+    "use this method in the apply function to restore it"
+    if self.shelvefile.exists():
+      d = Shelve.open(self.shelvefile)
+      if d.has_key(key):
+        unshelved = d[key]
+      else: unshelved = default
+      d.close
     else:
-      unpickled = {} 
+      unshelved = default
 
-    return unpickled
+    return unshelved
 
   def verify_shelve_file(self):
-    self.verifier.failUnlessExists(self.pklfile)
+    self.verifier.failUnlessExists(self.shelvefile)

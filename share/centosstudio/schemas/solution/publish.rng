@@ -13,7 +13,7 @@
         <interleave>
         <ref name="element-kickstart"/>
         <ref name="content-publish-elements"/>
-        <optional><ref name="content-trigger-install-script-element"/></optional>
+        <optional><ref name="content-trigger-script-element"/></optional>
         <optional><ref name="content-activate-script-element"/></optional>
         <optional><ref name="content-delete-script-element"/></optional>
         <optional><ref name="content-install-script-element"/></optional>

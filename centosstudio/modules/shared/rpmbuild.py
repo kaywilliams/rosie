@@ -16,9 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from ConfigParser import ConfigParser
+from UserDict import DictMixin
 
-import re
 import lxml
+import re
+import rpmUtils
 
 from centosstudio.util import mkrpm
 from centosstudio.util import pps
@@ -29,14 +31,121 @@ from centosstudio.cslogging import L1
 
 from centosstudio.util.rxml import datfile 
 
-__all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer', 
-           'SystemVirtConfigError']
+from centosstudio.modules.shared import ShelveMixin
 
-class RpmBuildMixin:
+__all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger', 
+           'TriggerContainer',] 
+
+class RpmBuildMixin(ShelveMixin):
+  """
+  Mixin for working with CentOSStudio-created rpms including both from-srpm
+  (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
+  """
+  def __init__(self):
+    self.conditionally_requires.add('gpg-signing-keys')
+    self.provides.add('rpmbuild-data')
+    self.rpms = [] # list of rpmbuild dicts (get_rpmbuild_data()) to be 
+                   # managed by the mixin
+    ShelveMixin.__init__(self)
+
+  @property
+  def rpm_paths(self):
+    return [ x['rpm-path'] for x in self.rpms ]
+
+  def setup(self):
+    self._setup_signing_keys()
+
+  def run(self):
+    self._sign_rpms()
+    self._cache_rpmdata()
+
+    self.DATA['output'].extend(self.rpm_paths)
+
+  def apply(self):
+    rpmbuild_data = self.unshelve('rpmbuild_data', '')
+    for key in rpmbuild_data:
+      self.cvars['rpmbuild-data'][key] = rpmbuild_data[key]
+
+  def verify_rpms_exist(self):
+    for rpm_path in self.rpm_paths:
+      self.verifier.failUnlessExists(rpm_path)
+
+  def _get_rpmbuild_data(self, rpmpath, 
+                         packagereq_type='mandatory', 
+                         packagereq_default=None, 
+                         packagereq_requires=None):
+ 
+      data = {}
+      data['rpm-path']  = pps.path(rpmpath)
+  
+      # set packagereq attrs used in comps file
+      data['packagereq-default']  = packagereq_default
+      data['packagereq-requires'] = packagereq_requires
+      data['packagereq-type']     = packagereq_type
+  
+      # set convenience variables for nvra
+      info = rpmUtils.miscutils.splitFilename(rpmpath.basename)
+  
+      data['rpm-name']      = info[0] 
+      data['rpm-version']   = info[1]
+      data['rpm-release']   = info[2]
+      data['rpm-arch']      = info[4]
+  
+      # get obsoletes - rpmbuild-repo uses these to remove pkgs from comps
+      ts = rpmUtils.transaction.initReadOnlyTransaction()
+      hdr = rpmUtils.miscutils.hdrFromPackage(ts, rpmpath)
+      obsoletes = [ x.DNEVR()[2:] for x in hdr.dsFromHeader('obsoletename') ]
+      del ts
+      del hdr
+  
+      data['rpm-obsoletes'] = obsoletes
+  
+      return data
+
+  def _setup_signing_keys(self):
+    if 'gpg-signing-keys' in self.cvars:
+      self.gpgsign = self.cvars['gpg-signing-keys'] # convenience variable
+      self.pubtext = self.gpgsign['pubkey'].read_text().rstrip()
+      self.sectext = self.gpgsign['seckey'].read_text().rstrip()
+      self.DATA['variables'].extend(['pubtext', 'sectext', 
+                                     'gpgsign[\'passphrase\']'])
+
+  def _sign_rpms(self):
+    if self.rpms and 'gpg-signing-keys' in self.cvars:
+      self.log(3, L1("signing rpms"))
+      for rpm_path in self.rpm_paths:
+        self.log(4, L1("%s" % rpm_path.basename))
+        try:
+          mkrpm.signRpms([rpm_path], public=self.gpgsign['pubkey'], 
+                         secret=self.gpgsign['seckey'], 
+                         passphrase=self.gpgsign['passphrase'], 
+                         working_dir=self.mddir)
+        except Exception, e:
+          if self.debug: raise
+          message = ("Unable to sign rpm '%s'. The error message was '%s'"
+                      % (rpm_path, str(e)))
+          raise RpmBuildError(message=message)
+
+
+  def _cache_rpmdata(self):
+    if self.rpms:
+      rpmbuild_data = {}
+      for item in self.rpms:
+         rpmbuild_data[item['rpm-name']] = item
+    self.shelve('rpmbuild_data', rpmbuild_data)
+
+
+class MkrpmRpmBuildMixin(RpmBuildMixin):
+  """
+  Mixin for creating rpms from scratch using util.mkrpm
+  """
   def __init__(self, *args, **kwargs):
+    RpmBuildMixin.__init__(self)
     self.rpm = RpmBuildObject(self, *args,**kwargs)
+    self.provides.add('%s-name' % self.moduleid)
 
   def setup(self, **kwargs):
+    RpmBuildMixin.setup(self)
     self.datfile = datfile.parse(basefile=self._config.file)
     self.rpm.setup_build(**kwargs)
 
@@ -67,26 +176,15 @@ class RpmBuildMixin:
     except mkrpm.rpmbuild.RpmBuilderException, e:
       raise RpmBuildFailedException(message=str(e))
 
-    if 'gpg-signing-keys' in self.cvars:
-      self.log(4, L1("signing %s-%s-%s.%s.rpm" % \
-                     (R.name, R.version, R.release, R.arch)))
-      R.sign()
-
     R.save_release()
-    self.DATA['output'].append(R.rpm_path)
-    self.DATA['output'].append(R.srpm_path)
     self.DATA['output'].append(self.rpm.build_folder)
 
+    self.rpms = [ self._get_rpmbuild_data(R.rpm_path) ]
+    RpmBuildMixin.run(self)
+
   def apply(self):
-    self.rpm._apply
-
-  def verify_rpm_exists(self):
-    "rpm exists"
-    self.verifier.failUnlessExists(self.rpm.rpm_path)
-
-  def verify_srpm_exists(self):
-    "srpm exists"
-    self.verifier.failUnlessExists(self.rpm.srpm_path)
+    RpmBuildMixin.apply(self)
+    self.cvars['release-rpm-name'] = self.rpm.name
 
   #----------- OPTIONAL METHODS --------#
   def generate(self):
@@ -111,12 +209,10 @@ class RpmBuildMixin:
 
 
 class RpmBuildObject:
-  def __init__(self, ptr, name, desc, summary, license=None,
-               provides=None, obsoletes=None, requires=None,
-               packagereq_type='mandatory', packagereq_default=None,
-               packagereq_requires=None):
+  def __init__(self, ptr, name=None, desc=None, summary=None, license=None,
+               provides=None, obsoletes=None, requires=None,):
+
     self.ptr = ptr
-    self.ptr.conditionally_requires.add('gpg-signing-keys')
 
     self.desc    = desc
     self.name    = name
@@ -126,13 +222,6 @@ class RpmBuildObject:
     self.obsoletes = obsoletes or []
     self.requires  = requires  or []
     self.provides  = provides  or []
-
-    if not self.ptr.config.getbool('@use-default-obsoletes', 'True'):
-      self.obsoletes = []
-
-    self.packagereq_type     = packagereq_type
-    self.packagereq_default  = packagereq_default
-    self.packagereq_requires = packagereq_requires
 
     # RPM build variables
     self.build_folder  = self.ptr.mddir / 'build'
@@ -185,19 +274,13 @@ class RpmBuildObject:
 
     self.ptr.diff.setup(self.ptr.DATA)
 
-    if 'gpg-signing-keys' in self.ptr.cvars:
-      self.gpgsign = self.ptr.cvars['gpg-signing-keys'] # convenience variable
-      self.pubtext = self.gpgsign['pubkey'].read_text().rstrip()
-      self.sectext = self.gpgsign['seckey'].read_text().rstrip()
-      self.ptr.DATA['variables'].extend(['rpm.pubtext', 'rpm.sectext', 
-                                         'rpm.gpgsign[\'passphrase\']'])
-
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')
     self.version  = kwargs.get('version',  self.ptr.version)
 
     self.ptr.DATA['variables'].extend(['rpm.name', 'rpm.arch', 'rpm.author', 
                                        'rpm.version'])
+
 
   def save_release(self):
     root = datfile.parse(basefile=self.ptr._config.file)
@@ -319,31 +402,6 @@ class RpmBuildObject:
         doc.extend([ dir/x.basename for x in files ])
     if doc: spec.set(section, 'doc_files', '\n\t'.join(doc))
 
-  def sign(self):
-    mkrpm.signRpms([self.rpm_path], public=self.gpgsign['pubkey'], 
-                   secret=self.gpgsign['seckey'], 
-                   passphrase=self.gpgsign['passphrase'], 
-                   working_dir=self.ptr.mddir)
-
-  def _apply(self):
-    rpmbuild_data = {}
-
-    rpmbuild_data['packagereq-default']  = self.packagereq_default
-    rpmbuild_data['packagereq-requires'] = self.packagereq_requires
-    rpmbuild_data['packagereq-type']     = self.packagereq_type
-
-    rpmbuild_data['rpm-name']      = self.name
-    rpmbuild_data['rpm-version']   = self.version
-    rpmbuild_data['rpm-release']   = self.release
-    rpmbuild_data['rpm-obsoletes'] = self.obsoletes
-    rpmbuild_data['rpm-provides']  = self.provides
-    rpmbuild_data['rpm-requires']  = self.requires
-
-    rpmbuild_data['rpm-path']  = self.rpm_path
-    rpmbuild_data['srpm-path'] = self.srpm_path
-
-    self.ptr.cvars['rpmbuild-data'][self.ptr.id] = rpmbuild_data
-
 class TriggerContainer(list):
   def __init__(self, iterable=None):
     iterable = iterable or []
@@ -397,14 +455,10 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildFailedException(CentOSStudioEventError):
+class RpmBuildError(CentOSStudioEventError):
+  message="%(message)s"
+
+class RpmBuildFailedException(RpmBuildError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"
 
-class SystemVirtConfigError(CentOSStudioEventError):
-  message = ("Virt Configuration Error: The definition "
-             "file at '%(file)s' specifies SRPMs to build. However, this "
-             "machine is not configured for general-purpose RPM building. "
-             "See the CentOS Studio User Manual for information on system "
-             "requirements for building RPMs, which include hardware and "
-             "software support for building and hosting virtual machines.\n")
 

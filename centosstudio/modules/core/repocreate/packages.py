@@ -26,7 +26,7 @@ from centosstudio.errors    import assert_file_has_content, CentOSStudioEventErr
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared import comps, PickleMixin
+from centosstudio.modules.shared import comps, ShelveMixin
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -37,7 +37,7 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
 
-class PackagesEvent(PickleMixin):
+class PackagesEvent(ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
@@ -58,7 +58,7 @@ class PackagesEvent(PickleMixin):
       'output':    []
     }
 
-    PickleMixin.__init__(self)
+    ShelveMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -81,13 +81,13 @@ class PackagesEvent(PickleMixin):
     self.io.clean_eventcache(all=True)
 
     self._generate_comps()
-    self.pickle({'comps': self.comps})
+    self.shelve('comps', self.comps)
 
   def apply(self):
-    if not self.pklfile.exists(): return
+    if not self.unshelve('comps', None): return
 
     # read stored comps object 
-    self.cvars['comps-object'] = self.unpickle()['comps'] 
+    self.cvars['comps-object'] = self.unshelve('comps') 
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \

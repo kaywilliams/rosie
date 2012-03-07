@@ -127,7 +127,7 @@ class Test_SetsChanged(IsoEventBootOptionsTestCase):
   _conf = [
   """<iso>
     <set>640MB</set>
-    <set>101 MiB</set>
+    <set>200 MiB</set>
   </iso>""",
   """<publish>
     <boot-options>ro root=LABEL=/</boot-options>

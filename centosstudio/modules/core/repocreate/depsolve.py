@@ -25,7 +25,7 @@ from centosstudio.errors    import assert_file_has_content, CentOSStudioEventErr
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared import DepsolverMixin, PickleMixin
+from centosstudio.modules.shared import DepsolverMixin, ShelveMixin
 
 from centosstudio.util.depsolver.depsolver import DepsolveError
 
@@ -45,7 +45,7 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
 
-class DepsolveEvent(DepsolverMixin, PickleMixin):
+class DepsolveEvent(DepsolverMixin, ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
@@ -68,7 +68,7 @@ class DepsolveEvent(DepsolverMixin, PickleMixin):
       'output':    [],
     }
 
-    PickleMixin.__init__(self)
+    ShelveMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -105,13 +105,13 @@ class DepsolveEvent(DepsolverMixin, PickleMixin):
     self.log(1, L1("pkglist closure achieved in %d packages" % count))
 
     self.log(1, L1("writing pkglist"))
-    self.pickle({'pkglist': pkgs_by_repo})
+    self.shelve('pkglist', pkgs_by_repo)
 
     self.DATA['output'].extend([self.dsdir, self.depsolve_repo])
 
   def apply(self):
     # set pkglist cvars
-    self.cvars['pkglist'] = self.unpickle().get('pkglist', {})
+    self.cvars['pkglist'] = self.unshelve('pkglist', {})
 
   def verify_pkglistfile_has_content(self):
     "pkglist file has content"

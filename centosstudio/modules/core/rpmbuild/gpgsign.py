@@ -60,7 +60,6 @@ class GpgSignSetupEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.cvars['rpmbuild-data'] = {}
 
     self.pubkey = self.mddir/'RPM-GPG-KEY-%s' % self.solutionid
     self.seckey = self.mddir/'RPM-GPG-KEY-%s-secret' % self.solutionid

@@ -51,10 +51,10 @@ class RpmbuildRepoEvent(Event):
     )
 
     self.cid =  '%s' % self.solutionid
-    self.csid = '%s-sources' % self.solutionid
+    #self.csid = '%s-sources' % self.solutionid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
-    self.RPMBUILD_SRPMS = self.mddir/self.csid
+    #self.RPMBUILD_SRPMS = self.mddir/self.csid
 
     self.DATA = {
       'input':     [],
@@ -77,17 +77,17 @@ class RpmbuildRepoEvent(Event):
       for id in self.cvars['rpmbuild-data'].keys():
         self.io.add_fpath(self.cvars['rpmbuild-data'][id]['rpm-path'],
                           self.RPMBUILD_RPMS, id='rpmbuild-rpms')
-        self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
-                          self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
+        #self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
+        #                  self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
       rpmbuild_rpms  = CentOSStudioRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
                               gpgkey='file://%s' % self.pubkey,)
-      rpmbuild_srpms = CentOSStudioRepoGroup(id=self.csid, name=self.csid,
-                                   baseurl=self.RPMBUILD_SRPMS)
+      #rpmbuild_srpms = CentOSStudioRepoGroup(id=self.csid, name=self.csid,
+      #                             baseurl=self.RPMBUILD_SRPMS)
 
-      self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms,
-                                               self.csid: rpmbuild_srpms})
+      self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms})
+      #                                         self.csid: rpmbuild_srpms})
 
   def run(self):
     # remove previous output
@@ -128,10 +128,10 @@ class RpmbuildRepoEvent(Event):
       rpmbuildrepo = self.repos[self.cid]
       self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
       self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'].href)
-    if self.cvars['rpmbuild-srpms']:
-      rpmbuildrepo = self.repos[self.csid]
-      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
-      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'].href)
+    #if self.cvars['rpmbuild-srpms']:
+    #  rpmbuildrepo = self.repos[self.csid]
+    #  self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
+    #  self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'].href)
 
   #----- HELPER METHODS -----#
   def _createrepo(self, path):

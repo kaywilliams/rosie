@@ -11,15 +11,18 @@
 
 <repos>
 <!--centos-buildsys-5 repo provides buildsys-build package-->
+<!-- epel repo provides rpmlint package-->
 <xi:include href="../common/repos.xml"
             xpointer="xpointer(/*/repo[@id='base'] | 
                                /*/repo[@id='updates'] |
-                               /*/repo[@id='centos-buildsys-5'])"/>
+                               /*/repo[@id='centos-buildsys-5'] |
+                               /*/repo[@id='epel-5'] )"/>
 </repos>
 
 <packages>
 <group>core</group>
 <package>buildsys-build</package>
+<package>rpmlint</package>
 </packages>
 
 <xi:include href="srpmbuild.xml"

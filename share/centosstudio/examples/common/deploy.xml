@@ -2,34 +2,44 @@
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- scripts for installing and updating a local virtual machine -->
-<trigger-install-script>
+<trigger-script>
 #!/bin/bash
-INSTALL_INFO=/etc/sysconfig/centosstudio/install_info
+TRIGGER_INFO=%{trigger-file}
 
 FAIL=0
 
 # create function to handle trigger failures
 fail () {
 FAIL=1
-echo "$1 has changed" >&amp;2
+echo "$1 changed" >&amp;2
 }
 
-# include install_info
-if [[ -f $INSTALL_INFO ]]; then
-  source $INSTALL_INFO
+# get last trigger variables
+if [[ -f $TRIGGER_INFO ]]; then
+  source $TRIGGER_INFO
 fi
 
-# process triggers
-[[ '%{trigger_list}' = ${install_trigger_list} ]] || fail 'trigger_list'
-[[ '%{release_rpm}' == ${install_release_rpm} ]] || fail 'release-rpm'
-[[ '%{config_rpm}' == ${install_config_rpm} ]] || fail 'config-rpm' 
-[[ '%{kickstart}' == ${install_kickstart} ]] || fail 'kickstart'
-[[ '%{treeinfo}' == ${install_treeinfo} ]] || fail 'treeinfo'
-[[ '%{install_script}' == ${install_install_script} ]] || fail 'install-script'
-[[ '%{post_install_script}' == ${install_post_install_script} ]] || fail 'post-install-script'
+# set current trigger variables
+curr_triggers='%{triggers}'
+curr_release_rpm='%{release_rpm}'
+curr_config_rpm='%{config_rpm}'
+curr_kickstart='%{kickstart}'
+curr_treeinfo='%{treeinfo}'
+curr_install_script='%{install_script}'
+curr_post_install_script='%{post_install_script}'
+
+# test for changes in trigger list
+[[ $curr_triggers == $last_triggers ]] || fail 'trigger list'
+
+# test for changes in individual triggers
+for trigger in $curr_triggers; do
+  curr="echo \$curr_$trigger"
+  last="echo \$last_$trigger"
+  [[ `eval $curr` == `eval $last` ]] || fail $trigger
+done
 
 exit $FAIL
-</trigger-install-script>
+</trigger-script>
 
 <activate-script>
 #!/usr/bin/python
@@ -76,7 +86,7 @@ virt-install --name %{hostname} --ram 1000 \
 
 <post-install-script>
 #!/bin/bash
-INSTALL_INFO=/etc/sysconfig/centosstudio/install_info
+TRIGGER_INFO=%{trigger-file}
 
 #check install.log for errors
 if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
@@ -86,16 +96,16 @@ if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
   exit 1
 fi
 
-# create INSTALL_INFO file
+# create TRIGGER_INFO file
 echo "
-install_trigger_list='%{trigger_list}'
-install_release_rpm='%{release_rpm}'
-install_config_rpm='%{config_rpm}'
-install_kickstart='%{kickstart}'
-install_treeinfo='%{treeinfo}'
-install_install_script='%{install_script}'
-install_post_install_script='%{post_install_script}'
-" > $INSTALL_INFO
+last_triggers='%{triggers}'
+last_release_rpm='%{release_rpm}'
+last_config_rpm='%{config_rpm}'
+last_kickstart='%{kickstart}'
+last_treeinfo='%{treeinfo}'
+last_install_script='%{install_script}'
+last_post_install_script='%{post_install_script}'
+" > $TRIGGER_INFO
 
 </post-install-script>
 

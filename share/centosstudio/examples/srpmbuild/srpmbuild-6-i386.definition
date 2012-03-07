@@ -20,6 +20,7 @@
 <packages>
 <group>core</group>
 <group>buildsys-build</group>
+<package>rpmlint</package>
 </packages>
 
 <xi:include href="srpmbuild.xml"

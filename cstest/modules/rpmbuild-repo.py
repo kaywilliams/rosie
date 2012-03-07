@@ -29,10 +29,42 @@ class Test_NoDefaults(RpmbuildRepoTestCase):
     self.failIf('everything' in self.event.repos)
     self.failIf('updates'    in self.event.repos)
 
+class Test_Obsoletes(RpmbuildRepoTestCase):
+  "rpm obsoletes removed from comps object"
+
+  # add an obsolete to the config rpm
+  _conf="""
+  <config-rpm>
+  <obsoletes>test-package</obsoletes>
+  </config-rpm>
+  """
+
+  def setUp(self):
+    RpmbuildRepoTestCase.setUp(self)
+
+  def runTest(self):
+    # execute predecessors
+    self.execute_predecessors(self.event)
+
+    # insert the test package into the comps core group
+    core_group = self.event.cvars['comps-object'].return_group('core')
+    core_group.add_package( package='test-package',
+                            genre='mandatory',
+                            requires=None,
+                            default=None)
+
+    # execute the event
+    self.event.execute()
+
+    # the test package should be removed from comps
+    self.failIf('test-package' in self.event.cvars['comps-object'].all_packages)
+
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild-repo')
 
   suite.addTest(make_core_suite(RpmbuildRepoTestCase, distro, version, arch))
   suite.addTest(Test_NoDefaults(distro, version, arch))
+  suite.addTest(Test_Obsoletes(distro, version, arch))
 
   return suite

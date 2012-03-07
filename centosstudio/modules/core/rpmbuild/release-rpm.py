@@ -57,5 +57,4 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
     ReleaseRpmEventMixin.run(self)
 
   def apply(self):
-    self.rpm._apply()
     ReleaseRpmEventMixin.apply(self)

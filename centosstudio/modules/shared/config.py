@@ -20,18 +20,18 @@ import hashlib
 from centosstudio.util  import pps
 from centosstudio.event import Event
 
-from centosstudio.modules.shared import (RpmBuildMixin, 
+from centosstudio.modules.shared import (MkrpmRpmBuildMixin, 
                                           Trigger, 
                                           TriggerContainer)
 
-class ConfigRpmEventMixin(RpmBuildMixin):
-  config_mixin_version = "1.21"
+class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
+  config_mixin_version = "1.22"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
     self.rpmxpath = rpmxpath or '.'
 
-    RpmBuildMixin.__init__(self,
+    MkrpmRpmBuildMixin.__init__(self,
       '%s-config' % self.name,   
       "The %s-config package provides scripts and files for configuring " 
       "packages from the %s repository." % (self.name, self.fullname),
@@ -53,10 +53,10 @@ class ConfigRpmEventMixin(RpmBuildMixin):
     self.files_cb = files_cb
     self.files_text = files_text
 
-    RpmBuildMixin.setup(self, **kwargs)
+    MkrpmRpmBuildMixin.setup(self, **kwargs)
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.rootinstdir = pps.path('/etc/sysconfig/centosstudio')
+    self.rootinstdir = self.LIB_DIR / 'config' 
     self.installdir  = self.rootinstdir/self.name
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.rpm.source_folder // self.filerelpath
@@ -81,7 +81,7 @@ class ConfigRpmEventMixin(RpmBuildMixin):
     self.debug_postfile = self.debugdir/'config-post-script'
 
   def run(self):
-    RpmBuildMixin.run(self)
+    MkrpmRpmBuildMixin.run(self)
 
   def generate(self):
     for what in ['files', 'triggers']:
@@ -382,6 +382,3 @@ class ConfigRpmEventMixin(RpmBuildMixin):
       return self.scriptdir/id
     else:
       return None
-
-  def apply(self):
-    self.rpm._apply()

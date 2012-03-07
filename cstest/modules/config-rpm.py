@@ -25,10 +25,10 @@ from centosstudio.util    import rxml
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from cstest.core     import make_extension_suite
-from cstest.mixins   import RpmBuildMixinTestCase, RpmCvarsTestCase
+from cstest.mixins   import MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase
 
 
-class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
+class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'
   eventid  = 'config-rpm'
   _conf = """<config-rpm enabled="true">
@@ -98,7 +98,6 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_inputs('files')
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
   def setUp(self):
@@ -109,7 +108,6 @@ class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_header()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
@@ -120,7 +118,6 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_cvars()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
@@ -130,7 +127,6 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_cvars()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  

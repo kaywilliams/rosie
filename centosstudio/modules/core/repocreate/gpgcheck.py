@@ -69,7 +69,7 @@ class GpgCheckEvent(Event):
       return
 
     # massage rpms cvar into a form that difftest.variables handles properly
-    # in the future we should add pickle support to difftest
+    # in the future we should add shelve support to difftest
     self.rpms = sorted([x for x in self.cvars['rpms']])
     self.DATA['variables'].append('rpms')
 

@@ -24,7 +24,8 @@ import sys
 import traceback
 
 from centosstudio.cslogging import L0, L1, L2, MSG_MAXWIDTH
-from centosstudio.errors import CentOSStudioError, CentOSStudioEventError
+from centosstudio.errors import (CentOSStudioError, CentOSStudioEventError,
+                                 SimpleCentOSStudioEventError)
 from centosstudio.util import sshlib
 
 from UserDict import DictMixin
@@ -33,10 +34,12 @@ SSH_RETRIES = 24
 SSH_SLEEP = 5
 
 class DeployEventMixin:
-  deploy_mixin_version = "1.00"
+  deploy_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
     self.requires.add('%s-setup-options' % self.moduleid,)
+    self.conditionally_requires.update(['rpmbuild-data', 'release-rpm-name'
+                                        'config-rpm-name'])
 
     # we're doing this in init rather than in validate (where it 
     # should technically be) so that if no scripts are present
@@ -44,8 +47,8 @@ class DeployEventMixin:
 
     # set up script default parameters
     self.scripts = {
-      'trigger-install-script': 
-                       dict(message='running install trigger script',
+      'trigger-script': 
+                       dict(message='running trigger install script',
                        ssh=True,
                        activate=True,
                        connect=True,
@@ -78,8 +81,8 @@ class DeployEventMixin:
         self.scripts[script]['enabled'] = True
         self.scripts_provided = True
 
-        # special processing for trigger-install-script
-        if script == 'trigger-install-script':
+        # special processing for trigger-script
+        if script == 'trigger-script':
           self.scripts[script]['activate'] = self.config.getbool(
             '%s/@activate-fails' % script, True)
           self.scripts[script]['connect'] = self.config.getbool(
@@ -114,25 +117,39 @@ class DeployEventMixin:
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
 
-    # setup install triggers
-    # note - macros must be resolved before script setup
-    self.triggers = {
-      'release_rpm':           self._get_rpm_csum('release-rpm'),
-      'config_rpm':            self._get_rpm_csum('config-rpm'),
-      'kickstart':             self._get_csum(self.kstext),
-      'treeinfo':              self._get_csum(
-                                 self.cvars['base-treeinfo-text']),
-      'install_script':        self._get_script_csum('install-script'),
+    # resolve trigger macros 
+    trigger_data = {
+      'release_rpm':         self._get_rpm_csum('release-rpm'),
+      'config_rpm':          self._get_rpm_csum('config-rpm'),
+      'kickstart':           self._get_csum(self.kstext),
+      'treeinfo':            self._get_csum(self.cvars['base-treeinfo-text']),
+      'install_script':      self._get_script_csum('install-script'),
       'post_install_script': self._get_script_csum('post-install-script'),
       }
 
-    for t in self.triggers:
-      self.config.resolve_macros('.' , {'%%{%s}' % t: self.triggers[t]})
+    for key in trigger_data: 
+      self.config.resolve_macros('.' , {'%%{%s}' % key: trigger_data[key]})
 
-    list = self.triggers.keys()
-    list.append('trigger_list')
-    list.sort()
-    self.config.resolve_macros('.', {'%{trigger_list}': ' '.join(list)})
+    triggers = self.config.get('trigger-script/@triggers', '')
+    if triggers:
+      triggers = [ s.strip() for s in triggers.replace(',', ' ').split() ]
+      valids = [ s.replace('_', '-') for s in trigger_data.keys() ]
+      invalids = set(triggers) - set(valids)
+      if invalids:
+        message = ("One or more trigger specified in the definition at '%s' "
+                   "is invalid. The invalid values are '%s'. Available "
+                   "values are '%s'." % ( self._config.file, 
+                   "', '".join(invalids), "', '".join(valids)))
+        raise InvalidInstallTriggerError(message=message)
+    else:
+      triggers = trigger_data.keys()
+
+    triggers.sort()
+    self.config.resolve_macros('.', {'%{triggers}': ' '.join(triggers)})
+
+    self.deploydir = self.LIB_DIR / 'deploy'
+    trigger_info = self.deploydir / 'trigger_info'
+    self.config.resolve_macros('.', {'%s{trigger-file}': trigger_info})
 
     # setup scripts
     for script in self.scripts:
@@ -146,10 +163,9 @@ class DeployEventMixin:
     for script in self.scripts:
       self.io.process_files(what=script)
 
-    # if self._reinstall(triggers = install_triggers):
     if self._reinstall():
       self.cvars['%s-reinstalled' % self.moduleid] = True # used by test cases
-      if hasattr(self, 'fail_on_reinstall'): #set by test cases
+      if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise CentOSStudioError('test fail on reinstall')
       self._execute('delete-script')
       self._execute('install-script')
@@ -170,7 +186,7 @@ class DeployEventMixin:
   def _get_rpm_csum(self, rpmname):
     if not 'rpmbuild-data' in self.cvars:
       return self._get_csum('')
-    data = self.cvars['rpmbuild-data'].get('%s' % rpmname, '')
+    data = self.cvars['rpmbuild-data'].get(self.cvars['%s-name' % rpmname], '')
     if data:
       return self._get_csum('%s-%s-%s.%s' % (data['rpm-name'], 
         data['rpm-version'], data['rpm-release'], data['rpm-arch']))
@@ -186,34 +202,34 @@ class DeployEventMixin:
       return False # don't try to install since we haven't got a script
 
     # can we activate the machine?
-    if self.scripts['trigger-install-script']['activate']:
+    if self.scripts['trigger-script']['activate']:
       try:
         self._execute('activate-script')
-      except (ScriptFailedError, SSHFailedError), e:
-        self.log(4, L1(e))
+      except (ScriptFailedError, SSHScriptFailedError), e:
+        self.log(3, L0(e))
         self.log(1, L1("unable to activate machine, reinstalling..."))
         return True # reinstall
 
     # can we get an ssh connection?
     if (self.ssh['enabled'] is True and 
-        self.scripts['trigger-install-script']['connect']):
-      params = SSHParameters(self, 'trigger-install-script')
+        self.scripts['trigger-script']['connect']):
+      params = SSHParameters(self, 'trigger-script')
       self.log(1, L1('attempting to connect'))
       try:
-        client = self._ssh_connect(params, 'trigger-install-script')
+        client = self._ssh_connect(params)
         client.close()
       except (SSHFailedError), e:
-        self.log(4, L1(e))
+        self.log(3, L1(e))
         self.log(1, L1("unable to connect to machine, reinstalling...")) 
         return True # reinstall
 
     # does the trigger script return success?
-    if self.scripts['trigger-install-script']['enabled']:
+    if self.scripts['trigger-script']['enabled']:
       try:
-        self._execute('trigger-install-script')
+        self._execute('trigger-script')
       except (ScriptFailedError), e:
-        self.log(4, L1(e))
-        self.log(1, L1("trigger-install-script failed, reinstalling..."))
+        self.log(3, L1(e))
+        self.log(1, L1("trigger-script failed, reinstalling..."))
         return True # reinstall
 
     # everything looks good
@@ -229,66 +245,99 @@ class DeployEventMixin:
       # run cmd on remote machine
       params = SSHParameters(self, script)
       try:
-        client = self._ssh_connect(params, script)
+        try:
+          client = self._ssh_connect(params)
+        except SSHFailedError, e:
+          raise SSHScriptFailedError(script=script, message=str(e))
 
         # copy script to remote machine
         sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-        if not 'centosstudio' in  sftp.listdir('/etc/sysconfig'): 
-          sftp.mkdir('/etc/sysconfig/centosstudio')
-          sftp.chmod('/etc/sysconfig/centosstudio', mode=0750)
+        if not self.LIB_DIR.basename in sftp.listdir(str(self.LIB_DIR.dirname)):
+          sftp.mkdir(str(self.LIB_DIR))
+        if not (self.deploydir.basename in 
+                sftp.listdir(str(self.deploydir.dirname))): 
+          sftp.mkdir(str(self.deploydir))
+          sftp.chmod(str(self.deploydir), mode=0750)
         sftp.put(self.io.list_output(what=script)[0], 
-                 '/etc/sysconfig/centosstudio/%s' % script)
-        sftp.chmod('/etc/sysconfig/centosstudio/%s' % script, mode=0750)
+                 str(self.deploydir/script))
+        sftp.chmod(str(self.deploydir/script), mode=0750)
  
+        # execute script
+        cmd = str(self.deploydir/script)
+        try:
+          self._ssh_execute(client, cmd)
+        except SSHFailedError, e:
+          raise SSHScriptFailedError(script=script, message=str(e))
+  
+      finally:
+        if 'client' in locals(): client.close()
+
+    else: # run cmd on the local machine
+      self._local_execute(cmd)
+
+  def _ssh_connect(self, params, log_format='L2'):
+    try:
+      try:
+        self.log(2, eval('%s' % log_format)(
+                         "connecting to host \'%s\'" % params['hostname'])) 
+        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
+        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
+                                   callback=SSHConnectCallback(self.logger),
+                                   **dict(params))
+
         # setting keepalive causes client to cancel processes started by the
         # server after the SSH session is terminated. It takes a few seconds for
         # the client to notice and cancel the process. 
         client.get_transport().set_keepalive(1)
 
-        # execute script
-        cmd = '/etc/sysconfig/centosstudio/%s' % script
-        self.log(2, L2("executing '%s' on host" % cmd))
-        chan = client.get_transport().open_session()
-        chan.exec_command(cmd)
+      except sshlib.ConnectionFailedError, e:
+        raise SSHFailedError(message=e) 
 
-        errlines = []
-        header_logged = False
-        while True:
-          r, w, x = select.select([chan], [], [], 0.0)
-          if len(r) > 0:
-            got_data = False
-            if chan.recv_ready():
-              data = chan.recv(1024)
-              if data:
-                got_data = True
-                if header_logged is False:
-                  self.logger.log_header(4, "%s event - '%s' output" % 
-                                        (self.id, script))
-                  header_logged = True
-                self.log(4, L0(data.rstrip('\n')))
-            if chan.recv_stderr_ready():
-              data = chan.recv_stderr(1024)
-              if data:
-                got_data = True
-                errlines.extend(data.rstrip('\n').split('\n'))
-            if not got_data:
-              break
+    except:
+      if 'client' in locals(): client.close()
+      raise
 
-        if header_logged:
-          self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
-          
-        status = chan.recv_exit_status()
-        chan.close()
-        client.close()
-        if status != 0:
-          raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
-  
-      except:
-        if 'client' in locals():
-          client.close()
-        raise
+    return client
 
-    else: # run cmd on the local machine
+  def _ssh_execute(self, client, cmd, log_format='L2'):
+    self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
+    chan = client.get_transport().open_session()
+    chan.exec_command(cmd)
+
+    errlines = []
+    header_logged = False
+    while True:
+      r, w, x = select.select([chan], [], [], 0.0)
+      if len(r) > 0:
+        got_data = False
+        if chan.recv_ready():
+          data = chan.recv(1024)
+          if data:
+            got_data = True
+            if header_logged is False:
+              self.logger.log_header(4, "%s event - '%s' output" % 
+                                    (self.id, cmd))
+              header_logged = True
+            self.log(4, L0(data.rstrip('\n')))
+        if chan.recv_stderr_ready():
+          data = chan.recv_stderr(1024)
+          if data:
+            got_data = True
+            errlines.extend(data.rstrip('\n').split('\n'))
+        if not got_data:
+          break
+
+    if header_logged:
+      self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
+      self.logger.log(4, L0(''))
+      
+    status = chan.recv_exit_status()
+    chan.close()
+
+    if status != 0:
+      raise SSHFailedError(message='\n'.join(errlines))
+
+  def _local_execute(self, cmd):
       proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
                                                stderr=subprocess.PIPE)
 
@@ -300,8 +349,8 @@ class DeployEventMixin:
         if outline != '' or errline != '' or proc.poll() is None:
           if outline: 
             if not header_logged:
-              self.logger.log_header(4, "%s event - begin '%s' output" %
-                                    (self.id, script))
+              self.logger.log_header(4, "%s event - '%s' output" %
+                                    (self.id, cmd))
               header_logged = True
             self.log(4, L0(outline))
           if errline: errlines.append(errline) 
@@ -312,33 +361,8 @@ class DeployEventMixin:
         self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
 
       if proc.returncode != 0:
-        raise ScriptFailedError(script=script, errtxt='\n'.join(errlines))
+        raise ScriptFailedError(script=cmd, errtxt='\n'.join(errlines))
       return
-
-  def _ssh_connect(self, params, script):
-    try:
-      try:
-        self.log(2, L2('connecting to host \'%s\'' % params['hostname'])) 
-        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
-        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
-                                   callback=SSHConnectCallback(self.logger),
-                                   **dict(params))
-
-      except paramiko.BadAuthenticationType, e:
-        raise SSHFailedError(script=script, message=str(e), params=str(params))
-
-      except sshlib.ConnectionFailedError:
-        raise SSHFailedError(script=script, 
-          message="Unable to establish connection with remote host: '%s'"
-                  % params['hostname'],
-          params=str(params))
-
-    except:
-      if 'client' in locals():
-        client.close()
-      raise
-
-    return client
 
 
 class SSHParameters(DictMixin):
@@ -365,13 +389,23 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
-class ScriptFailedError(CentOSStudioEventError):
-  message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s" 
+
+#------ Errors ------#
+class DeployMixinError(CentOSStudioEventError):
+  message = "%(message)s"
+
+class InvalidInstallTriggerError(DeployMixinError):
+  message = "%(message)s"
+
+class ScriptFailedError(DeployMixinError):
+  message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s"
 
 class SSHFailedError(ScriptFailedError):
-  message = """Error occured running '%(script)s'.
-Error message: '%(message)s'
-SSH parameters: '%(params)s"""
+  message = "%(message)s"
+
+class SSHScriptFailedError(ScriptFailedError):
+  message = """Error(s) occured running '%(script)s':
+%(message)s"""
 
 #------ Callbacks ------#
 class SSHConnectCallback:

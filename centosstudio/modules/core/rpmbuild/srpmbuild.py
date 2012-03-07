@@ -17,6 +17,7 @@
 #
 import lxml
 import optparse
+import paramiko 
 import re
 import rpm
 import rpmUtils
@@ -24,20 +25,21 @@ import signal
 import yum
 
 from centosstudio.callback     import TimerCallback
-from centosstudio.cslogging    import MSG_MAXWIDTH
+from centosstudio.cslogging    import MSG_MAXWIDTH, L0, L1, L2
 from centosstudio.errors       import (CentOSStudioError,
-                                       CentOSStudioEventError,
-                                       SimpleCentOSStudioEventError)
-from centosstudio.event        import Event, CLASS_META
+                                       CentOSStudioEventError)
+from centosstudio.event        import Event
 from centosstudio.main         import Build
+from centosstudio.util         import magic 
 from centosstudio.util         import pps 
 from centosstudio.util         import rxml 
+from centosstudio.util         import sshlib 
 
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 
-from centosstudio.modules.shared import (ExecuteMixin, PickleMixin, 
-                                         SystemVirtConfigError)
+from centosstudio.modules.shared import (DeployEventMixin, SSHConnectCallback,
+                                         ShelveMixin, RpmBuildMixin) 
 
 from fnmatch import fnmatch
 
@@ -56,23 +58,17 @@ baseurl = %s
 '''
 
 
-class SrpmBuildMixinEvent(Event):
+class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-%s' % (self.moduleid, self.srpmid), 
       parentid = 'rpmbuild',
       ptr = ptr,
-      version = 1.02,
+      version = 1.03,
       requires = ['rpmbuild-data', ],
       provides = ['repos', 'source-repos', 'comps-object'],
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
     )
-  
-    try:
-      exec "import libvirt" in globals()
-      exec "from virtinst import CloneManager" in globals()
-    except ImportError:
-      raise SystemVirtConfigError(file=self._config.file)
   
     self.options = ptr.options # options not exposed as shared event attr
 
@@ -85,7 +81,10 @@ class SrpmBuildMixinEvent(Event):
   
     self.srpmfile = ''
     self.srpmdir  = self.mddir / 'srpm'
-    self.datdir   = self.LIB_DIR / '%s' % self.moduleid
+
+    self.rpmsdir   = self.mddir / 'rpms'
+
+    self.datdir   = self.LIB_DIR / 'srpms'
     self.datdir.mkdirs()
 
     if self.version == "5":
@@ -93,24 +92,30 @@ class SrpmBuildMixinEvent(Event):
     else:
       self.build_dir = pps.path('/root/rpmbuild')
 
-    PickleMixin.__init__(self)
+    self.originals_dir = self.build_dir / 'originals'
+
+    ShelveMixin.__init__(self)
+    RpmBuildMixin.__init__(self)
   
   def setup(self):
     self.diff.setup(self.DATA)
-    ExecuteMixin.setup(self)
+    RpmBuildMixin.setup(self)
   
     # resolve macros
-    srpmlast = self.unpickle().get('srpmlast', '')
+    srpmlast = self.unshelve('srpmlast', '')
     macros = {'%{srpm-id}': self.srpmid,
               '%{srpm-dir}': self.srpmdir,
               '%{srpm-last}': srpmlast,
+              '%{rpms-dir}': self.rpmsdir,
              }
     self.config.resolve_macros('.', macros)
   
     # get srpm
+    path = pps.path(self.config.get('path/text()', ''))
     repo = pps.path(self.config.get('repo/text()', ''))
     script = self.config.get('script/text()', '')
-    if repo: self._get_srpm_from_repo(repo)
+    if path: self._get_srpm_from_path(path)
+    elif repo: self._get_srpm_from_repo(repo)
     elif script: self._get_srpm_from_script(script)
 
     # get base build machine definition
@@ -139,9 +144,13 @@ class SrpmBuildMixinEvent(Event):
       self.DATA['output'].append(self.srpmfile)
     else: # srpm provided by path or repo
       self.srpmfile = self.io.list_output(what='srpm')[0]
-    self.pickle({'srpmlast': self.srpmfile.basename})
+    self.shelve('srpmlast', self.srpmfile.basename)
     # update definition
     definition = self._update_definition()
+
+    # start with a clean rpmsdir
+    self.rpmsdir.rm(recursive=True, force=True)
+    self.rpmsdir.mkdirs()
 
     # initialize builder
     try:
@@ -151,9 +160,12 @@ class SrpmBuildMixinEvent(Event):
               definition='based on \'%s\'' % self.definition, 
               error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
 
-    # build machine
-    timer = TimerCallback(self.logger)
-    timer.start("building '%s'" % self.srpmid)
+    # build rpms
+    if self.logger.threshold > 2:
+      self.logger.log_header(3, "building '%s' SRPM" % self.srpmid)
+    else:
+      self.logger.log(2, L2("building '%s'" % self.srpmid))
+
     try:
       builder.main()
     except CentOSStudioError, e:
@@ -161,7 +173,67 @@ class SrpmBuildMixinEvent(Event):
                     definition='based on \'%s\'' % self.definition, 
                     error=e, idstr="--> build machine id: %s\n" %
                     builder.solutionid, sep = MSG_MAXWIDTH * '=')
-    timer.end()
+
+    self.logger.log(3, L0("%s" % '=' * MSG_MAXWIDTH))
+    self.logger.log(3, L0(''))
+   
+    self.copy = self.config.getbool('@copy', True)
+    self.shutdown = self.config.getbool('@shutdown', True)
+
+    if self.copy or self.shutdown:
+      params = dict( 
+        hostname = builder.cvars['publish-setup-options']['hostname'],
+        password = builder.cvars['publish-setup-options']['password'],
+        username = 'root',
+        port     = 22,)
+
+      try:
+        client = self._ssh_connect(params, log_format="L1") 
+        if self.copy: self._copy_results(client)
+        if self.shutdown:
+          self._ssh_execute(client, 'poweroff', log_format="L1")
+
+      finally:
+        if 'client' in locals(): client.close()
+
+    # verify rpms
+    self.logger.log(3, L1("verifying rpms"))
+    if hasattr(self, 'test_verify_rpms'): # set by test module
+      badfile = self.rpmsdir / 'badfile'
+      badfile.write_text('')
+
+    rpmfiles = self.rpmsdir.findpaths(mindepth=1)
+    for file in rpmfiles:
+      if magic.match(file) != magic.FILE_TYPE_RPM:
+        message = ("The file at '%s' does not appear to be an rpm." % file)
+        raise SrpmBuildEventError(message=message)
+
+    # use RpmBuildMixin to sign rpms, cache rpmdata, and add rpms as output
+    self.rpms = [ self._get_rpmbuild_data(f) for f in rpmfiles ]
+    RpmBuildMixin.run(self)
+
+  def _get_srpm_from_path(self, path):
+    if path.endswith('.src.rpm'): # add the file
+      if not path.exists(): 
+        raise SrpmNotFoundError(name=self.srpmid, path=path)
+      self.io.add_fpath(path, self.srpmdir, id='srpm') 
+    else: # add the most current matching srpm
+      paths = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
+                             glob='%s*' % self.srpmid)
+      if not paths: 
+        raise SrpmNotFoundError(name=self.srpmid, path=path)
+      while len(paths) > 1:
+        path1 = paths.pop()
+        path2 = paths.pop()
+        _,v1,r1,e1,_  = rpmUtils.miscutils.splitFilename(path1.basename)
+        _,v2,r2,e2,_  = rpmUtils.miscutils.splitFilename(path2.basename)
+        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
+        if result < 1: # path2 is newer, return it to the list
+          paths.insert(0, path2)
+        else: # path1 is newer, or they are the same
+          paths.insert(0, path1)
+
+      self.io.add_fpath(paths[0], self.srpmdir, id='srpm')
 
   def _get_srpm_from_repo(self, repo):
     yumdir = self.mddir / 'yum'
@@ -200,7 +272,7 @@ class SrpmBuildMixinEvent(Event):
     script_file.write_text(self.config.get('script/text()'))
     script_file.chmod(0750)
   
-    self._execute_local(script_file)
+    self._local_execute(script_file)
   
     results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
                                       maxdepth=1)
@@ -211,10 +283,10 @@ class SrpmBuildMixinEvent(Event):
                  "location specified by the %%{srpmdir} macro. See the "
                  "CentOS Studio documentation for information on using the "
                  "srpm/script element." % (self.srpmid, self.srpmid))
-      raise SimpleCentOSStudioEventError(message=message)
+      raise SrpmBuildEventError(message=message)
     elif len(results) > 1:
       message = "more than one result: %s" % results
-      raise SimpleCentOSStudioEventError(message=message)
+      raise SrpmBuildEventError(message=message)
     else:
       self.srpmfile = results[0]
       self.DATA['input'].append(self.srpmfile)
@@ -224,7 +296,7 @@ class SrpmBuildMixinEvent(Event):
 
     root = rxml.config.parse(self.definition).getroot()
 
-    name =    self.id
+    name =    self.srpmid
     version = self.version
     arch =    self.userarch
 
@@ -249,7 +321,7 @@ class SrpmBuildMixinEvent(Event):
         config = root.find('config-rpm')
 
     child = rxml.config.Element('files', parent=config)
-    child.set('destdir', self.build_dir / 'originals')
+    child.set('destdir', self.originals_dir)
     child.text = self.srpmfile
 
     for req in requires:
@@ -261,8 +333,9 @@ class SrpmBuildMixinEvent(Event):
 
     #resolve macros
     root.resolve_macros('.', {
-      '%{srpm}': self.build_dir / 'originals' / self.srpmfile.basename,
-      '%{spec}': self.build_dir / 'SPECS' / spec, })
+      '%{build-dir}': self.build_dir,
+      '%{srpm}':      self.originals_dir / self.srpmfile.basename,
+      '%{spec}':      self.build_dir / 'SPECS' / spec, })
 
     return root
 
@@ -279,7 +352,7 @@ class SrpmBuildMixinEvent(Event):
   def _get_build_machine_options(self):
     parser = optparse.OptionParser()
     parser.set_defaults(**dict(
-      logthresh = 0,
+      logthresh = self.logger.threshold,
       logfile   = self.options.logfile,
       libpath   = self.options.libpath,
       sharepath = self.options.sharepath,
@@ -301,69 +374,22 @@ class SrpmBuildMixinEvent(Event):
     
     return opts
 
-  def _copy_results(self, hostname, password):
-    # the better way to do this, evenutally, is to add sftp support to pps
-    # for now, using paramiko directly...
-
-    # activate system
-    connection = libvirt.open('qemu:///system')
-    vm = connection.lookupByName(hostname)
-    if vm.isActive() == 1:
-      pass # vm is active, continue...
-    elif vm.create() != 0:
-      raise RuntimeError("vm inactive, and failed to start: %s" % hostname)
-
+  def _copy_results(self, client):
     try:
-      # establish ssh connection
-      signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
-      client = sshlib.get_client(username = 'root', hostname = hostname, 
-                                 port = 22, password = password, 
-                                 callback = SSHConnectCallback(log))
-      sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-
       # copy files
+      sftp = paramiko.SFTPClient.from_transport(client.get_transport())
       rpms = set()
-      srpms = set()
       for dir in sftp.listdir(str(self.build_dir/'RPMS')):
-          for rpm in sftp.listdir(str(self.build_dir/'RPMS'/dir)):
-              if (fnmatch(rpm, self.rpm_glob) and not 
-                  fnmatch(rpm, self.rpm_nglob)):
-                  rpms.add(self.build_dir/'RPMS'/dir/rpm)
-
-      for srpm in sftp.listdir(str(self.build_dir/'SRPMS')):
-          if fnmatch(srpm, self.srpm_glob):
-              if self.srpm_nglob and fnmatch(srpm, self.srpm_nglob): 
-                  continue # filter out unwanted srpms
-              else:
-                  srpms.add(self.build_dir/'SRPMS'/srpm)
+        for file in sftp.listdir(str(self.build_dir/'RPMS'/dir)):
+          if file.endswith('.rpm'):
+            rpms.add(self.build_dir/'RPMS'/dir/file)
 
       for rpm in rpms:
-          for dir in self.rpms_dirs:
-              sftp.get(str(rpm), str(dir/rpm.basename))
-
-      for srpm in srpms:
-          sftp.get(str(srpm), str(self.srpms_dir/srpm.basename))
-
-      # shutdown machine
-      chan = client._transport.open_session()
-      chan.exec_command('poweroff')
-      stdin = chan.makefile('wb', -1)
-      stdout = chan.makefile('rb', -1)
-      stderr = chan.makefile_stderr('rb', -1)
-      for f in ['out', 'err']:
-        text = eval('std%s.read()' % f).rstrip()
-        if text:
-          log(text)
-      status = chan.recv_exit_status()
-      chan.close()
-      client.close()
-      if status != 0:
-        raise RuntimeError("unable to poweroff vm: %s" % hostname)
-
+        sftp.get(str(rpm), str(self.rpmsdir/rpm.basename))
+  
     finally:
       # close connection
       if 'sftp' in locals(): sftp.close()
-      if 'client' in locals(): client.close()
 
 class SrpmBuild(Build):
   def __init__(self, definition, *args, **kwargs):
@@ -402,11 +428,11 @@ def get_module_info(ptr, *args, **kwargs):
 
     # create new class
     exec """%s = SrpmBuildEvent('%s', 
-                          (SrpmBuildMixinEvent, ExecuteMixin, PickleMixin,), 
-                          { 'srpmid'   : '%s',
-                            '__init__': __init__,
-                          }
-                         )""" % (name, name, id) in globals()
+                         (SrpmBuildMixinEvent,), 
+                         { 'srpmid'   : '%s',
+                           '__init__': __init__,
+                         }
+                        )""" % (name, name, id) in globals()
 
     # update module info with new classname
     module_info['events'].append(name)
@@ -415,14 +441,17 @@ def get_module_info(ptr, *args, **kwargs):
 
 
 # -------- Error Classes --------#
-class InvalidRepoError(CentOSStudioEventError):
+class SrpmBuildEventError(CentOSStudioEventError): 
+  message = ("%(message)s")
+
+class InvalidRepoError(SrpmBuildEventError):
   message = ("Cannot retrieve repository metadata (repomd.xml) for repository "
              "'%(url)s'. Please verify its path and try again.\n")
 
-class SrpmNotFoundError(CentOSStudioEventError):
+class SrpmNotFoundError(SrpmBuildEventError):
   message = "No srpm '%(name)s' found at '%(path)s'\n"
 
-class BuildMachineCreationError(CentOSStudioEventError):
+class BuildMachineCreationError(SrpmBuildEventError):
   message = ("Error creating or updating RPM build machine.\n%(sep)s\n"
              "%(idstr)s--> build machine definition: %(definition)s\n--> "
              "error:\n%(error)s\n")

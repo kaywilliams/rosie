@@ -65,6 +65,7 @@ FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
 FILE_TYPE_FAT      = 'FAT filesystem'
 FILE_TYPE_JPG      = 'JPEG image data'
 FILE_TYPE_PNG      = 'PNG image data'
+FILE_TYPE_RPM      = 'application/x-rpm'
 FILE_TYPE_DIR      = 'directory'
 FILE_TYPE_EMPTY    = 'empty'
 
@@ -98,6 +99,7 @@ magic = {
   FILE_TYPE_FAT:      [(510,  TYPE_SHORT,  ENDIAN_LITTLE, 43605L)], # 0xAA55
   FILE_TYPE_JPG:      [(0,    TYPE_SHORT,  ENDIAN_BIG,    0xffd8)],
   FILE_TYPE_PNG:      [(0,    TYPE_STRING, ENDIAN_BIG,    '\x89PNG'),],
+  FILE_TYPE_RPM:      [(0,    TYPE_LONG,   ENDIAN_BIG,    0xedabeedb),],
 }
 
 

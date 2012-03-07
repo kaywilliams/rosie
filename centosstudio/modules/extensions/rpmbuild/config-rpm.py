@@ -34,7 +34,6 @@ class ConfigRpmEvent(ConfigRpmEventMixin, Event):
       parentid = 'rpmbuild',
       ptr = ptr,
       version = '1.27',
-      provides = ['rpmbuild-data'],
     )
 
     self.DATA = {
@@ -51,7 +50,3 @@ class ConfigRpmEvent(ConfigRpmEventMixin, Event):
 
   def run(self):
     ConfigRpmEventMixin.run(self)
-
-  def apply(self):
-    self.rpm._apply()
-

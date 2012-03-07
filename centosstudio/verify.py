@@ -18,6 +18,7 @@
 import unittest
 
 from centosstudio.cslogging import L3
+from centosstudio.errors    import CentOSStudioEventError
 
 class BuildTestResult(unittest.TestResult):
 
@@ -47,14 +48,7 @@ class BuildTestResult(unittest.TestResult):
       self.logger.log(1, 'Warning: there was an error in the verification method for test %s: %s' % (test, err[1]))
 
   def addFailure(self, test, err):
-    unittest.TestResult.addFailure(self, test, err)
-    self.logger.write(5, 'FAIL\n')
-    if self.logger.threshold <= 3: # display warning on log level 3 and below
-      #python 2.5
-      #self.logger.log(1, 'Warning: %s' % err[1].message)
-      #python 2.4 compatible
-      self.logger.log(1, 'Warning: %s: %s' % (test, err[1]))
-    self.warnings.append(err[1]) # append AssertionError to warning list
+    raise VerifyError(message=err)
 
   def printErrors(self):
     self.logger.log(5, '')
@@ -69,3 +63,6 @@ class BuildTestResult(unittest.TestResult):
         s += '%s\n' % self.separator2
         s += '%s' % err
     return s
+
+class VerifyError(CentOSStudioEventError):
+  message="%(message)s"

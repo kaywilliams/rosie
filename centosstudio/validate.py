@@ -45,6 +45,7 @@ class CentOSStudioValidationHandler:
     except CentOSStudioError:
       raise
     except Exception, e:
+      raise
       raise CentOSStudioError("Unhandled exception while performing validation: %s" % e)
  
 

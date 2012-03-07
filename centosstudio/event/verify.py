@@ -48,7 +48,7 @@ class VerifyObject(unittest.TestCase):
     self.failUnless(pps.path(path).exists(), "'%s' does not exist " % path)
 
   def unittest(self):
-    methods = [] # list of methods to run
+    methods = [] # set of methods to run
     for attr in dir(self.ptr):
       if not attr.startswith(self.method_prefix): continue
       method = getattr(self.ptr, attr)

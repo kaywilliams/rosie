@@ -39,28 +39,24 @@ class TestSrpmTestCase(EventTestCase):
 
   def __init__(self, distro, version, arch, conf=None):
     EventTestCase.__init__(self, distro, version, arch, conf=conf)
-    sections = [
+    self._add_config( 
       """
       <srpmbuild>
-      <srpm id='package1'>
-        <repo>file://%s/repo1</repo>
+      <srpm id='package1' shutdown='false'>
+        <path>%s/repo1/SRPMS/package1-1.0-1.src.rpm</path>
       </srpm>
       </srpmbuild>
-      """ % self.repodir ,
-      ]
-    for section in sections:
-      self._add_config(section)
+      """ % self.repodir 
+      )
 
-  def setUp(self):
-    EventTestCase.setUp(self)
 
-class TestSrpmBuildConfig(TestSrpmTestCase):
-  "path, repo, or script element required"
+class Test_Config(TestSrpmTestCase):
+  "fails if path, repo or script elements not provided"
   def __init__(self, distro, version, arch, conf=None):
     TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
     self._add_config( """
       <srpmbuild>
-      <srpm id='package1'/>
+      <srpm id='package1' shutdown='false'/>
       </srpmbuild>
       """) 
 
@@ -73,13 +69,31 @@ class TestSrpmBuildConfig(TestSrpmTestCase):
   def tearDown(self):
     del self.conf
 
-class TestSrpmBuildSrpmRepo(TestSrpmTestCase):
-  "downloads srpm file from repository - FIXME to download specific srpm"
+
+class Test_FromFolder(TestSrpmTestCase):
+  "downloads srpm file from folder"
   def __init__(self, distro, version, arch, conf=None):
     TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
     self._add_config( """
       <srpmbuild>
-      <srpm id='package1'>
+      <srpm id='package1' shutdown='false'>
+        <path>%s/repo1/SRPMS</path>
+      </srpm>
+      </srpmbuild>
+      """ % self.repodir )
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
+
+
+class Test_FromRepo(TestSrpmTestCase):
+  "downloads srpm file from repository"
+  def __init__(self, distro, version, arch, conf=None):
+    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
+    self._add_config( """
+      <srpmbuild>
+      <srpm id='package1' shutdown='false'>
         <repo>file://%s/repo1</repo>
       </srpm>
       </srpmbuild>
@@ -90,13 +104,14 @@ class TestSrpmBuildSrpmRepo(TestSrpmTestCase):
     self.failUnless(self.event.io.list_output(what='srpm')[0].basename  == 
                    'package1-1.0-2.src.rpm')
 
-class TestSrpmBuildSrpmScript(TestSrpmTestCase):
+
+class Test_FromScript(TestSrpmTestCase):
   "uses srpm provided by script"
   def __init__(self, distro, version, arch, conf=None):
     TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
     self._add_config( """
       <srpmbuild>
-      <srpm id='package1'>
+      <srpm id='package1' shutdown='false'>
         <script>
         #!/bin/bash
         srpm=%s/repo1/SRPMS/package1-1.0-2.src.rpm
@@ -111,13 +126,43 @@ class TestSrpmBuildSrpmScript(TestSrpmTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
-    
+
+
+class Test_InvalidRpm(TestSrpmTestCase):
+  "fails on invalid rpms"
+
+  def runTest(self):
+    self.event.test_verify_rpms = True
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
+
+class Test_Apply(TestSrpmTestCase):
+  "rpmbuild-data added for generated rpm(s)"
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless('package1' in self.event.cvars['rpmbuild-data'])
+
+
+class Test_Shutdown(TestSrpmTestCase):
+  "dummy case to shutdown virtual machine"
+
+  def runTest(self):
+    self.event.config.get('.').set('shutdown', 'true')
+    self.tb.dispatch.execute(until=self.event)
+
+
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
   if check_vm_config():
     suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
-    suite.addTest(TestSrpmBuildConfig(distro, version, arch))
-    suite.addTest(TestSrpmBuildSrpmRepo(distro, version, arch))
-    suite.addTest(TestSrpmBuildSrpmScript(distro, version, arch))
+    suite.addTest(Test_Config(distro, version, arch))
+    suite.addTest(Test_FromFolder(distro, version, arch))
+    suite.addTest(Test_FromRepo(distro, version, arch))
+    suite.addTest(Test_FromScript(distro, version, arch))
+    suite.addTest(Test_InvalidRpm(distro, version, arch))
+    suite.addTest(Test_Apply(distro, version, arch))
+    suite.addTest(Test_Shutdown(distro, version, arch))
     return suite

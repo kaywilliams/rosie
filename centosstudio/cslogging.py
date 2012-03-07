@@ -20,24 +20,30 @@
 # it would help out in many issues
 
 import sys
-import textwrap
 import time
 
 from centosstudio.util import logger
 
 # format of the various printouts
-FORMAT_L0 = '%s'
-FORMAT_L1 = ' * %s'
-FORMAT_L2 = '   - %s'
-FORMAT_L3 = '     + %s'
-FORMAT_L4 = '       o %s'
+FORMAT_L0 = ''
+FORMAT_L1 = ' * '
+FORMAT_L2 = '   - '
+FORMAT_L3 = '     + '
+FORMAT_L4 = '       o '
 
 # and some functions that apply these formats
-def L0(s): return FORMAT_L0 % s
-def L1(s): return FORMAT_L1 % s
-def L2(s): return FORMAT_L2 % s
-def L3(s): return FORMAT_L3 % s
-def L4(s): return FORMAT_L4 % s
+def L0(s): return format('0', s)
+def L1(s): return format('1', s)
+def L2(s): return format('2', s)
+def L3(s): return format('3', s)
+def L4(s): return format('4', s)
+
+# formats first line and indents subsequent lines using FORMATS above
+def format(level, s):
+  lines = str(s).split('\n')
+  first_line = eval('FORMAT_L%s' % level)
+  subs_lines = '\n%s' % eval('FORMAT_L%s' % str((int(level) + 1)))
+  return "%s%s" % (first_line, subs_lines.join(lines))
 
 MSG_MAXWIDTH = 75
 
@@ -153,9 +159,10 @@ class LogContainer(logger.LogContainer):
   def log_header(self, level, msg):
     """
     Convenience function to create a bold, three-line, full-width header with
-    leading newline.
+    two leading newlines.
     """
-    self.log(level, L0("\n"))
+    self.log(level, L0(""))
+    self.log(level, L0(""))
     self.log_bold(level, msg)
 
   def log_footer(self, level, msg):
@@ -164,7 +171,7 @@ class LogContainer(logger.LogContainer):
     trailing newline
     """
     self.log_bold(level, msg)
-    self.log(level, L0("\n"))
+    self.log(level, "")
 
   def log_bold(self, level, msg):
     """

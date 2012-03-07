@@ -35,7 +35,7 @@ FLAGS_MAP = {
 }
 
 #-------- TEST CASES --------#
-class RpmBuildMixinTestCase(object):
+class MkrpmRpmBuildMixinTestCase(object):
   @property
   def rpm_header(self):
     if self.event.rpm.rpm_path.exists():
@@ -149,17 +149,13 @@ class RpmBuildMixinTestCase(object):
 
 class RpmCvarsTestCase(object):
   def check_cvars(self):
-    cvars = self.event.cvars['rpmbuild-data'][self.event.id]
-    self.failUnless(self.event.rpm.packagereq_default == cvars['packagereq-default'])
-    self.failUnless(self.event.rpm.packagereq_requires == cvars['packagereq-requires'])
-    self.failUnless(self.event.rpm.packagereq_type == cvars['packagereq-type'])
-    self.failUnless(self.event.rpm.name == cvars['rpm-name'])
-    self.failUnless(self.event.rpm.version == cvars['rpm-version'])
-    self.failUnless(self.event.rpm.release == cvars['rpm-release'])
-    self.failUnless(self.event.rpm.obsoletes == cvars['rpm-obsoletes'])
-    self.failUnless(self.event.rpm.provides == cvars['rpm-provides'])
-    self.failUnless(self.event.rpm.requires == cvars['rpm-requires'])
-    self.failUnless(self.event.rpm.rpm_path == cvars['rpm-path'])
-    self.failUnless(self.event.rpm.srpm_path == cvars['srpm-path'])
+    for r in self.event.rpms:
+      self.failUnless(r['rpm-name'] in self.event.cvars['rpmbuild-data'])
+      if self.moduleid not in [ 'config-rpm', 'release-rpm' ] : continue
+      self.failUnless(self.event.rpm.name == r['rpm-name'])
+      self.failUnless(self.event.rpm.version == r['rpm-version'])
+      self.failUnless(self.event.rpm.release == r['rpm-release'])
+      self.failUnless(self.event.rpm.arch == r['rpm-arch'])
+      self.failUnless(self.event.rpm.obsoletes == r['rpm-obsoletes'])
 
 extracts = {}
