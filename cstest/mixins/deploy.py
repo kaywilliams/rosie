@@ -31,6 +31,12 @@ class DeployMixinTestCase:
 def DeployMixinTest_Teardown(self):
   self._testMethodDoc = "dummy test to shutoff virtual machine"
 
+  def setUp(): 
+    EventTestCase.setUp(self)
+
+  def tearDown():
+    EventTestCase.tearDown(self) 
+
   def post_tearDown():
     exec "import libvirt" in globals()
 
@@ -39,6 +45,8 @@ def DeployMixinTest_Teardown(self):
     vm = conn.lookupByName(self.hostname)
     vm.destroy()
 
+  self.setUp = setUp
+  self.tearDown = tearDown
   decorate(self, 'tearDown', postfn=post_tearDown)
   
   return self

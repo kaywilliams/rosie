@@ -25,7 +25,8 @@ from centosstudio.util    import rxml
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from cstest.core     import make_extension_suite
-from cstest.mixins   import MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase
+from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase, 
+                             dm_make_suite, check_vm_config)
 
 
 class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
@@ -50,7 +51,7 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
 
     return repos
 
-class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
+class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
@@ -60,24 +61,24 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self.dir1  = pps.path('%s/dir1'  % self.working_dir)
     self.file3 = pps.path('%s/file3' % self.dir1)
 
-    self._add_config(
-      """
-      <config-rpm enabled="true">
-        <files destdir="/etc/testdir">%(working-dir)s/file1</files>
-        <files destdir="/etc/testdir" destname="file4">%(working-dir)s/file2</files>
-        <files destdir="/etc/testdir" destname="file5" content="text">here is some text</files>
-        <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
-        <!--<files destdir="/etc/testdir" destname="dir2" content="text">-->
-        <script type="post">echo post</script>
-        <script type="pre">echo pre</script>
-        <script type="preun">echo preun</script>
-        <script type="postun">echo postun</script>
-        <script type="verifyscript">echo verifyscript</script>
-        <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
-        <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
-        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">print triggerpostun</trigger>
-      </config-rpm>
-      """ % {'working-dir': self.working_dir})
+    self._add_config(""" 
+    <config-rpm enabled="true">
+      <files destdir="/etc/testdir">%(working-dir)s/file1</files>
+      <files destdir="/etc/testdir" destname="file4">
+             %(working-dir)s/file2</files>
+      <files destdir="/etc/testdir" destname="file5" content="text">text</files>
+      <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
+      <script type="post">echo post</script>
+      <script type="pre">echo pre</script>
+      <script type="preun">echo preun</script>
+      <script type="postun">echo postun</script>
+      <script type="verifyscript">echo verifyscript</script>
+      <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
+      <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
+      <trigger trigger="python" type="triggerpostun" 
+               interpreter="/usr/bin/python">print triggerpostun</trigger>
+    </config-rpm>
+    """ % { 'working-dir': BUILD_ROOT })
 
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
@@ -94,12 +95,16 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     ConfigRpmEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.file2.rm(force=True)
+    self.dir1.rm(force=True, recursive=True)
 
+class Test_ConfigRpmInputs(ConfigRpmInputsEventTestCase):
+  "test config-rpm inputs"
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_inputs('files')
 
 class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
+  "test config-rpm build"
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
@@ -110,6 +115,7 @@ class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
     self.check_header()
 
 class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
+  "test config-rpm cvars - first run"
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
@@ -120,6 +126,7 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.check_cvars()
 
 class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
+  "test config-rpm cvars - subsequent runs"
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
     self.event.status = True
@@ -143,6 +150,67 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def tearDown(self):
     del self.conf
 
+class DeployConfigRpmEventTestCase(ConfigRpmInputsEventTestCase):
+  _conf = [
+    """
+    <packages>
+      <group>core</group>
+      <group>base</group>
+    </packages>
+    """,
+    """
+    <publish password='password'>
+      <post-script>
+        #!/bin/bash
+        set -e
+        ls /etc/testdir/file1
+        ls /etc/testdir/file4
+        ls /etc/testdir/file5
+        ls /etc/testdir/dir1/file3
+      </post-script>
+
+      <trigger-script triggers='kickstart, install-script'>
+      <include 
+        xmlns='http://www.w3.org/2001/XInclude'
+        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
+        xpointer="xpointer(/*/trigger-script/text())]"/>
+      </trigger-script>
+
+      <kickstart>
+      <include 
+         xmlns='http://www.w3.org/2001/XInclude'
+         href='%(root)s/../../share/centosstudio/examples/common/ks.cfg'
+         parse='text'/>
+      </kickstart>
+
+      <include 
+        xmlns='http://www.w3.org/2001/XInclude'
+        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
+        xpointer="xpointer(/*/*[name()!='post-script' and
+                                name()!='trigger-script'])"/>
+    </publish>
+    """ % {'root' : pps.path(__file__).dirname.abspath()}]
+
+  def __init__(self, distro, version, arch, *args, **kwargs):
+    ConfigRpmEventTestCase.__init__(self, distro, version, arch, 
+                                    *args, **kwargs)
+    ConfigRpmInputsEventTestCase.__init__(self, distro, version, arch, 
+                                    *args, **kwargs)
+    # set hostname
+    self.hostname = "%s-%s-%s.local" % (self.moduleid, self.version, self.arch)
+    self.conf.get("/*/publish").set('hostname', self.hostname)
+
+
+class Test_FilesInstalled(DeployConfigRpmEventTestCase):
+  "files installed on client machine"
+  def runTest(self):
+    self.tb.dispatch.execute(until='deploy')
+
+class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
+  "files persist on LIB_DIR changes"
+  def runTest(self):
+    self.event.test_lib_dir = pps.path('/root/centosstudio')
+    self.tb.dispatch.execute(until='deploy')
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('config-rpm')
@@ -154,5 +222,11 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
   suite.addTest(Test_ValidateDestnames(distro, version, arch))
+
+  if check_vm_config():
+    suite.addTest(Test_FilesInstalled(distro, version, arch))
+    suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
+    # dummy test to shutoff vm
+    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
 
   return suite

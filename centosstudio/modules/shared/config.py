@@ -25,7 +25,7 @@ from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                           TriggerContainer)
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
-  config_mixin_version = "1.22"
+  config_mixin_version = "1.23"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
@@ -55,8 +55,9 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
     MkrpmRpmBuildMixin.setup(self, **kwargs)
 
+    self.libdir      = getattr(self, 'test_lib_dir', self.LIB_DIR)
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.rootinstdir = self.LIB_DIR / 'config' 
+    self.rootinstdir = self.libdir / 'config' 
     self.installdir  = self.rootinstdir/self.name
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.rpm.source_folder // self.filerelpath
@@ -274,17 +275,19 @@ for f in $files; do
     if [ -e $f ]; then    #file exists on disk
 
       # find md5file for the current version of this rpm
-      if [[ `rpm -q %(name)s` == 0 ]]; then
-        new=''
+      new=''
+      if rpm -q %(name)s --quiet; then
         for file in `rpm -ql %(name)s`; do
-          if [[ `basename $file` == md5sum ]]; then
+          if [[ `basename $file` == md5sums ]]; then
             new=$file
           fi
         done
       fi
 
       # find md5files for other centosstudio managed rpms
-      other=`find %(rootinstdir)s -name md5sums | grep -v %(md5file)s
+      other=`find %(rootinstdir)s -name md5sums | grep -v %(md5file)s` || true
+
+      # process files
       md5files="$new $other"
       remove="true"
       for md5file in $md5files 
