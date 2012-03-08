@@ -255,7 +255,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def _mk_postun(self):
     """Makes a postun scriptlet that uninstalls obsolete <files> and
     restores backups from .rpmsave, if present."""
-    script = ''
 
     sources = []
     for support_file in self.srcfiledir.findpaths(
@@ -265,61 +264,80 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
       sources.append(dst)
 
-    script += 'files="%s"' % '\n      '.join(sources)
-    script += '\ns=%s\n' % ('/' / self.filerelpath)
-    script += 'mkdirs=%s/mkdirs\n' % self.installdir
+    script = """
+files="%(files)s"
+s=%(relpath)s
+mkdirs=%(installdir)s/mkdirs
 
-    script += '\n'.join([
-        '',
-        'for f in $files; do',
-        '  if [ ! -e $s/$f ]; then', #file missing from source folder
-        '    if [ -e $f ]; then',    #file exists on disk
-        '      remove="true"',
-        '      for md5file in `find %s -name md5sums | grep -v %s`' % ( 
-               self.rootinstdir, self.md5file),
-        '      do',
-        '        while read line; do',
-        '          row=($line)',
-        '          if [[ ${row[1]} == $f ]]; then', #file listed in other rpm
-        '            remove="false"',
-        '          fi',
-        '        done < $md5file',
-        '      done',
-        '      if [[ $remove == true ]]; then',
-        '        if [ -e $f.rpmsave ]; then',
-        '          /bin/mv -f $f.rpmsave $f',
-        '        else',
-        '          /bin/rm -f $f',
-        '        fi',
-        '      fi',
-        '    fi',
-        '  fi',
-        'done',
-        '[[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;',
-        'if [ -e $mkdirs ]; then',
-        '  #first pass to remove empty dirs',
-        '  for f in `cat $mkdirs`; do',
-        '    if [ -e $f ] ; then',
-        '      rmdir --ignore-fail-on-non-empty -p $f',
-        '    fi',
-        '  done',
-        '  #second pass to remove dirs from mkdirs file',
-        '  for f in `cat $mkdirs`; do',
-        '    if [ ! -e $f ] ; then',
-        '      sed -i s!$f\$!!g $mkdirs',
-        '    fi',
-        '  # third pass to remove empty lines from mkdirs',
-        '  sed -i /$/d $mkdirs',
-        '  done',
-        'fi',
-      ])
+for f in $files; do
+  if [ ! -e $s/$f ]; then # file missing from source folder
+    if [ -e $f ]; then    #file exists on disk
 
-    # remove md5sums.prev file   
-    script += '\n/bin/rm -f %s/md5sums.prev\n' % self.installdir
-    # remove per-system folder uninstall
-    script += 'if [ $1 -eq 0 ]; then\n'
-    script += '  rm -rf %s\n' % self.installdir
-    script += 'fi\n'
+      # find md5file for the current version of this rpm
+      if [[ `rpm -q %(name)s` == 0 ]]; then
+        new=''
+        for file in `rpm -ql %(name)s`; do
+          if [[ `basename $file` == md5sum ]]; then
+            new=$file
+          fi
+        done
+      fi
+
+      # find md5files for other centosstudio managed rpms
+      other=`find %(rootinstdir)s -name md5sums | grep -v %(md5file)s
+      md5files="$new $other"
+      remove="true"
+      for md5file in $md5files 
+      do
+        while read line; do
+          row=($line)
+          if [[ ${row[1]} == $f ]]; then #file in new or other rpm
+            remove="false"
+          fi
+        done < $md5file
+      done
+      if [[ $remove == true ]]; then
+        if [ -e $f.rpmsave ]; then
+          /bin/mv -f $f.rpmsave $f
+        else
+          /bin/rm -f $f
+        fi
+      fi
+    fi
+  fi
+done
+[[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;
+if [ -e $mkdirs ]; then
+  #first pass to remove empty dirs
+  for f in `cat $mkdirs`; do
+    if [ -e $f ] ; then
+      rmdir --ignore-fail-on-non-empty -p $f
+    fi
+  done
+  #second pass to remove dirs from mkdirs file
+  for f in `cat $mkdirs`; do
+    if [ ! -e $f ] ; then
+      sed -i s!$f\$!!g $mkdirs
+    fi
+  # third pass to remove empty lines from mkdirs
+  sed -i /$/d $mkdirs
+  done
+fi
+
+# remove md5sums.prev file   
+/bin/rm -f %(installdir)s/md5sums.prev
+
+# remove per-system folder uninstall
+if [ $1 -eq 0 ]; then
+  rm -rf %(installdir)s
+fi
+""" % { 'files':        '\n      '.join(sources),
+        'relpath':      '/' / self.filerelpath,
+        'installdir':   self.installdir,
+        'name':         self.rpm.name,
+        'rootinstdir':  self.rootinstdir,
+        'md5file':      self.md5file,
+      }
 
     return script
 
