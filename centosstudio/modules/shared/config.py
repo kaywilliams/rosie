@@ -136,8 +136,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def get_triggers(self):
     triggers = TriggerContainer()
 
-    triggers.append(self._mk_triggerin())
-
     for elem in self.config.xpath('%s/trigger' % self.rpmxpath, []):
       key   = elem.get('@trigger')
       id    = elem.get('@type')
@@ -230,7 +228,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       '    done',
       '  fi',
       '  # copy file to final location',
-      '  /bin/cp --preserve=all $s/$f $f',
+      '  /bin/cp --preserve=mode,ownership,timestamps,links,xattr $s/$f $f',
       'done',
       '', ])
 
@@ -343,27 +341,6 @@ fi
       }
 
     return script
-
-  def _mk_triggerin(self):
-    # reset selinux context for installed files
-    key = 'selinux-policy-targeted'
-    type = 'triggerin'
-    file = self.scriptdir/'%s-%s' % (type, key)
-    lines = [
-    'set -e',
-    'files="%s"' % '\n      '.join(self.files),
-    '',
-    'for f in $files; do',
-    '  /sbin/restorecon $f',
-    'done',]
-
-    file.write_text('\n'.join(lines))
-    file.chmod(0750)
-
-    t = Trigger('selinux-policy-targeted')
-    t[type+'_scripts'] = [file]
-
-    return t 
 
   def _process_script(self, script_type):
     """Processes and returns user-provided scripts for a given script type. 
