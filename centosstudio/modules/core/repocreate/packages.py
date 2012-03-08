@@ -227,7 +227,7 @@ class CompsEvent(Event):
       version = '1.00'
     )
 
-    if self.type == 'application':
+    if not self.type == 'system':
       self.enabled = False
       return
 

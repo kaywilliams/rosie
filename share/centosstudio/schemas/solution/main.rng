@@ -10,7 +10,7 @@
           <optional>
           <element name="type">
             <choice>
-              <value type="string">application</value>
+              <value type="string">package</value>
               <value type="string">system</value>
             </choice>
           </element>
