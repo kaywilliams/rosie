@@ -10,11 +10,11 @@
 </main>
 
 <repos>
-<!--epel-6 repo defines the buildsys-build group-->
+<!--epel repo defines the buildsys-build group for el6-->
 <xi:include href="../common/repos.xml"
             xpointer="xpointer(/*/repo[@id='base'] | 
                                /*/repo[@id='updates'] |
-                               /*/repo[@id='epel-6'])"/>
+                               /*/repo[@id='epel'])"/>
 </repos>
 
 <packages>

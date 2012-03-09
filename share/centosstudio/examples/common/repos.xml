@@ -19,16 +19,10 @@
 <gpgkey>http://dev.centos.org/centos/RPM-GPG-KEY-CentOS-4</gpgkey>
 </repo>
 
-<repo id='epel-5'>
-  <name>Extra Packages for Enterprise Linux 5 - %{arch}</name>
+<repo id='epel'>
+  <name>Extra Packages for Enterprise Linux %{version} - %{arch}</name>
   <mirrorlist>http://mirrors.fedoraproject.org/mirrorlist?repo=epel-%{version}&amp;arch=%{arch}</mirrorlist>
-  <gpgkey>http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL</gpgkey>
-</repo>
-
-<repo id='epel-6'>
-  <name>Extra Packages for Enterprise Linux 6 - %{arch}</name>
-  <mirrorlist>http://mirrors.fedoraproject.org/mirrorlist?repo=epel-%{version}&amp;arch=%{arch}</mirrorlist>
-  <gpgkey>http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6</gpgkey>
+  <gpgkey>http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
 </repo>
 
 </repos>
