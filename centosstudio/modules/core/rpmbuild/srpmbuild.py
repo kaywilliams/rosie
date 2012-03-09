@@ -65,8 +65,6 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       parentid = 'rpmbuild',
       ptr = ptr,
       version = 1.03,
-      requires = ['rpmbuild-data', ],
-      provides = ['repos', 'source-repos', 'comps-object'],
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
     )
   
