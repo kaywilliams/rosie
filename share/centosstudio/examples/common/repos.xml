@@ -21,8 +21,8 @@
 
 <repo id='epel'>
   <name>Extra Packages for Enterprise Linux %{version} - %{arch}</name>
-  <mirrorlist>http://mirrors.fedoraproject.org/mirrorlist?repo=epel-%{version}&amp;arch=%{arch}</mirrorlist>
-  <gpgkey>http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
+  <baseurl>http://dl.fedoraproject.org/pub/epel/%{version}/%{arch}</baseurl>
+  <gpgkey>http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
 </repo>
 
 </repos>
