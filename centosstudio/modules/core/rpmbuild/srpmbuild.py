@@ -176,7 +176,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     self.logger.log(3, L0(''))
    
     self.copy = self.config.getbool('@copy', True)
-    self.shutdown = self.config.getbool('@shutdown', True)
+    self.shutdown = self.config.getbool('@shutdown', False)
 
     if self.copy or self.shutdown:
       params = dict( 
@@ -294,7 +294,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     root = rxml.config.parse(self.definition).getroot()
 
-    name =    self.srpmid
+    name =    self.moduleid
     version = self.version
     arch =    self.userarch
 
