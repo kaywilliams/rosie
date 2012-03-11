@@ -102,7 +102,10 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
                str(repo)))[0]['hexkeyid']
           self.gpgkeys[id] = url
         except yum.Errors.YumBaseError, e:
-          raise MissingGPGKeyError(file=url, repo=repo.id)
+          message = ("An error occurred attempting to retrieve the GPG key "
+                     "for the '%s' package repository. The error message "
+                     "is printed below:\n%s" % (repo.id, e))
+          raise GPGKeyError(message=message)
 
     self.keyids = self.gpgkeys.keys() # only track changes to keyids, not urls
     self.DATA['variables'].append('keyids')
@@ -194,5 +197,5 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     MkrpmRpmBuildMixin.apply(self) 
     self.cvars['gpgkeys'] = self.unshelve('gpgkeys', [])
 
-class MissingGPGKeyError(CentOSStudioEventError):
-  message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"
+class GPGKeyError(CentOSStudioEventError):
+  message = "%(message)s"

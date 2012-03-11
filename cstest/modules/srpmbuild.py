@@ -20,10 +20,14 @@ import unittest
 from centosstudio.errors   import CentOSStudioError
 from centosstudio.util     import pps 
 
+from centosstudio.modules.core.rpmbuild.gpgsign import InvalidKeyError
+
 from cstest        import (EventTestCase, ModuleTestSuite, _run_make,
                            TestBuild)
 from cstest.core   import make_core_suite
 from cstest.mixins import check_vm_config
+
+REPODIR  = pps.path(__file__).dirname/'shared' 
 
 class TestSrpmTestCase(EventTestCase):
   """
@@ -33,32 +37,26 @@ class TestSrpmTestCase(EventTestCase):
   """
   moduleid = 'srpmbuild'
   eventid  = 'srpmbuild-package1'
-  repodir  = pps.path(__file__).dirname/'shared' 
 
-  _run_make(repodir)
+  _run_make(REPODIR)
+  _conf = ["""
+    <srpmbuild>
+    <srpm id='package1' shutdown='false'>
+      <path>%s/repo1/SRPMS/package1-1.0-1.src.rpm</path>
+    </srpm>
+    </srpmbuild>
+    """ % REPODIR] 
 
   def __init__(self, distro, version, arch, conf=None):
     EventTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( 
-      """
-      <srpmbuild>
-      <srpm id='package1' shutdown='false'>
-        <path>%s/repo1/SRPMS/package1-1.0-1.src.rpm</path>
-      </srpm>
-      </srpmbuild>
-      """ % self.repodir 
-      )
-
 
 class Test_Config(TestSrpmTestCase):
   "fails if path, repo or script elements not provided"
-  def __init__(self, distro, version, arch, conf=None):
-    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( """
-      <srpmbuild>
-      <srpm id='package1' shutdown='false'/>
-      </srpmbuild>
-      """) 
+  _conf = """
+    <srpmbuild>
+    <srpm id='package1' shutdown='false'/>
+    </srpmbuild>
+    """ 
 
   def setUp(self): pass
 
@@ -72,44 +70,42 @@ class Test_Config(TestSrpmTestCase):
 
 class Test_FromFolder(TestSrpmTestCase):
   "downloads srpm file from folder"
-  def __init__(self, distro, version, arch, conf=None):
-    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( """
-      <srpmbuild>
-      <srpm id='package1' shutdown='false'>
-        <path>%s/repo1/SRPMS</path>
-      </srpm>
-      </srpmbuild>
-      """ % self.repodir )
+  _conf = """
+    <srpmbuild>
+    <srpm id='package1' shutdown='false'>
+      <path>%s/repo1/SRPMS</path>
+    </srpm>
+    </srpmbuild>
+    """ % REPODIR 
 
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.event._process_srpm()
     self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
 
 
 class Test_FromRepo(TestSrpmTestCase):
   "downloads srpm file from repository"
-  def __init__(self, distro, version, arch, conf=None):
-    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( """
-      <srpmbuild>
-      <srpm id='package1' shutdown='false'>
-        <repo>file://%s/repo1</repo>
-      </srpm>
-      </srpmbuild>
-      """ % self.repodir )
+  _conf = """
+    <srpmbuild>
+    <srpm id='package1' shutdown='false'>
+      <repo>file://%s/repo1</repo>
+    </srpm>
+    </srpmbuild>
+    """ % REPODIR 
 
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.event._process_srpm()
     self.failUnless(self.event.io.list_output(what='srpm')[0].basename  == 
                    'package1-1.0-2.src.rpm')
 
 
 class Test_FromScript(TestSrpmTestCase):
   "uses srpm provided by script"
-  def __init__(self, distro, version, arch, conf=None):
-    TestSrpmTestCase.__init__(self, distro, version, arch, conf=conf)
-    self._add_config( """
+  _conf = """
       <srpmbuild>
       <srpm id='package1' shutdown='false'>
         <script>
@@ -121,12 +117,43 @@ class Test_FromScript(TestSrpmTestCase):
         </script>
       </srpm>
       </srpmbuild>
-      """ % self.repodir )
+      """ % REPODIR
 
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.event._process_srpm()
     self.failUnless(self.event.srpmfile.basename == 'package1-1.0-2.src.rpm')
 
+class Test_UpdatesDefinition(TestSrpmTestCase):
+  "updates build machine definition"
+  public = '-----BEGIN PGP PUBLIC - test'
+  secret = '-----BEGIN PGP PRIVATE - test'
+
+  _conf = [
+  """
+  <gpgsign>
+    <public>%s</public>
+    <secret>%s</secret>
+  </gpgsign>
+  """ % (public, secret)]
+  _conf.extend(TestSrpmTestCase._conf)
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.event._process_srpm()
+    definition = self.event._update_definition()
+
+    #set some convenience variables
+    public = definition.get('/*/gpgsign/public/text()', '')
+    secret = definition.get('/*/gpgsign/secret/text()', '')
+    parent_repo = self.conf.get('/*/repos/repo[@id="base"]')
+    child_repo = definition.get('/*/repos/repo[@id="base"]')
+
+    self.failUnless(len(public) == len(self.public) and
+                    len(secret) == len(self.secret) and
+                    child_repo == parent_repo)
 
 class Test_InvalidRpm(TestSrpmTestCase):
   "fails on invalid rpms"
@@ -162,6 +189,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
     suite.addTest(Test_FromFolder(distro, version, arch))
     suite.addTest(Test_FromRepo(distro, version, arch))
     suite.addTest(Test_FromScript(distro, version, arch))
+    suite.addTest(Test_UpdatesDefinition(distro, version, arch))
     suite.addTest(Test_InvalidRpm(distro, version, arch))
     suite.addTest(Test_Apply(distro, version, arch))
     suite.addTest(Test_Shutdown(distro, version, arch))

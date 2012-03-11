@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import copy
 import lxml
 import optparse
 import paramiko 
@@ -135,14 +136,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     self.DATA['input'].append(self.definition)
 
   def run(self):
-    self.io.process_files(cache=True)
-  
-    # cache srpm file and info
-    if self.srpmfile: # srpm provided by script
-      self.DATA['output'].append(self.srpmfile)
-    else: # srpm provided by path or repo
-      self.srpmfile = self.io.list_output(what='srpm')[0]
-    self.shelve('srpmlast', self.srpmfile.basename)
+    # process srpm
+    self._process_srpm()
+
     # update definition
     definition = self._update_definition()
 
@@ -289,6 +285,15 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       self.srpmfile = results[0]
       self.DATA['input'].append(self.srpmfile)
 
+  def _process_srpm(self):
+    self.io.process_files(cache=True)
+    if self.srpmfile: # srpm provided by script
+      self.DATA['output'].append(self.srpmfile)
+    else: # srpm provided by path or repo
+      self.srpmfile = self.io.list_output(what='srpm')[0]
+
+    self.shelve('srpmlast', self.srpmfile.basename)
+
   def _update_definition(self):
     name, spec, requires = self._get_srpm_info(self.srpmfile)
 
@@ -313,11 +318,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     root.append(main)
 
     # add srpm requires to config-rpm
-    if root.find('config-rpm') is None:
-        config = rxml.config.Element('config-rpm')
-    else:
-        config = root.find('config-rpm')
-
+    config = root.get('/*/config-rpm', rxml.config.Element('config-rpm'))
     child = rxml.config.Element('files', parent=config)
     child.set('destdir', self.originals_dir)
     child.text = self.srpmfile
@@ -328,6 +329,23 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     if root.find('config') is None:
       root.append(config)
+
+    # use gpgsign from parent definition, if provided
+    parent_gpgsign = copy.deepcopy(self.config.get('/*/gpgsign', None))
+    child_gpgsign = root.get('/*/gpgsign', None)
+    if parent_gpgsign is not None and child_gpgsign is None:
+      root.append(parent_gpgsign)
+     
+    # append repos from parent definition, if provided
+    parent_repos = copy.deepcopy(self.config.get('/*/repos', None))
+    child_repos = root.get('/*/repos', None)
+    if parent_repos is not None and child_repos is None:
+      root.append(parent_repos)
+    if parent_repos is not None and child_repos is not None:
+      for repo in parent_repos.xpath('repo'):
+        child_repo = child_repos.get("repo[@id='%s']" % repo.attrib['id'], '')
+        if child_repo is not None: child_repos.remove(child_repo)
+        child_repos.append(repo)
 
     #resolve macros
     root.resolve_macros('.', {
