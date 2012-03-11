@@ -1,10 +1,10 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solution">
+    <element name="repo">
 
       <optional>
-      <element name="test-update">
+      <element name="test-install">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -18,10 +18,8 @@
         <ref name="content-delete-script-element"/>
         <ref name="content-install-script-element"/>
         <ref name="content-post-install-script-element"/>
-        <ref name="content-update-script-element"/>
         <optional><ref name="content-post-script-element"/></optional>
         </interleave>
-
       </element>
       </optional>
 

@@ -50,7 +50,7 @@ class CentOSStudioValidationHandler:
  
 
   def _validate_configs(self):
-    "Validate centosstudio config and solution definition"
+    "Validate centosstudio config and repo definition"
 
     if self.mainconfig.file is not None:
       self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
@@ -61,9 +61,9 @@ class CentOSStudioValidationHandler:
                             self.mainconfig)
     v.validate('/centosstudio', schema_file='centosstudio.rng')
 
-    # validate individual sections of the solution definition
+    # validate individual sections of the repo definition
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
-    v = DefinitionValidator([ x/'schemas/solution' for x in self.sharedirs ],
+    v = DefinitionValidator([ x/'schemas/repo' for x in self.sharedirs ],
                            self.definition)
 
     # expand macros - per event, depth first
@@ -200,7 +200,7 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.get('//rng:element[@name="solution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="repo"]', namespaces=NSMAP)
     if app_defn is not None:
       optional = app_defn.get('rng:optional', namespaces=NSMAP)
       if optional is None:
@@ -218,12 +218,12 @@ class DefinitionValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.get('//rng:element[@name="solution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="repo"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="solution"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.get('rng:element[@name="repo"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)

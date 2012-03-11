@@ -1,33 +1,24 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solution">
+    <element name="repo">
 
-      <element name="repos">
+      <optional>
+      <element name="iso">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <interleave>
 
-        <optional>
-        <element name="releasever"><text/></element>
-        </optional>
-
         <oneOrMore>
-          <ref name="element-repo"/>
+        <element name="set"><text/></element>
         </oneOrMore>
-
-        <!-- undocumented, used only for cstest, remove eventually -->
-        <optional>
-        <oneOrMore>
-        <element name="repofile"><text/></element>
-        </oneOrMore>
-        </optional>
 
         </interleave>
 
       </element>
+      </optional>
 
     </element>
   </start>

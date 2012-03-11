@@ -61,8 +61,8 @@ class GpgSignSetupEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.pubkey = self.mddir/'RPM-GPG-KEY-%s' % self.solutionid
-    self.seckey = self.mddir/'RPM-GPG-KEY-%s-secret' % self.solutionid
+    self.pubkey = self.mddir/'RPM-GPG-KEY-%s' % self.repoid
+    self.seckey = self.mddir/'RPM-GPG-KEY-%s-secret' % self.repoid
     if self.config.get('passphrase/text()', None) is None:
       self.passphrase=''
     else:
@@ -132,7 +132,7 @@ class GpgSignSetupEvent(Event):
     homedir.mkdir()
     homedir.chmod(0700)
 
-    name = "%s signing key" % self.solutionid
+    name = "%s signing key" % self.repoid
 
     cmd = """gpg --quiet --batch --gen-key <<EOF
      Key-Type: DSA

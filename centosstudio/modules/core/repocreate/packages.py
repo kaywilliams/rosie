@@ -173,7 +173,7 @@ class PackagesEvent(ShelveMixin):
     for package in self.config.xpath('package', []):
       core_group.mandatory_packages[package.text] = 1
 
-    # make sure a kernel package or equivalent exists for system solutions
+    # make sure a kernel package or equivalent exists for system repos
     if self.type == 'system':
       kfound = False
       for group in self.comps.groups:

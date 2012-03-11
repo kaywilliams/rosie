@@ -61,7 +61,7 @@ done
 skipx
 </kickstart>
 
-<remote-url>http://192.168.122.1/solutions</remote-url>
+<remote-url>http://192.168.122.1/repos/system</remote-url>
 <xi:include href="../common/deploy.xml" 
             xpointer="xpointer(/*/*[name()!='trigger-script' and
                                     name()!='install-script' and

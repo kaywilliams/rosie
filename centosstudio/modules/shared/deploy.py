@@ -372,7 +372,7 @@ class SSHParameters(DictMixin):
       if not param == 'enabled':
         self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
-                              ptr.solutionid)
+                              ptr.repoid)
 
   def __getitem__(self, key):
     return self.params[key]

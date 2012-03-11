@@ -49,7 +49,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     self.DATA['config'].append(self.rpmxpath)
 
     self.masterrepo = '%s-%s' % (self.name, 
-                      hashlib.md5(self.solutionid).hexdigest()[-6:])
+                      hashlib.md5(self.repoid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
 

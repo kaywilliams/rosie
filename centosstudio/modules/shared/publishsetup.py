@@ -92,26 +92,26 @@ class PublishSetupEventMixin:
   #------ Helper Methods ------#
   def get_local(self):
     if self.moduleid == 'publish':
-      default = '/var/www/html/solutions'
+      default = '/var/www/html/repos/%s' % self.type
     else:
-      default = '/var/www/html/solutions/%s' % self.moduleid
+      default = '/var/www/html/repos/%s/%s' % (self.type, self.moduleid)
 
     local = self.config.getpath('local-dir/text()', default)
-    return local / self.solutionid
+    return local / self.repoid
   
   def get_remote(self): 
     if self.moduleid == 'publish':
-      default = 'solutions'
+      default = 'repos/%s' % self.type
     else:
-      default = 'solutions/%s' % self.moduleid
+      default = 'repos/%s/%s' % (self.type, self.moduleid)
 
     remote = pps.path(self.config.getpath('remote-url/text()',
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
     if self.moduleid == 'publish':
-      return remote / self.solutionid / 'os'
+      return remote / self.repoid / 'os'
     else:
-      return remote / self.solutionid
+      return remote / self.repoid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:
@@ -135,9 +135,9 @@ class PublishSetupEventMixin:
 
   def get_hostname(self):
     if self.moduleid == 'publish':
-      default = self.solutionid
+      default = self.repoid
     else:
-      default = '%s-%s' % (self.solutionid, self.moduleid)
+      default = '%s-%s' % (self.repoid, self.moduleid)
 
     return self.config.get('@hostname', default)
 

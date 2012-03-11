@@ -144,7 +144,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.solutionid  = self.definition.get(qstr % 'id',
+    self.repoid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                           self.version,
                                           self.userarch))
@@ -227,10 +227,10 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock( 'centosstudio-%s.pid' % self.solutionid )
+    self._lock = lock.Lock( 'centosstudio-%s.pid' % self.repoid )
 
   def main(self):
-    "Build a solution repository"
+    "Build a repository"
     if self._lock.acquire():
       self._log_header()
       try:
@@ -244,7 +244,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     else:
       raise CentOSStudioError("\nAnother instance of centosstudio (pid %d) is "
                               "already modifying '%s'" % 
-                              (self._lock._readlock()[0], self.solutionid ))
+                              (self._lock._readlock()[0], self.repoid ))
 
   def _get_config(self, options, arguments):
     """
@@ -278,7 +278,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     self.definition = dt.getroot()
 
   def _validate_initial_variables(self):
-    for elem in ['name', 'version', 'solutionid']:
+    for elem in ['name', 'version', 'repoid']:
       if not FILENAME_REGEX.match(eval('self.%s' % elem)):
         raise CentOSStudioError("Validation of %s failed. "
           "The 'main/%s' element contains an invalid value '%s'. "
@@ -411,7 +411,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     self.CACHE_DIR    = self.mainconfig.getpath(
                         '/centosstudio/cache/path/text()',
                         DEFAULT_CACHE_DIR).expand().abspath()
-    self.METADATA_DIR = self.CACHE_DIR  / self.solutionid
+    self.METADATA_DIR = self.CACHE_DIR  / self.repoid
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -457,7 +457,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
   def _log_header(self):
     self.logger.logfile.write(0, "\n\n\n")
-    self.logger.log(1, "Starting build of '%s' at %s" % (self.solutionid, time.strftime('%Y-%m-%d %X')))
+    self.logger.log(1, "Starting build of '%s' at %s" % (self.repoid, time.strftime('%Y-%m-%d %X')))
     self.logger.log(4, "Loaded modules: %s" % self.cvars['loaded-modules'])
     self.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
@@ -486,7 +486,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     di['type']              = self.type
     di['basearch']          = self.basearch
     di['userarch']          = self.userarch
-    di['solutionid']        = self.solutionid
+    di['repoid']        = self.repoid
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
     di['packagepath']       = 'Packages'
@@ -536,6 +536,6 @@ class AllEvent(Event):
     self.macros = {'%{name}':     self.name,
                    '%{version}':  self.version,
                    '%{arch}':     self.userarch,
-                   '%{id}':       self.solutionid,
+                   '%{id}':       self.repoid,
                    }
 
