@@ -31,6 +31,8 @@ __all__ = ['RepomdMixin']
 CREATEREPO_ATTEMPTS = 2
 
 class RepomdMixin:
+  repomd_mixin_version = "1.00"
+
   def __init__(self, *args, **kwargs):
     self.cvars['createrepo-version'] = Version(
       shlib.execute('createrepo --version')[0].lstrip("createrepo "))
@@ -40,6 +42,8 @@ class RepomdMixin:
       self.crcb = None
 
     self.repomdfile = self.SOFTWARE_STORE/'repodata/repomd.xml'
+
+    self.DATA['variables'].append('repomd_mixin_version')
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True, checksum=None):
@@ -59,7 +63,7 @@ class RepomdMixin:
       args.append('--update')
     if quiet:
       args.append('--quiet')
-    if groupfile:
+    if groupfile and self.type == 'system':
       args.extend(['--groupfile', groupfile])
       repo_files.append(path / 'repodata'/ groupfile.basename)
       if self.locals.L_CREATEREPO['capabilities']['gzipped_groupfile']:

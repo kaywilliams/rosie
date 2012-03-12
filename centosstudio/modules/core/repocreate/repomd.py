@@ -39,8 +39,6 @@ class RepomdEvent(Event, RepomdMixin):
       provides = ['repomd-file', 'treeinfo-checksums', 'os-content'],
       conditionally_requires = ['groupfile', 'checked-rpms'],
     )
-    RepomdMixin.__init__(self)
-
 
     self.DATA = {
       'config':    ['.'],
@@ -49,6 +47,8 @@ class RepomdEvent(Event, RepomdMixin):
       'input':     [],
       'output':    [],
     }
+
+    RepomdMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
