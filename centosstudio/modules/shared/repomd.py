@@ -63,7 +63,7 @@ class RepomdMixin:
       args.append('--update')
     if quiet:
       args.append('--quiet')
-    if groupfile and self.type == 'system':
+    if groupfile:
       args.extend(['--groupfile', groupfile])
       repo_files.append(path / 'repodata'/ groupfile.basename)
       if self.locals.L_CREATEREPO['capabilities']['gzipped_groupfile']:

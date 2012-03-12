@@ -184,10 +184,6 @@ class PackagesEvent(ShelveMixin):
 
       self.comps.add_group(core_group)
 
-    # remove excluded packages
-    for pkg in self.cvars['excluded-packages']:
-      self.comps.remove_package(pkg)
-
     # create a category
     category = comps.Category()
     category.categoryid  = 'Groups'
@@ -222,8 +218,7 @@ class CompsEvent(Event):
       parentid = 'repocreate',
       ptr = ptr,
       provides = ['groupfile'],
-      requires = ['repos'], #extended in Depsolver mixin
-      conditionally_requires = [], # set in Depsolver Mixin
+      requires = ['comps-object', 'excluded-packages'], 
       version = '1.00'
     )
 
@@ -245,7 +240,14 @@ class CompsEvent(Event):
                       self.cvars['comps-object'].xml()).hexdigest()
     self.DATA['variables'].append('comps_hash')
 
+    # track changes to excluded packages
+    self.DATA['variables'].append('cvars[\'excluded-packages\']')
+
   def run(self):
+    # remove excluded packages
+    for pkg in self.cvars['excluded-packages']:
+      self.cvars['comps-object'].remove_package(pkg)
+
     # write comps.xml
     self.log(1, L1("writing comps.xml"))
     self.compsfile.write_text(self.cvars['comps-object'].xml())
