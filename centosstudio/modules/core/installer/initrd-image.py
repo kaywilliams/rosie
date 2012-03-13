@@ -73,7 +73,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
 
   def apply(self):
     self.cvars.setdefault('isolinux-files', {})
-    self.cvars['isolinux-files']['initrd.img'] = self.SOFTWARE_STORE/self.image_locals['path']
+    self.cvars['isolinux-files']['initrd.img'] = self.REPO_STORE/self.image_locals['path']
 
   def _generate(self):
     ImageModifyMixin._generate(self)

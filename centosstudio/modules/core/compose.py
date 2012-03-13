@@ -50,11 +50,14 @@ class ComposeEvent(Event):
     self.events = []
     for event in self._getroot():
       if 'os-content' in event.provides:
-        event_output_dir = self.METADATA_DIR/event.id/'output/os'
+        # calculate event_output_dir relative to compose output dir
+        suffix = self.REPO_STORE[len(self.METADATA_DIR):].replace(
+                 self.id, event.id)
+        event_output_dir = self.METADATA_DIR // suffix
         if event_output_dir.exists():
           self.events.append(event.id)
           self.io.add_fpaths(event_output_dir.listdir(all=True),
-                             self.SOFTWARE_STORE, id=event.id)
+                             self.REPO_STORE, id=event.id)
 
   def run(self):
     # create composed tree
@@ -63,8 +66,11 @@ class ComposeEvent(Event):
       self.io.process_files(link=True, what=event, text=None)
 
   def apply(self):
-    self.cvars['os-dir'] = self.SOFTWARE_STORE
-    self.cvars.setdefault('publish-content', set()).add(self.SOFTWARE_STORE)
+    self.cvars['os-dir'] = self.REPO_STORE
+
+    self.cvars.setdefault('publish-content', set())
+    for p in self.cvars['os-dir'].findpaths(mindepth=1, maxdepth=1):
+      self.cvars['publish-content'].add(p)
 
   def verify_cvars(self):
     "verify cvars are set"

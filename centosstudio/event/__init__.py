@@ -180,14 +180,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     return self.mddir/'%s.md' % self.id
 
   @property
-  def OUTPUT_DIR(self):
+  def REPO_STORE(self):
     dir = self.METADATA_DIR/self.id/'output'
-    dir.mkdirs()
-    return dir
-
-  @property
-  def SOFTWARE_STORE(self):
-    dir = self.METADATA_DIR/self.id/'output/os'
     dir.mkdirs()
     return dir
 

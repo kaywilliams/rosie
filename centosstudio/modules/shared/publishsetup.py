@@ -108,10 +108,8 @@ class PublishSetupEventMixin:
     remote = pps.path(self.config.getpath('remote-url/text()',
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
-    if self.moduleid == 'publish':
-      return remote / self.repoid / 'os'
-    else:
-      return remote / self.repoid
+                        
+    return remote / self.repoid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:

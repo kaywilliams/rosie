@@ -48,7 +48,7 @@ class DiscinfoEvent(Event):
       requires = ['anaconda-version'],
     )
 
-    self.difile = self.SOFTWARE_STORE/'.discinfo'
+    self.difile = self.REPO_STORE/'.discinfo'
 
     self.DATA =  {
       'variables': ['fullname', 'basearch', 'packagepath',
@@ -91,7 +91,7 @@ class TreeinfoEvent(Event):
       requires = ['anaconda-version', 'treeinfo-checksums'],
     )
 
-    self.tifile = self.SOFTWARE_STORE/'.treeinfo'
+    self.tifile = self.REPO_STORE/'.treeinfo'
 
     self.DATA =  {
       'variables': ['name', 'version', 'packagepath', 'basearch'],

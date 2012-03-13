@@ -92,9 +92,6 @@ class EventTestCase(unittest.TestCase):
     repos = self._make_repos_config()
     if repos is not None: top.append(repos)
 
-    gpgcheck = self._make_gpgcheck_config()
-    if gpgcheck is not None: top.append(gpgcheck)
-
     self.conf = top
     if hasattr(self, '_conf'): # string or list of strings
       if isinstance(self._conf, basestring):
@@ -125,16 +122,11 @@ class EventTestCase(unittest.TestCase):
                                            arch=self.arch,
                                            include_baseurl=True,
                                            baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
-    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None})
+    base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml())
 
     return repos
-
-  def _make_gpgcheck_config(self):
-    gpgcheck = config.Element('gpgcheck', attrs={'enabled': 'false'})
-
-    return gpgcheck
 
   def _add_config(self, section):
     sect = config.parse(StringIO(section)).getroot()

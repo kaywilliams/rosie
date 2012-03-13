@@ -138,7 +138,7 @@ class PublishEvent(Event):
                                         recursive=True, force=True)
 
   def run(self):
-    "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
+    "Publish the repository"
     self.io.process_files(text="publishing to '%s'" % 
                           self.cvars['publish-setup-options']['localpath'],
                        callback=self.link_callback)

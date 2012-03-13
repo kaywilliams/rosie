@@ -19,12 +19,17 @@ from StringIO import StringIO
 
 import unittest
 
+from centosstudio.errors import CentOSStudioError
+
 from centosstudio.util import pps
+from centosstudio.util import repo
 from centosstudio.util import rxml
 from centosstudio.util.repo import RPM_PNVRA_REGEX
+from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 from cstest      import EventTestCase, ModuleTestSuite, _run_make
 from cstest.core import make_core_suite
+
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
@@ -63,10 +68,17 @@ class Test_PackagesDownloaded(DownloadEventTestCase):
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
   "Test that the packages in <packages> are downloaded"
-  _conf = """<packages>
+  _conf = [
+  """<packages>
     <package>package1</package>
     <package>package2</package>
-  </packages>"""
+  </packages>
+  """,
+  """
+  <release-rpm>
+    <updates gpgcheck='false'/>
+  </release-rpm>
+  """]
 
   def runTest(self):
     DownloadEventTestCase.runTest(self)
@@ -92,12 +104,63 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."
   def runTest(self):
-    DownloadEventTestCase.runTest(self)
-    # if the length of cvars['rpms'] is equal to the length of
-    # the set of cvars['rpms'] basenames, then we know for that we are
-    # not downloading duplicate packages.
-    self.failUnless(len(self.event.cvars['rpms']) == 
-                    len(set(rpm.basename for rpm in self.event.cvars['rpms'])))
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.event._process_keys()
+    self.event._process_packages()
+    # if the length of rpms in the pkglist is equal to the length of
+    # rpms in list_output, then we know for that we are not downloading 
+    # duplicate packages.
+    pkglist = []
+    downloaded = []
+    for subrepo in self.event.cvars['pkglist']:
+      pkglist.extend(self.event.cvars['pkglist'][subrepo])
+      downloaded.extend(self.event.io.list_output(what=subrepo))
+    self.failUnless(len(pkglist) == len(downloaded))
+
+
+class Test_FailsOnUnsignedPackages(DownloadEventTestCase):
+  "fails on unsigned packages"
+
+  # create shared test repos
+  _run_make(pps.path(__file__).dirname/'shared')
+
+  # add an unsigned package
+  _conf = """<packages>
+    <package>package1</package>
+  </packages>"""
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
+class Test_FailsIfKeyNotProvided(DownloadEventTestCase):
+  "fails if no keys defined"
+
+  def _make_repos_config(self):
+    repos = rxml.config.Element('repos')
+    base = repo.getDefaultRepoById('base', distro=self.distro,
+           version=self.version, arch=self.arch, include_baseurl=True,
+           baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
+    # set gpgkeys to none
+    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,})
+    repos.append(base.toxml())
+    return repos
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+    self.clean_event_md()
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
+class Test_CompsFile(DownloadEventTestCase):
+  "comps file included in repodata"
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.id)
+    self.failUnlessExists(self.event.rpmsdir / 'repodata' /
+                          self.event.cvars['groupfile'].basename)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
@@ -109,5 +172,8 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_AddedPackageDownloaded(distro, version, arch))
   suite.addTest(Test_RemovedPackageDeleted(distro, version, arch))
   suite.addTest(Test_MultipleReposWithSamePackage(distro, version, arch))
+  suite.addTest(Test_FailsOnUnsignedPackages(distro, version, arch))
+  suite.addTest(Test_FailsIfKeyNotProvided(distro, version, arch))
+  suite.addTest(Test_CompsFile(distro, version, arch))
 
   return suite

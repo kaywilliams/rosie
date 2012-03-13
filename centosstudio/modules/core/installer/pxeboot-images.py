@@ -42,7 +42,7 @@ class PxebootImagesEvent(Event):
       'output': [],
     }
 
-    self.pxebootdir = self.SOFTWARE_STORE/'images/pxeboot'
+    self.pxebootdir = self.REPO_STORE/'images/pxeboot'
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -54,5 +54,5 @@ class PxebootImagesEvent(Event):
 
   def apply(self):
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
-    for f in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      cvar.add((self.SOFTWARE_STORE, f.relpathfrom(self.SOFTWARE_STORE)))
+    for f in self.REPO_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.REPO_STORE, f.relpathfrom(self.REPO_STORE)))

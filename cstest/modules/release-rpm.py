@@ -83,11 +83,11 @@ class Test_OutputsGpgkeys(ReleaseRpmEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
-    self.failUnless((self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1))
+    self.failUnless((self.event.REPO_STORE/'gpgkeys').findpaths(mindepth=1))
     expected = [ x.basename for x in self.event.cvars['gpgkeys'] ]
     expected.append('gpgkey.list')
     found = [ x.basename for x in
-             (self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1,
+             (self.event.REPO_STORE/'gpgkeys').findpaths(mindepth=1,
                                                              type=TYPE_NOT_DIR)]
     self.failUnless(expected)
     self.failUnless(set(expected) == set(found))
@@ -103,7 +103,7 @@ class Test_RemovesGpgkeys(ReleaseRpmEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
-    self.failUnless(not (self.event.SOFTWARE_STORE/'gpgkeys').
+    self.failUnless(not (self.event.REPO_STORE/'gpgkeys').
                          findpaths())
 
 

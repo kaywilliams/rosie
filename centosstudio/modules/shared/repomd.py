@@ -41,8 +41,6 @@ class RepomdMixin:
     else:
       self.crcb = None
 
-    self.repomdfile = self.SOFTWARE_STORE/'repodata/repomd.xml'
-
     self.DATA['variables'].append('repomd_mixin_version')
 
   def createrepo(self, path, groupfile=None, pretty=False,

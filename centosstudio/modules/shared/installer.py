@@ -35,7 +35,7 @@ class ImageModifyMixin:
   # Classes that extend this must require 'anaconda-version',
   # 'installer-repo', and 'buildstamp-file'
 
-  path    = property(lambda self: ( self.SOFTWARE_STORE /
+  path    = property(lambda self: ( self.REPO_STORE /
                                     self.image_locals['path'] %
                                     self.cvars['distribution-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
@@ -174,7 +174,7 @@ class FileDownloadMixin:
       rinfix = data['path'] % self.cvars['base-info']
       linfix = data['path'] % self.cvars['distribution-info']
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
-                        (self.SOFTWARE_STORE/linfix).dirname,
+                        (self.REPO_STORE/linfix).dirname,
                         id='FileDownloadMixin')
 
   def apply(self):

@@ -35,8 +35,7 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
       parentid = 'rpmbuild',
       ptr = ptr,
       version = '1.00',
-      provides = ['rpmbuild-data', 'gpgkeys',
-                  'gpgcheck-enabled', 'os-content'],
+      provides = ['rpmbuild-data', 'os-content'],
       requires = ['publish-setup-options'],
     )
 

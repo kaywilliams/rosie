@@ -32,6 +32,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.conditionally_requires.add('packages')
     self.rpmxpath = rpmxpath or '.'
     self.conditionally_requires.add('gpg-signing-keys')
+    self.provides.update(['gpgcheck-enabled', 'gpgkeys', 'gpgkey-ids'])
 
     MkrpmRpmBuildMixin.__init__(self,
       '%s-release' % self.name,   
@@ -81,7 +82,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
                                      '%s/updates/@gpgcheck' % self.rpmxpath,
                                      True)
-    self.gpgkey_dir = self.SOFTWARE_STORE/'gpgkeys'
+    self.gpgkey_dir = self.REPO_STORE/'gpgkeys'
 
     if not self.cvars['gpgcheck-enabled']:
       return
@@ -108,8 +109,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
                      "is printed below:\n%s" % (repo.id, e))
           raise GPGKeyError(message=message)
 
-    self.keyids = self.gpgkeys.keys() # only track changes to keyids, not urls
-    self.DATA['variables'].append('keyids')
+    self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
+    self.DATA['variables'].append('cvars[\'gpgkey-ids\']')
 
   def run(self):
     for path in [ self.shelvefile, self.gpgkey_dir ]:
@@ -189,7 +190,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.DATA['output'].append(listfile)
 
     # convert keys to remote urls for use in repofile
-    remotekeys = set([(self.webpath/x[len(self.SOFTWARE_STORE+'/'):])
+    remotekeys = set([(self.webpath/x[len(self.REPO_STORE+'/'):])
                        for x in self.localkeys])
 
     return remotekeys

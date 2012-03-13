@@ -79,8 +79,8 @@ class ProductImageEvent(Event, ImageModifyMixin):
   def apply(self):
     ImageModifyMixin.apply(self)
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
-    for file in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      cvar.add((self.SOFTWARE_STORE, file.relpathfrom(self.SOFTWARE_STORE)))
+    for file in self.REPO_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.REPO_STORE, file.relpathfrom(self.REPO_STORE)))
 
   def _generate(self):
     ImageModifyMixin._generate(self)

@@ -55,8 +55,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:
       dirname =  '/'.join(p.split('/')
-                 [len(self.SOFTWARE_STORE.split('/')):])
-      self.io.add_item(p, self.SOFTWARE_STORE/dirname, id='os-dir')
+                 [len(self.REPO_STORE.split('/')):])
+      self.io.add_item(p, self.REPO_STORE/dirname, id='os-dir')
 
     # release-rpm
     try:
@@ -86,7 +86,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       self.localpath.rm(recursive=True, force=True)
 
     # sync files from compose (os-dir) folder
-    self.SOFTWARE_STORE.rm(force=True)
+    self.REPO_STORE.rm(force=True)
     self.io.process_files(link=True, text="preparing %s repository" 
                           % self.moduleid, what='os-dir')
 
@@ -97,25 +97,25 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       pass
     else: # release-rpm exists, modify it
       ReleaseRpmEventMixin.run(self)
-      self.rpm.rpm_path.cp(self.SOFTWARE_STORE/'Packages')
-      self.DATA['output'].append(self.SOFTWARE_STORE/'Packages'/
+      self.rpm.rpm_path.cp(self.REPO_STORE/'Packages')
+      self.DATA['output'].append(self.REPO_STORE/'Packages'/
                                  self.rpm.rpm_path.basename)
 
     # update repodata
-    self.createrepo(self.SOFTWARE_STORE, 
+    self.createrepo(self.REPO_STORE/'Packages', 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
-    self.repomdfile = self.SOFTWARE_STORE/'repodata/repomd.xml'
+    self.repomdfile = self.REPO_STORE/'repodata/repomd.xml'
 
     # update kickstart
     if self.config.get('kickstart', None) is not None:
-      (self.SOFTWARE_STORE/'ks.cfg').rm(force=True)
+      (self.REPO_STORE/'ks.cfg').rm(force=True)
       KickstartEventMixin.run(self) 
 
     # publish to test folder
     self.log(2, L1('publishing to %s' % self.localpath))
     self.localpath.rm(force=True)
-    self.link(self.SOFTWARE_STORE, self.localpath) 
+    self.link(self.REPO_STORE, self.localpath) 
     self.io.chcon(self.localpath)
 
   def apply(self):
