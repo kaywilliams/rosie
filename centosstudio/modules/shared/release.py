@@ -51,6 +51,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
     if not hasattr(self, 'webpath'): self.webpath = webpath
+    self.pkgurl = self.webpath / self.packagepath 
 
     self.masterrepo = '%s-%s' % (self.name, 
                       hashlib.md5(self.repoid).hexdigest()[-6:])
@@ -59,7 +60,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
     MkrpmRpmBuildMixin.setup(self, **kwargs)
 
-    self.DATA['variables'].extend(['masterrepo', 'webpath'])
+    self.DATA['variables'].extend(['masterrepo', 'webpath', 'packagepath'])
 
     # setup yum plugin (unless disabled or non-system type repo)
     if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
@@ -143,7 +144,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     lines = []
     # include system repo
     if self.webpath is not None:
-      baseurl = self.webpath
+      baseurl = self.pkgurl
       lines.extend([ '[%s]' % self.masterrepo, 
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % baseurl,
