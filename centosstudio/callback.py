@@ -343,6 +343,8 @@ class TimerCallback(object):
     if self.logger.test(3):
       self.bar = ProgressBar(layout=LAYOUT_TIMER, title=L1(message))
       self.bar.start()
+    else:
+      self.logger.log(1, L1(message))
 
   def end(self):
     if self.logger.test(3):

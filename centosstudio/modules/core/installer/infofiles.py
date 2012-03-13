@@ -51,7 +51,7 @@ class DiscinfoEvent(Event):
     self.difile = self.REPO_STORE/'.discinfo'
 
     self.DATA =  {
-      'variables': ['fullname', 'basearch', 'packagepath',
+      'variables': ['fullname', 'basearch', 'packagepath', 'difile',
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
@@ -94,7 +94,7 @@ class TreeinfoEvent(Event):
     self.tifile = self.REPO_STORE/'.treeinfo'
 
     self.DATA =  {
-      'variables': ['name', 'version', 'packagepath', 'basearch'],
+      'variables': ['name', 'version', 'packagepath', 'basearch', 'tifile'],
       'output':    [self.tifile],
     }
 

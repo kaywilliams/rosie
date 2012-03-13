@@ -110,7 +110,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
           raise GPGKeyError(message=message)
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
-    self.DATA['variables'].append('cvars[\'gpgkey-ids\']')
+    self.DATA['variables'].extend(['gpgkey_dir', 'cvars[\'gpgkey-ids\']'])
 
   def run(self):
     for path in [ self.shelvefile, self.gpgkey_dir ]:

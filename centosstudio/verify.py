@@ -48,7 +48,9 @@ class BuildTestResult(unittest.TestResult):
       self.logger.log(1, 'Warning: there was an error in the verification method for test %s: %s' % (test, err[1]))
 
   def addFailure(self, test, err):
-    raise VerifyError(message=err)
+    message = ("Error: there was an error in the verification method for test "
+               "%s: %s" % (test, err[1]))
+    raise VerifyError(message=message) 
 
   def printErrors(self):
     self.logger.log(5, '')

@@ -46,7 +46,7 @@ class KickstartEventMixin:
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
                     ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
 
-    self.DATA['variables'].append('kstext')
+    self.DATA['variables'].extend(['ksfile', 'kstext'])
 
   def run(self):
     ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]

@@ -34,6 +34,7 @@ class ImageModifyMixin:
   "This class downloads and modifies images"
   # Classes that extend this must require 'anaconda-version',
   # 'installer-repo', and 'buildstamp-file'
+  image_modify_mixin_version = '1.00'
 
   path    = property(lambda self: ( self.REPO_STORE /
                                     self.image_locals['path'] %
@@ -61,6 +62,7 @@ class ImageModifyMixin:
     image_path = self.image_locals['path'] % self.cvars['distribution-info']
 
     self.diff.setup(self.DATA)
+    self.DATA['variables'].extend(['path', 'image_modify_mixin_version'])
 
     # other image input files
     for dst, src in self.cvars['%s-content' % self.id].items():
@@ -176,6 +178,9 @@ class FileDownloadMixin:
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
                         (self.REPO_STORE/linfix).dirname,
                         id='FileDownloadMixin')
+
+    self.DATA.setdefault('variables', []).extend(
+                         ['REPO_STORE', 'cvars[\'distribution-info\']'])
 
   def apply(self):
     pass
