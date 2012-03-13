@@ -7,6 +7,9 @@
 </main>
 
 <publish password='srpmbuild' hostname='%{id}.local'>
+<local-dir>/var/www/html/repos/.srpmbuild</local-dir>
+<remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
+
 <trigger-script triggers='kickstart, install-script, release-rpm'>
   <xi:include href="../common/deploy.xml" 
               xpointer="xpointer(/*/trigger-script/text())"/>
@@ -61,7 +64,6 @@ done
 skipx
 </kickstart>
 
-<remote-url>http://192.168.122.1/repos/system</remote-url>
 <xi:include href="../common/deploy.xml" 
             xpointer="xpointer(/*/*[name()!='trigger-script' and
                                     name()!='install-script' and
