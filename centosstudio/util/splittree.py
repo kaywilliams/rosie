@@ -132,10 +132,10 @@ class Timber:
     "Split stuff up"
     for i in self.rpm_disc_map:
       discpath = self.s_tree/'%s-disc%d' % (self.name, i)
-      (discpath/self.name).mkdirs()
+      discpath.mkdirs()
       if i == 1: # put release files on disc 1
         for file in self.u_tree.findpaths(
-            nregex='.*/(\.[^/]+|.+\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product_path,
+            nregex='.*/(\.discinfo|.+\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product_path,
             mindepth=1, maxdepth=1):
           link.sync(file, discpath, allow_xdev=True)
       else:

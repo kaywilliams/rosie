@@ -20,8 +20,7 @@ import os
 
 from centosstudio.util import pkgorder
 from centosstudio.util import shlib
-
-from centosstudio import splittree
+from centosstudio.util import splittree
 
 from centosstudio.callback import BuildDepsolveCallback
 from centosstudio.validate import InvalidEventError
