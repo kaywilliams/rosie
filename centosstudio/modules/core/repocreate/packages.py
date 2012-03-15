@@ -217,7 +217,7 @@ class CompsEvent(Event):
       id = 'comps',
       parentid = 'repocreate',
       ptr = ptr,
-      provides = ['groupfile'],
+      provides = ['groupfile', 'comps-object'],
       requires = ['comps-object', 'excluded-packages'], 
       version = '1.00'
     )
