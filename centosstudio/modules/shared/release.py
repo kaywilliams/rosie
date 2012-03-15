@@ -52,16 +52,24 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
     if not hasattr(self, 'webpath'): self.webpath = webpath
-    self.pkgurl = self.webpath / self.packagepath 
 
     self.masterrepo = '%s-%s' % (self.name, 
                       hashlib.md5(self.repoid).hexdigest()[-6:])
+
+    # if you change the values below, also change yum_plugin locals
+    self.keydir = 'gpgkeys'
+    self.keylist = 'gpgkey.list'
+
+    self.local_keydir = self.REPO_STORE / self.keydir
+    self.remote_keydir = self.webpath / self.keydir
+
     self.files_cb = files_cb
     self.files_text = files_text
 
     MkrpmRpmBuildMixin.setup(self, **kwargs)
 
-    self.DATA['variables'].extend(['masterrepo', 'webpath', 'packagepath'])
+    self.DATA['variables'].extend(['masterrepo', 'webpath', 'local_keydir', 
+                                   'remote_keydir', 'keylist'])
 
     # setup yum plugin (unless disabled or non-system type repo)
     if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
@@ -69,8 +77,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
       self.plugin_hash = hashlib.sha224('/n'.join(
                          self.plugin_lines)).hexdigest()
-      # hackish - do %s replacement for masterrepo
-      map = { 'masterrepo': self.masterrepo }
+      # hackish - do %s replacement sync plugin
+      map = { 'masterrepo': self.masterrepo, }
       self.plugin_conf_lines = [ x % map for
                                  x in self.locals.L_YUM_PLUGIN['config'] ]
       self.plugin_conf_hash = hashlib.sha224('/n'.join(
@@ -82,7 +90,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
                                      '%s/updates/@gpgcheck' % self.rpmxpath,
                                      True)
-    self.gpgkey_dir = self.REPO_STORE/'gpgkeys'
 
     if not self.cvars['gpgcheck-enabled']:
       return
@@ -110,10 +117,10 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
           raise GPGKeyError(message=message)
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
-    self.DATA['variables'].extend(['gpgkey_dir', 'cvars[\'gpgkey-ids\']'])
+    self.DATA['variables'].extend(['keydir', 'cvars[\'gpgkey-ids\']'])
 
   def run(self):
-    for path in [ self.shelvefile, self.gpgkey_dir ]:
+    for path in [ self.shelvefile, self.local_keydir ]:
       path.rm(recursive=True, force=True)
     MkrpmRpmBuildMixin.run(self)
 
@@ -124,13 +131,12 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       # causes the release rpm to be regenerated each time the url to an input 
       # gpgkey changes, and we want the release rpm to be immune to this class
       # of changes
-      self.gpgkey_dir.mkdirs()
-      self.localkeys = []
+      self.local_keydir.mkdirs()
+      self.keys = []
       for url in self.gpgkeys.values():
-        url.cp(self.gpgkey_dir)
-        local = self.gpgkey_dir / url.basename
-        self.localkeys.append(local)
-        self.DATA['output'].append(local)
+        url.cp(self.local_keydir)
+        self.keys.append(url.basename)
+        self.DATA['output'].append(self.local_keydir / url.basename)
 
     # generate repofile
     self._generate_repofile()
@@ -145,7 +151,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     lines = []
     # include system repo
     if self.webpath is not None:
-      baseurl = self.pkgurl
+      baseurl = self.webpath
       lines.extend([ '[%s]' % self.masterrepo, 
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % baseurl,
@@ -181,23 +187,22 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       return []
 
     # cache for future
-    self.shelve('gpgkeys', self.localkeys)
+    self.shelve('keys', self.keys)
 
     # create gpgkey list for use by yum sync plugin
-    listfile = self.gpgkey_dir/'gpgkey.list'
-    lines = [x.basename for x in self.localkeys]
-    listfile.write_lines(lines)
+    listfile = self.local_keydir / self.keylist
+    listfile.write_lines(self.keys)
     self.DATA['output'].append(listfile)
 
     # convert keys to remote urls for use in repofile
-    remotekeys = set([(self.webpath/x[len(self.REPO_STORE+'/'):])
-                       for x in self.localkeys])
+    remotekeys = set([ self.remote_keydir / x for x in self.keys])
 
     return remotekeys
 
   def apply(self):
-    MkrpmRpmBuildMixin.apply(self) 
-    self.cvars['gpgkeys'] = self.unshelve('gpgkeys', [])
+    MkrpmRpmBuildMixin.apply(self)
+    self.cvars['gpgkeys'] = [ self.local_keydir / x 
+                              for x in self.unshelve('keys', []) ]
 
 class GPGKeyError(CentOSStudioEventError):
   message = "%(message)s"
