@@ -21,7 +21,6 @@ from centosstudio.modules.shared.bootoptions  import *
 from centosstudio.modules.shared.csshelve     import *
 from centosstudio.modules.shared.deploy       import *
 from centosstudio.modules.shared.depsolver    import *
-from centosstudio.modules.shared.execute      import *
 from centosstudio.modules.shared.installer    import *
 from centosstudio.modules.shared.kickstart    import *
 from centosstudio.modules.shared.publishsetup import *
