@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import textwrap
+import traceback
 import time
 
 from rpmUtils.arch import getBaseArch
@@ -199,7 +200,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      raise CentOSStudioError("Error loading core centosstudio files: %s" % e)
+      raise CentOSStudioError("Error loading core centosstudio files: %s" % 
+            traceback.format_exc())
 
     except InvalidEventError, e:
       raise CentOSStudioError("\n%s" % e)
