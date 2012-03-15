@@ -26,13 +26,53 @@ from cstest.mixins import check_vm_config
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
 class DeployMixinTestCase:
-  pass
+  _conf = [
+    """
+    <packages>
+      <group>core</group>
+      <group>base</group>
+    </packages>
+    """,
+    """
+    <publish password='password'>
+     <trigger-script triggers='kickstart, install-script'>
+      <include 
+        xmlns='http://www.w3.org/2001/XInclude'
+        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
+        xpointer="xpointer(/*/trigger-script/text())]"/>
+      </trigger-script>
+
+      <kickstart>
+      <include 
+         xmlns='http://www.w3.org/2001/XInclude'
+         href='%(root)s/../../share/centosstudio/examples/common/ks.cfg'
+         parse='text'/>
+      </kickstart>
+
+      <include 
+        xmlns='http://www.w3.org/2001/XInclude'
+        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
+        xpointer="xpointer(/*/*[name()!='post-script' and
+                                name()!='trigger-script'])"/>
+    </publish>
+    """ % {'root' : pps.path(__file__).dirname.abspath()}]
+
+  def __init__(self, distro, version, arch):
+    EventTestCase.__init__(self, distro, version, arch)
+    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version, 
+                                          self.arch)
+    self.conf.get("/*/publish").set('hostname', self.hostname)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until='deploy')
 
 def DeployMixinTest_Teardown(self):
   self._testMethodDoc = "dummy test to shutoff virtual machine"
-
   def setUp(): 
     EventTestCase.setUp(self)
+
+  def runTest():
+    pass
 
   def tearDown():
     EventTestCase.tearDown(self) 
@@ -46,6 +86,7 @@ def DeployMixinTest_Teardown(self):
     vm.destroy()
 
   self.setUp = setUp
+  self.runTest = runTest
   self.tearDown = tearDown
   decorate(self, 'tearDown', postfn=post_tearDown)
   
