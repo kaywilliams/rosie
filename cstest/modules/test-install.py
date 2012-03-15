@@ -76,7 +76,8 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
     PublishSetupEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
 
     # set hostname
-    self.hostname = "cstest-%s-%s.local" % (self.version, self.arch)
+    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
+                                               self.arch)
     self.conf.get("/*/%s" % self.moduleid).set('hostname', self.hostname)
 
   def setUp(self):
