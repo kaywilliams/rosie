@@ -21,7 +21,7 @@ class BootOptionsMixin(object):
   def __init__(self, *args, **kwargs):
     self.conditionally_requires.add('publish-setup-options')
     self.bootoptions = BootOptionsDummy(self)
-    self.boot_options_mixin_version = '1.00'
+    self.boot_options_mixin_version = '1.01'
     self.DATA['variables'].append('boot_options_mixin_version')
 
 class BootOptionsDummy(object):
@@ -68,7 +68,7 @@ class BootOptionsDummy(object):
   def _process_method(self, args):
     self.ptr.DATA['variables'].append('webpath')
     if self.ptr.webpath is not None:
-      args.append('%s=%s/os' % (self.ptr.locals.L_BOOTCFG['options']['method'],
+      args.append('%s=%s' % (self.ptr.locals.L_BOOTCFG['options']['method'],
                                 self.ptr.webpath))
 
   def _process_ks(self, include_ks, args):
@@ -79,5 +79,5 @@ class BootOptionsDummy(object):
                                     self.ptr.cvars['ks-path']))
       if include_ks == 'web':
         self.ptr.DATA['variables'].append('webpath')
-        args.append('%s=%s/os%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+        args.append('%s=%s%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
                                     self.ptr.webpath, self.ptr.cvars['ks-path']))
