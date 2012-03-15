@@ -149,7 +149,7 @@ class DeployEventMixin:
 
     self.deploydir = self.LIB_DIR / 'deploy'
     trigger_info = self.deploydir / 'trigger_info'
-    self.config.resolve_macros('.', {'%s{trigger-file}': trigger_info})
+    self.config.resolve_macros('.', {'%{trigger-file}': trigger_info})
 
     # setup scripts
     for script in self.scripts:
