@@ -25,17 +25,18 @@ from centosstudio.util    import rxml
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from cstest.core     import make_extension_suite
-from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase, 
+from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
+                             DeployMixinTestCase,
                              dm_make_suite, check_vm_config)
 
 
 class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'
   eventid  = 'config-rpm'
-  _conf = """<config-rpm enabled="true">
+  _conf = ["""<config-rpm enabled="true">
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </config-rpm>"""
+  </config-rpm>"""]
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -51,7 +52,27 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
 
     return repos
 
+
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
+  _conf = [""" 
+  <config-rpm enabled="true">
+    <files destdir="/etc/testdir">%(working-dir)s/file1</files>
+    <files destdir="/etc/testdir" destname="file4">
+           %(working-dir)s/file2</files>
+    <files destdir="/etc/testdir" destname="file5" content="text">text</files>
+    <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
+    <script type="post">echo post</script>
+    <script type="pre">echo pre</script>
+    <script type="preun">echo preun</script>
+    <script type="postun">echo postun</script>
+    <script type="verifyscript">echo verifyscript</script>
+    <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
+    <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
+    <trigger trigger="python" type="triggerpostun" 
+             interpreter="/usr/bin/python">print triggerpostun</trigger>
+  </config-rpm>
+  """ % { 'working-dir': BUILD_ROOT }]
+
   def __init__(self, distro, version, arch, conf=None):
     ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
@@ -60,25 +81,6 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
     self.file2 = pps.path('%s/file2' % self.working_dir)
     self.dir1  = pps.path('%s/dir1'  % self.working_dir)
     self.file3 = pps.path('%s/file3' % self.dir1)
-
-    self._add_config(""" 
-    <config-rpm enabled="true">
-      <files destdir="/etc/testdir">%(working-dir)s/file1</files>
-      <files destdir="/etc/testdir" destname="file4">
-             %(working-dir)s/file2</files>
-      <files destdir="/etc/testdir" destname="file5" content="text">text</files>
-      <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
-      <script type="post">echo post</script>
-      <script type="pre">echo pre</script>
-      <script type="preun">echo preun</script>
-      <script type="postun">echo postun</script>
-      <script type="verifyscript">echo verifyscript</script>
-      <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
-      <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
-      <trigger trigger="python" type="triggerpostun" 
-               interpreter="/usr/bin/python">print triggerpostun</trigger>
-    </config-rpm>
-    """ % { 'working-dir': BUILD_ROOT })
 
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
@@ -150,56 +152,25 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def tearDown(self):
     del self.conf
 
-class DeployConfigRpmEventTestCase(ConfigRpmInputsEventTestCase):
-  _conf = [
-    """
-    <packages>
-      <group>core</group>
-      <group>base</group>
-    </packages>
-    """,
-    """
-    <publish password='password'>
-      <post-script>
-        #!/bin/bash
-        set -e
-        ls /etc/testdir/file1
-        ls /etc/testdir/file4
-        ls /etc/testdir/file5
-        ls /etc/testdir/dir1/file3
-      </post-script>
-
-      <trigger-script triggers='kickstart, install-script'>
-      <include 
-        xmlns='http://www.w3.org/2001/XInclude'
-        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
-        xpointer="xpointer(/*/trigger-script/text())]"/>
-      </trigger-script>
-
-      <kickstart>
-      <include 
-         xmlns='http://www.w3.org/2001/XInclude'
-         href='%(root)s/../../share/centosstudio/examples/common/ks.cfg'
-         parse='text'/>
-      </kickstart>
-
-      <include 
-        xmlns='http://www.w3.org/2001/XInclude'
-        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
-        xpointer="xpointer(/*/*[name()!='post-script' and
-                                name()!='trigger-script'])"/>
-    </publish>
-    """ % {'root' : pps.path(__file__).dirname.abspath()}]
+class DeployConfigRpmEventTestCase(DeployMixinTestCase, 
+                                   ConfigRpmInputsEventTestCase):
+  _conf = []
+  _conf.extend(ConfigRpmInputsEventTestCase._conf)
+  _conf.extend(DeployMixinTestCase._conf)
 
   def __init__(self, distro, version, arch, *args, **kwargs):
-    ConfigRpmEventTestCase.__init__(self, distro, version, arch, 
-                                    *args, **kwargs)
-    ConfigRpmInputsEventTestCase.__init__(self, distro, version, arch, 
-                                    *args, **kwargs)
-    # set hostname
-    self.hostname = "%s-%s-%s.local" % (self.moduleid, self.version, self.arch)
-    self.conf.get("/*/publish").set('hostname', self.hostname)
-
+    ConfigRpmInputsEventTestCase.__init__(self, distro, version, arch)
+    DeployMixinTestCase.__init__(self, distro, version, arch)
+    publish = self.conf.get('/*/publish')
+    post_script = rxml.config.Element('post-script', parent=publish)
+    post_script.text = """ 
+      #!/bin/bash
+      set -e
+      ls /etc/testdir/file1
+      ls /etc/testdir/file4
+      ls /etc/testdir/file5
+      ls /etc/testdir/dir1/file3
+      """
 
 class Test_FilesInstalled(DeployConfigRpmEventTestCase):
   "files installed on client machine"

@@ -26,7 +26,9 @@ from centosstudio.util.pps.constants import TYPE_NOT_DIR
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from cstest.core     import make_core_suite
-from cstest.mixins   import MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase
+from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
+                             DeployMixinTestCase, check_vm_config, 
+                             dm_make_suite)
 
 
 class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
@@ -106,6 +108,68 @@ class Test_RemovesGpgkeys(ReleaseRpmEventTestCase):
     self.failUnless(not (self.event.REPO_STORE/'gpgkeys').
                          findpaths())
 
+class DeployReleaseRpmEventTestCase(DeployMixinTestCase, 
+                                    ReleaseRpmEventTestCase):
+  _conf = ["""
+    <config-rpm>
+      <files destdir='/root' destname='keyids' content='text'>
+      dummy text - to be replaced at runtime
+      </files>
+    </config-rpm>
+    """]
+  _conf.extend(DeployMixinTestCase._conf)
+
+  def __init__(self, distro, version, arch, *args, **kwargs):
+    DeployMixinTestCase.__init__(self, distro, version, arch)
+    publish = self.conf.get('/*/publish')
+    post_script = rxml.config.Element('post-script', parent=publish)
+    # post_script text set in runTest methods
+
+class Test_TestMachineSetup(DeployReleaseRpmEventTestCase):
+  "setting up an initial test machine"
+  def __init__(self, distro, version, arch, *args, **kwargs):
+    DeployReleaseRpmEventTestCase.__init__(self, distro, version, arch)
+
+  def runTest(self):
+    post_script = self.event._config.get('/*/publish/post-script')
+    post_script.text = """ 
+      #!/bin/bash
+      set -e
+      yum sync -y
+      """
+    self.tb.dispatch.execute(until=self.id)
+
+class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
+  "expected gpgkeys are installed"
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+   
+    # update config-rpm files text to contain keyids 
+    # keyids change across test runs, so if keys are not updating
+    # properly you will see an error during the next run. This should
+    # be improved so that issues appear during the same run...
+    files = self.event._config.get('/*/config-rpm/files')
+    files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
+    self.tb.dispatch.get('config-rpm').status = True # force config-rpm
+
+    # set post script for deploy - doing this after centosstudio
+    # resolves global macros on the definition so macro replacement 
+    # doesn't blast the rpm qf string (%{version})
+    post_script = self.event._config.get('/*/publish/post-script')
+    post_script.text = """ 
+      #!/bin/bash
+      set -e
+      installed=`rpm -q gpg-pubkey --qf '%{version} '`
+      for expected in `cat /root/keyids`; do
+        [[ $installed == *$expected* ]] || echo \
+"Error: a key listed in the keyids file is not installed:
+expected:  $expected
+installed: $installed" >&2
+      done
+      """
+
+    self.tb.dispatch.execute(until='deploy')
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('release-rpm')
@@ -116,5 +180,12 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_ReleaseRpmCvars2(distro, version, arch))
   suite.addTest(Test_OutputsGpgkeys(distro, version, arch))
   suite.addTest(Test_RemovesGpgkeys(distro, version, arch))
+
+  if check_vm_config():
+    suite.addTest(Test_TestMachineSetup(distro, version, arch))
+    suite.addTest(Test_GpgkeysInstalled(distro, version, arch))
+    # dummy test to shutoff vm
+    suite.addTest(dm_make_suite(DeployReleaseRpmEventTestCase, distro, version, arch, ))
+
 
   return suite
