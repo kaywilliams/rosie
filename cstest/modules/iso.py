@@ -26,7 +26,8 @@ from centosstudio.splittree import parse_size
 
 from cstest        import EventTestCase, ModuleTestSuite
 from cstest.core   import make_core_suite, make_extension_suite
-from cstest.mixins import BootOptionsMixinTestCase
+from cstest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
+                           dm_make_suite, check_vm_config)
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):
@@ -148,6 +149,28 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
     IsoEventBootOptionsTestCase.setUp(self)
     self.do_defaults = True
 
+# not running this test as virt-install from cdrom requires user
+# intervention at the boot prompt and also for mediacheck
+# also, need to modify _conf to create a full working os tree 
+# i.e. with treeinfo.
+class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
+  "installs successfully from iso"
+  _conf = []
+  _conf.extend(IsoEventTestCase._conf)
+  _conf.extend(DeployMixinTestCase._conf)
+
+  def __init__(self, distro, version, arch, *args, **kwargs):
+    IsoEventTestCase.__init__(self, distro, version, arch)
+    DeployMixinTestCase.__init__(self, distro, version, arch)
+    install_script = self.conf.get('/*/publish/install-script')
+    install_script.text = """
+#!/bin/bash
+virt-install --name %{hostname} --ram 1000 \
+             --file /var/lib/libvirt/images/%{hostname}.img \
+             --file-size 5 \
+             --cdrom %{url}/iso/CD/%{name}-disc1.iso \
+             --noreboot
+    """
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('iso')
@@ -161,4 +184,10 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_IsoContent(distro, version, arch))
   suite.addTest(Test_SetsChanged(distro, version, arch))
   suite.addTest(Test_BootOptionsDefault(distro, version, arch))
+  # see note above at the class definition for Test_InstallFromIso
+  #if check_vm_config:
+    #suite.addTest(Test_InstallFromIso(distro, version, arch))
+    # dummy test to shutoff vm
+    #suite.addTest(dm_make_suite(IsoEventTestCase, distro, version, arch, ))
+
   return suite
