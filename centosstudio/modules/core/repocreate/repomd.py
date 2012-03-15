@@ -33,7 +33,7 @@ class RepomdEvent(RepomdMixin, Event):
       version = 1.01,
       parentid = 'repocreate',
       ptr = ptr,
-      provides = ['os-content', 'repomd-file', 'treeinfo-checksums'],
+      provides = ['os-content', 'repomd-file'],
       requires = ['pkglist', 'rpmsdir'],
       conditionally_requires = ['checked-rpms', 'groupfile'],
     )
@@ -67,8 +67,6 @@ class RepomdEvent(RepomdMixin, Event):
 
   def apply(self):
     self.cvars['repomd-file'] = self.repomdfile
-    self.cvars.setdefault('treeinfo-checksums', set()).add(
-      (self.REPO_STORE, self.repomdfile.rstrip(self.REPO_STORE)))
 
   def verify_repodata_directory(self):
     self.verifier.failUnlessExists(self.cvars['repomd-file'])
