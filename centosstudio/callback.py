@@ -237,7 +237,7 @@ class BuildDepsolveCallback(object):
     self.bar = None
 
   def setupStart(self):
-    if self.logger.test(3):
+    if self.logger.test(4):
       msg = 'reading package metadata'
       self.bar = ProgressBar(title=L1(msg),
                              layout=LAYOUT_TIMER,
@@ -245,9 +245,9 @@ class BuildDepsolveCallback(object):
       self.bar.start()
 
   def setupEnd(self):
-    if self.logger.test(3):
+    if self.logger.test(4):
       self.bar.finish()
-      self.logger.logfile.log(2, str(self.bar))
+      self.logger.logfile.log(4, str(self.bar))
       self.bar = None
 
   def start(self):
@@ -265,11 +265,11 @@ class BuildDepsolveCallback(object):
     self.count = 0
     self.grpcount += 1
     self.bar = None
-    self.logger.log(2, L1('group %d/%d (%s)' % (self.grpcount, self.grptotal, desc)))
+    self.logger.log(4, L1('group %d/%d (%s)' % (self.grpcount, self.grptotal, desc)))
 
   def tscheck(self, unresolved=0):
     self.count = unresolved 
-    if self.logger.test(3):
+    if self.logger.test(4):
       msg = 'loop %d (%d package%s)' % (self.loop, self.count, self.count != 1 and 's' or '')
       self.bar = ProgressBar(size=self.count, title=L2(msg),
                              layout=LAYOUT_DEPSOLVE,
@@ -277,21 +277,21 @@ class BuildDepsolveCallback(object):
       self.bar.start()
 
   def pkgAdded(self, pkgtup=None, state=None):
-    if self.logger.test(3):
+    if self.logger.test(4):
       self.bar.status.position += 1
 
   def restartLoop(self):
-    if self.logger.test(3):
+    if self.logger.test(4):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
-      self.logger.logfile.log(2, str(self.bar))
+      self.logger.logfile.log(4, str(self.bar))
     self.loop += 1
 
   def end(self):
-    if self.logger.test(3):
+    if self.logger.test(4):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
-      self.logger.logfile.log(2, str(self.bar))
+      self.logger.logfile.log(4, str(self.bar))
       self.bar = None
 
 
