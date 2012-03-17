@@ -41,6 +41,8 @@ class RpmBuildMixin(ShelveMixin):
   Mixin for working with CentOSStudio-created rpms including both from-srpm
   (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
   """
+  rpmbuild_mixin_version = "1.00"
+
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
     self.provides.add('rpmbuild-data')
@@ -53,6 +55,7 @@ class RpmBuildMixin(ShelveMixin):
     return [ x['rpm-path'] for x in self.rpms ]
 
   def setup(self):
+    self.DATA.setdefault('variables', []).append('rpmbuild_mixin_version')
     self._setup_signing_keys()
 
   def run(self):
@@ -184,7 +187,6 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def apply(self):
     RpmBuildMixin.apply(self)
-    self.cvars['release-rpm-name'] = self.rpm.name
 
   #----------- OPTIONAL METHODS --------#
   def generate(self):

@@ -154,34 +154,32 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
 
 class DeployConfigRpmEventTestCase(DeployMixinTestCase, 
                                    ConfigRpmInputsEventTestCase):
-  _conf = []
+  _conf = ["""
+  <publish>
+  <post-script>
+    #!/bin/bash
+    set -e
+    ls /etc/testdir/file1
+    ls /etc/testdir/file4
+    ls /etc/testdir/file5
+    ls /etc/testdir/dir1/file3
+  </post-script>
+  </publish>
+  """]
   _conf.extend(ConfigRpmInputsEventTestCase._conf)
-  _conf.extend(DeployMixinTestCase._conf)
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     ConfigRpmInputsEventTestCase.__init__(self, distro, version, arch)
-    DeployMixinTestCase.__init__(self, distro, version, arch)
-    publish = self.conf.get('/*/publish')
-    post_script = rxml.config.Element('post-script', parent=publish)
-    post_script.text = """ 
-      #!/bin/bash
-      set -e
-      ls /etc/testdir/file1
-      ls /etc/testdir/file4
-      ls /etc/testdir/file5
-      ls /etc/testdir/dir1/file3
-      """
+    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
 
 class Test_FilesInstalled(DeployConfigRpmEventTestCase):
   "files installed on client machine"
-  def runTest(self):
-    self.tb.dispatch.execute(until='deploy')
 
 class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
   "files persist on LIB_DIR changes"
   def runTest(self):
     self.event.test_lib_dir = pps.path('/root/centosstudio')
-    self.tb.dispatch.execute(until='deploy')
+    DeployMixinTestCase.runTest(self)    
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('config-rpm')

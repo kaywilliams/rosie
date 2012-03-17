@@ -203,6 +203,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     MkrpmRpmBuildMixin.apply(self)
     self.cvars['gpgkeys'] = [ self.local_keydir / x 
                               for x in self.unshelve('keys', []) ]
+    self.cvars['release-rpm-name'] = self.rpm.name
+
 
 class GPGKeyError(CentOSStudioEventError):
   message = "%(message)s"

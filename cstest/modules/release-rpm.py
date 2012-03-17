@@ -117,10 +117,9 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
       </files>
     </config-rpm>
     """]
-  _conf.extend(DeployMixinTestCase._conf)
 
   def __init__(self, distro, version, arch, *args, **kwargs):
-    DeployMixinTestCase.__init__(self, distro, version, arch)
+    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
     publish = self.conf.get('/*/publish')
     post_script = rxml.config.Element('post-script', parent=publish)
     # post_script text set in runTest methods

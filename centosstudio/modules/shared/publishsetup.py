@@ -25,18 +25,23 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.errors import CentOSStudioEventError
-from centosstudio.errors import SimpleCentOSStudioEventError
-from centosstudio.util   import pps
+from centosstudio.callback import LinkCallback
+from centosstudio.errors   import CentOSStudioEventError
+from centosstudio.errors   import SimpleCentOSStudioEventError
+from centosstudio.util     import pps
+from centosstudio.util     import shlib 
 from centosstudio.util.rxml import datfile
 
 # Include this mixin in any event that requires hostname and password 
 class PublishSetupEventMixin:
-  publish_mixin_version = "1.00"
+  publish_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
+
+    for key in ['input', 'config', 'variables', 'output']:
+      self.DATA.setdefault(key, [])
     self.DATA['variables'].append('publish_mixin_version')
 
   def setup(self):
@@ -47,8 +52,9 @@ class PublishSetupEventMixin:
     self.webpath = self.get_remote()
     self.hostname = self.get_hostname()
     self.password = self.get_password()
-    self.ssh = self.config.get('@ssh', True)
     self.crypt_password = self.get_cryptpw(self.password)
+    self.ssh = self.config.get('@ssh', True)
+    self.ssh_pubfile = self.get_ssh_pubfile()
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
@@ -59,6 +65,7 @@ class PublishSetupEventMixin:
            '%{password}':       {'conf':  '@password\' attribute',
                                   'value':  self.password},
            '%{crypt-password}': {'value':  self.crypt_password},
+           '%{ssh-pubfile}':    {'value':  self.ssh_pubfile},
            '%{boot-options}':   {'conf':  'boot-options\' element',
                                   'value':  self.boot_options},
            }
@@ -71,6 +78,9 @@ class PublishSetupEventMixin:
     for key in map:
       self.macros[key] = map[key]['value']
     self.config.resolve_macros('.', self.macros)
+
+    # resolve global macros
+    self._config.resolve_macros('.', {'%{ssh-pubfile}': self.ssh_pubfile})
 
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
@@ -88,6 +98,11 @@ class PublishSetupEventMixin:
     self.DATA['config'].append('boot-options')
 
     self.write_datfile()
+
+  def run(self):
+    # copy public ssh key
+    self.io.process_files(callback=self.link_callback, 
+                          what='keyfile', text=None)
 
   #------ Helper Methods ------#
   def get_local(self):
@@ -187,6 +202,16 @@ class PublishSetupEventMixin:
         salt = salt + choice(salt_pop)
       salt = '$6$' + salt
     return crypt(password, salt)
+
+  def get_ssh_pubfile(self):
+    keyfile = pps.path('/root/.ssh/id_rsa.pub')
+    if not keyfile[:-len('.pub')].exists():
+      shlib.execute('ssh-keygen -t rsa -f %s -N ""' % keyfile)
+
+    # setup to copy file to mddir so that user scripts can't harm the original  
+    self.io.add_fpath(keyfile, self.mddir, id='keyfile')
+
+    return self.mddir / keyfile.basename
 
   def write_datfile(self):
   

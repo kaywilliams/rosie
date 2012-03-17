@@ -17,7 +17,10 @@
 #
 import unittest
 
+from lxml import etree
+
 from centosstudio.util      import pps
+from centosstudio.util      import rxml
 
 from cstest        import EventTestCase, decorate
 from cstest.core   import CoreTestSuite
@@ -26,45 +29,53 @@ from cstest.mixins import check_vm_config
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
 class DeployMixinTestCase:
-  _conf = [
-    """
+  def __init__(self, distro, version, arch, module=None):
+    self.mod = module or self.moduleid
+    EventTestCase.__init__(self, distro, version, arch)
+    deploy = rxml.config.parse(
+      '%s/../../share/centosstudio/examples/common/deploy.xml' %  
+      pps.path(__file__).dirname.abspath()).getroot()
+
+    # update packages
+    pkgcontent=etree.XML("""
     <packages>
       <group>core</group>
       <group>base</group>
-    </packages>
-    """,
-    """
-    <publish password='password'>
-     <trigger-script triggers='kickstart, install-script'>
-      <include 
-        xmlns='http://www.w3.org/2001/XInclude'
-        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
-        xpointer="xpointer(/*/trigger-script/text())]"/>
-      </trigger-script>
+    </packages>""")
+    packages = self.conf.get('/*/packages', None)
+    if packages is None:
+      packages = rxml.config.Element('packages', parent=self.conf)
+    packages.extend(pkgcontent.xpath('/*/*'))
 
-      <kickstart>
-      <include 
-         xmlns='http://www.w3.org/2001/XInclude'
-         href='%(root)s/../../share/centosstudio/examples/common/ks.cfg'
-         parse='text'/>
-      </kickstart>
+    # update config-rpm
+    config_rpm = self.conf.get('/*/config-rpm', None)
+    if config_rpm is None:
+      config_rpm = rxml.config.Element('config-rpm', parent=self.conf)
+    config_rpm.extend(deploy.xpath('/*/config-rpm/*'))
 
-      <include 
-        xmlns='http://www.w3.org/2001/XInclude'
-        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
-        xpointer="xpointer(/*/*[name()!='post-script' and
-                                name()!='trigger-script'])"/>
-    </publish>
-    """ % {'root' : pps.path(__file__).dirname.abspath()}]
+    # update module
+    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
+                                               self.arch) 
+    mod = self.conf.get('/*/%s' % self.mod, None)
+    if mod is None:
+      mod = rxml.config.Element('%s' % self.mod, parent=self.conf)
+    mod.set('hostname', self.hostname)
+    mod.set('password', 'password')
 
-  def __init__(self, distro, version, arch):
-    EventTestCase.__init__(self, distro, version, arch)
-    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version, 
-                                          self.arch)
-    self.conf.get("/*/publish").set('hostname', self.hostname)
+    trigger_script = mod.get('trigger-script', None)
+    if trigger_script is None:
+      trigger_script = rxml.config.Element('trigger-script', parent=mod)
+      if self.mod != 'test-install':
+        trigger_script.set('triggers', 'kickstart, install-script')
+      trigger_script.text = deploy.get('/*/trigger-script/text()')
+
+    mod.extend(deploy.xpath("/*/*[name()!='config-rpm' and "
+                                 "name()!='post-script' and "
+                                 "name()!='trigger-script']"))
 
   def runTest(self):
     self.tb.dispatch.execute(until='deploy')
+
 
 def DeployMixinTest_Teardown(self):
   self._testMethodDoc = "dummy test to shutoff virtual machine"

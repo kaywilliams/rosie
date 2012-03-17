@@ -84,6 +84,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def run(self):
     MkrpmRpmBuildMixin.run(self)
 
+  def apply(self):
+    MkrpmRpmBuildMixin.apply(self)
+    self.cvars['config-rpm-name'] = self.rpm.name
+
   def generate(self):
     for what in ['files', 'triggers']:
       self.io.process_files(cache=True, callback=self.files_cb, 

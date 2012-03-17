@@ -2,6 +2,34 @@
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- scripts for installing and updating a local virtual machine -->
+<config-rpm>
+  <requires>openssh</requires>
+  <files destdir='/root/.ssh/' destname="id_rsa.pub">%{ssh-pubfile}</files>
+  <script type='post'>
+  # set some convenience variables
+  sshdir=/root/.ssh
+  pubkey=$sshdir/id_rsa.pub
+  authkeys=$sshdir/authorized_keys
+
+  # make sshdir if it doesn't exist
+  [[ -d $sshdir ]] || mkdir $sshdir 
+
+  # create authorized_keys file if it doesn't exist
+  [[ -f $authkeys ]] || touch $authkeys
+
+  # copy id_rsa into authorized keys if it's not there arleady
+  [[ `cat $authkeys` == *`cat $pubkey`* ]] || cat $pubkey &gt;&gt; $authkeys
+    
+  # set permissions
+  chmod 700 $sshdir
+  chmod 600 $authkeys
+  </script>
+</config-rpm>
+
+<kickstart>
+  <xi:include href='ks.cfg' parse='text'/>
+</kickstart>
+
 <trigger-script>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
@@ -11,7 +39,7 @@ FAIL=0
 # create function to handle trigger failures
 fail () {
 FAIL=1
-echo "$1 changed" >&amp;2
+echo "$1 changed" &gt;&amp;2
 }
 
 # get last trigger variables
@@ -105,11 +133,10 @@ last_kickstart='%{kickstart}'
 last_treeinfo='%{treeinfo}'
 last_install_script='%{install_script}'
 last_post_install_script='%{post_install_script}'
-" > $TRIGGER_INFO
-
+" &gt; $TRIGGER_INFO
 </post-install-script>
 
-<update-script>
+<post-script>
 #!/bin/bash
 set -e
 yum sync -y
@@ -117,11 +144,6 @@ if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
   echo "running kernel differs from installed - restarting machine"
   shutdown -r now
 fi
-</update-script>
-
-<post-script>
-#!/bin/bash
-poweroff
 </post-script>
 
 </root>

@@ -6,13 +6,18 @@
 <fullname>RPM Build Virtual Machine</fullname>
 </main>
 
+<config-rpm>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/config-rpm/*)"/>
+</config-rpm>
+
 <publish password='srpmbuild' hostname='%{id}.local'>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
 
 <trigger-script triggers='kickstart, install-script, release-rpm'>
-  <xi:include href="../common/deploy.xml" 
-              xpointer="xpointer(/*/trigger-script/text())"/>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/trigger-script/text())"/>
 </trigger-script>
 
 <install-script>
@@ -27,8 +32,10 @@ virt-install --name %{hostname} --ram 1000 \
 
 <post-script>
 #!/bin/bash
-
 ### build and verify rpm packages ###
+
+# install packages required to build the rpm
+yum sync -y -q || (echo 'yum sync failed' >&amp;2; exit 1)
 
 # start clean
 (set -e
@@ -65,7 +72,9 @@ skipx
 </kickstart>
 
 <xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='trigger-script' and
+            xpointer="xpointer(/*/*[name()!='config-rpm' and
+                                    name()!='kickstart' and
+                                    name()!='trigger-script' and
                                     name()!='install-script' and
                                     name()!='post-script'])"/>
 </publish>

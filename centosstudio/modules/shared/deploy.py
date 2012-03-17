@@ -34,7 +34,7 @@ SSH_RETRIES = 24
 SSH_SLEEP = 5
 
 class DeployEventMixin:
-  deploy_mixin_version = "1.01"
+  deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
     self.requires.add('%s-setup-options' % self.moduleid,)
@@ -111,7 +111,6 @@ class DeployEventMixin:
       hostname = self.cvars[self.cvar_root]['hostname'],
       port     = 22,
       username = 'root',
-      password = self.cvars[self.cvar_root]['password'],
       )
 
     for key in self.ssh:
@@ -218,7 +217,7 @@ class DeployEventMixin:
       try:
         client = self._ssh_connect(params)
         client.close()
-      except (SSHFailedError), e:
+      except SSHFailedError, e:
         self.log(3, L1(e))
         self.log(1, L1("unable to connect to machine, reinstalling...")) 
         return True # reinstall
@@ -227,8 +226,8 @@ class DeployEventMixin:
     if self.scripts['trigger-script']['enabled']:
       try:
         self._execute('trigger-script')
-      except (ScriptFailedError), e:
-        self.log(3, L1(e))
+      except ScriptFailedError, e:
+        self.log(3, L1(str(e)))
         self.log(1, L1("trigger-script failed, reinstalling..."))
         return True # reinstall
 

@@ -28,38 +28,13 @@ from centosstudio.modules.shared.deploy import InvalidInstallTriggerError
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_extension_suite
 
-from cstest.mixins import (psm_make_suite, dm_make_suite,
-                           check_vm_config)
+from cstest.mixins import (psm_make_suite, DeployMixinTestCase,
+                           dm_make_suite, check_vm_config)
 
 
-class PublishSetupEventTestCase(EventTestCase):
+class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install-setup'
-
-  _conf = [
-    """
-    <packages>
-      <group>core</group>
-      <group>base</group>
-    </packages>
-    """,
-    """
-    <%(module)s password='password'>
-      <kickstart>
-      <include 
-         xmlns='http://www.w3.org/2001/XInclude'
-         href='%(root)s/../../share/centosstudio/examples/common/ks.cfg'
-         parse='text'/>
-      </kickstart>
-      <include 
-        xmlns='http://www.w3.org/2001/XInclude'
-        href='%(root)s/../../share/centosstudio/examples/common/deploy.xml' 
-        xpointer="xpointer(/*/*[name()!='post-script' and 
-                                name()!='update-script'])"/>
-    </%(module)s>
-    """ % {'module'   : moduleid,
-           'root'     : pps.path(__file__).dirname.abspath()}]
-
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion
@@ -74,11 +49,6 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     PublishSetupEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
-
-    # set hostname
-    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
-                                               self.arch)
-    self.conf.get("/*/%s" % self.moduleid).set('hostname', self.hostname)
 
   def setUp(self):
     PublishSetupEventTestCase.setUp(self)
@@ -140,14 +110,14 @@ class Test_ReinstallOnReleaseRpmChange(ReinstallTestInstallEventTestCase):
 
 class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
   "reinstalls if config-rpm changes"
+  _conf = ["""
+  <config-rpm>
+  <script type='post'>echo 'hello'</script>
+  </config-rpm>
+  """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     ReinstallTestInstallEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
-    self._add_config("""
-      <config-rpm>
-      <script type='post'>echo 'hello'</script>
-      </config-rpm>
-      """)
 
   def runTest(self):
     self.execute_predecessors(self.event)

@@ -81,6 +81,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       self.kstext = ''
 
   def run(self): 
+    PublishSetupEventMixin.run(self)
+
     #clean publish path if event was forced
     if self.forced:
       self.localpath.rm(recursive=True, force=True)
