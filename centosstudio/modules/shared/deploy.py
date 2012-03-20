@@ -252,7 +252,7 @@ class DeployEventMixin:
           try:
             client = self._ssh_connect(params)
           except SSHFailedError, e:
-            raise SSHScriptFailedError(script=script, message=str(e))
+            raise SSHScriptFailedError(id=id, message=str(e))
 
           # copy script to remote machine
           sftp = paramiko.SFTPClient.from_transport(client.get_transport())
@@ -270,7 +270,7 @@ class DeployEventMixin:
           try:
             self._ssh_execute(client, cmd)
           except SSHFailedError, e:
-            raise SSHScriptFailedError(script=script, message=str(e))
+            raise SSHScriptFailedError(id=id, message=str(e))
   
         finally:
           if 'client' in locals(): client.close()
@@ -364,7 +364,7 @@ class DeployEventMixin:
         self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
 
       if proc.returncode != 0:
-        raise ScriptFailedError(script=cmd, errtxt='\n'.join(errlines))
+        raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
       return
 
 
@@ -401,13 +401,13 @@ class InvalidInstallTriggerError(DeployMixinError):
   message = "%(message)s"
 
 class ScriptFailedError(DeployMixinError):
-  message = "Error occured running '%(script)s'. See error message below:\n %(errtxt)s"
+  message = "Error occured running '%(cmd)s'. See error message below:\n %(errtxt)s"
 
 class SSHFailedError(ScriptFailedError):
   message = "%(message)s"
 
 class SSHScriptFailedError(ScriptFailedError):
-  message = """Error(s) occured running '%(script)s':
+  message = """Error(s) occured running '%(id)s' script on remote machine:
 %(message)s"""
 
 #------ Callbacks ------#
