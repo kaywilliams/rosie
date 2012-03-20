@@ -21,7 +21,7 @@ import copy
 import os
 import sys
 
-from centosstudio.errors import CentOSStudioError
+from centosstudio.errors import CentOSStudioError, CentOSStudioEventError
 from centosstudio.util   import pps
 from centosstudio.util   import rxml
 
@@ -89,7 +89,10 @@ class CentOSStudioValidationHandler:
     # allow events to validate other things not covered in schemas
     for event in self.dispatch:
       if event.enabled:
-        event.validate()
+        try:
+          event.validate()
+        except CentOSStudioEventError, e:
+          self._handle_Exception(e, event.id) 
 
   def _verify_tle_elements(self, expected_elements):
     processed = set()

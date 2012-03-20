@@ -73,7 +73,6 @@ exit $FAIL
 
 <activate>
 <script id='activate'>
-<!--comment-->
 #!/usr/bin/python
 import libvirt
 import sys
