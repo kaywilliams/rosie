@@ -62,7 +62,7 @@ class PackagesEvent(ShelveMixin):
 
   def validate(self):
     if (self.type == "system" and 
-        len(self.config.xpath(['packages', 'groups'], [])) == 0):
+        len(self.config.xpath(['package', 'group'], [])) == 0):
       message = ("The definition specifies a system type repository but no "
                  "packages or groups have been listed in the packages "
                  "element. This is unlikely to result in a working system "
