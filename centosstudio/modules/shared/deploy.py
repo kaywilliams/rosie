@@ -151,8 +151,8 @@ class DeployEventMixin:
     self.config.resolve_macros('.', {'%{triggers}': ' '.join(triggers)})
 
     self.deploydir = self.LIB_DIR / 'deploy'
-    trigger_info = self.deploydir / 'trigger_info'
-    self.config.resolve_macros('.', {'%{trigger-file}': trigger_info})
+    self.triggerfile = self.deploydir / 'trigger_info' # match script varname
+    self.config.resolve_macros('.', {'%{trigger-file}': self.triggerfile})
 
 
     # setup to create script files - do this after macro resolution
@@ -163,6 +163,8 @@ class DeployEventMixin:
   def run(self):
     for id in self.all_scripts:
       self.io.process_files(what=id)
+
+    self.do_clean=True # clean the deploydir once per session
 
     if self._reinstall():
       self.cvars['%s-reinstalled' % self.moduleid] = True # used by test cases
@@ -254,14 +256,29 @@ class DeployEventMixin:
           except SSHFailedError, e:
             raise SSHScriptFailedError(script=script, message=str(e))
 
-          # copy script to remote machine
+          # create sftp client
           sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-          if not self.LIB_DIR.basename in sftp.listdir(str(self.LIB_DIR.dirname)):
+
+          # create libdir
+          if not self.LIB_DIR.basename in sftp.listdir(str(
+                                          self.LIB_DIR.dirname)):
             sftp.mkdir(str(self.LIB_DIR))
+
+          # create deploydir
           if not (self.deploydir.basename in 
                   sftp.listdir(str(self.deploydir.dirname))): 
             sftp.mkdir(str(self.deploydir))
             sftp.chmod(str(self.deploydir), mode=0750)
+
+          # clean deploydir - except for trigger file
+          if self.do_clean:
+            files = sftp.listdir(str(self.deploydir))
+            files.remove(str(self.triggerfile.basename))
+            for f in files:
+              sftp.remove(str(self.deploydir/f))
+            self.do_clean = False # only clean once per session
+
+          # copy script
           sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
           sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
  
