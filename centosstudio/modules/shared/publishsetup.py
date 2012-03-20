@@ -204,14 +204,23 @@ class PublishSetupEventMixin:
     return crypt(password, salt)
 
   def get_ssh_pubfile(self):
-    keyfile = pps.path('/root/.ssh/id_rsa.pub')
-    if not keyfile[:-len('.pub')].exists():
-      shlib.execute('ssh-keygen -t rsa -f %s -N ""' % keyfile)
+    secret = pps.path('/root/.ssh/id_rsa')
+    public = secret + '.pub'
+    if not secret.exists():
+      try:
+        cmd = 'ssh-keygen -t rsa -f %s -N ""' % secret 
+        shlib.execute(cmd)
+      except shlib.ShExecError, e:
+        message = ("Error occurred creating ssh keys for the "
+                   "root user. The error was: %s\n"
+                   "If the error persists, you can generate keys manually "
+                   "using the command\n '%s'" % (e, cmd))
+        raise KeyGenerationFailed(message=message)
 
     # setup to copy file to mddir so that user scripts can't harm the original  
-    self.io.add_fpath(keyfile, self.mddir, id='keyfile')
+    self.io.add_fpath(public, self.mddir, id='keyfile')
 
-    return self.mddir / keyfile.basename
+    return self.mddir / public.basename
 
   def write_datfile(self):
   
@@ -296,3 +305,6 @@ class FQDNNotFoundError(CentOSStudioEventError):
               "record is correctly configured. Otherwise, please specify an "
               "alternative interface for obtaining the IP address. See the "
               "CentOS Studio documentation on 'Publish' for more information.") 
+
+class KeyGenerationFailed(CentOSStudioEventError):
+  message = "%(message)s"
