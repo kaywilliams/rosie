@@ -51,7 +51,8 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
     <post>
     <script id='test'>
     <!--comment-->
-    echo "test to ensure comment work inside script elements"
+    echo "test to ensure comments work inside script elements"
+    echo "ps. this is dumb, we should really fix comments during parsing"
     </script>
     </post>
   </test-install>
