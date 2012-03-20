@@ -62,16 +62,16 @@ class DeployMixinTestCase:
     mod.set('hostname', self.hostname)
     mod.set('password', 'password')
 
-    trigger_script = mod.get('trigger-script', None)
-    if trigger_script is None:
-      trigger_script = rxml.config.Element('trigger-script', parent=mod)
+    trigger = mod.get('trigger', None)
+    if trigger is None:
+      trigger = rxml.config.Element('trigger', parent=mod)
       if self.mod != 'test-install':
-        trigger_script.set('triggers', 'kickstart, install-script')
-      trigger_script.text = deploy.get('/*/trigger-script/text()')
+        trigger.set('triggers', 'kickstart, install-scripts')
+      trigger.extend(deploy.xpath('/*/trigger/*'))
 
-    mod.extend(deploy.xpath("/*/*[name()!='config-rpm' and "
-                                 "name()!='post-script' and "
-                                 "name()!='trigger-script']"))
+    mod.extend(deploy.xpath(("/*/*[name()!='post' and "
+                                  "name()!='trigger' and "
+                                  "name()!='config-rpm']")))
 
   def runTest(self):
     self.tb.dispatch.execute(until='deploy')

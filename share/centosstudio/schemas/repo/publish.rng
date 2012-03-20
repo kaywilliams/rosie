@@ -12,14 +12,12 @@
 
         <interleave>
         <ref name="element-kickstart"/>
-        <ref name="content-publish-elements"/>
-        <optional><ref name="content-trigger-script-element"/></optional>
-        <optional><ref name="content-activate-script-element"/></optional>
-        <optional><ref name="content-delete-script-element"/></optional>
-        <optional><ref name="content-install-script-element"/></optional>
-        <optional><ref name="content-post-install-script-element"/></optional>
-        <optional><ref name="content-update-script-element"/></optional>
-        <optional><ref name="content-post-script-element"/></optional>
+        <ref name="content-deploy-elements"/>
+        <optional><ref name="content-trigger-element"/></optional>
+        <optional><ref name="content-activate-element"/></optional>
+        <optional><ref name="content-install-element"/></optional>
+        <optional><ref name="content-post-install-element"/></optional>
+        <optional><ref name="content-post-element"/></optional>
         </interleave>
 
       </element>

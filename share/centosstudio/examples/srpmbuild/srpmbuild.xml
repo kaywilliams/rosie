@@ -15,12 +15,20 @@
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
 
-<trigger-script triggers='kickstart, install-script, release-rpm'>
-<xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/trigger-script/text())"/>
-</trigger-script>
+<kickstart>
+<xi:include href="../common/ks.cfg" parse="text"/>
+skipx
+</kickstart>
 
-<install-script>
+<trigger triggers='kickstart, install-scripts, release-rpm'>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/trigger/*)"/>
+</trigger>
+
+<install>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/install/*[@id='delete'])"/>
+<script id='virt-install'>
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
              --file-size 10 \
@@ -28,9 +36,13 @@ virt-install --name %{hostname} --ram 1000 \
              --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
                ks=%{url}/ks.cfg"\
              --noreboot
-</install-script>
+</script>
+</install>
 
-<post-script>
+<post>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/post/*[@id='update'])"/>
+<script id='rpmbuild'>
 #!/bin/bash
 ### build and verify rpm packages ###
 
@@ -64,19 +76,17 @@ for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do
     echo 'rpmlint badness threshold exceeded: $f' >&amp;2; exit 1; 
   fi
 done
-</post-script>
-
-<kickstart>
-<xi:include href="../common/ks.cfg" parse="text"/>
-skipx
-</kickstart>
+</script>
+<xi:include href="../common/deploy.xml" 
+            xpointer="xpointer(/*/post/*[@id='check-kernel'])"/>
+</post>
 
 <xi:include href="../common/deploy.xml" 
             xpointer="xpointer(/*/*[name()!='config-rpm' and
                                     name()!='kickstart' and
-                                    name()!='trigger-script' and
-                                    name()!='install-script' and
-                                    name()!='post-script'])"/>
+                                    name()!='trigger' and
+                                    name()!='install' and
+                                    name()!='post'])"/>
 </publish>
 
 </solution>

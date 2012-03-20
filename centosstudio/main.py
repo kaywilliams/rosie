@@ -127,7 +127,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       self._get_config(options, arguments)
       self._get_definition(options, arguments)
     except Exception, e:
-      raise CentOSStudioError(e)
+      raise CentOSStudioError(traceback.format_exc())
 
     # now that we have mainconfig, use it to set debug mode, if specified
     if self.mainconfig.pathexists('/centosstudio/debug'):

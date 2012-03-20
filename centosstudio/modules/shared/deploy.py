@@ -47,31 +47,11 @@ class DeployEventMixin:
 
     # set up script default parameters
     self.scripts = {
-      'trigger-script': 
-                       dict(message='running trigger install script',
-                       ssh=True,
-                       activate=True,
-                       connect=True,
-                       enabled = False),
-      'activate-script': dict(message='running activate script',
-                       ssh=False,
-                       enabled = False),
-      'delete-script': dict(message='running delete script',
-                       enabled = False,
-                       ssh=False),
-      'install-script': dict(message='running install script',
-                       enabled = False,
-                       ssh=False),
-      'post-install-script': 
-                       dict(message='running post-install script',
-                       enabled = False,
-                       ssh=True),
-      'update-script': dict(message='running update script',
-                       enabled = False,
-                       ssh=True),
-      'post-script':   dict(message='running post script',
-                       enabled = False,
-                       ssh=True)}
+      'trigger':      dict( ssh=True, activate=True, connect=True),
+      'activate':     dict( ssh=False,),
+      'install':      dict( ssh=False),
+      'post-install': dict( ssh=True),
+      'post':         dict( ssh=True)}
 
     # update scripts dict using config and validate script attributes
     self.scripts_provided = False
@@ -81,8 +61,8 @@ class DeployEventMixin:
         self.scripts[script]['enabled'] = True
         self.scripts_provided = True
 
-        # special processing for trigger-script
-        if script == 'trigger-script':
+        # special processing for trigger element 
+        if script == 'trigger':
           self.scripts[script]['activate'] = self.config.getbool(
             '%s/@activate-fails' % script, True)
           self.scripts[script]['connect'] = self.config.getbool(
@@ -116,20 +96,44 @@ class DeployEventMixin:
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
 
+    # setup scripts - do this before trigger macro resolution
+    self.all_scripts = {} 
+    for script in self.scripts:
+      if self.scripts[script].setdefault('enabled', False):
+        self.scripts[script]['script-ids'] = []
+        self.scripts[script]['ssh-values'] = []
+
+        scripts = self.config.xpath('%s/script' % script)
+        for subscript in scripts:
+          id = '%s' % subscript.get('@id', '%s' % script)
+          # ensure no duplicate ids
+          xpath = self._configtree.getpath(subscript)
+          csum = self._get_script_csum(xpath)
+          index = 1
+          while id in self.all_scripts and self.all_scripts[id][1] != csum:
+            id = id + str(index)
+            index += 1
+          self.all_scripts[id] = [xpath, csum ] 
+
+          self.scripts[script]['script-ids'].append(id)
+          self.scripts[script]['ssh-values'].append(subscript.get('@ssh', 
+                                             self.scripts[script]['ssh']))
+
+
     # resolve trigger macros 
-    trigger_data = {
+    trigger_data = { 
       'release_rpm':         self._get_rpm_csum('release-rpm'),
       'config_rpm':          self._get_rpm_csum('config-rpm'),
       'kickstart':           self._get_csum(self.kstext),
       'treeinfo':            self._get_csum(self.cvars['base-treeinfo-text']),
-      'install_script':      self._get_script_csum('install-script'),
-      'post_install_script': self._get_script_csum('post-install-script'),
+      'install_scripts':     self._get_script_csum('install/script'),
+      'post_install_scripts':self._get_script_csum('post-install/script'),
       }
 
     for key in trigger_data: 
       self.config.resolve_macros('.' , {'%%{%s}' % key: trigger_data[key]})
 
-    triggers = self.config.get('trigger-script/@triggers', '')
+    triggers = self.config.get('trigger/@triggers', '')
     if triggers:
       triggers = [ s.strip() for s in triggers.replace(',', ' ').split() ]
       valids = [ s.replace('_', '-') for s in trigger_data.keys() ]
@@ -150,32 +154,28 @@ class DeployEventMixin:
     trigger_info = self.deploydir / 'trigger_info'
     self.config.resolve_macros('.', {'%{trigger-file}': trigger_info})
 
-    # setup scripts
-    for script in self.scripts:
-      if self.scripts[script]['enabled']:
-        # setup script for processing
-        self.io.add_xpath(script, self.mddir, destname=script, id=script, 
-                          mode='750', content='text')
 
+    # setup to create script files - do this after macro resolution
+    for id in self.all_scripts:
+      self.io.add_xpath(self.all_scripts[id][0], self.mddir, destname=id, 
+                        id=id, mode='750', content='text')
 
   def run(self):
-    for script in self.scripts:
-      self.io.process_files(what=script)
+    for id in self.all_scripts:
+      self.io.process_files(what=id)
 
     if self._reinstall():
       self.cvars['%s-reinstalled' % self.moduleid] = True # used by test cases
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise CentOSStudioError('test fail on reinstall')
-      self._execute('delete-script')
-      self._execute('install-script')
-      self._execute('activate-script')
-      self._execute('post-install-script')
-      self._execute('post-script')
+      self._execute('install')
+      self._execute('activate')
+      self._execute('post-install')
+      self._execute('post')
 
     else:
-      self._execute('activate-script')
-      self._execute('update-script')
-      self._execute('post-script')
+      self._execute('activate')
+      self._execute('post')
  
  
   #------ Helper Functions ------#
@@ -192,18 +192,20 @@ class DeployEventMixin:
     else:
       return self._get_csum('')
 
-  def _get_script_csum(self, scriptname):
-    text = self.config.get('%s/text()' % scriptname, '')
+  def _get_script_csum(self, xpath):
+    text = ''
+    for script in self.config.xpath(xpath, []):
+      text = text + script.get('text()', '')
     return self._get_csum(text) 
 
   def _reinstall(self):
-    if not self.scripts['install-script']['enabled']:
+    if not self.scripts['install']['enabled']:
       return False # don't try to install since we haven't got a script
 
     # can we activate the machine?
-    if self.scripts['trigger-script']['activate']:
+    if self.scripts['trigger']['activate']:
       try:
-        self._execute('activate-script')
+        self._execute('activate')
       except (ScriptFailedError, SSHScriptFailedError), e:
         self.log(3, L0(e))
         self.log(1, L1("unable to activate machine, reinstalling..."))
@@ -211,8 +213,8 @@ class DeployEventMixin:
 
     # can we get an ssh connection?
     if (self.ssh['enabled'] is True and 
-        self.scripts['trigger-script']['connect']):
-      params = SSHParameters(self, 'trigger-script')
+        self.scripts['trigger']['connect']):
+      params = SSHParameters(self, 'trigger')
       self.log(1, L1('attempting to connect'))
       try:
         client = self._ssh_connect(params)
@@ -223,56 +225,58 @@ class DeployEventMixin:
         return True # reinstall
 
     # does the trigger script return success?
-    if self.scripts['trigger-script']['enabled']:
+    if self.scripts['trigger']['enabled']:
       try:
-        self._execute('trigger-script')
+        self._execute('trigger')
       except ScriptFailedError, e:
         self.log(3, L1(str(e)))
-        self.log(1, L1("trigger-script failed, reinstalling..."))
+        self.log(1, L1("trigger script failed, reinstalling..."))
         return True # reinstall
 
     # everything looks good
     return False # don't reinstall
   
   def _execute(self, script):
-    if not self.io.list_output(script): return
-    if 'message' in self.scripts[script]:
-      self.log(1, L1(self.scripts[script]['message']))
-    cmd = self.io.list_output(what=script)[0]
+    if not self.scripts[script]['enabled']: return
 
-    if self.ssh['enabled'] and self.scripts[script]['ssh']: 
-      # run cmd on remote machine
-      params = SSHParameters(self, script)
-      try:
+    ids = self.scripts[script]['script-ids']
+    for id in ids:
+      cmd = self.io.list_output(what=id)[0]
+      self.log(1, L1('running %s script' % id))
+
+      if (self.ssh['enabled'] and 
+          self.scripts[script]['ssh-values'][ids.index(id)]): 
+        # run cmd on remote machine
+        params = SSHParameters(self, script)
         try:
-          client = self._ssh_connect(params)
-        except SSHFailedError, e:
-          raise SSHScriptFailedError(script=script, message=str(e))
+          try:
+            client = self._ssh_connect(params)
+          except SSHFailedError, e:
+            raise SSHScriptFailedError(script=script, message=str(e))
 
-        # copy script to remote machine
-        sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-        if not self.LIB_DIR.basename in sftp.listdir(str(self.LIB_DIR.dirname)):
-          sftp.mkdir(str(self.LIB_DIR))
-        if not (self.deploydir.basename in 
-                sftp.listdir(str(self.deploydir.dirname))): 
-          sftp.mkdir(str(self.deploydir))
-          sftp.chmod(str(self.deploydir), mode=0750)
-        sftp.put(self.io.list_output(what=script)[0], 
-                 str(self.deploydir/script))
-        sftp.chmod(str(self.deploydir/script), mode=0750)
+          # copy script to remote machine
+          sftp = paramiko.SFTPClient.from_transport(client.get_transport())
+          if not self.LIB_DIR.basename in sftp.listdir(str(self.LIB_DIR.dirname)):
+            sftp.mkdir(str(self.LIB_DIR))
+          if not (self.deploydir.basename in 
+                  sftp.listdir(str(self.deploydir.dirname))): 
+            sftp.mkdir(str(self.deploydir))
+            sftp.chmod(str(self.deploydir), mode=0750)
+          sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
+          sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
  
-        # execute script
-        cmd = str(self.deploydir/script)
-        try:
-          self._ssh_execute(client, cmd)
-        except SSHFailedError, e:
-          raise SSHScriptFailedError(script=script, message=str(e))
+          # execute script
+          cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
+          try:
+            self._ssh_execute(client, cmd)
+          except SSHFailedError, e:
+            raise SSHScriptFailedError(script=script, message=str(e))
   
-      finally:
-        if 'client' in locals(): client.close()
+        finally:
+          if 'client' in locals(): client.close()
 
-    else: # run cmd on the local machine
-      self._local_execute(cmd)
+      else: # run cmd on the local machine
+        self._local_execute(cmd)
 
   def _ssh_connect(self, params, log_format='L2'):
     try:

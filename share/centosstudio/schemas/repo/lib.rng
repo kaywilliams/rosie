@@ -173,8 +173,8 @@
   </define>
 
 
-  <!-- publish elements -->
-  <define name="content-publish-elements">
+  <!-- deploy elements -->
+  <define name="content-deploy-elements">
 
     <interleave>
     <optional>
@@ -215,36 +215,46 @@
     </optional>
   </define>
 
-  <!-- deploy elements -->
-  <define name="content-trigger-script-element">
-    <element name="trigger-script">
-      <optional><attribute name="triggers"/></optional>
+  <!-- deploy element content -->
+  <define name="content-deploy-element">
+    <oneOrMore>
+      <element name="script">
+      <optional><attribute name='id'/></optional>
       <text/>
+      </element>
+    </oneOrMore>
+  </define>
+
+  <!-- deploy elements -->
+  <define name="content-trigger-element">
+    <element name="trigger">
+      <optional><attribute name="triggers"/></optional>
+      <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-activate-script-element">
-    <element name="activate-script"><text/></element>
+  <define name="content-activate-element">
+    <element name="activate">
+      <ref name="content-deploy-element"/>
+    </element>
   </define>
 
-  <define name="content-delete-script-element">
-    <element name="delete-script"><text/></element>
+  <define name="content-install-element">
+    <element name="install">
+      <ref name="content-deploy-element"/>
+    </element>
   </define>
 
-  <define name="content-install-script-element">
-    <element name="install-script"><text/></element>
+  <define name="content-post-install-element">
+    <element name="post-install">
+      <ref name="content-deploy-element"/>
+    </element>
   </define>
 
-  <define name="content-post-install-script-element">
-    <element name="post-install-script"><text/></element>
-  </define>
-
-  <define name="content-update-script-element">
-    <element name="update-script"><text/></element>
-  </define>
-
-  <define name="content-post-script-element">
-    <element name="post-script"><text/></element>
+  <define name="content-post-element">
+    <element name="post">
+      <ref name="content-deploy-element"/>
+    </element>
   </define>
 
 </grammar>

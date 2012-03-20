@@ -158,7 +158,7 @@ class IOObject(object):
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
       # ensure item has text content
-      if item.text is None: 
+      if item.get('text()', None) is None: 
         raise InvalidConfigError(self.ptr._config.file,
           "[%s] no path specified for '%s':"
           "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(item), item))

@@ -105,7 +105,12 @@ class ConfigElement(tree.XmlTreeElement):
     tag = self._ns_clean(self.tag)
 
     # text
-    if self.text is not None: text = escape(self.text)
+    # using get('text()') below rather than self.text, as the latter returns an
+    # aborted string if the text contains a <!--comment-->. Now, text 
+    # shouldn't contain comments, but I don't see a way to get the parser to 
+    # error on them, and we want to avoid unpredictable and 
+    # difficult to troubleshoot behavior in the off chance they do...
+    if self.get('text()', None) is not None: text = escape(self.get('text()'))
     if do_text_hl: text = ANSI_HIGHLIGHT % text
 
     # attributes
@@ -175,8 +180,31 @@ class ConfigElement(tree.XmlTreeElement):
     if not hasattr(paths, '__iter__'): paths = [paths]
     result = []
     for p in paths:
-      result = tree.XmlTreeElement.xpath(self, p)
-      if result: break
+      # special handling for text elements which can have multiple strings
+      # in the text result (i.e. if there are comments in the string).
+      # We first check if the xpath query results in multiple elements.  If so
+      # we concat the text of each element before returning. If the xpath 
+      # results in only a single element we likewise concat its results before
+      # returning
+      if '/text()' in p:
+        base = p.replace('/text()', '')
+        elems = tree.XmlTreeElement.xpath(self, base)
+        if elems: 
+          for elem in elems:
+            subresult = elem.xpath('text()')
+            if len(subresult) > 0:
+              result.append(' '.join(subresult))
+          if result: break
+      elif 'text()' in p:
+        result = tree.XmlTreeElement.xpath(self, p)
+        if len(result) > 0:
+          result = tree.XmlTreeElement.xpath(self,p)
+          if len(result) > 0:
+            result = [ ' '.join(result) ]
+          if result: break
+      else:
+        result = tree.XmlTreeElement.xpath(self, p)
+        if result: break
 
     if len(result) == 0:
       if not isinstance(fallback, tree.NoneObject):
@@ -184,6 +212,7 @@ class ConfigElement(tree.XmlTreeElement):
       else:
         raise errors.XmlPathError("None of the specified paths %s "
                                   "were found in the config file" % paths)
+
 
     # convert empty/whitespace-only strings to None before returning
     for i in range(0, len(result)):
@@ -215,9 +244,9 @@ class ConfigElement(tree.XmlTreeElement):
         for attr in elem.attrib.keys():
           if key in elem.attrib[attr]:
             elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
-        if elem.text is not None:
-          if key in elem.text:
-            elem.text = elem.text.replace(key, map[key])
+        if elem.get('text()', None) is not None:
+          if key in elem.get('text()'):
+            elem.text = elem.get('text()').replace(key, map[key])
 
   def resolve_macros(self, xpaths=None, map=None):
     """
@@ -255,7 +284,7 @@ class ConfigElement(tree.XmlTreeElement):
           raise errors.ConfigError(message)
 
         if name not in map:
-          map[name] = elem.text
+          map[name] = elem.get('text()', '')
         else:
           message = ("\nError resolving macros in '%s'\n  Duplicate macros found with the id '%s'. The invalid section is:\n%s\n" % (self.getroot().file, elem.attrib['id'], tree.XmlTreeElement.tostring(elem, lineno=True)))
           raise errors.ConfigError(message)
@@ -303,8 +332,8 @@ class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
       raise lxml.sax.SaxError("Unexpected element closed: {%s}%s" % ns_name)
 
     # convert whitespace into None
-    if element.text is not None:
-      element.text = element.text.strip() or None
+    if element.get('text()', None) is not None:
+      element.text = element.get('text()').strip() or None
 
 #--------FACTORY FUNCTIONS--------#
 PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=True)
@@ -337,7 +366,7 @@ def fromstring(string, handler=None, parser=PARSER, **kwargs):
 
 def _make_boolean(string):
   if isinstance(string, tree.XmlTreeElement):
-    string = string.text
+    string = string.get('text()')
   if not isinstance(string, (basestring, bool)):
     raise ValueError("query must return a string or boolean, got a %s" % type(string))
   try:

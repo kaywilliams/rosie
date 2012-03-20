@@ -46,6 +46,16 @@ class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
 class TestInstallEventTestCase(PublishSetupEventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install'
+  _conf = ["""
+  <test-install>
+    <post>
+    <script id='test'>
+    <!--comment-->
+    echo "test to ensure comment work inside script elements"
+    </script>
+    </post>
+  </test-install>
+  """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     PublishSetupEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
@@ -67,13 +77,14 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   def tearDown(self):
     EventTestCase.tearDown(self) 
 
+
 class Test_RaisesErrorOnInvalidTriggers(TestInstallEventTestCase):
   "raises an error if invalid triggers are provided"
 
   def setUp(self):
     TestInstallEventTestCase.setUp(self)
-    self.conf.get('/*/%s/trigger-script' % self.moduleid).set(
-                  'triggers', 'kickstart, install-script junk1, junk2')
+    self.conf.get('/*/%s/trigger' % self.moduleid).set(
+                  'triggers', 'kickstart, install-scripts junk1, junk2')
 
   def runTest(self):
     self.execute_predecessors(self.event)
@@ -143,21 +154,25 @@ class Test_ReinstallOnTreeinfoChange(ReinstallTestInstallEventTestCase):
 
 
 class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
-  "reinstalls if install-script changes"
+  "reinstalls if an install script changes"
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    script = self.event.config.get('install-script')
+    install = self.event.config.get('install')
+    script = rxml.config.Element('script', parent=install, 
+                                 attrs={'id': 'install-test'})
     script.text = 'echo "Hello"'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
 
 class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase):
-  "reinstalls if post-install-script changes"
+  "reinstalls if a post-install script changes"
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    script = self.event.config.get('post-install-script')
+    post_install = self.event.config.get('post-install')
+    script = rxml.config.Element('script', parent=post_install, 
+                                 attrs={'id': 'post-test'})
     script.text = 'echo "hello"'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
@@ -182,6 +197,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
     suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
     # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
+    #suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
 
   return suite

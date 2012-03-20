@@ -120,23 +120,24 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
-    publish = self.conf.get('/*/publish')
-    post_script = rxml.config.Element('post-script', parent=publish)
-    # post_script text set in runTest methods
 
 class Test_TestMachineSetup(DeployReleaseRpmEventTestCase):
   "setting up an initial test machine"
+  _conf = [ """
+  <publish>
+  <post>
+  <script id='config-rpm'>
+  #!/bin/bash
+  set -e
+  yum sync -y
+  </script>
+  </post>
+  </publish>
+  """ ]
+
   def __init__(self, distro, version, arch, *args, **kwargs):
     DeployReleaseRpmEventTestCase.__init__(self, distro, version, arch)
 
-  def runTest(self):
-    post_script = self.event._config.get('/*/publish/post-script')
-    post_script.text = """ 
-      #!/bin/bash
-      set -e
-      yum sync -y
-      """
-    self.tb.dispatch.execute(until=self.id)
 
 class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
   "expected gpgkeys are installed"
@@ -155,7 +156,10 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # set post script for deploy - doing this after centosstudio
     # resolves global macros on the definition so macro replacement 
     # doesn't blast the rpm qf string (%{version})
-    post_script = self.event._config.get('/*/publish/post-script')
+    publish = self.event._config.get('/*/publish')
+    post = publish.get('post', rxml.config.Element('post', parent=publish))
+    post_script = rxml.config.Element('script', parent=post, 
+                                      attrs={'id':'release-rpm'})
     post_script.text = """ 
       #!/bin/bash
       set -e
@@ -164,7 +168,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
         [[ $installed == *$expected* ]] || echo \
 "Error: a key listed in the keyids file is not installed:
 expected:  $expected
-installed: $installed" >&2
+installed: $installed" &gt;&amp;2
       done
       """
 

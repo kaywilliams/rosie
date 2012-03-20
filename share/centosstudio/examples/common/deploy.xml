@@ -30,7 +30,8 @@
   <xi:include href='ks.cfg' parse='text'/>
 </kickstart>
 
-<trigger-script>
+<trigger>
+<script id='trigger'>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
 
@@ -53,8 +54,8 @@ curr_release_rpm='%{release_rpm}'
 curr_config_rpm='%{config_rpm}'
 curr_kickstart='%{kickstart}'
 curr_treeinfo='%{treeinfo}'
-curr_install_script='%{install_script}'
-curr_post_install_script='%{post_install_script}'
+curr_install_scripts='%{install_scripts}'
+curr_post_install_scripts='%{post_install_scripts}'
 
 # test for changes in trigger list
 [[ $curr_triggers == $last_triggers ]] || fail 'trigger list'
@@ -67,9 +68,12 @@ for trigger in $curr_triggers; do
 done
 
 exit $FAIL
-</trigger-script>
+</script>
+</trigger>
 
-<activate-script>
+<activate>
+<script id='activate'>
+<!--comment-->
 #!/usr/bin/python
 import libvirt
 import sys
@@ -93,16 +97,18 @@ elif vm.create() == 0: # vm is inactive
 else:
   print "vm is inactive and failed to start"
   sys.exit(1)
-</activate-script>
+</script>
+</activate>
 
-<delete-script>
+<install>
+<script id='delete'>
 #!/bin/bash
 set -e
 if [[ `virsh list` = *\ %{hostname}\ * ]]; then virsh destroy %{hostname}; fi
 if [[ `virsh list --all` = *\ %{hostname}\ * ]]; then virsh undefine %{hostname}; fi
-</delete-script>
+</script>
 
-<install-script>
+<script id='install'>
 #!/bin/bash
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
@@ -110,9 +116,11 @@ virt-install --name %{hostname} --ram 1000 \
              --location %{url} \
              --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
              --noreboot
-</install-script>
+</script>
+</install>
 
-<post-install-script>
+<post-install>
+<script id='trigger-info'>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
 
@@ -131,19 +139,24 @@ last_release_rpm='%{release_rpm}'
 last_config_rpm='%{config_rpm}'
 last_kickstart='%{kickstart}'
 last_treeinfo='%{treeinfo}'
-last_install_script='%{install_script}'
-last_post_install_script='%{post_install_script}'
+last_install_scripts='%{install_scripts}'
+last_post_install_scripts='%{post_install_scripts}'
 " &gt; $TRIGGER_INFO
-</post-install-script>
+</script>
+</post-install>
 
-<post-script>
+<post>
+<script id='update'>
 #!/bin/bash
 set -e
 yum sync -y
+</script>
+<script id='check-kernel'>
 if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
   echo "running kernel differs from installed - restarting machine"
   shutdown -r now
 fi
-</post-script>
+</script>
+</post>
 
 </root>

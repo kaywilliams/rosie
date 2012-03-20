@@ -33,7 +33,7 @@
           </choice>
 
           <optional><element name="definition"><text/></element></optional>
-          <optional><element name="verify-script"><text/></element></optional>
+          <optional><element name="verify"><text/></element></optional>
 
           </interleave>
 
