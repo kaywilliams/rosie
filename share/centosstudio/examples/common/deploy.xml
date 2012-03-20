@@ -120,19 +120,25 @@ virt-install --name %{hostname} --ram 1000 \
 </install>
 
 <post-install>
-<script id='trigger-info'>
+<script id='verify-install'>
 #!/bin/bash
-TRIGGER_INFO=%{trigger-file}
-
 #check install.log for errors
+
 if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
-  grep -v "NOKEY" /root/install.log | \
+  errors=`grep -v "NOKEY" /root/install.log | \
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
-  grep -v "^Installing "
+  grep -v "^Installing "`
+  echo -e "Errors found in /root/install.log:\n$errors" >&amp;2
   exit 1
 fi
+</script>
 
+<script id='trigger-info'>
+#!/bin/bash
+set -e
 # create TRIGGER_INFO file
+
+TRIGGER_INFO=%{trigger-file}
 echo "
 last_triggers='%{triggers}'
 last_release_rpm='%{release_rpm}'
