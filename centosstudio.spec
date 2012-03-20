@@ -23,6 +23,7 @@ Requires: dosfstools
 Requires: gnupg
 Requires: gzip 
 Requires: mkisofs
+Requires: openssh 
 Requires: pykickstart
 Requires: python-crypto
 Requires: python-devel
