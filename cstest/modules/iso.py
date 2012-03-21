@@ -22,7 +22,7 @@ from centosstudio.util.img         import MakeImage
 from centosstudio.util.rxml.config import Element
 from centosstudio.util import si
 
-from centosstudio.splittree import parse_size
+from centosstudio.util.splittree import parse_size
 
 from cstest        import EventTestCase, ModuleTestSuite
 from cstest.core   import make_core_suite, make_extension_suite
