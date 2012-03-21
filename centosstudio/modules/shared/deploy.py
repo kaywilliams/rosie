@@ -254,7 +254,8 @@ class DeployEventMixin:
           try:
             client = self._ssh_connect(params)
           except SSHFailedError, e:
-            raise SSHScriptFailedError(id=id, message=str(e))
+            raise SSHScriptFailedError(id=id, host=params['hostname'], 
+                                       message=str(e))
 
           # create sftp client
           sftp = paramiko.SFTPClient.from_transport(client.get_transport())
@@ -288,7 +289,8 @@ class DeployEventMixin:
           try:
             self._ssh_execute(client, cmd)
           except SSHFailedError, e:
-            raise SSHScriptFailedError(id=id, message=str(e))
+            raise SSHScriptFailedError(id=id, host=params['hostname'],
+                                       message=str(e))
   
         finally:
           if 'client' in locals(): client.close()
@@ -323,7 +325,7 @@ class DeployEventMixin:
   def _ssh_execute(self, client, cmd, log_format='L2'):
     self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
     chan = client.get_transport().open_session()
-    chan.exec_command(cmd)
+    chan.exec_command('"%s"' % cmd)
 
     errlines = []
     header_logged = False
@@ -359,8 +361,9 @@ class DeployEventMixin:
       raise SSHFailedError(message='\n'.join(errlines))
 
   def _local_execute(self, cmd):
-      proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
-                                               stderr=subprocess.PIPE)
+      proc = subprocess.Popen('"%s"' % cmd, shell=True, 
+                                            stdout=subprocess.PIPE, 
+                                            stderr=subprocess.PIPE)
 
       errlines = []
       header_logged = False
@@ -425,7 +428,7 @@ class SSHFailedError(ScriptFailedError):
   message = "%(message)s"
 
 class SSHScriptFailedError(ScriptFailedError):
-  message = """Error(s) occured running '%(id)s' script on remote machine:
+  message = """Error(s) occured running '%(id)s' script on '%(host)s':
 %(message)s"""
 
 #------ Callbacks ------#
