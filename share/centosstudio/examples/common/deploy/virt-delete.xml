@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='virt-delete'>
+#!/bin/bash
+set -e
+if [[ `virsh list` = *\ %{hostname}\ * ]]; then virsh destroy %{hostname}; fi
+if [[ `virsh list --all` = *\ %{hostname}\ * ]]; then virsh undefine %{hostname}; fi
+</script>

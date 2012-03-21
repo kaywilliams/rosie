@@ -28,7 +28,7 @@ skipx
 
 <install>
 <xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/install/*[@id='delete'])"/>
+            xpointer="xpointer(/*/install/*[@id='virt-delete'])"/>
 <script id='virt-install'>
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \

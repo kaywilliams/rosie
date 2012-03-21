@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='virt-install'>
+#!/bin/bash
+virt-install --name %{hostname} --ram 1000 \
+             --file /var/lib/libvirt/images/%{hostname}.img \
+             --file-size 30 \
+             --location %{url} \
+             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
+             --noreboot
+</script>
