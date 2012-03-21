@@ -65,8 +65,7 @@ class PackagesEvent(ShelveMixin):
         len(self.config.xpath(['package', 'group'], [])) == 0):
       message = ("The definition specifies a system type repository but no "
                  "packages or groups have been listed in the packages "
-                 "element. This is unlikely to result in a working system "
-                 "installation. Please specify groups and packages and try "
+                 "element. Please specify groups and/or packages and try "
                  "again.")
       raise NoPackagesOrGroupsSpecifiedError(message=message)
 
