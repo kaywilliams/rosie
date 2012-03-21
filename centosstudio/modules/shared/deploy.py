@@ -273,7 +273,8 @@ class DeployEventMixin:
           # clean deploydir - except for trigger file
           if self.do_clean:
             files = sftp.listdir(str(self.deploydir))
-            files.remove(str(self.triggerfile.basename))
+            if self.triggerfile.basename in files:
+              files.remove(str(self.triggerfile.basename))
             for f in files:
               sftp.remove(str(self.deploydir/f))
             self.do_clean = False # only clean once per session
