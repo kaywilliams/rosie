@@ -196,8 +196,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
     suite.addTest(Test_ReinstallOnTreeinfoChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnInstallScriptChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
     # dummy test to shutoff vm
-    #suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
+    suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
 
   return suite

@@ -29,18 +29,26 @@ from cstest.mixins import check_vm_config
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
 class DeployMixinTestCase:
+  _type = 'system'
+  
   def __init__(self, distro, version, arch, module=None):
     self.mod = module or self.moduleid
     EventTestCase.__init__(self, distro, version, arch)
+
+    # get default deploy config
     deploy = rxml.config.parse(
       '%s/../../share/centosstudio/examples/common/deploy.xml' %  
       pps.path(__file__).dirname.abspath()).getroot()
+
+    # update default virt-install image size
+    install = deploy.get("/*/install/script[@id='virt-install']")
+    text = install.get("text()").replace('--file-size 30', '--file-size 6')
+    install.text = text
 
     # update packages
     pkgcontent=etree.XML("""
     <packages>
       <group>core</group>
-      <group>base</group>
     </packages>""")
     packages = self.conf.get('/*/packages', None)
     if packages is None:
@@ -72,6 +80,7 @@ class DeployMixinTestCase:
     mod.extend(deploy.xpath(("/*/*[name()!='post' and "
                                   "name()!='trigger' and "
                                   "name()!='config-rpm']")))
+
 
   def runTest(self):
     self.tb.dispatch.execute(until='deploy')

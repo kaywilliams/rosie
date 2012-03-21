@@ -22,16 +22,19 @@ from cstest.core import make_core_suite
 class InitEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'init'
+  _type = 'package'
 
 #------ setup ------#
 class SetupEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'setup-events'
+  _type = 'package'
 
 #------ os ------#
 class OSEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'os-events'
+  _type = 'package'
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

@@ -111,6 +111,8 @@ class EventTestCase(unittest.TestCase):
     config.Element('name',     text='test-%s' % self.moduleid, parent=main)
     config.Element('version',  text=self.version, parent=main)
     config.Element('arch',     text=self.arch, parent=main)
+    config.Element('type',     text=getattr(self, '_type', 'system'), 
+                               parent=main)
 
     return main
 

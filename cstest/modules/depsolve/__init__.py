@@ -31,10 +31,12 @@ from cstest.core import make_core_suite
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'
+  _type = 'package'
 
 class DepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'
+  _type = 'package'
 
   caseid = None
   clean  = False

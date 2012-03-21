@@ -26,12 +26,14 @@ from centosstudio.constants import KERNELS
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'
   eventid  = 'packages'
+  _type = 'package'
 
   _conf = "<packages><package>kernel</package></packages>"
 
 class CompsEventTestCase(EventTestCase):
   moduleid = 'packages'
   eventid  = 'comps'
+  _conf = "<packages><package>kernel</package></packages>"
 
   def __init__(self, distro, version, arch, conf=None):
     EventTestCase.__init__(self, distro, version, arch, conf)

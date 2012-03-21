@@ -33,6 +33,7 @@ from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
 class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'
   eventid  = 'config-rpm'
+  _type = 'package'
   _conf = ["""<config-rpm enabled="true">
     <requires>yum</requires>
     <requires>createrepo</requires>
@@ -154,6 +155,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
 
 class DeployConfigRpmEventTestCase(DeployMixinTestCase, 
                                    ConfigRpmInputsEventTestCase):
+  _type = 'system'
   _conf = ["""
   <publish>
   <post>

@@ -24,6 +24,7 @@ meta_event = 'setup-events'
 class AutocleanEventTestCase(EventTestCase):
   moduleid = 'autoclean'
   eventid  = 'autoclean'
+  _type = 'package'
 
 class Test_NonMeta(AutocleanEventTestCase):
   "standard run (non-meta events)"

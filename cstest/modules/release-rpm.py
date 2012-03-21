@@ -34,6 +34,7 @@ from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
 class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'release-rpm'
   eventid  = 'release-rpm'
+  _type = 'package' 
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -110,6 +111,7 @@ class Test_RemovesGpgkeys(ReleaseRpmEventTestCase):
 
 class DeployReleaseRpmEventTestCase(DeployMixinTestCase, 
                                     ReleaseRpmEventTestCase):
+  _conf = 'system'
   _conf = ["""
     <config-rpm>
       <files destdir='/root' destname='keyids' content='text'>

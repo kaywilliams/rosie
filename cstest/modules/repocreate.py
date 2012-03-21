@@ -21,6 +21,7 @@ from cstest.core import make_core_suite
 class RepocreateEventTestCase(EventTestCase):
   moduleid = 'repocreate'
   eventid  = 'repocreate'
+  _type = 'package'
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repocreate')

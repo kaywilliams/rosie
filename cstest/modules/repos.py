@@ -25,6 +25,7 @@ from centosstudio.errors import CentOSStudioError
 class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
   eventid  = 'repos'
+  _type = 'package'
 
 class Test_NoBase(ReposEventTestCase):
   "without base-info and repos sections, raises RuntimeError"

@@ -27,17 +27,20 @@ from cstest.mixins import (psm_make_suite, dm_make_suite, DeployMixinTestCase,
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish-setup'
+  _type = 'package'
 
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'kickstart'
-  _conf = """<publish>
+  _conf = [
+  """<packages><package>kernel</package></packages>""",
+  """<publish>
   <kickstart>
   <include xmlns='http://www.w3.org/2001/XInclude'
            href='%s/../../share/centosstudio/examples/common/ks.cfg'
            parse='text'/>
   </kickstart>
-  </publish>""" % pps.path(__file__).dirname.abspath() 
+  </publish>""" % pps.path(__file__).dirname.abspath()]
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -64,7 +67,8 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
-  _conf = "<publish><kickstart>invalid</kickstart></publish>"
+  _conf = ["<packages><package>kernel</package></packages>",
+           "<publish><kickstart>invalid</kickstart></publish>"]
 
   def runTest(self):
    self.execute_predecessors(self.event)
@@ -80,6 +84,7 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
 class PublishEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish'
+  _type = 'package'
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion

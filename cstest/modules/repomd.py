@@ -25,10 +25,12 @@ from cstest.core import make_core_suite
 class RepomdEventTestCase(EventTestCase):
   moduleid = 'repomd'
   eventid  = 'repomd'
-
+  _type = 'package'
 
 class Test_CompsFile(RepomdEventTestCase):
   "comps file included in repodata"
+  _type = 'system'
+  _conf = '<packages><package>kernel</package></packages>'
   def runTest(self):
     self.tb.dispatch.execute(until=self.id)
     self.failUnlessExists(self.event.cvars['repomd-file'].dirname /

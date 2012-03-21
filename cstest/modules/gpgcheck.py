@@ -28,6 +28,7 @@ from cstest.core import make_core_suite
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
   eventid  = 'gpgcheck'
+  _type = 'package'
 
   def _make_repos_config(self):
     repos = EventTestCase._make_repos_config(self)
@@ -55,6 +56,10 @@ class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
 
 class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
   "fails if key not provided"
+  _type = 'system' # include packages from base and updates repo
+  _conf = """<packages>
+    <package>kernel</package>
+  </packages>"""
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')

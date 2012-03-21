@@ -134,6 +134,7 @@ PASSPHRASE = "The quick brown fox jumped over the lazy dog."
 class GpgsignTestCase(EventTestCase):
   moduleid = 'gpgsign'
   eventid  = 'gpgsign'
+  _type = 'package'
   conf = """<gpgsign enabled="true">
       <public>%s</public>
       <secret>%s</secret>

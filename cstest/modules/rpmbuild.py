@@ -24,6 +24,7 @@ from cstest.core  import make_core_suite
 class RpmbuildTestCase(EventTestCase):
   moduleid = 'rpmbuild'
   eventid  = 'rpmbuild'
+  _type = 'package'
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')

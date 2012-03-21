@@ -26,6 +26,7 @@ from cstest.core import make_core_suite
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
   eventid  = 'download'
+  _type = 'package'
 
   def _make_repos_config(self):
     repos = EventTestCase._make_repos_config(self)
@@ -95,6 +96,18 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."
+  _type = 'system' # include pkgs from base and update repos
+  _conf = [
+  """<packages>
+    <package>package1</package>
+    <package>package2</package>
+  </packages>
+  """,
+  """
+  <release-rpm>
+    <updates gpgcheck='false'/>
+  </release-rpm>
+  """]
   def runTest(self):
     self.tb.dispatch.execute(until=self.id)
     # if the length of rpms in the pkglist is equal to the length of

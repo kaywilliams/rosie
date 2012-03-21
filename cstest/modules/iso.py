@@ -33,7 +33,10 @@ from cstest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
 class PkgorderEventTestCase(EventTestCase):
   moduleid = 'iso'
   eventid  = 'pkgorder'
-  _conf = """<iso><set>CD</set></iso>"""
+  _conf = [
+  """<iso><set>CD</set></iso>""",
+  """<packages><package>kernel</package></packages>"""
+  ]
 
 #------ iso ------#
 class IsoEventTestCase(EventTestCase):
@@ -45,6 +48,7 @@ class IsoEventTestCase(EventTestCase):
     <set>400 MB</set>
   </iso>
   """, 
+  """<packages><package>kernel</package></packages>""",
   """
   <publish>
     <boot-options>ro root=LABEL=/</boot-options>
@@ -99,6 +103,7 @@ class Test_IsoContent(IsoEventTestCase):
     <set>CD</set>
     <set>400 MB</set>
   </iso>""",
+  """<packages><package>kernel</package></packages>""",
   """<publish>
     <boot-options>ro root=LABEL=/</boot-options>
   </publish>"""]
@@ -130,6 +135,7 @@ class Test_SetsChanged(IsoEventBootOptionsTestCase):
     <set>640MB</set>
     <set>200 MiB</set>
   </iso>""",
+  """<packages><package>kernel</package></packages>""",
   """<publish>
     <boot-options>ro root=LABEL=/</boot-options>
   </publish>"""]
@@ -141,6 +147,7 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
     <set>CD</set>
     <set>400 MB</set>
   </iso>""",
+  """<packages><package>kernel</package></packages>""",
   """<publish>
     <boot-options>ro root=LABEL=/</boot-options>
   </publish>"""]
@@ -155,9 +162,6 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
 # i.e. with treeinfo.
 class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   "installs successfully from iso"
-  _conf = []
-  _conf.extend(IsoEventTestCase._conf)
-  _conf.extend(DeployMixinTestCase._conf)
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     IsoEventTestCase.__init__(self, distro, version, arch)
