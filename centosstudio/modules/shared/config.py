@@ -25,7 +25,7 @@ from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                           TriggerContainer)
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
-  config_mixin_version = "1.23"
+  config_mixin_version = "1.24"
 
   def __init__(self, rpmxpath=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
@@ -232,7 +232,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       '    done',
       '  fi',
       '  # copy file to final location',
-      '  /bin/cp --preserve=mode,ownership,timestamps,links,xattr $s/$f $f',
+      '  /bin/cp --preserve=mode,ownership,timestamps $s/$f $f',
       'done',
       '', ])
 
