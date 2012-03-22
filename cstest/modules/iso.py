@@ -130,10 +130,13 @@ class Test_IsoContent(IsoEventTestCase):
 
 class Test_SetsChanged(IsoEventBootOptionsTestCase):
   "iso sets change"
+  # this test should be smarter so that we don't have to manually
+  # bump the smaller set size each time a new version comes out with
+  # larger images
   _conf = [
   """<iso>
     <set>640MB</set>
-    <set>200 MiB</set>
+    <set>250 MiB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
   """<publish>
