@@ -57,6 +57,7 @@ class RepomdEvent(RepomdMixin, Event):
     self.DATA['variables'].extend(['repomdfile']) # provided by repomd mixin
 
   def run(self):
+    (self.REPO_STORE / self.cvars['rpmsdir'].basename).rm(force=True)
     self.io.process_files(link=True, text=None) 
 
     # run createrepo
