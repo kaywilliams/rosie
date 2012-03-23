@@ -125,7 +125,6 @@ class RpmBuildMixin(ShelveMixin):
                          passphrase=self.gpgsign['passphrase'], 
                          working_dir=self.mddir)
         except Exception, e:
-          if self.debug: raise
           message = ("Unable to sign rpm '%s'. The error message was '%s'"
                       % (rpm_path, str(e)))
           raise RpmBuildError(message=message)
