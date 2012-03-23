@@ -33,12 +33,12 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
-      id = 'config-rpm-%s' % self.rpmid,
+      id = '%s-rpm' % self.rpmid,
       parentid = 'rpmbuild',
       ptr = ptr,
       version = 1.00,
       provides = 'config-rpms',
-      config_base = '/*/%s/rpm[@id=\'%s\']' % (self.moduleid, self.rpmid),
+      config_base = self.config_base,
     )
  
     self.conditionally_requires.add('packages')
@@ -54,7 +54,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     MkrpmRpmBuildMixin.__init__(self)
 
   def validate(self):
-    # FIXME add validation to ensure unique rpmids
     self.io.validate_destnames([ path for path in 
       self.config.xpath(('files'), [] ) ])
 
@@ -62,12 +61,11 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     self.DATA['variables'].append('config_mixin_version')
 
     name = self.config.get('name/text()',
-       "%s-%s-config" % (self.name, self.rpmid))
+       "%s-%s" % (self.name, self.rpmid))
     desc = self.config.get('description/text()', 
-       "The %s-%s-config package provides configuration files and scripts for "
+       "The %s-%s package provides configuration files and scripts for "
        "the %s repository." % (self.name, self.rpmid, self.fullname))
-    summary = self.config.get('summary/text()', 
-       '%s %s configuration' % (self.fullname, self.rpmid))
+    summary = self.config.get('summary/text()', name) 
     license = self.config.get('license/text()', 'GPL')
     author = self.config.get('author/text()', 'None')
     email = self.config.get('email/text()', 'None')
@@ -415,27 +413,38 @@ def get_module_info(ptr, *args, **kwargs):
     events      = [ ],
     description = 'modules that create RPMs based on user-provided configuration',
   )
+  modname = __name__.split('.')[-1]
+  xpath   = '/*/%s/rpm' % modname
 
   # ensure unique rpm ids
-  check_dup_ids(element = __name__.split('.')[-1],
+  check_dup_ids(element = modname,
                 config = ptr.definition,
-                xpath = '/*/config-rpms/rpm/@id')
+                xpath = '%s/@id' % xpath)
 
   # create event classes based on user configuration
-  for config in ptr.definition.xpath('/*/config-rpms/rpm', []):
+  for config in ptr.definition.xpath(xpath, []):
 
     # convert user provided id to a valid class name
     id = config.get('@id')
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sConfigRpmEvent' % name.capitalize()
 
+    # get config path and rpmid
+    config_base = '%s[@id="%s"]' % (xpath, id)
+    if id == 'config':
+      rpmid='config'
+    else:
+      rpmid="%s-config" % id
+
+
     # create new class
     exec """%s = ConfigRpmsEvent('%s', 
                          (ConfigRpmEventMixin,), 
-                         { 'rpmid'   : '%s',
-                           '__init__': __init__,
+                         { 'rpmid'      : '%s',
+                           'config_base': '%s',
+                           '__init__'   : __init__,
                          }
-                        )""" % (name, name, id) in globals()
+                        )""" % (name, name, rpmid, config_base) in globals()
 
     # update module info with new classname
     module_info['events'].append(name)

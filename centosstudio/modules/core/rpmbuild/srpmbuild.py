@@ -63,7 +63,7 @@ baseurl = %s
 class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
-      id = '%s-%s' % (self.moduleid, self.srpmid), 
+      id = '%s-srpm' % self.srpmid, 
       parentid = 'rpmbuild',
       ptr = ptr,
       version = 1.03,
