@@ -26,7 +26,8 @@ import traceback
 from centosstudio.cslogging import L0, L1, L2, MSG_MAXWIDTH
 from centosstudio.errors import (CentOSStudioError, CentOSStudioEventError,
                                  SimpleCentOSStudioEventError)
-from centosstudio.util import sshlib
+from centosstudio.util import pps
+from centosstudio.util import sshlib 
 
 from UserDict import DictMixin
 
@@ -345,10 +346,10 @@ class DeployEventMixin:
           if data:
             got_data = True
             if header_logged is False:
-              self.logger.log_header(4, "%s event - '%s' output" % 
-                                    (self.id, cmd))
+              self.logger.log_header(4, "%s event - '%s' script output" % 
+                                    (self.id, pps.path(cmd).basename))
               header_logged = True
-            self.log(4, L0(data.rstrip('\n')))
+            self.log(4, data.rstrip('\n'))
         if chan.recv_stderr_ready():
           data = chan.recv_stderr(1024)
           if data:
@@ -358,8 +359,8 @@ class DeployEventMixin:
           break
 
     if header_logged:
-      self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
-      self.logger.log(4, L0(''))
+      self.logger.log(4, "%s" % '=' * MSG_MAXWIDTH)
+      self.logger.log(4, '')
       
     status = chan.recv_exit_status()
     chan.close()
@@ -380,16 +381,16 @@ class DeployEventMixin:
         if outline != '' or errline != '' or proc.poll() is None:
           if outline: 
             if not header_logged:
-              self.logger.log_header(4, "%s event - '%s' output" %
-                                    (self.id, cmd))
+              self.logger.log_header(4, "%s event - '%s' script output" %
+                                    (self.id, pps.path(cmd).basename))
               header_logged = True
-            self.log(4, L0(outline))
+            self.log(4, outline)
           if errline: errlines.append(errline) 
         else:
           break
 
       if header_logged:
-        self.logger.log(4, L0("%s" % '=' * MSG_MAXWIDTH))
+        self.logger.log(4, "%s" % '=' * MSG_MAXWIDTH)
 
       if proc.returncode != 0:
         raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
