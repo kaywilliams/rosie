@@ -121,6 +121,9 @@ class MkrpmRpmBuildMixinTestCase(object):
 
   def check_header(self):
     for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'name'),
+                                ('desc', rpm.RPMTAG_DESCRIPTION, 'desc'),
+                                ('summary', rpm.RPMTAG_SUMMARY, 'summary'),
+                                ('license', rpm.RPMTAG_LICENSE, 'license'),
                                 ('arch', rpm.RPMTAG_ARCH, 'arch'),
                                 ('version', rpm.RPMTAG_VERSION, 'version'),
                                 ('release', rpm.RPMTAG_RELEASE, 'release')]:

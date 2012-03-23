@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from centosstudio.event     import Event
+from centosstudio.event     import Event, DummyConfig
 from centosstudio.cslogging import L1, L2
 from centosstudio.util      import pps
+from centosstudio.util      import rxml 
 
 from centosstudio.modules.shared import RepomdMixin
 from centosstudio.modules.shared import PublishSetupEventMixin
@@ -36,18 +37,23 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       'variables': [],
     }
 
-    ReleaseRpmEventMixin.__init__(self, rpmxpath='/*/release-rpm')
+    try:
+      rpmconf = self.config.get('/*/release-rpm')
+    except rxml.errors.XmlPathError:
+      rpmconf = DummyConfig(self._config) 
+
+    ReleaseRpmEventMixin.__init__(self, rpmconf=rpmconf)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
 
-    self.conditionally_requires.update(['release-rpm-name', 'rpmbuild-data'])
+    self.conditionally_requires.update(['release-rpms', 'rpmbuild-data'])
 
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
     self.release_rpmdata = (self.cvars['rpmbuild-data']
-                            [self.cvars['release-rpm-name']])
+                            [self.cvars['release-rpm']])
 
     # sync compose output, excluding release-rpm
     release_rpm = self.release_rpmdata['rpm-path'].split('/')[-1]

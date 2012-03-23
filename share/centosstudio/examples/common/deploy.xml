@@ -2,29 +2,9 @@
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- scripts for installing and updating a local virtual machine -->
-<config-rpm>
-  <requires>openssh</requires>
-  <files destdir='/root/.ssh/' destname="id_rsa.pub">%{ssh-pubfile}</files>
-  <script type='post'>
-  # set some convenience variables
-  sshdir=/root/.ssh
-  pubkey=$sshdir/id_rsa.pub
-  authkeys=$sshdir/authorized_keys
-
-  # make sshdir if it doesn't exist
-  [[ -d $sshdir ]] || mkdir $sshdir 
-
-  # create authorized_keys file if it doesn't exist
-  [[ -f $authkeys ]] || touch $authkeys
-
-  # copy id_rsa into authorized keys if it's not there arleady
-  [[ `cat $authkeys` == *`cat $pubkey`* ]] || cat $pubkey &gt;&gt; $authkeys
-    
-  # set permissions
-  chmod 700 $sshdir
-  chmod 600 $authkeys
-  </script>
-</config-rpm>
+<config-rpms>
+  <xi:include href='config/ssh.xml'/>
+</config-rpms>
 
 <kickstart>
   <xi:include href='ks.cfg' parse='text'/>

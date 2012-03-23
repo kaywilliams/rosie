@@ -35,12 +35,12 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
       parentid = 'rpmbuild',
       ptr = ptr,
       version = '1.00',
-      provides = ['rpmbuild-data', 'os-content'],
+      provides = ['rpmbuild-data', 'os-content', 'release-rpm'],
       requires = ['publish-setup-options'],
     )
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'rpm.release',],
+      'variables': [],
       'config':    [], # set by ReleaseRpmEventMixin
       'input':     [],
       'output':    [],
@@ -57,3 +57,4 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
 
   def apply(self):
     ReleaseRpmEventMixin.apply(self)
+    self.cvars['release-rpm'] = self.rpminfo['name']

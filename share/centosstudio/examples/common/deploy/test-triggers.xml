@@ -19,7 +19,7 @@ fi
 # set current trigger variables
 curr_triggers='%{triggers}'
 curr_release_rpm='%{release_rpm}'
-curr_config_rpm='%{config_rpm}'
+curr_config_rpms='%{config_rpms}'
 curr_kickstart='%{kickstart}'
 curr_treeinfo='%{treeinfo}'
 curr_install_scripts='%{install_scripts}'

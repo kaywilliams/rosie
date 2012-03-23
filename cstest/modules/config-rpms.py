@@ -31,13 +31,20 @@ from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
 
 
 class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
-  moduleid = 'config-rpm'
-  eventid  = 'config-rpm'
+  """
+  The config-rpms module reads user config and generates classes at runtime. In
+  our test case we provide config that causes a class to be created, and then
+  we test the functioning of that class.
+  """
+  moduleid = 'config-rpms'
+  eventid  = 'config-rpm-test'
   _type = 'package'
-  _conf = ["""<config-rpm enabled="true">
+  _conf = ["""<config-rpms>
+  <rpm id='test'>
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </config-rpm>"""]
+  </rpm>
+  </config-rpms>"""]
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -53,10 +60,35 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
 
     return repos
 
+class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
+  "raises an error if multiple rpms provide the same id"
+  _conf = """
+  <config-rpms>
+  <rpm id="test"/>
+  <rpm id="test"/>
+  </config-rpms>
+  """
+
+  def setUp(self): pass
+
+  def runTest(self):
+    unittest.TestCase.failUnlessRaises(self, CentOSStudioError, 
+      TestBuild, self.conf, self.options, [])
+
+  def tearDown(self):
+    del self.conf
+
 
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   _conf = [""" 
-  <config-rpm enabled="true">
+  <config-rpms>
+    <rpm id='test'>
+    <name>myrpm</name>
+    <summary>myrpm summary</summary>
+    <description>myrpm description</description>
+    <license>MIT</license>
+    <author>myrpm author</author>
+    <email>myrpm email</email>
     <files destdir="/etc/testdir">%(working-dir)s/file1</files>
     <files destdir="/etc/testdir" destname="file4">
            %(working-dir)s/file2</files>
@@ -71,7 +103,8 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
     <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
     <trigger trigger="python" type="triggerpostun" 
              interpreter="/usr/bin/python">print triggerpostun</trigger>
-  </config-rpm>
+    </rpm>
+  </config-rpms>
   """ % { 'working-dir': BUILD_ROOT }]
 
   def __init__(self, distro, version, arch, conf=None):
@@ -103,18 +136,18 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
 class Test_ConfigRpmInputs(ConfigRpmInputsEventTestCase):
   "test config-rpm inputs"
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until=self.eventid)
     self.check_inputs('files')
 
-class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
+class Test_ConfigRpmBuild(ConfigRpmInputsEventTestCase):
   "test config-rpm build"
   def setUp(self):
-    ConfigRpmEventTestCase.setUp(self)
+    ConfigRpmInputsEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until=self.eventid)
     self.check_header()
 
 class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
@@ -125,7 +158,7 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until=self.eventid)
     self.check_cvars()
 
 class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
@@ -135,14 +168,17 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until=self.eventid)
     self.check_cvars()
+
 
 class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
-  _conf = """<config-rpm>
+  _conf = """<config-rpms>
+  <rpm id='test'>
     <files content="text">test</files>
-  </config-rpm>"""
+  </rpm>
+  </config-rpms>"""
 
   def setUp(self): pass
 
@@ -186,10 +222,11 @@ class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
     DeployMixinTestCase.runTest(self)    
 
 def make_suite(distro, version, arch, *args, **kwargs):
-  suite = ModuleTestSuite('config-rpm')
+  suite = ModuleTestSuite('config-rpms')
 
   suite.addTest(make_extension_suite(ConfigRpmEventTestCase, distro, 
                                      version, arch))
+  suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))

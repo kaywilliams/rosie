@@ -234,7 +234,25 @@ class DefinitionValidator(BaseConfigValidator):
       start_elem.remove(opt_elem)
     return schema
 
+#------ HELPER METHODS ------#
+def check_dup_ids(element=None, config=None, xpath=None):
+  """accepts an element name,  a ConfigElement object and an xpath. Checks
+     the xpath for duplicates and raises an error containing the element name
+     and duplicates found""" 
 
+  dups = []
+  ids = config.xpath(xpath, [])
+  for id in ids:
+    if ids.count(id) > 1: dups.append(id)
+
+  if dups:
+     raise DuplicateIdsError(element=element, dups=', '.join(dups))
+
+class DuplicateIdsError(CentOSStudioEventError):
+  message = ("Error: Duplicate ids found while validating the '%(element)s' "
+             "element. The duplicate ids are '%(dups)s'")
+
+ 
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
   def __str__(self):

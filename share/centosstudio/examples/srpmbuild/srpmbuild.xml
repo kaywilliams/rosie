@@ -6,11 +6,11 @@
 <fullname>RPM Build Virtual Machine</fullname>
 </main>
 
-<config-rpm>
+<config-rpms>
 <!-- ssh configuration -->
 <xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/config-rpm/*)"/>
-</config-rpm>
+            xpointer="xpointer(/*/config-rpms/*)"/>
+</config-rpms>
 
 <publish password='srpmbuild' hostname='%{id}.local'>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
@@ -83,7 +83,7 @@ done
 </post>
 
 <xi:include href="../common/deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='config-rpm' and
+            xpointer="xpointer(/*/*[name()!='config-rpms' and
                                     name()!='kickstart' and
                                     name()!='trigger' and
                                     name()!='install' and

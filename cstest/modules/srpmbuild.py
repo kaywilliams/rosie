@@ -51,6 +51,25 @@ class TestSrpmTestCase(EventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     EventTestCase.__init__(self, distro, version, arch, conf=conf)
 
+class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
+  "raises an error if multiple rpms provide the same id"
+  _conf = """
+  <srpmbuild>
+  <srpm id="test"/>
+  <srpm id="test"/>
+  </srpmbuild>
+  """
+
+  def setUp(self): pass
+
+  def runTest(self):
+    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
+      TestBuild, self.conf, self.options, [])
+
+  def tearDown(self):
+    del self.conf
+
+
 class Test_Config(TestSrpmTestCase):
   "fails if path, repo or script elements not provided"
   _conf = """
@@ -186,6 +205,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
 
   if check_vm_config():
     suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
+    suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
     suite.addTest(Test_Config(distro, version, arch))
     suite.addTest(Test_FromFolder(distro, version, arch))
     suite.addTest(Test_FromRepo(distro, version, arch))

@@ -8,7 +8,7 @@ TRIGGER_INFO=%{trigger-file}
 echo "
 last_triggers='%{triggers}'
 last_release_rpm='%{release_rpm}'
-last_config_rpm='%{config_rpm}'
+last_config_rpms='%{config_rpms}'
 last_kickstart='%{kickstart}'
 last_treeinfo='%{treeinfo}'
 last_install_scripts='%{install_scripts}'

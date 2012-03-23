@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012
+# Copyright (c) 2011
 # CentOS Solutions, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -15,70 +15,89 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import re
 import hashlib
 
-from centosstudio.util  import pps
-from centosstudio.event import Event
+
+from centosstudio.errors   import CentOSStudioEventError
+from centosstudio.event    import Event
+from centosstudio.util     import pps
+from centosstudio.validate import check_dup_ids
 
 from centosstudio.modules.shared import (MkrpmRpmBuildMixin, 
                                           Trigger, 
                                           TriggerContainer)
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
-  config_mixin_version = "1.24"
+  config_mixin_version = "1.00"
 
-  def __init__(self, rpmxpath=None): # call after creating self.DATA
-    self.conditionally_requires.add('packages')
-    self.rpmxpath = rpmxpath or '.'
-
-    MkrpmRpmBuildMixin.__init__(self,
-      '%s-config' % self.name,   
-      "The %s-config package provides scripts and files for configuring " 
-      "packages from the %s repository." % (self.name, self.fullname),
-      "%s configuration" % self.fullname,
-      requires = ['coreutils']
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'config-rpm-%s' % self.rpmid,
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      version = 1.00,
+      provides = 'config-rpms',
+      config_base = '/*/%s/rpm[@id=\'%s\']' % (self.moduleid, self.rpmid),
     )
+ 
+    self.conditionally_requires.add('packages')
+    self.options = ptr.options # options not exposed as shared event attr
+
+    self.DATA = {
+      'input':     [],
+      'config':    ['.'],
+      'variables': [],
+      'output':    [],
+    }
+
+    MkrpmRpmBuildMixin.__init__(self)
 
   def validate(self):
+    # FIXME add validation to ensure unique rpmids
     self.io.validate_destnames([ path for path in 
-      self.config.xpath((self.rpmxpath + '/files'), [] ) ])
+      self.config.xpath(('files'), [] ) ])
 
-  def setup(self, files_cb=None, files_text="downloading files",
-            **kwargs):
+  def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
-    self.DATA['config'].append(self.rpmxpath)
 
-    self.masterrepo = '%s-%s' % (self.name, 
-                      hashlib.md5(self.repoid).hexdigest()[-6:])
-    self.files_cb = files_cb
-    self.files_text = files_text
+    name = self.config.get('name/text()',
+       "%s-%s-config" % (self.name, self.rpmid))
+    desc = self.config.get('description/text()', 
+       "The %s-%s-config package provides configuration files and scripts for "
+       "the %s repository." % (self.name, self.rpmid, self.fullname))
+    summary = self.config.get('summary/text()', 
+       '%s %s configuration' % (self.fullname, self.rpmid))
+    license = self.config.get('license/text()', 'GPL')
+    author = self.config.get('author/text()', 'None')
+    email = self.config.get('email/text()', 'None')
 
-    MkrpmRpmBuildMixin.setup(self, **kwargs)
+    MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
+                             license=license, author=author, email=email, 
+                             requires = ['coreutils'])
 
     self.libdir      = getattr(self, 'test_lib_dir', self.LIB_DIR)
-    self.scriptdir   = self.rpm.build_folder/'scripts'
+    self.scriptdir   = self.build_folder/'scripts'
     self.rootinstdir = self.libdir / 'config' 
-    self.installdir  = self.rootinstdir/self.name
+    self.installdir  = self.rootinstdir/name
     self.filerelpath = self.installdir/'files'
-    self.srcfiledir  = self.rpm.source_folder // self.filerelpath
+    self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
     # add files for synchronization to the build folder
-    self.io.add_xpath('files', self.srcfiledir, 
-                      destdir_fallback = self.filerelpath, 
-                      id = 'files', allow_text=True)
+    self.io.add_xpath('files', self.srcfiledir) 
 
     # add triggers for synchronization to scripts folder
-    for script in self.config.xpath('%s/trigger' % self.rpmxpath, []):
+    for script in self.config.xpath('trigger', []):
       self.io.add_xpath(self._configtree.getpath(script),
                         self.scriptdir, destname='%s-%s' % (
-                        script.get('@type'), script.get('@trigger')), 
+                        script.get('@type'), script.get('@trigger')),
                         content='text', allow_text=True,
                         id='triggers')
 
     # copies of user-provided scripts and triggers go here for easier 
     # user debugging
-    self.debugdir    = self.rpm.source_folder // self.installdir
+    self.debugdir    = self.source_folder // self.installdir
     self.debug_postfile = self.debugdir/'config-post-script'
 
   def run(self):
@@ -86,22 +105,21 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
   def apply(self):
     MkrpmRpmBuildMixin.apply(self)
-    self.cvars['config-rpm-name'] = self.rpm.name
+    self.cvars.setdefault('config-rpms', []).append(self.rpminfo['name'])
 
   def generate(self):
     for what in ['files', 'triggers']:
-      self.io.process_files(cache=True, callback=self.files_cb, 
-                            text=self.files_text, what=what)
+      self.io.process_files(cache=True, what=what)
 
     self._generate_files_checksums()
-    self.files =  [ x[len(self.srcfiledir):] 
+    self.files =  [ x[len(self.srcfiledir):]
                     for x in self.srcfiledir.findpaths(
                     type=pps.constants.TYPE_NOT_DIR, mindepth=1 )]
 
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
     determining whether to backup existing files at install time."""
-    md5file =  self.rpm.source_folder // self.md5file 
+    md5file =  self.rpm.source_folder // self.md5file
 
     lines = []
 
@@ -140,7 +158,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def get_triggers(self):
     triggers = TriggerContainer()
 
-    for elem in self.config.xpath('%s/trigger' % self.rpmxpath, []):
+    for elem in self.config.xpath('trigger', []):
       key   = elem.get('@trigger')
       id    = elem.get('@type')
       inter = elem.get('@interpreter', None)
@@ -177,7 +195,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     script = ''
 
     script += 'file=%s\n' % self.md5file
-
     script += '\n'.join([
       '',
       'if [ -e $file ]; then',
@@ -196,7 +213,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     """Makes a post scriptlet that installs each <file> to the given
     destination, backing up any existing files to .rpmsave"""
     script = ''
-
     # move support files as needed
     script += 'files="%s"' % '\n      '.join(self.files)
     script += '\nmd5file=%s\n' % self.md5file
@@ -271,7 +287,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 files="%(files)s"
 s=%(relpath)s
 mkdirs=%(installdir)s/mkdirs
-
 for f in $files; do
   if [ ! -e $s/$f ]; then # file missing from source folder
     if [ -e $f ]; then    #file exists on disk
@@ -351,10 +366,9 @@ fi
     Also, saves these to a file which is included in the rpm and installed
     to client machines for debugging purposes."""
     scripts = []
-    for elem in self.config.xpath('%s/script[@type="%s"]' 
-                                   % (self.rpmxpath, script_type), []):
+    for elem in self.config.xpath('script[@type="%s"]'
+                                   % script_type, []):
       scripts.append(elem.text)
-
     if scripts:
       #write file for inclusion in rpm for end user debugging
       s = scripts[:]
@@ -384,3 +398,54 @@ fi
       return self.scriptdir/id
     else:
       return None
+
+# ------ Metaclass for creating SRPM Build Events -------- #
+class ConfigRpmsEvent(type):
+  def __new__(meta, classname, supers, classdict):
+    return type.__new__(meta, classname, supers, classdict)
+
+def __init__(self, ptr, *args, **kwargs):
+  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
+
+
+# -------- provide module information to dispatcher -------- #
+def get_module_info(ptr, *args, **kwargs):
+  module_info = dict(
+    api         = 5.0,
+    events      = [ ],
+    description = 'modules that create RPMs based on user-provided configuration',
+  )
+
+  # ensure unique rpm ids
+  check_dup_ids(element = __name__.split('.')[-1],
+                config = ptr.definition,
+                xpath = '/*/config-rpms/rpm/@id')
+
+  # create event classes based on user configuration
+  for config in ptr.definition.xpath('/*/config-rpms/rpm', []):
+
+    # convert user provided id to a valid class name
+    id = config.get('@id')
+    name = re.sub('[^0-9a-zA-Z_]', '', id)
+    name = '%sConfigRpmEvent' % name.capitalize()
+
+    # create new class
+    exec """%s = ConfigRpmsEvent('%s', 
+                         (ConfigRpmEventMixin,), 
+                         { 'rpmid'   : '%s',
+                           '__init__': __init__,
+                         }
+                        )""" % (name, name, id) in globals()
+
+    # update module info with new classname
+    module_info['events'].append(name)
+
+  return module_info
+
+
+# -------- Error Classes --------#
+class ConfigRpmEventError(CentOSStudioEventError): 
+  message = "%(message)s"
+
+class DuplicateIdsError(ConfigRpmEventError):
+  message = "%(message)s"

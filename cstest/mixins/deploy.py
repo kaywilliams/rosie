@@ -55,11 +55,11 @@ class DeployMixinTestCase:
       packages = rxml.config.Element('packages', parent=self.conf)
     packages.extend(pkgcontent.xpath('/*/*'))
 
-    # update config-rpm
-    config_rpm = self.conf.get('/*/config-rpm', None)
-    if config_rpm is None:
-      config_rpm = rxml.config.Element('config-rpm', parent=self.conf)
-    config_rpm.extend(deploy.xpath('/*/config-rpm/*'))
+    # update config-rpms
+    config_rpms = self.conf.get('/*/config-rpms', None)
+    if config_rpms is None:
+      config_rpms = rxml.config.Element('config-rpms', parent=self.conf)
+    config_rpms.extend(deploy.xpath('/*/config-rpms/rpm'))
 
     # update module
     self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
@@ -79,7 +79,7 @@ class DeployMixinTestCase:
 
     mod.extend(deploy.xpath(("/*/*[name()!='post' and "
                                   "name()!='trigger' and "
-                                  "name()!='config-rpm']")))
+                                  "name()!='config-rpms']")))
 
 
   def runTest(self):

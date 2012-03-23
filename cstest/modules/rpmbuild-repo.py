@@ -35,9 +35,11 @@ class Test_Obsoletes(RpmbuildRepoTestCase):
 
   # add an obsolete to the config rpm
   _conf="""
-  <config-rpm>
+  <config-rpms>
+  <rpm id='test'>
   <obsoletes>test-package</obsoletes>
-  </config-rpm>
+  </rpm>
+  </config-rpms>
   """
 
   def setUp(self):

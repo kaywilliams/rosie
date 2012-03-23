@@ -16,7 +16,7 @@
         <zeroOrMore>
         <element name="srpm">
 
-          <attribute name="id"><data type="ID"/></attribute>
+          <attribute name="id"/>
           <optional>
           <attribute name="copy"><ref name="value-boolean"/></attribute>
           </optional>

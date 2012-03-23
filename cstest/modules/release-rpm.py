@@ -113,11 +113,13 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
                                     ReleaseRpmEventTestCase):
   _conf = 'system'
   _conf = ["""
-    <config-rpm>
+    <config-rpms>
+      <rpm id='test'>
       <files destdir='/root' destname='keyids' content='text'>
       dummy text - to be replaced at runtime
       </files>
-    </config-rpm>
+      </rpm>
+    </config-rpms>
     """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):
@@ -128,7 +130,7 @@ class Test_TestMachineSetup(DeployReleaseRpmEventTestCase):
   _conf = [ """
   <publish>
   <post>
-  <script id='config-rpm'>
+  <script id='config-rpms'>
   #!/bin/bash
   set -e
   yum sync -y
@@ -151,9 +153,9 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # keyids change across test runs, so if keys are not updating
     # properly you will see an error during the next run. This should
     # be improved so that issues appear during the same run...
-    files = self.event._config.get('/*/config-rpm/files')
+    files = self.event._config.get('/*/config-rpms/rpm/files')
     files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
-    self.tb.dispatch.get('config-rpm').status = True # force config-rpm
+    self.tb.dispatch.get('config-rpm-test').status = True # force config-rpm
 
     # set post script for deploy - doing this after centosstudio
     # resolves global macros on the definition so macro replacement 

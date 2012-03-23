@@ -38,8 +38,8 @@ class DeployEventMixin:
 
   def __init__(self, *args, **kwargs):
     self.requires.add('%s-setup-options' % self.moduleid,)
-    self.conditionally_requires.update(['rpmbuild-data', 'release-rpm-name'
-                                        'config-rpm-name'])
+    self.conditionally_requires.update(['rpmbuild-data', 'release-rpm'
+                                        'config-rpms'])
 
     # we're doing this in init rather than in validate (where it 
     # should technically be) so that if no scripts are present
@@ -123,7 +123,7 @@ class DeployEventMixin:
     # resolve trigger macros 
     trigger_data = { 
       'release_rpm':         self._get_rpm_csum('release-rpm'),
-      'config_rpm':          self._get_rpm_csum('config-rpm'),
+      'config_rpms':         self._get_rpm_csum('config-rpms'),
       'kickstart':           self._get_csum(self.kstext),
       'treeinfo':            self._get_csum(self.cvars['base-treeinfo-text']),
       'install_scripts':     self._get_script_csum('install/script'),
@@ -184,13 +184,20 @@ class DeployEventMixin:
   def _get_csum(self, text):
     return hashlib.md5(text).hexdigest()
 
-  def _get_rpm_csum(self, rpmname):
+  def _get_rpm_csum(self, id):
     if not 'rpmbuild-data' in self.cvars:
       return self._get_csum('')
-    data = self.cvars['rpmbuild-data'].get(self.cvars['%s-name' % rpmname], '')
-    if data:
-      return self._get_csum('%s-%s-%s.%s' % (data['rpm-name'], 
-        data['rpm-version'], data['rpm-release'], data['rpm-arch']))
+    rpms = self.cvars[id]
+    if isinstance(rpms, basestring):
+      rpms = [ rpms ]
+    releases = []
+    for rpm in rpms:
+      releases.append(self.cvars['rpmbuild-data'][rpm]['rpm-release'])
+    if releases:
+      releases.sort()
+      return self._get_csum(''.join(releases)) # simple way to determine if
+                                               # any release numbers have
+                                               # changed
     else:
       return self._get_csum('')
 

@@ -28,26 +28,23 @@ from centosstudio.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
   release_mixin_version = "1.23"
 
-  def __init__(self, rpmxpath=None): # call after creating self.DATA
+  def __init__(self, rpmconf=None): # call after creating self.DATA
     self.conditionally_requires.add('packages')
-    self.rpmxpath = rpmxpath or '.'
+    self.rpmconf = rpmconf or self.config
     self.conditionally_requires.add('gpg-signing-keys')
     self.provides.update(['gpgcheck-enabled', 'gpgkeys', 'gpgkey-ids'])
 
-    MkrpmRpmBuildMixin.__init__(self,
-      '%s-release' % self.name,   
-      "The %s-release package provides yum configuration for the  " 
-      "%s repository." % (self.name, self.fullname),
-      "%s repository configuration" % self.fullname,
-      requires = ['coreutils']
-    )
+    MkrpmRpmBuildMixin.__init__(self)
 
     ShelveMixin.__init__(self)
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             **kwargs):
     self.DATA['variables'].append('release_mixin_version')
-    self.DATA['config'].append(self.rpmxpath)
+    try:
+      self.DATA['config'].append(self._configtree.getpath(self.rpmconf))
+    except TypeError:
+      pass # Dummy Config
 
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
@@ -66,13 +63,20 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.files_cb = files_cb
     self.files_text = files_text
 
-    MkrpmRpmBuildMixin.setup(self, **kwargs)
+    name = '%s-release' % self.name   
+    desc = ("The %s-release package provides yum configuration for the  " 
+            "%s repository." % (self.name, self.fullname))
+    summary =  "%s repository configuration" % self.fullname
+    requires = ['coreutils']
+
+    MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary,
+                             requires=requires)
 
     self.DATA['variables'].extend(['masterrepo', 'webpath', 'local_keydir', 
                                    'remote_keydir', 'keylist'])
 
     # setup yum plugin (unless disabled or non-system type repo)
-    if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
+    if (self.rpmconf.getbool('updates/@sync', True) and
         self.type == 'system'):
       self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
       self.plugin_hash = hashlib.sha224('/n'.join(
@@ -87,9 +91,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
 
     # setup gpgkeys
-    self.cvars['gpgcheck-enabled'] = self.config.getbool(
-                                     '%s/updates/@gpgcheck' % self.rpmxpath,
-                                     True)
+    self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
+                                     'updates/@gpgcheck', True)
 
     if not self.cvars['gpgcheck-enabled']:
       return
@@ -140,7 +143,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
     # generate repofile
     self._generate_repofile()
-    if (self.config.getbool('%s/updates/@sync' % self.rpmxpath, True) and
+    if (self.rpmconf.getbool('updates/@sync', True) and
         self.type == "system"):
       self.rpm.requires.append('yum')
       self._include_sync_plugin()
@@ -203,7 +206,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     MkrpmRpmBuildMixin.apply(self)
     self.cvars['gpgkeys'] = [ self.local_keydir / x 
                               for x in self.unshelve('keys', []) ]
-    self.cvars['release-rpm-name'] = self.rpm.name
 
 
 class GPGKeyError(CentOSStudioEventError):

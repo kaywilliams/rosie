@@ -115,17 +115,19 @@ class Test_ReinstallOnReleaseRpmChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.event.cvars['rpmbuild-data'][self.event.cvars['release-rpm-name']][
-                     'rpm-release'] += '1'
+    name = self.event.cvars['release-rpm']
+    self.event.cvars['rpmbuild-data'][name]['rpm-release'] += '1'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
 
 class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
   "reinstalls if config-rpm changes"
   _conf = ["""
-  <config-rpm>
+  <config-rpms>
+  <rpm id='test'>
   <script type='post'>echo 'hello'</script>
-  </config-rpm>
+  </rpm>
+  </config-rpms>
   """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):

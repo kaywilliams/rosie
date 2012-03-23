@@ -35,6 +35,7 @@ from centosstudio.util         import magic
 from centosstudio.util         import pps 
 from centosstudio.util         import rxml 
 from centosstudio.util         import sshlib 
+from centosstudio.validate     import check_dup_ids
 
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
@@ -317,14 +318,16 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     root.append(main)
 
-    # add srpm requires to config-rpm
-    config = root.get('/*/config-rpm', rxml.config.Element('config-rpm'))
-    child = rxml.config.Element('files', parent=config)
+    # add config-rpm for srpm requires
+    config = root.get('/*/config-rpms', rxml.config.Element('config-rpms'))
+    rpm = rxml.config.Element('rpm', parent=config, 
+                              attrs={'id': '%s' % self.srpmid})
+    child = rxml.config.Element('files', parent=rpm)
     child.set('destdir', self.originals_dir)
     child.text = self.srpmfile
 
     for req in requires:
-      child = rxml.config.Element('requires', parent=config)
+      child = rxml.config.Element('requires', parent=rpm)
       child.text = req
 
     if root.find('config') is None:
@@ -433,6 +436,11 @@ def get_module_info(ptr, *args, **kwargs):
     events      = [ ],
     description = 'modules that accept SRPMs and build RPMs',
   )
+
+  # ensure unique srpm ids
+  check_dup_ids(element = __name__.split('.')[-1],
+                config = ptr.definition,
+                xpath = '/*/srpmbuild/srpm/@id')
 
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
