@@ -37,7 +37,7 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   we test the functioning of that class.
   """
   moduleid = 'config-rpms'
-  eventid  = 'config-rpm-test'
+  eventid  = 'test-config-rpm'
   _type = 'package'
   _conf = ["""<config-rpms>
   <rpm id='test'>

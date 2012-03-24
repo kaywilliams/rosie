@@ -36,7 +36,7 @@ class TestSrpmTestCase(EventTestCase):
   we test the functioning of that class
   """
   moduleid = 'srpmbuild'
-  eventid  = 'srpmbuild-package1'
+  eventid  = 'package1-srpm'
   _type = 'package'
 
   _run_make(REPODIR)
