@@ -142,6 +142,8 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
   """
   Mixin for creating rpms from scratch using util.mkrpm
   """
+  mkrpmbuild_mixin_version = "1.00"
+
   def __init__(self, *args, **kwargs):
     RpmBuildMixin.__init__(self)
     self.provides.add('%s-name' % self.moduleid)
@@ -178,7 +180,8 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     self.source_folder = self.build_folder / 'source'
 
     self.diff.setup(self.DATA)
-    self.DATA.setdefault('variables', []).extend(['rpminfo', 'force_release'])
+    self.DATA.setdefault('variables', []).extend(['mkrpmbuild_mixin_version', 
+                                                  'rpminfo', 'force_release'])
 
     RpmBuildMixin.setup(self) # deals with gpg signing
 
