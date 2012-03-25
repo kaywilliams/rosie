@@ -180,7 +180,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       params = dict( 
         hostname     = builder.cvars['publish-setup-options']['hostname'],
         password     = builder.cvars['publish-setup-options']['password'],
-        key_filename = builder.cvars['publish-setup-options']['ssh_secfile'],
+        key_filename = builder.cvars['publish-setup-options']['ssh-secfile'],
         username     = 'root',
         port         = 22,)
 
