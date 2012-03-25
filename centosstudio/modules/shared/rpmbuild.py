@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2012
 # CentOS Solutions, Inc. All rights reserved.
 #
@@ -222,7 +222,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     else: # bump calculated release  
       self.datfile = datfile.parse(basefile=self._config.file)
       release = self.datfile.get('/*/%s/release/text()' %
-                                (self.moduleid), '0')
+                                (self.id), '0')
       return str(int(release)+1)
 
   def _save_release(self, release):
