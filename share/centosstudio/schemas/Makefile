@@ -1,4 +1,4 @@
-SUBDIRS = solution 
+SUBDIRS = repo 
 
 .PHONY: all clean install
 

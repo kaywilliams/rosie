@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- srpmbuild-5-i386 -->
 
@@ -30,4 +30,4 @@
                                     name()!='repos' and
                                     name()!='packages'])"/>
 
-</solution>
+</repo>

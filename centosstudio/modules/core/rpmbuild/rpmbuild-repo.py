@@ -97,9 +97,9 @@ class RpmbuildRepoEvent(Event):
     self.log(4, L1("copying packages"))
     if self.cvars['rpmbuild-data']:
       self.io.process_files(what='rpmbuild-rpms', callback=self.link_callback,
-                         text=self.log(4, L2("Linking RPMS")))
+                         text=self.log(4, L2("linking RPMS")))
       self.io.process_files(what='rpmbuild-srpms', callback=self.link_callback,
-                         text=self.log(4, L2("Linking SRPMS")))
+                         text=self.log(4, L2("linking SRPMS")))
 
     # run createrepo
     self.log(4, L1("creating repository metadata"))

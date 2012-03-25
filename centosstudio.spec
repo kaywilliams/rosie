@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.0.31
+Version: 1.0.32
 Release: 1%{?dist}
 Summary: Platform for delivering CentOS and RHEL-based systems and applications
 
@@ -39,7 +39,7 @@ Requires: xz
 Requires: /sbin/rngd
 
 %description
-CentOS Studio is a complete platform for to automate build, test, deployment
+CentOS Studio is a complete platform to automate build, test, deployment
 and maintenance for systems and applications based on  CentOS and Red Hat
 Enterprise Linux. See http://www.centossolutions.com for more information. 
 
@@ -71,7 +71,7 @@ Enterprise Linux. See http://www.centossolutions.com for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Mon Jan 30 2012 Kay Williams <kwilliams@centossolutions.com> - 1.0.31-1
+* Sun Mar 25 2012 Kay Williams <kwilliams@centossolutions.com> - 1.0.32-1
 - Beta 1 Build
 
 * Mon Jul 08 2011 Kay Williams <kwilliams@centossolutions.com> - 0.9.1-1

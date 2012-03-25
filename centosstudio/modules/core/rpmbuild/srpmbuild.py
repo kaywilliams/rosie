@@ -346,7 +346,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       root.append(parent_repos)
     if parent_repos is not None and child_repos is not None:
       for repo in parent_repos.xpath('repo'):
-        child_repo = child_repos.get("repo[@id='%s']" % repo.attrib['id'], '')
+        child_repo = child_repos.get("repo[@id='%s']" % repo.attrib['id'], None)
         if child_repo is not None: child_repos.remove(child_repo)
         child_repos.append(repo)
 
