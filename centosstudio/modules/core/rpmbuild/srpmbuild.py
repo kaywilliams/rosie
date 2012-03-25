@@ -176,11 +176,13 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     self.shutdown = self.config.getbool('@shutdown', False)
 
     if self.copy or self.shutdown:
+      # todo - share this with deploy
       params = dict( 
-        hostname = builder.cvars['publish-setup-options']['hostname'],
-        password = builder.cvars['publish-setup-options']['password'],
-        username = 'root',
-        port     = 22,)
+        hostname     = builder.cvars['publish-setup-options']['hostname'],
+        password     = builder.cvars['publish-setup-options']['password'],
+        key_filename = builder.cvars['publish-setup-options']['ssh_secfile'],
+        username     = 'root',
+        port         = 22,)
 
       try:
         client = self._ssh_connect(params, log_format="L1") 

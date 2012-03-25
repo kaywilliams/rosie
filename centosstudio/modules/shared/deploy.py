@@ -87,11 +87,13 @@ class DeployEventMixin:
     self.DATA['input'].append(self.repomdfile)
 
     # setup ssh values
+    # todo - share this with srpmbuild
     self.ssh = dict(
-      enabled  =  self.cvars[self.cvar_root]['ssh'],
-      hostname = self.cvars[self.cvar_root]['hostname'],
-      port     = 22,
-      username = 'root',
+      enabled      = self.cvars[self.cvar_root]['ssh'],
+      hostname     = self.cvars[self.cvar_root]['hostname'],
+      key_filename = self.cvars[self.cvar_root]['ssh-secfile'],
+      port         = 22,
+      username     = 'root',
       )
 
     for key in self.ssh:

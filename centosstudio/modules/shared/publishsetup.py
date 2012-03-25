@@ -54,7 +54,7 @@ class PublishSetupEventMixin:
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
     self.ssh = self.config.get('@ssh', True)
-    self.ssh_pubfile = self.get_ssh_pubfile()
+    self.ssh_pubfile, self.ssh_secfile = self.get_ssh_keys()
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
@@ -85,7 +85,7 @@ class PublishSetupEventMixin:
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'password', 'ssh', 
+    for attribute in ['hostname', 'password', 'ssh', 'ssh_secfile', 
                       'webpath', 'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -203,7 +203,7 @@ class PublishSetupEventMixin:
       salt = '$6$' + salt
     return crypt(password, salt)
 
-  def get_ssh_pubfile(self):
+  def get_ssh_keys(self):
     secret = pps.path('/root/.ssh/id_rsa')
     public = secret + '.pub'
     if not secret.exists():
@@ -220,7 +220,7 @@ class PublishSetupEventMixin:
     # setup to copy file to mddir so that user scripts can't harm the original  
     self.io.add_fpath(public, self.mddir, id='keyfile')
 
-    return self.mddir / public.basename
+    return (self.mddir/public.basename, secret)
 
   def write_datfile(self):
   
