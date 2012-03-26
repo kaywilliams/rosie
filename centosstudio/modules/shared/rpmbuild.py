@@ -221,7 +221,8 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def _get_release(self):
     if self.force_release: # use provided release
-      release = self.force_release
+      return str(self.force_release)
+
     else: # bump calculated release  
       self.datfile = datfile.parse(basefile=self._config.file)
       release = self.datfile.get('/*/%s/release/text()' %

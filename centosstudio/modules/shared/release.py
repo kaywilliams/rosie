@@ -39,7 +39,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     ShelveMixin.__init__(self)
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
-            **kwargs):
+            force_release=None):
     self.DATA['variables'].append('release_mixin_version')
     try:
       self.DATA['config'].append(self._configtree.getpath(self.rpmconf))
@@ -70,7 +70,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     requires = ['coreutils']
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary,
-                             requires=requires)
+                             requires=requires, force_release=force_release)
 
     self.DATA['variables'].extend(['masterrepo', 'webpath', 'local_keydir', 
                                    'remote_keydir', 'keylist'])

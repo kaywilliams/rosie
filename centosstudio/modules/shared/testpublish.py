@@ -47,7 +47,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
 
-    self.conditionally_requires.update(['release-rpms', 'rpmbuild-data'])
+    self.conditionally_requires.update(['release-rpm', 'rpmbuild-data'])
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -68,13 +68,13 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     try:
       self.release = self.release_rpmdata['rpm-release']
       ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
-                         release=self.release,
+                         force_release=self.release,
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2(
                            "gathering release-rpm content")))
       self.DATA['variables'].append('release')
     except KeyError:
-      # release rpm not created
+      # release-rpm event disabled
       pass
 
     # kickstart 
