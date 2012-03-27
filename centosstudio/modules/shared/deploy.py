@@ -174,6 +174,7 @@ class DeployEventMixin:
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise CentOSStudioError('test fail on reinstall')
       self._execute('install')
+      self._execute('activate')
       self._execute('post-install')
       self._execute('post')
 
