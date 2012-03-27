@@ -120,6 +120,16 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
       </files>
       </rpm>
     </config-rpms>
+  """,
+  """
+  <publish>
+  <post>
+  <script id='update'>
+  #!/bin/bash
+  yum sync -y
+  </script>
+  </post>
+  </publish>
     """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):
@@ -127,21 +137,6 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
 
 class Test_TestMachineSetup(DeployReleaseRpmEventTestCase):
   "setting up an initial test machine"
-  _conf = [ """
-  <publish>
-  <post>
-  <script id='update'>
-  #!/bin/bash
-  set -e
-  yum sync -y
-  </script>
-  </post>
-  </publish>
-  """ ]
-
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    DeployReleaseRpmEventTestCase.__init__(self, distro, version, arch, 
-                                           module='publish')
 
 
 class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
@@ -163,8 +158,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # doesn't blast the rpm qf string (%{version})
     publish = self.event._config.get('/*/publish')
     post = publish.get('post', rxml.config.Element('post', parent=publish))
-    post_script = rxml.config.Element('script', parent=post, 
-                                      attrs={'id':'release-rpm'})
+    post_script = rxml.config.Element('script', attrs={'id':'release-rpm'})
     post_script.text = """ 
       #!/bin/bash
       set -e
@@ -173,10 +167,11 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
         [[ $installed == *$expected* ]] || echo \
 "Error: a key listed in the keyids file is not installed:
 expected:  $expected
-installed: $installed" &gt;&amp;2
+installed: $installed" >&2
       done
       """
 
+    post.append(post_script)
     self.tb.dispatch.execute(until='deploy')
 
 def make_suite(distro, version, arch, *args, **kwargs):
