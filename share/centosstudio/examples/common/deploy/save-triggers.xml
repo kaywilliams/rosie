@@ -13,5 +13,5 @@ last_kickstart='%{kickstart}'
 last_treeinfo='%{treeinfo}'
 last_install_scripts='%{install_scripts}'
 last_post_install_scripts='%{post_install_scripts}'
-" &gt; $TRIGGER_INFO
+" > $TRIGGER_INFO
 </script>

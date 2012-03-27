@@ -8,7 +8,7 @@ FAIL=0
 # create function to handle trigger failures
 fail () {
 FAIL=1
-echo "$1 changed" &gt;&amp;2
+echo "$1 changed" >&amp;2
 }
 
 # get last trigger variables
