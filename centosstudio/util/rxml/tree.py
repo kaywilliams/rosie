@@ -18,6 +18,7 @@
 import codecs
 import lxml.etree
 import lxml.sax
+import re
 
 from StringIO import StringIO
 
@@ -160,6 +161,89 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
 
   def haschild(self, child):
     return len(self.xpath(child, [])) > 0
+
+  def replace(self, map):
+    "performs string replacement across all attributes and text elements"
+    for key in map:
+      for elem in self.iter():
+        for attr in elem.attrib.keys():
+          if key in elem.attrib[attr]:
+            elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
+        if elem.get('text()', None) is not None:
+          if key in elem.get('text()'):
+            elem.text = elem.get('text()').replace(key, map[key])
+
+  def resolve_macros(self, xpaths=None, map=None):
+    """
+    Processes macro elements (reads and removes) and resolves macro variables.
+    Macro elements take the format '<macro id='name'>value</macro>'. They can
+    be defined at any level of the element. Macro variables use the syntax
+    '%{name}'. Macro variables can occur in element nodes and attributes.
+
+    Keyword arguments: 
+    xpaths -- a list of xpath queries to be searched for macros. The
+    provided queries must return element nodes. The default value is '['/*']',
+    meaning that resolve_macros will search for macros only at the top-level
+    of the element. To search for macros at any level, provide a dot character 
+    in the xpath string, e.g. ['.'].
+    
+    map -- a dictionary containing existing macro definitions to use in
+    addition to any discovered macros, e.g.
+
+        map = {'%{name1}: 'value1'
+                %{name2}: 'value2'}
+    """
+    xpaths = xpaths or ['/*']
+    map = map or {}
+
+    # locate and remove macro definitions
+    for item in xpaths:
+      if item == '.':
+        item = '/'
+      for elem in self.xpath('%s/macro' % item, []):
+
+        try:
+          name = '%%{%s}' % elem.attrib['id']
+        except KeyError:
+          message = ("\nError resolving macros in '%s'\n  Missing required 'id' attribute. The invalid section is:\n%s\n" % (self.getroot().file, tree.XmlTreeElement.tostring(elem, lineno=True)))
+          raise errors.ConfigError(message)
+
+        if name not in map:
+          map[name] = elem.get('text()', '')
+        else:
+          message = ("\nError resolving macros in '%s'\n  Duplicate macros found with the id '%s'. The invalid section is:\n%s\n" % (self.getroot().file, elem.attrib['id'], tree.XmlTreeElement.tostring(elem, lineno=True)))
+          raise errors.ConfigError(message)
+
+        elem.getparent().remove(elem)
+
+    # resolve macros in map - recursive
+    p = re.compile('%{[^}]*}')
+    for macro in map:
+      unknown = set() # ignore unknown macros, perhaps they aren't really macros
+      resolved = False
+      while resolved == False: # loop until all macros are resolved or unknown
+        remaining = set(p.findall(map[macro])).difference(unknown)
+        if remaining: 
+          for match in remaining:
+            if match in map.keys():
+              map[macro] = map[macro].replace(match, map[match])
+            else:
+              unknown.add(match)
+        else: 
+          resolved = True
+
+    # check for circular references
+    for key in map:
+      if key in map[key]:
+        message = ("Macro Resolution Error: The macro value '%s' contains "
+                   "a circular reference to the macro name '%s'." % 
+                   (map[key], key))
+        raise errors.ConfigError(message)
+
+    # expand macros
+    for item in xpaths:
+      for elem in self.xpath(item.rstrip('/'), []):
+        elem.replace(map)
 
   def write(self, file):
     file = pps.path(file)
