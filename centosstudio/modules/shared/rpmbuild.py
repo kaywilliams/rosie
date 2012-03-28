@@ -30,7 +30,7 @@ from centosstudio.errors    import CentOSStudioEventError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.util.rxml import datfile 
+from centosstudio.util.rxml import datfile
 
 from centosstudio.modules.shared import ShelveMixin
 
@@ -224,13 +224,13 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
       return str(self.force_release)
 
     else: # bump calculated release  
-      self.datfile = datfile.parse(basefile=self._config.file)
+      self.datfile = self.parse_datfile()
       release = self.datfile.get('/*/%s/release/text()' %
                                 (self.id), '0')
       return str(int(release)+1)
 
   def _save_release(self, release):
-    root = datfile.parse(basefile=self._config.file)
+    root = self.parse_datfile()
     uElement = datfile.uElement
     parent   = uElement(self.id, parent=root)
     child    = uElement('release', parent=parent, text=release)

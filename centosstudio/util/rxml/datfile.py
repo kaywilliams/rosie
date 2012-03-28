@@ -26,13 +26,13 @@ class DatfileElement(config.ConfigElement):
 
   def write(self):
     datfn = self.file
-    configfn = datfn[:-len('.dat')]
 
     config.ConfigElement.write(self, datfn)
 
-    if configfn.exists():
+    base = pps.path(self.base)
+    if base and base.exists():
       # set the mode and ownership of .dat file to match basefile.
-      st = configfn.stat()
+      st = base.stat()
       datfn.chown(st.st_uid, st.st_gid)
       datfn.chmod(st.st_mode)
 
@@ -58,12 +58,11 @@ def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
   if text is None: t.text = None
   return t
 
-def parse(basefile, handler=None, parser=PARSER):
+def parse(datfn, basefn, handler=None, parser=PARSER):
   """Accepts a base filename and parses a corresponding '.dat' file, creating
 the datfile if necessary"""
 
-  pps.path(basefile)
-  datfn = (basefile.dirname / basefile.basename + '.dat')
+  datfn = pps.path(datfn)
   datfn.dirname.mkdirs()
 
   if datfn.exists():
@@ -75,6 +74,7 @@ the datfile if necessary"""
     datfile = Element('data')
 
   datfile.file = datfn
+  datfile.base = basefn
 
   return datfile
 

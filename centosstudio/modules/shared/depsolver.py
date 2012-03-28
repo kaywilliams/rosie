@@ -27,6 +27,7 @@ from centosstudio.util.depsolver.depsolver import DepsolveError
 
 from centosstudio.callback import PkglistCallback, TimerCallback
 from centosstudio.cslogging  import L1
+from centosstudio.main     import ARCH_MAP
 
 YUMCONF_HEADER = [
   '[main]',
@@ -66,7 +67,7 @@ class DepsolverMixin(object):
       user_required = self.user_required,
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
-      arch = self.arch,
+      arch = ARCH_MAP[self.arch],
       logger = self.logger
     )
 

@@ -26,6 +26,7 @@ from centosstudio.callback import BuildDepsolveCallback
 from centosstudio.validate import InvalidEventError
 from centosstudio.event    import Event, CLASS_META
 from centosstudio.cslogging  import L1, L2, L3
+from centosstudio.main     import ARCH_MAP
 
 from centosstudio.modules.shared import ListCompareMixin, BootOptionsMixin
 
@@ -85,7 +86,7 @@ class PkgorderEvent(Event):
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,
-                             arch=self.arch,
+                             arch=ARCH_MAP[self.arch],
                              callback=BuildDepsolveCallback(self.logger))
 
     # cleanup

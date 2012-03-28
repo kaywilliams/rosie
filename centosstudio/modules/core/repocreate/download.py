@@ -22,6 +22,7 @@ from rpmUtils.arch import getArchList
 
 from centosstudio.errors    import CentOSStudioEventError 
 from centosstudio.event     import Event
+from centosstudio.main      import ARCH_MAP 
 
 from centosstudio.modules.shared import ShelveMixin
 
@@ -45,7 +46,7 @@ class DownloadEvent(ShelveMixin, Event):
       conditionally_requires = ['groupfile'],
     )
 
-    self._validarchs = getArchList(self.arch)
+    self._validarchs = getArchList(ARCH_MAP[self.arch])
 
     self.DATA = {
       'variables': ['packagepath', 'cvars[\'pkglist\']'],

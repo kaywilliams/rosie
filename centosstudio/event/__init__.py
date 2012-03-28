@@ -169,6 +169,9 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     dst.dirname.mkdirs()
     sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
 
+  def parse_datfile(self):
+    return rxml.datfile.parse(self.datfn, self._config.file)
+
   @property
   def mddir(self):
     dir = self.METADATA_DIR/self.id

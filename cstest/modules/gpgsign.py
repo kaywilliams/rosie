@@ -173,7 +173,7 @@ class Test_GeneratesSigningKeys(GpgsignTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     xpath = '/*/%s' % self.event.id
-    datfile = rxml.datfile.parse(self.event._config.file)
+    datfile = self.event.parse_datfile()
     self.failUnless(
       datfile.get('%s/pubkey' % xpath, None) is not None and
       datfile.get('%s/seckey' % xpath, None) is not None) 
@@ -184,7 +184,7 @@ class Test_ReadsKeysFromDatfile(GpgsignTestCase):
 
   def runTest(self):
     xpath = '/*/%s' % self.event.id
-    datfile = rxml.datfile.parse(self.event._config.file)
+    datfile = self.event.parse_datfile()
     pubtext = datfile.get('%s/pubkey' % xpath, None)
     sectext = datfile.get('%s/seckey' % xpath, None)
 
@@ -207,7 +207,7 @@ class Test_KeysRemovedFromDatfile(GpgsignTestCase):
   def runTest(self):
     xpath = '/*/%s/' % self.event.id
     self.tb.dispatch.execute(until=self.event)
-    datfile = rxml.datfile.parse(self.event._config.file)
+    datfile = self.event.parse_datfile()
     self.failUnless(
       datfile.get('%s/pubkey' % xpath, None) is None and 
       datfile.get('%s/seckey' % xpath, None) is None)

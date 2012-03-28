@@ -27,6 +27,7 @@ __date__    = 'June 26th, 2007'
 
 import errno
 import imp
+import lxml 
 import os
 import re
 import sys
@@ -53,7 +54,9 @@ from centosstudio.callback  import (SyncCallback, CachedSyncCallback,
 from centosstudio.constants import *
 from centosstudio.errors    import (CentOSStudioEventErrorHandler, 
                                     CentOSStudioEventError,
-                                    CentOSStudioError)
+                                    CentOSStudioError,
+                                    InvalidOptionError,
+                                    InvalidConfigError)
 from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import make_log, L0, L1, L2
 from centosstudio.validate  import (CentOSStudioValidationHandler,
@@ -77,9 +80,26 @@ DEFAULT_LOG_FILE = pps.path('/var/log/centosstudio.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
+ARCH_ERROR = "Accepted values are '%s'." % "', '".join(ARCH_MAP)
+
+# supported base distribution versions
+VERSIONS = ['5', '6']
+VERSIONS_ERROR = "Accepted values are '%s'." % "', '".join(VERSIONS)
 
 # the following chars are allowed in filenames...
-FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
+FILENAME_REGEX = '^[a-zA-Z0-9_\-\.]+$'
+FILENAME_ERROR = "Accepted characters are a-z, A-Z, 0-9, _, ., and -."
+
+VALIDATE_DATA = {
+    'name':    { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
+                 'error':      FILENAME_ERROR},
+    'version': { 'validatefn': lambda x: x in VERSIONS,
+                 'error':      VERSIONS_ERROR},
+    'arch':    { 'validatefn': lambda x: x in ARCH_MAP,
+                 'error':      ARCH_ERROR},
+    'id':      { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
+                 'error':      FILENAME_ERROR},}
+
 
 class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object):
   """
@@ -139,20 +159,24 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
-      self.userarch = self.definition.get(qstr % 'arch', 'i386')
+      self.arch     = self.definition.get(qstr % 'arch')
       self.type     = self.definition.get(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.repoid  = self.definition.get(qstr % 'id',
-                          '%s-%s-%s' % (self.name,
-                                          self.version,
-                                          self.userarch))
-
+    self.repoid  = self.definition.get(qstr % 'id', '%s-%s-%s' % 
+                                      (self.name, self.version, self.arch))
 
     # validate initial variables
-    self._validate_initial_variables()
+    for name in VALIDATE_DATA:
+      if name == 'id':
+        value = self.repoid
+      else: 
+        value = eval('self.%s' % name)
+      if not VALIDATE_DATA[name]['validatefn'](value):
+        raise InvalidConfigError(self.definition.file, name, value, 
+                                 VALIDATE_DATA[name]['error'])
 
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
@@ -268,36 +292,32 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     Gets the definition based on option values. A definition file is
     required, except in the event that the '-h' or '--help' argument was given
     on the command line, in which case the definition file can be omitted or
-    not exist.  (This previous allowance is so that a user can type
+    not exist. (This previous allowance is so that a user can type
     `centosstudio -h` on the command line without giving the '-c' option.) 
+    Uses option values for version and arch to create macros for use 
+    during the xinclude stage of parsing.
     """
     dp = pps.path(arguments[0]).expand().abspath()
     if not dp.exists():
-      raise rxml.errors.ConfigError("No definition found at '%s'" % dp)
+      raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    dt = rxml.config.parse(dp)
+    macros = self._get_initial_macros(options=options)
+    dt = rxml.config.parse(dp, macro_xpaths=['/*', '/*/main'],
+                           macro_map=macros)
     self.definitiontree = dt
     self.definition = dt.getroot()
 
-  def _validate_initial_variables(self):
-    for elem in ['name', 'version', 'repoid']:
-      if not FILENAME_REGEX.match(eval('self.%s' % elem)):
-        raise CentOSStudioError("Validation of %s failed. "
-          "The 'main/%s' element contains an invalid value '%s'. "
-          "Accepted characters are a-z, A-Z, 0-9, _, ., and -."
-          % (self.definition.getroot().file, elem, eval('self.%s' % elem)))
-      
-    if not self.userarch in ARCH_MAP:
-      raise CentOSStudioError("Validation of %s failed. "
-        "The 'main/arch' element contains an invalid value '%s'. "
-        "Accepted values are 'i386' and 'x86_64'."
-        % (self.definition.getroot().file, self.userarch))
+  def _get_initial_macros(self, options):
+    # setup initial macro replacements using values from options, if available
+    macros = {}
+    for name in ['version', 'arch']:
+      value = eval('options.%s_macro' % name)
+      if value:
+        if not VALIDATE_DATA[name]['validatefn'](value):
+          raise InvalidOptionError(name, value, VALIDATE_DATA[name]['error']) 
+        macros['%%{%s}' % name] = value
 
-    if not self.version in ['5', '6']:
-      raise CentOSStudioError("Validation of %s failed. "
-        "The 'main/version' element contains an invalid value '%s'. "
-        "Accepted values are '5' and '6'."
-        % (self.definition.getroot().file, self.version))
+    return macros
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -399,8 +419,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
-    self.arch        = ARCH_MAP[self.userarch]
-    self.basearch    = getBaseArch(self.arch)
+    self.basearch    = getBaseArch(ARCH_MAP[self.arch])
     self.fullname    = self.definition.get(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
     self.webloc      = self.definition.get(qstr % 'bug-url', 
@@ -428,6 +447,14 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
+
+    # setup datfile name
+    datfn = '%s.dat' % self.definition.file
+    if options.version_macro:
+      datfn = '%s-%s' % (datfn, options.version_macro)
+    if options.arch_macro:
+      datfn = '%s-%s' % (datfn, options.arch_macro)
+    self.datfn = datfn
 
     cache_max_size = self.mainconfig.get('/centosstudio/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
@@ -487,7 +514,6 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     di['arch']              = self.arch
     di['type']              = self.type
     di['basearch']          = self.basearch
-    di['userarch']          = self.userarch
     di['repoid']        = self.repoid
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
@@ -504,6 +530,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     ptr.SHARE_DIRS   = self.sharedirs
     ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
   
+    ptr.datfn = self.datfn
+
     ptr.cache_handler = self.cache_handler
     ptr.copy_handler = self.copy_handler
     ptr.link_handler = self.link_handler
@@ -537,7 +565,6 @@ class AllEvent(Event):
     # global macros
     self.macros = {'%{name}':     self.name,
                    '%{version}':  self.version,
-                   '%{arch}':     self.userarch,
+                   '%{arch}':     self.arch,
                    '%{id}':       self.repoid,
                    }
-

@@ -29,7 +29,8 @@ from centosstudio.callback import LinkCallback
 from centosstudio.errors   import CentOSStudioEventError
 from centosstudio.errors   import SimpleCentOSStudioEventError
 from centosstudio.util     import pps
-from centosstudio.util     import shlib 
+from centosstudio.util     import shlib
+
 from centosstudio.util.rxml import datfile
 
 # Include this mixin in any event that requires hostname and password 
@@ -45,7 +46,7 @@ class PublishSetupEventMixin:
     self.DATA['variables'].append('publish_mixin_version')
 
   def setup(self):
-    self.datfile = datfile.parse(basefile=self._config.file)
+    self.datfile = self.parse_datfile()
 
     # set attributes
     self.localpath = self.get_local()
@@ -224,7 +225,7 @@ class PublishSetupEventMixin:
 
   def write_datfile(self):
   
-    root = datfile.parse(basefile=self._config.file)
+    root = self.parse_datfile()
     uElement = datfile.uElement
 
     parent   = uElement(self.moduleid, parent=root)

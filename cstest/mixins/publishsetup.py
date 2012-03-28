@@ -145,8 +145,8 @@ def PublishSetupMixinTest_Password(self):
   return self
 
 def saved(self, xpath):
-  return datfile.parse(self.event._config.file).getroot().get(
-                                     '/*/%s/%s' % (self.moduleid, xpath), '')
+  return self.event.parse_datfile().get(
+                                    '/*/%s/%s' % (self.moduleid, xpath), '')
 
 def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
   suite = CoreTestSuite()

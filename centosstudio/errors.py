@@ -48,6 +48,29 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
 
 class CentOSStudioError(Exception): pass
 
+class InvalidOptionError(CentOSStudioError):
+  def __init__(self, name, value, accepted):
+    self.name = name
+    self.value = value
+    self.accepted = accepted
+
+  def __str__(self):
+    return ("An invalid value '%s' was provided as option '%s' to "
+            "CentOS Studio. %s" % 
+            (self.value, self.name, self.accepted))
+
+class InvalidConfigError(CentOSStudioError):
+  def __init__(self, file, name, value, accepted):
+    self.file = file
+    self.name = name
+    self.value = value
+    self.accepted = accepted
+
+  def __str__(self):
+    return ("Validation of '%s' failed. The 'main/%s' element contains an "
+            "invalid value '%s'. %s" %
+            (self.file, self.name, self.value, self.accepted))
+
 class CentOSStudioEventError(CentOSStudioError):
   message = None
   def __init__(self, *args, **kwargs):

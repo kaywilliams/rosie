@@ -125,7 +125,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     for d in search_dirs:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
                             glob='%s-%s-%s.definition' % 
-                            (self.moduleid, self.version, self.userarch))
+                            (self.moduleid, self.version, self.arch))
       if results:
         default = results[0]
         break
@@ -304,7 +304,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     name =    self.moduleid
     version = self.version
-    arch =    self.userarch
+    arch =    self.arch
 
     # provide meaningful filename since it is also used for the .dat file
     root.file = self.datdir / '%s-%s-%s.definition' % (name, version, arch)
@@ -377,6 +377,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       logfile   = self.options.logfile,
       libpath   = self.options.libpath,
       sharepath = self.options.sharepath,
+      version_macro = None,
+      arch_macro = None,
       force_modules = [],
       skip_modules  = [],
       force_events  = ['deploy'],

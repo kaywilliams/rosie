@@ -23,7 +23,7 @@ from centosstudio.util import magic
 from centosstudio.util import pps 
 from centosstudio.util import shlib 
 
-from centosstudio.util.rxml        import datfile
+from centosstudio.util.rxml import datfile 
 from centosstudio.util.rxml.errors import XmlPathError
 
 from centosstudio.cslogging    import L1
@@ -96,7 +96,7 @@ class GpgSignSetupEvent(Event):
       self.get_keys_from_config() 
 
   def get_keys_from_config(self):
-    df = datfile.parse(self._config.file)
+    df = self.parse_datfile()
     pubtext = self.config.get('public/text()', '')
     sectext = self.config.get('secret/text()', '')
     self.write_keys(pubtext, sectext)
@@ -112,7 +112,7 @@ class GpgSignSetupEvent(Event):
     df.write()
 
   def get_keys_from_datfile(self):
-    df = datfile.parse(self._config.file)
+    df = self.parse_datfile()
     try:
       pubtext = df.get('/*/%s/pubkey/text()' % self.id,)
       sectext = df.get('/*/%s/seckey/text()' % self.id,)
@@ -164,7 +164,7 @@ EOF""" % (name, pubring, secring)
                    homedir, name, self.seckey))
 
     # write to datfile
-    root = datfile.parse(self._config.file)
+    root = self.parse_datfile()
     uElement = datfile.uElement
 
     gpgsign  = uElement(self.id, parent=root)

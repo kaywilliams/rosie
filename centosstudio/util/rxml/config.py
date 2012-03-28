@@ -104,11 +104,9 @@ class ConfigElement(tree.XmlTreeElement):
     tag = self._ns_clean(self.tag)
 
     # text
-    # using get('text()') below rather than self.text, as the latter returns an
-    # aborted string if the text contains a <!--comment-->. Now, text 
-    # shouldn't contain comments, but I don't see a way to get the parser to 
-    # error on them, and we want to avoid unpredictable and 
-    # difficult to troubleshoot behavior in the off chance they do...
+    # using get('text()') below rather than self.text, as the latter returns
+    # both text and tail. This matters, for example if the text contains 
+    # a free floating element, e.g. a <!--comment-->.
     if self.get('text()', None) is not None: text = escape(self.get('text()'))
     if do_text_hl: text = ANSI_HIGHLIGHT % text
 
@@ -268,10 +266,11 @@ def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
   if text is None: t.text = None
   return t
 
-def parse(file, handler=None, parser=PARSER):
+def parse(file, handler=None, parser=PARSER, **kwargs):
   config = tree.parse(file,
                      handler or ConfigTreeSaxHandler(parser.makeelement),
-                     parser=parser)
+                     parser=parser,
+                     **kwargs)
   return config
 
 def fromstring(string, handler=None, parser=PARSER, **kwargs):

@@ -49,11 +49,10 @@ class BuildCliCallback:
 
 class BuildCli:
   def __init__(self):
-    parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
+    parser = OptionParser("usage: %prog [OPTIONS] DEFINITION",
                           formatter=CleanHelpFormatter(),
-                          description="build, test, deploy and maintain systems"
-                                      "as defined in the file at "
-                                      "SYSTEM_DEFINITION"
+                          description="builds, tests, deploys and maintains "
+                                      "repository specified in DEFINITION"
                           )
   
     parser.add_option('--debug',
@@ -65,7 +64,7 @@ class BuildCli:
       dest='debug',
       action='store_false',
       help=SUPPRESS_HELP)
-  
+
     config_group = OptionGroup(parser, "config options")
     config_group.add_option('-c', '--config', metavar='PATH',
       default='/etc/centosstudio/centosstudio.conf',
@@ -82,7 +81,7 @@ class BuildCli:
       action='store_true',
       help="validate config/definition files and exit")
     parser.add_option_group(config_group)
-  
+
     log_group = OptionGroup(parser, "logging options")
     log_group.add_option('-l', '--log-level', metavar='N',
       dest='logthresh',
@@ -94,6 +93,17 @@ class BuildCli:
       default=None,
       help="specify a file in which to log output")
     parser.add_option_group(log_group)
+  
+    macro_group = OptionGroup(parser, "macro replacement options")
+    macro_group.add_option('--version-macro', metavar='TEXT',
+      default='',
+      dest='version_macro',
+      help="text value (5, 6) to replace %{version} in DEFINITION")
+    macro_group.add_option('--arch-macro', metavar='TEXT',
+      default='',
+      dest='arch_macro',
+      help="text value (i386, x86_64) to replace %{arch} in DEFINITION")
+    parser.add_option_group(macro_group)
   
     module_group = OptionGroup(parser, "module and library options")
     module_group.add_option('--lib-path', metavar='PATH',
@@ -145,7 +155,7 @@ class BuildCli:
       dest='list_events',
       help=SUPPRESS_HELP)
     parser.add_option_group(event_group)
-  
+ 
     opts,args = parser.parse_args(args=sys.argv[1:])
   
     if len(args) != 1:

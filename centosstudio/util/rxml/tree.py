@@ -169,11 +169,14 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
         for attr in elem.attrib.keys():
           if key in elem.attrib[attr]:
             elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
-        if elem.get('text()', None) is not None:
-          if key in elem.get('text()'):
-            elem.text = elem.get('text()').replace(key, map[key])
+        if elem.text is not None:
+          if key in elem.text:
+            elem.text = elem.text.replace(key, map[key])
+        if elem.tail is not None:
+          if key in elem.tail:
+            elem.tail = elem.tail.replace(key, map[key])
 
-  def resolve_macros(self, xpaths=None, map=None):
+  def resolve_macros(self, xpaths=None, map=None, remove=True):
     """
     Processes macro elements (reads and removes) and resolves macro variables.
     Macro elements take the format '<macro id='name'>value</macro>'. They can
@@ -205,16 +208,22 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
         try:
           name = '%%{%s}' % elem.attrib['id']
         except KeyError:
-          message = ("\nError resolving macros in '%s'\n  Missing required 'id' attribute. The invalid section is:\n%s\n" % (self.getroot().file, tree.XmlTreeElement.tostring(elem, lineno=True)))
-          raise errors.ConfigError(message)
+          message = ("\nError resolving macros in '%s'. Missing required "
+                     "'id' attribute. The invalid section is:\n%s\n" 
+                     % (self.getroot().file, elem))
+
+          raise errors.XmlError(message)
 
         if name not in map:
           map[name] = elem.get('text()', '')
         else:
-          message = ("\nError resolving macros in '%s'\n  Duplicate macros found with the id '%s'. The invalid section is:\n%s\n" % (self.getroot().file, elem.attrib['id'], tree.XmlTreeElement.tostring(elem, lineno=True)))
-          raise errors.ConfigError(message)
+          message = ("\nError resolving macros in '%s'. Duplicate macros "
+                     "found with the id '%s'. The invalid section is:\n%s\n" 
+                     % (self.getroot().file, elem.attrib['id'], elem))
+          raise errors.XmlError(message)
 
-        elem.getparent().remove(elem)
+        if remove:
+          elem.getparent().remove(elem)
 
     # resolve macros in map - recursive
     p = re.compile('%{[^}]*}')
@@ -238,7 +247,7 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
         message = ("Macro Resolution Error: The macro value '%s' contains "
                    "a circular reference to the macro name '%s'." % 
                    (map[key], key))
-        raise errors.ConfigError(message)
+        raise errors.XmlError(message)
 
     # expand macros
     for item in xpaths:
@@ -378,17 +387,32 @@ def uElement(name, parent, attrs=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def parse(file, handler=None, parser=PARSER):
+def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
   handler = handler or XmlTreeSaxHandler(parser.makeelement)
   try:
     roottree = lxml.etree.parse(file, parser)
   except lxml.etree.XMLSyntaxError, e:
     raise errors.XmlSyntaxError(file, e)
-  else:
+
+  roottree.getroot().file = file # set this now so the filename can be used in
+                                 # macro error text
+
+  count = 0
+  while count <= 1:
+    roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=False)
     try:
       roottree.xinclude()
     except lxml.etree.XIncludeError, e:
-      raise errors.XIncludeSyntaxError(file, e)
+      if count == 0: # try again after resolving macros (again)
+        count += 1
+      else: # resolving macros didn't help, so raise an error 
+        raise errors.XIncludeSyntaxError(file, e)
+    else:
+      break # no errors, we're good to go
+
+  # resolve macros a final time, removing macro definitions, once the xinclude
+  # proces is complete
+  roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=True)
 
   saxify(roottree, handler)
   handler._root.file = file

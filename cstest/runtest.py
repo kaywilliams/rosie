@@ -27,6 +27,8 @@ from centosstudio.util import pps
 from centosstudio.util.CleanHelpFormatter import CleanHelpFormatter
 
 opt_defaults = dict(
+  version_macro = None,
+  arch_macro = None,
   logthresh = 0,
   logfile = None,
   libpath   = [],

@@ -21,7 +21,7 @@ from centosstudio.errors import CentOSStudioError
 from centosstudio.util   import pps 
 from centosstudio.util   import rxml 
 
-from centosstudio.util.rxml  import datfile 
+from centosstudio.util.rxml import datfile
 
 from centosstudio.modules.shared.deploy import InvalidInstallTriggerError
 
@@ -68,7 +68,7 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
       return
 
     # set password and crypt password in datfile
-    root = datfile.parse(self.event._config.file).getroot()
+    root = self.event.parse_datfile()
     mod = root.get('%s' % self.moduleid, '')
     if len(mod) == 0:
       mod = datfile.uElement('%s' % self.moduleid, parent=root)
