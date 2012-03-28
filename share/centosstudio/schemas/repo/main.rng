@@ -5,8 +5,8 @@
       <element name="main">
         <interleave>
           <element name="name"><text/></element>
-          <ref name="element-version"/>
-          <ref name="element-arch"/>
+          <element name="version"><text/></element>
+          <element name="arch"><text/></element>
           <optional>
           <element name="type">
             <choice>
@@ -32,23 +32,5 @@
     </element>
   </start>
   <include href="lib.rng"/>
-
-  <define name="element-version">
-    <element name="version">
-      <choice>
-        <value type="string">5</value>
-        <value type="string">6</value>
-      </choice>
-    </element>
-  </define>
-
-  <define name="element-arch">
-    <element name="arch">
-      <choice>
-        <value type="string">i386</value>
-        <value type="string">x86_64</value>
-      </choice>
-    </element>
-  </define>
 
 </grammar>
