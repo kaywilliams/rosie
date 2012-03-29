@@ -187,9 +187,10 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def run(self):
     release = self._get_release()
+    dist = '.el%s' % self.version
 
     # create build object
-    self.rpm = RpmBuildObject(self, release, copy.deepcopy(self.rpminfo))
+    self.rpm = RpmBuildObject(self, release+dist, copy.deepcopy(self.rpminfo))
     R = self.rpm
 
     for path in [ self.build_folder, R.rpm_path, R.srpm_path ]:

@@ -67,7 +67,7 @@ rpmbuild -bs --target %{arch} --define='dist el%{version}' %{spec}
 if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >&amp;2; exit 1; fi
 
 # build rpm
-rpmbuild -ba --target %{arch} --define='dist el%{version}' %{spec}
+rpmbuild -ba --target %{arch} --define='dist .el%{version}' %{spec}
 if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >&amp;2; exit 1; fi
 
 # validate rpm

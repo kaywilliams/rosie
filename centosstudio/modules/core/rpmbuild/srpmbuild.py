@@ -102,7 +102,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     RpmBuildMixin.setup(self)
   
     # resolve macros
-    srpmlast = self.unshelve('srpmlast', '')
+    srpmlast = self.unshelve('srpmlast', 'None')
     macros = {'%{srpm-id}': self.srpmid,
               '%{srpm-dir}': self.srpmdir,
               '%{srpm-last}': srpmlast,
@@ -261,10 +261,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     del yb; yb = None
 
   def _get_srpm_from_script(self, script):
-    # start with a clean srpmdir
-    self.srpmdir.rm(recursive=True, force=True) 
     self.srpmdir.mkdirs()
-  
     script_file = self.mddir / 'script'
     script_file.write_text(self.config.get('script/text()'))
     script_file.chmod(0750)
@@ -272,14 +269,15 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     self._local_execute(script_file)
   
     results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
-                                      maxdepth=1)
+                                     maxdepth=1)
   
     if not results:
       message = ("The script provided for the '%s' srpm did not output an "
                  "srpm beginning with '%s' and ending with '.src.rpm' in the "
-                 "location specified by the %%{srpmdir} macro. See the "
+                 "location specified by the %%{srpmdir} macro ('%s'). See the "
                  "CentOS Studio documentation for information on using the "
-                 "srpm/script element." % (self.srpmid, self.srpmid))
+                 "srpm/script element." % (self.srpmid, self.srpmid, 
+                                           self.srpmdir))
       raise SrpmBuildEventError(message=message)
     elif len(results) > 1:
       message = "more than one result: %s" % results
