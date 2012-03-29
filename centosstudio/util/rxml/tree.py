@@ -408,7 +408,11 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
       else: # resolving macros didn't help, so raise an error 
         raise errors.XIncludeSyntaxError(file, e)
     else:
-      break # no errors, we're good to go
+      if (roottree.find('.//{http://www.w3.org/2001/XInclude}include') 
+          is not None):
+        count += 1 # no errors, but still unresolved xincludes...
+      else:
+        break # no errors, no unresolved xincludes, we're good to go
 
   # resolve macros a final time, removing macro definitions, once the xinclude
   # proces is complete
