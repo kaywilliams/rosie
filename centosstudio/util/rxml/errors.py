@@ -25,8 +25,9 @@ class XIncludeSyntaxError(StandardError, XmlError):
     for err in self.args[1].error_log:
       f = pps.path(err.filename)
       if f.exists():
-        msg += '\n %s line %d: %s' % (pps.path(err.filename).relpath(), 
-                                 err.line, err.message)
+        msg += ('\n %s line %d: %s' %
+               (pps.path(err.filename).abspath().relpath(), 
+                err.line, err.message))
       else:
         pass #avoid confusing error, following error sufficient
     return msg
