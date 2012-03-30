@@ -2,7 +2,7 @@
 
 Name:    centosstudio
 Version: 1.0.32
-Release: 1.%{?dist}
+Release: 1%{?dist}
 Summary: Platform for delivering CentOS and RHEL-based systems and applications
 
 License:   GPL
