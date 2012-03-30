@@ -142,6 +142,9 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       self.debug = options.debug
     if callback: callback.set_debug(self.debug)
 
+    # set up initial macros
+    self._get_initial_macros(options=options)
+
     # set up configs
     try:
       self._get_config(options, arguments)
@@ -272,6 +275,26 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.repoid ))
 
+  def _get_initial_macros(self, options):
+    # setup initial macro replacements using values from options, if available
+    macros = {}
+
+    if options.macros: 
+      for pair in options.macros.split(','):
+        pair = pair.split(':')
+        macros['%%{%s}' % pair[0].strip()] = pair[1].strip()
+
+      # validate version and arch values, if provided
+      for name in ['version', 'arch']:
+        key = '%%{%s}' % name
+        if key in macros:
+          value = macros[key]
+          if not VALIDATE_DATA[name]['validatefn'](value):
+            raise InvalidOptionError(name, value, VALIDATE_DATA[name]['error']) 
+          macros['%%{%s}' % name] = value
+
+    self.initial_macros = macros
+
   def _get_config(self, options, arguments):
     """
     Gets the centosstudio config based on option values. The centosstudio
@@ -294,30 +317,15 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     on the command line, in which case the definition file can be omitted or
     not exist. (This previous allowance is so that a user can type
     `centosstudio -h` on the command line without giving the '-c' option.) 
-    Uses option values for version and arch to create macros for use 
-    during the xinclude stage of parsing.
     """
     dp = pps.path(arguments[0]).expand().abspath()
     if not dp.exists():
       raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    macros = self._get_initial_macros(options=options)
     dt = rxml.config.parse(dp, macro_xpaths=['/*', '/*/main'],
-                           macro_map=macros)
+                           macro_map=self.initial_macros)
     self.definitiontree = dt
     self.definition = dt.getroot()
-
-  def _get_initial_macros(self, options):
-    # setup initial macro replacements using values from options, if available
-    macros = {}
-    for name in ['version', 'arch']:
-      value = eval('options.%s_macro' % name)
-      if value:
-        if not VALIDATE_DATA[name]['validatefn'](value):
-          raise InvalidOptionError(name, value, VALIDATE_DATA[name]['error']) 
-        macros['%%{%s}' % name] = value
-
-    return macros
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -450,10 +458,10 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # setup datfile name
     datfn = '%s.dat' % self.definition.file
-    if options.version_macro:
-      datfn = '%s-%s' % (datfn, options.version_macro)
-    if options.arch_macro:
-      datfn = '%s-%s' % (datfn, options.arch_macro)
+    if '%{version}' in self.initial_macros:
+      datfn = '%s-%s' % (datfn, self.initial_macros['%{version}'])
+    if '%{arch}' in self.initial_macros:
+      datfn = '%s-%s' % (datfn, self.initial_macros['%{arch}'])
     self.datfn = datfn
 
     cache_max_size = self.mainconfig.get('/centosstudio/cache/max-size/text()', '30GB')

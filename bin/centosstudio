@@ -70,6 +70,11 @@ class BuildCli:
       default='/etc/centosstudio/centosstudio.conf',
       dest='mainconfigpath',
       help="specify path to the centosstudio config file")
+    config_group.add_option('--macros', metavar='TEXT',
+      default='',
+      dest='macros',
+      help='list of values ("id:value, id:value") to replace macros in '
+           'DEFINITION')
     config_group.add_option('--no-validate',
       dest='no_validate',
       action='store_true',
@@ -93,17 +98,6 @@ class BuildCli:
       default=None,
       help="specify a file in which to log output")
     parser.add_option_group(log_group)
-  
-    macro_group = OptionGroup(parser, "macro replacement options")
-    macro_group.add_option('--version-macro', metavar='TEXT',
-      default='',
-      dest='version_macro',
-      help="text value (5, 6) to replace %{version} in DEFINITION")
-    macro_group.add_option('--arch-macro', metavar='TEXT',
-      default='',
-      dest='arch_macro',
-      help="text value (i386, x86_64) to replace %{arch} in DEFINITION")
-    parser.add_option_group(macro_group)
   
     module_group = OptionGroup(parser, "module and library options")
     module_group.add_option('--lib-path', metavar='PATH',

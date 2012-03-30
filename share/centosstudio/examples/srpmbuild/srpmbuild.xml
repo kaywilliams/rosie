@@ -32,7 +32,7 @@ skipx
 <script id='virt-install'>
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
-             --file-size 10 \
+             --file-size 6 \
              --location %{url} \
              --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
                ks=%{url}/ks.cfg"\

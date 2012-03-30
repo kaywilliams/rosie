@@ -174,7 +174,7 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
 #!/bin/bash
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
-             --file-size 5 \
+             --file-size 6 \
              --cdrom %{url}/iso/CD/%{name}-disc1.iso \
              --noreboot
     """
