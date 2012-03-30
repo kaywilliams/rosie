@@ -20,7 +20,7 @@ import hashlib
 
 
 from centosstudio.errors   import CentOSStudioEventError
-from centosstudio.event    import Event
+from centosstudio.event    import Event, CLASS_META
 from centosstudio.util     import pps
 from centosstudio.validate import check_dup_ids
 
@@ -28,16 +28,29 @@ from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                           Trigger, 
                                           TriggerContainer)
 
+class ConfigRpmsEvent(Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'config-rpms',
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      properties = CLASS_META,
+      version = '1.00',
+      conditionally_comes_after = ['release-rpm'],
+      conditionally_comes_before = ['srpmbuild'],
+      suppress_run_message = True
+    )
+
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   config_mixin_version = "1.00"
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-rpm' % self.rpmid,
-      parentid = 'rpmbuild',
+      parentid = 'config-rpms',
       ptr = ptr,
       version = 1.00,
-      provides = 'config-rpms',
+      provides = 'config-rpm',
       config_base = self.config_base,
     )
  
@@ -398,7 +411,7 @@ fi
       return None
 
 # ------ Metaclass for creating SRPM Build Events -------- #
-class ConfigRpmsEvent(type):
+class ConfigRpmEvent(type):
   def __new__(meta, classname, supers, classdict):
     return type.__new__(meta, classname, supers, classdict)
 
@@ -410,7 +423,7 @@ def __init__(self, ptr, *args, **kwargs):
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = [ ],
+    events      = ['ConfigRpmsEvent'],
     description = 'modules that create RPMs based on user-provided configuration',
   )
   modname = __name__.split('.')[-1]
@@ -438,7 +451,7 @@ def get_module_info(ptr, *args, **kwargs):
 
 
     # create new class
-    exec """%s = ConfigRpmsEvent('%s', 
+    exec """%s = ConfigRpmEvent('%s', 
                          (ConfigRpmEventMixin,), 
                          { 'rpmid'      : '%s',
                            'config_base': '%s',

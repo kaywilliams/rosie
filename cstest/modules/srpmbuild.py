@@ -27,6 +27,8 @@ from cstest        import (EventTestCase, ModuleTestSuite, _run_make,
 from cstest.core   import make_core_suite
 from cstest.mixins import check_vm_config
 
+from cstest.mixins.rpmbuild import PUBKEY, SECKEY
+
 REPODIR  = pps.path(__file__).dirname/'shared' 
 
 class TestSrpmTestCase(EventTestCase):
@@ -130,6 +132,8 @@ class Test_FromScript(TestSrpmTestCase):
       <srpm id='package1' shutdown='false'>
         <script>
         #!/bin/bash
+        rm -rf %%{srpm-dir}
+        mkdir %%{srpm-dir}
         srpm=%s/repo1/SRPMS/package1-1.0-2.src.rpm
         if [[ $srpm != '%%{srpm-last}' ]]; then 
           cp -a $srpm '%%{srpm-dir}'
@@ -147,16 +151,15 @@ class Test_FromScript(TestSrpmTestCase):
 
 class Test_UpdatesDefinition(TestSrpmTestCase):
   "updates build machine definition"
-  public = '-----BEGIN PGP PUBLIC - test'
-  secret = '-----BEGIN PGP PRIVATE - test'
-
+  # srpmbuild copies gpgkeys from the parent definition into the srpmbuild
+  # machine definition; we test this below
   _conf = [
   """
   <gpgsign>
     <public>%s</public>
     <secret>%s</secret>
   </gpgsign>
-  """ % (public, secret)]
+  """ % (PUBKEY, SECKEY)]
   _conf.extend(TestSrpmTestCase._conf)
 
   def runTest(self):
@@ -171,8 +174,8 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     parent_repo = self.conf.get('/*/repos/repo[@id="base"]')
     child_repo = definition.get('/*/repos/repo[@id="base"]')
 
-    self.failUnless(len(public) == len(self.public) and
-                    len(secret) == len(self.secret) and
+    self.failUnless(len(public) == len(PUBKEY) and
+                    len(secret) == len(SECKEY) and
                     child_repo == parent_repo)
 
 class Test_InvalidRpm(TestSrpmTestCase):

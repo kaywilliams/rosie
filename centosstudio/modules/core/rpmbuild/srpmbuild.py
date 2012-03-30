@@ -29,7 +29,7 @@ from centosstudio.callback     import TimerCallback
 from centosstudio.cslogging    import MSG_MAXWIDTH, L0, L1, L2
 from centosstudio.errors       import (CentOSStudioError,
                                        CentOSStudioEventError)
-from centosstudio.event        import Event
+from centosstudio.event        import Event, CLASS_META
 from centosstudio.main         import Build
 from centosstudio.util         import magic 
 from centosstudio.util         import pps 
@@ -59,12 +59,23 @@ name = Source RPM Repo
 baseurl = %s
 '''
 
+class SrpmBuildEvent(Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'srpmbuild',
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      properties = CLASS_META,
+      version = '1.00',
+      conditionally_comes_after = ['config-rpms'],
+      suppress_run_message = True
+    )
 
 class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-srpm' % self.srpmid, 
-      parentid = 'rpmbuild',
+      parentid = 'srpmbuild',
       ptr = ptr,
       version = 1.03,
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
@@ -423,7 +434,7 @@ class SrpmBuild(Build):
 
 
 # ------ Metaclass for creating SRPM Build Events -------- #
-class SrpmBuildEvent(type):
+class SrpmBuildRpmEvent(type):
   def __new__(meta, classname, supers, classdict):
     return type.__new__(meta, classname, supers, classdict)
 
@@ -435,7 +446,7 @@ def __init__(self, ptr, *args, **kwargs):
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = [ ],
+    events      = ['SrpmBuildEvent'],
     description = 'modules that accept SRPMs and build RPMs',
   )
 
@@ -453,7 +464,7 @@ def get_module_info(ptr, *args, **kwargs):
     name = '%sSrpmBuildEvent' % name.capitalize()
 
     # create new class
-    exec """%s = SrpmBuildEvent('%s', 
+    exec """%s = SrpmBuildRpmEvent('%s', 
                          (SrpmBuildMixinEvent,), 
                          { 'srpmid'   : '%s',
                            '__init__': __init__,

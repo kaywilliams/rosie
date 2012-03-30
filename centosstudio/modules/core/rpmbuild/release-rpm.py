@@ -37,6 +37,7 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
       version = '1.00',
       provides = ['rpmbuild-data', 'os-content', 'release-rpm'],
       requires = ['publish-setup-options'],
+      conditionally_comes_before = ['config-rpms'],
     )
 
     self.DATA = {

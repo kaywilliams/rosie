@@ -56,7 +56,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                             [self.cvars['release-rpm']])
 
     # sync compose output, excluding release-rpm
-    release_rpm = self.release_rpmdata['rpm-path'].split('/')[-1]
+    release_rpm = (self.release_rpmdata['rpm-path'].split('/')[-1]
+                   .replace(self.dist, ''))
     paths=self.cvars['os-dir'].findpaths(nglob=release_rpm, 
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:

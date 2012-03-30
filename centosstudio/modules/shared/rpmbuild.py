@@ -49,6 +49,7 @@ class RpmBuildMixin(ShelveMixin):
     self.provides.add('rpmbuild-data')
     self.rpms = [] # list of rpmbuild dicts (get_rpmbuild_data()) to be 
                    # managed by the mixin
+    self.dist = '.el%s' % self.version
     ShelveMixin.__init__(self)
 
   @property
@@ -187,10 +188,10 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def run(self):
     release = self._get_release()
-    dist = '.el%s' % self.version
 
     # create build object
-    self.rpm = RpmBuildObject(self, release+dist, copy.deepcopy(self.rpminfo))
+    self.rpm = RpmBuildObject(self, release+self.dist, 
+                              copy.deepcopy(self.rpminfo))
     R = self.rpm
 
     for path in [ self.build_folder, R.rpm_path, R.srpm_path ]:
