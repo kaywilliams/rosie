@@ -80,11 +80,12 @@ DEFAULT_LOG_FILE = pps.path('/var/log/centosstudio.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
-ARCH_ERROR = "Accepted values are '%s'." % "', '".join(ARCH_MAP)
+ARCH_ERROR = "Accepted values for 'arch' are '%s'." % "', '".join(ARCH_MAP)
 
 # supported base distribution versions
 VERSIONS = ['5', '6']
-VERSIONS_ERROR = "Accepted values are '%s'." % "', '".join(VERSIONS)
+VERSIONS_ERROR = ("Accepted values for 'version' are '%s'." % 
+                  "', '".join(VERSIONS))
 
 # the following chars are allowed in filenames...
 FILENAME_REGEX = '^[a-zA-Z0-9_\-\.]+$'
@@ -213,8 +214,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     try:
       self.dispatch = dispatch.Dispatch(
-                        loader.load(import_dirs, prefix='centosstudio/modules',)
-                      )
+                      loader.load(import_dirs, prefix='centosstudio/modules',))
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
       self.module_map       = loader.module_map
@@ -279,10 +279,14 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     # setup initial macro replacements using values from options, if available
     macros = {}
 
-    if options.macros: 
-      for pair in options.macros.split(','):
-        pair = pair.split(':')
-        macros['%%{%s}' % pair[0].strip()] = pair[1].strip()
+    if options.macros:
+      for pair in options.macros:
+        id = pair.split(':')[0].strip()
+        value = ':'.join(pair.split(':')[1:]).strip()
+        if not id or not value:
+          raise InvalidOptionError(pair, 'macro', "Macro options must take the "
+                                   "form 'id:value'.")
+        macros['%%{%s}' % id] = value
 
       # validate version and arch values, if provided
       for name in ['version', 'arch']:
@@ -290,8 +294,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         if key in macros:
           value = macros[key]
           if not VALIDATE_DATA[name]['validatefn'](value):
-            raise InvalidOptionError(name, value, VALIDATE_DATA[name]['error']) 
-          macros['%%{%s}' % name] = value
+            raise InvalidOptionError('%s:%s' % (name, value), 'macro', 
+                                     VALIDATE_DATA[name]['error'])
 
     self.initial_macros = macros
 

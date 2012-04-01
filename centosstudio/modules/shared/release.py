@@ -29,10 +29,12 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
   release_mixin_version = "1.23"
 
   def __init__(self, rpmconf=None): # call after creating self.DATA
+    if rpmconf is not None:
+      self.rpmconf = rpmconf
+    else:
+      self.rpmconf = self.config
     self.conditionally_requires.add('packages')
-    self.rpmconf = rpmconf or self.config
     self.conditionally_requires.add('gpg-signing-keys')
-    self.provides.update(['gpgcheck-enabled', 'gpgkeys', 'gpgkey-ids'])
 
     MkrpmRpmBuildMixin.__init__(self)
 

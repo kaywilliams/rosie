@@ -49,7 +49,6 @@ class TestInstallSetupEvent(TestPublishEventMixin, Event):
 
     TestPublishEventMixin.__init__(self)
 
-
 class TestInstallEvent(DeployEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -57,8 +56,7 @@ class TestInstallEvent(DeployEventMixin, Event):
       parentid = 'test-events',
       ptr = ptr,
       requires = [ 'test-install-kstext', 'treeinfo-text'], 
-      conditionally_requires = [ 'test-install-repomdfile', 'rpmbuild-data',
-                                 'release-rpm-name', 'config-rpm-name'],
+      conditionally_requires = [ 'test-install-repomdfile', 'rpmbuild-data'],
     )
 
     self.DATA =  {

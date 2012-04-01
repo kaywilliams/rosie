@@ -50,7 +50,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       parentid = 'config-rpms',
       ptr = ptr,
       version = 1.00,
-      provides = 'config-rpm',
+      provides = ['config-rpm'],
       config_base = self.config_base,
     )
  

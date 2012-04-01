@@ -147,7 +147,6 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def __init__(self, *args, **kwargs):
     RpmBuildMixin.__init__(self)
-    self.provides.add('%s-name' % self.moduleid)
 
   def setup(self, name=None, version=None, arch=None, desc=None, 
             summary=None, license=None, author=None, email=None, 

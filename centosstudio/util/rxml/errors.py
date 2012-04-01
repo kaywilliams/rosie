@@ -23,13 +23,12 @@ class XIncludeSyntaxError(StandardError, XmlError):
   def __str__(self):
     msg = '\nError(s) while processing XIncludes in "%s"' % self.args[0]
     for err in self.args[1].error_log:
-      f = pps.path(err.filename)
-      if f.exists():
+      if err.filename != "<string>":
         msg += ('\n %s line %d: %s' %
                (pps.path(err.filename).abspath().relpath(), 
                 err.line, err.message))
       else:
-        pass #avoid confusing error, following error sufficient
+        pass #avoid confusing error when filename == '<string>'
     return msg
 
 #-----------ERROR HELPERS---------#

@@ -51,7 +51,6 @@ class TestUpdateSetupEvent(TestPublishEventMixin, Event):
 
     TestPublishEventMixin.__init__(self)
 
-
 class TestUpdateEvent(DeployEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,

@@ -395,7 +395,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       disabled_modules = [],
       list_modules = False,
       list_events = False,
-      macros = '',
+      macros = [],
       no_validate = False,
       validate_only = False,
       clear_cache = False,

@@ -70,10 +70,11 @@ class BuildCli:
       default='/etc/centosstudio/centosstudio.conf',
       dest='mainconfigpath',
       help="specify path to the centosstudio config file")
-    config_group.add_option('--macros', metavar='TEXT',
-      default='',
+    config_group.add_option('--macro', metavar='TEXT',
       dest='macros',
-      help='list of values ("id:value, id:value") to replace macros in '
+      default=[],
+      action='append',
+      help='id:value pair (--macro "id:value") for replacing macros in '
            'DEFINITION')
     config_group.add_option('--no-validate',
       dest='no_validate',

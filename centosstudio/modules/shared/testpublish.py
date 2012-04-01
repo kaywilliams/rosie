@@ -48,10 +48,13 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     PublishSetupEventMixin.__init__(self)
 
     self.conditionally_requires.update(['release-rpm', 'rpmbuild-data'])
+    self.provides.remove('rpmbuild-data') # these release rpms should not
+                                          # be included in the core repository
 
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
+    # TODO add support for disabled release-rpm event
     self.release_rpmdata = (self.cvars['rpmbuild-data']
                             [self.cvars['release-rpm']])
 
@@ -67,7 +70,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
     # release-rpm
     try:
-      self.release = self.release_rpmdata['rpm-release']
+      self.release = self.release_rpmdata['rpm-release'].replace(self.dist, '')
       ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
                          force_release=self.release,
                          files_cb=self.link_callback, 
@@ -100,15 +103,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                           % self.moduleid, what='os-dir')
 
     # modify release-rpm
-    try:
-      release = self.release_rpmdata['rpm-release']
-    except KeyError: # release-rpm does not exist, no need to modify
-      pass
-    else: # release-rpm exists, modify it
-      ReleaseRpmEventMixin.run(self)
-      self.rpm.rpm_path.cp(self.REPO_STORE/'Packages')
-      self.DATA['output'].append(self.REPO_STORE/'Packages'/
-                                 self.rpm.rpm_path.basename)
+    ReleaseRpmEventMixin.run(self)
+    self.rpm.rpm_path.cp(self.REPO_STORE/'Packages')
+    self.DATA['output'].append(self.REPO_STORE/'Packages'/
+                               self.rpm.rpm_path.basename)
 
     # update repodata
     self.createrepo(self.REPO_STORE/'Packages', 

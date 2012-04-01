@@ -49,13 +49,13 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
 class CentOSStudioError(Exception): pass
 
 class InvalidOptionError(CentOSStudioError):
-  def __init__(self, name, value, accepted):
-    self.name = name
+  def __init__(self, value, name, accepted):
     self.value = value
+    self.name = name
     self.accepted = accepted
 
   def __str__(self):
-    return ("An invalid value '%s' was provided as option '%s' to "
+    return ("An invalid value '%s' was provided as an option '%s' to "
             "CentOS Studio. %s" % 
             (self.value, self.name, self.accepted))
 

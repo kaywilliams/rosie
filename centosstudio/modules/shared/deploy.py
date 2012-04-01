@@ -39,7 +39,7 @@ class DeployEventMixin:
 
   def __init__(self, *args, **kwargs):
     self.requires.add('%s-setup-options' % self.moduleid,)
-    self.conditionally_requires.update(['rpmbuild-data', 'release-rpm'
+    self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
                                         'config-rpms'])
 
     # we're doing this in init rather than in validate (where it 
@@ -188,7 +188,7 @@ class DeployEventMixin:
     return hashlib.md5(text).hexdigest()
 
   def _get_rpm_csum(self, id):
-    if not 'rpmbuild-data' in self.cvars:
+    if not 'rpmbuild-data' in self.cvars or not self.cvars[id]:
       return self._get_csum('')
     rpms = self.cvars[id]
     if isinstance(rpms, basestring):
