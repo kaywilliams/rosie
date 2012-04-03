@@ -143,7 +143,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
   """
   Mixin for creating rpms from scratch using util.mkrpm
   """
-  mkrpmbuild_mixin_version = "1.00"
+  mkrpmbuild_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
     RpmBuildMixin.__init__(self)
