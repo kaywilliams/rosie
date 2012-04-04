@@ -25,9 +25,14 @@ class XIncludeSyntaxError(StandardError, XmlError):
   def __str__(self):
     msg = '\nError(s) while processing XIncludes in "%s":' % self.args[0]
     for err in self.args[1].error_log:
+      if "fallback is not the child of an 'include'" in err.message:
+        message = ("XPointer evaluation failed; fallback found, but "
+                   "unsupported for valid href")
+      else:
+        message = err.message
       if err.filename != "<string>":
         msg += ('\n%s line %d: %s' %
-               (pps.path(err.filename), err.line, err.message))
+               (pps.path(err.filename), err.line, message))
       else:
         pass #avoid confusing error when filename == '<string>'
     return msg
