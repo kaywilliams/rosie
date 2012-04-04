@@ -40,7 +40,7 @@ class KickstartEventMixin:
     self.ksfile = self.REPO_STORE/self.ksname
 
     # read the text or file specified in the kickstart element
-    elem = self.config.get(self.ksxpath)
+    elem = self.config.getxpath(self.ksxpath)
     self.ks_source = '' # track source for use in error messages
     self.kstext = (elem.text or '')
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %

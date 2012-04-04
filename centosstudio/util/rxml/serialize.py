@@ -169,8 +169,8 @@ class MapXmlSerializer(XmlSerializer):
   def _unserialize_dict(self, elem):
     d = {}
     for child in elem.getchildren():
-      d[unserialize(child.get('key')[0])] = \
-        unserialize(child.get('value')[0])
+      d[unserialize(child.getxpath('key')[0])] = \
+        unserialize(child.getxpath('value')[0])
     return d
 
 class NoneXmlSerializer(XmlSerializer):

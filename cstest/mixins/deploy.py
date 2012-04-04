@@ -41,8 +41,8 @@ class DeployMixinTestCase:
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
-    install = deploy.get("/*/install/script[@id='virt-install']")
-    text = install.get("text()").replace('--file-size 30', '--file-size 6')
+    install = deploy.getxpath("/*/install/script[@id='virt-install']")
+    text = install.getxpath("text()").replace('--file-size 30', '--file-size 6')
     install.text = text
 
     # update packages
@@ -50,13 +50,13 @@ class DeployMixinTestCase:
     <packages>
       <group>core</group>
     </packages>""")
-    packages = self.conf.get('/*/packages', None)
+    packages = self.conf.getxpath('/*/packages', None)
     if packages is None:
       packages = rxml.config.Element('packages', parent=self.conf)
     packages.extend(pkgcontent.xpath('/*/*'))
 
     # update config-rpms
-    config_rpms = self.conf.get('/*/config-rpms', None)
+    config_rpms = self.conf.getxpath('/*/config-rpms', None)
     if config_rpms is None:
       config_rpms = rxml.config.Element('config-rpms', parent=self.conf)
     config_rpms.extend(deploy.xpath('/*/config-rpms/rpm'))
@@ -64,13 +64,13 @@ class DeployMixinTestCase:
     # update module
     self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
                                                self.arch) 
-    mod = self.conf.get('/*/%s' % self.mod, None)
+    mod = self.conf.getxpath('/*/%s' % self.mod, None)
     if mod is None:
       mod = rxml.config.Element('%s' % self.mod, parent=self.conf)
     mod.set('hostname', self.hostname)
     mod.set('password', 'password')
 
-    trigger = mod.get('trigger', None)
+    trigger = mod.getxpath('trigger', None)
     if trigger is None:
       trigger = rxml.config.Element('trigger', parent=mod)
       if self.mod != 'test-install':

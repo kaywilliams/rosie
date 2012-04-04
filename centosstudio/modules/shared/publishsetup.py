@@ -54,7 +54,7 @@ class PublishSetupEventMixin:
     self.hostname = self.get_hostname()
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
-    self.ssh = self.config.get('@ssh', True)
+    self.ssh = self.config.getxpath('@ssh', True)
     self.ssh_pubfile, self.ssh_secfile = self.get_ssh_keys()
     self.boot_options = self.get_bootoptions()
 
@@ -123,7 +123,7 @@ class PublishSetupEventMixin:
 
     remote = pps.path(self.config.getpath('remote-url/text()',
                       self._get_host(default, 'remote-url', ifname =
-                        self.config.get('remote-url/@interface', None))))
+                        self.config.getxpath('remote-url/@interface', None))))
                         
     return remote / self.repoid
   
@@ -153,7 +153,7 @@ class PublishSetupEventMixin:
     else:
       default = '%s-%s' % (self.repoid, self.moduleid)
 
-    return self.config.get('@hostname', default)
+    return self.config.getxpath('@hostname', default)
 
   def get_bootoptions(self):
     if self.moduleid == 'publish':
@@ -161,16 +161,16 @@ class PublishSetupEventMixin:
     else:
       default = self.cvars['publish-setup-options']['boot-options']
 
-    return self.config.get('boot-options/text()', default)
+    return self.config.getxpath('boot-options/text()', default)
 
   def get_password(self):
     if self.moduleid == 'publish':
-      password = (self.config.get('@password', '') or 
-                  self.datfile.get('/*/%s/password/text()' % self.moduleid, ''))
+      password = (self.config.getxpath('@password', '') or 
+                  self.datfile.getxpath('/*/%s/password/text()' % self.moduleid, ''))
       if not password:
         password = self.gen_password()
     else:
-      password = (self.config.get('@password', '') or 
+      password = (self.config.getxpath('@password', '') or 
                   self.cvars['publish-setup-options']['password'])
 
     return password
@@ -181,10 +181,10 @@ class PublishSetupEventMixin:
                     string.letters + string.digits) for i in range(size)])
 
   def get_cryptpw(self, password):
-    cryptpw=self.datfile.get('/*/publish/crypt-password/text()', '')
+    cryptpw=self.datfile.getxpath('/*/publish/crypt-password/text()', '')
 
     if self.moduleid != 'publish':
-      cryptpw = self.datfile.get('/*/%s/crypt-password/text()' % self.moduleid,
+      cryptpw = self.datfile.getxpath('/*/%s/crypt-password/text()' % self.moduleid,
                                  cryptpw)
 
     if len(cryptpw) > 0:
@@ -231,7 +231,7 @@ class PublishSetupEventMixin:
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
-    if (len(self.config.get('@password', '')) == 0 and 
+    if (len(self.config.getxpath('@password', '')) == 0 and 
         self.moduleid == 'publish'):
       password = uElement('password', parent=parent, text=self.password)
     else:

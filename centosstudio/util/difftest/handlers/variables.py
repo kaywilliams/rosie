@@ -46,7 +46,7 @@ class VariablesHandler(DiffHandler):
 
   def mdread(self, metadata):
     for node in metadata.xpath('/metadata/variables/value', []):
-      item = node.get('@variable')
+      item = node.getxpath('@variable')
       if len(node.getchildren()) == 0:
         self.vars[item] = NoneEntry(item)
       else:

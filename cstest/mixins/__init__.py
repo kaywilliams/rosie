@@ -145,7 +145,8 @@ class BootOptionsMixinTestCase:
       if defaults:
         self._check_boot_args(labels, self.default_args)
       self._check_boot_args(labels, 
-                      self.event.config.get('boot-options/text()', '').split())
+                      self.event.config.getxpath(
+                      'boot-options/text()', '').split())
     finally:
       image.close()
 

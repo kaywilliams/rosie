@@ -44,7 +44,7 @@ class InputHandler(DiffHandler):
 
   def mdread(self, metadata):
     for f in metadata.xpath('/metadata/input/file', []):
-      self.oldinput[pps.path(f.get('@path'))] = self.tupcls().fromxml(f)
+      self.oldinput[pps.path(f.getxpath('@path'))] = self.tupcls().fromxml(f)
 
   def mdwrite(self, root):
     parent = rxml.config.Element('input', parent=root)

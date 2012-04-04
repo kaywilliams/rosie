@@ -122,9 +122,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     self.config.resolve_macros('.', macros)
   
     # get srpm
-    path = pps.path(self.config.get('path/text()', ''))
-    repo = pps.path(self.config.get('repo/text()', ''))
-    script = self.config.get('script/text()', '')
+    path = pps.path(self.config.getxpath('path/text()', ''))
+    repo = pps.path(self.config.getxpath('repo/text()', ''))
+    script = self.config.getxpath('script/text()', '')
     if path: self._get_srpm_from_path(path)
     elif repo: self._get_srpm_from_repo(repo)
     elif script: self._get_srpm_from_script(script)
@@ -141,9 +141,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
         default = results[0]
         break
 
-    self.definition = self.config.get('definition/text()', 
-                      self.config.get('/*/%s/definition/text()' % self.moduleid,
-                      default))
+    self.definition = self.config.getxpath('definition/text()', 
+                      self.config.getxpath('/*/%s/definition/text()' % 
+                      self.moduleid, default))
     self.io.validate_input_file(self.definition)
     self.DATA['input'].append(self.definition)
 
@@ -274,7 +274,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   def _get_srpm_from_script(self, script):
     self.srpmdir.mkdirs()
     script_file = self.mddir / 'script'
-    script_file.write_text(self.config.get('script/text()'))
+    script_file.write_text(self.config.getxpath('script/text()'))
     script_file.chmod(0750)
   
     self._local_execute(script_file)
@@ -330,7 +330,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     root.append(main)
 
     # add config-rpm for srpm requires
-    config = root.get('/*/config-rpms', rxml.config.Element('config-rpms'))
+    config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
     rpm = rxml.config.Element('rpm', parent=config, 
                               attrs={'id': '%s' % self.srpmid})
     child = rxml.config.Element('files', parent=rpm)
@@ -345,19 +345,19 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       root.append(config)
 
     # use gpgsign from parent definition, if provided
-    parent_gpgsign = copy.deepcopy(self.config.get('/*/gpgsign', None))
-    child_gpgsign = root.get('/*/gpgsign', None)
+    parent_gpgsign = copy.deepcopy(self.config.getxpath('/*/gpgsign', None))
+    child_gpgsign = root.getxpath('/*/gpgsign', None)
     if parent_gpgsign is not None and child_gpgsign is None:
       root.append(parent_gpgsign)
      
     # append repos from parent definition, if provided
-    parent_repos = copy.deepcopy(self.config.get('/*/repos', None))
-    child_repos = root.get('/*/repos', None)
+    parent_repos = copy.deepcopy(self.config.getxpath('/*/repos', None))
+    child_repos = root.getxpath('/*/repos', None)
     if parent_repos is not None and child_repos is None:
       root.append(parent_repos)
     if parent_repos is not None and child_repos is not None:
       for repo in parent_repos.xpath('repo'):
-        child_repo = child_repos.get("repo[@id='%s']" % repo.attrib['id'], None)
+        child_repo = child_repos.getxpath("repo[@id='%s']" % repo.attrib['id'], None)
         if child_repo is not None: child_repos.remove(child_repo)
         child_repos.append(repo)
 
@@ -428,7 +428,6 @@ class SrpmBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_definition(self, options, arguments):
-    self.definition = self.definition
     self.definitiontree = lxml.etree.ElementTree(self.definition)
 
 
@@ -458,7 +457,7 @@ def get_module_info(ptr, *args, **kwargs):
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
 
     # convert user provided id to a valid class name
-    id = config.get('@id')
+    id = config.getxpath('@id')
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 

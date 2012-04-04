@@ -44,7 +44,7 @@ class ConfigHandler(DiffHandler):
 
   def mdread(self, metadata):
     for node in metadata.xpath('/metadata/config/value', []):
-      path = node.get('@path')
+      path = node.getxpath('@path')
       self.cfg[path] = node.xpath('elements/*', None) or \
                        node.xpath('text/text()', NoneEntry(path))
 

@@ -69,7 +69,7 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
 
     # set password and crypt password in datfile
     root = self.event.parse_datfile()
-    mod = root.get('%s' % self.moduleid, '')
+    mod = root.getxpath('%s' % self.moduleid, '')
     if len(mod) == 0:
       mod = datfile.uElement('%s' % self.moduleid, parent=root)
     datfile.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
@@ -84,7 +84,7 @@ class Test_RaisesErrorOnInvalidTriggers(TestInstallEventTestCase):
 
   def setUp(self):
     TestInstallEventTestCase.setUp(self)
-    self.conf.get('/*/%s/trigger' % self.moduleid).set(
+    self.conf.getxpath('/*/%s/trigger' % self.moduleid).set(
                   'triggers', 'kickstart, install-scripts junk1, junk2')
 
   def runTest(self):
@@ -161,7 +161,7 @@ class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    install = self.event.config.get('install')
+    install = self.event.config.getxpath('install')
     script = rxml.config.Element('script', parent=install, 
                                  attrs={'id': 'install-test'})
     script.text = 'echo "Hello"'
@@ -173,7 +173,7 @@ class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase)
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    post_install = self.event.config.get('post-install')
+    post_install = self.event.config.getxpath('post-install')
     script = rxml.config.Element('script', parent=post_install, 
                                  attrs={'id': 'post-test'})
     script.text = 'echo "hello"'

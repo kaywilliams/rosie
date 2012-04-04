@@ -78,7 +78,7 @@ class KickstartEvent(KickstartEventMixin, Event):
                   'os-content'],
     )
 
-    if self.config.get('kickstart', False) is False: 
+    if self.config.getxpath('kickstart', False) is False: 
       self.disable()
       return
 

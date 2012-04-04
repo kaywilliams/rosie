@@ -117,10 +117,10 @@ class DiffTuple:
     return e
 
   def fromxml(self, xml):
-    self.path = xml.get('@path')
+    self.path = xml.getxpath('@path')
     for key,fn in self.attrs:
       if xml.pathexists('%s/text()' % key):
-        setattr(self, key, fn(xml.get('%s/text()' % key)))
+        setattr(self, key, fn(xml.getxpath('%s/text()' % key)))
       else:
         setattr(self, key, None)
     return self

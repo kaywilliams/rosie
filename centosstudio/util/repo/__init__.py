@@ -11,7 +11,7 @@ def ReposFromXml(tree, cls=BaseRepo, original=None):
 
   for repoxml in tree.getchildren():
     if repoxml.tag != 'repo': continue
-    kwargs = {'id': repoxml.get('@id')}
+    kwargs = {'id': repoxml.getxpath('@id')}
     for attr in set([ i.tag for i in repoxml.getchildren() ]):
       if attr in [ 'gpgkey', 'baseurl', 'mirrorlist', 'systemid' ]:
         # use rxml.config getpath to provide correctly resolved paths, then

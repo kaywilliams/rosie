@@ -149,15 +149,15 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # keyids change across test runs, so if keys are not updating
     # properly you will see an error during the next run. This should
     # be improved so that issues appear during the same run...
-    files = self.event._config.get('/*/config-rpms/rpm/files')
+    files = self.event._config.getxpath('/*/config-rpms/rpm/files')
     files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
     self.tb.dispatch.get('test-config-rpm').status = True # force config-rpm
 
     # set post script for deploy - doing this after centosstudio
     # resolves global macros on the definition so macro replacement 
     # doesn't blast the rpm qf string (%{version})
-    publish = self.event._config.get('/*/publish')
-    post = publish.get('post', rxml.config.Element('post', parent=publish))
+    publish = self.event._config.getxpath('/*/publish')
+    post = publish.getxpath('post', rxml.config.Element('post', parent=publish))
     post_script = rxml.config.Element('script', attrs={'id':'release-rpm'})
     post_script.text = """ 
       #!/bin/bash

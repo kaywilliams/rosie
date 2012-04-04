@@ -169,10 +169,10 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     definition = self.event._update_definition()
 
     #set some convenience variables
-    public = definition.get('/*/gpgsign/public/text()', '')
-    secret = definition.get('/*/gpgsign/secret/text()', '')
-    parent_repo = self.conf.get('/*/repos/repo[@id="base"]')
-    child_repo = definition.get('/*/repos/repo[@id="base"]')
+    public = definition.getxpath('/*/gpgsign/public/text()', '')
+    secret = definition.getxpath('/*/gpgsign/secret/text()', '')
+    parent_repo = self.conf.getxpath('/*/repos/repo[@id="base"]')
+    child_repo = definition.getxpath('/*/repos/repo[@id="base"]')
 
     self.failUnless(len(public) == len(PUBKEY) and
                     len(secret) == len(SECKEY) and
@@ -199,7 +199,7 @@ class Test_Shutdown(TestSrpmTestCase):
   "dummy case to shutdown virtual machine"
 
   def runTest(self):
-    self.event.config.get('.').set('shutdown', 'true')
+    self.event.config.getxpath('.').set('shutdown', 'true')
     self.tb.dispatch.execute(until=self.event)
 
 

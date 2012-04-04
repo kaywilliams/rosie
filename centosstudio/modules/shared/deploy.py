@@ -57,7 +57,7 @@ class DeployEventMixin:
     # update scripts dict using config and validate script attributes
     self.scripts_provided = False
     for script in self.scripts:
-      if self.config.get(script, None) is not None: 
+      if self.config.getxpath(script, None) is not None: 
         # update enabled attribute
         self.scripts[script]['enabled'] = True
         self.scripts_provided = True
@@ -108,7 +108,7 @@ class DeployEventMixin:
 
         scripts = self.config.xpath('%s/script' % script)
         for subscript in scripts:
-          id = '%s' % subscript.get('@id', '%s' % script)
+          id = '%s' % subscript.getxpath('@id', '%s' % script)
           # ensure no duplicate ids
           xpath = self._configtree.getpath(subscript)
           csum = self._get_script_csum(xpath)
@@ -119,7 +119,7 @@ class DeployEventMixin:
           self.all_scripts[id] = [xpath, csum ] 
 
           self.scripts[script]['script-ids'].append(id)
-          self.scripts[script]['ssh-values'].append(subscript.get('@ssh', 
+          self.scripts[script]['ssh-values'].append(subscript.getxpath('@ssh', 
                                              self.scripts[script]['ssh']))
 
 
@@ -136,7 +136,7 @@ class DeployEventMixin:
     for key in trigger_data: 
       self.config.resolve_macros('.' , {'%%{%s}' % key: trigger_data[key]})
 
-    triggers = self.config.get('trigger/@triggers', '')
+    triggers = self.config.getxpath('trigger/@triggers', '')
     if triggers:
       triggers = [ s.strip() for s in triggers.replace(',', ' ').split() ]
       valids = [ s.replace('_', '-') for s in trigger_data.keys() ]
@@ -207,7 +207,7 @@ class DeployEventMixin:
   def _get_script_csum(self, xpath):
     text = ''
     for script in self.config.xpath(xpath, []):
-      text = text + script.get('text()', '')
+      text = text + script.getxpath('text()', '')
     return self._get_csum(text) 
 
   def _reinstall(self):
@@ -404,7 +404,8 @@ class SSHParameters(DictMixin):
     self.params = {}
     for param,value in ptr.ssh.items():
       if not param == 'enabled':
-        self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
+        self.params[param] = ptr.config.getxpath(
+                             '%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
                               ptr.repoid)
 

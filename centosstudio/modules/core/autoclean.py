@@ -88,7 +88,7 @@ class EventHandler(DiffHandler):
 
   def mdread(self, metadata):
     for event in metadata.xpath('/metadata/events/event'):
-      self.events[event.get('@id')] = event.get('version/text()')
+      self.events[event.getxpath('@id')] = event.getxpath('version/text()')
 
   def mdwrite(self, root):
     parent = rxml.tree.uElement('events', parent=root)

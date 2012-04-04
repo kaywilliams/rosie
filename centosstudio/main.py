@@ -161,15 +161,15 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     # set up initial variables
     qstr = '/*/main/%s/text()'
     try:
-      self.name     = self.definition.get(qstr % 'name')
-      self.version  = self.definition.get(qstr % 'version')
-      self.arch     = self.definition.get(qstr % 'arch')
-      self.type     = self.definition.get(qstr % 'type', 'system')
+      self.name     = self.definition.getxpath(qstr % 'name')
+      self.version  = self.definition.getxpath(qstr % 'version')
+      self.arch     = self.definition.getxpath(qstr % 'arch')
+      self.type     = self.definition.getxpath(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.repoid  = self.definition.get(qstr % 'id', '%s-%s-%s' % 
+    self.repoid  = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
                                       (self.name, self.version, self.arch))
 
     # validate initial variables
@@ -432,9 +432,9 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
     self.basearch    = getBaseArch(ARCH_MAP[self.arch])
-    self.fullname    = self.definition.get(qstr % 'fullname', self.name)
+    self.fullname    = self.definition.getxpath(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
-    self.webloc      = self.definition.get(qstr % 'bug-url', 
+    self.webloc      = self.definition.getxpath(qstr % 'bug-url', 
                                                   'No bug url provided')
 
     # set up other directories
@@ -468,7 +468,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       datfn = '%s-%s' % (datfn, self.initial_macros['%{arch}'])
     self.datfn = datfn
 
-    cache_max_size = self.mainconfig.get('/centosstudio/cache/max-size/text()', '30GB')
+    cache_max_size = self.mainconfig.getxpath('/centosstudio/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
     self.CACHE_MAX_SIZE = si.parse(cache_max_size)

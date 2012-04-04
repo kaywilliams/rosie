@@ -226,7 +226,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
     else: # bump calculated release  
       self.datfile = self.parse_datfile()
-      release = self.datfile.get('/*/%s/release/text()' %
+      release = self.datfile.getxpath('/*/%s/release/text()' %
                                 (self.id), '0')
       return str(int(release)+1)
 

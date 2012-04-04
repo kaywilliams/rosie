@@ -102,7 +102,7 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
   def __ne__(self, other):
     return not self.__eq__(other)
 
-  def get(self, path, fallback=NoneObject(), namespaces=None, extensions=None):
+  def getxpath(self, path, fallback=NoneObject(), namespaces=None, extensions=None):
     """
     Get one or more nodes out of the XML tree.
 
@@ -146,18 +146,18 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
     return children
 
   def pathexists(self, path):
-    return self.get(path) is not None
+    return self.getxpath(path) is not None
 
   def get_or_create(self, child):
     """
-    Gets the node, per get(), or, if it doesn't exist, attempts to
+    Gets the node, per getxpath(), or, if it doesn't exist, attempts to
     create it.  Only works on one level (that is, only on this node's
     direct descendants.
     """
     if not self.haschild(child): # create
       return Element(child, parent=self)
     else:
-      self.get(child)
+      self.getxpath(child)
 
   def haschild(self, child):
     return len(self.xpath(child, [])) > 0
@@ -208,19 +208,21 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
         try:
           name = '%%{%s}' % elem.attrib['id']
         except KeyError:
-          message = ("\nError resolving macros in '%s'. Missing required "
-                     "'id' attribute. The invalid section is:\n%s\n" 
-                     % (self.getroot().file, elem))
-
-          raise errors.XmlError(message)
+          message = "Missing required 'id' attribute." 
+          raise errors.MacroError(self.getroot().file, message, elem)
 
         if name not in map:
-          map[name] = elem.get('text()', '')
+          value = elem.getxpath('node()', '')
+          if not isinstance(value, basestring):
+            message = ("Macro content must be text. See the documentation for "
+                       "information on using 'xml' elements and xinclude "
+                       "for including xml content.")
+            raise errors.MacroError(self.getroot().file, message, elem)
+          map[name] = value
         else:
-          message = ("\nError resolving macros in '%s'. Duplicate macros "
-                     "found with the id '%s'. The invalid section is:\n%s\n" 
-                     % (self.getroot().file, elem.attrib['id'], elem))
-          raise errors.XmlError(message)
+          message = ("Duplicate macros found with the id '%s'."
+                     % elem.attrib['id'])
+          raise errors.MacroError(self.getroot().file, message, elem)
 
         elem.getparent().remove(elem)
 
@@ -371,8 +373,8 @@ def uElement(name, parent, attrs=None, text=None, **kwargs):
   # the below is more elegant, but won't work because Elements subclass
   # list, and lists evaluate to false when empty
   #
-  # return parent.get(name, None) or Element(name, parent=parent, **kwargs)
-  elem = parent.get(name, None)
+  # return parent.getxpath(name, None) or Element(name, parent=parent, **kwargs)
+  elem = parent.getxpath(name, None)
   if elem is None:
     elem = Element(name, parent=parent, attrs=attrs, text=text, **kwargs)
   else:
@@ -395,7 +397,7 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
 
   roottree.getroot().file = file # set this now so the filename can be used in
                                  # macro error text
-
+  
   count = 0
   while count <= 1:
     roottree.getroot().resolve_macros(macro_xpaths, macro_map)

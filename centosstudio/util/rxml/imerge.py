@@ -46,7 +46,7 @@ def incremental_merge(entries, index):
   indexes = versort.sort(indexes)
   base    = indexes.pop(0)
 
-  tree = copy.deepcopy(entries.get('*[@version="%s"]' % base))
+  tree = copy.deepcopy(entries.getxpath('*[@version="%s"]' % base))
 
   # make sure all trees set the allowoverride attribute
   tree.getroot().attrib['allowoverride'] = 'True'
@@ -57,7 +57,7 @@ def incremental_merge(entries, index):
 
   for i in indexes:
     if i <= index:
-      entry = entries.get('*[@version="%s"]' % i)
+      entry = entries.getxpath('*[@version="%s"]' % i)
       mergetree = copy.deepcopy(entry)
       handler.merge(mergetree)
     else:

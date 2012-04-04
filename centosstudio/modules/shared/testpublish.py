@@ -38,7 +38,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     }
 
     try:
-      rpmconf = self.config.get('/*/release-rpm')
+      rpmconf = self.config.getxpath('/*/release-rpm')
     except rxml.errors.XmlPathError:
       rpmconf = DummyConfig(self._config) 
 
@@ -82,7 +82,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
     # kickstart 
     self.ksxpath = 'kickstart'
-    if self.config.get('kickstart', None) is not None: # test ks provided
+    if self.config.getxpath('kickstart', None) is not None: # test ks provided
       KickstartEventMixin.setup(self)
     elif 'ks-path' in self.cvars:
       self.kstext = self.cvars['kickstart-file'].read_text() # production ks provided
@@ -114,7 +114,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     self.repomdfile = self.REPO_STORE/'repodata/repomd.xml'
 
     # update kickstart
-    if self.config.get('kickstart', None) is not None:
+    if self.config.getxpath('kickstart', None) is not None:
       (self.REPO_STORE/'ks.cfg').rm(force=True)
       KickstartEventMixin.run(self) 
 

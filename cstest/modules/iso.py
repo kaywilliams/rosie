@@ -169,7 +169,7 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   def __init__(self, distro, version, arch, *args, **kwargs):
     IsoEventTestCase.__init__(self, distro, version, arch)
     DeployMixinTestCase.__init__(self, distro, version, arch)
-    install_script = self.conf.get('/*/publish/install-script')
+    install_script = self.conf.getxpath('/*/publish/install-script')
     install_script.text = """
 #!/bin/bash
 virt-install --name %{hostname} --ram 1000 \

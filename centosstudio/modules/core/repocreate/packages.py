@@ -166,8 +166,8 @@ class PackagesEvent(ShelveMixin):
     for group in self.config.xpath('group', []):
       added = False
       for repoid, gf in groupfiles.items():
-        if ( group.get('@repoid', None) is None or
-             group.get('@repoid', None) == repoid ):
+        if ( group.getxpath('@repoid', None) is None or
+             group.getxpath('@repoid', None) == repoid ):
           if gf.has_group(group.text):
             self.comps.add_group(gf.return_group(group.text), 'core')
             # clear all optional packages out
@@ -209,8 +209,8 @@ class PackagesEvent(ShelveMixin):
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
     for group in self.config.xpath('group[@repoid]', []):
-      rid = group.get('@repoid')
-      gid = group.get('text()')
+      rid = group.getxpath('@repoid')
+      gid = group.getxpath('text()')
       try:
         self.cvars['repos'][rid]
       except KeyError:

@@ -83,7 +83,7 @@ class IOObject(object):
     # method called by events to ensure destname is provided for text content;
     # expects a list of path-like elements
     for path in xpaths: #allow python to raise an error of no paths provided
-      if path.get('@content', None) and not path.get('@destname', None):
+      if path.getxpath('@content', None) and not path.getxpath('@destname', None):
         raise InvalidConfigError(self.ptr._config.file,
           "[%s] missing 'destname' attribute at '%s':"
           "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(path), path))
@@ -158,7 +158,7 @@ class IOObject(object):
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
       # ensure item has text content
-      if item.get('text()', None) is None: 
+      if item.getxpath('text()', None) is None: 
         raise InvalidConfigError(self.ptr._config.file,
           "[%s] no path specified for '%s':"
           "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(item), item))
@@ -316,15 +316,15 @@ class IOObject(object):
   def _process_path_xml(self, item, destname=None, mode=None, content=None,
                         destdir_fallback=''):
     "compute src, dst, destname, and mode from <path> elements"
-    c = item.get('@content', (content or 'file'))
+    c = item.getxpath('@content', (content or 'file'))
     if c == "file":
       s = self.ptr.config.getpath('%s/text()' % 
                                    self.ptr._configtree.getpath(item))
     else:
-      s = item.get('text()')
-    d = pps.path(item.get('@destdir', destdir_fallback))
-    f = destname or item.get('@destname', None) or s.basename
-    m = item.get('@mode', mode)
+      s = item.getxpath('text()')
+    d = pps.path(item.getxpath('@destdir', destdir_fallback))
+    f = destname or item.getxpath('@destname', None) or s.basename
+    m = item.getxpath('@mode', mode)
 
     return s,d,f,m,c
 

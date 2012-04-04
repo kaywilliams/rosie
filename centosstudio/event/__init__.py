@@ -191,7 +191,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def config(self):
     try:
-      return self._config.get(self.config_base)
+      return self._config.getxpath(self.config_base)
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 
@@ -201,7 +201,7 @@ class DummyConfig(object):
   def __init__(self, config):
     self.config = config # the config object this is based around
 
-  def get(self, paths, fallback=rxml.tree.NoneObject()):
+  def getxpath(self, paths, fallback=rxml.tree.NoneObject()):
     try:
       return self.xpath(paths)[0]
     except rxml.errors.XmlPathError:
@@ -232,7 +232,7 @@ class DummyConfig(object):
     return self.config.pathexists(path)
 
   def getbool(self, path, fallback=rxml.tree.NoneObject()):
-    return rxml.config._make_boolean(self.get(path, fallback))
+    return rxml.config._make_boolean(self.getxpath(path, fallback))
 
   def getpath(self, path, fallback=rxml.tree.NoneObject()):
     if isinstance(fallback, basestring):

@@ -180,7 +180,7 @@ def XmlToFormattedFile(elem):
   for line in elem.xpath('line'):
     index = int(line.attrib.get('index'))
     if index is None: index = i
-    ffile.addline(FormattedLine(line.get('string/text()'),
+    ffile.addline(FormattedLine(line.getxpath('string/text()'),
                                 index,
                                 line.attrib['id']))
     i += 1

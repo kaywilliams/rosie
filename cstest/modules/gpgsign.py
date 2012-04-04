@@ -126,8 +126,8 @@ class Test_GeneratesSigningKeys(GpgsignTestCase):
     xpath = '/*/%s' % self.event.id
     datfile = self.event.parse_datfile()
     self.failUnless(
-      datfile.get('%s/pubkey' % xpath, None) is not None and
-      datfile.get('%s/seckey' % xpath, None) is not None) 
+      datfile.getxpath('%s/pubkey' % xpath, None) is not None and
+      datfile.getxpath('%s/seckey' % xpath, None) is not None) 
 
 class Test_ReadsKeysFromDatfile(GpgsignTestCase):
   "Keys read from datfile"
@@ -136,8 +136,8 @@ class Test_ReadsKeysFromDatfile(GpgsignTestCase):
   def runTest(self):
     xpath = '/*/%s' % self.event.id
     datfile = self.event.parse_datfile()
-    pubtext = datfile.get('%s/pubkey' % xpath, None)
-    sectext = datfile.get('%s/seckey' % xpath, None)
+    pubtext = datfile.getxpath('%s/pubkey' % xpath, None)
+    sectext = datfile.getxpath('%s/seckey' % xpath, None)
 
     self.tb.dispatch.execute(until=self.event)
 
@@ -160,8 +160,8 @@ class Test_KeysRemovedFromDatfile(GpgsignTestCase):
     self.tb.dispatch.execute(until=self.event)
     datfile = self.event.parse_datfile()
     self.failUnless(
-      datfile.get('%s/pubkey' % xpath, None) is None and 
-      datfile.get('%s/seckey' % xpath, None) is None)
+      datfile.getxpath('%s/pubkey' % xpath, None) is None and 
+      datfile.getxpath('%s/seckey' % xpath, None) is None)
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

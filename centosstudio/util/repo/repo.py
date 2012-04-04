@@ -209,7 +209,7 @@ class IORepo(BaseRepo):
                              % (self.url.realm//self.repomdfile)) 
 
     for data in self.repomd.xpath('repo:data', namespaces=NSMAP):
-      self.datafiles[data.get('@type')] = RepoDataFile(data)
+      self.datafiles[data.getxpath('@type')] = RepoDataFile(data)
 
   def cache_repodata(self, p, what=None):
     "Cache the repo's repodata to p"
@@ -262,10 +262,10 @@ class IORepo(BaseRepo):
 
 class RepoDataFile:
   def __init__(self, xml):
-    self.href = pps.path(xml.get('repo:location/@href', namespaces=NSMAP))
-    self.checksum = xml.get('repo:checksum/text()', namespaces=NSMAP)
-    self.checksum_type = xml.get('repo:checksum/@type', namespaces=NSMAP)
-    self.timestamp = xml.get('repo:timestamp/text()', namespaces=NSMAP)
+    self.href = pps.path(xml.getxpath('repo:location/@href', namespaces=NSMAP))
+    self.checksum = xml.getxpath('repo:checksum/text()', namespaces=NSMAP)
+    self.checksum_type = xml.getxpath('repo:checksum/@type', namespaces=NSMAP)
+    self.timestamp = xml.getxpath('repo:timestamp/text()', namespaces=NSMAP)
 
 def retry502(times, fn, *args, **kwargs):
   """Some urls (namely mirrors.fedoraproject.org/mirrorlist) like to raise

@@ -18,7 +18,7 @@
 """
 A configuration reading library.
 
-Provides parse() and get() functions, complete with fallback support.
+Provides parse() and getxpath() functions, complete with fallback support.
 """
 
 __author__   = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
@@ -104,10 +104,10 @@ class ConfigElement(tree.XmlTreeElement):
     tag = self._ns_clean(self.tag)
 
     # text
-    # using get('text()') below rather than self.text, as the latter returns
+    # using getxpath('text()') below rather than self.text, as the latter returns
     # both text and tail. This matters, for example if the text contains 
     # a free floating element, e.g. a <!--comment-->.
-    if self.get('text()', None) is not None: text = escape(self.get('text()'))
+    if self.getxpath('text()', None) is not None: text = escape(self.getxpath('text()'))
     if do_text_hl: text = ANSI_HIGHLIGHT % text
 
     # attributes
@@ -145,7 +145,7 @@ class ConfigElement(tree.XmlTreeElement):
       raise ValueError("No matching prefix found for namespace '%s'" % uri)
     return name
 
-  def get(self, paths, fallback=tree.NoneObject()):
+  def getxpath(self, paths, fallback=tree.NoneObject()):
     """
     Generic get method for data stored within a configuration element.
 
@@ -172,7 +172,7 @@ class ConfigElement(tree.XmlTreeElement):
     """
     Gets multiple values out of the configuration element
 
-    Has the same API differences as get(), above
+    Has the same API differences as getxpath(), above
     """
     if not hasattr(paths, '__iter__'): paths = [paths]
     result = []
@@ -192,13 +192,13 @@ class ConfigElement(tree.XmlTreeElement):
             if len(subresult) > 0:
               result.append(' '.join(subresult))
           if result: break
-      elif 'text()' in p:
-        result = tree.XmlTreeElement.xpath(self, p)
-        if len(result) > 0:
-          result = tree.XmlTreeElement.xpath(self,p)
-          if len(result) > 0:
-            result = [ ' '.join(result) ]
-          if result: break
+      #elif 'text()' in p:
+      #  result = tree.XmlTreeElement.xpath(self, p)
+      #  if len(result) > 0:
+      #    result = tree.XmlTreeElement.xpath(self,p)
+      #    if len(result) > 0:
+      #      result = [ ' '.join(result) ]
+      #    if result: break
       else:
         result = tree.XmlTreeElement.xpath(self, p)
         if result: break
@@ -220,7 +220,7 @@ class ConfigElement(tree.XmlTreeElement):
     return result
 
   def getbool(self, path, fallback=tree.NoneObject()):
-    return _make_boolean(self.get(path, fallback))
+    return _make_boolean(self.getxpath(path, fallback))
 
   def getpath(self, path, fallback=tree.NoneObject(), relative=False):
     return _make_path(self, path, fallback, relative=relative, multiple=False)
@@ -230,7 +230,7 @@ class ConfigElement(tree.XmlTreeElement):
 
   def pathexists(self, path):
     try:
-      return self.get(path) is not None
+      return self.getxpath(path) is not None
     except errors.XmlPathError:
       return False
 
@@ -246,8 +246,8 @@ class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
       raise lxml.sax.SaxError("Unexpected element closed: {%s}%s" % ns_name)
 
     # convert whitespace into None
-    if element.get('text()', None) is not None:
-      element.text = element.get('text()').strip() or None
+    if element.getxpath('text()', None) is not None:
+      element.text = element.getxpath('text()').strip() or None
 
 #--------FACTORY FUNCTIONS--------#
 PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=True)
@@ -281,7 +281,7 @@ def fromstring(string, handler=None, parser=PARSER, **kwargs):
 
 def _make_boolean(string):
   if isinstance(string, tree.XmlTreeElement):
-    string = string.get('text()')
+    string = string.getxpath('text()')
   if not isinstance(string, (basestring, bool)):
     raise ValueError("query must return a string or boolean, got a %s" % type(string))
   try:

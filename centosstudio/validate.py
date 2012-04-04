@@ -97,7 +97,7 @@ class CentOSStudioValidationHandler:
   def _verify_tle_elements(self, expected_elements):
     processed = set()
     for child in self.definition.getroot().iterchildren():
-      if child.tag is etree.Comment: continue
+      if child.tag is etree.Comment or child.tag == 'xml': continue
       if child.tag not in expected_elements:
         raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
@@ -124,7 +124,7 @@ class BaseConfigValidator:
       raise AttributeError("Either 'schema_file' or 'schema_contents' "
                            "must be provided.")
     element = xpath_query.lstrip('/')
-    tree = self._scrub_tree(self.config.get(xpath_query, None))
+    tree = self._scrub_tree(self.config.getxpath(xpath_query, None))
     if schema_contents:
       self.validate_with_string(schema_contents, tree, element)
     else:
@@ -203,9 +203,9 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.get('//rng:element[@name="repo"]', namespaces=NSMAP)
+    app_defn = schema.getxpath('//rng:element[@name="repo"]', namespaces=NSMAP)
     if app_defn is not None:
-      optional = app_defn.get('rng:optional', namespaces=NSMAP)
+      optional = app_defn.getxpath('rng:optional', namespaces=NSMAP)
       if optional is None:
         raise InvalidConfigError(self.config.getroot().file,
                                  "Missing required element: '%s'" % tag)
@@ -221,12 +221,12 @@ class DefinitionValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.get('//rng:element[@name="repo"]', namespaces=NSMAP)
+    app_defn = schema.getxpath('//rng:element[@name="repo"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="repo"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.getxpath('rng:element[@name="repo"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)

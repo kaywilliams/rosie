@@ -45,7 +45,7 @@ class OutputHandler(DiffHandler):
 
   def mdread(self, metadata):
     for f in metadata.xpath('/metadata/output/file', []):
-      self.oldoutput[pps.path(f.get('@path'))] = self.tupcls().fromxml(f)
+      self.oldoutput[pps.path(f.getxpath('@path'))] = self.tupcls().fromxml(f)
 
   def mdwrite(self, root):
     parent = rxml.config.uElement('output', parent=root)

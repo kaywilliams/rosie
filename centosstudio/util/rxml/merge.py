@@ -194,7 +194,7 @@ class XmlMergeHandler:
     attribute.  If the node doesn't contain one, check its parent.  If
     never specified, assume True.
     """
-    allowoverride = node.attrib.get(_CN('xm:allowoverride'), None)
+    allowoverride = node.attrib.getxpath(_CN('xm:allowoverride'), None)
     if allowoverride is not None:
       if self.securemode or BOOLEANS[allowoverride]:
         return True
@@ -242,7 +242,7 @@ class XmlMergeHandler:
     """
     max_pos = len(element.getchildren())
 
-    position = action.attrib.get(_CN('xm:position'), '-1')
+    position = action.attrib.getxpath(_CN('xm:position'), '-1')
     position = int(position)
 
     fn = tree.XmlTreeElement.addprevious
@@ -260,10 +260,10 @@ class XmlMergeHandler:
       position = max_pos - 1
       fn = tree.XmlTreeElement.addnext
 
-    unique = BOOLEANS[action.attrib.get(_CN('xm:unique'), 'false')]
+    unique = BOOLEANS[action.attrib.getxpath(_CN('xm:unique'), 'false')]
 
     for child in reversed(action.getchildren()):
-      if unique and element.get(child.tag) is not None:
+      if unique and element.getxpath(child.tag) is not None:
         continue
       fn(element[position], copy.deepcopy(child))
 

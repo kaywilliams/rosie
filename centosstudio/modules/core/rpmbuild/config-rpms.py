@@ -73,15 +73,15 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
 
-    name = self.config.get('name/text()',
+    name = self.config.getxpath('name/text()',
        "%s-%s" % (self.name, self.rpmid))
-    desc = self.config.get('description/text()', 
+    desc = self.config.getxpath('description/text()', 
        "The %s-%s package provides configuration files and scripts for "
        "the %s repository." % (self.name, self.rpmid, self.fullname))
-    summary = self.config.get('summary/text()', name) 
-    license = self.config.get('license/text()', 'GPL')
-    author = self.config.get('author/text()', 'None')
-    email = self.config.get('email/text()', 'None')
+    summary = self.config.getxpath('summary/text()', name) 
+    license = self.config.getxpath('license/text()', 'GPL')
+    author = self.config.getxpath('author/text()', 'None')
+    email = self.config.getxpath('email/text()', 'None')
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
                              license=license, author=author, email=email, 
@@ -102,7 +102,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     for script in self.config.xpath('trigger', []):
       self.io.add_xpath(self._configtree.getpath(script),
                         self.scriptdir, destname='%s-%s' % (
-                        script.get('@type'), script.get('@trigger')),
+                        script.getxpath('@type'), script.getxpath('@trigger')),
                         content='text', allow_text=True,
                         id='triggers')
 
@@ -170,10 +170,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     triggers = TriggerContainer()
 
     for elem in self.config.xpath('trigger', []):
-      key   = elem.get('@trigger')
-      id    = elem.get('@type')
-      inter = elem.get('@interpreter', None)
-      file  = self.scriptdir/'%s-%s' % (elem.get('@type'), elem.get('@trigger'))
+      key   = elem.getxpath('@trigger')
+      id    = elem.getxpath('@type')
+      inter = elem.getxpath('@interpreter', None)
+      file  = self.scriptdir/'%s-%s' % (elem.getxpath('@type'), elem.getxpath('@trigger'))
 
       flags = []
       if inter:
@@ -438,7 +438,7 @@ def get_module_info(ptr, *args, **kwargs):
   for config in ptr.definition.xpath(xpath, []):
 
     # convert user provided id to a valid class name
-    id = config.get('@id')
+    id = config.getxpath('@id')
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sConfigRpmEvent' % name.capitalize()
 

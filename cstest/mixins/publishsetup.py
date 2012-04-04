@@ -38,7 +38,7 @@ def PublishSetupMixinTest_Config(self):
     }
 
   def pre_setUp():
-    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
     mod.set("password", self.values['password'])
     mod.set("hostname", self.values['hostname'])
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
@@ -103,7 +103,7 @@ def PublishSetupMixinTest_NoPassword(self):
   self._testMethodDoc = "password generated if not provided"
 
   def pre_setUp():
-    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
     mod.attrib.pop("password", '')
 
   def runTest():
@@ -129,7 +129,7 @@ def PublishSetupMixinTest_Password(self):
   self._testMethodDoc = "password used if provided"
 
   def pre_setUp():
-    mod = self.conf.get('/*/%s' % self.moduleid, None)
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
     mod.set("password", "password")
 
   def runTest():
@@ -145,7 +145,7 @@ def PublishSetupMixinTest_Password(self):
   return self
 
 def saved(self, xpath):
-  return self.event.parse_datfile().get(
+  return self.event.parse_datfile().getxpath(
                                     '/*/%s/%s' % (self.moduleid, xpath), '')
 
 def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):

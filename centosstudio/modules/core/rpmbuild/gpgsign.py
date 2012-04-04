@@ -63,10 +63,10 @@ class GpgSignSetupEvent(Event):
 
     self.pubkey = self.mddir/'RPM-GPG-KEY-%s' % self.repoid
     self.seckey = self.mddir/'RPM-GPG-KEY-%s-secret' % self.repoid
-    if self.config.get('passphrase/text()', None) is None:
+    if self.config.getxpath('passphrase/text()', None) is None:
       self.passphrase=''
     else:
-      self.passphrase = str(self.config.get('passphrase/text()'))
+      self.passphrase = str(self.config.getxpath('passphrase/text()'))
 
     self.DATA['variables'].extend(['pubkey', 'seckey', 'passphrase'])
 
@@ -90,22 +90,22 @@ class GpgSignSetupEvent(Event):
   #------- Helper Methods -------#
 
   def get_signing_keys(self):
-    if not self.config.get('public/text()', ''):
+    if not self.config.getxpath('public/text()', ''):
       self.get_keys_from_datfile() or self.create_keys()
     else:
       self.get_keys_from_config() 
 
   def get_keys_from_config(self):
     df = self.parse_datfile()
-    pubtext = self.config.get('public/text()', '')
-    sectext = self.config.get('secret/text()', '')
+    pubtext = self.config.getxpath('public/text()', '')
+    sectext = self.config.getxpath('secret/text()', '')
     self.write_keys(pubtext, sectext)
     self.validate_keys(map = { self.pubkey: 'public', self.seckey: 'secret' })
 
 
     # remove generated keys from datfile, if exist
     for key in ['pubkey', 'seckey']:
-      elem = df.get('/*/%s/%s' % (self.id, key), None)
+      elem = df.getxpath('/*/%s/%s' % (self.id, key), None)
       if elem is not None:
         elem.getparent().remove(elem)
 
@@ -114,8 +114,8 @@ class GpgSignSetupEvent(Event):
   def get_keys_from_datfile(self):
     df = self.parse_datfile()
     try:
-      pubtext = df.get('/*/%s/pubkey/text()' % self.id,)
-      sectext = df.get('/*/%s/seckey/text()' % self.id,)
+      pubtext = df.getxpath('/*/%s/pubkey/text()' % self.id,)
+      sectext = df.getxpath('/*/%s/seckey/text()' % self.id,)
     except XmlPathError:
       return False # no keys in datfile
    

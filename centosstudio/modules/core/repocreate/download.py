@@ -63,7 +63,7 @@ class DownloadEvent(ShelveMixin, Event):
     self.DATA['variables'].append('rpmsdir')
 
     # get list of repos to skip downloading from
-    skip = [ r.get('text()') for r in self.config.xpath('skip-repo', []) ]
+    skip = [ r.getxpath('text()') for r in self.config.xpath('skip-repo', []) ]
     if self.type != 'system': skip.extend(['base', 'updates'])
 
     # setup for downloads

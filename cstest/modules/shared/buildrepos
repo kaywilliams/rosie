@@ -114,23 +114,24 @@ class RepoBuilder(object):
     self.repos = {}
 
   def setup(self, config, relative_path):
-    root_path = pps.path(config.get('path/text()', './'))
+    root_path = pps.path(config.getxpath('path/text()', './'))
     for repo in config.xpath('/build-repos/repo', []):
-      id = repo.get('@id')
+      id = repo.getxpath('@id')
       self.repos[id] = dict(path = root_path / id,
                             packages = [])
-      if repo.get('groupfile/text()', ''):
+      if repo.getxpath('groupfile/text()', ''):
         self.repos[id]['groupfile'] = (relative_path //
-                                       repo.get('groupfile/text()'))
+                                       repo.getxpath('groupfile/text()'))
       for package in repo.xpath('package', []):
-        self.repos[id]['packages'].append(RpmPackage(package.get('name/text()'),
-                               package.get('version/text()'),
-                               package.get('release/text()'),
-                               provides=package.get('provides/text()', ''),
-                               requires=package.get('requires/text()', ''),
-                               obsoletes=package.get('obsoletes/text()', ''),
-                               conflicts=package.get('conflicts/text()', ''),
-                               force_arch=package.get('force-arch/text()', '')))
+        self.repos[id]['packages'].append(RpmPackage(
+                          package.getxpath('name/text()'),
+                          package.getxpath('version/text()'),
+                          package.getxpath('release/text()'),
+                          provides=package.getxpath('provides/text()', ''),
+                          requires=package.getxpath('requires/text()', ''),
+                          obsoletes=package.getxpath('obsoletes/text()', ''),
+                          conflicts=package.getxpath('conflicts/text()', ''),
+                          force_arch=package.getxpath('force-arch/text()', '')))
 
   def build(self, repo_file, quiet=True):
     output_file = ConfigParser()

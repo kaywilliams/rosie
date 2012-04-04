@@ -21,7 +21,7 @@
 skipx
 </kickstart>
 
-<trigger triggers='kickstart, install-scripts, release-rpm'>
+<trigger triggers='release-rpm, config-rpms, kickstart, treeinfo, install-scripts, post-install-scripts'>
 <xi:include href="../common/deploy.xml" 
             xpointer="xpointer(/*/trigger/*)"/>
 </trigger>
