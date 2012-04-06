@@ -43,7 +43,7 @@ class RpmbuildRepoEvent(Event):
       id = 'rpmbuild-repo',
       parentid = 'rpmbuild',
       ptr = ptr,
-      version = 1.02,
+      version = 1.03,
       suppress_run_message = True,
       requires = ['rpmbuild-data', ],
       conditionally_requires = ['gpg-signing-keys', 'comps-object'],
@@ -145,6 +145,7 @@ class RpmbuildRepoEvent(Event):
     if not self.cvars.has_key('rpmbuild-data'): return
 
     core_group = self.cvars['comps-object'].return_group('core')
+    self.cvars.setdefault('user-required-packages', [])
 
     for v in self.cvars['rpmbuild-data'].values():
       core_group.add_package( package=v['rpm-name'], 
@@ -154,6 +155,9 @@ class RpmbuildRepoEvent(Event):
       if v['rpm-obsoletes']:
         for package in v['rpm-obsoletes']:
           self.cvars['comps-object'].remove_package(package)
+
+      if v['rpm-name'] not in self.cvars['excluded-packages']:
+        self.cvars['user-required-packages'].append(v['rpm-name'])
 
   def _setup_repos(self, type, updates=None):
 

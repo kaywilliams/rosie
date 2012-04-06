@@ -20,6 +20,7 @@ from UserDict import DictMixin
 
 import copy 
 import lxml
+import pexpect 
 import re
 import rpmUtils
 
@@ -37,12 +38,12 @@ from centosstudio.modules.shared import ShelveMixin
 __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger', 
            'TriggerContainer',] 
 
-class RpmBuildMixin(ShelveMixin):
+class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
   Mixin for working with CentOSStudio-created rpms including both from-srpm
   (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
   """
-  rpmbuild_mixin_version = "1.00"
+  rpmbuild_mixin_version = "1.02"
 
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
@@ -118,18 +119,43 @@ class RpmBuildMixin(ShelveMixin):
   def _sign_rpms(self):
     if self.rpms and 'gpg-signing-keys' in self.cvars:
       self.log(3, L1("signing rpms"))
+
+      # set up homedir - used for signing
+      homedir = self.mddir / 'gnupg'
+      homedir.rm(recursive=True, force=True)
+      homedir.mkdirs()
+      homedir.chmod(0700)
+
+      for key in [self.gpgsign['pubkey'], self.gpgsign['seckey']]:
+        self.import_key(homedir, key)
+
       for rpm_path in self.rpm_paths:
+        # sign rpm
         self.log(4, L1("%s" % rpm_path.basename))
+        command = ('rpm --resign %s ' 
+                   '--define="_signature gpg" '
+                   '--define="_gpg_path %s" '
+                   '--define="_gpg_name %s" '
+                   '--define="_gpgbin /usr/bin/gpg"'
+                   % (rpm_path, homedir, self.get_gpgname(homedir)))
+
         try:
-          mkrpm.signRpms([rpm_path], public=self.gpgsign['pubkey'], 
-                         secret=self.gpgsign['seckey'], 
-                         passphrase=self.gpgsign['passphrase'], 
-                         working_dir=self.mddir)
+          child = pexpect.spawn(command)
+          child.expect('Enter pass phrase:')
+          child.sendline(self.gpgsign['passphrase'])
+          child.expect(pexpect.EOF)
+
         except Exception, e:
           message = ("Unable to sign rpm '%s'. The error message was '%s'"
                       % (rpm_path, str(e)))
           raise RpmBuildError(message=message)
 
+        child.close()
+
+        if child.exitstatus != 0:
+          message = ("Unable to sign rpm '%s'. The error message was '%s'"
+                     % (rpm_path, child.before))
+          raise RpmBuildError(message=message)
 
   def _cache_rpmdata(self):
     if self.rpms:

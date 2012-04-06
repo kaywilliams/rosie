@@ -46,7 +46,7 @@ class GpgSignSetupEvent(Event):
       id = 'gpgsign',
       parentid = 'rpmbuild',
       ptr = ptr,
-      version = '1.00',
+      version = '1.01',
       provides = ['gpg-signing-keys', 'os-content',],
       suppress_run_message = False 
     )
@@ -175,9 +175,9 @@ EOF""" % (name, pubring, secring)
 
   def write_keys(self, pubtext, sectext):
     if not self.pubkey.exists() or not pubtext == self.pubkey.read_text():
-      self.pubkey.write_text(pubtext)
+      self.pubkey.write_text(pubtext.strip() + '\n')
     if not self.seckey.exists() or not sectext == self.seckey.read_text():
-      self.seckey.write_text(sectext)
+      self.seckey.write_text(sectext.strip() + '\n')
 
   def validate_keys(self, map):
     for key in map:

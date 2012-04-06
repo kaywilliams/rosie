@@ -27,7 +27,7 @@ class XIncludeSyntaxError(StandardError, XmlError):
     for err in self.args[1].error_log:
       if "fallback is not the child of an 'include'" in err.message:
         message = ("XPointer evaluation failed; fallback found, but "
-                   "unsupported for valid href")
+                   "not supported")
       else:
         message = err.message
       if err.filename != "<string>":

@@ -24,6 +24,7 @@ Requires: gnupg
 Requires: gzip 
 Requires: mkisofs
 Requires: openssh 
+Requires: pexpect
 Requires: pykickstart
 Requires: python-crypto
 Requires: python-devel

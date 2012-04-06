@@ -47,6 +47,8 @@ def execute(cmd, verbose=False):
     errstr += stderr
     raise ShExecError(status >> 8, status, errstr, cmd)
 
+  if stderr: stdout.append(stderr)
+
   if verbose:
     for line in stdout: print line
 

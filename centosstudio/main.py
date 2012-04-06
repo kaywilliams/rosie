@@ -88,8 +88,8 @@ VERSIONS_ERROR = ("Accepted values for 'version' are '%s'." %
                   "', '".join(VERSIONS))
 
 # the following chars are allowed in filenames...
-FILENAME_REGEX = '^[a-zA-Z0-9_\-\.]+$'
-FILENAME_ERROR = "Accepted characters are a-z, A-Z, 0-9, _, ., and -."
+FILENAME_REGEX = '^[a-zA-Z0-9_\-]+$'
+FILENAME_ERROR = "Accepted characters are a-z, A-Z, 0-9, _, and -."
 
 VALIDATE_DATA = {
     'name':    { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
@@ -289,7 +289,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         macros['%%{%s}' % id] = value
 
       # validate version and arch values, if provided
-      for name in ['version', 'arch']:
+      for name in VALIDATE_DATA:
         key = '%%{%s}' % name
         if key in macros:
           value = macros[key]
@@ -462,10 +462,14 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # setup datfile name
     datfn = '%s.dat' % self.definition.file
+    if '%{name}' in self.initial_macros:
+      datfn = '%s-%s' % (datfn, self.initial_macros['%{name}'])
     if '%{version}' in self.initial_macros:
       datfn = '%s-%s' % (datfn, self.initial_macros['%{version}'])
     if '%{arch}' in self.initial_macros:
       datfn = '%s-%s' % (datfn, self.initial_macros['%{arch}'])
+    if '%{id}' in self.initial_macros:
+      datfn = '%s.dat' % (self.initial_macros['%{id}'])
     self.datfn = datfn
 
     cache_max_size = self.mainconfig.getxpath('/centosstudio/cache/max-size/text()', '30GB')

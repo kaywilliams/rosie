@@ -247,7 +247,7 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
             (self.name, self.version, i),
           self.isodir/set/iso,
           self.splittrees/set/iso),
-        verbose=True)
+        verbose=False)
 
       if i == 1: # reset mtime on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))

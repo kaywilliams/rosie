@@ -79,8 +79,11 @@ pmFkVxnj7uI6X3CSrX7nW1dJoSRQdg7Ak86g/z6HdDxxjr9T5s5JJkXU1h6rIcJe
 =1hjY
 -----END PGP PRIVATE KEY BLOCK-----"""
 
-PASSPHRASE = "The quick brown fox jumped over the lazy dog."
+# Correct passphrase
+PASSGOOD = "The quick brown fox jumped over the lazy dog."
 
+# Bad passphrase
+PASSBAD = "bad"
 
 class GpgsignTestCase(EventTestCase):
   moduleid = 'gpgsign'
@@ -103,19 +106,6 @@ class Test_SigningKeysValid(GpgsignTestCase):
   def runTest(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(CentOSStudioError, self.event)
-  
-class Test_SigningKeysPassphrase(GpgsignTestCase):
-  "Passphrase used if provided"
-  _conf = """
-  <gpgsign>
-    <public>%s</public>
-    <secret>%s</secret>
-    <passphrase>%s</passphrase>
-  </gpgsign>
-  """ % (PASSPUB, PASSSEC, PASSPHRASE)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
   
 class Test_GeneratesSigningKeys(GpgsignTestCase):
   "Generates signing keys"
@@ -163,15 +153,47 @@ class Test_KeysRemovedFromDatfile(GpgsignTestCase):
       datfile.getxpath('%s/pubkey' % xpath, None) is None and 
       datfile.getxpath('%s/seckey' % xpath, None) is None)
 
+class Test_SigningKeysGoodPassphrase(GpgsignTestCase):
+  "Success on good passphrase"
+  eventid  = 'release-rpm' # using release rpm to test passphrase
+
+  _conf = ["""
+  <gpgsign>
+    <public>%s</public>
+    <secret>%s</secret>
+    <passphrase>%s</passphrase>
+  </gpgsign>
+  """ % (PASSPUB, PASSSEC, PASSGOOD),]
+
+  def runTest(self):
+    # execute until release-rpm to ensure signing occurs without error
+    self.tb.dispatch.execute(until=self.event)
+  
+class Test_SigningKeysBadPassphrase(GpgsignTestCase):
+  "Error on bad passphrase"
+  eventid  = 'release-rpm' # using release rpm to test passphrase
+
+  _conf = ["""
+  <gpgsign>
+    <public>%s</public>
+    <secret>%s</secret>
+    <passphrase>%s</passphrase>
+  </gpgsign>
+  """ % (PASSPUB, PASSSEC, PASSBAD),]
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')
 
   suite.addTest(make_core_suite(GpgsignTestCase, distro, version, arch))
   suite.addTest(Test_SigningKeysValid(distro, version, arch))
-  suite.addTest(Test_SigningKeysPassphrase(distro, version, arch))
   suite.addTest(Test_GeneratesSigningKeys(distro, version, arch))
   suite.addTest(Test_ReadsKeysFromDatfile(distro, version, arch))
   suite.addTest(Test_KeysRemovedFromDatfile(distro, version, arch))
+  suite.addTest(Test_SigningKeysGoodPassphrase(distro, version, arch))
+  suite.addTest(Test_SigningKeysBadPassphrase(distro, version, arch))
 
   return suite

@@ -73,6 +73,13 @@ from package  import RpmPackage as Package
 
 RPMSIGN_DIR = '/tmp/rpmsign'
 
+## Much of this module is broken due to signature changes in rpm 4.8 and
+## no longer in use.  In particular, the CentOS Studio rpmbuild module
+## now signs packages using rpm directly via pexpect, and the gpgcheck
+## modules uses python rpm and yum libraries to perform checking.
+## Prime target for future cleanup...
+
+
 #--------- HELPER FUNCTIONS ----------#
 def getPassphrase():
   """
