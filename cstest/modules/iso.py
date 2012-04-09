@@ -136,7 +136,7 @@ class Test_SetsChanged(IsoEventBootOptionsTestCase):
   _conf = [
   """<iso>
     <set>640MB</set>
-    <set>250 MiB</set>
+    <set>300 MiB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
   """<publish>
