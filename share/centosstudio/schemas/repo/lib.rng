@@ -220,6 +220,9 @@
     <oneOrMore>
       <element name="script">
       <optional><attribute name='id'/></optional>
+      <optional>
+      <attribute name='verbose'><ref name="value-boolean"/></attribute>
+      </optional>
       <text/>
       </element>
     </oneOrMore>

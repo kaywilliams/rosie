@@ -109,17 +109,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.gpgkeys = {}
     for repo in repos:
       for url in repo.gpgkey:
-        try:
-          yb = yum.YumBase()
-          yb.verbose_logger = self.logger 
-          id = yb._retrievePublicKey(url, yum.yumRepo.YumRepository(
-               str(repo)))[0]['hexkeyid']
-          self.gpgkeys[id] = url
-        except yum.Errors.YumBaseError, e:
-          message = ("An error occurred attempting to retrieve the GPG key "
-                     "for the '%s' package repository. The error message "
-                     "is printed below:\n%s" % (repo.id, e))
-          raise GPGKeyError(message=message)
+        self.gpgkeys[url.basename] = url # using key basenames as ids
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
     self.DATA['variables'].extend(['keydir', 'cvars[\'gpgkey-ids\']'])
@@ -139,7 +129,13 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       self.local_keydir.mkdirs()
       self.keys = []
       for url in self.gpgkeys.values():
-        url.cp(self.local_keydir)
+        try:
+          url.cp(self.local_keydir)
+        except Exception, e:
+          message = ("An error occurred attempting to retrieve the GPG key "
+                     "located at '%s'. The error message is printed below:\n"
+                     "%s" % (url, e))
+          raise GPGKeyError(message=message)
         self.keys.append(url.basename)
         self.DATA['output'].append(self.local_keydir / url.basename)
 

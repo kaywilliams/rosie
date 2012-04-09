@@ -254,6 +254,8 @@ class DeployEventMixin:
     ids = self.scripts[script]['script-ids']
     for id in ids:
       cmd = self.io.list_output(what=id)[0]
+      verbose = self.config.getbool('%s/script[@id="%s"]/@verbose' % 
+                                   (script, id), False)
       self.log(1, L1('running %s script' % id))
 
       if (self.ssh['enabled'] and 
@@ -297,7 +299,7 @@ class DeployEventMixin:
           # execute script
           cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
           try:
-            self._ssh_execute(client, cmd)
+            self._ssh_execute(client, cmd, verbose)
           except SSHFailedError, e:
             raise SSHScriptFailedError(id=id, host=params['hostname'],
                                        message=str(e))
@@ -306,7 +308,7 @@ class DeployEventMixin:
           if 'client' in locals(): client.close()
 
       else: # run cmd on the local machine
-        self._local_execute(cmd)
+        self._local_execute(cmd, verbose)
 
   def _ssh_connect(self, params, log_format='L2'):
     try:
@@ -332,7 +334,7 @@ class DeployEventMixin:
 
     return client
 
-  def _ssh_execute(self, client, cmd, log_format='L2'):
+  def _ssh_execute(self, client, cmd, verbose, log_format='L2'):
     self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
     chan = client.get_transport().open_session()
     chan.exec_command('"%s"' % cmd)
@@ -345,13 +347,13 @@ class DeployEventMixin:
         got_data = False
         if chan.recv_ready():
           data = chan.recv(1024)
-          if data:
+          if data and (verbose or self.logger.test(4)):
             got_data = True
             if header_logged is False:
-              self.logger.log_header(4, "%s event - '%s' script output" % 
+              self.logger.log_header(0, "%s event - '%s' script output" % 
                                     (self.id, pps.path(cmd).basename))
               header_logged = True
-            self.log(4, data.rstrip('\n'))
+            self.log(0, data.rstrip('\n'))
         if chan.recv_stderr_ready():
           data = chan.recv_stderr(1024)
           if data:
@@ -361,8 +363,8 @@ class DeployEventMixin:
           break
 
     if header_logged:
-      self.logger.log(4, "%s" % '=' * MSG_MAXWIDTH)
-      self.logger.log(4, '')
+      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
+      self.logger.log(0, '')
       
     status = chan.recv_exit_status()
     chan.close()
@@ -370,7 +372,7 @@ class DeployEventMixin:
     if status != 0:
       raise SSHFailedError(message='\n'.join(errlines))
 
-  def _local_execute(self, cmd):
+  def _local_execute(self, cmd, verbose):
       proc = subprocess.Popen('"%s"' % cmd, shell=True, 
                                             stdout=subprocess.PIPE, 
                                             stderr=subprocess.PIPE)
@@ -381,18 +383,18 @@ class DeployEventMixin:
         outline = proc.stdout.readline().rstrip()
         errline = proc.stderr.readline().rstrip()
         if outline != '' or errline != '' or proc.poll() is None:
-          if outline: 
+          if outline and (verbose or self.logger.test(4)): 
             if not header_logged:
-              self.logger.log_header(4, "%s event - '%s' script output" %
+              self.logger.log_header(0, "%s event - '%s' script output" %
                                     (self.id, pps.path(cmd).basename))
               header_logged = True
-            self.log(4, outline)
+            self.log(0, outline)
           if errline: errlines.append(errline) 
         else:
           break
 
       if header_logged:
-        self.logger.log(4, "%s" % '=' * MSG_MAXWIDTH)
+        self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
       if proc.returncode != 0:
         raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
