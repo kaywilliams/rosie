@@ -54,7 +54,7 @@ class MountableImageHandler:
                     "Any img-related errors that occur are most likely the "
                     "result of this.\nContent of '/proc/mounts is:\n%s"
                     % (mounted, pps.path('/proc/mounts').read_text()))
-    shlib.execute('mount -o loop -t %s "%s" "%s"' % (self._type, self.base.imgloc, point))
+    shlib.execute('/bin/mount -o loop -t %s "%s" "%s"' % (self._type, self.base.imgloc, point))
     self._mount = point
 
     # get rid of pesky lost+found folder
@@ -64,7 +64,7 @@ class MountableImageHandler:
     count = 0
     while True:
       try:
-        shlib.execute('umount %s' % self._mount)
+        shlib.execute('/bin/umount %s' % self._mount)
       except shlib.ShExecError, e:
         if count >= UMOUNT_ATTEMPTS or e.retcode != 1:
           raise
@@ -144,7 +144,8 @@ def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2,
       numblks = (size/512) + 1
     else:
       numblks = size/512
-    shlib.execute('dd if=/dev/zero of="%s" bs=512 count=%s' % (file, numblks))
+    shlib.execute('/bin/dd if=/dev/zero of="%s" bs=512 count=%s' % 
+                 (file, numblks))
     shlib.execute(fsmaker)
 
   image = Image(file, zipped=zipped)

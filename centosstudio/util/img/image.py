@@ -52,9 +52,9 @@ class Image:
     if self.zipped:
       newloc = acquire_mount_point()/self.name
       if self.zip_format == 'gzip':
-         shlib.execute('gunzip -c %s > %s' % (self.imgfile, newloc))
+         shlib.execute('/usr/bin/gunzip -c %s > %s' % (self.imgfile, newloc))
       elif self.zip_format == 'lzma':
-         shlib.execute('xz -dc %s > %s' % (self.imgfile, newloc))
+         shlib.execute('/usr/bin/xz -dc %s > %s' % (self.imgfile, newloc))
       else:
          raise ImageIOError, "Invalid zip format: %s" % self.zip_format
       self.imgloc = newloc
@@ -67,10 +67,11 @@ class Image:
     if not self.zipped:
       try:
         if self.zip_format == 'gzip':
-          shlib.execute('gzip -c %s > %s' % (self.imgloc, self.imgfile))
+          shlib.execute('/usr/bin/gzip -c %s > %s' % 
+                       (self.imgloc, self.imgfile))
         elif self.zip_format == 'lzma':
-          shlib.execute('xz -9 -c --format=lzma %s > %s' % (self.imgloc, 
-                                                            self.imgfile))
+          shlib.execute('/usr/bin/xz -9 -c --format=lzma %s > %s' % 
+                       (self.imgloc, self.imgfile))
         else:
           raise ImageIOError, "Invalid zip format: %s" % self.zip_format
       except:

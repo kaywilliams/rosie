@@ -52,10 +52,10 @@ def MakeImage(file, format, zipped=False, zip_format='gzip', **kwargs):
   # not clear why we're zipping a file that doesn't exist
   if not ex and zipped:
     if zip_format == 'gzip':
-      shlib.execute('gzip %s' % file)
+      shlib.execute('/usr/bin/gzip %s' % file)
       file.rename('%s.gz' % file)
     if zip_format == 'lzma':
-      shlib.execute('xz -9 --format=lzma %s' % file)
+      shlib.execute('/usr/bin/xz -9 --format=lzma %s' % file)
       file.rename('%s.lzma' % file)
 
   return img
@@ -88,7 +88,7 @@ def cleanup():
   "Cleanup any orphaned mounts and remove the temporary directory"
   for mount in IMGLIB_MNT.findpaths(mindepth=1):
     if mount in pps.path('/proc/mounts').read_text():
-      shlib.execute('umount %s' % mount)
+      shlib.execute('/bin/umount %s' % mount)
 
   IMGLIB_TEMP.rm(recursive=True, force=True)
 

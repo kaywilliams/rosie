@@ -209,7 +209,7 @@ class PublishSetupEventMixin:
     public = secret + '.pub'
     if not secret.exists():
       try:
-        cmd = 'ssh-keygen -t rsa -f %s -N ""' % secret 
+        cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % secret 
         shlib.execute(cmd)
       except shlib.ShExecError, e:
         message = ("Error occurred creating ssh keys for the "

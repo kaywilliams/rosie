@@ -132,7 +132,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       for rpm_path in self.rpm_paths:
         # sign rpm
         self.log(4, L1("%s" % rpm_path.basename))
-        command = ('rpm --resign %s ' 
+        command = ('/bin/rpm --resign %s ' 
                    '--define="_signature gpg" '
                    '--define="_gpg_path %s" '
                    '--define="_gpg_name %s" '

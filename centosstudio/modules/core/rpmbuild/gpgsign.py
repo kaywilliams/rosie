@@ -158,10 +158,10 @@ EOF""" % (name, pubring, secring)
     finally:
       if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
 
-    shlib.execute('gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
+    shlib.execute('/usr/bin/gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
                    self.pubkey))
-    shlib.execute('gpg --export-secret-key -a --homedir %s "%s" > %s' % (
-                   homedir, name, self.seckey))
+    shlib.execute('/usr/bin/gpg --export-secret-key -a --homedir %s "%s" > %s'
+                  % (homedir, name, self.seckey))
 
     # write to datfile
     root = self.parse_datfile()

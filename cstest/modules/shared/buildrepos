@@ -147,9 +147,9 @@ class RepoBuilder(object):
       cwd = os.getcwd()
       os.chdir(path)
       if 'groupfile' in self.repos[repoid]: 
-        cmd = 'createrepo -g %s .' %self.repos[repoid]['groupfile']
+        cmd = '/usr/bin/createrepo -g %s .' %self.repos[repoid]['groupfile']
       else:
-        cmd = 'createrepo .'
+        cmd = '/usr/bin/createrepo .'
       shlib.execute(cmd)
       os.chdir(cwd)
 

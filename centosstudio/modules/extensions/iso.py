@@ -241,7 +241,7 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
         bootargs = '-b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table'
       else:
         bootargs = ''
-      shlib.execute('mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
+      shlib.execute('/usr/bin/mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
          (bootargs,
           '%s %s disc %d' % \
             (self.name, self.version, i),

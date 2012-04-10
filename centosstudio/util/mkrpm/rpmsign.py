@@ -138,7 +138,7 @@ class GpgMixin:
     key = homedir / key.basename
     if not magic.match(key) == magic.FILE_TYPE_GPGKEY:
       raise RuntimeError("file '%s' does not appear to be a gpg key" % key)
-    shlib.execute('gpg --homedir %s --import %s' % (homedir, key))
+    shlib.execute('/usr/bin/gpg --homedir %s --import %s' % (homedir, key))
 
   def get_gpgname(self, homedir, index=0):
     gpg_keys = self.get_gpgkeys(homedir)
@@ -153,7 +153,7 @@ class GpgMixin:
     return False
 
   def get_gpgkeys(self, homedir):
-    gpg_keys = shlib.execute('gpg --list-keys --with-colons '\
+    gpg_keys = shlib.execute('/usr/bin/gpg --list-keys --with-colons '\
                              '--fixed-list-mode --homedir %s' % homedir)
     keys = gpgparse.parsekeys(gpg_keys)
     if len(keys) == 0:

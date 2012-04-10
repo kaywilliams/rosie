@@ -212,7 +212,7 @@ class RpmBuilder:
       sync.sync(srpm, srpms_dir)
 
     if self.createrepo:
-      shlib.execute('createrepo %s' % rpms_dir)
+      shlib.execute('/usr/bin/createrepo %s' % rpms_dir)
     if not self.keep_temp:
       self.source_path.rm(recursive=True, force=True)
     sources.rm(recursive=True, force=True)

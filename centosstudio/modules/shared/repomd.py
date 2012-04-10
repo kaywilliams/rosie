@@ -35,7 +35,7 @@ class RepomdMixin:
 
   def __init__(self, *args, **kwargs):
     self.cvars['createrepo-version'] = Version(
-      shlib.execute('createrepo --version')[0].lstrip("createrepo "))
+      shlib.execute('/usr/bin/createrepo --version')[0].lstrip("createrepo "))
     if self.logger:
       self.crcb = TimerCallback(self.logger)
     else:
@@ -59,7 +59,7 @@ class RepomdMixin:
     #createrepo reported version number was incorrect (0.4.9) for version
     #0.4.11.
     if (update and (path/'repodata').exists() and 
-       '--update' in ' '.join(shlib.execute('createrepo --help'))):
+       '--update' in ' '.join(shlib.execute('/usr/bin/createrepo --help'))):
       args.append('--update')
     if quiet:
       args.append('--quiet')

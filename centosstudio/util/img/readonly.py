@@ -44,7 +44,8 @@ class ReadOnlyImageHandler:
       warnings.warn("file '%s' is already mounted somewhere on the filesystem. "
                     "Any img-related errors that occur are most likely the "
                     "result of this.\nOutput of `mount` is:\n%s" % mounted)
-    shlib.execute('mount -o loop -t %s "%s" "%s"' % (self._type, self.base.imgloc, point))
+    shlib.execute('/bin/mount -o loop -t %s "%s" "%s"' % 
+                 (self._type, self.base.imgloc, point))
     self._mount = point
 
   def write(self, src, dst='/'):

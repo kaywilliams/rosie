@@ -75,7 +75,7 @@ class BootisoEvent(Event, BootOptionsMixin):
     # when we finish
     ibin = self.cvars['isolinux-files']['isolinux.bin']
     ibin_st = ibin.stat()
-    shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin '
+    shlib.execute('/usr/bin/mkisofs -o %s -b isolinux/isolinux.bin '
                   '-c isolinux/boot.cat -no-emul-boot -boot-load-size 4 '
                   '-boot-info-table -RJTV "%s" %s' \
                   % (self.bootiso, self.name, isodir))

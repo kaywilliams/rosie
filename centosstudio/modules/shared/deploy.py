@@ -334,7 +334,7 @@ class DeployEventMixin:
 
     return client
 
-  def _ssh_execute(self, client, cmd, verbose, log_format='L2'):
+  def _ssh_execute(self, client, cmd, verbose=False, log_format='L2'):
     self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
     chan = client.get_transport().open_session()
     chan.exec_command('"%s"' % cmd)
@@ -372,7 +372,7 @@ class DeployEventMixin:
     if status != 0:
       raise SSHFailedError(message='\n'.join(errlines))
 
-  def _local_execute(self, cmd, verbose):
+  def _local_execute(self, cmd, verbose=False):
       proc = subprocess.Popen('"%s"' % cmd, shell=True, 
                                             stdout=subprocess.PIPE, 
                                             stderr=subprocess.PIPE)

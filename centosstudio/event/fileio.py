@@ -59,7 +59,7 @@ class IOObject(object):
 
   def chcon(self, path):
     if self.ptr.cvars['selinux-enabled']:
-      shlib.execute('chcon -R --type=httpd_sys_content_t %s' % path)
+      shlib.execute('/usr/bin/chcon -R --type=httpd_sys_content_t %s' % path)
 
   def compute_mode(self, src, mode, content):
     if content == 'text':

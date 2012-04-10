@@ -55,7 +55,7 @@ class CpioImageHandler:
     if mode == MODE_WRITE:
       oldcwd = os.getcwd()
       os.chdir(point)
-      shlib.execute('cpio -i -d --quiet -m < "%s"' % self.base.imgloc)
+      shlib.execute('/bin/cpio -i -d --quiet -m < "%s"' % self.base.imgloc)
       os.chdir(oldcwd)
     self._mount = point
 
@@ -68,7 +68,8 @@ class CpioImageHandler:
     if self.base.mode == MODE_WRITE:
       oldcwd = os.getcwd()
       os.chdir(self._mount)
-      shlib.execute('find . | cpio --quiet -c -o -a > "%s"' % self.base.imgloc)
+      shlib.execute('/usr/bin/find . | /bin/cpio --quiet -c -o -a > "%s"' % 
+                    self.base.imgloc)
       os.chdir(oldcwd)
 
   def write(self, src, dest='/'):
@@ -85,7 +86,7 @@ class CpioImageHandler:
 
   def list(self, relative=False):
     self.flush()
-    files = shlib.execute('cpio --list --quiet < "%s"' % self.base.imgloc)
+    files = shlib.execute('/bin/cpio --list --quiet < "%s"' % self.base.imgloc)
     # the archive always contains '.', which we do not want to list
     files = [ f for f in files if f != '.' ] # kind of a hack...
     if relative:
@@ -97,7 +98,8 @@ class CpioImageHandler:
     if self.base.mode == MODE_READ:
       oldcwd = os.getcwd()
       os.chdir(self._mount)
-      shlib.execute('cpio -i -d -m --quiet "%s" < "%s"' % (fn, self.base.imgloc))
+      shlib.execute('/bin/cpio -i -d -m --quiet "%s" < "%s"' % 
+                   (fn, self.base.imgloc))
       os.chdir(oldcwd)
 
     f = self._mount//fn
@@ -113,7 +115,8 @@ def MakeCpioImage(file, zipped=False, **kwargs):
   "Make a new CPIO image"
   file = pps.path(file)
   if not file.isfile():
-    shlib.execute('echo | cpio --quiet -c -o -a > "%s"' % file) # create empty cpio archive
+    shlib.execute('/bin/echo | /bin/cpio --quiet -c -o -a > "%s"' % file) 
+                  # create empty cpio archive
 
   image = Image(file, zipped=zipped, **kwargs)
   image.handler = CpioImageHandler(image)

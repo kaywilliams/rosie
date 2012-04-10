@@ -390,6 +390,6 @@ def decorate(testcase, method, prefn=None, postfn=None):
 def _run_make(dir):
   cwd = os.getcwd()
   os.chdir(dir)
-  shlib.execute('make')
+  shlib.execute('/usr/bin/make')
   os.chdir(cwd)
 
