@@ -108,7 +108,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                                self.rpm.rpm_path.basename)
 
     # update repodata
-    self.createrepo(self.REPO_STORE/'Packages', 
+    self.createrepo(self.REPO_STORE, 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
     self.repomdfile = self.REPO_STORE/'repodata/repomd.xml'
