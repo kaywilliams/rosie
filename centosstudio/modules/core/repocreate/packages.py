@@ -45,7 +45,7 @@ class PackagesEvent(ShelveMixin):
       ptr = ptr,
       provides = ['comps-object', 'user-required-packages', 
                   'user-required-groups', 'excluded-packages'],
-      requires = ['repos'],
+      conditionally_requires = ['repos'],
       version = '1.02'
     )
 
@@ -72,6 +72,7 @@ class PackagesEvent(ShelveMixin):
   def setup(self):
     self.diff.setup(self.DATA)
 
+    self.repos = self.cvars.get('repos', {})
     self.groupfiles = self._get_groupfiles()
 
     # track changes in repo/groupfile relationships
@@ -130,7 +131,7 @@ class PackagesEvent(ShelveMixin):
     "Get a list of repoid, groupfile tuples for all repositories"
     groupfiles = []
 
-    for repo in self.cvars['repos'].values():
+    for repo in self.repos.values():
       if repo.has_gz:
         key = 'group_gz'
       else:
@@ -212,7 +213,7 @@ class PackagesEvent(ShelveMixin):
       rid = group.getxpath('@repoid')
       gid = group.getxpath('text()')
       try:
-        self.cvars['repos'][rid]
+        self.repos[rid]
       except KeyError:
         raise RepoidNotFoundError(gid, rid)
 

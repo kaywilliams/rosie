@@ -24,6 +24,7 @@ class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
+    self.requires.add('base-info')
     self.DATA['config'].append('kickstart')
     self.DATA['variables'].append('kickstart_mixin_version')
 

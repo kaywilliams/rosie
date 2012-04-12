@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-base.py
+base-info.py
 
 provides information about the base distribution
 """
@@ -40,7 +40,7 @@ class BaseInfoEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'base-info',
-      parentid = 'setup-events',
+      parentid = 'installer',
       ptr = ptr,
       requires = ['anaconda-version', 'installer-repo'],
       provides = ['base-info'],

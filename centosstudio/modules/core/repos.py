@@ -115,7 +115,7 @@ class ReposEvent(RepoEventMixin, Event):
           # set anaconda version
           self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
       
-    if not self.cvars['installer-repo']:
+    if self.type == "system" and not self.cvars['installer-repo']:
       raise InstallerRepoNotFoundError()
 
     # set up cvars
@@ -133,14 +133,16 @@ class ReposEvent(RepoEventMixin, Event):
   def verify_cvars(self):
     "verify cvars are set"
     self.verifier.failUnlessSet('repos')
-    self.verifier.failUnlessSet('anaconda-version')
-    self.verifier.failUnlessSet('installer-repo')
+    if self.type == "system":
+      self.verifier.failUnlessSet('anaconda-version')
+      self.verifier.failUnlessSet('installer-repo')
 
 
 #------ ERRORS ------#
 class InstallerRepoNotFoundError(CentOSStudioEventError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
-              "given repository." )
+              "given repository. When building a system repo, at least one "
+              "operating system repository must be specified.")
 
 class TreeinfoNotFoundError(CentOSStudioEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "

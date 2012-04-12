@@ -19,12 +19,13 @@ from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
 
 class BaseInfoEventTestCase(EventTestCase):
-  moduleid = 'base'
+  moduleid = 'base-info'
   eventid  = 'base-info'
-  _type = 'package'
+  _type = 'system'
+  _conf = "<packages><package>kernel</package></packages>"
 
 def make_suite(distro, version, arch, *args, **kwargs):
-  suite = ModuleTestSuite('base')
+  suite = ModuleTestSuite('base-info')
 
   suite.addTest(make_core_suite(BaseInfoEventTestCase, distro, version, arch))
 
