@@ -3,6 +3,7 @@
   <start>
     <element name="repo">
 
+      <optional>
       <element name="repos">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
@@ -28,6 +29,7 @@
         </interleave>
 
       </element>
+      </optional>
 
     </element>
   </start>
