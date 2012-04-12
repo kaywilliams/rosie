@@ -172,6 +172,8 @@ class BuildCli:
     try:
       sbuilder = centosstudio.main.Build(opts, args, callback=cb)
       sbuilder.main()
+    except SystemExit: # raised by list-events and validate-only
+      sys.exit()
     except (KeyboardInterrupt):
       cb.logger.write(0, '\n') # start on a new line
       cb.logger.log(0, "CentOS Studio halted on user input")
