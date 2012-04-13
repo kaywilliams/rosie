@@ -72,20 +72,11 @@ class TestInstallEvent(DeployEventMixin, Event):
     self.diff.setup(self.DATA)
     self.kstext = self.cvars['test-install-kstext']
     self.repomdfile = self.cvars['test-install-repomdfile']
-    for r in ['release-rpm', 'config-rpm']:
-      try:
-        setattr(self, '%s_release' % r.replace('-', '_'), 
-                self.cvars['rpmbuild-data'][self.cvars['%s-name' % r]]
-                          ['rpm-release'])
-      except KeyError:
-        setattr(self, '%s_release' % r.replace('-', '_'), None)
-    self.DATA['variables'].extend([ 'kstext', 'release_rpm_release',
-                                    'config_rpm_release',
-                                    'cvars[\'base-treeinfo-text\']' ])
+    self.default_install_triggers = [ 'release_rpm', 'config_rpms', 'kickstart',
+                                      'treeinfo', 'install_scripts',
+                                      'post_install_scripts' ]
     DeployEventMixin.setup(self)
 
   def run(self):
-    self.install_triggers = [ 'install-scripts', 'kickstart', 'treeinfo',
-                              'release-rpm-release', 'config-rpm-release' ]
     DeployEventMixin.run(self)
 

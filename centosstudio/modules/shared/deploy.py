@@ -148,10 +148,14 @@ class DeployEventMixin:
                    "', '".join(invalids), "', '".join(valids)))
         raise InvalidInstallTriggerError(message=message)
     else:
-      triggers = trigger_data.keys()
+      triggers = getattr(self, 'default_install_triggers', [])
 
     triggers.sort()
     self.config.resolve_macros('.', {'%{triggers}': ' '.join(triggers)})
+
+    # add data for active triggers to diff variables
+    self.active_triggers = [ (x, trigger_data) for x in triggers ]
+    self.DATA['variables'].append('active_triggers')
 
     self.deploydir = self.LIB_DIR / 'deploy'
     self.triggerfile = self.deploydir / 'trigger_info' # match script varname

@@ -73,7 +73,7 @@ class TestUpdateEvent(DeployEventMixin, Event):
     self.diff.setup(self.DATA)
     self.kstext = self.cvars['test-update-kstext']
     self.repomdfile = self.cvars['test-update-repomdfile']
-    self.DATA['variables'].extend(['kstext', 'repomdfile'])
+    self.DATA['variables'].append('repomdfile')
     DeployEventMixin.setup(self)
 
 
