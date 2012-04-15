@@ -4,7 +4,6 @@
 <!-- scripts for installing and updating a local virtual machine -->
 <config-rpms>
   <xi:include href='config/ssh.xml'/>
-  <xi:include href='config/avahi.xml'/>
 </config-rpms>
 
 <kickstart>
