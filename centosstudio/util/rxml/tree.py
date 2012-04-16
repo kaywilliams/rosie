@@ -197,7 +197,9 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
                 %{name2}: 'value2'}
     """
     xpaths = xpaths or ['/*']
-    map = map or {}
+    passed_in = map or {}
+    map = dict(passed_in) # make a copy of the passed in dict so we can refer 
+                          # to it later
 
     # locate and remove macro definitions
     for item in xpaths:
@@ -220,9 +222,12 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
             raise errors.MacroError(self.getroot().file, message, elem)
           map[name] = value
         else:
-          message = ("Duplicate macros found with the id '%s'."
-                     % elem.attrib['id'])
-          raise errors.MacroError(self.getroot().file, message, elem)
+          if name in passed_in:
+            pass # use passed in macros rather than found ones
+          else:
+            message = ("Duplicate macros found with the id '%s'."
+                       % elem.attrib['id'])
+            raise errors.MacroError(self.getroot().file, message, elem)
 
         elem.getparent().remove(elem)
 
