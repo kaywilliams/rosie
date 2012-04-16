@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<repo xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+
+<main>
+<fullname>Example System Repository</fullname>
+<name>example</name>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+</main>
+
+<packages>
+<group repoid='base'>core</group>
+</packages>
+
+<repos>
+<xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/>
+<xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
+</repos>
+
+</repo>
