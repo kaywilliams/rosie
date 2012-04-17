@@ -176,7 +176,7 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
           if key in elem.tail:
             elem.tail = elem.tail.replace(key, map[key])
 
-  def resolve_macros(self, xpaths=None, map=None, remove=True):
+  def resolve_macros(self, xpaths=None, map=None):
     """
     Processes macro elements (reads and removes) and resolves macro variables.
     Macro elements take the format '<macro id='name'>value</macro>'. They can
@@ -195,14 +195,9 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
 
         map = {'%{name1}: 'value1'
                 %{name2}: 'value2'}
-
-    remove -- boolean specifying whether to remove macro elements after 
-              processing
     """
     xpaths = xpaths or ['/*']
-    passed_in = map or {}
-    map = dict(passed_in) # make a copy of the passed in dict so we can refer 
-                          # to it later
+    map = map or {}
 
     # locate and remove macro definitions
     for item in xpaths:
@@ -216,7 +211,7 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
           message = "Missing required 'id' attribute." 
           raise errors.MacroError(self.getroot().file, message, elem)
 
-        if name not in map:
+        if name not in map: # use outermost macro definition
           value = elem.getxpath('node()', '')
           if not isinstance(value, basestring):
             message = ("Macro content must be text. See the documentation for "
@@ -224,16 +219,8 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
                        "for including xml content.")
             raise errors.MacroError(self.getroot().file, message, elem)
           map[name] = value
-        else:
-          if name in passed_in:
-            pass # use passed in macros rather than found ones
-          else:
-            message = ("Duplicate macros found with the id '%s'."
-                       % elem.attrib['id'])
-            raise errors.MacroError(self.getroot().file, message, elem)
 
-        if remove:
-          elem.getparent().remove(elem)
+        elem.getparent().remove(elem)
 
     # resolve macros in map - recursive
     p = re.compile('%{[^}]*}')
@@ -409,7 +396,7 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
   
   count = 0
   while count <= 1:
-    roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=False)
+    roottree.getroot().resolve_macros(macro_xpaths, macro_map)
     try:
       roottree.xinclude()
     except lxml.etree.XIncludeError, e:
@@ -426,7 +413,7 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
 
   # resolve macros a final time, removing macro definitions, once the xinclude
   # proces is complete
-  roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=True)
+  roottree.getroot().resolve_macros(macro_xpaths, macro_map)
 
   saxify(roottree, handler)
   handler._root.file = file
