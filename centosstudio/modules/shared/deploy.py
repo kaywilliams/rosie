@@ -119,7 +119,7 @@ class DeployEventMixin:
           self.all_scripts[id] = [xpath, csum ] 
 
           self.scripts[script]['script-ids'].append(id)
-          self.scripts[script]['ssh-values'].append(subscript.getxpath('@ssh', 
+          self.scripts[script]['ssh-values'].append(subscript.getbool('@ssh', 
                                              self.scripts[script]['ssh']))
 
 
@@ -263,7 +263,7 @@ class DeployEventMixin:
       self.log(1, L1('running %s script' % id))
 
       if (self.ssh['enabled'] and 
-          self.scripts[script]['ssh-values'][ids.index(id)]): 
+          self.scripts[script]['ssh-values'][ids.index(id)]):
         # run cmd on remote machine
         params = SSHParameters(self, script)
         try:

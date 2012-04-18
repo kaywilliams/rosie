@@ -221,6 +221,9 @@
       <element name="script">
       <optional><attribute name='id'/></optional>
       <optional>
+      <attribute name="ssh"><ref name="value-boolean"/></attribute>
+      </optional>
+      <optional>
       <attribute name='verbose'><ref name="value-boolean"/></attribute>
       </optional>
       <text/>
