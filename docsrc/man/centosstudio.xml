@@ -7,29 +7,33 @@
 
 <refentry id="command.centosstudio">
 <refentryinfo>
-<date>2008-06-13</date>
+<date>2012-04-18</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>CentOS Studio Commands</refentrytitle>
+<refentrytitle>CentOSStudio Commands</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo>CentOS Studio</refmiscinfo>
 </refmeta>
 
 <refnamediv>
 <refname>centosstudio</refname>
-<refpurpose>Builds, tests, deploys and maintains solutions based on CentOS and Red Hat Enterprise Linux.</refpurpose>
+<refpurpose>builds, tests, deploys and maintains system and application repositories based on CentOS and Red Hat Enterprise Linux.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 <refsynopsisdivinfo>
-<date>2008-06-11</date>
+<date>2012-04-18</date>
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
 <command>centosstudio</command>
 <arg choice="opt">
 <option>[-c | --config ] <replaceable class="parameter">PATH</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--macro <replaceable class="parameter">ID:VALUE</replaceable></option>
+
 </arg>
 <arg choice="opt">
 <option>--no-validate </option>
@@ -55,22 +59,22 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> SOLUTION_DEFINITION</filename>
+<filename> DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="centosstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds and maintains the solution defined in the file at
-SOLUTION_DEFINITION.</para>
+<para>Builds and maintains the repository defined in the file at
+DEFINITION.</para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-usage"><title>USAGE</title>
-<para><command>centosstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para><command>centosstudio</command> [OPTIONS] DEFINITION</para>
 <para>OPTIONS refers to the command-line options described below.
-SOLUTION_DEFINITION refers to a solution definition file, see the Solution
+DEFINITION refers to a repository definition file, see the Repository
 Definition File Reference at <ulink
-url="http://www.centossolutions.com/centosstudio/docs"/> for more
+url="http://www.centossolutions.com/centosstudio/documentation"/> for more
 information.</para>
 </refsect1>
 
@@ -130,7 +134,7 @@ class="parameter">PATH3</replaceable></para>
     Specifies the directory and filename <replaceable
     class="parameter">PATH</replaceable> to which CentOS Studio writes logging
     information.  The default path is
-    <filename>/var/log/centosstudio.log</filename>.  See the command option
+    <filename>/var/log/centosstudio.log</filename>.  See also the command option
     <command>--log-level</command>.
     </para>
     <para>
@@ -153,7 +157,7 @@ class="parameter">PATH3</replaceable></para>
 * Level 1: Displays build status.
 * Level 2: Displays module status. See MODULES.
 * Level 3: Displays file download and creation status (default).
-* Level 4: Displays deploy and rpmbuild script output, as well as file copy and deletion status. 
+* Level 4: Displays script output; file copy and delete status. 
 * Level 5: Displays complete debug-level status.
 </programlisting>
 </para>
@@ -168,9 +172,29 @@ and not the log file. Level 5 detail is always written to the log file.
 </varlistentry>
 
 <varlistentry>
+  <term><option>--macro</option></term>
+  <listitem>
+    <para>Specifies a macro <replaceable class="parameter">ID</replaceable> and
+    <replaceable class="parameter">VALUE</replaceable> to use for placeholder
+    substitution in the DEFINITION. <replaceable
+    class="parameter">ID</replaceable> and <replaceable
+    class="parameter">VALUE</replaceable> are text values separated by a colon.
+    Specifically, <replaceable class="parameter">VALUE</replaceable> may not
+    contain XML. Placeholders in the DEFINITION take the form '%{<replaceable
+    class="parameter">ID</replaceable>}'. This option may be specified more
+    than once, for example: 
+    </para>
+    <para>--macro <replaceable class="parameter">ID1:VALUE1</replaceable>
+    --macro <replaceable class="parameter">ID2:VALUE2</replaceable> --macro
+    <replaceable class="parameter">ID3:VALUE3</replaceable>
+    </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of CENTOSSTUDIO_CONF and SOLUTION_DEFINITION during the build process.</para>
+    <para>Disables validation of CENTOSSTUDIO_CONF and DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -179,7 +203,7 @@ and not the log file. Level 5 detail is always written to the log file.
   <listitem>
     <para> Specifies a directory <replaceable
     class="parameter">PATH</replaceable> where CentOS Studio can locate shared
-    program data such as XML schema files.  The default path is
+    program data such as example files and XML schema files. The default path is
     <filename>/usr/share/centosstudio/</filename>. This option can be specified
     more than once, as demonstrated below:</para>
 
@@ -207,9 +231,9 @@ class="parameter">MODULE3</replaceable></para>
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs CENTOSSTUDIO_CONF and SOLUTION_DEFINITION validation only; it
-does not build the solution.  The option also displays the complete
-SOLUTION_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs CENTOSSTUDIO_CONF and DEFINITION validation only; it
+does not build the repository.  The option also displays the complete
+DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -249,14 +273,14 @@ MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 <refsect1 id="centosstudio.1-modules"><title>MODULES</title>
 <para>
 A module performs an individual step in the build process, such as
-downloading software packages or creating ISO images. 
-On subsequent builds of the same solution, CentOS Studio automatically
+downloading software packages, creating packages or creating ISO images. 
+On subsequent builds of the same repository, CentOS Studio automatically
 determines whether a module can be skipped in favor of using cached data from a
 previous build. Users can override the default determination using the
 <command>--skip</command> and <command>--force</command> options.
 </para>
 <para>
-Module names correspond to top-level elements in the SOLUTION_DEFINITION.
+Module names correspond to top-level elements in the DEFINITION.
 </para>
 <para>
 Developers can write custom CentOS Studio modules and direct CentOS
@@ -276,6 +300,7 @@ option.
 <member><ulink url="file:///etc/centosstudio/centosstudio.conf">/etc/centosstudio/centosstudio.conf</ulink></member>
 <member><ulink url="file:///var/log/centosstudio.log">/var/log/centosstudio.log</ulink></member>
 <member><ulink url="file:///var/cache/centosstudio/">/var/cache/centosstudio/</ulink></member>
+<member><ulink url="file:///var/lib/centosstudio/">/var/lib/centosstudio/</ulink></member>
 </simplelist></para>
 </refsect1>
 
