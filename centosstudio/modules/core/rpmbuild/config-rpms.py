@@ -306,7 +306,7 @@ for f in $files; do
       new=''
       if rpm -q %(name)s --quiet; then
         for file in `rpm -ql %(name)s`; do
-          if [[ `basename $file` == md5sums ]]; then
+          if [[ `basename $file` == md5sums ]] && [ -e $file ] ; then
             new=$file
           fi
         done
