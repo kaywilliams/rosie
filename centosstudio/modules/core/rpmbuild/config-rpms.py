@@ -73,11 +73,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
 
-    name = self.config.getxpath('name/text()',
-       "%s-%s" % (self.name, self.rpmid))
+    name = self.config.getxpath('name/text()', self.rpmid)
     desc = self.config.getxpath('description/text()', 
-       "The %s-%s package provides configuration files and scripts for "
-       "the %s repository." % (self.name, self.rpmid, self.fullname))
+       "The %s package provides configuration files and scripts for "
+       "the %s repository." % (self.rpmid, self.fullname))
     summary = self.config.getxpath('summary/text()', name) 
     license = self.config.getxpath('license/text()', 'GPL')
     author = self.config.getxpath('author/text()', 'None')
@@ -444,10 +443,12 @@ def get_module_info(ptr, *args, **kwargs):
 
     # get config path and rpmid
     config_base = '%s[@id="%s"]' % (xpath, id)
-    if id == 'config':
-      rpmid='config'
+    if config.getxpath('name/text()', ''):
+      rpmid=config.getxpath('name/text()')
+    elif id == 'config':
+      rpmid='%s-config' % ptr.name
     else:
-      rpmid="%s-config" % id
+      rpmid="%s-%s-config" % (ptr.name, id)
 
 
     # create new class

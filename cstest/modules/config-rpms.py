@@ -37,10 +37,10 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   we test the functioning of that class.
   """
   moduleid = 'config-rpms'
-  eventid  = 'test-config-rpm'
+  eventid  = 'test-config-rpms-config-rpm'
   _type = 'package'
   _conf = ["""<config-rpms>
-  <rpm id='test'>
+  <rpm id='config'>
     <requires>yum</requires>
     <requires>createrepo</requires>
   </rpm>
@@ -64,8 +64,8 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   "raises an error if multiple rpms provide the same id"
   _conf = """
   <config-rpms>
-  <rpm id="test"/>
-  <rpm id="test"/>
+  <rpm id="config"/>
+  <rpm id="config"/>
   </config-rpms>
   """
 
@@ -82,8 +82,9 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   _conf = [""" 
   <config-rpms>
-    <rpm id='test'>
-    <name>myrpm</name>
+    <rpm id='config'>
+    <!--setting name changes eventid, which we don't want for testing-->
+    <!--<name>myrpm</name>-->
     <summary>myrpm summary</summary>
     <description>myrpm description</description>
     <license>MIT</license>
@@ -175,7 +176,7 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
 class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
   _conf = """<config-rpms>
-  <rpm id='test'>
+  <rpm id='config'>
     <files content="text">test</files>
   </rpm>
   </config-rpms>"""

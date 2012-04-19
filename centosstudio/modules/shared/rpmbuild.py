@@ -118,7 +118,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def _sign_rpms(self):
     if self.rpms and 'gpg-signing-keys' in self.cvars:
-      self.log(3, L1("signing rpms"))
+      self.log(4, L1("signing rpm(s)"))
 
       # set up homedir - used for signing
       homedir = self.mddir / 'gnupg'
