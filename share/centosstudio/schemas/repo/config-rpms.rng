@@ -26,12 +26,6 @@
           <optional>
           <element name="license"><text/></element>
           </optional>
-          <optional>
-          <element name="author"><text/></element>
-          </optional>
-          <optional>
-          <element name="email"><text/></element>
-          </optional>
 
           <zeroOrMore>
           <element name="files">

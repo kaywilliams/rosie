@@ -114,7 +114,7 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
   _conf = 'system'
   _conf = ["""
     <config-rpms>
-      <rpm id='test'>
+      <rpm id='config'>
       <files destdir='/root' destname='keyids' content='text'>
       dummy text - to be replaced at runtime
       </files>
@@ -151,7 +151,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # be improved so that issues appear during the same run...
     files = self.event._config.getxpath('/*/config-rpms/rpm/files')
     files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
-    self.tb.dispatch.get('test-config-rpm').status = True # force config-rpm
+    self.tb.dispatch.get('%s-config-rpm' % self.event.name).status = True # force config-rpm
 
     # set post script for deploy - doing this after centosstudio
     # resolves global macros on the definition so macro replacement 

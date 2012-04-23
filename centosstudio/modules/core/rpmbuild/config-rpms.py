@@ -78,13 +78,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
        "The %s package provides configuration files and scripts for "
        "the %s repository." % (self.rpmid, self.fullname))
     summary = self.config.getxpath('summary/text()', name) 
-    license = self.config.getxpath('license/text()', 'GPL')
-    author = self.config.getxpath('author/text()', 'None')
-    email = self.config.getxpath('email/text()', 'None')
+    license = self.config.getxpath('license/text()', 'GPLv2')
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
-                             license=license, author=author, email=email, 
-                             requires = ['coreutils'])
+                             license=license, requires = ['coreutils'])
 
     self.libdir      = getattr(self, 'test_lib_dir', self.LIB_DIR)
     self.scriptdir   = self.build_folder/'scripts'
