@@ -42,7 +42,7 @@ class ConfigRpmsEvent(Event):
     )
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
-  config_mixin_version = "1.00"
+  config_mixin_version = "1.01"
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -105,7 +105,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     # copies of user-provided scripts and triggers go here for easier 
     # user debugging
     self.debugdir    = self.source_folder // self.installdir
-    self.debug_postfile = self.debugdir/'config-post-script'
+    self.debug_postfile = self.debugdir/'post-script'
 
   def run(self):
     MkrpmRpmBuildMixin.run(self)
@@ -192,7 +192,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
       # link file to debug folder for installation by the rpm for 
       # easier user debugging
-      self.link(file, self.debugdir/'config-%s-script' % file.basename)
+      self.link(file, self.debugdir/'%s-script' % file.basename)
 
     return triggers
 
@@ -380,7 +380,7 @@ fi
       #write file for inclusion in rpm for end user debugging
       s = scripts[:]
       s.insert(0, 'set -e\n')
-      file =  self.debugdir/'config-%s-script' % script_type
+      file =  self.debugdir/'%s-script' % script_type
       file.dirname.mkdirs()
       file.write_lines(s)
       file.chmod(0750)
