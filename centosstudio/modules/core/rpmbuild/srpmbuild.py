@@ -135,8 +135,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     default = ''
     for d in search_dirs:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
-                            glob='%s-%s-%s.definition' % 
-                            (self.moduleid, self.version, self.arch))
+                            glob='%s.definition' % self.moduleid)
       if results:
         default = results[0]
         break
@@ -151,20 +150,13 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     # process srpm
     self._process_srpm()
 
-    # update definition
-    definition = self._update_definition()
-
     # start with a clean rpmsdir
     self.rpmsdir.rm(recursive=True, force=True)
     self.rpmsdir.mkdirs()
 
     # initialize builder
-    try:
-      builder = SrpmBuild(definition, self._get_build_machine_options(), [])
-    except CentOSStudioError, e:
-      raise BuildMachineCreationError(
-              definition='based on \'%s\'' % self.definition, 
-              error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
+    # doing this in a method so cstest can call it directly
+    self._initialize_builder()
 
     # build rpms
     if self.logger.threshold > 2:
@@ -173,12 +165,12 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       self.logger.log(2, L2("building '%s'" % self.srpmid))
 
     try:
-      builder.main()
+      self.builder.main()
     except CentOSStudioError, e:
       raise BuildMachineCreationError(
                     definition='based on \'%s\'' % self.definition, 
                     error=e, idstr="--> build machine id: %s\n" %
-                    builder.repoid, sep = MSG_MAXWIDTH * '=')
+                    self.builder.repoid, sep = MSG_MAXWIDTH * '=')
 
     self.logger.log(3, L0("%s" % '=' * MSG_MAXWIDTH))
     self.logger.log(3, L0(''))
@@ -189,9 +181,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     if self.copy or self.shutdown:
       # todo - share this with deploy
       params = dict( 
-        hostname     = builder.cvars['publish-setup-options']['hostname'],
-        password     = builder.cvars['publish-setup-options']['password'],
-        key_filename = builder.cvars['publish-setup-options']['ssh-secfile'],
+        hostname     = self.builder.cvars['publish-setup-options']['hostname'],
+        password     = self.builder.cvars['publish-setup-options']['password'],
+        key_filename = self.builder.cvars['publish-setup-options']['ssh-secfile'],
         username     = 'root',
         port         = 22,)
 
@@ -306,78 +298,13 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     self.shelve('srpmlast', self.srpmfile.basename)
 
-  def _update_definition(self):
-    name, spec, requires = self._get_srpm_info(self.srpmfile)
-
-    root = rxml.config.parse(self.definition).getroot()
-
-    name =    self.moduleid
-    version = self.version
-    arch =    self.arch
-
-    # provide meaningful filename since it is also used for the .dat file
-    root.file = self.datdir / '%s-%s-%s.definition' % (name, version, arch)
-
-    # add main element
-    if root.find('main') is not None: 
-      root.remove(root.find('main'))
-
-    main = rxml.config.Element('main')
-    rxml.config.Element('name',    text=name, parent=main)
-    rxml.config.Element('version', text=version, parent=main)
-    rxml.config.Element('arch',    text=arch, parent=main)
-
-    root.append(main)
-
-    # add config-rpm for srpm requires
-    config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
-    rpm = rxml.config.Element('rpm', parent=config, 
-                              attrs={'id': '%s' % self.srpmid})
-    child = rxml.config.Element('files', parent=rpm)
-    child.set('destdir', self.originals_dir)
-    child.text = self.srpmfile
-
-    for req in requires:
-      child = rxml.config.Element('requires', parent=rpm)
-      child.text = req
-
-    if root.find('config') is None:
-      root.append(config)
-
-    # use gpgsign from parent definition, if provided
-    parent_gpgsign = copy.deepcopy(self.config.getxpath('/*/gpgsign', None))
-    child_gpgsign = root.getxpath('/*/gpgsign', None)
-    if parent_gpgsign is not None and child_gpgsign is None:
-      root.append(parent_gpgsign)
-     
-    # append repos from parent definition, if provided
-    parent_repos = copy.deepcopy(self.config.getxpath('/*/repos', None))
-    child_repos = root.getxpath('/*/repos', None)
-    if parent_repos is not None and child_repos is None:
-      root.append(parent_repos)
-    if parent_repos is not None and child_repos is not None:
-      for repo in parent_repos.xpath('repo'):
-        child_repo = child_repos.getxpath("repo[@id='%s']" % repo.attrib['id'], None)
-        if child_repo is not None: child_repos.remove(child_repo)
-        child_repos.append(repo)
-
-    #resolve macros
-    root.resolve_macros('.', {
-      '%{build-dir}': self.build_dir,
-      '%{srpm}':      self.originals_dir / self.srpmfile.basename,
-      '%{spec}':      self.build_dir / 'SPECS' / spec, })
-
-    return root
-
-  def _get_srpm_info(self, srpm):
-    ts = rpmUtils.transaction.initReadOnlyTransaction()
-    hdr = rpmUtils.miscutils.hdrFromPackage(ts, srpm)
-    name = hdr[rpm.RPMTAG_NAME]
-    spec = [ f for f in hdr['FILENAMES'] if '.spec' in f ][0]
-    requires = [ r.DNEVR()[2:] for r in hdr.dsFromHeader('requirename') ]
-    del ts
-    del hdr
-    return (name, spec, requires) 
+  def _initialize_builder(self):
+    try:
+      self.builder = SrpmBuild(self, self._get_build_machine_options(), [])
+    except CentOSStudioError, e:
+      raise BuildMachineCreationError(
+              definition='based on \'%s\'' % self.definition, 
+              error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
 
   def _get_build_machine_options(self):
     parser = optparse.OptionParser()
@@ -395,7 +322,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       disabled_modules = [],
       list_modules = False,
       list_events = False,
-      macros = [],
+      macros = ['version:%s' % self.version, 'arch:%s' % self.arch],
       no_validate = False,
       validate_only = False,
       clear_cache = False,
@@ -423,12 +350,71 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       if 'sftp' in locals(): sftp.close()
 
 class SrpmBuild(Build):
-  def __init__(self, definition, *args, **kwargs):
-    self.definition = definition
+  def __init__(self, ptr, *args, **kwargs):
+    self.ptr = ptr
     Build.__init__(self, *args, **kwargs)
 
   def _get_definition(self, options, arguments):
+    name, spec, requires = self._get_srpm_info(self.ptr.srpmfile)
+
+    root = rxml.config.parse(self.ptr.definition, 
+                             macro_xpaths=['/*', '/*/main'],
+                             macro_map=self.initial_macros).getroot()
+ 
+    # provide meaningful filename since it is used for the .dat file
+    root.file = self.ptr.datdir / self.ptr.definition.basename
+
+    # add config-rpm for srpm requires
+    config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
+    rpm = rxml.config.Element('rpm', parent=config, 
+                              attrs={'id': '%s' % self.ptr.srpmid})
+    child = rxml.config.Element('files', parent=rpm)
+    child.set('destdir', self.ptr.originals_dir)
+    child.text = self.ptr.srpmfile
+
+    for req in requires:
+      child = rxml.config.Element('requires', parent=rpm)
+      child.text = req
+
+    if root.find('config') is None:
+      root.append(config)
+
+    # use gpgsign from parent definition, if provided
+    parent_gpgsign = copy.deepcopy(self.ptr.config.getxpath('/*/gpgsign', None))
+    child_gpgsign = root.getxpath('/*/gpgsign', None)
+    if parent_gpgsign is not None and child_gpgsign is None:
+      root.append(parent_gpgsign)
+     
+    # append repos from parent definition, if provided
+    parent_repos = copy.deepcopy(self.ptr.config.getxpath('/*/repos', None))
+    child_repos = root.getxpath('/*/repos', None)
+    if parent_repos is not None and child_repos is None:
+      root.append(parent_repos)
+    if parent_repos is not None and child_repos is not None:
+      for repo in parent_repos.xpath('repo'):
+        child_repo = child_repos.getxpath("repo[@id='%s']" % 
+                     repo.attrib['id'], None)
+        if child_repo is not None: child_repos.remove(child_repo)
+        child_repos.append(repo)
+
+    #resolve macros
+    root.resolve_macros('.', {
+      '%{build-dir}': self.ptr.build_dir,
+      '%{srpm}':      self.ptr.originals_dir / self.ptr.srpmfile.basename,
+      '%{spec}':      self.ptr.build_dir / 'SPECS' / spec, })
+
+    self.definition = root
     self.definitiontree = lxml.etree.ElementTree(self.definition)
+
+  def _get_srpm_info(self, srpm):
+    ts = rpmUtils.transaction.initReadOnlyTransaction()
+    hdr = rpmUtils.miscutils.hdrFromPackage(ts, srpm)
+    name = hdr[rpm.RPMTAG_NAME]
+    spec = [ f for f in hdr['FILENAMES'] if '.spec' in f ][0]
+    requires = [ r.DNEVR()[2:] for r in hdr.dsFromHeader('requirename') ]
+    del ts
+    del hdr
+    return (name, spec, requires) 
 
 
 # ------ Metaclass for creating SRPM Build Events -------- #

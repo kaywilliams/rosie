@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<macro id="version">6</macro>
+<macro id="arch">x86_64</macro>
+
 <main>
 <name>srpmbuild</name>
 <fullname>RPM Build Virtual Machine</fullname>
+<version>%{version}</version>
+<arch>%{arch}</arch>
 </main>
+
+<repos>
+<!-- epel repo provides rpmlint package-->
+<!-- epel repo defines the buildsys-build group for el6-->
+<xi:include href="repos.xml"
+            xpointer="xpointer(/*/repo[@id='base'] | 
+                               /*/repo[@id='updates'] |
+                               /*/repo[@id='epel'] )"/>
+<xi:include xpointer="xpointer(/*/xml[@id='repos-%{version}']/node())"/>
+</repos>
+<xml id="repos-5">
+<!--centos-buildsys-5 repo provides buildsys-build package-->
+<xi:include href="repos.xml"
+            xpointer="xpointer(/*/repo[@id='centos-buildsys-5'])"/>
+</xml>
+<xml id="repos-6"> </xml>
+
+<packages>
+<group>core</group>
+<package>rpmlint</package>
+<xi:include xpointer="xpointer(/*/xml[@id='packages-%{version}']/node())"/>
+</packages>
+<xml id="packages-5"><package>buildsys-build</package></xml>
+<xml id="packages-6"><group>buildsys-build</group></xml>
 
 <config-rpms>
 <!-- ssh configuration -->
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/config-rpms/*)"/>
 </config-rpms>
 
@@ -17,17 +46,17 @@
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
 
 <kickstart>
-<xi:include href="../common/ks.cfg" parse="text"/>
+<xi:include href="common/ks.cfg" parse="text"/>
 skipx
 </kickstart>
 
 <trigger triggers='release-rpm, config-rpms, kickstart, treeinfo, install-scripts, post-install-scripts'>
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/trigger/*)"/>
 </trigger>
 
 <install>
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/install/*[@id='virt-delete'])"/>
 <script id='virt-install'>
 virt-install --name %{hostname} --ram 1000 \
@@ -41,7 +70,7 @@ virt-install --name %{hostname} --ram 1000 \
 </install>
 
 <post>
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/post/*[@id='update'])"/>
 <script id='rpmbuild'>
 #!/bin/bash
@@ -78,11 +107,11 @@ for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do
   fi
 done
 </script>
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/post/*[@id='check-kernel'])"/>
 </post>
 
-<xi:include href="../common/deploy.xml" 
+<xi:include href="common/deploy.xml" 
             xpointer="xpointer(/*/*[name()!='config-rpms' and
                                     name()!='kickstart' and
                                     name()!='trigger' and

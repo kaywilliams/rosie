@@ -166,7 +166,8 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     self.execute_predecessors(self.event)
     self.event.setup()
     self.event._process_srpm()
-    definition = self.event._update_definition()
+    self.event._initialize_builder()
+    definition = self.event.builder.definition
 
     #set some convenience variables
     public = definition.getxpath('/*/gpgsign/public/text()', '')
