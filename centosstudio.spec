@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.36
+Version: 1.37
 Release: 1%{?dist}
 Summary: Platform for delivering CentOS and RHEL-based systems and applications
 
@@ -12,10 +12,13 @@ Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
+BuildRequires: docbook-style-xsl
 BuildRequires: gzip
 BuildRequires: libxml2
 BuildRequires: libxslt
 BuildRequires: python
+BuildRequires: sgml-common
+BuildRequires: xml-common
 
 Requires: createrepo
 Requires: dosfstools
@@ -71,7 +74,7 @@ Enterprise Linux. See http://www.centossolutions.com for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Wed Apr 25 2012 Kay Williams <kay@centossolutions.com> - 1.0.36-1
+* Wed Apr 25 2012 Kay Williams <kay@centossolutions.com> - 1.0.37-1
 - Beta 1 Build
 
 * Mon Jul 08 2011 Kay Williams <kay@centossolutions.com> - 0.9.1-1
