@@ -113,9 +113,11 @@ done
 
 <script id="copy" ssh="false">
 #!/bin/bash
-
+set -e
 # allow srpmbuild machine to communicate with host 
-ssh-keyscan %{hostname} >> /root/.ssh/known_hosts
+if [[ ! `grep %{hostname} /root/.ssh/known_hosts` ]]; then
+ ssh-keyscan %{hostname} >> /root/.ssh/known_hosts
+fi
 
 # copy list of rpms from srpmbuild machine to host for processing
 scp %{hostname}:/root/rpmlist %{rpms-dir}

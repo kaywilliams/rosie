@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rpm id='ssh'>
   <requires>openssh</requires>
+  <requires>openssh-clients</requires>
   <files destdir='/root/.ssh/' destname="id_rsa.pub">%{ssh-pubfile}</files>
   <script type='post'>
   # set some convenience variables
@@ -14,7 +15,7 @@
   # create authorized_keys file if it doesn't exist
   [[ -f $authkeys ]] || touch $authkeys
 
-  # copy id_rsa into authorized keys if it's not there arleady
+  # copy id_rsa into authorized keys if it's not there already
   [[ `cat $authkeys` == *`cat $pubkey`* ]] || cat $pubkey &gt;&gt; $authkeys
     
   # set permissions
