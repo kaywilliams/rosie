@@ -44,7 +44,7 @@ class TestSrpmTestCase(EventTestCase):
   _run_make(REPODIR)
   _conf = ["""
     <srpmbuild>
-    <srpm id='package1' shutdown='false'>
+    <srpm id='package1'>
       <path>%s/repo1/SRPMS/package1-1.0-1.src.rpm</path>
     </srpm>
     </srpmbuild>
@@ -76,7 +76,7 @@ class Test_Config(TestSrpmTestCase):
   "fails if path, repo or script elements not provided"
   _conf = """
     <srpmbuild>
-    <srpm id='package1' shutdown='false'/>
+    <srpm id='package1'/>
     </srpmbuild>
     """ 
 
@@ -94,7 +94,7 @@ class Test_FromFolder(TestSrpmTestCase):
   "downloads srpm file from folder"
   _conf = """
     <srpmbuild>
-    <srpm id='package1' shutdown='false'>
+    <srpm id='package1'>
       <path>%s/repo1/SRPMS</path>
     </srpm>
     </srpmbuild>
@@ -111,7 +111,7 @@ class Test_FromRepo(TestSrpmTestCase):
   "downloads srpm file from repository"
   _conf = """
     <srpmbuild>
-    <srpm id='package1' shutdown='false'>
+    <srpm id='package1'>
       <repo>file://%s/repo1</repo>
     </srpm>
     </srpmbuild>
@@ -129,7 +129,7 @@ class Test_FromScript(TestSrpmTestCase):
   "uses srpm provided by script"
   _conf = """
       <srpmbuild>
-      <srpm id='package1' shutdown='false'>
+      <srpm id='package1'>
         <script>
         #!/bin/bash
         rm -rf %%{srpm-dir}
@@ -198,10 +198,19 @@ class Test_Apply(TestSrpmTestCase):
 
 class Test_Shutdown(TestSrpmTestCase):
   "dummy case to shutdown virtual machine"
+  def setUp(self): 
+    EventTestCase.setUp(self)
 
   def runTest(self):
-    self.event.config.getxpath('.').set('shutdown', 'true')
-    self.tb.dispatch.execute(until=self.event)
+    pass
+
+  def tearDown(self):
+    EventTestCase.tearDown(self) 
+    # shutdown srpmbuild vm
+    exec "import libvirt" in globals()
+    conn = libvirt.open("qemu:///system")
+    vm = conn.lookupByName("srpmbuild-%s-%s.local" % (self.version, self.arch))
+    vm.destroy()
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

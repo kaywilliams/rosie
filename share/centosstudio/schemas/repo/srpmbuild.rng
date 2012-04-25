@@ -17,12 +17,6 @@
         <element name="srpm">
 
           <attribute name="id"/>
-          <optional>
-          <attribute name="copy"><ref name="value-boolean"/></attribute>
-          </optional>
-          <optional>
-          <attribute name="shutdown"><ref name="value-boolean"/></attribute>
-          </optional>
 
           <interleave>
 

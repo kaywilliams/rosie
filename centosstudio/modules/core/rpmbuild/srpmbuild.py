@@ -117,7 +117,6 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     macros = {'%{srpm-id}': self.srpmid,
               '%{srpm-dir}': self.srpmdir,
               '%{srpm-last}': srpmlast,
-              '%{rpms-dir}': self.rpmsdir,
              }
     self.config.resolve_macros('.', macros)
   
@@ -174,27 +173,6 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     self.logger.log(3, L0("%s" % '=' * MSG_MAXWIDTH))
     self.logger.log(3, L0(''))
-   
-    self.copy = self.config.getbool('@copy', True)
-    self.shutdown = self.config.getbool('@shutdown', False)
-
-    if self.copy or self.shutdown:
-      # todo - share this with deploy
-      params = dict( 
-        hostname     = self.builder.cvars['publish-setup-options']['hostname'],
-        password     = self.builder.cvars['publish-setup-options']['password'],
-        key_filename = self.builder.cvars['publish-setup-options']['ssh-secfile'],
-        username     = 'root',
-        port         = 22,)
-
-      try:
-        client = self._ssh_connect(params, log_format="L1") 
-        if self.copy: self._copy_results(client)
-        if self.shutdown:
-          self._ssh_execute(client, 'poweroff', log_format="L1")
-
-      finally:
-        if 'client' in locals(): client.close()
 
     # verify rpms
     self.logger.log(3, L1("verifying rpms"))
@@ -332,22 +310,6 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     
     return opts
 
-  def _copy_results(self, client):
-    try:
-      # copy files
-      sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-      rpms = set()
-      for dir in sftp.listdir(str(self.build_dir/'RPMS')):
-        for file in sftp.listdir(str(self.build_dir/'RPMS'/dir)):
-          if file.endswith('.rpm'):
-            rpms.add(self.build_dir/'RPMS'/dir/file)
-
-      for rpm in rpms:
-        sftp.get(str(rpm), str(self.rpmsdir/rpm.basename))
-  
-    finally:
-      # close connection
-      if 'sftp' in locals(): sftp.close()
 
 class SrpmBuild(Build):
   def __init__(self, ptr, *args, **kwargs):
@@ -401,7 +363,8 @@ class SrpmBuild(Build):
     root.resolve_macros('.', {
       '%{build-dir}': self.ptr.build_dir,
       '%{srpm}':      self.ptr.originals_dir / self.ptr.srpmfile.basename,
-      '%{spec}':      self.ptr.build_dir / 'SPECS' / spec, })
+      '%{spec}':      self.ptr.build_dir / 'SPECS' / spec,
+      '%{rpms-dir}':  self.ptr.rpmsdir})
 
     self.definition = root
     self.definitiontree = lxml.etree.ElementTree(self.definition)
