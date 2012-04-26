@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- setting script to verbose and yum to quiet; displays yum warnings -->
-<script id='update' verbose='true'>
+<script id='update'>
 #!/bin/bash
-yum sync -y -q
+yum sync -y
 </script>

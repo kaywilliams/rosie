@@ -343,6 +343,7 @@ class DeployEventMixin:
     chan = client.get_transport().open_session()
     chan.exec_command('"%s"' % cmd)
 
+    outlines = []
     errlines = []
     header_logged = False
     while True:
@@ -351,13 +352,15 @@ class DeployEventMixin:
         got_data = False
         if chan.recv_ready():
           data = chan.recv(1024)
-          if data and (verbose or self.logger.test(4)):
+          if data:
             got_data = True
-            if header_logged is False:
-              self.logger.log_header(0, "%s event - '%s' script output" % 
-                                    (self.id, pps.path(cmd).basename))
-              header_logged = True
-            self.log(0, data.rstrip('\n'))
+            outlines.extend(data.rstrip('\n').split('\n'))
+            if verbose or self.logger.test(4):
+              if header_logged is False:
+                self.logger.log_header(0, "%s event - '%s' script output" % 
+                                      (self.id, pps.path(cmd).basename))
+                header_logged = True
+              self.log(0, data.rstrip('\n'))
         if chan.recv_stderr_ready():
           data = chan.recv_stderr(1024)
           if data:
@@ -374,7 +377,7 @@ class DeployEventMixin:
     chan.close()
 
     if status != 0:
-      raise SSHFailedError(message='\n'.join(errlines))
+      raise SSHFailedError(message='\n'.join(outlines + errlines))
 
   def _local_execute(self, cmd, verbose=False):
       proc = subprocess.Popen('"%s"' % cmd, shell=True, 

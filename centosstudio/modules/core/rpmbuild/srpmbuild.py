@@ -18,7 +18,6 @@
 import copy
 import lxml
 import optparse
-import paramiko 
 import re
 import rpm
 import rpmUtils
@@ -34,14 +33,13 @@ from centosstudio.main         import Build
 from centosstudio.util         import magic 
 from centosstudio.util         import pps 
 from centosstudio.util         import rxml 
-from centosstudio.util         import sshlib 
 from centosstudio.validate     import check_dup_ids
 
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 
-from centosstudio.modules.shared import (DeployEventMixin, SSHConnectCallback,
-                                         ShelveMixin, RpmBuildMixin) 
+from centosstudio.modules.shared import (DeployEventMixin, ShelveMixin, 
+                                         RpmBuildMixin) 
 
 from fnmatch import fnmatch
 
@@ -128,7 +126,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     elif repo: self._get_srpm_from_repo(repo)
     elif script: self._get_srpm_from_script(script)
 
-    # get base build machine definition
+    # get default build machine definition
     search_dirs = self.SHARE_DIRS
     search_dirs.insert(0, self.mainconfig.file.dirname)
     default = ''
@@ -139,11 +137,15 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
         default = results[0]
         break
 
-    self.definition = self.config.getxpath('definition/text()', 
-                      self.config.getxpath('/*/%s/definition/text()' % 
-                      self.moduleid, default))
+    self.definition = pps.path(self.config.getxpath('/*/%s/definition/text()'
+                      % self.moduleid,
+                      self.config.getxpath('definition/text()', default))
+                      ).abspath()
     self.io.validate_input_file(self.definition)
     self.DATA['input'].append(self.definition)
+
+    if not self.definition:
+      raise DefinitionNotFoundError
 
   def run(self):
     # process srpm
@@ -361,10 +363,12 @@ class SrpmBuild(Build):
 
     #resolve macros
     root.resolve_macros('.', {
-      '%{build-dir}': self.ptr.build_dir,
-      '%{srpm}':      self.ptr.originals_dir / self.ptr.srpmfile.basename,
-      '%{spec}':      self.ptr.build_dir / 'SPECS' / spec,
-      '%{rpms-dir}':  self.ptr.rpmsdir})
+      '%{build-dir}':   self.ptr.build_dir,
+      '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
+      '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
+      '%{rpms-dir}':    self.ptr.rpmsdir,
+      '%{ssh-keyfile}': self.ptr.cvars['publish-setup-options']['ssh-secfile'],
+      })
 
     self.definition = root
     self.definitiontree = lxml.etree.ElementTree(self.definition)
@@ -431,6 +435,11 @@ class SrpmBuildEventError(CentOSStudioEventError):
 class InvalidRepoError(SrpmBuildEventError):
   message = ("Cannot retrieve repository metadata (repomd.xml) for repository "
              "'%(url)s'. Please verify its path and try again.\n")
+
+class DefinitionNotFoundError(SrpmBuildEventError):
+  message = ("No SRPM build machine definition found. Please see the CentOS "
+             "Studio documentation for information on specifying SRPM build "
+             "machine definitions.\n")
 
 class SrpmNotFoundError(SrpmBuildEventError):
   message = "No srpm '%(name)s' found at '%(path)s'\n"
