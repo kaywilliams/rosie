@@ -13,7 +13,7 @@
 
         <interleave>
 
-        <zeroOrMore>
+        <oneOrMore>
         <element name="srpm">
 
           <attribute name="id"/>
@@ -27,12 +27,11 @@
           </choice>
 
           <optional><element name="template"><text/></element></optional>
-          <optional><element name="verify"><text/></element></optional>
 
           </interleave>
 
         </element>
-        </zeroOrMore>
+        </oneOrMore>
 
         </interleave>
       </element>
