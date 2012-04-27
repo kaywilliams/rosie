@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="../../../common/examples/srpmbuild.template"
+<xi:include href="srpmbuild.template"
             xpointer="xpointer(/*/*[name()!='publish'])"/>
 
 <publish password='srpmbuild' hostname="%{id}.local">
-<xi:include href="../../../common/examples/srpmbuild.template"
+<xi:include href="srpmbuild.template"
             xpointer="xpointer(/*/publish/*[name()!='post'])"/>
 <post>
 <script id='update'>
@@ -17,7 +17,7 @@ if [[ $? != 0 ]] &amp;&amp; [[ ! `echo $warning | grep docbook-style-xsl` ]]; th
   exit 1
 fi
 </script>
-<xi:include href="../../../common/examples/srpmbuild.template"
+<xi:include href="srpmbuild.template"
             xpointer="xpointer(/*/publish/post/*[@id!='check-kernel' and 
                                                  @id!='update'])"/>
 <script id='remove-docbook-style-xsl'>
@@ -26,7 +26,7 @@ fi
 rpm -e srpmbuild-centosstudio-config
 rpm -e docbook-style-xsl --noscripts 
 </script>
-<xi:include href="../../../common/examples/srpmbuild.template"
+<xi:include href="srpmbuild.template"
             xpointer="xpointer(/*/publish/post/*[@id='check-kernel'])"/>
 </post>
 </publish>

@@ -128,7 +128,6 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     # get default build machine definition template
     search_dirs = self.SHARE_DIRS
-    search_dirs.insert(0, self.definition.file.dirname)
     default = ''
     for d in search_dirs:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
