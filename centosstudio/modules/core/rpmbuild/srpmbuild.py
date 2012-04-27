@@ -126,25 +126,25 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     elif repo: self._get_srpm_from_repo(repo)
     elif script: self._get_srpm_from_script(script)
 
-    # get default build machine definition
+    # get default build machine definition template
     search_dirs = self.SHARE_DIRS
     search_dirs.insert(0, self.mainconfig.file.dirname)
     default = ''
     for d in search_dirs:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
-                            glob='%s.definition' % self.moduleid)
+                            glob='%s.template' % self.moduleid)
       if results:
         default = results[0]
         break
 
-    self.definition = pps.path(self.config.getxpath('/*/%s/definition/text()'
+    self.template = pps.path(self.config.getxpath('/*/%s/template/text()'
                       % self.moduleid,
-                      self.config.getxpath('definition/text()', default))
+                      self.config.getxpath('template/text()', default))
                       ).abspath()
-    self.io.validate_input_file(self.definition)
-    self.DATA['input'].append(self.definition)
+    self.io.validate_input_file(self.template)
+    self.DATA['input'].append(self.template)
 
-    if not self.definition:
+    if not self.template:
       raise DefinitionNotFoundError
 
   def run(self):
@@ -169,7 +169,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       self.builder.main()
     except CentOSStudioError, e:
       raise BuildMachineCreationError(
-                    definition='based on \'%s\'' % self.definition, 
+                    template='based on \'%s\'' % self.template, 
                     error=e, idstr="--> build machine id: %s\n" %
                     self.builder.repoid, sep = MSG_MAXWIDTH * '=')
 
@@ -283,7 +283,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       self.builder = SrpmBuild(self, self._get_build_machine_options(), [])
     except CentOSStudioError, e:
       raise BuildMachineCreationError(
-              definition='based on \'%s\'' % self.definition, 
+              template='based on \'%s\'' % self.template, 
               error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
 
   def _get_build_machine_options(self):
@@ -321,12 +321,12 @@ class SrpmBuild(Build):
   def _get_definition(self, options, arguments):
     name, spec, requires = self._get_srpm_info(self.ptr.srpmfile)
 
-    root = rxml.config.parse(self.ptr.definition, 
+    root = rxml.config.parse(self.ptr.template, 
                              macro_xpaths=['/*', '/*/main'],
                              macro_map=self.initial_macros).getroot()
  
     # provide meaningful filename since it is used for the .dat file
-    root.file = self.ptr.datdir / self.ptr.definition.basename
+    root.file = self.ptr.datdir / self.ptr.template.basename
 
     # add config-rpm for srpm requires
     config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
@@ -437,14 +437,15 @@ class InvalidRepoError(SrpmBuildEventError):
              "'%(url)s'. Please verify its path and try again.\n")
 
 class DefinitionNotFoundError(SrpmBuildEventError):
-  message = ("No SRPM build machine definition found. Please see the CentOS "
-             "Studio documentation for information on specifying SRPM build "
-             "machine definitions.\n")
+  message = ("No SRPM build machine definition template found. Please see the "
+             "CentOS Studio documentation for information on specifying SRPM "
+             "build machine definition templates.\n")
 
 class SrpmNotFoundError(SrpmBuildEventError):
   message = "No srpm '%(name)s' found at '%(path)s'\n"
 
 class BuildMachineCreationError(SrpmBuildEventError):
-  message = ("Error creating or updating RPM build machine.\n%(sep)s\n"
-             "%(idstr)s--> build machine definition: %(definition)s\n--> "
+  message = ("Error creating or updating SRPM build machine.\n%(sep)s\n"
+             "%(idstr)s--> build machine definition template: "
+             "%(template)s\n--> "
              "error:\n%(error)s\n")
