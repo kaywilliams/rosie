@@ -99,15 +99,12 @@ if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >&amp;2; exit 1; fi
 rpmbuild -ba --target %{arch} --define='dist .el%{version}' %{spec}
 if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >&amp;2; exit 1; fi
 
-# validate rpm; make a list of rpms for use by copy script
-rm -rf /root/rpmlist
-touch /root/rpmlist
+# validate rpm
 for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do 
   rpmlint $f
   if [[ $? == 66 ]]; then 
     echo 'rpmlint badness threshold exceeded: $f' >&amp;2; exit 1; 
   fi
-  echo $f >> /root/rpmlist
 done
 </script>
 
