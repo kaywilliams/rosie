@@ -45,7 +45,6 @@ class Test_RepoDefaults(ReposEventTestCase):
   _conf = """<repos>
     <repo id="base">
       <baseurl>/nonexistant/path</baseurl>
-      <mirrorlist/>
     </repo>
     <repo id="updates">
     </repo>
@@ -72,7 +71,6 @@ class Test_RepoDefaults(ReposEventTestCase):
     self.failIf(self.event.repos.has_key('everything'))
 
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
-    self.failUnless(self.event.repos['base'].mirrorlist is None)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repos')
