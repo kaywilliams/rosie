@@ -80,7 +80,8 @@ class DepsolveEventTestCase(EventTestCase):
                                             arch=self.arch,
                                             include_baseurl=True,
                                             baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
-        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None})
+        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None, 
+                  'name': None,})
         if repoid == 'updates' and 'systemid' in r:
           # look for systemid in cstest folder 
           r['systemid'] = (pps.path(('/').join(__file__.split('/')[:-3]))

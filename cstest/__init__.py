@@ -124,7 +124,7 @@ class EventTestCase(unittest.TestCase):
                                            arch=self.arch,
                                            include_baseurl=True,
                                            baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
-    base.update({'mirrorlist': None, 'gpgcheck': None})
+    base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml())
 

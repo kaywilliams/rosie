@@ -46,11 +46,6 @@ class Test_RepoDefaults(ReposEventTestCase):
     <repo id="base">
       <baseurl>/nonexistant/path</baseurl>
     </repo>
-    <repo id="updates">
-    </repo>
-    <repo id="everything">
-      <enabled>no</enabled>
-    </repo>
     <repo id="new">
       <baseurl>/nonexistant/path</baseurl>
     </repo>
@@ -66,9 +61,7 @@ class Test_RepoDefaults(ReposEventTestCase):
 
     # make sure we have the right repos to start wtih
     self.failUnless(self.event.repos.has_key('base'))
-    self.failUnless(self.event.repos.has_key('updates'))
     self.failUnless(self.event.repos.has_key('new'))
-    self.failIf(self.event.repos.has_key('everything'))
 
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
 

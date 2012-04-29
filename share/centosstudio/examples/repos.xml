@@ -3,24 +3,20 @@
 
 <!-- See www.centos.org for a list of public mirrors -->
 <repo id="base">
-<name>CentOS-%{version}-%{arch} - Base</name>
 <baseurl>http://mirror.centos.org/centos/%{version}/os/%{arch}/</baseurl>
 <gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <repo id="updates">
-<name>CentOS-%{version}-%{arch} - Updates</name>
 <baseurl>http://mirror.centos.org/centos/%{version}/updates/%{arch}/</baseurl>
 </repo>
 
 <repo id="centos-buildsys-5">
-<name>CentOS-BuildSys Version 5</name>
 <baseurl>http://dev.centos.org/centos/buildsys/5/</baseurl>
 <gpgkey>http://dev.centos.org/centos/RPM-GPG-KEY-CentOS-4</gpgkey>
 </repo>
 
 <repo id='epel'>
-  <name>Extra Packages for Enterprise Linux %{version} - %{arch}</name>
   <baseurl>http://dl.fedoraproject.org/pub/epel/%{version}/%{arch}</baseurl>
   <gpgkey>http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
 </repo>

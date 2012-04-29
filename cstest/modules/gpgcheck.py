@@ -67,7 +67,8 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
            version=self.version, arch=self.arch, include_baseurl=True,
            baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
     # set gpgkeys to none
-    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,})
+    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,
+                 'name': None,})
     repos.append(base.toxml())
     return repos
 

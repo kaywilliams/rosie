@@ -16,20 +16,10 @@
       <ref name="attribute-id"/>
 
       <interleave>
-      <optional>
-      <element name="name"><text/></element>
-      </optional>
-
-      <zeroOrMore>
       <element name="baseurl"><text/></element>
-      </zeroOrMore>
 
       <optional>
       <element name="systemid"><text/></element>
-      </optional>
-
-      <optional>
-      <element name="enabled"><text/></element>
       </optional>
 
       <zeroOrMore>
