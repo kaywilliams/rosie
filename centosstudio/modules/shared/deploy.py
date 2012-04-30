@@ -17,24 +17,16 @@
 #
 import hashlib
 import paramiko
-import select
-import signal
-import subprocess 
-import sys
-import traceback
 
-from centosstudio.cslogging import L0, L1, L2, MSG_MAXWIDTH
-from centosstudio.errors import (CentOSStudioError, CentOSStudioEventError,
-                                 SimpleCentOSStudioEventError)
-from centosstudio.util import pps
-from centosstudio.util import sshlib 
+from centosstudio.cslogging import L0, L1
+from centosstudio.errors import CentOSStudioError, CentOSStudioEventError
+
+from centosstudio.modules.shared import (ExecuteEventMixin, ScriptFailedError,
+                                         SSHFailedError, SSHScriptFailedError)
 
 from UserDict import DictMixin
 
-SSH_RETRIES = 24
-SSH_SLEEP = 5
-
-class DeployEventMixin:
+class DeployEventMixin(ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
@@ -314,99 +306,6 @@ class DeployEventMixin:
       else: # run cmd on the local machine
         self._local_execute(cmd, verbose)
 
-  def _ssh_connect(self, params, log_format='L2'):
-    try:
-      try:
-        self.log(2, eval('%s' % log_format)(
-                         "connecting to host \'%s\'" % params['hostname'])) 
-        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
-        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
-                                   callback=SSHConnectCallback(self.logger),
-                                   **dict(params))
-
-        # setting keepalive causes client to cancel processes started by the
-        # server after the SSH session is terminated. It takes a few seconds for
-        # the client to notice and cancel the process. 
-        client.get_transport().set_keepalive(1)
-
-      except sshlib.ConnectionFailedError, e:
-        raise SSHFailedError(message=e) 
-
-    except:
-      if 'client' in locals(): client.close()
-      raise
-
-    return client
-
-  def _ssh_execute(self, client, cmd, verbose=False, log_format='L2'):
-    self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
-    chan = client.get_transport().open_session()
-    chan.exec_command('"%s"' % cmd)
-
-    outlines = []
-    errlines = []
-    header_logged = False
-    while True:
-      r, w, x = select.select([chan], [], [], 0.0)
-      if len(r) > 0:
-        got_data = False
-        if chan.recv_ready():
-          data = chan.recv(1024)
-          if data:
-            got_data = True
-            outlines.extend(data.rstrip('\n').split('\n'))
-            if verbose or self.logger.test(4):
-              if header_logged is False:
-                self.logger.log_header(0, "%s event - '%s' script output" % 
-                                      (self.id, pps.path(cmd).basename))
-                header_logged = True
-              self.log(0, data.rstrip('\n'))
-        if chan.recv_stderr_ready():
-          data = chan.recv_stderr(1024)
-          if data:
-            got_data = True
-            errlines.extend(data.rstrip('\n').split('\n'))
-        if not got_data:
-          break
-
-    if header_logged:
-      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
-      self.logger.log(0, '')
-      
-    status = chan.recv_exit_status()
-    chan.close()
-
-    if status != 0:
-      raise SSHFailedError(message='\n'.join(outlines + errlines))
-
-  def _local_execute(self, cmd, verbose=False):
-      proc = subprocess.Popen('"%s"' % cmd, shell=True, 
-                                            stdout=subprocess.PIPE, 
-                                            stderr=subprocess.PIPE)
-
-      errlines = []
-      header_logged = False
-      while True:
-        outline = proc.stdout.readline().rstrip()
-        errline = proc.stderr.readline().rstrip()
-        if outline != '' or errline != '' or proc.poll() is None:
-          if outline and (verbose or self.logger.test(4)): 
-            if not header_logged:
-              self.logger.log_header(0, "%s event - '%s' script output" %
-                                    (self.id, pps.path(cmd).basename))
-              header_logged = True
-            self.log(0, outline)
-          if errline: errlines.append(errline) 
-        else:
-          break
-
-      if header_logged:
-        self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
-
-      if proc.returncode != 0:
-        raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
-      return
-
 
 class SSHParameters(DictMixin):
   def __init__(self, ptr, script):
@@ -440,24 +339,3 @@ class DeployMixinError(CentOSStudioEventError):
 
 class InvalidInstallTriggerError(DeployMixinError):
   message = "%(message)s"
-
-class ScriptFailedError(DeployMixinError):
-  message = "Error occured running '%(cmd)s'. See error message below:\n %(errtxt)s"
-
-class SSHFailedError(ScriptFailedError):
-  message = "%(message)s"
-
-class SSHScriptFailedError(ScriptFailedError):
-  message = """Error(s) occured running '%(id)s' script on '%(host)s':
-%(message)s"""
-
-#------ Callbacks ------#
-class SSHConnectCallback:
-  def __init__(self, logger):
-    self.logger = logger
-
-  def start(self, message, *args, **kwargs):
-    self.logger.log(2, L2(message))
-
-  def retry(self, message, *args, **kwargs):
-    self.logger.log(2, L2(message))
