@@ -36,7 +36,7 @@ class Test_Obsoletes(RpmbuildRepoTestCase):
   # add an obsolete to the config rpm
   _conf="""
   <config-rpms>
-  <rpm id='test'>
+  <rpm id='test-config'>
   <obsoletes>test-package</obsoletes>
   </rpm>
   </config-rpms>

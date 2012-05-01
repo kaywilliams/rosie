@@ -182,6 +182,16 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         raise InvalidConfigError(self.definition.file, name, value, 
                                  VALIDATE_DATA[name]['error'])
 
+    # resolve global macros - do this early so that global macros
+    # can be used in event ids for config-rpms and srpmbuild events
+    macros = {'%{name}':    self.name,
+             '%{version}':  self.version,
+             '%{arch}':     self.arch,
+             '%{id}':       self.repoid,
+             }
+
+    self.definition.resolve_macros(xpaths=['.'], map=macros)
+
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
@@ -575,12 +585,4 @@ class AllEvent(Event):
       version = 1.01,
       properties = CLASS_META,
       suppress_run_message = True,
-      config_base = '.', # used for global macro expansion (done in validate)
     )
-
-    # global macros
-    self.macros = {'%{name}':     self.name,
-                   '%{version}':  self.version,
-                   '%{arch}':     self.arch,
-                   '%{id}':       self.repoid,
-                   }

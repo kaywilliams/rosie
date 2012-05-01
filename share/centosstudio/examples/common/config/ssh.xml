@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rpm id='ssh'>
+<rpm id='%{name}-ssh-config'>
   <requires>openssh</requires>
   <requires>openssh-clients</requires>
   <setup>

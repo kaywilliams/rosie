@@ -15,9 +15,6 @@
 
           <interleave>
           <optional>
-          <element name="name"><text/></element>
-          </optional>
-          <optional>
           <element name="summary"><text/></element>
           </optional>
           <optional>

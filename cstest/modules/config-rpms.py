@@ -37,7 +37,7 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   we test the functioning of that class.
   """
   moduleid = 'config-rpms'
-  eventid  = 'test-config-rpms-config-rpm'
+  eventid  = 'config-rpm'
   _type = 'package'
   _conf = ["""<config-rpms>
   <rpm id='config'>
@@ -246,10 +246,10 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_SetupScript(distro, version, arch))
   suite.addTest(Test_ValidateDestnames(distro, version, arch))
 
- # if check_vm_config():
- #   suite.addTest(Test_FilesInstalled(distro, version, arch))
- #   suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
- #   # dummy test to shutoff vm
- #   suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
+  if check_vm_config():
+    suite.addTest(Test_FilesInstalled(distro, version, arch))
+    suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
+    # dummy test to shutoff vm
+    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
 
   return suite

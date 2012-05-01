@@ -63,14 +63,8 @@ def get_module_info(ptr, *args, **kwargs):
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sConfigRpmEvent' % name.capitalize()
 
-    # get config path and rpmid
+    # get config path
     config_base = '%s[@id="%s"]' % (xpath, id)
-    if config.getxpath('name/text()', ''):
-      rpmid=config.getxpath('name/text()')
-    elif id == 'config':
-      rpmid='%s-config' % ptr.name
-    else:
-      rpmid="%s-%s-config" % (ptr.name, id)
 
 
     # create new class
@@ -80,7 +74,7 @@ def get_module_info(ptr, *args, **kwargs):
                            'config_base': '%s',
                            '__init__'   : __init__,
                          }
-                        )""" % (name, name, rpmid, config_base) in globals()
+                        )""" % (name, name, id, config_base) in globals()
 
     # update module info with new classname
     module_info['events'].append(name)
