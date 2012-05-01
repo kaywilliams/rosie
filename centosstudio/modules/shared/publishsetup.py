@@ -40,7 +40,7 @@ class PublishSetupEventMixin:
   def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
-
+      
     for key in ['input', 'config', 'variables', 'output']:
       self.DATA.setdefault(key, [])
     self.DATA['variables'].append('publish_mixin_version')
@@ -54,8 +54,7 @@ class PublishSetupEventMixin:
     self.hostname = self.get_hostname()
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
-    self.ssh = self.config.getxpath('@ssh', True)
-    self.ssh_pubfile, self.ssh_secfile = self.get_ssh_keys()
+    self.ssh = self.config.getbool('@ssh', True)
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
@@ -66,7 +65,6 @@ class PublishSetupEventMixin:
            '%{password}':       {'conf':  '@password\' attribute',
                                   'value':  self.password},
            '%{crypt-password}': {'value':  self.crypt_password},
-           '%{ssh-pubfile}':    {'value':  self.ssh_pubfile},
            '%{boot-options}':   {'conf':  'boot-options\' element',
                                   'value':  self.boot_options},
            }
@@ -80,13 +78,10 @@ class PublishSetupEventMixin:
       self.macros[key] = map[key]['value']
     self.config.resolve_macros('.', self.macros)
 
-    # resolve global macros
-    self._config.resolve_macros('.', {'%{ssh-pubfile}': self.ssh_pubfile})
-
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'password', 'ssh', 'ssh_secfile', 
+    for attribute in ['hostname', 'password', 'ssh',  
                       'webpath', 'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -100,10 +95,6 @@ class PublishSetupEventMixin:
 
     self.write_datfile()
 
-  def run(self):
-    # copy public ssh key
-    self.io.process_files(callback=self.link_callback, 
-                          what='keyfile', text=None)
 
   #------ Helper Methods ------#
   def get_local(self):
@@ -203,25 +194,6 @@ class PublishSetupEventMixin:
         salt = salt + choice(salt_pop)
       salt = '$6$' + salt
     return crypt(password, salt)
-
-  def get_ssh_keys(self):
-    secret = pps.path('/root/.ssh/id_rsa')
-    public = secret + '.pub'
-    if not secret.exists():
-      try:
-        cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % secret 
-        shlib.execute(cmd)
-      except shlib.ShExecError, e:
-        message = ("Error occurred creating ssh keys for the "
-                   "root user. The error was: %s\n"
-                   "If the error persists, you can generate keys manually "
-                   "using the command\n '%s'" % (e, cmd))
-        raise KeyGenerationFailed(message=message)
-
-    # setup to copy file to mddir so that user scripts can't harm the original  
-    self.io.add_fpath(public, self.mddir, id='keyfile')
-
-    return (self.mddir/public.basename, secret)
 
   def write_datfile(self):
   

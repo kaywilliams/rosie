@@ -83,7 +83,7 @@ class DeployEventMixin(ExecuteEventMixin):
     self.ssh = dict(
       enabled      = self.cvars[self.cvar_root]['ssh'],
       hostname     = self.cvars[self.cvar_root]['hostname'],
-      key_filename = str(self.cvars[self.cvar_root]['ssh-secfile']),
+      key_filename = '/root/.ssh/id_rsa',
       port         = 22,
       username     = 'root',
       )

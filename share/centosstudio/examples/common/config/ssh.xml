@@ -2,7 +2,12 @@
 <rpm id='ssh'>
   <requires>openssh</requires>
   <requires>openssh-clients</requires>
-  <files destdir='/root/.ssh/' destname="id_rsa.pub">%{ssh-pubfile}</files>
+  <setup>
+  #!/bin/bash
+  secret=/root/.ssh/id_rsa
+  [[ -f $secret ]] || /usr/bin/ssh-keygen -t rsa -f $secret -N ""
+  </setup>
+  <files destdir='/root/.ssh/'>/root/.ssh/id_rsa.pub</files>
   <script type='post'>
   # set some convenience variables
   sshdir=/root/.ssh

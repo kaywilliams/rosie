@@ -366,7 +366,6 @@ class SrpmBuild(Build):
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
       '%{rpms-dir}':    self.ptr.rpmsdir,
-      '%{ssh-keyfile}': self.ptr.cvars['publish-setup-options']['ssh-secfile'],
       })
 
     self.definition = root

@@ -119,7 +119,7 @@ try:
   client = paramiko.SSHClient()
   client.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
   client.connect(hostname='%{hostname}', username='root', port=22,
-                 key_filename='%{ssh-keyfile}')
+                 key_filename='/root/.ssh/id_rsa')
   client.get_transport().set_keepalive(1) #stop processing if ssh terminates
 
   try:

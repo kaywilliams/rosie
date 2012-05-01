@@ -188,6 +188,19 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def tearDown(self):
     del self.conf
 
+class Test_SetupScript(ConfigRpmEventTestCase):
+  "fails on bad setup script"  
+  _conf = """<config-rpms>
+  <rpm id='config'>
+    <setup>bad</setup>
+  </rpm>
+  </config-rpms>"""
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
+
 class DeployConfigRpmEventTestCase(DeployMixinTestCase, 
                                    ConfigRpmInputsEventTestCase):
   _type = 'system'
@@ -230,12 +243,13 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
+  suite.addTest(Test_SetupScript(distro, version, arch))
   suite.addTest(Test_ValidateDestnames(distro, version, arch))
 
-  if check_vm_config():
-    suite.addTest(Test_FilesInstalled(distro, version, arch))
-    suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
-    # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
+ # if check_vm_config():
+ #   suite.addTest(Test_FilesInstalled(distro, version, arch))
+ #   suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
+ #   # dummy test to shutoff vm
+ #   suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
 
   return suite

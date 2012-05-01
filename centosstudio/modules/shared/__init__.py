@@ -27,7 +27,8 @@ from centosstudio.modules.shared.publishsetup import *
 from centosstudio.modules.shared.repomd       import *
 from centosstudio.modules.shared.repos        import *
 from centosstudio.modules.shared.deploy       import * # requires execute
-from centosstudio.modules.shared.rpmbuild     import * # requires csshelve
+from centosstudio.modules.shared.rpmbuild     import * # requires shelve
+from centosstudio.modules.shared.config       import * # requires rpmbuild
 from centosstudio.modules.shared.release      import * # requires rpmbuild
 from centosstudio.modules.shared.testpublish  import * # requires config
 

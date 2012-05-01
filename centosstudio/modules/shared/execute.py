@@ -102,31 +102,34 @@ class ExecuteEventMixin:
       raise SSHFailedError(message='\n'.join(outlines + errlines))
 
   def _local_execute(self, cmd, verbose=False):
-      proc = subprocess.Popen(["%s" % cmd], stdout=subprocess.PIPE, 
-                                            stderr=subprocess.PIPE)
+    # using shell=True which gives better error messages for scripts lacking
+    # an interpreter directive (i.e. #!/bin/bash). Callers need to verify
+    # that cmd does not contain arbitrary (and potentially dangerous) text.
+    proc = subprocess.Popen("%s" % cmd, shell=True, stdout=subprocess.PIPE, 
+                                                    stderr=subprocess.PIPE)
 
-      errlines = []
-      header_logged = False
-      while True:
-        outline = proc.stdout.readline().rstrip()
-        errline = proc.stderr.readline().rstrip()
-        if outline != '' or errline != '' or proc.poll() is None:
-          if outline and (verbose or self.logger.test(4)): 
-            if not header_logged:
-              self.logger.log_header(0, "%s event - '%s' script output" %
-                                    (self.id, pps.path(cmd).basename))
-              header_logged = True
-            self.log(0, outline)
-          if errline: errlines.append(errline) 
-        else:
-          break
+    errlines = []
+    header_logged = False
+    while True:
+      outline = proc.stdout.readline().rstrip()
+      errline = proc.stderr.readline().rstrip()
+      if outline != '' or errline != '' or proc.poll() is None:
+        if outline and (verbose or self.logger.test(4)): 
+          if not header_logged:
+            self.logger.log_header(0, "%s event - '%s' script output" %
+                                  (self.id, pps.path(cmd).basename))
+            header_logged = True
+          self.log(0, outline)
+        if errline: errlines.append(errline) 
+      else:
+        break
 
-      if header_logged:
-        self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
+    if header_logged:
+      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
-      if proc.returncode != 0:
-        raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
-      return
+    if proc.returncode != 0:
+      raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
+    return
 
 
 #------ Errors ------#
