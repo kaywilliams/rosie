@@ -29,17 +29,30 @@ from centosstudio.cslogging   import L1
 from centosstudio.modules.shared import DeployEventMixin
 from centosstudio.modules.shared import KickstartEventMixin
 from centosstudio.modules.shared import PublishSetupEventMixin 
-
-def get_module_info(ptr, *args, **kwargs):
-  return dict(
-    api         = 5.0,
-    events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
-                   'DeployEvent'],
-    description = 'publishes system repository to a web accessible location',
-  )
+from centosstudio.modules.shared import (ConfigRpmEvent,
+                                         ConfigRpmEventMixin,
+                                         make_rpm_events,
+                                         MkrpmRpmBuildMixin,)
 
 TYPE_DIR = pps.constants.TYPE_DIR
 TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
+
+def get_module_info(ptr, *args, **kwargs):
+  module_info = dict(
+    api         = 5.0,
+    events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
+                   'DeployEvent'],
+    description = 'publishes repository to a web accessible location',
+  )
+  modname = __name__.split('.')[-1]
+  new_rpm_events = make_rpm_events(ptr, modname, 'rpm', globals=globals())
+  module_info['events'].extend(new_rpm_events)
+
+  return module_info
+
+# -------- init method called by new_rpm_events -------- #
+def __init__(self, ptr, *args, **kwargs):
+  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
 
 class PublishSetupEvent(PublishSetupEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):

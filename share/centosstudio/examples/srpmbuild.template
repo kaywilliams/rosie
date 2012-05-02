@@ -35,28 +35,22 @@
 <xml id="packages-5"><package>buildsys-build</package></xml>
 <xml id="packages-6"><group>buildsys-build</group></xml>
 
-<config-rpms>
-<!-- ssh configuration -->
-<xi:include href="common/deploy.xml" 
-            xpointer="xpointer(/*/config-rpms/*)"/>
-</config-rpms>
-
 <publish password='srpmbuild' hostname='%{id}.local'>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
 
 <kickstart>
-<xi:include href="common/ks.cfg" parse="text"/>
+<xi:include href="deploy/ks.cfg" parse="text"/>
 skipx
 </kickstart>
 
 <trigger triggers='release-rpm, config-rpms, kickstart, treeinfo, install-scripts, post-install-scripts'>
-<xi:include href="common/deploy.xml" 
+<xi:include href="deploy.xml" 
             xpointer="xpointer(/*/trigger/*)"/>
 </trigger>
 
 <install>
-<xi:include href="common/deploy.xml" 
+<xi:include href="deploy.xml" 
             xpointer="xpointer(/*/install/*[@id='virt-delete'])"/>
 <script id='virt-install'>
 virt-install --name %{hostname} --ram 1000 \
@@ -70,7 +64,7 @@ virt-install --name %{hostname} --ram 1000 \
 </install>
 
 <post>
-<xi:include href="common/deploy.xml" 
+<xi:include href="deploy.xml" 
             xpointer="xpointer(/*/post/*[@id='update'])"/>
 <script id='rpmbuild'>
 #!/bin/bash
@@ -140,13 +134,12 @@ try:
 finally:
   if 'client' in locals(): client.close()
 </script>
-<xi:include href="common/deploy.xml" 
+<xi:include href="deploy.xml" 
             xpointer="xpointer(/*/post/*[@id='check-kernel'])"/>
 </post>
 
-<xi:include href="common/deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='config-rpms' and
-                                    name()!='kickstart' and
+<xi:include href="deploy.xml" 
+            xpointer="xpointer(/*/*[name()!='kickstart' and
                                     name()!='trigger' and
                                     name()!='install' and
                                     name()!='post'])"/>

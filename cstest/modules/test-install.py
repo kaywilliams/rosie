@@ -92,15 +92,6 @@ class Test_RaisesErrorOnInvalidTriggers(TestInstallEventTestCase):
     self.failUnlessRaises(InvalidInstallTriggerError, self.event)
 
 
-class Test_NoReinstall(TestInstallEventTestCase):
-  "does not reinstall if triggers unchanged"
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
-    self.failUnless(not self.event.cvars.get('%s-reinstalled' % self.moduleid, 
-                                            False))
-
-
 class ReinstallTestInstallEventTestCase(TestInstallEventTestCase):
   def setUp(self):
     TestInstallEventTestCase.setUp(self)
@@ -191,7 +182,6 @@ def make_suite(distro, version, arch, *args, **kwargs):
   if check_vm_config():
     suite.addTest(make_extension_suite(TestInstallEventTestCase, distro, version, arch))
     suite.addTest(Test_RaisesErrorOnInvalidTriggers(distro, version, arch))
-    suite.addTest(Test_NoReinstall(distro, version, arch))
     suite.addTest(Test_ReinstallOnReleaseRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnConfigRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnKickstartChange(distro, version, arch))

@@ -48,6 +48,6 @@ def get_module_info(ptr, *args, **kwargs):
 
   return module_info
 
+# -------- init method called by new_rpm_events -------- #
 def __init__(self, ptr, *args, **kwargs):
   ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
-

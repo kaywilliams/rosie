@@ -175,7 +175,6 @@ class DeployEventMixin(ExecuteEventMixin):
     self.do_clean=True # clean the deploydir once per session
 
     if self._reinstall():
-      self.cvars['%s-reinstalled' % self.moduleid] = True # used by test cases
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise CentOSStudioError('test fail on reinstall')
       self._execute('install')

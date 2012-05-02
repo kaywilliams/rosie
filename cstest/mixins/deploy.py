@@ -37,7 +37,7 @@ class DeployMixinTestCase:
 
     # get default deploy config
     deploy = rxml.config.parse(
-      '%s/../../share/centosstudio/examples/common/deploy.xml' %  
+      '%s/../../share/centosstudio/examples/deploy.xml' %  
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
@@ -54,12 +54,6 @@ class DeployMixinTestCase:
     if packages is None:
       packages = rxml.config.Element('packages', parent=self.conf)
     packages.extend(pkgcontent.xpath('/*/*'))
-
-    # update config-rpms
-    config_rpms = self.conf.getxpath('/*/config-rpms', None)
-    if config_rpms is None:
-      config_rpms = rxml.config.Element('config-rpms', parent=self.conf)
-    config_rpms.extend(deploy.xpath('/*/config-rpms/rpm'))
 
     # update module
     self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
@@ -78,9 +72,7 @@ class DeployMixinTestCase:
       trigger.extend(deploy.xpath('/*/trigger/*'))
 
     mod.extend(deploy.xpath(("/*/*[name()!='post' and "
-                                  "name()!='trigger' and "
-                                  "name()!='config-rpms']")))
-
+                                  "name()!='trigger']")))
 
   def runTest(self):
     self.tb.dispatch.execute(until='deploy')

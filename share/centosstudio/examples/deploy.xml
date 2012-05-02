@@ -2,12 +2,10 @@
 <root xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- scripts for installing and updating a local virtual machine -->
-<config-rpms>
-  <xi:include href='config/ssh.xml'/>
-</config-rpms>
+<xi:include href='deploy/ssh-config.xml'/>
 
 <kickstart>
-  <xi:include href='ks.cfg' parse='text'/>
+  <xi:include href='deploy/ks.cfg' parse='text'/>
 </kickstart>
 
 <trigger>

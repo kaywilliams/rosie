@@ -11,6 +11,7 @@
         <ref name='content-deploy-attributes'/>
 
         <interleave>
+        <optional><ref name="element-rpm"/></optional>
         <ref name="element-kickstart"/>
         <ref name="content-deploy-elements"/>
         <ref name="content-trigger-element"/>
