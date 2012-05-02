@@ -15,13 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import re
-
 from centosstudio.event    import Event, CLASS_META
-from centosstudio.validate import check_dup_ids
 
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
+                                         make_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
 class ConfigRpmsEvent(Event):
@@ -37,9 +35,6 @@ class ConfigRpmsEvent(Event):
       suppress_run_message = True
     )
 
-def __init__(self, ptr, *args, **kwargs):
-  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
-
 # -------- provide module information to dispatcher -------- #
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
@@ -48,36 +43,11 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'modules that create RPMs based on user-provided configuration',
   )
   modname = __name__.split('.')[-1]
-  xpath   = '/*/%s/rpm' % modname
-
-  # ensure unique rpm ids
-  check_dup_ids(element = modname,
-                config = ptr.definition,
-                xpath = '%s/@id' % xpath)
-
-  # create event classes based on user configuration
-  for config in ptr.definition.xpath(xpath, []):
-
-    # convert user provided id to a valid class name
-    id = config.getxpath('@id')
-    name = re.sub('[^0-9a-zA-Z_]', '', id)
-    name = '%sConfigRpmEvent' % name.capitalize()
-
-    # get config path
-    config_base = '%s[@id="%s"]' % (xpath, id)
-
-
-    # create new class
-    exec """%s = ConfigRpmEvent('%s', 
-                         (ConfigRpmEventMixin,), 
-                         { 'rpmid'      : '%s',
-                           'config_base': '%s',
-                           '__init__'   : __init__,
-                         }
-                        )""" % (name, name, id, config_base) in globals()
-
-    # update module info with new classname
-    module_info['events'].append(name)
+  new_rpm_events = make_rpm_events(ptr, modname, 'rpm', globals=globals())
+  module_info['events'].extend(new_rpm_events)
 
   return module_info
+
+def __init__(self, ptr, *args, **kwargs):
+  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
 

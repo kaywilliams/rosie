@@ -54,7 +54,7 @@ class TestSrpmTestCase(EventTestCase):
     EventTestCase.__init__(self, distro, version, arch, conf=conf)
 
 class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
-  "raises an error if multiple rpms provide the same id"
+  "raises an error if multiple srpms provide the same id"
   _conf = """
   <srpmbuild>
   <srpm id="test"/>

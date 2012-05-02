@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import re
+
 from centosstudio.errors   import CentOSStudioEventError
 from centosstudio.event    import Event
 from centosstudio.util     import pps
@@ -23,6 +25,45 @@ from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                          ExecuteEventMixin,
                                          Trigger, 
                                          TriggerContainer)
+
+def make_rpm_events(ptr, modname, element_name, globals):
+  config_rpm_ids = getattr(ptr, 'cvars[\'config-rpm-ids\']', [])
+  new_events = []
+  xpath   = '/*/%s/%s' % (modname, element_name)
+
+  # create event classes based on user configuration
+  for config in ptr.definition.xpath(xpath, []):
+
+    # convert user provided id to a valid class name
+    rpmid = config.getxpath('@id')
+    name = re.sub('[^0-9a-zA-Z_]', '', rpmid)
+    name = '%sConfigRpmEvent' % name.capitalize()
+
+    # get config path and rpmid
+    config_base = '%s[@id="%s"]' % (xpath, rpmid)
+
+    # check for dups
+    if rpmid in config_rpm_ids:
+      raise DuplicateIdsError(element=element_name, dup=rpmid)
+
+    # create new class
+    exec """%s = ConfigRpmEvent('%s', 
+                         (ConfigRpmEventMixin,), 
+                         { 'rpmid'      : '%s',
+                           'config_base': '%s',
+                           '__init__'   : __init__,
+                         }
+                        )""" % (
+                        name, name, rpmid, config_base) in globals
+
+    # update lists with new classname
+    config_rpm_ids.append(rpmid)
+    new_events.append(name)
+
+  # update cvars rpm-event-ids
+  ptr.cvars['config-rpm-ids'] = config_rpm_ids
+
+  return new_events
 
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
@@ -404,8 +445,9 @@ class ConfigRpmEvent(type):
 
 
 # -------- Error Classes --------#
-class ConfigRpmEventError(CentOSStudioEventError): 
-  message = "%(message)s"
+class DuplicateIdsError(CentOSStudioEventError):
+  message = ("Error: Duplicate ids found while validating '%(element)s' "
+             "elements. The duplicate id is '%(dup)s'")
 
-class DuplicateIdsError(ConfigRpmEventError):
+class ConfigRpmEventError(CentOSStudioEventError): 
   message = "%(message)s"

@@ -20,6 +20,7 @@ import paramiko
 
 from centosstudio.cslogging import L0, L1
 from centosstudio.errors import CentOSStudioError, CentOSStudioEventError
+from centosstudio.util import pps
 
 from centosstudio.modules.shared import (ExecuteEventMixin, ScriptFailedError,
                                          SSHFailedError, SSHScriptFailedError)
@@ -80,10 +81,18 @@ class DeployEventMixin(ExecuteEventMixin):
 
     # setup ssh values
     # todo - share this with srpmbuild
+    keyfile=pps.path('/root/.ssh/id_rsa')
+    if not keyfile.exists():
+      message = ("SSH not correctly configured on this "
+                 "machine. The '%s' file does not exist. See the CentOS "
+                 "Studio documentation for information on configuring build "
+                 "and client systems for remote command execution using SSH."
+                 % keyfile)
+      raise SSHFailedError(message=message)
     self.ssh = dict(
       enabled      = self.cvars[self.cvar_root]['ssh'],
       hostname     = self.cvars[self.cvar_root]['hostname'],
-      key_filename = '/root/.ssh/id_rsa',
+      key_filename = '%s' % keyfile,
       port         = 22,
       username     = 'root',
       )

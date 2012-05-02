@@ -33,13 +33,12 @@ from centosstudio.main         import Build
 from centosstudio.util         import magic 
 from centosstudio.util         import pps 
 from centosstudio.util         import rxml 
-from centosstudio.validate     import check_dup_ids
 
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 
 from centosstudio.modules.shared import (DeployEventMixin, ShelveMixin, 
-                                         RpmBuildMixin) 
+                                         DuplicateIdsError, RpmBuildMixin) 
 
 from fnmatch import fnmatch
 
@@ -399,10 +398,7 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'modules that accept SRPMs and build RPMs',
   )
 
-  # ensure unique srpm ids
-  check_dup_ids(element = __name__.split('.')[-1],
-                config = ptr.definition,
-                xpath = '/*/srpmbuild/srpm/@id')
+  srpm_ids = getattr(ptr, 'cvars[\'srpm-ids\']', [])
 
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
@@ -412,6 +408,10 @@ def get_module_info(ptr, *args, **kwargs):
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 
+    # ensure unique srpm ids
+    if id in srpm_ids:
+      raise DuplicateIdsError(element='srpm', dup=id)
+
     # create new class
     exec """%s = SrpmBuildRpmEvent('%s', 
                          (SrpmBuildMixinEvent,), 
@@ -420,8 +420,14 @@ def get_module_info(ptr, *args, **kwargs):
                          }
                         )""" % (name, name, id) in globals()
 
+    # update srpm_ids with new id
+    srpm_ids.append(id)
+
     # update module info with new classname
     module_info['events'].append(name)
+
+  # update cvars srpm-ids
+  ptr.cvars['srpm-ids'] = srpm_ids
 
   return module_info
 
