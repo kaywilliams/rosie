@@ -12,6 +12,7 @@
 
         <interleave>
         <optional><ref name="element-rpm"/></optional>
+        <optional><ref name="element-repo"/></optional>
         <ref name="element-kickstart"/>
         <ref name="content-deploy-elements"/>
         <optional><ref name="content-trigger-element"/></optional>

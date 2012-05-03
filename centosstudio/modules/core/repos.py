@@ -47,6 +47,7 @@ class ReposEvent(RepoEventMixin, Event):
                   'base-treeinfo-text'
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
                   ],
+      conditionally_requires = [ 'repos' ]
     )
 
     RepoEventMixin.__init__(self)
@@ -61,7 +62,7 @@ class ReposEvent(RepoEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    updates  = RepoContainer()
+    updates  = self.cvars.get('repos', RepoContainer())
     if self.config.pathexists('.'):
       updates.add_repos(ReposFromXml(self.config.getxpath('.'), cls=CentOSStudioRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):

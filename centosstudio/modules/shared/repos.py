@@ -42,8 +42,8 @@ from centosstudio.util.repo.repo     import (YumRepo, RepoContainer, NSMAP,
                                              InvalidFileError)
 from centosstudio.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'CentOSStudioRepo', 'CentOSStudioRepoGroup',
-           'CentOSStudioRepoFileParseError']
+__all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'CentOSStudioRepo', 
+           'CentOSStudioRepoGroup', 'CentOSStudioRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
@@ -224,6 +224,21 @@ class CentOSStudioRepoGroup(CentOSStudioRepo):
     if not self._repos:
       self._populate_repos()
     return self._repos
+
+class RepoSetupEventMixin:
+  """Uses ReposFromXml to add repos to the repos cvar. Creates repos cvar if
+     it does not exist"""
+  def __init__(self):
+    self.parentid = 'setup-events'
+    self.provides = set(['repos'])
+    self.suppress_run_message=True,
+
+  def setup(self):
+    if self.config.xpath('repo', []):
+      (self.cvars.setdefault('repos', RepoContainer()).
+                             add_repos(ReposFromXml(self.config.getxpath('.'),
+                             cls=CentOSStudioRepoGroup)))
+
 
 class RepoEventMixin:
   def __init__(self, *args, **kwargs):
