@@ -17,7 +17,7 @@
 #
 import re
 
-from centosstudio.errors   import CentOSStudioEventError
+from centosstudio.errors   import CentOSStudioEventError, DuplicateIdsError
 from centosstudio.event    import Event
 from centosstudio.util     import pps
 
@@ -44,7 +44,7 @@ def make_rpm_events(ptr, modname, element_name, globals):
 
     # check for dups
     if rpmid in config_rpm_ids:
-      raise DuplicateIdsError(element=element_name, dup=rpmid)
+      raise DuplicateIdsError(element=element_name, id=rpmid)
 
     # create new class
     exec """%s = ConfigRpmEvent('%s', 
@@ -445,9 +445,5 @@ class ConfigRpmEvent(type):
 
 
 # -------- Error Classes --------#
-class DuplicateIdsError(CentOSStudioEventError):
-  message = ("Error: Duplicate ids found while validating '%(element)s' "
-             "elements. The duplicate id is '%(dup)s'")
-
 class ConfigRpmEventError(CentOSStudioEventError): 
   message = "%(message)s"

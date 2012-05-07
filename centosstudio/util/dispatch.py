@@ -120,7 +120,8 @@ class Dispatch:
   def __init__(self, event):
     resolver = resolve.Resolver()
     resolver.add_node(event)
-    resolver.resolve()
+    resolved = resolver.resolve()
+    self._remove_conditional(resolved)
     self._order = [ x for x in event ]
     self._top = event # pointer to the top-level event
     self.reset() # sets self.index to -1, self.currevent to None
@@ -172,6 +173,23 @@ class Dispatch:
           raise StopIteration
       except StopIteration:
         break
+
+  def _remove_conditional(self, resolved):
+    # removes events marked as conditional if their provides are not 
+    # required by any other event
+    for top in resolved:
+      all_requires = []
+      for requires in [ event.requires for event in top ]:
+        all_requires.extend(requires)
+
+      for event in [ event for event in top if event.conditional ]:
+        keep = False
+        for provides in event.provides:
+          if provides in all_requires:
+            keep = True
+
+        if keep == False:
+          event.disable()
 
   # event retrieval
   def get(self, eventid, fallback=NoneType()):

@@ -23,9 +23,7 @@ from centosstudio.util   import rxml
 
 from centosstudio.util.rxml import datfile
 
-from centosstudio.modules.shared.deploy import InvalidInstallTriggerError
-
-from cstest      import EventTestCase, ModuleTestSuite
+from cstest      import EventTestCase, ModuleTestSuite, TestBuild
 from cstest.core import make_extension_suite
 
 from cstest.mixins import (psm_make_suite, DeployMixinTestCase,
@@ -48,13 +46,11 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   eventid  = 'test-install'
   _conf = ["""
   <test-install>
-    <post>
-    <script id='test'>
+    <script id='test' type='post'>
     <!--comment-->
     echo "test to ensure comments work inside script elements"
     echo "ps. this is dumb, we should really fix comments during parsing"
     </script>
-    </post>
   </test-install>
   """]
 
@@ -78,19 +74,54 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   def tearDown(self):
     EventTestCase.tearDown(self) 
 
+class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
+  "raises an error if multiple scripts provide the same id"
 
-class Test_RaisesErrorOnInvalidTriggers(TestInstallEventTestCase):
-  "raises an error if invalid triggers are provided"
-
-  def setUp(self):
-    TestInstallEventTestCase.setUp(self)
-    self.conf.getxpath('/*/%s/trigger' % self.moduleid).set(
-                  'triggers', 'kickstart, install-scripts junk1, junk2')
+  def setUp(self): pass
 
   def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(InvalidInstallTriggerError, self.event)
+    parent = self.conf.getxpath('test-install')
+    script = rxml.config.Element('script', parent=parent, 
+                                 attrs={'id':   'test',
+                                        'type': 'post-script'})
+    script.text = 'echo "hello"'
+    script = rxml.config.Element('script', parent=parent, 
+                                 attrs={'id':   'test',
+                                        'type': 'post-script'})
+    script.text = 'echo "hello"'
+    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
+      TestBuild, self.conf, self.options, [])
 
+  def tearDown(self):
+    del self.conf
+
+class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
+  "test comes-before and comes-after"
+
+  def runTest(self):
+    parent = self.event.config.getxpath('.')
+    script = rxml.config.Element('script', parent=parent, text='echo test', 
+                                 attrs={'id':   'id3',
+                                        'type': 'post',})
+    script = rxml.config.Element('script', parent=parent, text='echo test',
+                                 attrs={'id':   'id4',
+                                        'type': 'post',})
+    script = rxml.config.Element('script', parent=parent, text='echo test',
+                                 attrs={'id':   'test-comes',
+                                        'type': 'post',
+                                        'comes-after': 'id1, id2 id3',
+                                        'comes-before': 'id4 id5',
+                                        })
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.failUnless(self.event.scripts['test-comes'].conditionally_comes_after
+                    == set(['id1', 'id2', 'id3']))
+    self.failUnless(self.event.scripts['test-comes'].conditionally_comes_before
+                    == set(['id4', 'id5']))
+    ids = [ x.id for x in self.event.types['post'] ]
+    test_comes_id = ids.index('test-comes')
+    self.failUnless('id3' in ids[:test_comes_id] and 
+                    'id4' in ids[test_comes_id+1:])
 
 class ReinstallTestInstallEventTestCase(TestInstallEventTestCase):
   def setUp(self):
@@ -152,9 +183,10 @@ class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    install = self.event.config.getxpath('install')
-    script = rxml.config.Element('script', parent=install, 
-                                 attrs={'id': 'install-test'})
+    parent = self.event.config.getxpath('.')
+    script = rxml.config.Element('script', parent=parent, 
+                                 attrs={'id':   'install-test',
+                                        'type': 'install'})
     script.text = 'echo "Hello"'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
@@ -164,12 +196,24 @@ class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase)
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    post_install = self.event.config.getxpath('post-install')
-    script = rxml.config.Element('script', parent=post_install, 
-                                 attrs={'id': 'post-test'})
+    parent = self.event.config.getxpath('.')
+    script = rxml.config.Element('script', parent=parent, 
+                                 attrs={'id':   'post-test',
+                                        'type': 'post-script'})
     script.text = 'echo "hello"'
     self.failUnlessRaises(CentOSStudioError, self.event)
 
+class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase):
+  "reinstalls if a save-triggers script changes"
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    parent = self.event.config.getxpath('.')
+    script = rxml.config.Element('script', parent=parent, 
+                                 attrs={'id':   'save-triggers-test',
+                                        'type': 'save-triggers'})
+    script.text = 'echo "hello"'
+    self.failUnlessRaises(CentOSStudioError, self.event)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')
@@ -181,13 +225,15 @@ def make_suite(distro, version, arch, *args, **kwargs):
   # deploy
   if check_vm_config():
     suite.addTest(make_extension_suite(TestInstallEventTestCase, distro, version, arch))
-    suite.addTest(Test_RaisesErrorOnInvalidTriggers(distro, version, arch))
+    suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
+    suite.addTest(Test_ComesBeforeComesAfter(distro, version, arch))
     suite.addTest(Test_ReinstallOnReleaseRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnConfigRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnKickstartChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnTreeinfoChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnInstallScriptChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
+    suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(distro, version, arch))
     # dummy test to shutoff vm
     suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
 

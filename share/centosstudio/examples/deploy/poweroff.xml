@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='poweroff'>
+<script id='poweroff' type='post' ssh='true'>
 #!/bin/bash
 poweroff
 </script>

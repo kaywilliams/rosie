@@ -206,8 +206,7 @@ class DeployConfigRpmEventTestCase(DeployMixinTestCase,
   _type = 'system'
   _conf = ["""
   <publish>
-  <post>
-  <script id='config-rpm'>
+  <script id='config-rpm' type='post' ssh='true'>
     #!/bin/bash
     set -e
     ls /etc/testdir/file1
@@ -215,7 +214,6 @@ class DeployConfigRpmEventTestCase(DeployMixinTestCase,
     ls /etc/testdir/file5
     ls /etc/testdir/dir1/file3
   </script>
-  </post>
   </publish>
   """]
   _conf.extend(ConfigRpmInputsEventTestCase._conf)

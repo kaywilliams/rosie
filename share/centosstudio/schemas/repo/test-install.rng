@@ -9,18 +9,7 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <ref name='content-deploy-attributes'/>
-
-        <interleave>
-        <optional><ref name="element-rpm"/></optional>
-        <optional><ref name="element-repo"/></optional>
-        <ref name="element-kickstart"/>
         <ref name="content-deploy-elements"/>
-        <ref name="content-trigger-element"/>
-        <ref name="content-activate-element"/>
-        <ref name="content-install-element"/>
-        <ref name="content-post-install-element"/>
-        <optional><ref name="content-post-element"/></optional>
-        </interleave>
       </element>
       </optional>
 

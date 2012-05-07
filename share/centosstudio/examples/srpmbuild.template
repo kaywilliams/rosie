@@ -44,15 +44,16 @@
 skipx
 </kickstart>
 
-<trigger triggers='release-rpm, config-rpms, kickstart, treeinfo, install-scripts, post-install-scripts'>
-<xi:include href="deploy.xml" 
-            xpointer="xpointer(/*/trigger/*)"/>
-</trigger>
+<triggers>
+  <trigger>release-rpm</trigger>
+  <trigger>config-rpms</trigger>
+  <trigger>kickstart</trigger>
+  <trigger>treeinfo</trigger>
+  <trigger>install-scripts</trigger>
+  <trigger>post-install-scripts</trigger>
+</triggers>
 
-<install>
-<xi:include href="deploy.xml" 
-            xpointer="xpointer(/*/install/*[@id='virt-delete'])"/>
-<script id='virt-install'>
+<script id='virt-install' type='install'>
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
              --file-size 6 \
@@ -61,12 +62,8 @@ virt-install --name %{hostname} --ram 1000 \
                ks=%{url}/ks.cfg"\
              --noreboot
 </script>
-</install>
 
-<post>
-<xi:include href="deploy.xml" 
-            xpointer="xpointer(/*/post/*[@id='update'])"/>
-<script id='rpmbuild'>
+<script id='rpmbuild' type='post' ssh='true' comes-after='update' comes-before='check-kernel, shutdown'>
 #!/bin/bash
 ### build and verify rpm packages ###
 
@@ -102,7 +99,7 @@ for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do
 done
 </script>
 
-<script id="copy" ssh="false">
+<script id="copy" type='post' ssh="false" comes-after='rpmbuild' comes-before='check-kernel, shutdown'>
 #!/usr/bin/python
 import os 
 import paramiko
@@ -134,15 +131,12 @@ try:
 finally:
   if 'client' in locals(): client.close()
 </script>
-<xi:include href="deploy.xml" 
-            xpointer="xpointer(/*/post/*[@id='check-kernel'])"/>
-</post>
 
 <xi:include href="deploy.xml" 
             xpointer="xpointer(/*/*[name()!='kickstart' and
-                                    name()!='trigger' and
-                                    name()!='install' and
-                                    name()!='post'])"/>
+                                    name()!='script'])"/>
+<xi:include href="deploy.xml"
+            xpointer="xpointer(/*/script[@id!='virt-install'])"/>
 </publish>
 
 </repo>

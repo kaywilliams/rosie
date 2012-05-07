@@ -1,14 +1,6 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
-  <!-- a kickstart element -->
-  <define name="element-kickstart">
-    <optional>
-    <element name="kickstart">
-      <text/>
-    </element>
-    </optional>
-  </define>
 
   <!-- an rpm element -->
   <define name="element-rpm">
@@ -257,6 +249,53 @@
     <optional>
       <element name="boot-options"><text/></element>
     </optional>
+
+    <optional>
+    <element name="kickstart">
+      <text/>
+    </element>
+    </optional>
+
+    <zeroOrMore><ref name="element-rpm"/></zeroOrMore>
+    <zeroOrMore><ref name="element-repo"/></zeroOrMore>
+
+    <optional>
+      <element name="triggers">
+      <oneOrMore>
+      <element name="trigger"><text/></element>
+      </oneOrMore>
+      </element>
+    </optional>
+
+    <zeroOrMore>
+      <element name="script">
+      <attribute name='id'/>
+
+      <attribute name='type'>
+      <choice>
+      <value type="string">test-triggers</value>
+      <value type="string">delete</value>
+      <value type="string">activate</value>
+      <value type="string">install</value>
+      <value type="string">post-install</value>
+      <value type="string">save-triggers</value>
+      <value type="string">post</value>
+      </choice>
+      </attribute>
+
+      <optional>
+      <attribute name="ssh"><ref name="value-boolean"/></attribute>
+      </optional>
+
+      <optional>
+      <attribute name='verbose'><ref name="value-boolean"/></attribute>
+      </optional>
+
+      <optional><attribute name='comes-before'/></optional>
+      <optional><attribute name='comes-after'/></optional>
+      <text/>
+      </element>
+    </zeroOrMore>
     </interleave>
 
   </define>
@@ -272,54 +311,6 @@
     </optional>
 
     </optional>
-  </define>
-
-  <!-- deploy element content -->
-  <define name="content-deploy-element">
-    <oneOrMore>
-      <element name="script">
-      <optional><attribute name='id'/></optional>
-      <optional>
-      <attribute name="ssh"><ref name="value-boolean"/></attribute>
-      </optional>
-      <optional>
-      <attribute name='verbose'><ref name="value-boolean"/></attribute>
-      </optional>
-      <text/>
-      </element>
-    </oneOrMore>
-  </define>
-
-  <!-- deploy elements -->
-  <define name="content-trigger-element">
-    <element name="trigger">
-      <optional><attribute name="triggers"/></optional>
-      <ref name="content-deploy-element"/>
-    </element>
-  </define>
-
-  <define name="content-activate-element">
-    <element name="activate">
-      <ref name="content-deploy-element"/>
-    </element>
-  </define>
-
-  <define name="content-install-element">
-    <element name="install">
-      <ref name="content-deploy-element"/>
-    </element>
-  </define>
-
-  <define name="content-post-install-element">
-    <element name="post-install">
-      <ref name="content-deploy-element"/>
-    </element>
-  </define>
-
-  <define name="content-post-element">
-    <element name="post">
-      <ref name="content-deploy-element"/>
-    </element>
   </define>
 
 </grammar>

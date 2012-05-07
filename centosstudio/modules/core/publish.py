@@ -206,7 +206,7 @@ class DeployEvent(DeployEventMixin, Event):
     }
 
     DeployEventMixin.__init__(self)
-    if self.scripts_provided is False: self.disable()
+    if not self.config.xpath('script', []): self.disable()
 
   def setup(self):
     self.diff.setup(self.DATA)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- setting script to verbose and yum to quiet; displays yum warnings -->
-<script id='update'>
+<script id='update' type='post' ssh='true' comes-before="check-kernel, shutdown">
 #!/bin/bash
 yum sync -y
 </script>

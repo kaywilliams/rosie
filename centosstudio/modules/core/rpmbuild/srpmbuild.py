@@ -27,7 +27,8 @@ import yum
 from centosstudio.callback     import TimerCallback
 from centosstudio.cslogging    import MSG_MAXWIDTH, L0, L1, L2
 from centosstudio.errors       import (CentOSStudioError,
-                                       CentOSStudioEventError)
+                                       CentOSStudioEventError,
+                                       DuplicateIdsError)
 from centosstudio.event        import Event, CLASS_META
 from centosstudio.main         import Build
 from centosstudio.util         import magic 
@@ -38,7 +39,7 @@ from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 
 from centosstudio.modules.shared import (DeployEventMixin, ShelveMixin, 
-                                         DuplicateIdsError, RpmBuildMixin) 
+                                         RpmBuildMixin) 
 
 from fnmatch import fnmatch
 
@@ -410,7 +411,7 @@ def get_module_info(ptr, *args, **kwargs):
 
     # ensure unique srpm ids
     if id in srpm_ids:
-      raise DuplicateIdsError(element='srpm', dup=id)
+      raise DuplicateIdsError(element='srpm', id=id)
 
     # create new class
     exec """%s = SrpmBuildRpmEvent('%s', 

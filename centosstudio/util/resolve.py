@@ -154,7 +154,6 @@ class Resolver(graph.DirectedGraph):
     if len(unresolved) > 0:
       raise UnresolvableError(unresolved)
     else:
-      self._remove_conditional(resolved)
       return resolved
 
   def _resolve(self):
@@ -345,23 +344,6 @@ class Resolver(graph.DirectedGraph):
       return True
 
     return False
-
-  def _remove_conditional(self, resolved):
-    # removes events marked as conditional if their provides are not 
-    # required by any other event
-    for top in resolved:
-      all_requires = []
-      for requires in [ event.requires for event in top ]:
-        all_requires.extend(requires)
-
-      for event in [ event for event in top if event.conditional ]:
-        keep = False
-        for provides in event.provides:
-          if provides in all_requires:
-            keep = True
-
-        if keep == False:
-          event.disable()
 
 
 class BaseRelationship(tuple):

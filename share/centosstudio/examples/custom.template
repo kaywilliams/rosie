@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="srpmbuild.template"
-            xpointer="xpointer(/*/*[name()!='publish'])"/>
-
 <publish password='srpmbuild' hostname="%{id}.local">
 <xi:include href="srpmbuild.template"
-            xpointer="xpointer(/*/publish/*[name()!='post'])"/>
-<post>
-<script id='update'>
+            xpointer="xpointer(/*/publish/script[@id!='update'])"/>
+<script id='update' type='post' ssh='true' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty post scripts; ignore errors on install 
 warning=`yum sync -y -q`
@@ -17,17 +13,12 @@ if [[ $? != 0 ]] &amp;&amp; [[ ! `echo $warning | grep docbook-style-xsl` ]]; th
   exit 1
 fi
 </script>
-<xi:include href="srpmbuild.template"
-            xpointer="xpointer(/*/publish/post/*[@id!='check-kernel' and 
-                                                 @id!='update'])"/>
-<script id='remove-docbook-style-xsl'>
+
+<script id='remove-docbook-style-xsl' type='post' ssh='true' comes-after='update' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty postun scripts; force removal
 rpm -e srpmbuild-centosstudio-config
 rpm -e docbook-style-xsl --noscripts 
 </script>
-<xi:include href="srpmbuild.template"
-            xpointer="xpointer(/*/publish/post/*[@id='check-kernel'])"/>
-</post>
 </publish>
 </repo>

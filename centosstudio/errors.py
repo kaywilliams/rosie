@@ -126,6 +126,10 @@ class RhnSupportError(RuntimeError, CentOSStudioEventError):
              "'rhn-client-tools' packages from the centosstudio software repo "
              "at www.centossolutions.com" )
 
+class DuplicateIdsError(CentOSStudioEventError):
+  message = ("Error: Duplicate ids found while validating '%(element)s' "
+             "elements. The duplicate id is '%(id)s'")
+
 class CentOSStudioEventErrorHandler:
   def _handle_Exception(self, e, event=''):
     event = event or self.dispatch.currevent.id

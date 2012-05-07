@@ -41,7 +41,7 @@ class DeployMixinTestCase:
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
-    install = deploy.getxpath("/*/install/script[@id='virt-install']")
+    install = deploy.getxpath("/*/script[@id='virt-install']")
     text = install.getxpath("text()").replace('--file-size 30', '--file-size 6')
     install.text = text
 
@@ -64,15 +64,14 @@ class DeployMixinTestCase:
     mod.set('hostname', self.hostname)
     mod.set('password', 'password')
 
-    trigger = mod.getxpath('trigger', None)
-    if trigger is None:
-      trigger = rxml.config.Element('trigger', parent=mod)
-      if self.mod != 'test-install':
-        trigger.set('triggers', 'kickstart, install-scripts')
-      trigger.extend(deploy.xpath('/*/trigger/*'))
+    if self.mod != 'test-install':
+      triggers = rxml.config.Element('triggers', parent=mod)
+      rxml.config.Element('trigger', parent=triggers, text='kickstart')
+      rxml.config.Element('trigger', parent=triggers, text='install-scripts')
 
-    mod.extend(deploy.xpath(("/*/*[name()!='post' and "
-                                  "name()!='trigger']")))
+    mod.extend(deploy.xpath("/*/*[name()!='script']"))
+    mod.extend(deploy.xpath("/*/script[@id!='post']"))
+  
 
   def runTest(self):
     self.tb.dispatch.execute(until='deploy')

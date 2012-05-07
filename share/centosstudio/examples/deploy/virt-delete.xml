@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='virt-delete'>
+<script id='virt-delete' type='delete' ssh='false'>
 #!/bin/bash
 set -e
 if [[ `virsh list` = *\ %{hostname}\ * ]]; then virsh destroy %{hostname}; fi

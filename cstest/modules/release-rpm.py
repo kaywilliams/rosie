@@ -120,16 +120,6 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
       </files>
       </rpm>
     </config-rpms>
-  """,
-  """
-  <publish>
-  <post>
-  <script id='update'>
-  #!/bin/bash
-  yum sync -y
-  </script>
-  </post>
-  </publish>
     """]
 
   def __init__(self, distro, version, arch, *args, **kwargs):

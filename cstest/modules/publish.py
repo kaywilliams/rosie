@@ -21,8 +21,7 @@ from centosstudio.util   import pps
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
 
-from cstest.mixins import (psm_make_suite, dm_make_suite, DeployMixinTestCase,
-                           check_vm_config)
+from cstest.mixins import (psm_make_suite, check_vm_config)
 
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'

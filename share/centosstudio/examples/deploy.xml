@@ -8,27 +8,13 @@
   <xi:include href='deploy/ks.cfg' parse='text'/>
 </kickstart>
 
-<trigger>
-  <xi:include href='deploy/test-triggers.xml'/>
-</trigger>
-
-<activate>
-  <xi:include href='deploy/virt-activate.xml'/>
-</activate>
-
-<install>
-  <xi:include href='deploy/virt-delete.xml'/>
-  <xi:include href='deploy/virt-install.xml'/>
-</install>
-
-<post-install>
-  <xi:include href='deploy/verify-install.xml'/>
-  <xi:include href='deploy/save-triggers.xml'/>
-</post-install>
-
-<post>
-  <xi:include href='deploy/update.xml'/>
-  <xi:include href='deploy/check-kernel.xml'/>
-</post>
+<xi:include href='deploy/test-triggers.xml'/>
+<xi:include href='deploy/virt-activate.xml'/>
+<xi:include href='deploy/virt-delete.xml'/>
+<xi:include href='deploy/virt-install.xml'/>
+<xi:include href='deploy/verify-install.xml'/>
+<xi:include href='deploy/save-triggers.xml'/>
+<xi:include href='deploy/update.xml'/>
+<xi:include href='deploy/check-kernel.xml'/>
 
 </root>
