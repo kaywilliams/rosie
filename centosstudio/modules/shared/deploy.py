@@ -39,13 +39,13 @@ class DeployEventMixin(ExecuteEventMixin):
                                         'config-rpms'])
 
     # create dict with type names as keys. values will be provided later
-    self.types = { 'test-triggers': None,
-                   'activate': None,
-                   'delete': None,
-                   'install': None,
-                   'post-install': None, 
-                   'save-triggers': None, 
-                   'post': None } 
+    self.types = { 'test-triggers': [],
+                   'activate': [],
+                   'delete': [],
+                   'install': [],
+                   'post-install': [], 
+                   'save-triggers': [], 
+                   'post': [] } 
 
   def setup(self): 
     # needs to be called after self.repomdfile and self.kstext are set
@@ -110,7 +110,7 @@ class DeployEventMixin(ExecuteEventMixin):
           resolver.add_node(item)
           self.scripts[id] = item
 
-      self.types[type] = resolver.resolve()         
+        self.types[type] = resolver.resolve()         
 
     # resolve trigger macros 
     trigger_data = { 

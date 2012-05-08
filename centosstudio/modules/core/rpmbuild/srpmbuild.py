@@ -330,7 +330,8 @@ class SrpmBuild(Build):
     # add config-rpm for srpm requires
     config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
     rpm = rxml.config.Element('rpm', parent=config, 
-                              attrs={'id': '%s' % self.ptr.srpmid})
+                              attrs={'id': '%s-%s-config' % (self.ptr.moduleid, 
+                                                             self.ptr.srpmid)})
     child = rxml.config.Element('files', parent=rpm)
     child.set('destdir', self.ptr.originals_dir)
     child.text = self.ptr.srpmfile

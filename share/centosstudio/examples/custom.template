@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<publish password='srpmbuild' hostname="%{id}.local">
 <xi:include href="srpmbuild.template"
-            xpointer="xpointer(/*/publish/script[@id!='update'])"/>
+            xpointer="xpointer(/*/*[name()!='publish'])"/>
+
+<publish password='srpmbuild' hostname="%{id}.local">
 <script id='update' type='post' ssh='true' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty post scripts; ignore errors on install 
@@ -20,5 +21,9 @@ fi
 rpm -e srpmbuild-centosstudio-config
 rpm -e docbook-style-xsl --noscripts 
 </script>
+<xi:include href="srpmbuild.template"
+            xpointer="xpointer(/*/publish/*[name()!='script'])"/>
+<xi:include href="srpmbuild.template"
+            xpointer="xpointer(/*/publish/script[@id!='update'])"/>
 </publish>
 </repo>
