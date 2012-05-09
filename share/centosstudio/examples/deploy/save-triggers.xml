@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='save-triggers' type='save-triggers' ssh='true'>
+<script id='save-triggers' type='save-triggers'>
 #!/bin/bash
 set -e
 # create TRIGGER_INFO file

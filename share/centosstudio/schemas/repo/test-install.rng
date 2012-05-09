@@ -8,7 +8,6 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <ref name='content-deploy-attributes'/>
         <ref name="content-deploy-elements"/>
       </element>
       </optional>

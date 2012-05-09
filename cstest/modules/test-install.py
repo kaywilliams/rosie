@@ -198,8 +198,8 @@ class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase)
     self.execute_predecessors(self.event)
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, 
-                                 attrs={'id':   'post-test',
-                                        'type': 'post-script'})
+                                 attrs={'id':   'post-install-test',
+                                        'type': 'post-install'})
     script.text = 'echo "hello"'
     self.failUnlessRaises(CentOSStudioError, self.event)
 

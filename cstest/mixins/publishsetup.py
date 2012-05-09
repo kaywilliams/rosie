@@ -39,8 +39,11 @@ def PublishSetupMixinTest_Config(self):
 
   def pre_setUp():
     mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    mod.set("password", self.values['password'])
-    mod.set("hostname", self.values['hostname'])
+    for item in ['hostname', 'password']:
+      elem = self.conf.getxpath('/*/%s/%s' % (self.moduleid, item), None)
+      if elem is not None: mod.remove(elem)
+    config.Element('hostname', text=self.values['hostname'], parent=mod)
+    config.Element('password', text=self.values['password'], parent=mod)
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
     config.Element('remote-url', text=self.values['webpath'], parent=mod)
     config.Element('boot-options', text=self.values['boot_options'], parent=mod)
@@ -103,8 +106,8 @@ def PublishSetupMixinTest_NoPassword(self):
   self._testMethodDoc = "password generated if not provided"
 
   def pre_setUp():
-    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    mod.attrib.pop("password", '')
+    password = self.conf.getxpath('/*/%s/password' % self.moduleid, None)
+    if password is not None: password.getparent().remove(password) 
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
@@ -128,10 +131,6 @@ def PublishSetupMixinTest_NoPassword(self):
 def PublishSetupMixinTest_Password(self):
   self._testMethodDoc = "password used if provided"
 
-  def pre_setUp():
-    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    mod.set("password", "password")
-
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
     self.failUnless(self.event.cvars['%s-setup-options' % self.moduleid]
@@ -139,7 +138,6 @@ def PublishSetupMixinTest_Password(self):
     self.failUnless(saved(self, 'password/text()') == '')
     self.failUnless(saved(self, 'crypt-password/text()') != '')
 
-  decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
 
   return self

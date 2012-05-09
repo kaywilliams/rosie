@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='verify-install' type='post-install' ssh='true'>
+<script id='verify-install' type='post-install'>
 #!/bin/bash
 #check install.log for errors
 

@@ -35,7 +35,8 @@
 <xml id="packages-5"><package>buildsys-build</package></xml>
 <xml id="packages-6"><group>buildsys-build</group></xml>
 
-<publish password='srpmbuild' hostname='%{id}.local'>
+<publish>
+<password>srpmbuild</password>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
 
@@ -54,8 +55,8 @@ skipx
 </triggers>
 
 <script id='virt-install' type='install'>
-virt-install --name %{hostname} --ram 1000 \
-             --file /var/lib/libvirt/images/%{hostname}.img \
+virt-install --name %{hostname}%{domain} --ram 1000 \
+             --file /var/lib/libvirt/images/%{hostname}%{domain}.img \
              --file-size 6 \
              --location %{url} \
              --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
@@ -109,7 +110,7 @@ signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
 try:
   client = paramiko.SSHClient()
   client.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-  client.connect(hostname='%{hostname}', username='root', port=22,
+  client.connect(hostname='%{hostname}%{domain}', username='root', port=22,
                  key_filename='/root/.ssh/id_rsa')
   client.get_transport().set_keepalive(1) #stop processing if ssh terminates
 

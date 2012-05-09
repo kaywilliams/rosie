@@ -250,6 +250,13 @@
       <element name="boot-options"><text/></element>
     </optional>
 
+    <optional><element name="hostname"><text/></element></optional>
+    <optional><element name="domain"><text/></element></optional>
+    <optional><element name="password"><text/></element></optional>
+    <optional>
+    <element name="ssh"><ref name="value-boolean"/></element>
+    </optional>
+
     <optional>
     <element name="kickstart">
       <text/>
@@ -298,19 +305,6 @@
     </zeroOrMore>
     </interleave>
 
-  </define>
-
-  <!-- deploy attributes -->
-  <define name="content-deploy-attributes">
-    <optional>
-
-    <optional><attribute name="hostname"/></optional>
-    <optional><attribute name="password"/></optional>
-    <optional>
-    <attribute name="ssh"><ref name="value-boolean"/></attribute>
-    </optional>
-
-    </optional>
   </define>
 
 </grammar>

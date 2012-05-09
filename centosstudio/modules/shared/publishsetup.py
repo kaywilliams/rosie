@@ -52,23 +52,27 @@ class PublishSetupEventMixin:
     self.localpath = self.get_local()
     self.webpath = self.get_remote()
     self.hostname = self.get_hostname()
+    self.domain = self.get_domain()
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
-    self.ssh = self.config.getbool('@ssh', True)
+    self.ssh = self.config.getbool('ssh/text()', True)
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
     map = {'%{url}':            {'conf':  'remote-url\' element',
                                   'value':  str(self.webpath)},
-           '%{hostname}':       {'conf':  '@hostname\' attribute',
+           '%{hostname}':       {'conf':  'hostname\' element',
                                   'value':  self.hostname},
-           '%{password}':       {'conf':  '@password\' attribute',
+           '%{domain}':         {'conf':  'domain\' element',
+                                  'value':  self.domain},
+           '%{password}':       {'conf':  'password\' element',
                                   'value':  self.password},
            '%{crypt-password}': {'value':  self.crypt_password},
            '%{boot-options}':   {'conf':  'boot-options\' element',
                                   'value':  self.boot_options},
            }
-    for key in ['%{url}', '%{hostname}', '%{password}', '%{boot-options}']:
+    for key in ['%{url}', '%{hostname}', '%{domain}', '%{password}', 
+                '%{boot-options}']:
       if key in map[key]['value']:
         raise SimpleCentOSStudioEventError(
           "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
@@ -81,7 +85,7 @@ class PublishSetupEventMixin:
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'password', 'ssh',  
+    for attribute in ['hostname', 'domain', 'password', 'ssh',  
                       'webpath', 'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -90,7 +94,8 @@ class PublishSetupEventMixin:
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
     self.DATA['config'].append('remote-url')
-    self.DATA['config'].append('@hostname')
+    self.DATA['config'].append('hostname')
+    self.DATA['variables'].append('domain')
     self.DATA['config'].append('boot-options')
 
     self.write_datfile()
@@ -144,7 +149,13 @@ class PublishSetupEventMixin:
     else:
       default = '%s-%s' % (self.repoid, self.moduleid)
 
-    return self.config.getxpath('@hostname', default)
+    return self.config.getxpath('hostname/text()', default)
+
+  def get_domain(self):
+    domain = self.config.getxpath('domain/text()', '')
+    if domain and domain[0] != '.': 
+      domain = '.' + domain
+    return domain
 
   def get_bootoptions(self):
     if self.moduleid == 'publish':
@@ -156,12 +167,12 @@ class PublishSetupEventMixin:
 
   def get_password(self):
     if self.moduleid == 'publish':
-      password = (self.config.getxpath('@password', '') or 
+      password = (self.config.getxpath('password/text()', '') or 
                   self.datfile.getxpath('/*/%s/password/text()' % self.moduleid, ''))
       if not password:
         password = self.gen_password()
     else:
-      password = (self.config.getxpath('@password', '') or 
+      password = (self.config.getxpath('password/text()', '') or 
                   self.cvars['publish-setup-options']['password'])
 
     return password
@@ -203,7 +214,7 @@ class PublishSetupEventMixin:
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
-    if (len(self.config.getxpath('@password', '')) == 0 and 
+    if (len(self.config.getxpath('password/text()', '')) == 0 and 
         self.moduleid == 'publish'):
       password = uElement('password', parent=parent, text=self.password)
     else:

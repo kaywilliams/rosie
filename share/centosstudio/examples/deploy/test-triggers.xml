@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='test-triggers' type='test-triggers' ssh='true'>
+<script id='test-triggers' type='test-triggers'>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
 

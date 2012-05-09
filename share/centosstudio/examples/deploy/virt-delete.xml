@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='virt-delete' type='delete' ssh='false'>
+<script id='virt-delete' type='delete'>
 #!/bin/bash
 set -e
-if [[ `virsh list` = *\ %{hostname}\ * ]]; then virsh destroy %{hostname}; fi
-if [[ `virsh list --all` = *\ %{hostname}\ * ]]; then virsh undefine %{hostname}; fi
+if [[ `virsh list` = *\ %{hostname}%{domain}\ * ]]; then virsh destroy %{hostname}%{domain}; fi
+if [[ `virsh list --all` = *\ %{hostname}%{domain}\ * ]]; then virsh undefine %{hostname}%{domain}; fi
 </script>

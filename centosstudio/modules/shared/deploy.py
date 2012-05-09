@@ -38,15 +38,6 @@ class DeployEventMixin(ExecuteEventMixin):
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
                                         'config-rpms'])
 
-    # create dict with type names as keys. values will be provided later
-    self.types = { 'test-triggers': [],
-                   'activate': [],
-                   'delete': [],
-                   'install': [],
-                   'post-install': [], 
-                   'save-triggers': [], 
-                   'post': [] } 
-
   def setup(self): 
     # needs to be called after self.repomdfile and self.kstext are set
     self.cvar_root = '%s-setup-options' % self.moduleid
@@ -77,7 +68,8 @@ class DeployEventMixin(ExecuteEventMixin):
 
     self.ssh = dict(
       enabled      = self.cvars[self.cvar_root]['ssh'],
-      hostname     = self.cvars[self.cvar_root]['hostname'],
+      hostname     = (self.cvars[self.cvar_root]['hostname'] +
+                      self.cvars[self.cvar_root]['domain']),
       key_filename = '%s' % keyfile,
       port         = 22,
       username     = 'root',
@@ -86,9 +78,19 @@ class DeployEventMixin(ExecuteEventMixin):
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
 
+    self.ssh_defaults = { 'test-triggers': True,
+                          'activate': False,
+                          'delete': False,
+                          'install': False,
+                          'post-install': True, 
+                          'save-triggers': True, 
+                          'post': True } 
+
     # setup types - do this before trigger macro resolution
     self.scripts = {} 
-    for type in self.types:
+    self.types = {} 
+    for type in self.ssh_defaults:
+      self.types[type] = [] # updated later if scripts exist
       scripts = self.config.xpath('script[@type="%s"]' % type, [])
       if scripts:
         resolver = resolve.Resolver()
@@ -97,7 +99,7 @@ class DeployEventMixin(ExecuteEventMixin):
           id = script.getxpath('@id') # id required in schema
           if id in self.scripts:
             raise DuplicateIdsError(element='script', id=id)
-          ssh = script.getbool('@ssh', False)
+          ssh = script.getbool('@ssh', self.ssh_defaults[type])
           verbose = script.getbool('@verbose', False)
           xpath = self._configtree.getpath(script)
           csum = self._get_script_csum(xpath)
@@ -110,7 +112,7 @@ class DeployEventMixin(ExecuteEventMixin):
           resolver.add_node(item)
           self.scripts[id] = item
 
-        self.types[type] = resolver.resolve()         
+        self.types[type] = resolver.resolve()
 
     # resolve trigger macros 
     trigger_data = { 
@@ -118,9 +120,10 @@ class DeployEventMixin(ExecuteEventMixin):
       'config_rpms':          self._get_rpm_csum('config-rpms'),
       'kickstart':            self._get_csum(self.kstext),
       'treeinfo':             self._get_csum(self.cvars['base-treeinfo-text']),
-      'install_scripts':      self._get_script_csum('script[@id="install"]'),
-      'post_install_scripts': self._get_script_csum('script[@id="post-install" '
-                                                    'and @id="save-triggers"]'),
+      'install_scripts':      self._get_script_csum('script[@type="install"]'),
+      'post_install_scripts': self._get_script_csum('script[ '
+                                                    '@type="post-install" or '
+                                                    '@type="save-triggers"]'),
       }
 
     for key in trigger_data: 
@@ -316,8 +319,6 @@ class SSHParameters(DictMixin):
       if not param == 'enabled':
         self.params[param] = ptr.config.getxpath(
                              '%s/@%s' % (type, param), value)
-    self.params['hostname'] = self.params['hostname'].replace('$id',
-                              ptr.repoid)
 
   def __getitem__(self, key):
     return self.params[key]

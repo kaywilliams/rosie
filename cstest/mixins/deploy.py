@@ -56,13 +56,14 @@ class DeployMixinTestCase:
     packages.extend(pkgcontent.xpath('/*/*'))
 
     # update module
-    self.hostname = "cstest-%s-%s-%s.local" % (self.moduleid, self.version,
-                                               self.arch) 
+    self.hostname = "cstest-%s-%s-%s" % (self.moduleid, self.version, self.arch)
+    self.domain = '.local'
+
     mod = self.conf.getxpath('/*/%s' % self.mod, None)
     if mod is None:
       mod = rxml.config.Element('%s' % self.mod, parent=self.conf)
-    mod.set('hostname', self.hostname)
-    mod.set('password', 'password')
+    rxml.config.Element('hostname', parent=mod, text=self.hostname)
+    rxml.config.Element('password', parent=mod, text='password')
 
     if self.mod != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
@@ -93,7 +94,7 @@ def DeployMixinTest_Teardown(self):
 
     # shutdown vm
     conn = libvirt.open("qemu:///system")
-    vm = conn.lookupByName(self.hostname)
+    vm = conn.lookupByName(self.hostname + self.domain)
     vm.destroy()
 
   self.setUp = setUp

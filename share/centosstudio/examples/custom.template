@@ -4,7 +4,7 @@
 <xi:include href="srpmbuild.template"
             xpointer="xpointer(/*/*[name()!='publish'])"/>
 
-<publish password='srpmbuild' hostname="%{id}.local">
+<publish>
 <script id='update' type='post' ssh='true' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty post scripts; ignore errors on install 

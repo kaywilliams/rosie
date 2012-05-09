@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='virt-activate' type='activate' ssh='false'>
+<script id='virt-activate' type='activate'>
 #!/usr/bin/python
 import libvirt
 import sys
 connection = libvirt.open('qemu:///system')
 try: #vm exists?
-  vm = connection.lookupByName('%{hostname}')
+  vm = connection.lookupByName('%{hostname}%{domain}')
 except libvirt.libvirtError:
   print "vm does not exist"
   sys.exit(1)

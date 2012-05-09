@@ -3,11 +3,8 @@
 
 <!-- scripts for installing and updating a local virtual machine -->
 <xi:include href='deploy/ssh-config.xml'/>
-
-<kickstart>
-  <xi:include href='deploy/ks.cfg' parse='text'/>
-</kickstart>
-
+<domain>local</domain>
+<kickstart><xi:include href='deploy/ks.cfg' parse='text'/></kickstart>
 <xi:include href='deploy/test-triggers.xml'/>
 <xi:include href='deploy/virt-activate.xml'/>
 <xi:include href='deploy/virt-delete.xml'/>

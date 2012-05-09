@@ -1,6 +1,4 @@
-<test-install hostname="%{name}-test-install.local" password="testpw" 
-              xmlns:xi="http://www.w3.org/2001/XInclude">
-  <kickstart><xi:include href="common/ks.cfg" parse="text"/></kickstart>
-  <xi:include href="common/deploy.xml"
-              xpointer="xpointer(/root/*[name()!='update-script'])"/>
+<test-install xmlns:xi="http://www.w3.org/2001/XInclude">
+  <password>testpw</password>
+  <xi:include href="common/deploy.xml" xpointer="xpointer(/*/*)"/>
 </test-install>

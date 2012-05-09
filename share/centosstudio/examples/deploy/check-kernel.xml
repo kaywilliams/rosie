@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='check-kernel' type='post' ssh='true'>
+<script id='check-kernel' type='post'>
 #!/bin/bash
 if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
   echo "running kernel differs from installed - restarting machine"
