@@ -312,7 +312,7 @@ class YumRepo(IORepo):
   @property
   def exclude(self):     return self.get('exclude', '').split()
   @property
-  def includepkgs(self): return self.get('includepkgs', '').split()
+  def include(self): return self.get('include', '').split()
   @property
   def enabled(self):     return self._boolparse(self.get('enabled', 'yes'))
 
@@ -429,7 +429,7 @@ class _RepoContent(list):
 
   def filter(self, include=None, exclude=None):
     ret = []
-    if include is None: include = self.repo.includepkgs
+    if include is None: include = self.repo.include
     if exclude is None: exclude = self.repo.exclude
 
     # only include matching rpms
@@ -459,8 +459,8 @@ class _RepoContent(list):
   def has_package(self, pkg):
     "Return True iff this repo has a package of the given name"
     pkgs = []
-    if self.repo.includepkgs:
-      for pkgpattern in self.repo.includepkgs:
+    if self.repo.include:
+      for pkgpattern in self.repo.include:
         pkgs += fnmatch.filter(self.pkgdict.keys(), pkgpattern)
     else:
       pkgs += self.pkgdict.keys()

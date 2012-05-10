@@ -62,13 +62,10 @@ class DownloadEvent(ShelveMixin, Event):
     self.rpmsdir = self.mddir//self.packagepath
     self.DATA['variables'].append('rpmsdir')
 
-    # get list of repos to skip downloading from
-    skip = [ r.getxpath('text()') for r in self.config.xpath('skip-repo', []) ]
-    if self.type != 'system': skip.extend(['base', 'updates'])
-
     # setup for downloads
     for repo in self.cvars['repos'].values():
-      if repo.id in skip: continue
+      if self.type != 'system' and (repo.id in ['base', 'updates'] or not 
+                                      repo.download): continue
       for subrepo in repo.subrepos.values():
         now = time.time()
         # populate rpm time and size from repodata values (for performance)

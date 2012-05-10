@@ -84,11 +84,15 @@
       <element name="baseurl"><text/></element>
 
       <optional>
+      <element name="download"><ref name='value-boolean'/></element>
+      </optional>
+
+      <optional>
       <element name="systemid"><text/></element>
       </optional>
 
       <zeroOrMore>
-      <element name="includepkgs"><text/></element>
+      <element name="include"><text/></element>
       </zeroOrMore>
 
       <zeroOrMore>

@@ -79,7 +79,7 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
     # add relevant input/variable sections
     for repoid, repo in self.cvars['repos'].items():
       for attr in ['baseurl', 'mirrorlist', 'exclude',
-                   'includepkgs', 'enabled']:
+                   'include', 'enabled']:
         if getattr(repo, attr):
           self.DATA['variables'].append('cvars[\'repos\'][\'%s\'].%s'
                                         % (repoid, attr))

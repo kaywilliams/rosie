@@ -68,6 +68,9 @@ class CentOSStudioRepo(YumRepo):
     else:
       raise ValueError("invalid boolean value '%s'" % s)
 
+  @property
+  def download(self):  return self._boolparse(self.get('download', 'true'))
+
   def get_rpm_version(self, names):
     # filter list of names if necessary
     names = [ n for n in names if self.repocontent.has_package(n) ]
