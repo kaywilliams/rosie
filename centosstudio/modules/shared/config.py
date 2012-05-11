@@ -105,13 +105,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     summary = self.config.getxpath('summary/text()', name) 
     license = self.config.getxpath('license/text()', 'GPLv2')
 
-    # run setup scripts
-    file = pps.path('%s/setup.script' % self.mddir )
-    for s in self.config.xpath('setup', []):
-      file.write_text(s.getxpath('text()'))
-      file.chmod(0700)
-      self._local_execute(file, verbose=s.getbool('@verbose', False))
-
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
                              license=license, requires = ['coreutils'])
 

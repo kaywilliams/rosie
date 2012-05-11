@@ -19,13 +19,6 @@
     </optional>
 
     <zeroOrMore>
-    <element name="setup">
-    <optional><attribute name='verbose'/></optional>
-    <text/>
-    </element>
-    </zeroOrMore>
-
-    <zeroOrMore>
     <element name="files">
       <ref name="attribute-destdir-absolute"/>
       <ref name="attribute-destname"/>
@@ -260,6 +253,7 @@
     <optional>
     <element name="ssh"><ref name="value-boolean"/></element>
     </optional>
+    <optional><element name="ssh-passphrase"><text/></element></optional>
 
     <optional>
     <element name="kickstart">

@@ -30,13 +30,15 @@ def PublishSetupMixinTest_Config(self):
   self._testMethodDoc = "config values correctly populate macros and cvars"
 
   self.values = { 
-    'password':     'test-password',
-    'hostname':     'test-hostname',
-    'domain':       '.test-domain',
-    'fqdn':         'test-hostname.test-domain',
-    'localpath':    '/test/local/path',
-    'webpath':      'http://test/web/path',
-    'boot_options': 'test boot options',
+    'password':       'test-password',
+    'hostname':       'test-hostname',
+    'domain':         '.test-domain',
+    'fqdn':           'test-hostname.test-domain',
+    'localpath':      '/test/local/path',
+    'webpath':        'http://test/web/path',
+    'boot_options':   'test boot options',
+    'ssh':            True,
+    'ssh_passphrase': 'test ssh passphrase',
     }
 
   def pre_setUp():
@@ -50,6 +52,9 @@ def PublishSetupMixinTest_Config(self):
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
     config.Element('remote-url', text=self.values['webpath'], parent=mod)
     config.Element('boot-options', text=self.values['boot_options'], parent=mod)
+    config.Element('ssh', text=str(self.values['ssh']), parent=mod)
+    config.Element('ssh-passphrase', text=self.values['ssh_passphrase'], 
+                   parent=mod)
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
@@ -74,6 +79,8 @@ def PublishSetupMixinTest_Config(self):
         continue
       elif k == 'webpath':
         test = self.event.macros['%{url}'].startswith(self.values[k])
+      elif k in ['ssh', 'ssh_passphrase']:
+        pass
       else:
         test = (eval('self.event.macros["%%{%s}"]' % k.replace('_', '-')) 
                 == self.values[k])

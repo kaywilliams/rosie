@@ -57,6 +57,7 @@ class PublishSetupEventMixin:
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
     self.ssh = self.config.getbool('ssh/text()', True)
+    self.ssh_passphrase = self.config.getxpath('ssh-passphrase/text()', '')
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
@@ -87,8 +88,9 @@ class PublishSetupEventMixin:
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',  
-                      'webpath', 'localpath', 'boot_options']:
+    for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
+                      'ssh_passphrase', 'webpath', 'localpath', 
+                      'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
