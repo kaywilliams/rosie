@@ -46,6 +46,8 @@ skipx
 </kickstart>
 
 <triggers>
+  <trigger>activate</trigger>
+  <trigger>connect</trigger>
   <trigger>release-rpm</trigger>
   <trigger>config-rpms</trigger>
   <trigger>kickstart</trigger>

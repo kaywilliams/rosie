@@ -170,8 +170,8 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
                      '/*/publish/script[id="install-script"]')
     install_script.text = """
 #!/bin/bash
-virt-install --name %{hostname} --ram 1000 \
-             --file /var/lib/libvirt/images/%{hostname}.img \
+virt-install --name %{fqdn} --ram 1000 \
+             --file /var/lib/libvirt/images/%{fqdn}.img \
              --file-size 6 \
              --cdrom %{url}/iso/CD/%{name}-disc1.iso \
              --noreboot
