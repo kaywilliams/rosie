@@ -53,6 +53,7 @@ class PublishSetupEventMixin:
     self.webpath = self.get_remote()
     self.hostname = self.get_hostname()
     self.domain = self.get_domain()
+    self.fqdn = self.hostname + self.domain 
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
     self.ssh = self.config.getbool('ssh/text()', True)
@@ -60,18 +61,19 @@ class PublishSetupEventMixin:
 
     # resolve module macros
     map = {'%{url}':            {'conf':  'remote-url\' element',
-                                  'value':  str(self.webpath)},
+                                 'value':  str(self.webpath)},
            '%{hostname}':       {'conf':  'hostname\' element',
-                                  'value':  self.hostname},
+                                 'value':  self.hostname},
            '%{domain}':         {'conf':  'domain\' element',
-                                  'value':  self.domain},
+                                 'value':  self.domain},
+           '%{fqdn}':           {'value':  self.fqdn},
            '%{password}':       {'conf':  'password\' element',
-                                  'value':  self.password},
+                                 'value':  self.password},
            '%{crypt-password}': {'value':  self.crypt_password},
            '%{boot-options}':   {'conf':  'boot-options\' element',
-                                  'value':  self.boot_options},
+                                 'value':  self.boot_options},
            }
-    for key in ['%{url}', '%{hostname}', '%{domain}', '%{password}', 
+    for key in ['%{url}', '%{hostname}', '%{domain}', '%{fqdn}', '%{password}', 
                 '%{boot-options}']:
       if key in map[key]['value']:
         raise SimpleCentOSStudioEventError(
@@ -85,7 +87,7 @@ class PublishSetupEventMixin:
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'domain', 'password', 'ssh',  
+    for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',  
                       'webpath', 'localpath', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -96,6 +98,7 @@ class PublishSetupEventMixin:
     self.DATA['config'].append('remote-url')
     self.DATA['config'].append('hostname')
     self.DATA['variables'].append('domain')
+    self.DATA['variables'].append('fqdn')
     self.DATA['config'].append('boot-options')
 
     self.write_datfile()

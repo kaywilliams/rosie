@@ -32,6 +32,8 @@ def PublishSetupMixinTest_Config(self):
   self.values = { 
     'password':     'test-password',
     'hostname':     'test-hostname',
+    'domain':       '.test-domain',
+    'fqdn':         'test-hostname.test-domain',
     'localpath':    '/test/local/path',
     'webpath':      'http://test/web/path',
     'boot_options': 'test boot options',
@@ -39,10 +41,11 @@ def PublishSetupMixinTest_Config(self):
 
   def pre_setUp():
     mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    for item in ['hostname', 'password']:
+    for item in ['hostname', 'password', 'domain']:
       elem = self.conf.getxpath('/*/%s/%s' % (self.moduleid, item), None)
       if elem is not None: mod.remove(elem)
     config.Element('hostname', text=self.values['hostname'], parent=mod)
+    config.Element('domain', text=self.values['domain'], parent=mod)
     config.Element('password', text=self.values['password'], parent=mod)
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
     config.Element('remote-url', text=self.values['webpath'], parent=mod)
