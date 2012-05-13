@@ -56,8 +56,8 @@ class DeployEventMixin(ExecuteEventMixin):
     self.DATA['input'].append(self.repomdfile)
 
     # ssh setup
+    keyfile=pps.path('/root/.ssh/id_rsa')
     if self.cvars[self.cvar_root]['ssh']:
-      keyfile=pps.path('/root/.ssh/id_rsa')
       if not keyfile.exists():
         try:
           cmd = 'ssh-keygen -t rsa -f %s -N ""' % secret 
@@ -116,6 +116,15 @@ class DeployEventMixin(ExecuteEventMixin):
           self.scripts[id] = item
 
         self.types[type] = resolver.resolve()
+
+    # raise an error if any script requires ssh and ssh is disabled
+    if not self.ssh['enabled']:
+      for script in self.scripts.values():
+        if script.ssh:
+          message = ("The deployment script with the id '%s' requires SSH "
+                     "connectivity, but SSH has been disabled using the "
+                     "'%s/ssh' element." % (script.id, self.moduleid)) 
+          raise SSHFailedError(message=message)
 
     # resolve trigger macros 
     trigger_data = { 

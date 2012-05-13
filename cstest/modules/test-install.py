@@ -95,6 +95,18 @@ class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
   def tearDown(self):
     del self.conf
 
+class Test_ErrorOnSshDisabled(TestInstallEventTestCase):
+  "raises an error if SSH disabled and required by scripts"
+
+  def setUp(self):
+    parent = self.conf.getxpath('test-install')
+    rxml.config.Element('ssh', parent=parent, text='false')
+    EventTestCase.setUp(self) 
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
 class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
   "test comes-before and comes-after"
 
@@ -226,6 +238,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
   if check_vm_config():
     suite.addTest(make_extension_suite(TestInstallEventTestCase, distro, version, arch))
     suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
+    suite.addTest(Test_ErrorOnSshDisabled(distro, version, arch))
     suite.addTest(Test_ComesBeforeComesAfter(distro, version, arch))
     suite.addTest(Test_ReinstallOnReleaseRpmChange(distro, version, arch))
     suite.addTest(Test_ReinstallOnConfigRpmChange(distro, version, arch))
