@@ -19,7 +19,7 @@ from centosstudio.event    import Event, CLASS_META
 
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
-                                         make_rpm_events,
+                                         make_config_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
 class ConfigRpmsEvent(Event):
@@ -43,7 +43,8 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'modules that create RPMs based on user-provided configuration',
   )
   modname = __name__.split('.')[-1]
-  new_rpm_events = make_rpm_events(ptr, modname, 'rpm', globals=globals())
+  new_rpm_events = make_config_rpm_events(ptr, modname, 'config-rpm', 
+                                          globals=globals())
   module_info['events'].extend(new_rpm_events)
 
   return module_info

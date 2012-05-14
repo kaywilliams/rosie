@@ -10,7 +10,7 @@
         </optional>
 
         <zeroOrMore>
-        <ref name="element-rpm"/>
+        <ref name="element-config-rpm"/>
         </zeroOrMore>
 
       </element>

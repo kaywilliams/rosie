@@ -26,7 +26,7 @@ from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                          Trigger, 
                                          TriggerContainer)
 
-def make_rpm_events(ptr, modname, element_name, globals):
+def make_config_rpm_events(ptr, modname, element_name, globals):
   config_rpm_ids = getattr(ptr, 'cvars[\'config-rpm-ids\']', [])
   new_events = []
   xpath   = '/*/%s/%s' % (modname, element_name)

@@ -2,9 +2,9 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
 
-  <!-- an rpm element -->
-  <define name="element-rpm">
-    <element name="rpm">
+  <!-- a config-rpm element -->
+  <define name="element-config-rpm">
+    <element name="config-rpm">
     <attribute name="id"/>
 
     <interleave>
@@ -261,7 +261,7 @@
     </element>
     </optional>
 
-    <zeroOrMore><ref name="element-rpm"/></zeroOrMore>
+    <zeroOrMore><ref name="element-config-rpm"/></zeroOrMore>
     <zeroOrMore><ref name="element-repo"/></zeroOrMore>
 
     <optional>

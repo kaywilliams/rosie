@@ -27,7 +27,7 @@ from centosstudio.modules.shared import TestPublishEventMixin
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
                                          RepoSetupEventMixin,
-                                         make_rpm_events,
+                                         make_config_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
 P = pps.path
@@ -40,7 +40,8 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'performs test installations on client systems',
   )
   modname = __name__.split('.')[-1]
-  new_rpm_events = make_rpm_events(ptr, modname, 'rpm', globals=globals())
+  new_rpm_events = make_config_rpm_events(ptr, modname, 'config-rpm', 
+                                          globals=globals())
   module_info['events'].extend(new_rpm_events)
 
   return module_info

@@ -40,10 +40,10 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   eventid  = 'config-rpm'
   _type = 'package'
   _conf = ["""<config-rpms>
-  <rpm id='config'>
+  <config-rpm id='config'>
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </rpm>
+  </config-rpm>
   </config-rpms>"""]
 
   def _make_repos_config(self):
@@ -64,8 +64,8 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   "raises an error if multiple rpms provide the same id"
   _conf = """
   <config-rpms>
-  <rpm id="config"/>
-  <rpm id="config"/>
+  <config-rpm id="config"/>
+  <config-rpm id="config"/>
   </config-rpms>
   """
 
@@ -82,7 +82,7 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   _conf = [""" 
   <config-rpms>
-    <rpm id='config'>
+    <config-rpm id='config'>
     <!--setting name changes eventid, which we don't want for testing-->
     <!--<name>myrpm</name>-->
     <summary>myrpm summary</summary>
@@ -102,7 +102,7 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
     <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
     <trigger trigger="python" type="triggerpostun" 
              interpreter="/usr/bin/python">print triggerpostun</trigger>
-    </rpm>
+    </config-rpm>
   </config-rpms>
   """ % { 'working-dir': BUILD_ROOT }]
 
@@ -174,9 +174,9 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
 class Test_ValidateDestnames(ConfigRpmEventTestCase):
   "destname required for text content"  
   _conf = """<config-rpms>
-  <rpm id='config'>
+  <config-rpm id='config'>
     <files content="text">test</files>
-  </rpm>
+  </config-rpm>
   </config-rpms>"""
 
   def setUp(self): pass

@@ -158,9 +158,9 @@ class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
   "reinstalls if config-rpm changes"
   _conf = ["""
   <config-rpms>
-  <rpm id='test-config'>
+  <config-rpm id='test-config'>
   <script type='post'>echo 'hello'</script>
-  </rpm>
+  </config-rpm>
   </config-rpms>
   """]
 

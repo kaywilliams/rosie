@@ -114,11 +114,11 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
   _conf = 'system'
   _conf = ["""
     <config-rpms>
-      <rpm id='config'>
+      <config-rpm id='config'>
       <files destdir='/root' destname='keyids' content='text'>
       dummy text - to be replaced at runtime
       </files>
-      </rpm>
+      </config-rpm>
     </config-rpms>
     """]
 
@@ -139,7 +139,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # keyids change across test runs, so if keys are not updating
     # properly you will see an error during the next run. This should
     # be improved so that issues appear during the same run...
-    files = self.event._config.getxpath('/*/config-rpms/rpm/files')
+    files = self.event._config.getxpath('/*/config-rpms/config-rpm/files')
     files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
     self.tb.dispatch.get('config-rpm').status = True # force config-rpm
 

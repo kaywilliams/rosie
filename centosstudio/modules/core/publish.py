@@ -32,7 +32,7 @@ from centosstudio.modules.shared import PublishSetupEventMixin
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
                                          RepoSetupEventMixin,
-                                         make_rpm_events,
+                                         make_config_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -46,7 +46,8 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'publishes repository to a web accessible location',
   )
   modname = __name__.split('.')[-1]
-  new_rpm_events = make_rpm_events(ptr, modname, 'rpm', globals=globals())
+  new_rpm_events = make_config_rpm_events(ptr, modname, 'config-rpm', 
+                                          globals=globals())
   module_info['events'].extend(new_rpm_events)
 
   return module_info
