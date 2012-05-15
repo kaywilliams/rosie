@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="srpmbuild.template"
+<xi:include href="srpmbuild.xml"
             xpointer="xpointer(/*/*[name()!='publish'])"/>
 
 <publish>
@@ -21,9 +21,9 @@ fi
 rpm -e srpmbuild-centosstudio-config
 rpm -e docbook-style-xsl --noscripts 
 </script>
-<xi:include href="srpmbuild.template"
+<xi:include href="srpmbuild.xml"
             xpointer="xpointer(/*/publish/*[name()!='script'])"/>
-<xi:include href="srpmbuild.template"
+<xi:include href="srpmbuild.xml"
             xpointer="xpointer(/*/publish/script[@id!='update'])"/>
 </publish>
 </repo>
