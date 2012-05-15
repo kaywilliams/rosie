@@ -131,7 +131,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     default = ''
     for d in search_dirs:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
-                            glob='%s.template' % self.moduleid)
+                            glob='%s.xml' % self.moduleid)
       if results:
         default = results[0]
         break

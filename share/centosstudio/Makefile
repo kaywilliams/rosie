@@ -1,4 +1,4 @@
-SUBDIRS = examples schemas
+SUBDIRS = templates schemas
 
 .PHONY: all clean install
 

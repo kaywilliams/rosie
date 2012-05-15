@@ -37,7 +37,7 @@ class KickstartEventTestCase(EventTestCase):
   """<publish>
   <kickstart>
   <include xmlns='http://www.w3.org/2001/XInclude'
-           href='%s/../../share/centosstudio/examples/deploy/ks.cfg'
+           href='%s/../../share/centosstudio/templates/deploy/ks.cfg'
            parse='text'/>
   </kickstart>
   </publish>""" % pps.path(__file__).dirname.abspath()]
