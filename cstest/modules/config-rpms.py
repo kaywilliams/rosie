@@ -23,7 +23,7 @@ from centosstudio.util    import repo
 from centosstudio.util    import rxml
 
 from cstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
-                            ModuleTestSuite)
+                            ModuleTestSuite, _run_make)
 from cstest.core     import make_extension_suite
 from cstest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
                              DeployMixinTestCase,
@@ -77,6 +77,24 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
 
   def tearDown(self):
     del self.conf
+
+
+class Test_ConfigRpmRepos(ConfigRpmEventTestCase):
+  "repo added to repos cvar"
+  _conf = """
+  <config-rpms>
+  <config-rpm id="config">
+    <repo id='test'>
+      <baseurl>file:///%s/repo1</baseurl>
+    </repo>
+  </config-rpm>
+  </config-rpms>
+  """ %  (pps.path(__file__).dirname/'shared')
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.event.setup()
+    self.failUnless("test" in self.event.cvars['repos'])
 
 
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
@@ -219,11 +237,14 @@ class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
     DeployMixinTestCase.runTest(self)    
 
 def make_suite(distro, version, arch, *args, **kwargs):
+  _run_make(pps.path(__file__).dirname/'shared')
+
   suite = ModuleTestSuite('config-rpms')
 
   suite.addTest(make_extension_suite(ConfigRpmEventTestCase, distro, 
                                      version, arch))
   suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
+  suite.addTest(Test_ConfigRpmRepos(distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))

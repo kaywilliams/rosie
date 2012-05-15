@@ -232,7 +232,6 @@ class RepoSetupEventMixin:
   """Uses ReposFromXml to add repos to the repos cvar. Creates repos cvar if
      it does not exist"""
   def __init__(self):
-    self.parentid = 'setup-events'
     self.provides = set(['repos'])
     self.suppress_run_message=True,
 

@@ -18,6 +18,13 @@
     <element name="license"><text/></element>
     </optional>
 
+    <ref name="element-requires"/>
+    <ref name="element-obsoletes"/>
+
+    <zeroOrMore>
+    <ref name="element-repo"/>
+    </zeroOrMore>
+
     <zeroOrMore>
     <element name="files">
       <ref name="attribute-destdir-absolute"/>
@@ -44,8 +51,6 @@
     </element>
     </zeroOrMore>
 
-    <ref name="element-requires"/>
-    <ref name="element-obsoletes"/>
     </interleave>
     </element>
   </define>
@@ -262,7 +267,6 @@
     </optional>
 
     <zeroOrMore><ref name="element-config-rpm"/></zeroOrMore>
-    <zeroOrMore><ref name="element-repo"/></zeroOrMore>
 
     <optional>
       <element name="triggers">

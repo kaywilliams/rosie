@@ -26,7 +26,6 @@ from centosstudio.modules.shared import DeployEventMixin
 from centosstudio.modules.shared import TestPublishEventMixin
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
-                                         RepoSetupEventMixin,
                                          make_config_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
@@ -35,8 +34,7 @@ P = pps.path
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['TestInstallRepoSetupEvent', 'TestInstallSetupEvent', 
-                   'TestInstallEvent'],
+    events      = ['TestInstallSetupEvent', 'TestInstallEvent'],
     description = 'performs test installations on client systems',
   )
   modname = __name__.split('.')[-1]
@@ -49,19 +47,6 @@ def get_module_info(ptr, *args, **kwargs):
 # -------- init method called by new_rpm_events -------- #
 def __init__(self, ptr, *args, **kwargs):
   ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
-
-class TestInstallRepoSetupEvent(RepoSetupEventMixin, Event):
-  def __init__(self, ptr, *args, **kwargs):
-    Event.__init__(self,
-      id = 'test-install-repo-setup',
-      ptr = ptr,
-      version = 1.00,
-    )
-
-    RepoSetupEventMixin.__init__(self)
-
-  def setup(self):
-    RepoSetupEventMixin.setup(self)
 
 
 class TestInstallSetupEvent(TestPublishEventMixin, Event):

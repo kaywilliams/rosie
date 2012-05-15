@@ -23,6 +23,7 @@ from centosstudio.util     import pps
 
 from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
                                          ExecuteEventMixin,
+                                         RepoSetupEventMixin,
                                          Trigger, 
                                          TriggerContainer)
 
@@ -66,7 +67,8 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
   return new_events
 
 
-class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
+class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin, 
+                          RepoSetupEventMixin):
   config_mixin_version = "1.01"
 
   def __init__(self, ptr, *args, **kwargs):
@@ -90,6 +92,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     }
 
     MkrpmRpmBuildMixin.__init__(self)
+    RepoSetupEventMixin.__init__(self)
 
   def validate(self):
     self.io.validate_destnames([ path for path in 
@@ -131,6 +134,8 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     # user debugging
     self.debugdir    = self.source_folder // self.installdir
     self.debug_postfile = self.debugdir/'post-script'
+
+    RepoSetupEventMixin.setup(self)
 
   def run(self):
     MkrpmRpmBuildMixin.run(self)

@@ -31,7 +31,6 @@ from centosstudio.modules.shared import KickstartEventMixin
 from centosstudio.modules.shared import PublishSetupEventMixin 
 from centosstudio.modules.shared import (ConfigRpmEvent,
                                          ConfigRpmEventMixin,
-                                         RepoSetupEventMixin,
                                          make_config_rpm_events,
                                          MkrpmRpmBuildMixin,)
 
@@ -41,8 +40,8 @@ TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['PublishSetupEvent', 'PublishRepoSetupEvent', 
-                   'KickstartEvent', 'PublishEvent', 'DeployEvent'],
+    events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent',
+                   'DeployEvent'],
     description = 'publishes repository to a web accessible location',
   )
   modname = __name__.split('.')[-1]
@@ -55,19 +54,6 @@ def get_module_info(ptr, *args, **kwargs):
 # -------- init method called by new_rpm_events -------- #
 def __init__(self, ptr, *args, **kwargs):
   ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
-
-class PublishRepoSetupEvent(RepoSetupEventMixin, Event):
-  def __init__(self, ptr, *args, **kwargs):
-    Event.__init__(self,
-      id = 'publish-repo-setup',
-      ptr = ptr,
-      version = 1.00,
-    )
-
-    RepoSetupEventMixin.__init__(self)
-
-  def setup(self):
-    RepoSetupEventMixin.setup(self)
 
 
 class PublishSetupEvent(PublishSetupEventMixin, Event):

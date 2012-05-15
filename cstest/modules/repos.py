@@ -65,26 +65,6 @@ class Test_RepoDefaults(ReposEventTestCase):
 
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
 
-class Test_UsesReposCvarsIfProvided(ReposEventTestCase):
-  "uses repos from cvars if provided"
-
-  # define a repo in publish, test for inclusion in repos event
-  _conf = """<publish>
-    <repo id="publish">
-      <baseurl>/nonexistant/path</baseurl>
-    </repo>
-  </publish>
-  """
-
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    try:
-      self.tb.dispatch.execute(until='repos') # this will raise an exception
-    except:
-      pass
-
-    # make sure we have the right repos to start wtih
-    self.failUnless(self.event.repos.has_key('publish'))
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repos')
@@ -92,6 +72,5 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(make_core_suite(ReposEventTestCase, distro, version, arch))
   suite.addTest(Test_NoBase(distro, version, arch))
   suite.addTest(Test_RepoDefaults(distro, version, arch))
-  suite.addTest(Test_UsesReposCvarsIfProvided(distro, version,arch))
 
   return suite
