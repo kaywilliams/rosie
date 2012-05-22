@@ -237,10 +237,8 @@
           <ref name="value-boolean"/>
         </attribute>
       </optional>
-      <optional>
-        <attribute name="interface"/>
-      </optional>
-      <text/>
+      <optional><attribute name="interface"/> </optional>
+      <optional><text/></optional>
     </element>
     </optional>
 
@@ -273,12 +271,10 @@
       <optional>
       <attribute name="activate"><ref name="value-boolean"/></attribute>
       </optional>
-
       <optional>
       <attribute name="content"><ref name="value-boolean"/></attribute>
       </optional>
-
-      <text/>
+      <optional><text/></optional>
       </element>
     </optional>
 
