@@ -46,14 +46,7 @@ skipx
 </kickstart>
 
 <triggers>
-  <trigger>activate</trigger>
-  <trigger>connect</trigger>
-  <trigger>release-rpm</trigger>
-  <trigger>config-rpms</trigger>
-  <trigger>kickstart</trigger>
-  <trigger>treeinfo</trigger>
-  <trigger>install-scripts</trigger>
-  <trigger>post-install-scripts</trigger>
+release-rpm config-rpms kickstart treeinfo install-scripts post-install-scripts
 </triggers>
 
 <script id='virt-install' type='install'>

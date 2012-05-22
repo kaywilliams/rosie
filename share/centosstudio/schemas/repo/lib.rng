@@ -270,9 +270,15 @@
 
     <optional>
       <element name="triggers">
-      <oneOrMore>
-      <element name="trigger"><text/></element>
-      </oneOrMore>
+      <optional>
+      <attribute name="activate"><ref name="value-boolean"/></attribute>
+      </optional>
+
+      <optional>
+      <attribute name="content"><ref name="value-boolean"/></attribute>
+      </optional>
+
+      <text/>
       </element>
     </optional>
 

@@ -67,8 +67,7 @@ class DeployMixinTestCase:
 
     if self.mod != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
-      rxml.config.Element('trigger', parent=triggers, text='kickstart')
-      rxml.config.Element('trigger', parent=triggers, text='install-scripts')
+      triggers.text = 'kickstart install_scripts'
 
     mod.extend(deploy.xpath("/*/*[name()!='script']"))
     mod.extend(deploy.xpath("/*/script[@id!='post']"))

@@ -127,7 +127,7 @@ class DeployEventMixin(ExecuteEventMixin):
           raise SSHFailedError(message=message)
 
     # resolve trigger macros 
-    trigger_data = { 
+    self.trigger_data = { 
       'release_rpm':          self._get_rpm_csum('release-rpm'),
       'config_rpms':          self._get_rpm_csum('config-rpms'),
       'kickstart':            self._get_csum(self.kstext),
@@ -137,22 +137,15 @@ class DeployEventMixin(ExecuteEventMixin):
                                                     '@type="post-install" or '
                                                     '@type="save-triggers"]'),
       }
+    self.DATA['variables'].append('trigger_data')
 
-    for key in trigger_data: 
-      self.config.resolve_macros('.' , {'%%{%s}' % key: trigger_data[key]})
+    for key in self.trigger_data: 
+      self.config.resolve_macros('.' , {'%%{%s}' % key: self.trigger_data[key]})
 
-    self.triggers = self.config.xpath('triggers/trigger/text()',
-         ['activate', 'connect' ] + getattr(self, 'default_install_triggers', 
-         []))
+    triggers = self.config.getxpath('triggers/text()',
+               ' '.join(getattr(self, 'default_install_triggers', '')))
 
-    # don't include activate and connect in triggers macro
-    macro_triggers = list(set(self.triggers) - set(['activate', 'connect']))
-    macro_triggers.sort()
-    self.config.resolve_macros('.', {'%{triggers}': ' '.join(macro_triggers)})
-
-    # add data for active triggers to diff variables
-    self.active_triggers = [ (x, trigger_data) for x in macro_triggers ]
-    self.DATA['variables'].append('active_triggers')
+    self.config.resolve_macros('.', {'%{triggers}': triggers})
 
     self.deploydir = self.LIB_DIR / 'deploy'
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
@@ -219,7 +212,7 @@ class DeployEventMixin(ExecuteEventMixin):
       return False # don't try to install since we haven't got any scripts
 
     # can we activate the machine?
-    if 'activate' in self.triggers:
+    if self.config.getbool('triggers/@activate', True):
       try:
         self._execute('activate')
       except (ScriptFailedError, SSHScriptFailedError), e:
@@ -228,7 +221,7 @@ class DeployEventMixin(ExecuteEventMixin):
         return True # reinstall
 
     # can we get an ssh connection?
-    if self.ssh['enabled'] and 'connect' in self.triggers:
+    if self.ssh['enabled'] and self.config.getbool('triggers/@connect', True):
       params = SSHParameters(self, 'test-triggers')
       self.log(1, L1('attempting to connect'))
       try:
