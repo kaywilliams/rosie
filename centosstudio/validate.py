@@ -97,7 +97,7 @@ class CentOSStudioValidationHandler:
   def _verify_tle_elements(self, expected_elements):
     processed = set()
     for child in self.definition.getroot().iterchildren():
-      if child.tag is etree.Comment or child.tag == 'xml': continue
+      if child.tag is etree.Comment: continue
       if child.tag not in expected_elements:
         raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
