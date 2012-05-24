@@ -21,14 +21,14 @@
 
     <itemizedlist>
 
-      <listitem><para>Operating Solution Base Repository. For CentOS, this will be
+      <listitem><para>Operating System Base Repository. For CentOS, this will be
       a public or local mirror. For Red Hat Enterprise Linux, an install tree
       created using an ISO image file. This repository is unique in that it also
       contains <filename class="directory">isolinux</filename> and 
       <filename class="directory">images</filename> folders. Your definition
       must include an operating system base repository.</para></listitem>
 
-      <listitem><para>Operating Solution Update Repositories. For CentOS, again
+      <listitem><para>Operating System Update Repositories. For CentOS, again
       this will be a public or local mirror. For Red Hat Enterprise Network, a
       channel within Red Hat Network. Typically, your definition will include
       both base and updates repositories.</para></listitem>
@@ -58,15 +58,15 @@
 &lt;repos&gt;
 
   &lt;repo id="base"&gt;
-    &lt;name&gt;CentOS-$version-Base&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+    &lt;name&gt;CentOS-%{version}-Base&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
-    &lt;name&gt;CentOS-$version-Updates&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/updates/$arch/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+    &lt;name&gt;CentOS-%{version}-Updates&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/updates/%{arch}/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
 &lt;/repos&gt;</programlisting>
@@ -95,8 +95,8 @@
         step requires an available subscription to Red Hat Enterprise Linux. See
         the Red Hat web site for purchase information. Once you have an 
         available subscription, install Red Hat Enterprise Linux 5 in the
-        desired architecture version (i386 or x86_64) onto a client system.
-        Register the system to Red Hat Network during installation, or first
+        desired architecture version (i386 or x86_64) onto a client machine.
+        Register the machine to Red Hat Network during installation, or first
         boot, or later using the <command>rhn_register</command> command. Once
         the system has successfully registered with RHN, a systemid file will
         be created in the <filename type="directory">/etc/sysconfig/</filename>
@@ -148,16 +148,16 @@
 
   &lt;repo id="base"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
-    &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+    &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
 
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
-    &lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-$arch-server-$version&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-    &lt;systemid&gt;systemid-$versionServer-$arch&lt;/systemid&gt;
+    &lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+    &lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
   &lt;/repo&gt;
 
 &lt;/repos&gt; 

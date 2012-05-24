@@ -8,156 +8,89 @@
 
   <para><variablelist>
 
-      <varlistentry id="id" xreflabel="ID">
-        <term><emphasis
-        role="strong"><varname>$ID</varname></emphasis></term>
-
-        <listitem>
-          <para>The id for a solution. The default value consists of the
-          <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
-          <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> element in the solution definition in the format
-          <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="build-system" xreflabel="build machine">
+      <varlistentry id="build-machine" xreflabel="build machine">
         <term><emphasis role="strong">build machine</emphasis></term>
 
         <listitem>
-          <para>The server on which <application
+          <para>The machine on which <application
           class="software">CentOS Studio</application> is installed.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="client-system" xreflabel="client machine">
+      <varlistentry id="client-machine" xreflabel="client machine">
         <term><emphasis role="strong">client machine</emphasis></term>
 
         <listitem>
-          <para>The target system on which a solution is installed.
+          <para>The target machine on which repository content is installed.
           </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="configuration-package" xreflabel="configuration package">
-        <term><emphasis role="strong">configuration package</emphasis></term>
+      <varlistentry id="config-rpms" xreflabel="config-rpms">
+        <term><emphasis role="strong">config-rpms</emphasis></term>
 
         <listitem>
-	  <para>An RPM package created by CentOS Studio during the build
-	  process. This package contains the <application
-	  class="software">YUM</application> sync plugin, 
-	  YUM configuration, and user-specified configuration files and
-	  scripts. The name of the configuration package is in the following
-	  format, where $VERSION is taken from the <emphasis>version</emphasis>
-	  element in the solution definition and $RELEASE is taken
-	  from the <xref linkend="solution-data-file" />.
+	  <para>
+          RPM packages created by CentOS Studio during the build process.
+          These packages contain user-specified configuration files and
+          scripts.
           </para>
 
-          <para><informalexample>
-          <filename>system-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
+          <para>
+          For more information on config-rpms, see the <xref
+          linkend="configuring-repositories"/> chapter in this document. See
+          also the section on <emphasis>config-rpms</emphasis> in the
+          <xref linkend='rdfr'/>.
           </para>
-
-          <para>For example, given a solution with the name "samba-server" and version "5", the first time CentOS Studio creates the solution, the configuration package will be named as follows:</para>
-
-          <para><informalexample>
-          <filename>system-config-5-1.noarch.rpm</filename></informalexample>
-          </para>
-
-	  <para>The release number "1" will be written to the system
-	  solution data file. When configuration changes in the future,
-	  e.g. when files or scripts are added, deleted or modified,
-	  CentOS Studio will increment the release number by 1, create a new
-	  configuration package (in this case
-	  samba-server-config-5-2.noarch.rpm), and store the new release number
-	  ("2") in the solution data file. The incremented version
-	  number allows installed client machines to determine that a new
-	  configuration package is available for download and
-	  installation.</para>
-
-          <para>For more information on what the configuration package contains
-          and how to customize its contents, see the section on 
-          <emphasis>config</emphasis> in the Solution Definition File 
-          Reference.</para>
 
         </listitem>
       </varlistentry>
 
-      <varlistentry id="download-location" xreflabel="download location">
-        <term><emphasis role="strong">download location</emphasis></term>
+      <varlistentry id="release-rpm" xreflabel="release-rpm">
+        <term><emphasis role="strong">release-rpm</emphasis></term>
 
         <listitem>
-	  <para>The web location (URL) for downloading solution
-	  content. CentOS Studio uses this location during the build process for
-	  two purposes, for creating YUM client configuration (included in the
-	  <xref linkend="configuration-package"/>), and for customizing network
-	  install images. By default the download location is as follows, where
-	  $IP_ADDRESS is the address of the build machine, and $ID is the
-	  solution id.</para>
+	  <para>
+          An RPM package created by CentOS Studio during the build process.
+          This package contains the <xref linkend='yum-sync-plugin'/>
+          and YUM configuration for the repository.
+          </para>
 
-          <para><informalexample>
-	    <filename>http://$IP_ADDRESS/solutions/$ID</filename></informalexample></para>
+          <para>
+          For more information on the release-rpm and how to customize its
+          content, see the <xref linkend="configuring-repositories"/> chapter
+          in this document. See also the section on
+          <emphasis>release-rpm</emphasis> in the <xref linkend='rdfr'/>.
+          </para>
 
-	  <para>For example, if the IP Address for the build machine is
-	  <filename>192.168.1.5</filename> and the solution id is
-	  <emphasis>samba-server-5-i386</emphasis> the download location is as
-	  follows:</para>
-
-          <para><informalexample>
-              <filename>http://192.168.1.5/solutions/samba-server-5-i386</filename>
-            </informalexample></para>
-
-	  <para>The download location is configurable using the
-	  <emphasis>publish</emphasis> element of the solution
-	  definition.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="sdfr" xreflabel="SDFR">
-        <term><emphasis role="strong">SDFR</emphasis></term>
+      <varlistentry id="repository" xreflabel="repository">
+        <term><emphasis role="strong">repository</emphasis></term>
 
         <listitem>
-	  <para>"Solution Definition File Reference," the rules of syntax
-	  for the solution definition. See the separate document at 
-          <ulink url="http://www.centosstudio.org/centosstudio/docs/"> 
-          http://www.centosstudio.org/centosstudio/docs/ </ulink>.
+	  <para>
+          A deployment repository created during the CentOS Studio build
+          process. Provides RPM packages and, optionally, installation images
+          for use during client machine installations and updates. Can be
+          accessed over the network from the the <xref
+          linkend="repository-url"/>.
           </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="solution" xreflabel="solution">
-        <term><emphasis role="strong">solution</emphasis></term>
+      <varlistentry id="repository-data-file" xreflabel="repository data file">
+        <term><emphasis role="strong">repository data file</emphasis></term>
 
         <listitem>
-	  <para>An installation tree created during the solution
-	  build process. Provides packages and installation images for use 
-          during client machine installations and updates. Can be accessed 
-          over the network from the
-	  <filename type="directory">os</filename> folder of the <xref
-	  linkend="download-location"/>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="solution_definition" xreflabel="solution definition">
-        <term><emphasis role="strong">solution definition</emphasis></term>
-
-        <listitem>
-          <para>A file that defines how CentOS Studio should build, configure
-          and store a solution. By convention the file uses the <filename
-          class="extension">.definition</filename> extension. The file is in
-          XML format as defined in the <xref linkend="sdfr"/>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="solution-data-file" xreflabel="solution data file">
-        <term><emphasis role="strong">solution data file</emphasis></term>
-
-        <listitem>
-	  <para>A file CentOS Studio creates to track and increment the release
-	  number of the solution's <xref
-	  linkend="configuration-package" />. This file is created in the same
-	  folder as the solution definition, using the same
-	  filename, with a <filename>.dat</filename> file extension. For
-	  example, given the full path to a solution definition:</para>
+	  <para>
+          A file maintained by CentOS Studio to track CentOS Studio-generated
+          repository input data.  The file is created in the same folder as the
+          repository definition, using the same filename, with a
+          <filename>.dat</filename> file extension. For example, given the full
+          path to a repository definition:
+          </para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>
@@ -169,11 +102,98 @@
           <filename>/~/samba-server.definition.dat</filename></informalexample>
           </para>
 
-	  <para>Care should be taken not to delete this file. Doing so will
-	  cause the release number of the configuration package to restart at
-	  "1". As a result, updated configuration packages will fail to be
-	  downloaded and installed during client machine updates.</para>
+          <caution>
+          <para>
+          Care must be taken not to delete the repository data file. Doing so
+          will cause CentOS Studio to regenerate missing information. As a
+          result, installed client machines may fail to download updated RPMs
+          or may report errors when performing RPM GPG key checking. 
+          </para>
+          </caution>
 
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository_definition" xreflabel="repository definition">
+        <term><emphasis role="strong">repository definition</emphasis></term>
+
+        <listitem>
+          <para>A file that defines how CentOS Studio should build, configure
+          and store a repository. By convention the file uses the <filename
+          class="extension">.definition</filename> extension. The file is in
+          XML format as defined in the <xref linkend="rdfr"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="rdfr" xreflabel="Repository Definition File Reference">
+        <term><emphasis role="strong">Repository Definition File Reference (RDFR)</emphasis></term>
+
+        <listitem>
+	  <para>
+          The rules of syntax for the repository definition. See the separate
+          document at <ulink
+          url="http://www.centossolutions.com/centosstudio/documentation/">
+          http://www.centossolutions.com/centosstudio/documentation/ </ulink>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-id" xreflabel="repository ID">
+        <term><emphasis
+        role="strong"><varname>repository ID</varname></emphasis></term>
+
+        <listitem>
+          <para>
+          The id for a repository. Corresponds to the global run-time macro
+          %{id}. See the Macros section of the <xref linkend='rdfr'/> for more
+          information on macros.
+          </para>
+          
+          <para>
+          The default value is
+          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
+          where these values correspond to the <emphasis>name</emphasis>,
+          <emphasis>version</emphasis> and <emphasis>arch</emphasis> for the
+          repository.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-url" xreflabel="repository URL">
+        <term><emphasis role="strong">repository URL</emphasis></term>
+
+        <listitem>
+	  <para>
+          The web location (URL) for downloading repository content. By default
+          the repository URL is as follows, where $IP_ADDRESS is the address of
+          the build machine, <constant>TYPE</constant> is the type of the
+          repository (system or package), and %{id} is the <xref
+          linkend='repository-id'/>
+          </para>
+
+          <para><informalexample>
+	    <filename>http://$IP_ADDRESS/repos/TYPE/%{id}</filename></informalexample></para>
+
+	  <para>
+          For example, if the IP Address for the build machine is
+          <filename>192.168.1.5</filename> and the repository type is
+          <emphasis>system</emphasis> with an id of
+          <emphasis>samba-server-5-i386</emphasis> the repository URL is as
+          follows:
+          </para>
+
+          <para>
+          <informalexample>
+          <filename>http://192.168.1.5/repos/system/samba-server-5-i386</filename>
+          </informalexample>
+          </para>
+
+	  <para>
+          The repository URL is configurable using the
+          <emphasis>remote-url</emphasis> element described in the
+          <emphasis>Deployment Elements</emphasis> chapter of the <xref
+          linkend='rdfr'/>.
+          </para>
         </listitem>
       </varlistentry>
 
@@ -181,21 +201,25 @@
         <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
 
         <listitem>
-	  <para>A <application class="software">YUM</application> plugin
-	  provided by CentOS Studio that allows synchronizing packages on client
-	  machines with packages in the <xref linkend="solution"/>.
-	  The plugin is included by default in the <xref
-	  linkend="configuration-package" />, which serves as the mechanism for
-	  installing it on client machines. The plugin establishes the 
-	  solution as the <emphasis>master
-	  repository</emphasis>, disables all other repositories, and provides
-	  a new argument, <emphasis>sync</emphasis>, to YUM. Help for the
-	  <emphasis>sync</emphasis> argument is available on client machines
-	  using the <command>yum help</command> command. Running <command>yum
-	  sync</command> allows YUM to calculate package additions and removals
-	  based on packages available in the solution.
-	  For more information, see the section on <xref
-	  linkend="updating-client-machines"/>.</para>
+	  <para>
+          A <application class="software">YUM</application> plugin provided by
+          CentOS Studio that allows synchronizing packages on client machines
+          with packages in the <xref linkend="repository"/>.  The plugin is
+          included by default in the <xref linkend="release-rpm" />,
+          which serves as the mechanism for installing it on client machines.
+          </para>
+
+          <para>
+          The plugin establishes the <xref linkend='repository'/> as the
+          <emphasis>master repository</emphasis>, disables all other
+          repositories, and provides a new argument, <emphasis>sync</emphasis>,
+          to YUM. Help for the <emphasis>sync</emphasis> argument is available
+          on client machines using the <command>yum help</command> command.
+          Running <command>yum sync</command> allows YUM to calculate package
+          additions and removals based on packages available in the repository.
+          For more information, see the section on <xref
+          linkend="updating-client-machines"/>.
+          </para>
         </listitem>
       </varlistentry>
 

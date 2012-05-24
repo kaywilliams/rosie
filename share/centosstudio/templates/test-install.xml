@@ -1,4 +1,0 @@
-<test-install xmlns:xi="http://www.w3.org/2001/XInclude">
-  <password>testpw</password>
-  <xi:include href="common/deploy.xml" xpointer="xpointer(/*/*)"/>
-</test-install>

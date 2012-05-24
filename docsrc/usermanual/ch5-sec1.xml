@@ -6,4 +6,46 @@
 
   <para>The first step is to create common deployment scripts that can be used across installation and update test sessions.</para>
 
+    <para>
+    The CentOS Studio model for automated deployment is simple, yet flexible and
+    and extensible. Repositories can be deployed in a variety of operating
+    environments, for example using virtual machines running on a local host,
+    virtual machines running on remote or cloud-based hosts, or physical
+    machines managed by enterprise systems management systems.
+    </para>
+  
+    <para>
+    To accomplish this flexibility, CentOS Studio allows users to provide
+    scripts for completing various deployment and maintenance actions. These
+    scripts can be written in any shell scripting language.  By default, CentOS
+    Studio executes some scripts on the local build machine and others on the
+    client machine using <application class="software">Secure Shell
+    (SSH)</application>.
+    </para>
+  
+    <para>
+    When CentOS Studio executes a script using SSH, it first copies it to the
+    client machine using <application class="software">Secure Copy
+    (SCP)</application>. After copying, it then executes the script using SSH
+    as the <emphasis>root</emphasis> user. CentOS Studio leaves copied scripts
+    on the remote machine to assist with troubleshooting. They can be located
+    in the <filename>/var/lib/centosstudio</filename> folder. For
+    information on other files CentOS Studio copies to the
+    <filename>/root/sysconfig/centosstudio</filename> folder, see the <xref
+    linkend="config-rpms"/> element. See also the <emphasis> CentOS Studio User
+    Manual</emphasis> for more information on testing and troubleshooting
+    solution installation and updates.
+    </para>
+    
+    <para>
+    CentOS Studio supports password authentication for SSH connections. It does
+    not support public key or host-based authentication.
+    </para>
+    
+    <para>
+    Users can disable CentOS Studio's built in SSH execution for any script.
+    This allows users to provide support for remote connections and
+    authentication using any method desired directly within the user-provided
+    script.
+    </para>
 </section>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="rpmbuild"
-         xreflabel="rpmbuild"
+<section id="gpgsign"
+         xreflabel="gpgsign"
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
-  Rpmbuild (optional)
+  Gpgsign
   </title>
 
   <section>
@@ -14,8 +14,14 @@
     </title>
 
     <para>
-    Specifies optional keys and passphrase for signing CentOS Studio created
-    RPM packages.
+    Specifies GPG keys to use for signing and verifying CentOS Studio created
+    RPM packages. If not provided, CentOS Studio automatically generates
+    signing keys. This element is optional.
+    </para>
+
+    <para>
+    See the <emphasis>CentOS Studio User Manual</emphasis> for more 
+    information on creating and using signing keys.
     </para>
 
   </section>
@@ -26,13 +32,11 @@
     </title>
 
     <programlisting>
-[&lt;rpmbuild&gt;
-  [&lt;gpgsign&gt;
-    &lt;public&gt;TEXT&lt;/public&gt;
-    &lt;secret&gt;TEXT&lt;/secret&gt;
-    [&lt;passphrase&gt;TEXT&lt;/passphrase&gt;]
-   &lt;/gpgsign&gt;]
-&lt;/rpmbuild&gt;]
+[&lt;gpgsign&gt;
+  &lt;public&gt;TEXT&lt;/public&gt;
+  &lt;secret&gt;TEXT&lt;/secret&gt;
+  [&lt;passphrase&gt;TEXT&lt;/passphrase&gt;]
+ &lt;/gpgsign&gt;]
     </programlisting>
   </section>
 
@@ -43,50 +47,46 @@
 
     <variablelist>
 
-    <varlistentry id="rpmbuild-gpgsign"
-                  xreflabel="rpmbuild/gpgsign">
+    <varlistentry>
       <term>
-      gpgsign
+      secret 
       </term>
 
       <listitem>
       <para>
-      Specifies GPG keys to use for signing and verifying CentOS Studio created
-      RPM packages. If not provided, CentOS Studio automatically generates
-      signing keys. This element is optional.
+      <xref linkend='content-text'/> of a secret key, alternatively referred to
+      as a private key, to use for signing rpm.  This element is required.
       </para>
-
-      <para>
-      Accepts three sub-elements:
-      <emphasis>public</emphasis>,
-      <emphasis>secret</emphasis>, and
-      <emphasis>passphrase</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>secret</emphasis>: The <varname>TEXT</varname> of a secret key,
-      alternatively referred to as a private key, to use for signing the
-      rpmbuild. This element is required. 
-      </para>
-
-      <para>
-      <emphasis>public</emphasis>: The <varname>TEXT</varname> of a public key
-      to use for verifying the rpmbuild. This key is included in the
-      solution repository. This element is required.
-      </para>
-
-      <para>
-      <emphasis>passphrase</emphasis>: The <varname>TEXT</varname> of a 
-      passphrase associated with the secret key. This element is optional.
-      </para>
-
-      <para>
-      See the <emphasis>CentOS Studio User Manual</emphasis> for more 
-      information on creating and using signing keys.
-      </para>
-
       </listitem>
     </varlistentry>
+
+    <varlistentry>
+      <term>
+      public
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-text'/> of a public key to use for verifying the
+      rpmbuild. This key is included in the published repository. This element
+      is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      passphrase 
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-text'/> of a passphrase associated with the secret
+      key. This element is optional.
+      </para>
+      </listitem>
+    </varlistentry>
+
     </variablelist>
   </section>
 
@@ -97,10 +97,8 @@
 
     <informalexample>
     <programlisting>
-&lt;rpmbuild&gt;
-
-  &lt;gpgsign&gt;
-    &lt;secret&gt;
+&lt;gpgsign&gt;
+  &lt;secret&gt;
 -----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
@@ -126,9 +124,9 @@ o2iyjegR7ohJBBgRAgAJBQJO4ix6AhsMAAoJEMrm3ScKl1azQO4An3vR7ZjQ80tD
 MkKc5Q91TmwC5A7jAJ9jvRPHOVwYC+sHFL4mOt/9XVaFdg==
 =k9wN
 -----END PGP PRIVATE KEY BLOCK-----
-    &lt;/secret&gt;
+  &lt;/secret&gt;
 
-    &lt;public&gt;
+  &lt;public&gt;
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
@@ -153,12 +151,10 @@ CQUCTuIsegIbDAAKCRDK5t0nCpdWs0DuAKCXthQjeX5H4DL9sZUkxk+k4wiHtgCf
 TBefZqqYtL+kacCEgCIYH2Fhm0I=
 =9xNj
 -----END PGP PUBLIC KEY BLOCK-----
-    &lt;/public&gt;
+  &lt;/public&gt;
 
-    &lt;passphrase&gt;my long passphrase&lt;/passphrase&gt;
-  &lt;/gpgsign&gt;
-
-&lt;/rpmbuild&gt;
+  &lt;passphrase&gt;my long passphrase&lt;/passphrase&gt;
+&lt;/gpgsign&gt;
     </programlisting>
     </informalexample>
   </section>

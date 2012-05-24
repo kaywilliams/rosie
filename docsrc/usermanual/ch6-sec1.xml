@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="installing-client-machines" xreflabel="Installing Client Machines">
+<section>
   <title>Installing Client Machines</title>
 
-  <para>Because <application class="software">CentOS Studio</application> provides installation images for each solution, solutions can be deployed to client machines using standard tools and methods:</para>
+  <para>
+  Because <application class="software">CentOS Studio</application> provides
+  installation images for each solution, solutions can be deployed to client
+  machines using standard tools and methods:
+  </para>
 
   <itemizedlist>
   <listitem>Network installation using a network interface card (NIC) with Pre-Execution Environment (PXE) support, CD/DVD or USB boot media</listitem>

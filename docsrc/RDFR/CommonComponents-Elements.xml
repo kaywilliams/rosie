@@ -16,13 +16,14 @@
 
       <para>
       <varname>PATH</varname>-like elements generally are used to include an
-      input file or folder within the solution.  A <varname>PATH</varname>-like
-      element's text value is the <varname>PATH</varname> to some file or
-      folder <varname>$input</varname> to use, while the
-      <emphasis>@destdir</emphasis>, <emphasis>@destname</emphasis>, and
-      <emphasis>@mode</emphasis> attributes control the location, filename, and
-      mode of the destination file. In the case of a folder, the mode is
-      applied to all files within the folder and any subfolders.
+      input file or folder within the repository.  A
+      <varname>PATH</varname>-like element's text value is the
+      <varname>PATH</varname> to some file or folder <varname>$input</varname>
+      to use, while the <emphasis>@destdir</emphasis>,
+      <emphasis>@destname</emphasis>, and <emphasis>@mode</emphasis> attributes
+      control the location, filename, and mode of the destination file. In the
+      case of a folder, the mode is applied to all files within the folder and
+      any subfolders.
       </para>
 
       <para>

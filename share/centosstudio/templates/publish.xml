@@ -1,6 +1,12 @@
 <publish>
   <remote-url>https://repos.company.com/</remote-url>
-  <post-script ssh="false">
-# script to sync the repository to the server(s) serving the url above.
-  </post-script>
+  <script id="sync-to-production-server" type="post" ssh="false">
+  #!/bin/bash
+  # sync repository to production server 
+
+  echo -e "\nsyncing %{id} repository to production server"
+  rsync -a --delete -e ssh \
+  "/var/www/html/repos/system/%{id}/" \
+  "user@repos.company.com:/var/www/html/%{id}" 
+  </script>
 </publish>

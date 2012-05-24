@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building a Solution</title>
+  <title>Building a Repository</title>
 
   <para>Now that you have defined your solution, you use the
   <command>centosstudio</command> command to build it. Running CentOS Studio
@@ -36,12 +36,12 @@
 
   <para>
   When the process is complete, you can locate your new solution at
-  <filename>/var/www/html/solutions/samba-server-5-i386</filename>. You will
+  <filename>/var/www/html/repositories/samba-server-5-i386</filename>. You will
   also notice that CentOS Studio has created a new file
   <filename>samba-server.definition.dat</filename> in the same location as you
   solution definition. Take care not to delete this file as it contains
   important revision information for your solution. It will be discussed in
-  more detail in the next section <xref linkend="configuring-solutions"/>
+  more detail in the next section <xref linkend="configuring-repositories"/>
   </para>
 
   <note>If your solution uses RHN channels as repositories, CentOS Studio may occasionally report errors such as the following while downloading or verifying repository metadata:

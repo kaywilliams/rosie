@@ -1,0 +1,1587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="deployment-elements-common-model"
+         xreflabel="common model"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>
+  Common Model 
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Deployment elements, <xref linkend="test-install"/>,
+    <xref linkend="test-update"/> and <xref linkend="publish"/>, provide
+    settings to complete the following tasks:
+    </para>
+
+    <itemizedlist>
+    <listitem>
+    Publish a <emphasis>test-install</emphasis>,
+    <emphasis>test-update</emphasis> or <emphasis>publish</emphasis> repository
+    to a file system location on the build machine. 
+    </listitem>
+
+    <listitem>
+    Assemble files and information related to installing and updating client
+    machines using that repository.
+    </listitem>
+
+    <listitem>
+    <para>
+    Optionally, exceute user-provided scripts to perform
+    testing, installation, updates, notification and other deployment-related
+    tasks.
+    </para>
+    </listitem>
+    </itemizedlist>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;ELEMENT>
+  [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
+  [&lt;remote-url [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/remote-url&gt;]
+
+  [&lt;hostname&gt;TEXT&lt;/hostname&gt;]
+  [&lt;domain&gt;TEXT&lt;/domain&gt;]
+  [&lt;password&gt;TEXT&lt;/password&gt;]
+  [&lt;ssh&gt;BOOLEAN&lt;/ssh&gt;]
+  [&lt;ssh-passphrase&gt;TEXT&lt;/ssh-passphrase&gt;]
+  
+  [&lt;boot-options&gt;TEXT&lt;/boot-options&gt;]
+  [&lt;kickstart&gt;TEXT&lt;/kickstart&gt;]
+  [&lt;config-rpm&gt;...&lt;/config-rpm&gt;]*
+
+  [&lt;triggers [activate=BOOLEAN] [connect=BOOLEAN]&gt;[TEXT]&lt;/triggers&gt;]
+
+  [&lt;script 
+    id=TEXT 
+    type=[activate|test-triggers|delete|install|post-install|save-triggers|post]
+    [ssh=BOOLEAN]
+    [verbose=BOOLEAN]
+    [comes-before=TEXT]
+    [comes-after=TEXT]
+    &gt;TEXT
+  &lt;/script&gt;]*
+&lt;ELEMENT/&gt;]
+    </programlisting>
+  </section>
+
+  <section id="deployment-macros" xreflabel="macros">
+    <title>
+    Macros
+    </title>
+
+    <para>
+    Deployment elements provide the following <emphasis>module
+    macros</emphasis>. See the <xref linkend='macros'/> section for more
+    information on macos generally.
+    </para>
+
+    <para>
+    Install Macros - typically used within installation-related elements such
+    as <xref linkend='kickstart'/>, and <xref linkend='install'/> and <xref
+    linkend='delete'/>-type <link linkend='deployment-script'>scripts</link>.
+    </para>
+
+    <informaltable>
+    <tgroup cols='2'>
+    <colspec colwidth='1.5in'/>
+    <tbody valign='top'>
+    <row>
+    <entry id='url-macro' xreflabel='url'>
+    %{url}
+    </entry>
+
+    <entry>
+    A full <xref linkend='content-url'/> to the deployment repository. Described
+    under the <xref linkend='remote-url'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{hostname}
+    </entry>
+
+    <entry>
+    The host name for a client machine. Takes its value from the <xref
+    linkend='hostname'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{domain}
+    </entry>
+
+    <entry>
+    The domain name for a client machine. Taken from the <xref
+    linkend='domain'/> element. Resolves to an empty string if no domain
+    is provided.
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{fqdn}
+    </entry>
+
+    <entry>
+    <para>
+    The Fully Qualified Domain Name (FQDN) for a client machine. Determined by
+    concatenating the values of the <xref linkend='hostname'/> and <xref
+    linkend='domain'/> macros.
+    </para>
+
+    <para>
+    Used for establishing an SSH connection to a client machine prior to
+    executing scripts where the <emphasis>@ssh</emphasis> attribute is set to
+    <constant>TRUE</constant>, i.e. <emphasis>post-install</emphasis>,
+    <emphasis>save-trigger</emphasis>, and <emphasis>post</emphasis>-type
+    scripts.
+    </para>
+
+    </entry>
+    </row>
+
+    <row>
+    <entry id='password-macro' xreflabel='password'>
+    %{password}
+    </entry>
+
+    <entry>
+    A password for the root user of a client machine, described under the
+    <xref linkend='password'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry id='crypt-password-macro' xreflabel='crypt-password'>
+    %{crypt-password}
+    </entry>
+
+    <entry>
+    A CentOS Studio-generated encrypted version of the %{password} macro. See
+    the <xref linkend='password'/> element for additional information.
+    </entry>
+    </row>
+
+    <row>
+    <entry id='boot-options-macro' xreflabel='boot-options'>
+    %{boot-options}
+    </entry>
+
+    <entry>
+    Options to be provided to the installer during system boot. Corresponds to
+    the value of the <xref linkend='boot-options'/> element.
+    </entry>
+    </row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+    <para>
+    Trigger Macros - typically used within <xref linkend='save-triggers'/> and
+    <xref linkend='test-triggers'/>-type scripts. See also the <xref
+    linkend='triggers'/> element.
+    </para>
+
+    <informaltable>
+    <tgroup cols='2'>
+    <colspec colwidth='1.5in'/>
+    <tbody valign='top'>
+    <row>
+    <entry>
+    %{trigger-file}
+    </entry>
+
+    <entry>
+    <xref linkend='content-path'/> to a file on client machines where trigger
+    values are stored.
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{triggers}
+    </entry>
+
+    <entry>
+    List of triggers to be evaluated in determining whether CentOS Studio
+    should execute installation-related deployment scripts.  Takes its value
+    from the <xref linkend='triggers'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry>%{release_rpm}</entry>
+    <entry>MD5 hash of current <xref linkend='release-rpm'/>.</entry>
+    </row>
+
+    <row>
+    <entry>%{config_rpms}</entry>
+    <entry>MD5 hash of all current <xref linkend='config-rpms'/>.</entry>
+    </row>
+
+    <row>
+    <entry>%{kickstart}</entry>
+    <entry>MD5 hash of current kickstart file.</entry>
+    </row>
+
+    <row>
+    <entry>%{treeinfo}</entry>
+    <entry>MD5 hash of current treeinfo file.</entry>
+    </row>
+
+    <row>
+    <entry>%{install_scripts}</entry>
+    <entry>
+    MD5 hash of all current <constant>install</constant>-type scripts.
+    </entry>
+    </row>
+
+    <row>
+    <entry>%{post_install_scripts}</entry>
+    <entry>
+    MD5 hash of all current <constant>post-install</constant>-type scripts.
+    </entry>
+    </row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="local-dir">
+      <term>
+      local-dir
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-path'/> to a folder where CentOS Studio will
+      publish this repository. For repositories to be accessible on the web,
+      the directory must be in the build machine’s local webroot, e.g. the
+      Apache <varname>DocumentRoot</varname>.
+      </para>
+
+      <para>
+      To prevent tampering with repository content, you should ensure that only
+      trusted users and groups have <emphasis>write</emphasis> access to the
+      <emphasis>local-dir</emphasis> folder.
+      </para>
+
+      <para>
+      This element is optional. The default values are as follows:
+      </para>
+
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='1in'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Module</emphasis></entry>
+      <entry><emphasis role='strong'>Default Value</emphasis></entry>
+      </row>
+      <row>
+      <entry>publish</entry>
+      <entry>
+      <filename>/var/www/html/repos/system/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-install</entry>
+      <entry>
+      <filename>/var/www/html/repos/system/test-install/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-update</entry>
+      <entry>
+      <filename>/var/www/html/repos/system/test-update/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;local-dir&gt;/my/web/root/repos/system/&lt;/local-dir&gt;
+      </programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='remote-url'>
+      <term>
+      remote-url
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-url'/> to a directory from which client
+      machines can access this repository.
+      </para>
+
+      <para>
+      This element is optional. The default values are listed in the following
+      table, where <varname>$ipaddress</varname> is computed using the value of
+      the <emphasis>@interface</emphasis> attribute, and TYPE is the value of
+      <xref linkend='main-type'/>. 
+      </para>
+
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='1in'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Module</emphasis></entry>
+      <entry><emphasis role='strong'>Default Value</emphasis></entry>
+      </row>
+      <row>
+      <entry>publish</entry>
+      <entry>
+      <filename>http://$ipaddress/repos/TYPE/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-install</entry>
+      <entry>
+      <filename>http://$ipaddress/repos/TYPE/test-install/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-update</entry>
+      <entry>
+      <filename>http://$ipaddress/repos/TYPE/test-update/<varname>%{id}</varname></filename>
+      </entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
+      <para>
+      The value of the remote-url is also used in determining the the
+      <varname>%{url}</varname> module macro value. The url macro provides the
+      complete web path to the repository. The value of the url macro is as
+      follows, where <varname>$remote-url</varname> is the value from the table
+      above:
+      </para>
+
+      <informalexample>
+      <programlisting>
+$remote-url/%{id}
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The %{url} macro is commonly used in <xref linkend='deployment-script'/>
+      elements for <emphasis>install</emphasis>-type scripts. See the script
+      element for an example.
+      </para>
+
+      <para>
+      As a security measure, to prevent man-in-the-middle style web server
+      attacks, you may wish to configure the <emphasis>remote-url</emphasis>
+      for SSL-only access.  See your web server documentation for information on
+      configuring SSL. See also Example 4 below for information on specifying
+      an https remote-url. 
+      </para>
+
+      <para>
+      This element is optional.
+      </para>
+
+      <para>
+      This element accepts two attributes:
+      <emphasis>@interface</emphasis> and
+      <emphasis>@fqdn</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@interface</emphasis>: <xref linkend='content-text'/> value
+      specifying the network interface name, e.g. "eth1", from which to obtain
+      the <varname>$ipaddress</varname> of the repository.  This attribute only
+      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
+      <constant>FALSE</constant>.
+      </para>
+      
+      <para>
+      This attribute is optional. By default, CentOS Studio uses the first
+      active, non-loopback network interface.
+      </para>
+
+      <para>
+      <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
+      that determines whether <application class="software">CentOS
+      Studio</application> uses the build machine's fully qualified domain name
+      or IP address in the automatically-computed remote url.
+      </para>
+      
+      <para>This attribute is optional. The default value is
+      <constant>FALSE</constant>.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Examples</emphasis>
+      </para>
+
+      <para>
+      In the following examples, the build machine's fully qualified domain
+      name is <filename>buildserver.company.com</filename> and the IP addresses
+      of "eth0" and "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It
+      is building a repository with an <varname>%{id}</varname> of
+      "samba-server-5-i386". 
+      </para>
+      
+      <para>
+      <emphasis role='bold'>Example 1</emphasis> - no remote-url element specified. If no remote-url element is
+      specified, the value is automatically computed using the IP address of
+      the first active network interface ("eth0"). The resulting values are -
+      </para>
+      
+      <simplelist type='horiz' columns='2'>
+      <member>
+      remote-url
+      </member>
+
+      <member>
+      <filename>http://10.10.1.105/repos/system</filename>
+      </member>
+
+      <member>
+      %{url}
+      </member>
+    
+      <member>
+      <filename>http://10.10.1.105/repos/system/samba-server-5-i386</filename>
+      </member>
+      </simplelist>
+
+      <para>
+      <emphasis role='bold'>Example 2</emphasis> - automatic remote url
+      computation using FQDN.  In this example, the remote url is automatically
+      computed using the FQDN of the build machine.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;remote-url fqdn="true" /&gt;
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The resulting values are -
+      </para>
+ 
+      <simplelist type='horiz' columns='2'>
+      <member>
+      remote-url
+      </member>
+
+      <member>
+      <filename>http://buildserver.company.com/repos/system</filename>
+      </member>
+
+      <member>
+      %{url}
+      </member>
+    
+      <member>
+      <filename>http://buildserver.company.com/repos/system/samba-server-5-i386</filename>
+      </member>
+      </simplelist>
+
+      <para>
+      <emphasis role='bold'>Example 3</emphasis> - automatic remote url
+      computation using a specific interface.  In this example, the remote url
+      is automatically computed using the IP address of the specified
+      interface, "eth1". 
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;remote-url interface="eth1"/&gt;
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The resulting values are -
+      </para>
+ 
+      <simplelist type='horiz' columns='2'>
+      <member>
+      remote-url
+      </member>
+
+      <member>
+      <filename>http://192.168.0.10/repos/system</filename>
+      </member>
+
+      <member>
+      %{url}
+      </member>
+    
+      <member>
+      <filename>http://192.168.0.10/repos/system/samba-server-5-i386</filename>
+      </member>
+      </simplelist>
+
+      <para>
+      <emphasis role='bold'>Example 4</emphasis> - manual configuration of
+      remote url.  In this example, the repository is created on the build
+      machine, but later moved to a web server, or web server farm, for final
+      publication. In this case, the remote url must be  manually specified.
+      This example specifies an 'http' location; an 'https' location would be
+      specified in the same manner.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;remote-url&gt;http://repos.company.com/&lt;/remote-url&gt;
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The resulting values are -
+      </para>
+ 
+      <simplelist type='horiz' columns='2'>
+      <member>
+      remote-url
+      </member>
+
+      <member>
+      <filename>http://repos.company.com</filename>
+      </member>
+
+      <member>
+      %{url}
+      </member>
+    
+      <member>
+      <filename>http://repos.company.com/samba-server-5-i386</filename>
+      </member>
+      </simplelist>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='hostname' xreflabel='hostname'>
+    <term>hostname</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-text'/> value providing the name of a host, e.g.
+    <emphasis>samba-server</emphasis>. This value is provided as the module
+    macro <link linkend='deployment-macros'>%{hostname}</link>.
+    </para>
+
+    <para>
+    This attribute is optional. The default values are as follows:
+    </para>
+    
+    <informaltable>
+    <tgroup cols='2'>
+    <colspec colwidth='1in'/>
+    <tbody valign='top'>
+    <row>
+    <entry><emphasis role='strong'>Module</emphasis></entry>
+    <entry><emphasis role='strong'>Default Value</emphasis></entry>
+    </row>
+    <row>
+    <entry>publish</entry>
+    <entry><varname>%{id}</varname></entry>
+    </row>
+    <row>
+    <entry>test-install</entry>
+    <entry><varname>%{id}</varname>-test-install</entry>
+    </row>
+    <row>
+    <entry>test-update</entry>
+    <entry><varname>%{id}</varname>-test-update</entry>
+    </row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='domain' xreflabel='domain'>
+    <term>domain</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-text'/> value providing the domain for a client
+    machine, e.g. <emphasis>local</emphasis> or
+    <emphasis>company.com</emphasis>.  This value is provided as the module
+    macro <link linkend='deployment-macros'>%{domain}</link>.
+    </para>
+
+    <para>
+    This attribute is optional. The default value is an empty string. A period
+    character "." is prepended to the provided text if it does not exist, e.g.
+    <emphasis>local</emphasis> is converted to <emphasis>.local</emphasis>.
+    </para>
+    
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='password' xreflabel='password'>
+    <term>password</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-text'/> value to be as the root user password for
+    the client machine identified by the <link
+    linkend='deployment-macros'>fqdn</link> macro. This value is provided as a
+    module macro <link linkend='deployment-macros'>%{password}</link>.
+    </para>
+    
+    <para>
+    This attribute is optional. The default values are as follows:
+    </para>
+    
+    <informaltable>
+    <tgroup cols='2'>
+    <colspec colwidth='1in'/>
+    <tbody valign='top'>
+    <row>
+    <entry><emphasis role='strong'>Module</emphasis></entry>
+    <entry><emphasis role='strong'>Default Value</emphasis></entry>
+    </row>
+    <row>
+    <entry>publish</entry>
+    <entry>
+    A random password is automatically generated and stored in the <xref
+    linkend="repository-data-file"/>. 
+    </entry>
+    </row>
+    <row>
+    <entry>test-install</entry>
+    <entry>The publish element password.</entry>
+    </row>
+    <row>
+    <entry>test-update</entry>
+    <entry>The publish element password.</entry>
+    </row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+
+    <para>
+    CentOS Studio also generates an encrypted version of the password and makes
+    it available as the module macro <link
+    linkend='deployment-macros'>%{crypt-password}</link>. The encrypted
+    password is recommended for use in the <emphasis>kickstart</emphasis>
+    element. See the <xref linkend='kickstart'/> element below for an example.
+    The encrypted password is also stored in the repository data file.
+    </para>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='ssh' xreflabel='ssh'>
+    <term>ssh</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-boolean'/> value controlling whether CentOS Studio
+    will attempt to execute <emphasis>scripts</emphasis> directly on the 
+    <emphasis>client machine</emphasis> identified by the <link
+    linkend='deployment-macros'>%{fqdn}</link> module macro using SSH. Scripts
+    are defined using the <xref linkend='deployment-script'/> element.
+    </para>
+
+    <para>
+    This value serves as a default for the module. If the value is
+    <constant>TRUE</constant>, CentOS Studio will use SSH for individual
+    scripts based on the value of the script's <emphasis>ssh</emphasis>
+    attribute. See the <xref linkend='deployment-script'/> element for
+    additional information on the <emphasis>ssh</emphasis> attribute.
+    </para>
+   
+    <para>
+    If the value is <constant>FALSE</constant>, CentOS Studio will not use SSH
+    for any script. If a script has been defined that requires SSH, either by
+    default or via the <emphasis>ssh</emphasis> attribute of the script
+    element, CentOS Studio will fail with an error message.
+    </para>
+    
+    <para>
+    Setting the value to <constant>FALSE</constant> allows
+    users to provide custom support for remote script execution, on one
+    <emphasis>or multiple</emphasis> client machines, using any method desired.
+    This custom support must be embedded within user-provided scripts.
+    </para>
+
+    <para>
+    CentOS Studio supports public key authentication for SSH connections.  If
+    the value of the <emphasis>ssh</emphasis> element is
+    <constant>TRUE</constant>, CentOS Studio will check to see if SSH has 
+    been configured for the root user on the build machine. Specifically, it
+    does this by testing for the existence of a file named
+    <filename>/root/.ssh/id_rsa.pub</filename>. If this file does not exist,
+    CentOS Studio will attempt to configure SSH for the build machine by
+    executing the following command:
+    
+    <programlisting>
+/usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""
+    </programlisting>
+    </para>
+
+    <para>
+    If SSH keys have been previously created for the root user, and those keys
+    require the use of a passphrase, the passphrase may be specified using the
+    <xref linkend='ssh-passphrase'/> element.
+    </para>
+
+    <note>
+    <title>Note - SSH Configuration for Client Machines</title>
+    <para>
+    As a final step, users must also configure client machines to allow SSH
+    access from the build machine. This can be accomplished using a <xref
+    linkend="config-rpm"/>. CentOS Studio includes an example template to
+    complete this task. On a system with CentOS Studio installed, the file can
+    be found as <filename>ssh-config.xml</filename> in the <xref
+    linkend='templates'/> folder at
+    <filename>/usr/share/centosstudio/templates/deploy</filename>. See the
+    <xref linkend='deploy-config-rpm'/> element below for an example of using
+    this template.
+    </para>
+    </note>
+
+    <para>
+    The <emphasis>ssh</emphasis> element is optional. The default value is
+    <constant>TRUE</constant>.
+    </para>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='ssh-passphrase' xreflabel='ssh-passphrase'>
+    <term>ssh-passphrase</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-text'/> value specifying the SSH passphrase, if any,
+    for the root user on the build machine.
+    </para>
+
+    <para>
+    This element is optional. The default value is an empty string,
+    <emphasis>""</emphasis>.
+    </para>
+
+    </listitem>
+    </varlistentry>
+  
+    <varlistentry id="boot-options">
+      <term>
+      boot-options
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value specifying install boot environment
+      variables, also known as kernel boot arguments, for use during client
+      machine installation. Ignored if the <xref linkend="main-type"/> element
+      is set to <constant>package</constant>.
+      </para>
+     
+      <para>
+      Boot options are typically used in combination with a kickstart file to
+      automate client machine installations. See the <xref
+      linkend='kickstart'/> element below for more information.
+      </para>
+
+      <para>
+      The <emphasis>boot-options</emphasis> element's text value should be a
+      space-separated list of kernel arguments.  For more information on
+      available boot options, see the chapter on <emphasis>Boot
+      Options</emphasis> in the <emphasis>Red Hat Enterprise Linux Installation
+      Guide</emphasis>
+      </para>
+      
+      <para>
+      Provided as a module macro, <link
+      linkend="deployment-macros">%{boot-options}</link>, for use within
+      deployment element content, primarly <constant>install</constant>-type
+      scripts. See the <xref linkend="deployment-script"/> element below for
+      more information.
+      </para>
+
+      <para>
+      Also used by CentOS Studio during the creation of ISO images. See the
+      section on the <xref linkend='iso'/> top-level element for more
+      information.
+      </para>
+
+      <para>
+      Boot-options is an optional element. The default value is
+      <constant>"lang=en_US keymap=us"</constant>.
+      </para>
+
+      <informalexample>
+      <programlisting>     
+&lt;boot-options&gt;lang=el_GR keymap=gr&lt;/boot-options&gt;
+      </programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="kickstart">
+    <term>
+    kickstart
+    </term>
+  
+    <listitem>
+    <para>
+    Specifies the <xref linkend='content-text'/> of a kickstart file. Ignored
+    if the <xref linkend="main-type"/> element is set to
+    <constant>package</constant>.
+    </para>
+    
+    <para>
+    CentOS Studio makes the kickstart available as a file
+    named <filename>ks.cfg</filename> included in the root folder of the
+    repository, e.g.
+    <filename>http://server.company.com/repos/system/samba-server-5-i386/ks.cfg</filename>.
+    It also includes the kickstart in all ISO images including boot.iso. 
+    </para>
+  
+    <para>
+    The kickstart file is used by <application
+    class="software">Anaconda</application>, the CentOS system installer, for
+    obtaining options, such as language, timezone, network and machine
+    configuration, during automated installation.
+     </para>
+
+    <para>
+    For information on creating kickstart files, see the the chapter
+    on <emphasis>Kickstart Installations</emphasis> in the <emphasis>Red Hat
+    Enterprise Linux Installation Guide</emphasis>, available from the Red Hat
+    website.
+    </para>
+
+    <para>
+    Kickstart is an optional element. If not provided, users will be prompted
+    for information at the time of client machine installation.
+    </para>
+
+    <note>It is not necessary to specify a '%packages' section in the kickstart
+    file. CentOS Studio automatically configures the installer to install all
+    packages in the repository. If a '%packages' section is
+    provided, it is ignored.</note>
+  
+    <para>
+    <emphasis role='bold'>Examples</emphasis>
+    </para>
+  
+    <para>
+    <emphasis role='bold'>Example 1</emphasis> - The following example shows
+    the text of a kickstart file providing all information required to fully
+    automate a client machine installation. It uses <varname>%{fqdn}</varname>
+    and <varname>%{crypt-password}</varname> <link
+    linkend='deployment-macros'>module macros</link>. On a system with CentOS
+    Studio installed, the text of the kickstart shown below can be found as a
+    file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
+    folder at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;kickstart&gt;
+<xi:include href='templates/deploy/ks.cfg' parse='text'/>
+&lt;/kickstart&gt;
+    </programlisting>
+    </informalexample>
+  
+    <para>
+    <emphasis role='bold'>Example 2</emphasis> - The example below shows
+    including text from an external kickstart file using XInclude.
+    </para>
+    <informalexample>
+    <programlisting>
+&lt;kickstart&gt;
+&lt;xi:include href="ks.cfg" parse="text"/&gt;
+&lt;/kickstart&gt;
+    </programlisting>
+    </informalexample>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='deploy-config-rpm' xreflabel='config-rpm'>
+    <term>config-rpm</term>
+
+    <listitem>
+    <para>
+    <xref linkend='config-rpm'/> element as described in the <xref
+    linkend="config-rpms"/> section of this document.  The config-rpm element
+    is supported within deployment elements to facilitate creation and
+    distribution of deployment <xref linkend="templates"/>.
+    </para>
+
+    <para>
+    This element is optional. Multiple elements are allowed.
+    </para>
+
+    <para>
+    <emphasis role='strong'>Examples</emphasis>
+    </para>
+
+    <para>
+    <emphasis role='bold'>Example 1</emphasis> - The following example shows
+    the text of a config-rpm template. The template defines an RPM with the id
+    <emphasis>deploy-ssh-config</emphasis>. The RPM provides client
+    configuration needed for the build machine to establish SSH connections
+    with the client and execute deployment scripts.  See the <xref
+    linkend='ssh'/> element for additional information.
+    </para>
+
+    <para>
+    On a system with CentOS Studio installed, this config-rpm template can be
+    found as a file named <filename>ssh-config.xml</filename> in the examples
+    folder at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+    </para>
+
+    <informalexample>
+    <programlisting>
+<xi:include href='templates/deploy/ssh-config.xml' parse='text'/>
+    </programlisting>
+    </informalexample>
+  
+    <para>
+    <emphasis role='bold'>Example 2</emphasis> - The example below shows
+    including content from the <filename>ssh-config.xml</filename> template,
+    shown above, within a definition using XInclude.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;xi:include href="path/to/ssh-config.xml"/&gt;
+    </programlisting>
+    </informalexample>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='triggers' xreflabel='triggers'>
+    <term>triggers</term>
+
+    <listitem>
+      <para>
+      <xref linkend='content-text'/> value providing a space-separated list of
+      trigger names.  The value of this element is made available to <xref
+      linkend='test-triggers'/>-type scripts via the <link
+      linkend="deployment-macros">%{triggers}</link> module macro.
+      </para>
+
+      <note>
+      <para>
+      CentOS Studio executes installation-related scripts
+      (<xref linkend='delete'/>, <xref linkend='install'/>, <xref
+      linkend='post-install'/> and <xref linkend='save-triggers'/>) only when
+      one of the following conditions is true.
+      </para>
+
+      <orderedlist>
+      <listitem>
+      An <xref linkend='activate'/>-type script returns a non-zero
+      exit status.
+      </listitem>
+      <listitem>
+      The <xref linkend='ssh'/> element is <constant>TRUE</constant> and an
+      attempt to connect to the client machine identified by the <link
+      linkend="deployment-macros">%{fqdn}</link> fails.
+      </listitem>
+      <listitem>
+      A <xref linkend='test-triggers'/>-type script fails returns a non-zero
+      exit status. Test-triggers-type scripts make use of the macros described
+      under <emphasis>Trigger Macros</emphasis> in the <xref
+      linkend='deployment-macros'/> section. See <xref
+      linkend='test-triggers'/> for an example.
+      </listitem>
+      </orderedlist>
+
+      <para>
+      The triggers element and its attributes, in conjunction with trigger
+      macros and save-triggers and test-triggers-type scripts, provide control
+      over this behavior. 
+      </para>
+      </note>
+
+      <para>
+      This element is optional.
+      </para>
+      
+      <para>
+      For the <xref linkend='test-update'/> and <xref
+      linkend='publish'/> modules, the default value is an empty string, "".
+      </para>
+      
+      <para>
+      For the <xref linkend="test-install"/> module, the default value is "
+      <constant>release_rpm config_rpms kickstart treeinfo install_scripts
+      post_install_scripts</constant>". These triggers correspond to
+      module macros of the same name.
+      </para>
+
+      <para>
+      <emphasis role='strong'>Attributes</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry id='trigger-activate' xreflabel='@activate'>
+      <term>@activate</term>
+      <listitem>
+      <para>
+      <xref linkend="content-boolean"/> value indicating whether CentOS Studio
+      should execute install-related scripts if an <xref
+      linkend='activate'/>-type script returns a non-zero exit status.
+      </para>
+
+      <para>
+      This is an optional attribute. The default value is
+      <constant>TRUE</constant>.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry id='trigger-connect' xreflabel='@connect'>
+      <term>@connect</term>
+      <listitem>
+      <para>
+      <xref linkend="content-boolean"/> value indicating whether CentOS Studio
+      should execute install-related scripts if the <xref linkend='ssh'/>
+      element is <constant>TRUE</constant> and an SSH connection to the client
+      machine identified by <link linkend='deployment-macros'>%{fqdn}</link>
+      cannot be established.  
+      </para>
+
+      <para>
+      This is an optional attribute. The default value is
+      <constant>TRUE</constant>.
+      </para>
+      </listitem>
+      </varlistentry>
+      </variablelist>
+
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="deployment-script">
+      <term>
+      script
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-text'/> of a script used to perform installation
+      and maintenance tasks on a client machine.
+      </para>
+
+      <para>
+      Deployment scripts can be written in any shell scripting language.  
+      </para>
+
+      <para>
+      This element is optional. Multiple elements are allowed.
+      </para>
+
+      <para>
+      <emphasis role='strong'>Attributes</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry id="script-id" xreflable="@id">
+      <term>@id</term>
+      <listitem>
+      <para>
+      <xref linkend='content-text'/> identifier for the script.
+      </para>
+
+      <para>
+      This attribute is required.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>@type</term>
+      <listitem>
+      <para>
+      Type of the script. Valid values are described below:
+      </para>
+
+      <variablelist>
+      <varlistentry id='activate'>
+      <term>
+      activate
+      </term>
+
+      <listitem>
+      <para>
+      Activates one or more client machines, or determines if client 
+      machines are active. Must return a non-zero exit status if
+      activation fails.
+      </para>
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>virt-activate.xml</filename> which is included in the
+      <xref linkend='templates'/> folder 
+      at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+      </para>
+      
+      <para>
+      The template contains the text of a python script. The script attempts to
+      establish a connection to a virtual machine on the build machine. The
+      virtual machine is identified using the <link
+      linkend='deployment-macros'>%{fqdn}</link> macro. If the virtual machine
+      does not exist or cannot be activated, the script returns an exit status
+      of '1'.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='templates/deploy/virt-activate.xml' parse='text'/> 
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">xinclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="path/to/deploy/virt-activate.xml"/>
+      </programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='test-triggers'>
+      <term>test-triggers</term>
+      <listitem>
+      <para>
+      Tests current trigger values against prior trigger values. Must return a
+      non-zero exit status if a trigger has changed. See also the
+      <xref linkend='triggers'/> element.
+      </para>
+
+      <para>
+      CentOS Studio makes a number of macros available to assist with script
+      operation. These include <link
+      linkend="deployment-macros">%{trigger-file}</link> macro. Using a list
+      of triggers identified by the <link
+      linkend="deployment-macros">%{triggers}</link> macro, it then attempts
+      to compare current trigger values to saved trigger values. CentOS Studio
+      calculates a number of current trigger values and makes them available
+      via the %{release_rpm}, %{config_rpms}, %{kickstart}, %{treeinfo},
+      %{install_scripts} and %{post_install_scripts} macros.  Current trigger
+      values contains the text of a Bash shell script.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>test-triggers.xml</filename> which is included in the
+      <xref linkend='templates'/> folder 
+      at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+      </para>
+     
+      <para>
+      The template first reads a file (identified by the <link
+      linkend="deployment-macros">%{trigger-file}</link> macro) of saved
+      trigger values.  Using a list of triggers identified by the <link
+      linkend="deployment-macros">%{triggers}</link> macro, it then attempts
+      to compare current trigger values to saved trigger values. CentOS Studio
+      calculates a number of current trigger values and makes them available
+      via the %{release_rpm}, %{config_rpms}, %{kickstart}, %{treeinfo},
+      %{install_scripts} and %{post_install_scripts} macros.  Current trigger
+      values.  If any of the current triggers differs from the correspoinding
+      saved trigger, the script returns an exit status of '1'.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='templates/deploy/test-triggers.xml' parse='text'/> 
+      </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">xinclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="path/to/deploy/test-triggers.xml"/>
+      </programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='delete'>
+      <term>
+      delete
+      </term>
+
+      <listitem>
+      <para>
+      Deletes or decommissions one or more client machines in preparation
+      for system installation. Must return a non-zero exit status if
+      machine deletion fails. Commonly used with the
+      <link linkend='deployment-macros'>%{fqdn}</link> module macro.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - In this example, a bash script
+      is used to destroy and undefine a virtual machine specified using the
+      <varname>%{fqdn}</varname> module macro. The command <command>set
+      -e</command> is used at the beginning of the script to indicate that if
+      any command in the script fails, the script should return a non-zero exit
+      status.  Typically bash scripts return the exit status of the last
+      command executed in the script.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish>
+&lt;hostname>samba-live&lt;/hostname>
+&lt;password>secret&lt;/password>
+
+<xi:include href='templates/deploy/virt-delete.xml'/>
+
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="install">
+      <term>
+      install 
+      </term>
+
+      <listitem>
+      <para>
+      Installs one or more client machines. Must return a non-zero exit status
+      if installation fails. Commonly used with the <link
+      linkend='deployment-macros'>%{fqdn}</link> and <link
+      linkend='deployment-macros'>%{url}</link> module macros.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example uses two
+      elements <emphasis>kickstart</emphasis> and
+      <emphasis>install-script</emphasis>.
+      </para>
+      
+      <para>
+      The <emphasis>kickstart</emphasis> element provides settings for the
+      client machine. A kickstart is also required for automated system
+      installation.
+      </para>
+
+      <para>
+      The <emphasis>install-script</emphasis> element provides a a bash script
+      which completes the actual machine installation. In this case, the script
+      executes the <command>virt-install</command> command to create a new
+      virtual machine.  The script uses the <varname>%{fqdn}</varname>
+      module macro to specify a name for the virtual machine, as well as the
+      filename for the machine's image. It uses the <varname>%{url}</varname>
+      macro to specify the location for the installation files, as well as for
+      the kickstart file.  
+      </para>
+
+      <para>
+      The <command>set -e</command> command has not been used in this script as
+      it was in the <xref linkend="delete"/> example. In this case it is
+      unnecessary because the script contains only a single command,
+      <command>virt-install</command>.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish>
+&lt;hostname>samba-live&lt;/hostname>
+&lt;password>secret&lt;/password>
+
+&lt;kickstart&gt;&lt;xi:include href="ks.cfg" parse="text"/&gt;&lt;/kickstart&gt;
+
+<xi:include href='templates/deploy/virt-install.xml'/>
+
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="post-install">
+      <term>
+      post-install 
+      </term>
+
+      <listitem>
+      <para>
+      Performs post-install tasks such as install verification. Must return a
+      non-zero exit status if post-install tasks fail.
+      </para>
+    
+      <para>
+      The script can perform any desired actions to verify system installation.
+      One recommended action is to scan the
+      <filename>/root/install.log</filename> file for "scriptlet failed"
+      errors.  Scriptlet failed errors identify issues in which RPM packages,
+      quite possibly one of the config-rpms (defined using a <xref
+      linkend='config-rpm'/> element), failed to install as expected. See the
+      examples section below for a script that scans for and reports "scriptlet
+      failed" errors. See the <emphasis>CentOS Studio User Manual</emphasis>
+      for information on troubleshooting "scriptlet failed" errors related to
+      the config-rpm.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - In this example the <emphasis>
+      post-install-script</emphasis> element provides a bash script which
+      uses the <command>grep</command> to scan for scriptlet failed errors in
+      the install.log. If errors are found, the script returns an exit status
+      of '1', indicating that verification failed.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish>
+&lt;hostname>samba-live&lt;/hostname>
+&lt;password>secret&lt;/password>
+
+<xi:include href='templates/deploy/verify-install.xml'/> 
+
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='save-triggers'>
+      <term>save-triggers</term>
+      <listitem>
+      <para>
+      Saves trigger values for future use by
+      <constant>test-triggers</constant>-type scripts. Must return a non-zero
+      exit status if trigger save unsuccessful.
+      </para>
+      <para>
+      TODO - add example
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="post-script">
+      <term>
+      post-script 
+      </term>
+
+      <listitem>
+      <para>
+      Performs tasks that should occur each time the deployment module runs,
+      e.g. when deployment scripts change or when RPM packages are updated in
+      the deployment repository. Post tasks might include performing client
+      updates, restarting clients if the kernel package has been updated, or
+      shutting down a clients if it's purpose has been accomplished during the
+      course of module execution (e.g. building or testing rpms). Must return a
+      non-zero exit status if post tasks fail.
+      </para>
+
+      <para>
+      For the <emphasis>publish</emphasis> event, this script is useful for
+      copying published repositories to remote download servers. It
+      can also be used to integrate repositories with enterprise systems
+      management systems, for example to sync repository content with
+      software channels in Red Hat Network or Spacewalk. In scenarios such as
+      these, it is necessary to set the <emphasis>@ssh</emphasis> attribute to
+      a false value.
+      </para>
+
+      <para>
+      For the <emphasis>test-install</emphasis> and
+      <emphasis>test-update</emphasis> events, the
+      <emphasis>post-script</emphasis> is useful for activities such as
+      completing testing that should run after either install or update, or for
+      powering down test machines between runs. 
+      </para>
+
+      <para>
+      Updates an installed client, typically by executing the <command>yum
+      sync</command> or <command>yum update</command> commands, followed by
+      performing update verification as desired.
+      </para>
+    
+      <para>
+      The update-script may also be used for post processing after client
+      updates.  For example, the update-script may be used to test the running
+      system kernel and restart the machine if a new kernel version has been
+      installed, as is shown in the example update-script below. Note that
+      while post processing actions such as these could be performed in either
+      the <emphasis>update-script</emphasis> or the
+      <emphasis>post-script</emphasis>, the former is preferable since the
+      latter is executed after both installation and updates.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - In the following example, a
+      bash script is provided that updates the client using the <command>yum
+      sync</command> command. Thereafter, the script tests for a new kernel, 
+      and restarts the client if one is found. The <command>set -e</command> 
+      is used to halt processing and return a non-zero exit status if an error
+      occurs at any point within the script.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish>
+&lt;hostname>samba-live&lt;/hostname>
+&lt;password>secret&lt;/password>
+
+<xi:include href='templates/deploy/update.xml'/>
+
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+
+      <para>
+      <emphasis role='bold'>Examples</emphasis> - In this example, the
+      <emphasis>post-script</emphasis> is a simple bash script with a single
+      command to shut down the client machine.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='templates/deploy/poweroff.xml'/>
+      </programlisting>
+      </informalexample>
+      </listitem>
+      </varlistentry>
+      </variablelist>
+
+      <para>
+      This attribute is required.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>@ssh</term>
+      <listitem>
+
+      <para>
+      <varname>BOOLEAN</varname> value that determines whether CentOS Studio
+      should attempt to execute the script via SSH.
+      Default values are shown in the table below. 
+      </para>
+
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='3in'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Script Type</emphasis></entry>
+      <entry><emphasis role='strong'>Default Value</emphasis></entry>
+      </row>
+      <row>
+      <entry>activate, delete, install</entry>
+      <entry><constant>FALSE</constant></entry>
+      </row>
+      <row>
+      <entry>test-triggers, post-install, save-triggers, post</entry>
+      <entry><constant>TRUE</constant></entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
+
+      <para>
+      If the ssh attribute is <constant>TRUE</constant>, CentOS Studio attempts
+      to copy the script to the client machine identified by the <link
+      linkend='deployment-macros'>%{fqdn}</link> macro and execute it from the
+      <filename>/var/lib/centosstudio/</filename> folder with root privileges.
+      The file will be given the same name as the <xref linkend='script-id'/>
+      attribute.
+      </para>
+
+      <para>
+      If the ssh attribute is <constant>FALSE</constant>, CentOS Studio relies
+      on the script to perform all steps to connect, authenticate, and execute
+      on one or more client machines.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>@verbose</term>
+      <listitem>
+      <para>
+      <xref linkend='content-boolean'/> value indicating whether the Standard
+      Output from the script should be displayed as output from CentOS Studio.
+      </para>
+
+      <para>
+      This attribute is optional. The default value is
+      <constant>FALSE</constant>
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>@comes-before</term>
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value providing a space or comma-separated
+      list of scripts, identified by their <xref linkend='script-id'/> values,
+      that should execute following this script.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>@comes-after</term>
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value providing a space or comma-separated
+      list of scripts, identified by their <xref linkend='script-id'/> values,
+      that should execute following preceding this script.
+      </para>
+      </listitem>
+      </varlistentry>
+      </variablelist>
+      </listitem>
+    </varlistentry>
+
+    </variablelist>
+  </section>
+
+</section>

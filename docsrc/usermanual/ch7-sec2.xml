@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Updating a Solution</title>
+  <title>Updating a Repository</title>
 
   <para>CentOS Studio makes it easy to keep your solution up to date over 
   time by simply rerunning the <command>centosstudio</command> command. 
@@ -57,9 +57,9 @@ Build complete at 2009-10-25 18:30:26</screen></para>
       </note></para>
 
     <para>If CentOS Studio finds updated packages, it will refresh the 
-    <xref linkend="solution"/> to contain just the current set
+    <xref linkend="repository"/> to contain just the current set
     of packages. Specifically, when CentOS Studio determines that packages have
-    changed, it calculates the list of packages needed to satisfy system 
+    changed, it calculates the list of packages needed to satisfy solution 
     requirements, and then adds and removes packages as necessary to bring the 
     solution into comformance with the list. This behavior 
     allows the <xref linkend="yum-sync-plugin" /> to rely on packages in the 
@@ -67,7 +67,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     client machines.</para>
 
     <para><important>
-        <para>If the published download location is the same,
+        <para>If the published repository URL is the same,
         <command>centosstudio</command> updates the solution, adding new files and
         replacing old ones.</para>
       </important></para>
@@ -88,16 +88,16 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new solution with a new
-    <varname>$ID</varname> and <xref linkend="download-location"/>
+    <varname>%{id}</varname> and <xref linkend="repository-url"/>
     matching the new parameters. To avoid confusion between the different
     solutions, save the new solution definition with a new name.</para>
   </section>
 
-  <para>To try out system updates for the samba-server example, you can 
+  <para>To try out solution updates for the samba-server example, you can 
   make two modifications: remove a group, and modify a configuration file.</para>
 
   <para>First, let's say you have determined you don't need packages from
-  the admin-tools group on this system. You can remove them by removing the 
+  the admin-tools group on this solution. You can remove them by removing the 
   corresponding <emphasis>/packages/group</emphasis> element. Modify the
   <emphasis>packages</emphasis> element to look as follows:</para>
 
@@ -136,10 +136,10 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
   <para>Now run the command 
   <command>centosstudio samba-server.definition</command>. You should see 
-  that a new configuration package is generated, and that the solution
+  that a new config-rpm is generated, and that the solution
   is updated.</para>
 
   <para>In the next section you will see how these changes are applied to
-  previously installed client systems.</para>
+  previously installed client machines.</para>
 
 </section>

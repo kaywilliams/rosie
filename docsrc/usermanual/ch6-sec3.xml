@@ -8,11 +8,11 @@
   client boot-up and kickstart process.</para>
 
   <section>
-    <title>Kickstarting Client Solutions</title>
+    <title>Kickstarting Client Machines</title>
 
     <para>Kickstart files let you automate system installations by 
     providing answers to install-time questions such as selection of language,
-    network configuration, keyboard, filesystem configuration, mouse,
+    network configuration, keyboard, file system configuration, mouse,
     timezone and root password.</para>
 
     <para>To include a kickstart file in your 
@@ -40,30 +40,16 @@
     addresses.</para>
 
     <para><informalexample>
-        <programlisting>&lt;bootiso&gt;
-  &lt;boot-args use-defaults="false"&gt;
+        <programlisting>&lt;publish&gt;
+  &lt;boot-options"&gt;
   keymap=us lang=en_US ip=192.168.0.222
   netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
-  &lt;/boot-args&gt;
-  &lt;/bootiso&gt;</programlisting>
-      </informalexample></para>
-
-    <para>To create a USB diskboot <filename class="extension">IMG</filename>
-    file and possibly add custom boot arguments to the
-    <filename>/syslinux.cfg</filename> file, use the
-    <emphasis>diskboot-image</emphasis> element in your
-    <filename>samba-server.definition</filename> file. The example below disables
-    the default boot arguments "%{ks}," "%{method}," and "nousbstorage."</para>
-
-    <para><informalexample>
-        <programlisting>&lt;diskboot-image enabled="true"&gt;
-  &lt;!-- no args will be appended to syslinux.cfg --&gt;
-  &lt;boot-args use-defaults="false" /&gt;
-  &lt;/diskboot-image&gt;</programlisting>
+  &lt;/boot-options&gt;
+  &lt;/publish&gt;</programlisting>
       </informalexample></para>
 
     <para>See the SDFR for the complete syntaxes of the 
-    <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
+    <emphasis>publish</emphasis> element.
     </para>
 
   </section>

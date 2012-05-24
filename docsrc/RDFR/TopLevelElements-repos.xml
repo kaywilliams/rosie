@@ -4,7 +4,7 @@
 <section id="repos"
          xreflabel="repos">
   <title>
-  Repos (required)
+  Repos
   </title>
 
   <section>
@@ -13,18 +13,17 @@
     </title>
 
     <para>
-    Contains a list of repositories that CentOS Studio uses to download its
-    packages.
+    Contains a list of input repositories that CentOS Studio uses to download  
+    packages for the repository.
     </para>
 
     <para>
-    In order to operate, <application class="software">CentOS Studio
-    </application> requires at least one input repository.
-    Repositories are specified using <emphasis>repo</emphasis> elements
-    (see <emphasis><xref linkend="repos-repo" /></emphasis>). All enabled
-    repositories are considered. Valid repository definitions must
-    include a minimum of one baseurl or mirrorlist. Furthermore, all
-    repositories must have a unique id.
+    When the value of <xref linkend="main-type"/> is "system", <application
+    class="software">CentOS Studio </application> requires at least one input
+    repository.  Repositories are specified using <emphasis>repo</emphasis>
+    elements (see <emphasis><xref linkend="repo" /></emphasis>). Valid
+    repository definitions must include a minimum of one baseurl.
+    Furthermore, all repositories must have a unique id.
     </para>
 
     <section id="repo-base-repository"
@@ -33,22 +32,24 @@
       Base Repositories
       </title>
       <para>
-      At least one of the input repositories must specify a base repository
-      containing installer images and isolinux files. These files are located
-      within folders called <filename>images</filename> and
+      Also when the value of <xref linkend="main-type"/> is "system", at least
+      one of the input repositories must specify an operating system base
+      repository containing install images and isolinux files. These files are
+      located within folders called <filename>images</filename> and
       <filename>isolinux</filename>, respectively, and are used to create
-      installation images for the solution. Base repositories include CentOS
-      base repositories, Red Hat Enterprise Linux base repositories, or any
-      solution repository created by CentOS Studio. Multiple base
-      repositories may be specified, making it possible to create new solutions,
-      for example, by starting with an existing solution and adding packages
-      from compatible CentOS or RHEL base and update repositories.
+      installation images for the system. Base repositories include CentOS base
+      repositories, Red Hat Enterprise Linux base repositories, or any system
+      repository created by CentOS Studio. Multiple base repositories may be
+      specified, making it possible to create new system repositories, for
+      example, by starting with a CentOS Studio created system repository and
+      adding packages from compatible CentOS or RHEL base and update
+      repositories.
       </para>
       
       <para>
-      For CentOS, and CentOS Studio-created solutions, the base repository will
-      be a public or local mirror.  For Red Hat Enterprise Linux, it will be an
-      install tree created by using the <command>mount -o loop
+      For CentOS, and CentOS Studio-created repositories, the base repository
+      will be a public or local mirror.  For Red Hat Enterprise Linux, it will
+      be an install tree created by using the <command>mount -o loop
       <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an ISO
       image file to a local or web-available network location. See the
@@ -65,9 +66,8 @@
       Red Hat Network Repositories
       </title>
       <para>
-      CentOS Studio supports an extension to the standard supported schemes
-      in that it can connect to and download packages from Red Hat Network (RHN)
-      servers. 
+      CentOS Studio supports connecting to and downloading packages from Red
+      Hat Network (RHN) servers. 
       </para>
 
       <para>
@@ -84,11 +84,11 @@
       machine. This is the file you will use to configure CentOS Studio to
       access software from RHN. You may copy this file to the CentOS Studio
       build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your solution, you can use the Red Hat
+      the software desired for your repository, you can use the Red Hat
       Network web user interface to locate the machine, and view and alter it's
       channel subscriptions.</para>
 
-	    <para>After the above steps are completed, you are ready to create RHN
+      <para>After the above steps are completed, you are ready to create RHN
       repository definitions. In the definitions, you will use a custom 
       <filename>rhn://</filename> protocol, as follows, to specify a URL for 
       the channel:</para>
@@ -112,64 +112,55 @@
 
       <para>Separate repositories must be defined for the base channel as
       well as for each child channel. See 
-      <emphasis><xref linkend="repo-rhn-example" /></emphasis> for
+      <emphasis><xref linkend="repo-rhn-example"/></emphasis> for
       an example.</para>
 
-      <note>
-      CentOS Studio requires additional software including rhnlib and 
-      rhn-client-tools rpm packages in order to use RHN repositories. To install
-      a complete version of CentOS Studio including all available software, 
-      follow the instructions located at 
-      http://www.centossolutions.com/centosstudio/download.
-      </note>
     </section>
 
     <section id="repo-including-excluding-repository-contents"
-             xreflabel="Including and Excluding Repository Contents">
+             xreflabel="Including and Excluding Repository Content">
       <title>
-      Including and Excluding Repository Contents
+      Including and Excluding Repository Content
       </title>
 
       <para>
       By default, all packages in all repositories are available for 
       CentOS Studio to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
-      element. See <varname><xref linkend="packages-definition" /></varname> for
-      infomation on excluding packages from 
-      <emphasis>all respositories</emphasis> using the
-      <varname>packages</varname> top-level element.
+      element. See the section on<xref linkend="packages" /> for information.
       </para>
 
       <para>
-      Available packages for <emphasis>a single repository</emphasis> can be 
+      Available packages for <emphasis>a single repository</emphasis> can be
       restricted by using one or more <emphasis>repo/exclude</emphasis> or
-      <emphasis>repo/includepkgs</emphasis> elements. The logic for
-      processing these elements is the same as YUM's processing of
-      <varname>includepkgs</varname> and <varname>exclude</varname> repo
+      <emphasis>repo/include</emphasis> elements. The logic for processing
+      these elements, described below, is the same as YUM's processing of
+      <varname>include</varname> and <varname>exclude</varname> repo
       options.
       </para>
 
       <para>
-      Using a repository's <emphasis>repo/includepkgs</emphasis>
+      Using a repository's <emphasis>repo/include</emphasis>
       elements, the list of available packages is restricted to only those
       packages that match one or more of the included <varname>PACKAGE</varname>
-      patterns. If no <emphasis>repo/includepkgs</emphasis> patterns are 
+      patterns. If no <emphasis>repo/include</emphasis> patterns are 
       specified, all packages are considered available.
       </para>
 
       <para>
-      After processing a repository's
-      <emphasis>repo/includepkgs</emphasis> elements, the
-      <emphasis>repo/exclude</emphasis> element can be used to
-      selectively remove specific packages from the list of available
-      packages for the repository. Any package matching one or more of
-      the <varname>PACKAGE</varname> patterns specified in a
-      <emphasis>repo/exclude</emphasis> element will be ignored
-      by CentOS Studio.
+      After processing a repository's <emphasis>repo/include</emphasis>
+      elements, the <emphasis>repo/exclude</emphasis> element can be used to
+      selectively remove specific packages from the list of available packages
+      for the repository. Any package matching one or more of the
+      <varname>PACKAGE</varname> patterns specified in a
+      <emphasis>repo/exclude</emphasis> element will be ignored by CentOS
+      Studio.
       </para>
 
-      <para>See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis> for
-      an example.</para>
+      <para>
+      See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis>
+      for an example.
+      </para>
 
     </section>
 
@@ -210,42 +201,51 @@
 
   <section>
     <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;repos>
+  &lt;repo id=TEXT>*
+    (&lt;baseurl>URL&lt;/baseurl> | 
+    [&lt;download>PACKAGE&lt;/download>]* | 
+    [&lt;exclude>PACKAGE&lt;/exclude>]* | 
+    [&lt;gpgkey>PATH&lt;/gpgkey>]* | 
+    [&lt;include>PACKAGE&lt;/include>]* | 
+    [&lt;systemid>TEXT&lt;/systemid>])
+  &lt;/repo>
+&lt;/repos>]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
     Elements
     </title>
 
     <variablelist>
-    <varlistentry id="repos-repo"
-                  xreflabel="repos/repo">
+    <varlistentry id="repo"
+                  xreflabel="repo">
       <term>
       repo
       </term>
 
       <listitem>
       <para>
-      Include a repository from which to select packages for the solution
-      repository.
+      An RPM package repository from which to select packages for  
+      including in the repository.
       </para>
 
       <para>
-      This element can occur zero or more times. However, the
-      <emphasis role="strong">repo</emphasis> top-level element must have
-      at least one <emphasis>repos/repo</emphasis> element.
+      This element can occur zero or more times. However, if <xref
+      linkend='main-type'/> is "system", the <emphasis
+      role="strong">repo</emphasis> top-level element must have at least one
+      <emphasis>repos/repo</emphasis> element.
       </para>
 
       <para>
       The repo element provides a means to define various properties about
-      a <application>YUM</application> repository.
-      </para>
-
-      <para>
-      Supported YUM repository options include
-      <varname>baseurl</varname>,
-      <varname>enabled</varname>,
-      <varname>exclude</varname>,
-      <varname>gpgkey</varname>,
-      <varname>includepkgs</varname>, and
-      <varname>mirrorlist</varname>. All options are defined using elements of
-      the same name.
+      <application>YUM</application> and RHN repositories.
       </para>
 
       <para>
@@ -260,15 +260,12 @@
         <listitem>
         <para>
         A unique one-word <varname>ID</varname> representing this repository.
-        Corresponds to the <varname>repositoryid</varname> of a YUM repository.        </para>
+        </para>
 
         <para>
         This attribute is required.
         </para>
 
-        <para>
-        See Also the <emphasis><xref linkend="name" /></emphasis>.
-        </para>
         </listitem>
       </varlistentry>
       </variablelist>
@@ -286,52 +283,48 @@
 
         <listitem>
         <para>
-        The <varname>PATH</varname> to a valid repository.
+        <xref linkend="content-url"/> to a valid repository.
         </para>
 
         <para>
-        This element may occur zero or more times. However, each repository
-        must have at least one <emphasis>repo/baseurl</emphasis> or
-        <emphasis>repo/mirrorlist</emphasis>.
+        This element is required. 
         </para>
-
-        <para>
-        See Also the
-        <emphasis><xref linkend="mirrorlist" /></emphasis> element.
-        </para>
-
         </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="download" xreflabel="repo/download">
         <term>
-        enabled
+        download
         </term>
 
         <listitem>
         <para>
-        <varname>BOOLEAN</varname> value indicating whether this
-        repository should be enabled or not. Disabled repositories
-        are ignored by CentOS Studio when looking for packages to include in
-        the solution.
+        <xref linkend="content-boolean"/> value indicating whether packages
+        from this repository should be downloaded when <xref
+        linkend='main-type'/> is set to <varname>package</varname>. If
+        <varname>TYPE</varname> is not set to <varname>package</varname>, this
+        option is ignored.
         </para>
 
         <para>
-        The default text value for this element is
-        <constant>TRUE</constant>.
+        This element is optional. For repositories with the
+        <emphasis>@id</emphasis> attribute set to <emphasis>base</emphasis> or
+        <emphasis>updates</emphasis>, the default value is
+        <constant>TRUE</constant>.  For all other repositories, the default
+        value is <constant>FALSE</constant>.
         </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="exclude"
-                    xreflabel="repo/exclude">
+      <varlistentry id="exclude" xreflabel="repo/exclude">
         <term>
         exclude
         </term>
 
         <listitem>
         <para>
-        A <varname>PACKAGE</varname> pattern to exclude from the repository.
+        <xref linkend="content-package"/> pattern to exclude from the
+        repository.
         </para>
 
         <para>
@@ -353,7 +346,7 @@
 
         <listitem>
         <para>
-        The <varname>PATH</varname> to a GPG key.
+        <xref linkend="content-path"/> to a GPG key.
         </para>
 
         <para>
@@ -361,12 +354,12 @@
         By default, however, one or more keys must be provided across all
         repositories. CentOS Studio uses GPG keys to verify that packages 
         are from trusted providers. Verification can be disabled (not 
-        recommended) by setting <emphasis>config/updates@gpgcheck</emphasis>
+        recommended) by setting <emphasis>release-rpm/updates@gpgcheck</emphasis>
         to <constant>FALSE</constant>.
         </para>
 
         <para>
-        See Also the <emphasis><xref linkend="config-rpm" /></emphasis>
+        See Also the <emphasis><xref linkend="release-rpm" /></emphasis>
         element.
         </para>
 
@@ -374,16 +367,16 @@
       </varlistentry>
 
       <varlistentry id="include-package"
-                    xreflabel="repo/includepkgs">
+                    xreflabel="repo/include">
         <term>
-        includepkgs
+        include
         </term>
 
         <listitem>
           <para>
-          A <varname>PACKAGE</varname> pattern to include from the
+          <xref linkend="content-package"/> pattern to include from the
           repository. If one or more
-          <emphasis>repo/includepkgs</emphasis> patterns are defined,
+          <emphasis>repo/include</emphasis> patterns are defined,
           the repository will include only packages that match these
           patterns and nothing else.
           </para>
@@ -399,53 +392,6 @@
           </listitem>
         </varlistentry>
 
-        <varlistentry id="mirrorlist"
-                      xreflabel="repo/mirrorlist">
-          <term>
-          mirrorlist
-          </term>
-
-          <listitem>
-          <para>
-          The <varname>PATH</varname> to a file containing a list of
-          baseurls to valid repositories.
-          </para>
-
-          <para>
-          Each repository must have at least one
-          <emphasis>repo/baseurl</emphasis> or
-          <emphasis>repo/mirrorlist</emphasis>.
-          </para>
-
-          <para>
-          See Also the
-          <emphasis><xref linkend="baseurl" /></emphasis> element.
-          </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry id="name"
-                      xreflabel="repo/name">
-          <term>
-          name
-          </term>
-
-          <listitem>
-          <para>
-          A human-readable name of the repository.
-          </para>
-
-          <para>
-          The default value is the repository's <varname>ID</varname>.
-          </para>
-
-          <para>
-          See Also the <emphasis><xref linkend="repo-id" /></emphasis>
-          attribute.
-          </para>
-          </listitem>
-        </varlistentry>
-
         <varlistentry id="systemid"
                       xreflabel="repo/systemid">
           <term>
@@ -454,7 +400,7 @@
 
           <listitem>
           <para>
-          A <varname>PATH</varname> to the systemid file to use when
+          <xref linkend='content-path'/> to a systemid file to use when
           contacting the Red Hat Network.
           </para>
 
@@ -477,16 +423,15 @@
 
     <para>
     In the following examples, line breaks have been added to the
-    <emphasis>repos/repo/baseurl</emphasis> and
-    <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real solution definition, however, line breaks within
+    <emphasis>repos/repo/baseurl</emphasis> to improve readability.
+    In a real repository definition, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
     <section  id="repo-include-exclude-example"
-             xreflabel="Example 1 - using repos/repo/includepkgs and repos/repo/exclude">
+             xreflabel="Example 1 - using repos/repo/include and repos/repo/exclude">
       <title>
-      Example 1 - using <emphasis>repos/repo/includepkgs</emphasis>
+      Example 1 - using <emphasis>repos/repo/include</emphasis>
       and <emphasis>repos/repo/exclude</emphasis>
       </title>
 
@@ -506,26 +451,19 @@
       <informalexample>
       <programlisting>
 &lt;repos&gt;
+&lt;repo id="base"&gt;
+&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
 
-  &lt;repo id="base"&gt;
+&lt;!-- exclude all xorg-x11-drv packages --&gt;
+&lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
+&lt;/repo&gt;
 
-    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/
-          $base/&lt;/baseurl&gt;
+&lt;repo id="livna-drivers"&gt;
+&lt;baseurl&gt;http://rpm.livna.org/repo/%{version}/%{arch}/&lt;baseurl&gt;
 
-    &lt;!-- include a mirrorlist as backup in case baseurl fails --&gt;
-    &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=%{version}&amp;amp;
-          arch=%{arch}&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
-
-    &lt;!-- exclude all xorg-x11-drv packages --&gt;
-    &lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
-  &lt;/repo&gt;
-
-  &lt;repo id="livna-drivers"&gt;
-    &lt;baseurl&gt;http://rpm.livna.org/repo/%{version}/%{arch}/&lt;baseurl&gt;
-
-    &lt;!-- include only xorg-x11-drv packages --&gt;
-    &lt;includepkgs&gt;xorg-x11-drv*&lt;/includepkgs&gt;
-  &lt;/repo&gt;
+&lt;!-- include only xorg-x11-drv packages --&gt;
+&lt;include&gt;xorg-x11-drv*&lt;/include&gt;
+&lt;/repo&gt;
 &lt;/repos&gt;
       </programlisting>
       </informalexample>
@@ -547,20 +485,20 @@
       <informalexample>
       <programlisting>
 &lt;repos&gt;
-  &lt;repo id="base"&gt;
-    &lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
-             %{version}/en/os/i386&lt;/baseurl&gt;
-  &lt;/repo&gt;
+&lt;repo id="base"&gt;
+&lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
+         %{version}/en/os/%{arch}&lt;/baseurl&gt;
+&lt;/repo&gt;
 
-  &lt;repo id="updates"&gt;
-    &lt;baseurl&gt;rhn:///rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;systemid&gt;systemid-5Server-%{arch}&lt;/systemid&gt;
-  &lt;/repo&gt;
+&lt;repo id="updates"&gt;
+&lt;baseurl&gt;rhn:///rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
+&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
+&lt;/repo&gt;
 
-  &lt;repo id="virtualization"&gt;
-    &lt;baseurl&gt;rhn:///rhel-i386-server-vt-5&lt;/baseurl&gt;
-    &lt;systemid&gt;systemid-5Server-%{arch}&lt;/systemid&gt;
-  &lt;/repo&gt;
+&lt;repo id="virtualization"&gt;
+&lt;baseurl&gt;rhn:///rhel-%{arch}-server-vt-%{version}&lt;/baseurl&gt;
+&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
+&lt;/repo&gt;
 &lt;/repos&gt; 
       </programlisting>
       </informalexample>

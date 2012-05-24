@@ -4,26 +4,70 @@
 <section id="updating-a-client-machine" xreflabel="Updating a Client Machine">
   <title>Updating a Client Machine</title>
 
-  <para>If there are changes to the solution, you will
-  need to update installed client machines using the <xref linkend="yum-sync-plugin"/>. For this example build, log on to the client machine 
-  as the root user and execute the following commands:</para>
+  <para>
+  If there are changes to the solution, you will need to update installed
+  client machines using the <xref linkend="yum-sync-plugin"/>. For this example
+  build, log on to the client machine as the root user and execute the
+  following command:
+  </para>
 
   <para><informalexample><programlisting>
-# yum clean metadata
 # yum sync
   </programlisting></informalexample></para>
 
-  <para>The first command, <userinput>yum clean metadata</userinput>, ensures that YUM is using current repository information. For improved performance, YUM caches repository metadata as a matter of course, with a default cache expiration period of 1.5 hours. While you are building and testing a new solution, you will want to override this behavior by forcing YUM to clean the metadata cache prior to each execution of the <command>yum sync</command> command. See the <emphasis>metadata_expire</emphasis> option in <command>man yum.conf</command>, as well as <command>man yum</command> for more information on YUM's caching and cleaning options.</para>
-
-  <para>The second command, <userinput>yum sync</userinput>, will update all packages on the client machine from the solution
-  repository, including the system-specific <xref linkend="configuration-package"/>
-  created during the build process. The <emphasis>sync</emphasis> command is provided by the  
-  YUM Sync Plugin, which is included in the configuration package by default.</para>
+  <para>
+  This command, <userinput>yum sync</userinput>, will update all packages
+  on the client machine from the solution repository, including the
+  solution-specific <xref linkend="config-rpms"/> created during the
+  build process. The <emphasis>sync</emphasis> command is provided by the YUM
+  Sync Plugin, which is included in the config-rpms by default.
+  </para>
 
   <para>To see what packages changed on the client machine, check the
   <filename>yum.log</filename> file in the <filename
   class="directory">/var/log/</filename> directory.</para>
 
-  <para>For the samba-server example, you should see that a new version of the samba-server-config package is installed, the prior version of the samba-server-config package is removed, and a number packages from the admin-tools group, including system-config-network and system-config-users, are removed. You can verify that the <filename>smb.conf</filename> has been updated by typing <command>cat /etc/samba/smb.conf</command> at the command line and ensuring the workgroup is now set to "MYCOMPANY" rather than "WORKGROUP".</para>
+  <para>
+  For the samba-server example, you should see that a new version of the
+  samba-server-config package is installed, the prior version of the
+  samba-server-config package is removed, and a number packages from the
+  admin-tools group, including system-config-network and system-config-users,
+  are removed. You can verify that the <filename>smb.conf</filename> has been
+  updated by typing <command>cat /etc/samba/smb.conf</command> at the command
+  line and ensuring the workgroup is now set to "MYCOMPANY" rather than
+  "WORKGROUP".
+  </para>
+
+  <para>
+  You can also create a <filename>yum-sync.sh</filename> cron script file for
+  executing the <command>yum sync</command> command, provided by the YUM Sync
+  Plugin, on a daily basis.
+  </para>
+
+  <para>
+  This is done using a /config/files element as shown below. The files element
+  directs CentOS Studio to create a new file named
+  <filename>yum-sync.cron</filename>, containing the text supplied between the
+  &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package
+  for installation to the <filename>/etc/cron.daily</filename> folder with the
+  mode "644".
+  </para>
+
+  <para><informalexample>
+    <programlisting>
+&lt;config&gt;
+
+...
+
+  &lt;!-- yum configuration --&gt;
+  &lt;files destname="yum-sync.cron" destdir="/etc/cron.daily" mode="644"
+  content="text"&gt;
+#!/bin/sh
+/usr/bin/yum sync
+  &lt;/files&gt;
+
+&lt;/config&gt;
+    </programlisting>
+  </informalexample></para>
 
 </section>

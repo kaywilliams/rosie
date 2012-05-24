@@ -4,9 +4,11 @@
 <section id="configuring-updates" xreflabel="Configuring Updates">
   <title>Configuring Updates</title>
 
-  <para>CentOS Studio creates a configuration package by default, even if 
-  no <emphasis>config</emphasis> element is specified in the definition. In
-  the default case, the configuration package performs just two actions:
+  <para>
+  CentOS Studio uses the <emphasis>release-rpm</emphasis> to control client
+  machine update configuration. The release-rpm is created by default, even if
+  no <emphasis>release-rpm</emphasis> element is specified in the definition.
+  In the default case, the release-rpm performs two actions:
   </para>
 
   <itemizedlist>
@@ -17,15 +19,15 @@
     <application class="software">YUM Sync Plugin</application>.</listitem>
 
     <listitem>
-    Installs a repository definition for the <xref linkend="solution"/> at
+    Installs a repository definition for the <xref linkend="repository"/> at
     <filename>/etc/yum.repos.d/samba-server.repo</filename>. 
     </listitem>
   </itemizedlist>
 
-  <para>The sync plugin can be excluded from the configuration package using
-  the <emphasis>config/updates</emphasis> element. See the SDFR for more
+  <para>The sync plugin can be excluded from the release-rpm using
+  the <emphasis>release-rpm/updates</emphasis> element. See the SDFR for more
   information on <application class="software">YUM</application> update
-  configuration using the <emphasis>/config/updates</emphasis> element. In
+  configuration using the <emphasis>release-rpm/updates</emphasis> element. In
   addition, the sync plugin can be disabled on individual client machines using
   the <filename>/etc/yum/yumplugin.d/sync.conf</filename> file. </para>
 

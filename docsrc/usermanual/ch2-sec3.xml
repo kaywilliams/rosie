@@ -53,7 +53,15 @@
           <row>
             <entry>/usr/share/centosstudio/schemas</entry>
 
-            <entry>Relax NG schemas for solution definition validation.
+            <entry>Relax NG schemas for repository definition validation.
+            </entry>
+          </row>
+          <row>
+            <entry>/usr/share/centosstudio/templates</entry>
+
+            <entry>
+            Templates for use in definition creation. See the Repository
+            Definition File Reference for more information on templates.
             </entry>
           </row>
           <row>
@@ -72,11 +80,14 @@
           </row>
 
           <row>
-            <entry>/var/www/html/solutions/</entry>
+            <entry>/var/www/html/repos/</entry>
 
-            <entry>CentOS Studio publishes completed solutions to  
-            this folder by default. An alternative location can be specified on
-            a per-solution basis within a solution definition.
+            <entry>
+            CentOS Studio publishes completed repositories to
+            <filename>system</filename> and <filename>package</filename>
+            subfolders of this folder by default. An alternative location can
+            be specified on a per-repository basis within a repository
+            definition.
             </entry>
           </row>
         </tbody>

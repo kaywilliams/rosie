@@ -50,7 +50,7 @@
     <para>
     Elements and attributes in XML are referred to by their XPath equivalents.
     The active node is always considered to be the root,
-    <emphasis>solution</emphasis>; thus, the first element in the XPath
+    <emphasis>repo</emphasis>; thus, the first element in the XPath
     expression is the top-level element, while subsequent elements/attributes
     are its children. For more details on XPath syntax, see <ulink
     url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.

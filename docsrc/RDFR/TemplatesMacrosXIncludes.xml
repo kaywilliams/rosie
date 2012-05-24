@@ -1,23 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="Macros-and-XIncludes"
+<chapter id="templates-macros-and-xincludes"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <title>
-  Macros and XIncludes
+  Templates, Macros and XIncludes
   </title>
 
   <para>
-  To assist with content reuse within and across definition files, CentOS
-  Studio supports two content substitution methods: Macros and XIncludes.
+  To assist with definition creation and reuse, CentOS Studio supports
+  Templates, Macros and XIncludes.
+  </para>
+  
+  <para>
+  Templates are complete definitions, or segments of definitions, that can be
+  used as a starting point for creating new definitions.
   </para>
 
   <para>
-  These two methods overlap in some areas, and provide unique functionality in
-  others. Used together, they offer convenience and flexibility for
-  creating definitions.
+  Macros and XIncludes assist with content substitution.  These two methods
+  overlap in some areas, and provide unique functionality in others.
   </para>
+  
+  <para>
+  Used together, these three features offer a great deal of convenience and
+  flexibility for creating definitions.
+  </para>
+
+  <section id="templates" xreflabel="templates">
+  <title>Templates</title>
+
+  <para>
+  The CentOS Studio installation includes a number of templates to assist with
+  common definition creation tasks. These templates are located in the folder
+  at <filename>/usr/share/centosstudio/templates/</filename>. The templates are
+  not discussed in detail here, however, many are referenced in the relevant
+  sections throughout the remainder of the document.
+  </para>
+
+  <caution>
+  <para>
+  Do not modify files in the
+  <filename>/usr/share/centosstudio/templates</filename> folder. Changes to
+  these files will be overwritten when updated versions of the CentOS Studio
+  RPM are installed.
+  </para>
+
+  <para>
+  Instead, copy files to a new location before editing.
+  </para>
+  </caution>
+
+  <para>
+  Additional templates are available from the website at centosstudio.org
+  </para>
+  </section>
 
   <section id="macros" xreflabel="Macros">
     <title>
@@ -68,12 +106,12 @@
     
     <para>
     In-document macros fall into two categories: <emphasis>global</emphasis>
-    and <emphasis>per-module</emphasis>.  <emphasis>Global</emphasis> macros
+    and <emphasis>module</emphasis>.  <emphasis>Global</emphasis> macros
     are defined at the top level of the document, parallel to the other
     top-level elements, or within the <xref linkend="main"/> top level element.
     They are resolved following command-line macros, and they override
-    per-module macros with the same id.  Conversely,
-    <emphasis>per-module</emphasis> macros are defined within top-level
+    module macros with the same id.  Conversely,
+    <emphasis>module</emphasis> macros are defined within top-level
     elements other than the <emphasis>main</emphasis> element. Their values are
     applied only within the top-level element in which they are defined.
     </para>
@@ -86,14 +124,14 @@
 
     <para>
     See <xref linkend="macro-in-document-example"/> for examples of global
-    and per-module macros.
+    and module macros.
     </para>
 
     <para>
     <emphasis role="strong">Run-Time Macros</emphasis> are macros that are
     defined by CentOS Studio during the build process rather than defined by
     users. Run-time macros are the last to be resolved. Like in-document
-    macros, run-time macros fall into two categories: global and per-module.
+    macros, run-time macros fall into two categories: global and module.
     </para>
     
     <para>
@@ -106,24 +144,13 @@
     </para>
     
     <para>
-    Certain modules also provide <emphasis>per-module</emphasis> run-time
+    Certain modules also provide <emphasis>module</emphasis> run-time
     macros. These modules include <emphasis>srpmbuild</emphasis>,
     <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
     <emphasis>publish</emphasis>. See the chapters on <xref
     linkend="srpmbuild"/> and <xref linkend="deployment-elements"/> for more
     information on these macros.
     </para>
-
-    <para>
-    <emphasis role="strong">Macro Limitations.</emphasis>
-    Macros have several limitations. One is that their values cannot contain XML
-    content. XML content can be included, however, using XIncludes which are
-    discussed in the <xref linkend="xincludes"/> section. Another limitation is
-    that macros cannot be used within href attributes of
-    <emphasis>nested</emphasis> XInclude elements. This limitation will be also
-    be discussed further in the <xref linkend="xincludes"/> section.
-    </para>
-
     
     <section>
       <title>
@@ -285,11 +312,7 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
 
       <listitem>
       Macros can be used within attribute text, e.g.  <varname>&lt;repo
-      id="centos-%{version}-%{arch}"&gt;</varname>. XIncludes cannot. (Note,
-      however, that macros cannot be used within <varname>href</varname>
-      attributes of nested XInclude elements - see the note following <xref
-      linkend="conditional-xinclude-example"/> for more information).
-      </listitem>
+      id="centos-%{version}-%{arch}"&gt;</varname>. XIncludes cannot.</listitem>
 
     </itemizedlist>
 
@@ -445,21 +468,18 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
       <note>
       On a system with the CentOS Studio RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/centosstduio/examples/</filename>.
+      <filename>/usr/share/centosstduio/templates/</filename>.
       </note>
 
-      <section>
-      <title>repos.xml</title>
-       <informalexample>
+      <para><emphasis role="strong">repos.xml</emphasis></para>
+      <informalexample>
       <programlisting>
-<xi:include href="examples/repos.xml" parse="text"/>
+<xi:include href="templates/repos.xml" parse="text"/>
       </programlisting>
       </informalexample>
-      </section>
 
-      <section>
-      <title>example.definition</title>
-       <informalexample>
+      <para><emphasis role="strong">example.definition</emphasis></para>
+      <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
@@ -472,7 +492,6 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
 &lt;/repo&gt;
       </programlisting>
       </informalexample>
-      </section>
     </section>
 
     <section id="conditional-xinclude-example" 
@@ -525,38 +544,6 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
       </programlisting>
       </informalexample>
     </section>
-  
-    <note>
-      <title>Note - Avoid Using Macros in XInclude href attributes</title>
-      <para>
-      The above example demonstrates using macro placeholders within the
-      <emphasis>xpointer</emphasis> attribute of an
-      <emphasis>xi:include</emphasis> element. It may seem logical to also use
-      macro placeholders within the <emphasis>href</emphasis> attribute, for example:
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;xi:include href="packages-%{version}.xml"/>
-      </programlisting>
-      </informalexample>
-      
-      <para>
-      This should be avoided, however, due to processing limitations with
-      CentOS Studio. CentOS Studio can resolve macros in href attributes as you
-      might expect, but only when when they are encountered in the outermost
-      document. If they are encountered within nested XIncluded documents,
-      CentOS Studio will fail with an error "failed build URL".
-      </para>
-
-      <para>
-      To maximize potential for document reuse, as well as to minimize errors
-      and confusion, we recommend using macros, Xincludes and xml
-      elements, as described in <xref linkend="conditional-xinclude-example"/>
-      as the best-practice approach for organizing and working with conditional
-      content.
-      </para>
-      </note>
     </section>
  
   </section>

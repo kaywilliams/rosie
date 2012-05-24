@@ -5,23 +5,28 @@
   <title><application class="software">CentOS Studio</application> Overview
   </title>
 
-  <para><application class="software">CentOS Studio</application> provides a
-  standard platform for building desktop and server solutions based on CentOS,
-  a stable, free and widely adopted version of Linux. CentOS Studio packages
-  installation images, software and configuration into standard deployment
-  bundles, called <emphasis>solutions</emphasis>. Solutions can be used to
-  test, install and maintain client machines in a wide range of IT environments
-  - physical, virtual and cloud.</para>
+  <para>
+  <application class="software">CentOS Studio</application> provides a standard
+  platform to configure, test, deploy and maintain systems and applications
+  based on CentOS and Red Hat Enterprise Linux.  CentOS Studio assembles
+  software, configuration and, optionally, installation images, into a standard
+  deployment format, called a <emphasis>repository</emphasis>. Repositories can
+  be used to test, install and maintain client machines across a wide range of
+  IT environments - including physical, virtual and cloud.
+  </para>
 
-  <para>Using CentOS Studio you can create and maintain solutions:</para>
+  <para>Using CentOS Studio you can create and maintain repositories:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>select a CentOS-compatible repository and additional package repositories,</para>
+        <para>
+        select input repositories including a base operating system repository
+        and additional package repositories,
+        </para>
       </listitem>
 
       <listitem>
-        <para>select packages to install,</para>
+        <para>select packages and groups to include,</para>
       </listitem>
 
       <listitem>
@@ -29,7 +34,7 @@
       </listitem>
 
       <listitem>
-        <para>build a solution,</para>
+        <para>build a repository,</para>
       </listitem>
 
       <listitem>
@@ -45,7 +50,7 @@
       </listitem>
 
       <listitem>
-        <para>rebuild the solution and</para>
+        <para>rebuild the repository and</para>
       </listitem>
 
       <listitem>
@@ -61,11 +66,16 @@
     <caption><para>CentOS Studio Overview</para></caption>
   </mediaobject>
 
-  <para><application class="software">CentOS Studio</application> reads a solution definition, gathers input (installation images, software packages, and configuration files), and creates a solution. Using the solution, you can test, deploy and update client machines.
+  <para>
+  <application class="software">CentOS Studio</application> reads a repository
+  definition, gathers input (installation images, software packages, and
+  configuration files), and creates a repository. Using the repository, you can
+  test, deploy and update client machines.
   </para>
 
-  <para>In summary, CentOS Studio is a production life cycle manager
-  for use in defining, building, testing, deploying and maintaining solutions
-  that can be easily installed and updated on physical, virtual and cloud 
-  machines.</para>
+  <para>
+  In summary, CentOS Studio is a production life cycle manager for use in
+  defining, building, testing, deploying and maintaining repositories that can
+  be easily installed and updated in a wide variety of IT environments.  
+  </para>
 </section>

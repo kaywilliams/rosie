@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="config-rpms"
+         xreflabel="config-rpms"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>
+  Config-rpms
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Creates RPMs used to install and update repository-specific configuration
+    on client machines.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;config-rpms&gt;
+  &lt;config-rpm id=TEXT&gt;*
+    [&lt;summary&gt;TEXT&lt;/summary&gt;]
+    [&lt;description&gt;TEXT&lt;/description&gt;]
+    [&lt;license&gt;TEXT&lt;/license&gt;]
+
+    [&lt;repo&gt;...&lt;/repo&gt;]*
+
+    [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
+    [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
+
+    [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
+            [content=("file"|"text")]&gt;
+      (PATH|TEXT)
+     &lt;/files&gt;]*
+
+    [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")&gt;
+      TEXT
+     &lt;/script&gt;]*
+
+    [&lt;trigger trigger=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
+             [interpreter=PATH]&gt;
+      TEXT
+     &lt;/trigger&gt;]*
+   &lt;/config-rpm&gt;
+&lt;/config-rpms&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="config-rpm" xreflabel="config-rpm">
+      <term>
+      config-rpm 
+      </term>
+
+      <listitem>
+      <para>
+      Container element identifying a config rpm to be created by CentOS
+      Studio.
+      </para>
+
+      <para>
+      RPMs defined within the config-rpms element have three primary functions.
+      </para>
+      
+      <itemizedlist>
+      <listitem>
+      Install user-provided configuration files specified via
+      <emphasis>files</emphasis> elements. 
+      </listitem>
+      
+      <listitem>
+      Run user-provided scripts specified via
+      <emphasis>script</emphasis> and <emphasis>trigger</emphasis> elements.
+      </listitem>
+
+      <listitem>
+      Place copies of user-provided scripts in a troubleshooting folder on
+      client machines. The name of the folder is
+      <filename>/var/lib/centosstudio/config/%name/RPMID</filename>, where
+      %{name} is specified by <xref linkend='main-name'/> and
+      <varname>RPMID</varname> is specified by the <emphasis>@id</emphasis>
+      attribute. Files in this folder assist with troubleshooting "scriptlet
+      failed" errors during installation and updates of the rpm. Within the
+      troubleshooting folder, scripts are named according to the script type,
+      e.g.  <filename>post-script</filename>.  Triggers are similarly named,
+      but they also include the name provided in the
+      <emphasis>@trigger</emphasis> attribute, e.g.
+      <filename>triggerin-drupal-script</filename>. See the <emphasis>CentOS
+      Studio User Guide</emphasis> for more information on testing and
+      troubleshooting client machine installation and updates.
+      </listitem>
+      </itemizedlist>
+  
+      <para>
+      The file name for the created config-rpm is in the following format,
+      where <varname>RPMID</varname> is taken from the <emphasis>@id</emphasis>
+      attribute, %{version} is a global run-time macro, RELEASE is computed at
+      run time, and DIST is a identifier for the base operating system
+      distribution (e.g. 'el6'). See the introduction to the <xref
+      linkend='release-rpm'/> element for additional information on release
+      numbers and the <xref linkend='repository-data-file'/>. 
+      </para>
+
+      <informalexample>
+      <programlisting>
+RPMID-%{version}-RELEASE.DIST.noarch.rpm
+      </programlisting>
+      </informalexample>
+
+      <para>
+      For example, for a config-rpm with the id "samba-server-config", and a
+      base operating system distribution of CentOS 5, the first time the rpm is
+      generated, the file name would be as follows:
+      </para>
+
+      <informalexample>
+      <programlisting>
+samba-server-config-5-1.el5.noarch.rpm
+      </programlisting>
+      </informalexample>
+      <para>
+      <emphasis role='strong'>Attributes</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry id="rpmid" xreflabel="id">
+      <term>@id</term>
+
+      <listitem>
+      <para>
+      <xref linkend='content-text'/> identifier for the config-rpm. Also serves
+      as the name for the config-rpm. For clarity, often specified by appending
+      the term "config", as shown in the following example:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;config-rpm id="example-config">
+      </programlisting>
+      </informalexample>
+      </listitem>
+      </varlistentry>
+      </variablelist>
+
+      <para>
+      <emphasis role='strong'>Elements</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry>
+        <term>summary</term>
+        <listitem>
+        <para>
+        <xref linkend='content-text'/> value providing a summary of the
+        config-rpm.
+        </para>
+        
+        <para>
+        The <emphasis>summary</emphasis> element is optional. The default value
+        is specified by the <emphasis>@id</emphasis> attribute.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>description</term>
+        <listitem>
+        <para>
+        <xref linkend='content-text'/> value providing a description of the config-rpm.
+        </para>
+
+        <para>
+        The <emphasis>description</emphasis> element is optional. The default
+        value is shown below, where RPMID is specified by the
+        <emphasis>@id</emphasis> attribute and FULLNAME is specified by <xref
+        linkend="main-fullname"/>.
+        </para>
+
+        <synopsis>
+The RPMID package provides configuration files and scripts for the
+FULLNAME repository. 
+        </synopsis>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>license</term>
+        <listitem>
+        <para>
+        <xref linkend='content-text'/> value providing the name of the license
+        for the RPM.
+        </para>
+
+        <para>
+        The <emphasis>license</emphasis> element is optional. The default value
+        is "GPLv2".
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpm-repo" 
+                    xreflabel="config-rpm/repo">
+        <term>
+        repo
+        </term>
+
+        <listitem>
+        <para>
+        <xref linkend='repo'/> element as described in the <xref
+        linkend="repos"/> section of this document. The repos element is
+        supported within config-rpm elements to facilitation creation and
+        distribution of config-rpm templates. 
+        </para>
+
+        <para>
+        This element can occur zero or more times
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-requires" 
+                    xreflabel="config-rpms/rpm/requires">
+        <term>
+        requires
+        </term>
+
+        <listitem>
+        <para>
+        <xref linkend='content-capability'/> that must be available on client
+        machines prior to installation of the config-rpm. Capabilities are
+        provided by RPM packages. They can be specified as the name of a
+        package, or as a file or virtual capability provided by one or more
+        packages. See the chapter on <xref linkend="common-components"/> for
+        more information on specifying capabilities.
+        </para>
+
+        <para>
+        The <emphasis>requires</emphasis> element can occur zero or more times
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-obsoletes" 
+                    xreflabel="config-rpms/rpm/obsoletes">
+        <term>
+        obsoletes
+        </term>
+
+        <listitem>
+        <para>
+        <xref linkend='content-capability'/>, typically the name of an RPM
+        package, that must be removed from the client machines prior to
+        installation of the config-rpm. Useful for removing conflicting or undesirable
+        software from client machines, particularly for machines without the YUM
+        sync plugin.  See also the <xref linkend="release-rpm-updates"/> element
+        for information on the YUM sync plugin.
+        </para>
+
+        <para>
+        Can occur zero or more times.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-files"
+                    xreflabel="config-rpms/rpm/files">
+        <term>
+        files
+        </term>
+
+        <listitem>
+        <para>
+        Specifies a file or folder containing files to install to client
+        machines. Can occur zero or more times.
+        </para>
+
+        <para>
+        Accepts four attributes:
+        <emphasis>@content</emphasis>,
+        <emphasis>@destdir</emphasis>,
+        <emphasis>@destname</emphasis>, and
+        <emphasis>@mode</emphasis>.
+        </para>
+
+        <para>
+        <emphasis>@content</emphasis>: Accepts either "file" or "text".  
+        When <emphasis>content</emphasis> is
+        "file", the element's text value is treated as a
+        <varname>PATH</varname> to a file, whereas when it is "text", the
+        element's text value is interpreted as the raw text to use for creating
+        a file with the name specified using the @destname attribute.
+        The default value is "file".
+        </para>
+
+        <para>
+        <emphasis>@destdir</emphasis>: See the path-like attribute
+        <emphasis><xref linkend="destdir" /></emphasis>. Controls the
+        location to which this file should be installed on client
+        machines. The default value is
+        <filename>/var/lib/centosstudio/config/%{name}/RPMID/files</filename>
+        </para>
+
+        <para>
+        <emphasis>@destname</emphasis>: See the path-like attribute
+        <emphasis><xref linkend="destname" /></emphasis>. If
+        <emphasis>@content</emphasis> is "text", this attribute is required.
+        </para>
+
+        <para>
+        <emphasis>@mode</emphasis>: See the path-like attribute
+        <emphasis><xref linkend="mode" /></emphasis>.
+        </para>
+
+        <para>See <xref linkend="path-like-element"/> for more information.</para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-script"
+                    xreflabel="config-rpms/rpm/script">
+        <term>
+        script
+        </term>
+
+        <listitem>
+        <para>
+        Specifies a script to run during RPM installation or removal. Can occur
+        zero or more times.
+        </para>
+
+        <para>
+        Accepts one attribute,
+        <emphasis>@type</emphasis>.
+        </para>
+
+        <para>
+        <emphasis>@type</emphasis>: Specifies the type of RPM script; must
+        be one of "pre", "post", "preun", "postun" or "verifyscript". This
+        attribute is required. For more information on defining scripts in
+        RPM spec files, see the Fedora project's <emphasis>"RPM Guide"</emphasis>
+        by Eric Foster-Johnson.
+        </para>
+
+        <para>Provides a runtime variable <emphasis>$changed</emphasis> for use
+        by user-provided scripts. The <emphasis>$changed</emphasis> variable
+        contains a string-separated list of files, currently or previously
+        installed by the configuration package, that meet one or more of the
+        following criteria:
+
+        <itemizedlist>
+        <listitem>added since the last configuration package update</listitem>
+        <listitem>modified since the last configuration package update</listitem>
+        <listitem>differs from the the file on disk</listitem>
+        <listitem>removed since the last configuration package update</listitem>
+        </itemizedlist>
+
+        The space-separated list of files within the
+        <emphasis>$changed</emphasis> variable also has leading and following
+        space characters, for easier pattern matching. See the examples section
+        for a script that makes use of the <emphasis>$changed</emphasis>
+        variable.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-trigger"
+                    xreflabel="config-rpms/rpm/trigger">
+        <term>
+        trigger
+        </term>
+
+        <listitem>
+        <para>
+        Specifies a script to run during RPM installation and removal. Can occur
+        zero or more times.
+        </para>
+
+        <para>
+        Accepts three attributes:
+        <emphasis>@interpreter</emphasis>,
+        <emphasis>@trigger</emphasis>, and
+        <emphasis>@type</emphasis>.
+        </para>
+
+        <para>
+        <emphasis>@interpreter</emphasis>: <xref linkend='content-path'/> to
+        the executable language interpreter to use when running the trigger
+        script. The default value is <filename>/bin/sh</filename>.
+        </para>
+
+        <para>
+        <emphasis>@trigger</emphasis>: <xref linkend='content-capability'/> this
+        script triggers on.  This attribute is required. See Also the
+        <emphasis>@type</emphasis> attribute.
+        </para>
+
+        <para>
+        <emphasis>@type</emphasis>: Specifies the type of RPM trigger
+        script; must be one of "triggerin", "triggerun", or "triggerpostun".
+        This attribute is required. For more information on defining trigger
+        scripts in RPM spec files, see the Fedora project's
+        <emphasis>"RPM Guide"</emphasis> by Eric Foster-Johnson. See Also the
+        <emphasis>@trigger</emphasis>
+        attribute.
+        </para>
+        </listitem>
+      </varlistentry>
+      </variablelist>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;config-rpms&gt;
+&lt;config-rpm id="samba"&gt;
+&lt;requires&gt;samba&lt;/requires&gt;
+&lt;requires&gt;samba-common&lt;/requires&gt;
+
+&lt;!-- put smb.conf in /etc/samba on the client machine --&gt;
+&lt;files destdir="/etc/samba"&gt;smb.conf&lt;/files&gt;
+
+&lt;!-- add an RPM %post script --&gt;
+&lt;script type="post"&gt;
+service smb restart
+chkconfig smb on
+&lt;/script&gt;
+&lt;/config-rpm&gt;
+
+&lt;config-rpm id="aliases"&gt;
+&lt;!-- rename and change mode of aliases.txt --&gt;
+&lt;files destdir="/etc" destname="aliases" mode="0600"&gt;
+  aliases.txt
+&lt;/files&gt;
+&lt;/config-rpm&gt;
+
+&lt;config-rpm id="hosts"&gt;
+&lt;!-- create /etc/hosts using the supplied text --&gt;
+&lt;files destdir="/etc" destname="hosts" content="text"&gt;
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1   localhost.localdomain localhost
+::1         localhost.localdomain localhost
+&lt;/files&gt;
+&lt;/config-rpm&gt;
+&lt;/config-rpms&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+</section>

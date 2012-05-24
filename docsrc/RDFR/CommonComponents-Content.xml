@@ -75,12 +75,10 @@ TRUE:  ("yes"|"true"|"on"|"1")
       </title>
 
       <para>
-      A RPM capability string. Supports mathematical comparison
-      operators (&gt;, &lt;, =, &gt;=, &lt;=). <varname>CAPABILITY</varname>
-      often refers to the name of a package, but may also indicate a
-      file on disk or be some other arbitrary string (referred to as a
-      <emphasis>virtual capability</emphasis>).
-
+      A RPM capability string. Supports mathematical comparison operators.
+      <varname>CAPABILITY</varname> often refers to the name of a package, but
+      may also indicate a file on disk or be some other arbitrary string
+      (referred to as a <emphasis>virtual capability</emphasis>).
       </para>
     </section>
 
@@ -89,9 +87,26 @@ TRUE:  ("yes"|"true"|"on"|"1")
       Syntax
       </title>
 
+      <para>
+      Capability strings have the following syntax:
       <programlisting>
-$identifier [ ( &gt; | &lt; | = | &gt;= | &lt;= ) $version ]
-      </programlisting>
+capability [ comparison_operator  version ]
+      </programlisting></para>
+
+      <para>
+      Comparison operators can be one of the following. Note that the 
+      "&lt;" character must be escaped as shown below, as this character
+      has special meaning in XML documents.
+      <simplelist type='horiz' columns='2'>
+      <member><emphasis role='strong'>Operator</emphasis></member>
+      <member><emphasis role='strong'>Meaning</emphasis></member>
+      <member>></member><member>greater than</member>
+      <member>&amp;lt;</member><member>less than</member>
+      <member>=</member><member>equal</member>
+      <member>>=</member><member>greater than or equal</member>
+      <member>&amp;lt;=</member><member>less than or equal</member>
+      </simplelist>
+      </para>
 
     </section>
 
@@ -106,26 +121,16 @@ $identifier [ ( &gt; | &lt; | = | &gt;= | &lt;= ) $version ]
         </title>
 
         <para>
-        The following examples are capabilities based off of package names.
+        The following examples are capabilities using package names.
         </para>
 
         <informalexample>
         <programlisting>
-centos-release &lt; 5
-bash &lt;= 2.5.1
+centos-release &amp;lt; 5
+bash &gt;= 2.5.1
 samba
         </programlisting>
         </informalexample>
-
-      <note>
-      <para>
-      Be sure when defining capabilities within a solution definition to
-      escape the <constant>&lt;</constant> and <constant>&gt;</constant>
-      characters using <constant>&amp;lt;</constant> and
-      <constant>&amp;gt;</constant>, respectively.
-      </para>
-      </note>
-
       </section>
 
       <section>
@@ -134,7 +139,7 @@ samba
         </title>
 
         <para>
-        The following examples are capabilities based off of filenames
+        The following examples are capabilities using filenames
         </para>
 
         <programlisting>
@@ -151,8 +156,7 @@ samba
         </title>
 
         <para>
-        The following examples are virtual capabilities based off of
-        arbitrary strings.
+        The following examples are virtual capabilities using arbitrary strings.
         </para>
 
         <informalexample>
@@ -164,6 +168,19 @@ config(bash) = 3.2-20.fc9
         </informalexample>
       </section>
 
+      <note>
+      <para>
+      You can view capabilities provided by an RPM package using the
+      <command>rpm</command> command. 
+      <programlisting>
+# list capabilities of an installed package
+rpm -q --provides samba 
+
+# list capabilities of a file on disk
+rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm
+      </programlisting>
+      </para>
+      </note>
     </section>
 
   </section>
@@ -319,16 +336,16 @@ kernel-0:2.4.1-10.i686
 
       <para>
       An absolute or relative local or remote path. Relative paths are resolved
-      against the folder location of the solution definition. Unless 
-      otherwise noted, <varname>PATH</varname> can refer to a file or a folder,
-      and may or may not exist.
+      against the folder location of the definition. Unless otherwise noted,
+      <varname>PATH</varname> can refer to a file or a folder, and may or may
+      not exist.
       </para>
 
       <para>
       <varname>PATH</varname>s may originate in file, http, or https
       schemes. Specifying the scheme of file paths is optional; absolute
       file paths may simply start with a forward slash ("/"). All relative
-      paths are relative to the solution definition unless otherwise specified.
+      paths are relative to the definition unless otherwise specified.
       </para>
 
     </section>
@@ -454,6 +471,35 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file
       characters plus the underscore, dash, and period. Another common
       limitation is no whitespace characters allowed.
       </para>
+    </section>
+  </section>
+
+  <section id="content-url"
+           xreflabel="URL">
+    <title>
+    Content: <varname>URL</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      An absolute path in Uniform Resource Location (URL) format.
+      Supported schemes include file, http, and https.
+      </para>
+
+      <section>
+      <title>Examples</title>
+      <informalexample>
+      <programlisting>
+file:///path/to/file/or/folder
+http://example.server.com/path/to/file/or/folder
+https://example.server.com/path/to/file/or/folder
+      </programlisting>
+      </informalexample>
+      </section>
     </section>
 
   </section>

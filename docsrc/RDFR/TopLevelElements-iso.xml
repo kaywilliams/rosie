@@ -4,7 +4,7 @@
 <section id="iso"
          xreflabel="iso">
   <title>
-  ISO (optional)
+  ISO
   </title>
 
   <section>
@@ -13,8 +13,18 @@
     </title>
 
     <para>
-    Creates ISO images of the solution for installation via CD or DVD.
+    Creates ISO images of the system repository for installation via CD or DVD.
     </para>
+
+    <para>
+    Also used by CentOS Studio during
+    the creation of <emphasis>iso</emphasis> images. 
+    When creating iso images, including the boot.iso image, CentOS Studio
+    appends provided options to each "append" line in the syslinux
+    configuration file. In addition, iso images are automatically configured
+    to use a kickstart, if provided. 
+    </para>
+
   </section>
 
   <section>
@@ -42,10 +52,10 @@
 
       <listitem>
       <para>
-      Specify the size per ISO, in bytes, of a set of ISO images to
-      create. <varname>TEXT</varname> may include a SI-style suffix
-      ("MB", "GB", etc.).  The reserved values "CD" and "DVD" correspond
-      to "640MB" and "4.7GB", respectively.
+      <xref linkend="content-text"/> value specifying the size per ISO, in
+      bytes, of a set of ISO images to create.  May include SI-style suffix
+      ("MB", "GB", etc.).  The reserved values "CD" and "DVD" correspond to
+      "640MB" and "4.7GB", respectively.
       </para>
 
       <para>
@@ -102,13 +112,4 @@
     </informalexample>
   </section>
 
-  <section>
-    <title>
-    See Also
-    </title>
-
-    <para>
-    <varname><xref linkend="content-text" /></varname>,
-    </para>
-  </section>
 </section>

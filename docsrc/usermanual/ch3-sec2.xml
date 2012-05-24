@@ -2,8 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 
-<section id="creating-a-solution-definition" xreflabel="Creating a Solution Definition">
-  <title>Creating a Solution Definition</title>
+<section id="creating-a-solution-definition" xreflabel="Creating a Repository Definition">
+  <title>Creating a Repository Definition</title>
 
   <para>For the purpose of this user guide, examples, processes and
   illustrations will focus on defining, building, deploying and updating a
@@ -56,7 +56,7 @@
     <para>Likewise, the "xmlns:xi..." attribute is not required on the 
     solution element. It allows the use of XIncludes within the
     document. XIncludes, a convenient mechanism for reusing content across 
-    multiple definitions, are discussed in the Solution Definition File
+    multiple definitions, are discussed in the Repository Definition File
     Reference (SDFR).</para>   
 
   </section>
@@ -67,7 +67,7 @@
     <para>The first required element of the definition, 
     <emphasis>main</emphasis>, includes the name of the solution, the solution
     architecture and the version. These three items make up the default
-    solution id (<varname>$ID</varname>), which CentOS Studio uses to create
+    solution id (<varname>%{id}</varname>), which CentOS Studio uses to create
     folders for storing the completed solution (under 
     <filename type="directory">/var/www/html/solutions</filename>, by
     default) and for caching solution content (under 
@@ -80,7 +80,7 @@
       </note></para>
 
     <para>In the example below, the solution version will be 5, the solution
-    architecture will be i386, and the <varname>$ID</varname> will
+    architecture will be i386, and the <varname>%{id}</varname> will
     be <filename>samba-server-5-i386</filename>. </para>
 
     <para><informalexample>

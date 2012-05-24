@@ -18,7 +18,7 @@
     class="software">CentOS Studio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing CentOS Studio and creating a basic CentOS solution.
-    The "Solution Definition File Reference" (SDFR) contains
+    The "Repository Definition File Reference" (SDFR) contains
     the syntax for solution definition elements and attributes. 
     Finally, CentOS Studio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
@@ -31,8 +31,8 @@
     </para>
 
     <para>
-    <ulink url="http://www.centosstudio.org/centosstudio/docs/">
-    http://www.centosstudio.org/centosstudio/docs/ </ulink>
+    <ulink url="http://www.centossolutions.com/centosstudio/docs/">
+    http://www.centossolutions.com/centosstudio/docs/ </ulink>
     </para>
 
   </section>
@@ -185,79 +185,18 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>CentOS Studio variables are presented in monospace font
-          preceded by a dollar sign, e.g. <varname>$ID</varname>.</para>
+          preceded by a dollar sign, e.g. <varname>%{id}</varname>.</para>
         </listitem>
       </varlistentry>
     </variablelist>
   </section>
 
   <section>
-    <title>Organization</title>
-
-    <para>This manual contains five chapters, each with an increasing level of
-  complexity and detail.</para>
-
-    <para><itemizedlist>
-        <listitem>
-          <para>Chapter I, "Preface," provides information about how to use and
-          read this manual. It also contains information on obtaining the 
-          <application class="software">CentOS Studio</application> product.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>Chapter 2, "Introduction" explains what a solution
-          is, how <application class="software">CentOS Studio
-          </application> helps you build one in an efficient and timely manner
-          and the underlying architecture that makes this improved performance
-          possible. The section also includes a "Glossary of Terms" explaining
-          terms used within the <application
-          class="software">CentOS Studio</application> realm.</para>
-        </listitem>
-
-        <listitem>
-          <para>Chapter 3, "Building a Solution," covers the basic
-          concepts for configuring the <application
-          class="software">CentOS Studio</application> build machine,
-          defining and deploying a solution, and running <application
-          class="software">CentOS Studio</application> to update a
-          solution. As a use case model, these sections will help you
-          create a basic web server solution based on CentOS 6.</para>
-        </listitem>
-
-        <listitem>
-          <para>Chapter 4, "Creating a Production Environment," will help you
-          set up a managed development, test and deployment environment using
-          CentOS Studio as its cornerstone. It explains implementing the 
-          development - test - production environment within the context of 
-          <application class="software">CentOS Studio</application>. The 
-          web server solution you created in Part I will have new 
-          feature requirements to implement in Part II.</para>
-
-          <para>Chapter 4 also discusses how CentOS Studio makes your life
-          easier as a solution administrator. Versioning solution files 
-          files and utilizing an object-oriented model through the macros and 
-          XInclude mechanisms for the solution definitions are important 
-          usability features. Choosing the best location for storing and 
-          downloading a solution via the web is another key concept.</para>
-        </listitem>
-
-        <listitem>
-          <para>Chapter 5, "Doing More with CentOS Studio" will help you
-          customize your solutions. It describes using kickstart 
-          files to automate client installations, and provides information on
-          creating CD/DVD installation images.
-          </para>
-        </listitem>
-      </itemizedlist></para>
-  </section>
-
-  <section>
     <title>Getting CentOS Studio</title>
 
     <para>CentOS Studio and associated documents are available at
-    <ulink url="http://www.centosstudio.org/centosstudio/"> the 
+    <ulink url="http://www.centossolutions.com/centosstudio/"> the 
     CentOS Studio website</ulink> 
-    at www.centosstudio.org/centosstudio.</para>
+    at www.centossolutions.com/centosstudio.</para>
   </section>
 </chapter>

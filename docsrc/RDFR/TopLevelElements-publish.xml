@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="publish"
+         xreflabel="publish"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>
+  Publish
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    The <emphasis>publish</emphasis> top-level element provides information
+    necessary for publishing the final repository, installing the system or
+    application on production client machines, and updating existing production
+    client machines.
+    </para>
+    
+    <para>
+    The publish element is based on the Deployment Elements Common Model. See
+    <xref linkend="deployment-elements-common-model"/> for a complete
+    description of syntax, macros, attributes and elements. 
+    </para>
+
+    <para>
+    Publish is an optional element.
+    </para>
+
+  </section>
+
+  <section>
+  <title>
+  Examples
+  </title>
+
+  <para>
+  The following example shows a publish element configured to sync and deliver
+  repository content from a remote web server.
+  </para>
+
+  <programlisting>
+<xi:include href="templates/publish.xml" parse="text"/>
+  </programlisting>
+  </section>
+
+</section>

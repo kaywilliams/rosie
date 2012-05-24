@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<book id="SDFR"
+<book id="RDFR"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Solution Definition File Reference</title>
+  <title>Repository Definition File Reference</title>
 
   <bookinfo id="bookinfo">
 
-    <pubdate>January 2012</pubdate>
+    <pubdate>May 2012</pubdate>
 
     <copyright id="copyright">
       <year>2012</year>
@@ -41,8 +41,6 @@
 
       <keyword>Linux</keyword>
 
-      <keyword>solution</keyword>
-
       <keyword>Anaconda</keyword>
 
       <keyword>YUM</keyword>
@@ -60,7 +58,7 @@
   <xi:include href="Introduction.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="MacrosandXIncludes.xml"
+  <xi:include href="TemplatesMacrosXIncludes.xml"
               xpointer="element(/1)" />
 
   <xi:include href="BasicElements.xml"

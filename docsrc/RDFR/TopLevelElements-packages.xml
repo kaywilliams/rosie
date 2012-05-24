@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="packages" xreflabel="packages">
   <title>
-  Packages (required)
+  Packages
   </title>
 
   <section id="packages-definition">
@@ -12,7 +12,7 @@
     </title>
 
     <para>
-    Specifies the packages to be included in the solution.
+    Specifies packages to be included in the repository.
     </para>
   </section>
 
@@ -22,13 +22,13 @@
     </title>
 
       <para>
-      At least one <emphasis>packages/group</emphasis> or
+      When the value of <xref linkend="main-type"/> is "system", at least one
+      <emphasis>packages/group</emphasis> or
       <emphasis>packages/package</emphasis> element is required.
       </para>
 
       <programlisting>
 &lt;packages&gt;
-
   &lt;!-- must have at least one &lt;group&gt; or &lt;package&gt; element --&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
   [&lt;package&gt;PACKAGE&lt;/package&gt;]*
@@ -52,7 +52,7 @@
 
       <listitem>
       <para>
-      The name of a package to be excluded from the solution. 
+      The name of a package to be excluded from the repository. 
       </para>
 
       <para>
@@ -69,15 +69,16 @@
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the solution
+      <para>The unique ID of a group to include in the repository 
       using one or more of the repository groupfiles indicated by the
       <emphasis>@repoid</emphasis> attributes as a source.
       </para>
 
       <para>
-      This element can occur zero or more times. However, the
-      <emphasis role="strong">packages</emphasis> top-level element must
-      have at least one <emphasis>packages/group</emphasis> or
+      This element can occur zero or more times. However, when the value of
+      <xref linkend="main-type"/> is "system", the <emphasis
+      role="strong">packages</emphasis> top-level element must have at least
+      one <emphasis>packages/group</emphasis> or
       <emphasis>packages/package</emphasis> element.
       </para>
 
@@ -104,15 +105,16 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the solution. If the
+      The name of a package to be included in the repository. If the
       <varname>TEXT</varname> value contains globbing characters, all matching
       packages from all repositories will be included.
       </para>
 
       <para>
-      This element can occur zero or more times. However, the
-      <emphasis role="strong">packages</emphasis> top-level element must
-      have at least one <emphasis>packages/group</emphasis> or
+      This element can occur zero or more times. However, when the value of
+      <xref linkend="main-type"/> is "system", the <emphasis
+      role="strong">packages</emphasis> top-level element must have at least
+      one <emphasis>packages/group</emphasis> or
       <emphasis>packages/package</emphasis> element.
       </para>
 
@@ -127,22 +129,22 @@
     </title>
 
     <para>
-    The solution that CentOS Studio generates will include packages from
-    several groups as well as a few individual packages. Packages from the
-    "base" and "core" groups of the "centos-base" repository will be included.
-    Packages from the remaining groups will be included, irrespective of the
-    repository in which they are defined. Additionally, the "httpd" and
-    "createrepo" packages, as well as all packages matching the glob "samba*"
-    will be included. Finally, the "system-config-soundcard" package will be
-    excluded from the solution.
+    In the example below, the repository that CentOS Studio generates will
+    include packages from several groups as well as a few individual packages.
+    Packages from the "base" and "core" groups of the "base" repository
+    will be included.  Packages from the remaining groups will be included,
+    irrespective of the repository in which they are defined. Additionally, the
+    "httpd" and "createrepo" packages, as well as all packages matching the
+    glob "samba*" will be included. Finally, the "system-config-soundcard"
+    package will be excluded from the repository.
     </para>
 
     <informalexample>
     <programlisting>
 &lt;packages&gt;
-  &lt;!-- include packages from these groups in the "centos-base" repo --&gt;
-  &lt;group id="centos-base"&gt;core&lt;/group&gt;
-  &lt;group id="centos-base"&gt;base&lt;/group&gt;
+  &lt;!-- include packages from these groups in the "base" repo --&gt;
+  &lt;group id="base"&gt;core&lt;/group&gt;
+  &lt;group id="base"&gt;base&lt;/group&gt;
 
   &lt;!-- include packages from these groups defined in any repo --&gt;
   &lt;group&gt;base-x&lt;/group&gt;

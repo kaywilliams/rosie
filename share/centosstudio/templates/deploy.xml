@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<root xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- scripts for installing and updating a local virtual machine -->
+<!-- configuration for installing and updating a local virtual machine -->
+
 <xi:include href='deploy/ssh-config.xml'/>
 <domain>local</domain>
 <kickstart><xi:include href='deploy/ks.cfg' parse='text'/></kickstart>
@@ -14,4 +15,4 @@
 <xi:include href='deploy/update.xml'/>
 <xi:include href='deploy/check-kernel.xml'/>
 
-</root>
+</xml>

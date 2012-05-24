@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div id="attribute-content">
+  <para>
+  <emphasis>@content</emphasis>: Accepts either "file" or "text".  When
+  <emphasis>content</emphasis> is "file", the element's text value is treated
+  as a <varname>PATH</varname> to a file, whereas when it is "text", the
+  element's text value is interpreted as the raw text to use for creating a
+  file. The default value is "file".
+  </para>
+</div>
+
+</div>

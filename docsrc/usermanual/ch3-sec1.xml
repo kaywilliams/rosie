@@ -4,26 +4,24 @@
 <section id="configuring-a-build-machine" xreflabel="Configuring a Build Machine">
   <title>Configuring a Build Machine</title>
 
-  <para><application class="software">CentOS Studio</application> is designed
-  to work in a networked environment. You can install <application
-  class="software">CentOS Studio</application> on a <application
-  class="software">Linux</application> system operating with <application
-  class="software">CentOS</application> or <application class="software">Red
-  Hat Enterprise Linux</application> version 5 or 6.</para> Version 6 is
-  recommended given significant performance enhancements in several underlying
-  components used by CentOS Studio.
+  <para>
+  <application class='software'>CentOS Studio</application> installation
+  requires a machine running CentOS or Red Hat Enterprise Linux (RHEL)
+  version 6 for the x86_64 architecture. <application class="software">CentOS
+  Studio</application> is designed to work in a networked environment.
+  </para>
 
-  <para>Recent advances in virtualization, including the introduction of a
-  Kernel-based Virtual Machine solution (KVM), have made it both easy and
+  <para>
+  Recent advances in virtualization, including the introduction of a
+  Kernel-based Virtual Machine system (KVM), have made it both easy and
   compelling to use virtual machines for testing client installation and
-  updates. For this reason, we recommend installing CentOS Studio on a system
-  installed with the x86_64 version <application
-  class="software">CentOS</application> and one of the following
-  architectures:</para>
+  updates. For this reason, we recommend installing CentOS Studio on a machine
+  with one of the following architectures:
+  </para>
 
   <itemizedlist>
     <listitem>an Intel processor with the Intel VT and the Intel 64 extensions, or</listitem>
-    <listitem>an AMD processor with the AMD-V and the AMD64 extensions.</listitem>
+    <listitem>an AMD processor with the AMD-V and AMD64 extensions.</listitem>
   </itemizedlist>
 
   <para>This document will focus on using virtual machines a primary method
@@ -34,38 +32,28 @@
   class="directory">/var</filename> directory. <application
   class="software">CentOS Studio</application> uses the <filename
   class="directory">/var/cache/centosstudio</filename> folder for caching 
-  solution content and the <filename 
-  class="directory">/var/www/html/solutions</filename> folder for storing
-  completed solutions. The recommended minimum drive space allocated for
+  repository content and the <filename 
+  class="directory">/var/www/html/repos</filename> folder for storing
+  completed repositories. The recommended minimum drive space allocated for
   each of these folders is 15GB (30GB total). Depending on the number and size
-  of solutions created, you may need more disk space.</para>
+  of repositories created, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
   requirements, it is best to use hard disk drives with Serial Advanced
   Technology Attachment (SATA) interfaces.</para>
 
-  <para>To install Centos Studio, follow the instructions on the download page at <ulink url="http://www.centosstudio.org/centosstudio">http://www.centosstudio.org/centosstudio</ulink>.</para>
+  <para>
+  To install CentOS Studio, follow the instructions on the download page at
+  <ulink
+  url="http://www.centossolutions.com/centosstudio">http://www.centossolutions.com/centosstudio</ulink>.
+  </para>
 
-  <para>CentOS Studio makes it easy to test client machine installations and
-  updates over the network directly from the build machine. To make use of this
-  feature, you will need to install and configure a web server.</para>
-
-  <para>First, install and configure the Apache web server by completing the
-  following steps as the root user.</para>
-
-  <para><informalexample><programlisting>
-# yum install httpd
-# service httpd start
-# chkconfig --level 3 httpd on</programlisting></informalexample></para>
-
-  <para>Next, modify your firewall configuration, if needed, to allow 
-  www/http traffic (port 80) using the command below as the root user.</para>
-
-  <para><programlisting># system-config-securitylevel</programlisting></para>
-
-  <para>To install and configure support for testing client systems using KVM-based virtual
-  machines (recommended), complete these additional steps as the root user. Note the OS and system requirements specified earlier in this section.</para>
+  <para>
+  To install and configure support for testing client machines using KVM-based
+  virtual machines (recommended), complete these additional steps as the root
+  user. Note the OS and system requirements specified earlier in this section.
+  </para>
 
   <para>First, install the kvm package group.</para>
 
@@ -97,5 +85,5 @@
 # reboot 
   </programlisting></informalexample></para>
 
-  <para>Now you are ready to begin defining your solution!</para>
+  <para>Now you are ready to begin defining your repository!</para>
 </section>
