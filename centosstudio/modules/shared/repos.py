@@ -233,7 +233,6 @@ class RepoSetupEventMixin:
      it does not exist"""
   def __init__(self):
     self.provides = set(['repos'])
-    self.suppress_run_message=True,
 
   def setup(self):
     if self.config.xpath('repo', []):
