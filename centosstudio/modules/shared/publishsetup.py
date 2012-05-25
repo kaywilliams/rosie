@@ -85,6 +85,20 @@ class PublishSetupEventMixin:
       self.macros[key] = map[key]['value']
     self.config.resolve_macros('.', self.macros)
 
+    # ssh setup
+    keyfile=pps.path('/root/.ssh/id_rsa')
+    if self.ssh:
+      if not keyfile.exists():
+        try:
+          cmd = 'ssh-keygen -t rsa -f %s -N ""' % keyfile 
+          shlib.execute(cmd)
+        except shlib.ShExecError, e:
+          message = ("Error occurred creating ssh keys for the "
+                     "root user. The error was: %s\n"
+                     "If the error persists, you can generate keys manually "
+                     "using the command\n '%s'" % (e, cmd))
+          raise SSHFailedError(message=message)
+
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
