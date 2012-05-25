@@ -414,13 +414,13 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
       else:
         break # no errors, no unresolved xincludes, we're good to go
 
-  # remove any 'xml' elements, once xinclude is complete
-  # TODO move this to rxml.config as it is config specific?
-  for elem in roottree.xpath('//xml'): elem.getparent().remove(elem)
-
   # resolve macros a final time, removing macro definitions, once the xinclude
   # proces is complete
   roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=True)
+
+  # remove any 'xml' elements, once xinclude/macro resolution is complete
+  for elem in roottree.getroot().xpath('//xml', []):
+    elem.getparent().remove(elem)
 
   saxify(roottree, handler)
   handler._root.file = file
