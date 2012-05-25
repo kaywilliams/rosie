@@ -418,9 +418,9 @@ def parse(file, handler=None, parser=PARSER, macro_xpaths=None, macro_map=None):
   # proces is complete
   roottree.getroot().resolve_macros(macro_xpaths, macro_map, remove=True)
 
-  # remove any 'xml' elements, once xinclude/macro resolution is complete
+  # remove any 'xml' subelements, once xinclude/macro resolution is complete
   for elem in roottree.getroot().xpath('//xml', []):
-    elem.getparent().remove(elem)
+    if elem.getparent() is not None: elem.getparent().remove(elem)
 
   saxify(roottree, handler)
   handler._root.file = file
