@@ -2,10 +2,6 @@
 <config-rpm id='httpd-config'>
 <requires>httpd</requires>
 <requires>iptables</requires>
-<!--
-<requires>system-config-securitylevel-tui</requires> el5
-<requires>system-config-firewall-base</requires> el6
--->
 <requires>/bin/ps</requires>
 <requires>/sbin/pidof</requires>
 <files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d' 
@@ -22,16 +18,16 @@ case "$1" in
   "start")
 # Enable http traffic through the firewall
 if [[ ! `fgrep -e "--dport 80 " $FILE` ]]; then
-  if [[ $VERSION == 5 ]] 
-  then
-    sed -i '1,/REJECT/ {/REJECT/i\
+  if [[ $VERSION == 5 ]]
+    then
+      sed -i '1,/REJECT/ {/REJECT/i\
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
 }' $FILE
-
-  else # version 6 and future
-    sed -i '1,/REJECT/ {/REJECT/i\
+    else # version 6 and future
+      sed -i '1,/REJECT/ {/REJECT/i\
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
 }' $FILE
+  fi
 fi
      ;;
   "stop")
