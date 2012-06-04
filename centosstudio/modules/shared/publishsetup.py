@@ -196,7 +196,6 @@ class PublishSetupEventMixin:
         raise InvalidHostnameError(message)
 
     # if we got through the above, then the hostname is valid
-    print hostname
     return hostname
 
   def get_domain(self):
