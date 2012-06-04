@@ -112,6 +112,105 @@ def PublishSetupMixinTest_Config(self):
 
   return self
 
+def PublishSetupMixinTest_LongHostname(self):
+  self._testMethodDoc = "hostname segment exceeds 255 characters"
+
+  def pre_setUp():
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
+    elem = self.conf.getxpath('/*/%s/hostname' % (self.moduleid), None)
+    if elem is not None: mod.remove(elem)
+    config.Element('hostname', parent=mod, 
+                   text=( "thishostnameisover255characters.thishostnameisover"
+                          "255.charactersthishostnameisover255characters.this"
+                          "hostnameisover255characters.thishostnameisover255"
+                          "characters.thishostnameisover255characters.this"
+                          "hostnameisover255characters.thishostnameisover255"
+                          "characters.thishostnameisover255characters.this"
+                          "hostnameisover255characters.thishostnameisover255"))
+
+  def runTest():
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event) 
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
+def PublishSetupMixinTest_LongHostnameSegment(self):
+  self._testMethodDoc = "hostname segment exceeds 63 characters"
+
+  def pre_setUp():
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
+    elem = self.conf.getxpath('/*/%s/hostname' % (self.moduleid), None)
+    if elem is not None: mod.remove(elem)
+    config.Element('hostname', parent=mod, 
+                   text=( "thishostnamesegmentisover63charactersthishostname"
+                          "segmentisover63characters" ))
+
+  def runTest():
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event) 
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
+def PublishSetupMixinTest_HostnameLeadingHyphen(self):
+  self._testMethodDoc = "hostname segment has leading hyphen"
+
+  def pre_setUp():
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
+    elem = self.conf.getxpath('/*/%s/hostname' % (self.moduleid), None)
+    if elem is not None: mod.remove(elem)
+    config.Element('hostname', parent=mod, text="-hostname") 
+
+  def runTest():
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event) 
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
+def PublishSetupMixinTest_HostnameTrailingHyphen(self):
+  self._testMethodDoc = "hostname segment has trailing hyphen"
+
+  def pre_setUp():
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
+    elem = self.conf.getxpath('/*/%s/hostname' % (self.moduleid), None)
+    if elem is not None: mod.remove(elem)
+    config.Element('hostname', parent=mod, text="hostname-")
+
+  def runTest():
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event) 
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
+def PublishSetupMixinTest_HostnameInvalidCharacters(self):
+  self._testMethodDoc = "hostname segment contains invalid characters"
+
+  def pre_setUp():
+    mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
+    elem = self.conf.getxpath('/*/%s/hostname' % (self.moduleid), None)
+    if elem is not None: mod.remove(elem)
+    config.Element('hostname', parent=mod, text="host%name")
+
+  def runTest():
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(CentOSStudioError, self.event) 
+
+  decorate(self, 'setUp', prefn=pre_setUp)
+  self.runTest = runTest
+
+  return self
+
 def PublishSetupMixinTest_NoPassword(self):
   self._testMethodDoc = "password generated if not provided"
 
@@ -167,6 +266,11 @@ def saved(self, xpath):
 def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
   suite = CoreTestSuite()
   suite.addTest(PublishSetupMixinTest_Config(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_LongHostname(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_LongHostnameSegment(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameLeadingHyphen(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameTrailingHyphen(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameInvalidCharacters(TestCase(distro, version, arch, conf)))
   suite.addTest(PublishSetupMixinTest_NoPassword(TestCase(distro, version, arch, conf)))
   suite.addTest(PublishSetupMixinTest_Password(TestCase(distro, version, arch, conf)))
   return suite

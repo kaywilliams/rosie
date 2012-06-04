@@ -18,6 +18,7 @@
 import array
 import fcntl
 import platform
+import re 
 import socket
 import string
 import struct
@@ -51,8 +52,8 @@ class PublishSetupEventMixin:
     # set attributes
     self.localpath = self.get_local()
     self.webpath = self.get_remote()
+    self.domain = self.get_domain() # get_hostname() uses this for validation
     self.hostname = self.get_hostname()
-    self.domain = self.get_domain()
     self.fqdn = self.hostname + self.domain 
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
@@ -163,12 +164,40 @@ class PublishSetupEventMixin:
     return 'http://'+realm+'/'+default
 
   def get_hostname(self):
+    repoid = self.repoid.replace('_','-') # dns doesn't allow '_' in hostnames
     if self.moduleid == 'publish':
-      default = self.repoid
+      default = repoid
     else:
-      default = '%s-%s' % (self.repoid, self.moduleid)
+      default = '%s-%s' % (repoid, self.moduleid)
 
-    return self.config.getxpath('hostname/text()', default)
+    hostname = self.config.getxpath('hostname/text()', default)
+
+    # validate hostname
+    if len(hostname + self.domain) > 255:
+      message = "'%s' exceeds 255 characters" % hostname
+      raise InvalidHostnameError(message)
+    if hostname.endswith("."): # A single trailing dot is legal
+      hostname = hostname[:-1] # strip trailing dot, if present
+
+    disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
+    for label in hostname.split("."):
+      if label and not len(label) <= 63: # length is not within proper range
+        message = "segment '%s' exceeds 63 characters" % label
+        raise InvalidHostnameError(message)
+      if label.startswith("-"):
+        message = "segment '%s' cannot start with '-'" % label
+        raise InvalidHostnameError(message)
+      if label.endswith("-"): # no bordering hyphens
+        message = "segment '%s' cannot end with '-'" % label
+        raise InvalidHostnameError(message)
+      if disallowed.search(label): # contains only legal characters
+        message = ( "segment '%s' contains an invalid character. "
+                    "Valid characters are a-z, A-Z, 0-9 and '-'" % label )
+        raise InvalidHostnameError(message)
+
+    # if we got through the above, then the hostname is valid
+    print hostname
+    return hostname
 
   def get_domain(self):
     domain = self.config.getxpath('domain/text()', '')
@@ -297,6 +326,9 @@ def get_interfaces():
 class InterfaceIOError(CentOSStudioEventError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )
+
+class InvalidHostnameError(CentOSStudioEventError):
+  message = "Invalid Hostname: %(message)s"
 
 class FQDNNotFoundError(CentOSStudioEventError):
   message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
