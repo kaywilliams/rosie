@@ -132,8 +132,12 @@ def PublishSetupMixinTest_LongHostname(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(CentOSStudioError, self.event) 
 
+  def tearDown():
+    EventTestCase.tearDown(self)
+
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
+  self.tearDown = tearDown 
 
   return self
 
@@ -152,8 +156,12 @@ def PublishSetupMixinTest_LongHostnameSegment(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(CentOSStudioError, self.event) 
 
+  def tearDown():
+    EventTestCase.tearDown(self)
+
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
+  self.tearDown = tearDown 
 
   return self
 
@@ -168,10 +176,14 @@ def PublishSetupMixinTest_HostnameLeadingHyphen(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event) 
+    self.failUnlessRaises(CentOSStudioError, self.event)
+
+  def tearDown():
+    EventTestCase.tearDown(self)
 
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
+  self.tearDown = tearDown 
 
   return self
 
@@ -188,8 +200,12 @@ def PublishSetupMixinTest_HostnameTrailingHyphen(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(CentOSStudioError, self.event) 
 
+  def tearDown():
+    EventTestCase.tearDown(self)
+
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
+  self.tearDown= tearDown 
 
   return self
 
@@ -206,8 +222,12 @@ def PublishSetupMixinTest_HostnameInvalidCharacters(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(CentOSStudioError, self.event) 
 
+  def tearDown():
+    EventTestCase.tearDown(self)
+
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
+  self.tearDown = tearDown 
 
   return self
 
