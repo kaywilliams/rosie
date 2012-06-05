@@ -170,7 +170,7 @@ class PublishSetupEventMixin:
       default = '%s-%s' % (self.repoid, self.moduleid)
 
     hostname = self.config.getxpath('hostname/text()', default)
-    hostname.replace('_', '-') # dns doesn't allow '_' in hostnames
+    hostname = hostname.replace('_', '-') # dns doesn't allow '_' in hostnames
 
     # validate hostname
     if len(hostname + self.domain) > 255:
