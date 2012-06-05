@@ -164,13 +164,13 @@ class PublishSetupEventMixin:
     return 'http://'+realm+'/'+default
 
   def get_hostname(self):
-    repoid = self.repoid.replace('_','-') # dns doesn't allow '_' in hostnames
     if self.moduleid == 'publish':
-      default = repoid
+      default = self.repoid
     else:
-      default = '%s-%s' % (repoid, self.moduleid)
+      default = '%s-%s' % (self.repoid, self.moduleid)
 
     hostname = self.config.getxpath('hostname/text()', default)
+    hostname.replace('_', '-') # dns doesn't allow '_' in hostnames
 
     # validate hostname
     if len(hostname + self.domain) > 255:
@@ -182,17 +182,17 @@ class PublishSetupEventMixin:
     disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
     for label in hostname.split("."):
       if label and not len(label) <= 63: # length is not within proper range
-        message = "segment '%s' exceeds 63 characters" % label
+        message = "'%s' exceeds 63 characters" % label
         raise InvalidHostnameError(message)
       if label.startswith("-"):
-        message = "segment '%s' cannot start with '-'" % label
+        message = "'%s' cannot start with '-'" % label
         raise InvalidHostnameError(message)
       if label.endswith("-"): # no bordering hyphens
-        message = "segment '%s' cannot end with '-'" % label
+        message = "'%s' cannot end with '-'" % label
         raise InvalidHostnameError(message)
       if disallowed.search(label): # contains only legal characters
-        message = ( "segment '%s' contains an invalid character. "
-                    "Valid characters are a-z, A-Z, 0-9 and '-'" % label )
+        message = ( "'%s' contains an invalid character. "
+                    "Valid characters are a-z, A-Z, 0-9 and '-'." % label )
         raise InvalidHostnameError(message)
 
     # if we got through the above, then the hostname is valid
