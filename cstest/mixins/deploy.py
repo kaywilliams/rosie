@@ -37,7 +37,7 @@ class DeployMixinTestCase:
 
     # get default deploy config
     deploy = rxml.config.parse(
-      '%s/../../share/centosstudio/templates/deploy.xml' %  
+      '%s/../../share/centosstudio/templates/virt-deploy.xml' %  
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
