@@ -5,19 +5,24 @@
 <macro id='arch'>x86_64</macro>
 
 <main>
-<fullname>Example System Repository</fullname>
-<name>example</name>
+<fullname>Example Web Server System Repository</fullname>
+<name>web-server</name>
 <version>%{version}</version>
 <arch>%{arch}</arch>
 </main>
-
-<packages>
-<group repoid='base'>core</group>
-</packages>
 
 <repos>
 <xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/>
 <xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
 </repos>
+
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
+
+<config-rpms>
+<xi:include href='httpd.xml'/>
+</config-rpms>
 
 </repo>
