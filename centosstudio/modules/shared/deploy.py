@@ -17,9 +17,11 @@
 #
 import hashlib
 import paramiko
+import re
 
 from centosstudio.cslogging import L0, L1
-from centosstudio.errors import CentOSStudioError, DuplicateIdsError 
+from centosstudio.errors import (CentOSStudioError, CentOSStudioEventError,
+                                 DuplicateIdsError)
 from centosstudio.util import pps
 from centosstudio.util import resolve 
 
@@ -132,6 +134,9 @@ class DeployEventMixin(ExecuteEventMixin):
 
     triggers = self.config.getxpath('triggers/text()',
                ' '.join(getattr(self, 'default_install_triggers', '')))
+    for trigger in triggers.split():
+      if not re.match('^[a-zA-Z0-9_]+$', trigger):
+        raise InvalidTriggerNameError(trigger)
 
     self.config.resolve_macros('.', {'%{triggers}': triggers})
 
@@ -328,3 +333,6 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
+class InvalidTriggerNameError(CentOSStudioEventError):
+  message = ("Invalid character in trigger name '%(trigger)s'. Valid "
+             "characters are a-z, A-Z, 0-9 and _.")
