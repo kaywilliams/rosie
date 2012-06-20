@@ -52,7 +52,7 @@ release_rpm config_rpms kickstart treeinfo install_scripts post_install_scripts
 <script id='virt-install' type='install'>
 virt-install --name %{fqdn} --ram 1000 \
              --file /var/lib/libvirt/images/%{fqdn}.img \
-             --file-size 6 \
+             --file-size 10 \
              --location %{url} \
              --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
                ks=%{url}/ks.cfg"\
