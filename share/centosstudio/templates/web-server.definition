@@ -5,7 +5,7 @@
 <macro id='arch'>x86_64</macro>
 
 <main>
-<fullname>Example Web Server System Repository</fullname>
+<fullname>Example Web Server</fullname>
 <name>web-server</name>
 <version>%{version}</version>
 <arch>%{arch}</arch>

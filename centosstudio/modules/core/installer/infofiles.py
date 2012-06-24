@@ -84,7 +84,7 @@ class TreeinfoEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'treeinfo',
-      version = '1.01',
+      version = '1.02',
       parentid = 'installer',
       ptr = ptr,
       provides = ['treeinfo-text', 'os-content'],
