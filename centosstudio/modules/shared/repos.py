@@ -69,7 +69,12 @@ class CentOSStudioRepo(YumRepo):
       raise ValueError("invalid boolean value '%s'" % s)
 
   @property
-  def download(self):  return self._boolparse(self.get('download', 'true'))
+  def download(self):
+    if self.id in ['base', 'updates']:
+      default = 'false'
+    else:
+      default = 'true'
+    return self._boolparse(self.get('download', default))
 
   def get_rpm_version(self, names):
     # filter list of names if necessary

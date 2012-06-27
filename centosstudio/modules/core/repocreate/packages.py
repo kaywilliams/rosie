@@ -78,6 +78,9 @@ class PackagesEvent(ShelveMixin):
     # track changes in repo/groupfile relationships
     self.DATA['variables'].append('groupfiles')
 
+    # track changes in repo type
+    self.DATA['variables'].append('type')
+
     # track file changes
     self.DATA['input'].extend([gf for _,gf in self.groupfiles])
 

@@ -64,8 +64,8 @@ class DownloadEvent(ShelveMixin, Event):
 
     # setup for downloads
     for repo in self.cvars['repos'].values():
-      if self.type != 'system' and (repo.id in ['base', 'updates'] or not 
-                                      repo.download): continue
+      if self.type != 'system' and repo.download is False:
+        continue
       for subrepo in repo.subrepos.values():
         now = time.time()
         # populate rpm time and size from repodata values (for performance)
