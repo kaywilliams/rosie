@@ -26,13 +26,7 @@
     </zeroOrMore>
 
     <zeroOrMore>
-    <element name="files">
-      <ref name="attribute-destdir-absolute"/>
-      <ref name="attribute-destname"/>
-      <ref name="attribute-mode"/>
-      <ref name="attribute-content"/>
-      <text/>
-    </element>
+    <ref name="element-files"/>
     </zeroOrMore>
 
     <zeroOrMore>
@@ -52,6 +46,16 @@
     </zeroOrMore>
 
     </interleave>
+    </element>
+  </define>
+
+  <define name="element-files">
+    <element name="files">
+      <ref name="attribute-destdir-absolute"/>
+      <ref name="attribute-destname"/>
+      <ref name="attribute-mode"/>
+      <ref name="attribute-content"/>
+      <text/>
     </element>
   </define>
           
