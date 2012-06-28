@@ -179,8 +179,8 @@ class BuildCli:
       cb.logger.log(0, "CentOS Studio halted on user input")
       sys.exit(1)
     except CentOSStudioError, e: 
-      if cb.debug: raise RuntimeError(traceback.format_exc())
       cb.logger.write(0, '\n') # start on a new line
+      if cb.debug: cb.logger.log(0, traceback.format_exc())
       cb.logger.log(0, e)
       sys.exit(1)
     except Exception, e:
