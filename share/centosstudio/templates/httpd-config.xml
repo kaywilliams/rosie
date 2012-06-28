@@ -39,10 +39,10 @@ esac
 <script type = 'post'>
 # Start web server and configure to start at system boot
 SERVICE=httpd
-if [ -z "`pidof $SERVICE`" -o -z "`chkconfig --list $SERVICE | grep -ir "on"`" ] ; then
+if [[ -z `pidof $SERVICE` ]] ; then
   service $SERVICE start
-  chkconfig --level 345 $SERVICE on
 fi
+chkconfig --level 345 $SERVICE on
 
 # Enable http traffic through the firewall
 if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
