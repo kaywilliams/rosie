@@ -22,7 +22,7 @@
 </packages>
 
 <config-rpms>
-<xi:include href='httpd.xml'/>
+<xi:include href='httpd-config.xml'/>
 </config-rpms>
 
 </repo>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='virt-config'>
+<!--configure libvirt default network for local dns resolution-->
+<requires>NetworkManager</requires>
+<requires>libvirt</requires>
+<requires>qemu-kvm</requires>
+<requires>python-virtinst</requires>
+<requires>virt-manager</requires>
+<requires>virt-viewer</requires>
+<requires>/usr/bin/virsh</requires>
+<files destdir="/etc/NetworkManager/dispatcher.d" destname="99-centosstudio-virt-config" mode="755" content="text">
+#!/bin/bash
+
+# add dnsmasq as resolver for default libvirt virtual network
+[[ `grep '192.168.122.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
+nameserver 192.168.122.1
+}' /etc/resolv.conf
+
+# configure default network as a subdomain of host domain. This allows dns
+# lookups of host.subdomain.domain. It also allows sendmail to send admin email
+# from root@host.subdomain.domain, which is both an understandable address and 
+# a "valid" internet email address. The latter is important, else smart email
+# hosts will reject email as being sent from an invalid sender domain.
+
+domain=`hostname -d 2>/dev/null || echo ''`
+text="&lt;domain name='local.$domain'/&gt;"
+file="/etc/libvirt/qemu/networks/default.xml"
+if [[ ! `grep "$text" $file` ]]; then   # correct domain not in file
+  sed -i "/&lt;domain.*&gt;/d" $file    # remove incorrect domain, if exists
+  sed -i "/&lt;name.*&gt;/ a\  $text" $file  # add correct domain
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    virsh net-destroy default
+    virsh net-create $file
+  fi
+fi
+</files>
+<script type="post">
+  if [[ $changed = *\ /etc/NetworkManager/dispatcher.d/99-centosstudio-virt-config ]]; then
+    service NetworkManager restart
+  fi
+</script>
+</config-rpm>
