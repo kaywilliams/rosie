@@ -37,8 +37,6 @@ esac
 </files>
 
 <script type = 'post'>
-#!/bin/sh
-set -e
 # Start web server and configure to start at system boot
 if [[ -z `pidof httpd` ]] ; then
   service httpd start > /dev/null
