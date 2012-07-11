@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.centosstudio.org/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults

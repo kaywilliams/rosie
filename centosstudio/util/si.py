@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #
 # simple tools for parsing si-style strings into their equivalent integer size
 
-__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
 __version__ = '1.0'
 __date__    = 'January 14th, 2007'
 

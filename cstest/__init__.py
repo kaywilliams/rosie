@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ class EventTestCase(unittest.TestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.centosstudio.org/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml())

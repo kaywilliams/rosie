@@ -124,7 +124,7 @@ class RhnSupportError(RuntimeError, CentOSStudioEventError):
   def __str__(self):
     return ( "RHN support not enabled - please install the 'rhnlib' and "
              "'rhn-client-tools' packages from the centosstudio software repo "
-             "at www.centossolutions.com" )
+             "at www.centosstudio.org" )
 
 class DuplicateIdsError(CentOSStudioEventError):
   message = ("Error: Duplicate ids found while validating '%(element)s' "

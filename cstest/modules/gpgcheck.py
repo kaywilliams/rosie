@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     repos = rxml.config.Element('repos')
     base = repo.getDefaultRepoById('base', distro=self.distro,
            version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://www.centossolutions.com/mirrors/%s' % self.distro)
+           baseurl='http://www.centosstudio.org/mirrors/%s' % self.distro)
     # set gpgkeys to none
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,
                  'name': None,})

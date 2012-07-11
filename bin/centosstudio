@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -195,7 +195,7 @@ class BuildCli:
             "CentOS Studio. The traceback has been recorded in the log "
             "file at '%s'. Please report this error by sending a copy "
             "of your log file, system definition file and any other "
-            "relevant information to centosstudio@centossolutions.com\n\n"
+            "relevant information to centosstudio@centosstudio.org\n\n"
             "Error message was: %s\n"
             % (cb.logger.logfile.file_object.name, e))
           sys.exit(1)
@@ -204,7 +204,7 @@ class BuildCli:
             "An unhandled exception has been generated while running "
             "CentOS Studio. Please report this error by sending a copy "
             "of the error message, your system definition file and any other "
-            "relevant information to centosstudio@centossolutions.com\n\n"
+            "relevant information to centosstudio@centosstudio.org\n\n"
             "Error message was:\n")
           raise
       sys.exit(1)

@@ -7,7 +7,7 @@ Summary: Platform for deploying CentOS and RHEL-based systems and applications
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.centossolutions.com/centosstudio
+URL:       http://www.centosstudio.org/centosstudio
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -42,7 +42,7 @@ Requires: /sbin/rngd
 %description
 CentOS Studio is a complete platform to automate build, test, deployment
 and maintenance for systems and applications based on CentOS and Red Hat
-Enterprise Linux. See http://www.centossolutions.com for more information. 
+Enterprise Linux. See http://www.centosstudio.org for more information. 
 
 %prep
 %setup -q
@@ -72,8 +72,8 @@ Enterprise Linux. See http://www.centossolutions.com for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
-* Thu Jun 14 2012 Kay Williams <kay@centossolutions.com> - 1.0.46-1
+* Thu Jun 14 2012 Kay Williams <kay@centosstudio.org> - 1.0.46-1
 - Beta 1 Build
 
-* Mon Jul 08 2011 Kay Williams <kay@centossolutions.com> - 0.9.1-1
+* Mon Jul 08 2011 Kay Williams <kay@centosstudio.org> - 0.9.1-1
 - Initial Build

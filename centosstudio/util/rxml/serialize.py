@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012
-# CentOS Solutions, Inc. All rights reserved.
+# CentOS Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ Supported types are very limited right now; see SUPPORTED_TYPES for exactly what
 is currently handled.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@centossolutions.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@centosstudio.org>'
 __version__ = '1.5'
 __date__    = 'April 4th, 2008'
 
