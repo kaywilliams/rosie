@@ -46,7 +46,7 @@ skipx
 </kickstart>
 
 <triggers>
-release_rpm kickstart install_scripts post_install_scripts
+kickstart install_scripts post_install_scripts
 </triggers>
 
 <script id='virt-install' type='install'>
