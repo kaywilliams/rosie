@@ -109,7 +109,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.gpgkeys = {}
     for repo in repos:
       for url in repo.gpgkey:
-        self.gpgkeys[url.basename] = url # using key basenames as ids
+        self.gpgkeys[url.read_text().strip()] = url # using key content as id 
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
     self.DATA['variables'].extend(['keydir', 'cvars[\'gpgkey-ids\']'])
