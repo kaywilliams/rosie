@@ -21,6 +21,8 @@ class BootOptionsMixin(object):
   def __init__(self, *args, **kwargs):
     self.conditionally_requires.add('publish-setup-options')
     self.bootoptions = BootOptionsDummy(self)
+    self.DATA['variables'].append('bootoptions.boot_args')
+
     self.boot_options_mixin_version = '1.01'
     self.DATA['variables'].append('boot_options_mixin_version')
 
