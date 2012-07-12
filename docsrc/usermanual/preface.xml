@@ -7,32 +7,41 @@
   <section>
     <title>Audience</title>
 
-    <para>This document is intended for individuals with system administrator-level knowledge of CentOS or Red Hat Enterprise Linux. In particular, it assumes basic experience with system installation and configuration, RPM package management, XML file creation and editing, basic web server management, system automation using BASH or other scripting languages, and a basic familiarity with version control systems.</para>
+    <para>
+    This document is intended for system administrators with some knowledge of
+    CentOS or Red Hat Enterprise Linux. In particular, it assumes basic
+    experience with system installation and configuration, RPM package
+    management, system updating using YUM, XML file creation and editing,
+    system automation using BASH or other scripting languages, and networking
+    and machine virtualization.
+    </para>
 
   </section>
 
   <section>
     <title>What's Not Covered</title>
 
-    <para>This manual complements several <application
-    class="software">CentOS Studio</application> documents. The "Installation
-    Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing CentOS Studio and creating a basic CentOS solution.
-    The "Repository Definition File Reference" (SDFR) contains
-    the syntax for solution definition elements and attributes. 
-    Finally, CentOS Studio has a set of 
-    <emphasis role="strong">man pages</emphasis> explaining the
+    <para>
+    This manual complements several <application class="software">CentOS
+    Studio</application> documents. The "Installation Instructions" and
+    "Getting Started Guide" provide basic information about obtaining and
+    installing CentOS Studio and creating a basic CentOS repository.  The
+    "Repository Definition File Reference" (RDFR) contains the syntax for
+    repository definition elements and attributes. Finally, CentOS Studio has
+    a set of <emphasis role="strong">man pages</emphasis> explaining the
     <command>centosstudio</command> command, its options and the CentOS Studio
-    configuration file, <filename>centosstudio.conf</filename>. This manual 
-    contains references to all four throughout the text.</para>
+    configuration file, <filename>centosstudio.conf</filename>. This manual
+    contains references to all four throughout the text.
+    </para>
 
-    <para>These CentOS Studio documents are available at the CentOS Studio
+    <para>
+    These CentOS Studio documents are available at the CentOS Studio
     website.
     </para>
 
     <para>
-    <ulink url="http://www.centossolutions.com/centosstudio/docs/">
-    http://www.centossolutions.com/centosstudio/docs/ </ulink>
+    <ulink url="http://www.centosstudio.org/centosstudio/docs/">
+    http://www.centosstudio.org/centosstudio/docs/ </ulink>
     </para>
 
   </section>
@@ -40,11 +49,12 @@
   <section>
     <title>How to Read</title>
 
-    <para>The intent of the manual is to help you use CentOS Studio effectively
-    to build and maintain solutions, and to use solutions
-    to install and update client machines. This manual takes a top-down
-    approach, explaining the concepts before giving steps, commands and code 
-    examples that you can use to build, deploy and enhance your own solutions.
+    <para>
+    The intent of the manual is to help you use CentOS Studio effectively to
+    deploy and maintain Linux-based systems and applications using YUM package
+    repositories. This manual takes a top-down approach, explaining the
+    concepts before giving steps, commands and examples that you can use to
+    create and test your own repositories.
     </para>
   </section>
 
@@ -84,12 +94,12 @@
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
           equivalents. The active node is always considered to be the root,
-          solution; thus, the first element in the XPath expression is the
+          repo; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the SDFR and their child elements
+          children. Top-level elements in the RDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
-          The assumed parent element is <emphasis>solution</emphasis>. For
+          The assumed parent element is <emphasis>repo</emphasis>. For
           more details on XPath syntax, see <ulink
           url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
           </para>
@@ -137,16 +147,18 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within solution definition examples, the traditional XML comment
+          <para>
+          Within repository definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
-          linkend="example" /> .</para>
+          linkend="example" />.
+          </para>
 
           <para>A set-off tag highlights things that a user needs to
           know.</para>
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              solution definition.</para>
+              repository definition.</para>
             </note></para>
         </listitem>
       </varlistentry>
@@ -184,8 +196,8 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>CentOS Studio variables are presented in monospace font
-          preceded by a dollar sign, e.g. <varname>%{id}</varname>.</para>
+          <para>CentOS Studio variables are presented in monospace font,
+          e.g. <varname>%{id}</varname>.</para>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -195,8 +207,8 @@ $ precedes lines entered as a normal user</programlisting>
     <title>Getting CentOS Studio</title>
 
     <para>CentOS Studio and associated documents are available at
-    <ulink url="http://www.centossolutions.com/centosstudio/"> the 
+    <ulink url="http://www.centosstudio.org/centosstudio/"> the 
     CentOS Studio website</ulink> 
-    at www.centossolutions.com/centosstudio.</para>
+    at www.centosstudio.org/centosstudio.</para>
   </section>
 </chapter>

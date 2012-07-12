@@ -2,96 +2,186 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>CentOS Studio Files and Folders</title>
+  <title>Building Repositories</title>
 
-  <para><application class="software">CentOS Studio</application> has several
-  key files and folders, listed in the table below.</para>
+  <para>
+  During the build process, <application class="software">CentOS
+  Studio</application> gathers content, processes it, creates a repository, and
+  optionally runs scripts to test, deploy or maintain client machines.
+  </para>
 
-  <para><informaltable>
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="build_overview.png" />
+      </imageobject>
 
-      <tgroup cols="2">
-        <tbody>
-          <row>
-            <entry>/etc/centosstudio/centosstudio.conf</entry>
+      <caption><para>CentOS Studio Build Process</para></caption>
+    </mediaobject>
 
-            <entry><application>CentOS Studio</application> looks
-            for this file to locate centosstudio configuration. See the
-            centosstudio and centosstudio.conf man pages for more information.
-            This file is optional and does not exist in the default CentOS Studio
-            installation.</entry>
-          </row>
-          <row>
-            <entry>/usr/bin/centosstudio</entry>
+  <section>
+  <title>Input</title>
 
-            <entry>The <command>centosstudio</command> command.</entry>
-          </row>
+  <para>
+  <application class="software">CentOS Studio</application> uses three classes
+  of input: a base operating system repository, additional package
+  repositories, and configuration files and scripts.
+  </para>
 
-          <row>
-            <entry>/usr/lib/python<varname>$version</varname>/site-packages/centosstudio</entry>
+  <itemizedlist>
+  <listitem>
+  <emphasis role="strong">Base Operating System Repository.</emphasis>
+  CentOS Studio requires a CentOS-compatible operating system repository as
+  input for creating new repositories. Currently supported operating system
+  repositories include CentOS and Red Hat Enterprise Linux, versions 5 and 6
+  for i386 and x86_64 architectures. See <xref
+  linkend="specifying-input-repositories" /> for more information.
+  </listitem>
 
-            <entrytbl cols="1">
-              <tbody>
-                <row>
-                  <entry>Python code for <application
-                  class="software">CentOS Studio</application>, where
-                  <varname>$version</varname> is the <application
-                  class="software">Python</application> version.</entry>
-                </row>
-              </tbody>
-            </entrytbl>
-          </row>
+  <listitem>
+  <emphasis role="strong">Additional Package Repositories.</emphasis> CentOS
+  Studio uses RPM package repositories to locate and download additional
+  software components for the repository. A typical repository definition will
+  specify multiple additional input repositories, including a operating system
+  update repository, and repositories made available from other internal and
+  external providers. See <xref linkend="specifying-input-repositories" /> for
+  more information.
+  </listitem>
 
-          <row>
-            <entry>/usr/share/doc/centosstudio-<varname>$version</varname></entry>
+  <listitem>
+  <emphasis role="strong">Configuration Files and Scripts.</emphasis> The final
+  category of repository content is user-provided configuration files and
+  scripts.  Files are copied and scripts are executed during client machine
+  installation and updates. For more information, see <xref
+  linkend="building-rpms" />.
+  </listitem>
+  </itemizedlist>
+  </section>
 
-            <entry>Documentation for <application
-            class="software">CentOS Studio</application>, where
-            <varname>$version</varname> is the <application
-            class="software">CentOS Studio</application> version.</entry>
-          </row>
+  <section>
+  <title>Process</title>
 
-          <row>
-            <entry>/usr/share/centosstudio/schemas</entry>
+  <para>
+  <application class="software">CentOS Studio</application> uses information
+  from the <xref linkend="repository_definition"/> to gather repository
+  content. It uses this information to complete three primary steps.
+  </para>
 
-            <entry>Relax NG schemas for repository definition validation.
-            </entry>
-          </row>
-          <row>
-            <entry>/usr/share/centosstudio/templates</entry>
+  <itemizedlist>
+  <listitem>
+  <para>
+  <emphasis role="strong">Create repository-specific RPM packages.</emphasis>
+  CentOS Studio creates two types of packages, the  <xref
+  linkend="release-rpm"/> and optional <xref linkend="config-rpms"/>. The
+  release-rpm contains CentOS Studio-generated YUM update configuration.
+  Config-rpm packages contains user-provided files and scripts specified in the
+  repository definition. Both are discussed under <xref
+  linkend="building-rpms" />.
+  </para>
 
-            <entry>
-            Templates for use in definition creation. See the Repository
-            Definition File Reference for more information on templates.
-            </entry>
-          </row>
-          <row>
-            <entry>/var/cache/centosstudio/</entry>
+  <para>
+  During this step, CentOS Studio also creates a <xref
+  linkend="repository-data-file"/>, if one does not exist, in the same folder
+  as the repository definition. The file has a .dat extension. This file is
+  used to store CentOS Studio generated input data, such as release numbers for
+  generated RPMs, that should be maintained along with the repository
+  definition.
+  </para>
+  </listitem>
 
-            <entry>CentOS Studio stores cached content in this folder. See
-            the centosstudio and centosstudio.conf man pages for cache-related
-            options.
-            </entry>
-          </row>
+  <listitem>
+  <emphasis role="strong">Assemble a package repository.</emphasis> Using the
+  repository definition, CentOS Studio compiles a list of required packages. It
+  then resolves package dependencies, downloads packages, and creates a
+  complete, consistent package repository. The package repository is used
+  during network installations to client machines. It is also used during
+  client machine updates.
+  </listitem>
 
-          <row>
-            <entry>/var/log/centosstudio.log</entry>
+  <listitem>
+  <emphasis role="strong">Customize system installation images
+  (optional).</emphasis> For system-type repositories, CentOS Studio downloads
+  network installation images from the CentOS-compatible repository and
+  modifies them to include repository-specific information. CentOS Studio can
+  be used to completely automate client installations. The chapters on <xref
+  linkend='testing-system-repos'/> and <xref linkend="client-deployment"/>
+  describe this in detail.
+  </listitem>
+  </itemizedlist>
 
-            <entry>CentOS Studio's default log file.</entry>
-          </row>
+  <para>
+  <application class="software">CentOS Studio</application> stores repository
+  content, both input and generated, in the cache folder, by default <filename
+  type="directory">/var/cache/centosstudio/</filename>. It reuses information
+  from the cache on subsequent runs, where possible, to improve build
+  performance.
+  </para>
+  </section>
 
-          <row>
-            <entry>/var/www/html/repos/</entry>
+  <section>
+  <title>Output</title>
 
-            <entry>
-            CentOS Studio publishes completed repositories to
-            <filename>system</filename> and <filename>package</filename>
-            subfolders of this folder by default. An alternative location can
-            be specified on a per-repository basis within a repository
-            definition.
-            </entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </informaltable></para>
+  <para>
+  CentOS Studio outputs a complete repository, a repository data file and a log
+  file.
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <emphasis role="strong">Repository.</emphasis> The primary output of the
+  build process is a complete YUM package repository containing RPM packages.
+  For <emphasis>system</emphasis>-type repositories, the repository also
+  contains system installation images. Together, the YUM repository and system
+  installation images support the complete range of system and application
+  deployment and maintenance scenarios. See the chapters on <xref
+  linkend='testing-system-repos'/>, <xref linkend='client-deployment'/> and
+  <xref linkend='package-repos'/> for more information.
+  </listitem>
+
+  <listitem>
+  <emphasis role="strong">Repository Data File.</emphasis> As mentioned above,
+  CentOS Studio creates a <xref linkend="repository-data-file"/> during the
+  build process. This file is used to track CentOS Studio generated input
+  information. 
+  </listitem>
+
+  <listitem>
+  <emphasis role="strong">CentOS Studio Log File.</emphasis> CentOS Studio
+  sends output both to the screen and to a log file, located by default at
+  <filename>/var/log/centosstudio.log.</filename>
+  </listitem>
+  </itemizedlist>
+  </section>
+
+  <section>
+  <title>Test, Deploy and Maintain</title>
+
+  <para>
+  The repository generated by CentOS Studio is used to perform testing,
+  deployment and maintenance to client machines. These steps can be performed
+  in one of three ways:
+
+  <itemizedlist>
+  <listitem>
+  Manually by the user or administrator.
+  </listitem>
+  
+  <listitem>
+  Automatically by CentOS Studio using deployment scripts.
+  </listitem>
+  
+  <listitem>
+  Or, because repositories are in a standard format, automatically by any
+  systems management system that can deploy and maintain native CentOS and Red
+  Hat Enterprise Linux systems.
+  </listitem>
+  </itemizedlist>
+  </para>
+
+  <para>
+  See the chapters on <xref linkend='testing-system-repos'/>, <xref
+  linkend='client-deployment'/> and <xref
+  linkend='package-repos'/> for additional information.
+  </para>
+  </section>
 
 </section>

@@ -2,226 +2,96 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Glossary of Terms</title>
+  <title>CentOS Studio Files and Folders</title>
 
-  <para>Following are terms specific to the CentOS Studio environment. They are arranged in alphabetical order.</para>
+  <para><application class="software">CentOS Studio</application> has several
+  key files and folders, listed in the table below.</para>
 
-  <para><variablelist>
+  <para><informaltable>
 
-      <varlistentry id="build-machine" xreflabel="build machine">
-        <term><emphasis role="strong">build machine</emphasis></term>
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>/etc/centosstudio/centosstudio.conf</entry>
 
-        <listitem>
-          <para>The machine on which <application
-          class="software">CentOS Studio</application> is installed.</para>
-        </listitem>
-      </varlistentry>
+            <entry><application>CentOS Studio</application> looks
+            for this file to locate centosstudio configuration. See the
+            centosstudio and centosstudio.conf man pages for more information.
+            This file is optional and does not exist in the default CentOS Studio
+            installation.</entry>
+          </row>
+          <row>
+            <entry>/usr/bin/centosstudio</entry>
 
-      <varlistentry id="client-machine" xreflabel="client machine">
-        <term><emphasis role="strong">client machine</emphasis></term>
+            <entry>The <command>centosstudio</command> command.</entry>
+          </row>
 
-        <listitem>
-          <para>The target machine on which repository content is installed.
-          </para>
-        </listitem>
-      </varlistentry>
+          <row>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/centosstudio</entry>
 
-      <varlistentry id="config-rpms" xreflabel="config-rpms">
-        <term><emphasis role="strong">config-rpms</emphasis></term>
+            <entrytbl cols="1">
+              <tbody>
+                <row>
+                  <entry>Python code for <application
+                  class="software">CentOS Studio</application>, where
+                  <varname>$version</varname> is the <application
+                  class="software">Python</application> version.</entry>
+                </row>
+              </tbody>
+            </entrytbl>
+          </row>
 
-        <listitem>
-	  <para>
-          RPM packages created by CentOS Studio during the build process.
-          These packages contain user-specified configuration files and
-          scripts.
-          </para>
+          <row>
+            <entry>/usr/share/doc/centosstudio-<varname>$version</varname></entry>
 
-          <para>
-          For more information on config-rpms, see the <xref
-          linkend="configuring-repositories"/> chapter in this document. See
-          also the section on <emphasis>config-rpms</emphasis> in the
-          <xref linkend='rdfr'/>.
-          </para>
+            <entry>Documentation for <application
+            class="software">CentOS Studio</application>, where
+            <varname>$version</varname> is the <application
+            class="software">CentOS Studio</application> version.</entry>
+          </row>
 
-        </listitem>
-      </varlistentry>
+          <row>
+            <entry>/usr/share/centosstudio/schemas</entry>
 
-      <varlistentry id="release-rpm" xreflabel="release-rpm">
-        <term><emphasis role="strong">release-rpm</emphasis></term>
+            <entry>Relax NG schemas for repository definition validation.
+            </entry>
+          </row>
+          <row>
+            <entry>/usr/share/centosstudio/templates</entry>
 
-        <listitem>
-	  <para>
-          An RPM package created by CentOS Studio during the build process.
-          This package contains the <xref linkend='yum-sync-plugin'/>
-          and YUM configuration for the repository.
-          </para>
+            <entry>
+            Templates for use in definition creation. See the section on <xref
+            linkend='templates'/> in the Glossary of Terms for more information.
+            </entry>
+          </row>
+          <row>
+            <entry>/var/cache/centosstudio/</entry>
 
-          <para>
-          For more information on the release-rpm and how to customize its
-          content, see the <xref linkend="configuring-repositories"/> chapter
-          in this document. See also the section on
-          <emphasis>release-rpm</emphasis> in the <xref linkend='rdfr'/>.
-          </para>
+            <entry>CentOS Studio stores cached content in this folder. See
+            the centosstudio and centosstudio.conf man pages for cache-related
+            options.
+            </entry>
+          </row>
 
-        </listitem>
-      </varlistentry>
+          <row>
+            <entry>/var/log/centosstudio.log</entry>
 
-      <varlistentry id="repository" xreflabel="repository">
-        <term><emphasis role="strong">repository</emphasis></term>
+            <entry>CentOS Studio's default log file.</entry>
+          </row>
 
-        <listitem>
-	  <para>
-          A deployment repository created during the CentOS Studio build
-          process. Provides RPM packages and, optionally, installation images
-          for use during client machine installations and updates. Can be
-          accessed over the network from the the <xref
-          linkend="repository-url"/>.
-          </para>
-        </listitem>
-      </varlistentry>
+          <row>
+            <entry>/var/www/html/repos/</entry>
 
-      <varlistentry id="repository-data-file" xreflabel="repository data file">
-        <term><emphasis role="strong">repository data file</emphasis></term>
+            <entry>
+            CentOS Studio publishes completed repositories to
+            <filename>system</filename> and <filename>package</filename>
+            subfolders of this folder by default. An alternative location can
+            be specified on a per-repository basis within a repository
+            definition.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable></para>
 
-        <listitem>
-	  <para>
-          A file maintained by CentOS Studio to track CentOS Studio-generated
-          repository input data.  The file is created in the same folder as the
-          repository definition, using the same filename, with a
-          <filename>.dat</filename> file extension. For example, given the full
-          path to a repository definition:
-          </para>
-
-          <para><informalexample>
-          <filename>/~/samba-server.definition</filename></informalexample>
-          </para>
-
-          <para>CentOS Studio will create the data file as follows:</para>
-
-          <para><informalexample>
-          <filename>/~/samba-server.definition.dat</filename></informalexample>
-          </para>
-
-          <caution>
-          <para>
-          Care must be taken not to delete the repository data file. Doing so
-          will cause CentOS Studio to regenerate missing information. As a
-          result, installed client machines may fail to download updated RPMs
-          or may report errors when performing RPM GPG key checking. 
-          </para>
-          </caution>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="repository_definition" xreflabel="repository definition">
-        <term><emphasis role="strong">repository definition</emphasis></term>
-
-        <listitem>
-          <para>A file that defines how CentOS Studio should build, configure
-          and store a repository. By convention the file uses the <filename
-          class="extension">.definition</filename> extension. The file is in
-          XML format as defined in the <xref linkend="rdfr"/>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="rdfr" xreflabel="Repository Definition File Reference">
-        <term><emphasis role="strong">Repository Definition File Reference (RDFR)</emphasis></term>
-
-        <listitem>
-	  <para>
-          The rules of syntax for the repository definition. See the separate
-          document at <ulink
-          url="http://www.centossolutions.com/centosstudio/documentation/">
-          http://www.centossolutions.com/centosstudio/documentation/ </ulink>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="repository-id" xreflabel="repository ID">
-        <term><emphasis
-        role="strong"><varname>repository ID</varname></emphasis></term>
-
-        <listitem>
-          <para>
-          The id for a repository. Corresponds to the global run-time macro
-          %{id}. See the Macros section of the <xref linkend='rdfr'/> for more
-          information on macros.
-          </para>
-          
-          <para>
-          The default value is
-          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
-          where these values correspond to the <emphasis>name</emphasis>,
-          <emphasis>version</emphasis> and <emphasis>arch</emphasis> for the
-          repository.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="repository-url" xreflabel="repository URL">
-        <term><emphasis role="strong">repository URL</emphasis></term>
-
-        <listitem>
-	  <para>
-          The web location (URL) for downloading repository content. By default
-          the repository URL is as follows, where $IP_ADDRESS is the address of
-          the build machine, <constant>TYPE</constant> is the type of the
-          repository (system or package), and %{id} is the <xref
-          linkend='repository-id'/>
-          </para>
-
-          <para><informalexample>
-	    <filename>http://$IP_ADDRESS/repos/TYPE/%{id}</filename></informalexample></para>
-
-	  <para>
-          For example, if the IP Address for the build machine is
-          <filename>192.168.1.5</filename> and the repository type is
-          <emphasis>system</emphasis> with an id of
-          <emphasis>samba-server-5-i386</emphasis> the repository URL is as
-          follows:
-          </para>
-
-          <para>
-          <informalexample>
-          <filename>http://192.168.1.5/repos/system/samba-server-5-i386</filename>
-          </informalexample>
-          </para>
-
-	  <para>
-          The repository URL is configurable using the
-          <emphasis>remote-url</emphasis> element described in the
-          <emphasis>Deployment Elements</emphasis> chapter of the <xref
-          linkend='rdfr'/>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="yum-sync-plugin" xreflabel="YUM Sync Plugin">
-        <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
-
-        <listitem>
-	  <para>
-          A <application class="software">YUM</application> plugin provided by
-          CentOS Studio that allows synchronizing packages on client machines
-          with packages in the <xref linkend="repository"/>.  The plugin is
-          included by default in the <xref linkend="release-rpm" />,
-          which serves as the mechanism for installing it on client machines.
-          </para>
-
-          <para>
-          The plugin establishes the <xref linkend='repository'/> as the
-          <emphasis>master repository</emphasis>, disables all other
-          repositories, and provides a new argument, <emphasis>sync</emphasis>,
-          to YUM. Help for the <emphasis>sync</emphasis> argument is available
-          on client machines using the <command>yum help</command> command.
-          Running <command>yum sync</command> allows YUM to calculate package
-          additions and removals based on packages available in the repository.
-          For more information, see the section on <xref
-          linkend="updating-client-machines"/>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-    </variablelist></para>
 </section>

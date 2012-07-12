@@ -208,7 +208,7 @@
 [&lt;repos>
   &lt;repo id=TEXT>*
     (&lt;baseurl>URL&lt;/baseurl> | 
-    [&lt;download>PACKAGE&lt;/download>]* | 
+    [&lt;download>BOOLEAN&lt;/download>]* | 
     [&lt;exclude>PACKAGE&lt;/exclude>]* | 
     [&lt;gpgkey>PATH&lt;/gpgkey>]* | 
     [&lt;include>PACKAGE&lt;/include>]* | 

@@ -1,22 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-    <title>Validating a Definition</title>
+  <title>Updating Repositories</title>
 
-    <para>Once your definition is complete, you can use 
-    <application class="software">CentOS Studio</application> to validate
-    it's syntax.</para>
+  <para>
+  To keep your repository current, you will need to run CentOS Studio on a
+  regular basis. Each time CentOS Studio runs, it checks for changes in the
+  repository definition or in input data - such as new packages available from
+  an input repository - and refreshes the repository as necessary.
+  </para>
 
-    <para>
-    <informalexample>
-      <programlisting>#centosstudio --validate-only samba-server.definition</programlisting>
-    </informalexample>
-    </para>
+  <para>
+  If CentOS Studio finds updated packages, it refreshes the <xref
+  linkend="repository"/> to contain just the current set of packages.
+  Specifically, when CentOS Studio determines that packages have changed, it
+  calculates the list of packages needed to satisfy repository requirements,
+  and then adds and removes packages as necessary to bring the repository into
+  comformance with the list. This behavior allows the <xref
+  linkend="yum-sync-plugin" /> to rely on packages in the repository as a
+  master list of packages to be installed on client machines.
+  </para>
 
-    <para>If your definition is valid, 
-    <application class="software">CentOS Studio</application> will display the 
-    complete definition and exit. Otherwise, it will display error information,
-    allowing you to locate and correct issues.</para>
+  <para>
+  To update your repository, you use the same command as you used to initially
+  build it, for example:
+  </para>
+
+  <para>
+  <informalexample><programlisting>
+# centosstudio web-server.definition
+  </programlisting></informalexample>
+  </para>
+
+  <para>
+  You can automate repository updates using <command>cron</command>. The
+  following example shows a shell script that updates the web-server
+  repository.
+  </para>
+
+  <para><informalexample>
+  <programlisting>
+#!/bin/sh
+DEF_DIR=/root/definitions
+PARAMS="\
+  $DEF_DIR/web-server.definition \
+  "
+
+for params in $PARAMS; do
+  centosstudio $params 
+done
+  </programlisting>
+  </informalexample></para>
+
+  <para>
+  You can extend this script to update additional repositories by adding lines
+  to the PARAMS variable.  To run the script on a nightly basis, save it to a
+  file (e.g.  <filename>nightly_build.sh</filename>), copy the file to the
+  <filename>/etc/cron.daily</filename> folder, and make it executable (e.g. by
+  using the command <command>chmod +x
+  /etc/cron.daily/nightly_build.sh</command>).
+  </para>
 
 </section>

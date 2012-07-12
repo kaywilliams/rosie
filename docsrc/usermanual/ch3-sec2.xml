@@ -2,117 +2,552 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 
-<section id="creating-a-solution-definition" xreflabel="Creating a Repository Definition">
+<section id="creating-a-repository-definition" xreflabel="Creating a Repository Definition">
   <title>Creating a Repository Definition</title>
 
-  <para>For the purpose of this user guide, examples, processes and
-  illustrations will focus on defining, building, deploying and updating a
-  <application class="software">Samba</application> server based on
-  <application class="software">CentOS 5</application>. Samba is a project of
-  the <ulink url="http://conservancy.softwarefreedom.org/">Software Freedom
-  Conservancy</ulink>. Samba is a key interoperability component in a blended
-  operating system environment. When installed on a Linux or Unix operating
-  system, it enables that system to act like a Windows file or print server,
-  enabling Windows users to print to or save files using it.</para>
+  <para>
+  For the purpose of this user guide, examples, processes and illustrations
+  will focus on defining, building, deploying and updating a <application
+  class="software">Apache</application> web server based on <application
+  class="software">CentOS</application> version 5 or 6. Apache is a project of
+  the <ulink url="http://www.apache.org/">Apache Software Foundation</ulink>. 
+  </para>
 
-  <para>The discussions and code examples in this chapter and subsequent parts
-  focus on a Samba server based on CentOS 5 that enables print and file
-  services. In this chapter, the examples assume the server will be
-  installed via the network directly from the build machine. The SDFR provides
-  the syntax for all parent and child elements and their attributes.</para>
+  <para>
+  In this chapter, the examples assume the Apache web server will be installed
+  via the network directly from the build machine. The <xref linkend='rdfr'/>
+  provides the syntax for all parent and child elements and their attributes.
+  </para>
 
-  <para>Creating the Samba server solution entails several steps. After
-  configuring the <application class="software">CentOS Studio</application>
-  build machine, as described in the previous chapter, you need to create a
-  solution definition (<filename
-  class="extension">samba-server.definition</filename>). Then you run
-  <command>centosstudio</command> to validate the file and and build the
-  solution.</para>
+  <para>
+  Creating the web server repository entails several steps. After configuring
+  the <application class="software">CentOS Studio</application> build machine,
+  as described in the previous chapter, you need to create a repository
+  definition (<filename class="extension">web-server.definition</filename>).
+  Then you run <command>centosstudio</command> to validate the file and and
+  build the repository.
+  </para>
 
-  <para>The next section will explain how to define the solution.</para>
+  <para>The next section will explain how to define the repository.</para>
 
  <section>
-    <title>Creating a solution definition</title>
+    <title>Creating a repository definition</title>
 
-    <para>A solution definition is a text file in XML format. It can
+    <para>A repository definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;solution&gt; and 
-    &lt;/solution&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;repo&gt; and 
+    &lt;/repo&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
-      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+      <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/solution&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
     </informalexample></para>
 
-    <para>The first line, beginning in "&lt;?xml", identifies the file
+    <para>
+    The first line, beginning in "&lt;?xml", identifies the file
     as an XML file. This line is not required, but it is a good practice to
-    includ it for compatibility with future XML format changes.</para>
+    include it for compatibility with future XML format changes.
+    </para>
 
-    <para>Likewise, the "xmlns:xi..." attribute is not required on the 
-    solution element. It allows the use of XIncludes within the
+    <para>
+    Likewise, the "xmlns:xi..." attribute is not required on the 
+    repository element. It allows the use of XIncludes within the
     document. XIncludes, a convenient mechanism for reusing content across 
     multiple definitions, are discussed in the Repository Definition File
-    Reference (SDFR).</para>   
+    Reference (RDFR).
+    </para>   
 
   </section>
 
   <section>
-    <title>Naming a solution</title>
+    <title>Naming a repository</title>
 
-    <para>The first required element of the definition, 
-    <emphasis>main</emphasis>, includes the name of the solution, the solution
-    architecture and the version. These three items make up the default
-    solution id (<varname>%{id}</varname>), which CentOS Studio uses to create
-    folders for storing the completed solution (under 
-    <filename type="directory">/var/www/html/solutions</filename>, by
-    default) and for caching solution content (under 
-    <filename type="directory">/var/cache/centosstudio</filename>, by default).
+    <para>
+    The first required element of the definition, <emphasis>main</emphasis>,
+    includes the name of the repository, the repository architecture and the
+    version. By default, these three items make up the default repository id
+    (<varname>%{id}</varname>), which CentOS Studio uses to create folders for
+    storing the completed repository (under <filename
+    type="directory">/var/www/html/repos</filename>, by default) and for
+    caching repository content (under <filename
+    type="directory">/var/cache/centosstudio</filename>, by default).
     </para>
 
     <para><note>
-        <para>The elements can be in any order within a solution definition.
+        <para>The elements can be in any order within a repository definition.
         </para>
       </note></para>
 
-    <para>In the example below, the solution version will be 5, the solution
-    architecture will be i386, and the <varname>%{id}</varname> will
-    be <filename>samba-server-5-i386</filename>. </para>
+    <para>In the example below, the repository version will be 6, the repository
+    architecture will be x86_64, and the <varname>%{id}</varname> will
+    be <filename>web-server-6-x86_64</filename>. </para>
 
     <para><informalexample>
       <programlisting>
 &lt;main&gt;
-  &lt;name&gt;samba-server&lt;/name&gt;
-  &lt;version&gt;5&lt;/version&gt;
-  &lt;arch&gt;i386&lt;/arch&gt;
+  &lt;fullname&gt;Example Web Server&lt;/fullname&gt;
+  &lt;name&gt;web-server&lt;/name&gt;
+  &lt;version&gt;6&lt;/version&gt;
+  &lt;arch&gt;x86_64&lt;/arch&gt;
 &lt;/main&gt;</programlisting>
     </informalexample></para>
 
-    <para>You can override the default solution id using an
-    <emphasis>id</emphasis> element. See the SDFR for more details about the
+    <para>You can override the default repository id using an
+    <emphasis>id</emphasis> element. See the RDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
-    <para>Save the file as <filename>samba-server.definition</filename> before
-    preceding.</para>
+    <para>
+    The example above shows creating a definition for a specific version
+    (<emphasis>6</emphasis>) and architecture (<emphasis>x86_64</emphasis>) of
+    CentOS. Typically you will want to make your definitions more flexible,
+    however, so that they can encompass multiple Operating System versions and
+    architectures. You can do this using macros.
+    </para>
 
-    <para><note>
-        <para>Each time you change a solution's id, either implicitly by
-        changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
-        <emphasis>arch</emphasis> elements, or explicitly by changing the
-        <emphasis>id</emphasis> element, CentOS Studio creates new folders for
-        it in the publish and cache folders 
-        (<emphasis>/var/www/html/solutions</emphasis> and 
-        <emphasis>/var/cache/centosstudio</emphasis>, by default,
-        respectively). To preserve hard drive space, you may wish to review 
-        the publish and cache folders on occasion. Folders for obsolete
-        solutions can be deleted using standard file system methods
-        (e.g. <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).
-        </para>
-      </note></para>
+    <para>
+    To make use of macros, change the repository definition as shown below.
+    This example, like the one above, defaults to creating a repository based
+    on CentOS 6 for the x86_64 archtecture.  In addition, it enables providing an
+    alternative OS version or archicture using command-line macros. Command
+    line macros will be discussed in more detail in the <xref
+    linkend='building-repositories'/> section of this chapter.
+    </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;macro id='version'>6&lt;macro>
+&lt;macro id='arch'>x86_64&lt;macro>
+
+&lt;main&gt;
+  &lt;name&gt;web-server&lt;/name&gt;
+  &lt;version&gt;%{version}&lt;/version&gt;
+  &lt;arch&gt;%{arch}&lt;/arch&gt;
+&lt;/main&gt;</programlisting>
+    </informalexample></para>
+
+    <note>
+    <para>
+    Each time you change a repository's id, either implicitly by changing the
+    <emphasis>name</emphasis>, <emphasis>version</emphasis> or
+    <emphasis>arch</emphasis> elements, or explicitly by changing the
+    <emphasis>id</emphasis> element, CentOS Studio creates new folders in the
+    publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
+    <emphasis>/var/cache/centosstudio</emphasis>, by default, respectively). To
+    preserve hard drive space, you may wish to review the publish and cache
+    folders on occasion. Folders for obsolete repository ids can be deleted
+    using standard file system methods (e.g. <command>rm -rf
+    <emphasis>obsolete_folder</emphasis></command>).
+    </para>
+    </note>
+
+  </section>
+
+  <section>
+  <title>Specifying a repository type</title>
+
+  <para>
+  By default, CentOS Studio creates <emphasis>system</emphasis>-type
+  repositories. To create a <emphasis>package</emphasis>-type repository, add
+  the <emphasis>type</emphasis> element to the <emphasis>main</emphasis>
+  section.
+  </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;macro id='version'>6&lt;macro>
+&lt;macro id='arch'>x86_64&lt;macro>
+
+&lt;main&gt;
+  &lt;name&gt;web-server&lt;/name&gt;
+  &lt;version&gt;%{version}&lt;/version&gt;
+  &lt;arch&gt;%{arch}&lt;/arch&gt;
+  &lt;type&gt;package&lt;/type&gt;
+&lt;/main&gt;</programlisting>
+    </informalexample></para>
+
+  <para>
+  See the <xref linkend="repository-types"/> section of this document for more
+  information on types.
+  </para>
+
+  </section>
+
+  <para>
+  Save the file as <filename>web-server.definition</filename> before
+  preceding.
+  </para>
+
+  <section id="specifying-input-repositories" 
+           xreflabel="Specifying Input Repositories">
+  <title>Specifying Input Repositories</title>
+
+    <para>
+    During the repository creation process, CentOS Studio obtains software from
+    other existing repositories, referred to as <emphasis>input
+    repositories</emphasis> in this document.  In this section, you will define
+    the input repositories to be used for creating your repository.
+    </para>
+
+    <para>
+    Input repositories fall into three general classes.
+    </para>
+
+    <itemizedlist>
+
+      <listitem><para>
+      Operating System Base Repository. For CentOS, the base repository will be
+      obtained from a public or local mirror. For Red Hat Enterprise Linux, it
+      will be obtained from an install tree created using an ISO image file.
+      The base repository is unique in that it contains <filename
+      class="directory">isolinux</filename> and <filename
+      class="directory">images</filename> folders in addition to RPM packages.
+      Existing CentOS Studio-created system repositories can also serve as
+      Operating System Base Repositories.
+      </para></listitem>
+
+      <listitem><para>
+      Operating System Update Repositories. For CentOS, again the update 
+      repository will be located on a public or local mirror. For Red Hat
+      Enterprise Network, it will be available as a channel within Red Hat
+      Network.
+      </para></listitem>
+
+      <listitem><para>Additional Repositories. Your repository may 
+      include packages from any number of additional public or private 
+      repositories.</para></listitem>
+
+    </itemizedlist>
+
+    <important>
+    <para>
+    If you are building a <emphasis>system</emphasis> repository, you must
+    include a repository definition for the Operating System Base Repository.
+    This repository must contain <filename
+    class="directory">isolinux</filename> and <filename
+    class="directory">images</filename> folders. Typically, you will also want
+    to include an Operating System Update Repository.
+    </para>
+    </important>
+
+  <section>
+  <title>Input repository identifiers</title>
+
+  <para>
+  For each input repository you specify, you will need to provide a unique
+  identifier or <emphasis>id</emphasis>. Typically the Operating System Base
+  Repository is given the id "<emphasis>base</emphasis>", and the Operating
+  System Update Repository is given the id "<emphasis>updates</emphasis>". Ids
+  for other repositories are commonly descriptive for the repository, e.g.
+  "<emphasis>epel</emphasis>" for the <emphasis>Extra Packages for Enterprise
+  Linux</emphasis> repository.
+  </para>
+  
+  <para>
+  CentOS Studio gives special meaning to repositories with the ids
+  "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
+  repositories are assumed to be associated with the base operating system. This
+  special meaning applies only when creating <emphasis>package</emphasis>-type
+  repositories. Specifically, when creating package-type repositories, CentOS
+  Studio automatically sets the <emphasis>download</emphasis> property to
+  <emphasis>false</emphasis> for the base and updates input repositories.
+  </para>
+
+  <para>
+  The effect of this behavior is that packages from operating system
+  repositories will not be included in <emphasis>package</emphasis>-type
+  repositories. They will, however, be used for resolving dependencies. This
+  ensures that packages from the <emphasis>package</emphasis> repository can be
+  installed without error on existing client systems, independent of the
+  installed operating system (CentOS or Red Hat Enterprise Linux).
+  </para>
+
+  <para>
+  See the following sections for examples of specifying input repository
+  <emphasis>ids</emphasis>. See also the chapter on <emphasis>Repos</emphasis>
+  in the <xref linkend='rdfr'/> for more information on the
+  <emphasis>download</emphasis> element. 
+  </para>
+
+  </section>
+
+  <section>
+  <title>CentOS repositories</title>
+
+    <para>
+    This example directs CentOS Studio to use public mirrors to access the
+    CentOS base and updates repositories. Because it makes use of %{version}
+    and %{arch} macros, it can be used for CentOS version 5 or 6, with either
+    i386 or x86_64 architecture.  The line breaks shown are for readability
+    and should not be included in your definition.
+    </para>
+
+    <para><informalexample>
+    <programlisting>
+&lt;repos&gt;
+
+&lt;repo id="base"&gt;
+&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
+&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
+&lt;/repo&gt;
+
+&lt;repo id="updates"&gt;
+&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/updates/%{arch}/&lt;/baseurl&gt;
+&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
+&lt;/repo&gt;
+
+&lt;/repos&gt;</programlisting>
+      </informalexample></para>
+
+    </section>
+
+    <section>
+    <title>Red Hat Enterprise Linux repositories</title>
+      <para>
+      Prior to using CentOS Studio to access Red Hat Enterprise Linux
+      repositories, you will need to complete the following steps:</para>
+
+      <itemizedlist>
+
+        <listitem><para>Create a Red Hat Enterprise Linux 6 install tree. This
+        can be accomplished by downloading an ISO image (a single DVD image is
+        recommended for easier mounting) from Red Hat Network and using the 
+        <command>mount -o loop</command> command to mount the 
+        <filename>.iso</filename> to a folder location. See the <emphasis>Red
+        Hat Enterprise Linux 6 Installation Guide</emphasis>, under the topic
+        <emphasis>Preparing for a Network Installation</emphasis>, for more
+        information.</para></listitem>
+
+        <listitem><para>
+        Create a systemid for accessing updates from RHN. This step requires an
+        available subscription to Red Hat Enterprise Linux. See the Red Hat web
+        site for purchase information. Once you have an available subscription,
+        install Red Hat Enterprise Linux 6 in the desired architecture version
+        (i386 or x86_64) onto a client machine.  Register the machine to Red
+        Hat Network during installation, or first boot, or later using the
+        <command>rhn_register</command> command. Once the system has
+        successfully registered with RHN, a systemid file will be created in
+        the <filename type="directory">/etc/sysconfig/</filename> folder of the
+        machine. You will use this file to configure CentOS Studio to access
+        software from RHN. You may copy this file to the CentOS Studio build
+        machine if necessary. Note, to ensure the systemid has access to the
+        software desired for your repository, you can use the Red Hat Network
+        web user interface to locate the system, and view and alter it's
+        channel subscriptions.
+        </para></listitem>
+      </itemizedlist>
+
+      <para>
+      After completing the above steps, you are ready to specify base
+      and updates repositories for Red Hat Enterprise Linux.
+      </para>
+
+      <para>
+      The base repository will point to the Red Hat Enterprise Linux
+      install tree, created in the first step above.  In the example below, this
+      is located at <filename type="directory">http://www.examplecompany.com/
+      install_server/redhat/enterprise/6/en/os/x86_64/</filename>. This location
+      must contain <filename class="directory">isolinux</filename> and 
+      <filename class="directory">images</filename> folders.
+      </para>
+
+      <para>The update repository will point to the subscribed channel in RHN
+      using a custom <filename>rhn://</filename> protocol in the following
+      format:</para>
+
+      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
+      
+
+      <para>where $rhnhost is the hostname of the server to contact and
+      $rhnchannel is the name of the RHN channel from which to obtain packages.
+      If not specified, $rhnhost defaults to a public Red Hat Network server at
+      xmlrpc.rhn.redhat.com. Valid $rhnchannel values include:
+
+        <itemizedlist>
+          <listitem>rhel-x86_64-server-6</listitem>
+          <listitem>rhel-x86_64-server-6</listitem>
+        </itemizedlist>
+      </para>
+
+      <para>In the following example, CentOS Studio will contact the RHN server
+      located at <filename type="directory">xmlrpc.rhn.examplecompany.com
+      </filename> and request packages from the 
+      <filename>rhel-x86_64-server-6</filename> software channel.</para>
+
+      <para>
+      <informalexample>
+      <programlisting>
+&lt;repos&gt;
+
+&lt;repo id="base"&gt;
+&lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
+&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+&lt;/repo&gt;
+
+&lt;repo id="updates"&gt;
+&lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
+&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
+&lt;/repo&gt;
+
+&lt;/repos&gt; 
+      </programlisting>
+      </informalexample>
+      </para>
+
+    </section>
+
+    <section>
+    <title>Reusing repository definitions</title>
+
+    <para>
+    Often you will want to reuse the same input repositories across multiple
+    definitions. To accomplish this, you can save your input
+    repository definitions in an external file, and include them into your main
+    definition using <emphasis>XML Includes</emphasis>.
+    </para>
+    
+    <para>
+    The following example shows the contents of an external file containing
+    repository definitions. The file shown below is included in the <xref
+    linkend='templates'/> folder as a reference. The file is named
+    <filename>repos.xml</filename>.
+    </para>
+
+    <informalexample>
+    <programlisting>
+<xi:include href="templates/repos.xml" parse="text"
+            xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
+    </informalexample>
+
+    <para>
+    Below is an example of including repo elements from the
+    <filename>repos.xml</filename> file within a definition.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?>
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+
+...
+
+&lt;repos>
+&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/>
+&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
+&lt;/repos>
+
+&lt;/repo>
+    </programlisting>
+    </informalexample>
+
+    </section>
+
+    <para>
+    See the <xref linkend='rdfr'/> for complete information on the
+    <emphasis>repos</emphasis> element and its subelements, as well as for more
+    information <emphasis>XML Inclusions (XIncludes)</emphasis>.
+    </para>
+
+    <para>
+    Now that you've identified input repositories, you are ready
+    to start including packages.
+    </para>
+  </section>
+
+  <section>
+    <title>Specifying Packages</title>
+
+    <para>
+    Once you have defined input repositories, you can specify packages and
+    groups to include in your repository. Use the <emphasis>packages</emphasis>
+    top-level element to accomplish this.
+    </para>
+
+    <para>
+    The packages element is required for <emphasis>system</emphasis>-type
+    repositories and optional for <emphasis>package</emphasis>-type
+    repositories.
+    </para>
+
+    <para>
+    For system repositories, at a minimum you will usually want to include the
+    <emphasis>core</emphasis> and <emphasis>base</emphasis> groups. These
+    groups contain the needed packages for file system operation, network
+    connectivity, and system maintenance (e.g. the YUM application). The
+    example below shows including core and base package groups from the base
+    repository. To include a group from any repository, eliminate the
+    <emphasis>repoid</emphasis> attribute.
+    </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;packages&gt;
+  &lt;group repoid='base'&gt;core&lt;/group&gt;
+  &lt;group repoid='base'&gt;base&lt;/group&gt;
+&lt;/packages&gt;  </programlisting>
+    </informalexample></para>
+
+    <para>    
+    In addition, you may wish to include the package groups required to install
+    a Graphical User Interface (GUI). Note that the names of package
+    groups often vary across operation system versions. The example below
+    shows using Macros, XIncludes and XML elements to create a flexible
+    definition that includes appropriate groups for installing a GUI on each
+    operating system version. See the <xref linkend='rdfr'/> for more
+    information on Macros, XIncludes and XML elements.
+    </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;packages&gt;
+  &lt;group repoid='base'&gt;core&lt;/group&gt;
+  &lt;group repoid='base'&gt;base&lt;/group&gt;
+  &lt;xi:include xpointer="xpointer(//xml[@id='packages%{version}]/*)"/>
+&lt;/packages&gt;
+
+&lt;xml id="packages5">
+  &lt;group&gt;base-x&lt;/group&gt;
+  &lt;group&gt;gnome-desktop&lt;/group&gt;
+&lt;xml>
+
+&lt;xml id="packages6">
+  &lt;group&gt;X11&lt;/group&gt;
+  &lt;group&gt;desktop-platform&lt;/group&gt;
+  &lt;group&gt;basic-desktop&lt;/group&gt;
+  &lt;group&gt;general-desktop&lt;/group&gt;
+&lt;xml></programlisting>
+    </informalexample></para>
+
+    <para>
+    You can browse groups provided by a repository, if any, by opening the
+    groups file for the repository. The groups file can be located in the
+    repository's <filename>repodata</filename> folder, with a filename
+    typically ending with <filename>comps.xml</filename>.
+    </para>
+
+    <para>
+    In addition to groups, you can also also specify individual packages, as
+    shown below.
+    </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;package&gt;httpd&lt;/package>
+    </programlisting>
+    </informalexample></para>
+
+    <para>
+    Often, however, for greater flexibility and definition reuse, individual
+    packages are specified within the context of <xref linkend='config-rpms'/>.
+    Config-rpms will be discussed later in this document, in the chapter on
+    <xref linkend='building-rpms'/>.
+    </para>
 
   </section>
 

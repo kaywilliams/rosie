@@ -64,8 +64,8 @@
     </listitem>
 
     <listitem>
-    A template named <filename>deploy.xml</filename> containing deployment
-    scripts. The <filename>deploy.xml</filename> file is also used across
+    A template named <filename>virt-deploy.xml</filename> containing deployment
+    scripts. The <filename>virt-deploy.xml</filename> file is also used across
     <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
     top-level element examples.
     </listitem>
@@ -87,7 +87,7 @@
     </listitem>
 
     <listitem>
-    Uses XInclude to include all top-level elements from the deploy.xml
+    Uses XInclude to include all top-level elements from the virt-deploy.xml
     template.
     </listitem>
     </itemizedlist>
@@ -96,24 +96,25 @@
     <programlisting>
 &lt;test-install>
   &lt;password>mypassword&lt;/password>
-  &lt;xi:include href="path/to/deploy.xml" xpointer="xpointer(/*/*)"/>
+  &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install>
     </programlisting>
     </section>
 
-    <section id="deploy.xml" xreflabel="deploy.xml">
+    <section id="virt-deploy.xml" xreflabel="virt-deploy.xml">
     <title>
-    Example - <filename>deploy.xml</filename> template
+    Example - <filename>virt-deploy.xml</filename> template
     </title>
 
     <para>
-    The deploy.xml template, shown below, provides the configuration necessary
-    to deploy and maintain a local virtual machine. Deploy.xml in turn make use
-    of many additional templates. See the <xref linkend='templates'/> section
-    of this document for information on locating and using templates.
+    The virt-deploy.xml template, shown below, provides the configuration
+    necessary to deploy and maintain a local virtual machine. Virt-deploy.xml
+    in turn makes use of many additional templates. See the <xref
+    linkend='templates'/> section of this document for information on locating
+    and using templates.
     </para>
 
-    <programlisting><xi:include href='templates/deploy.xml' parse="text" /></programlisting>
+    <programlisting><xi:include href='templates/virt-deploy.xml' parse="text" /></programlisting>
     </section>
     </informalexample>
 

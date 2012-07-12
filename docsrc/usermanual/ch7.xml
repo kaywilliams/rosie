@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="package-repos" 
+         xreflabel="Package Repositories">
+  <title>Package Repositories</title>
+
+  <para>
+  Package repositories are typically created and maintained by Independent
+  Software Vendors (ISVs) who distribute consumer and enterprise applications,
+  and by systems administrators, who manage applications and configuration
+  across multiple clients within an organization. Package repositories are
+  useful for deploying software and configuration that is applicable across
+  diverse clients, and that does not change from client to client.
+  </para>
+
+  <para>
+  In this chapter we will discuss defining, testing and deploying package
+  repositories.
+  </para>
+
+  <xi:include href="ch7-sec1.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch7-sec2.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch7-sec3.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch7-sec4.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+</chapter>

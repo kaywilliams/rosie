@@ -1,174 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="specifying-repositories" xreflabel="Specifying Repositories">
-  <title>Specifying Repositories</title>
+<section>
+    <title>Validating a Definition</title>
 
-    <para>CentOS Studio obtains software from RPM package repositories. 
-    Repositories are collections of RPMs with associated metadata files. 
-    Metadata files allow applications, like 
-    <application>CentOS Studio</application>, to learn about packages in the
-    repository, without having to download and inspect each package
-    individually. Access to package repositories may be either public or
-    restricted. Common public repositories include CentOS 5 Base, CentOS 5 
-    Updates, and Extra Packages for Enterprise Linux (EPEL). Access to Red Hat
-    Enterprise Linux 5 repositories is restricted. Administrators can create
-    custom package repositories using the <application>createrepo</application>
-    utility.</para>
+    <para>Once your definition is complete, you can use 
+    <application class="software">CentOS Studio</application> to validate
+    it's syntax.</para>
 
-    <para>In this section, you will define the repositories to be used for your
-    solution.</para>
+    <para>
+    <informalexample>
+      <programlisting>#centosstudio --validate-only web-server.definition</programlisting>
+    </informalexample>
+    </para>
 
-    <itemizedlist>
-
-      <listitem><para>Operating System Base Repository. For CentOS, this will be
-      a public or local mirror. For Red Hat Enterprise Linux, an install tree
-      created using an ISO image file. This repository is unique in that it also
-      contains <filename class="directory">isolinux</filename> and 
-      <filename class="directory">images</filename> folders. Your definition
-      must include an operating system base repository.</para></listitem>
-
-      <listitem><para>Operating System Update Repositories. For CentOS, again
-      this will be a public or local mirror. For Red Hat Enterprise Network, a
-      channel within Red Hat Network. Typically, your definition will include
-      both base and updates repositories.</para></listitem>
-
-      <listitem><para>Additional Repositories. Your solution may 
-      include packages from any number of additional public or private 
-      repositories.</para></listitem>
-
-    </itemizedlist>
-
-    <para><important>
-        <para>You must include a repository definition for the base operating
-        system. This repository must contain 
-        <filename class="directory">isolinux</filename> and 
-        <filename class="directory">images</filename> folders.</para>
-      </important></para>
-
-  	<section>
-  	  <title>CentOS repositories</title>
-
-      <para>This example directs CentOS Studio to use public mirrors to access
-      the CentOS 5 base and updates repositories for the i386 architecture.
-      </para>
-
-      <para><informalexample>
-        <programlisting>
-&lt;repos&gt;
-
-  &lt;repo id="base"&gt;
-    &lt;name&gt;CentOS-%{version}-Base&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-  &lt;/repo&gt;
-
-  &lt;repo id="updates"&gt;
-    &lt;name&gt;CentOS-%{version}-Updates&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/updates/%{arch}/&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-  &lt;/repo&gt;
-
-&lt;/repos&gt;</programlisting>
-      </informalexample></para>
-
-    </section>
-
-    <section>
-    <title>Red Hat Enterprise Linux repositories</title>
-      <para>
-      Prior to using CentOS Studio to access Red Hat Enterprise Linux
-      repositories, you will need to complete the following steps:</para>
-
-      <itemizedlist>
-
-        <listitem><para>Create a Red Hat Enterprise Linux 5 install tree. This
-        can be accomplished by downloading an ISO image (a single DVD image is
-        recommended for easier mounting) from Red Hat Network and using the 
-        <command>mount -o loop</command> command to mount the 
-        <filename>.iso</filename> to a folder location. See the <emphasis>Red
-        Hat Enterprise Linux 5 Installation Guide</emphasis>, under the topic
-        <emphasis>Preparing for a Network Installation</emphasis>, for more
-        information.</para></listitem>
-
-        <listitem><para>Create a systemid for accessing updates from RHN. This
-        step requires an available subscription to Red Hat Enterprise Linux. See
-        the Red Hat web site for purchase information. Once you have an 
-        available subscription, install Red Hat Enterprise Linux 5 in the
-        desired architecture version (i386 or x86_64) onto a client machine.
-        Register the machine to Red Hat Network during installation, or first
-        boot, or later using the <command>rhn_register</command> command. Once
-        the system has successfully registered with RHN, a systemid file will
-        be created in the <filename type="directory">/etc/sysconfig/</filename>
-        folder of the machine. This is the file you will use to configure
-        CentOS Studio to access software from RHN. You may copy this file to the
-        CentOS Studio build machine if necessary. Note, to ensure the systemid
-        has access to the software desired for your solution, you can use
-        the Red Hat Network web user interface to locate the system, and view
-        and alter it's channel subscriptions.</para></listitem>
-      </itemizedlist>
-
-      <para>After the above steps are completed, you are ready to specify base
-      and updates repositories for Red Hat Enterprise Linux.</para>
-
-      <para>The base repository will point to the Red Hat Enterprise Linux
-      install tree, created in the first step above.  In the example below, this
-      is located at <filename type="directory">http://www.examplecompany.com/
-      install_server/redhat/enterprise/5/en/os/i386/</filename>. This location
-      must contain <filename class="directory">isolinux</filename> and 
-      <filename class="directory">images</filename> folders.</para>
-
-      <para>The update repository will point to the subscribed channel in RHN
-      using a custom <filename>rhn://</filename> protocol in the following
-      format:</para>
-
-      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
-      
-
-      <para>where $rhnhost is the hostname of the server to contact and
-      $rhnchannel is the name of the RHN channel from which to obtain packages.
-      If not specified, $rhnhost defaults to a public Red Hat Network server at
-      xmlrpc.rhn.redhat.com. Valid $rhnchannel values include:
-
-        <itemizedlist>
-          <listitem>rhel-i386-server-5</listitem>
-          <listitem>rhel-x86_64-server-5</listitem>
-        </itemizedlist>
-      </para>
-
-      <para>In the following example, CentOS Studio will contact the RHN server
-      located at <filename type="directory">xmlrpc.rhn.examplecompany.com
-      </filename> and request packages from the 
-      <filename>rhel-i386-server-5</filename> software channel.</para>
-
-      <para>
-      <informalexample>
-      <programlisting>
-&lt;repos&gt;
-
-  &lt;repo id="base"&gt;
-    &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
-    &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-
-  &lt;/repo&gt;
-
-  &lt;repo id="updates"&gt;
-    &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
-    &lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
-    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-    &lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
-  &lt;/repo&gt;
-
-&lt;/repos&gt; 
-      </programlisting>
-      </informalexample>
-      </para>
-
-    </section>
-
-    <para>Now that you've identified package repositories, you are ready
-    to start including packages.</para>
+    <para>If your definition is valid, 
+    <application class="software">CentOS Studio</application> will display the 
+    complete definition and exit. Otherwise, it will display error information,
+    allowing you to locate and correct issues.</para>
 
 </section>
-

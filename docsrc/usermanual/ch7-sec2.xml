@@ -1,145 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Updating a Repository</title>
+<section id="package-repository-types" 
+         xreflabel="Package Repository Types">
+  <title>Package Repository Types</title>
 
-  <para>CentOS Studio makes it easy to keep your solution up to date over 
-  time by simply rerunning the <command>centosstudio</command> command. 
-  When CentOS Studio runs, it looks for changes in build input, or in the 
-  solution definition, and makes adjustments to the published
-  solution as necessary.</para>
+  <para>
+  CentOS Studio supports several common package repository types:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Configuration Repositories - used for distributing organization-specific
+  operating system or application configuration.
+  </listitem>
+  
+  <listitem>
+  Patch Repositories - used for distributing patched software or configuration,
+  typically within an organization.
+  </listitem>
+
+  <listitem>
+  Aggregator Repositories - used for aggregating packages (typically subsets of
+  packages) from multiple repositories into a single convenience repository.
+  </listitem>
+
+  <listitem>
+  Application Repositories - used for distributing application software and
+  default configuration.
+  </listitem>
+  </itemizedlist>
+ 
+  <para>
+  These types are not mutually exclusive, in fact they often overlap. In this
+  section, we provide skeleton definitions for each package repository type.
+  </para>
 
   <section>
-    <title>Running <command>centosstudio</command> to check for repository
-    updates</title>
+  <title>Configuration Repositories</title>
 
-    <para>To include updated packages from the repositories, execute
-    <command>centosstudio</command> with the
-    <filename>samba-server.definition</filename> file. <application
-    class="software"> Rerunning <command>centosstudio</command> with the same
-    <filename class="extension">.definition</filename> file will dramatically
-    reduce the build time, assuming there are no changes to the file's
-    contents. CentOS Studio</application> uses a cache of the packages and verifies the
-    cache contents against the metadata for the repository and the groups. The
-    screen output below shows the results of a build with no changes to the
-    <filename>samba-server.definition</filename> file and no updates to the
-    repositories.</para>
+  <para>
+  Configuration repositores are used by enterprise systems administrators for
+  distributing enterprise-specific configuration, such as client authentication
+  (kerberos/ldap, etc.) and network (dhcp/dns) configuration.
+  </para>
 
-    <para><screen>Reading '/home/centosstudio/samba-server.definition'
-Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
-Build complete at 2009-10-25 18:30:26</screen></para>
-
-    <para>Since there were no updates, <command>centosstudio</command> completed
-    successfully in less than two minutes. (Results will vary based on factors
-    including network connection speed between the build machine and input 
-    repositories, number of packages in the solution, and build 
-    machine hardware configuration.) Only if something had changed would
-    <command>centosstudio</command> have rerun the repository updates and 
-    provided more detail about this build.</para>
-
-    <para>Unless you change the log level or the contents of the solution, 
-    <command>centosstudio</command> will append the minimal output above to 
-    the log file.</para>
-
-    <para><note>
-        <para>CentOS Studio's default behavior is to append all build output to the
-        <filename>centosstudio.log</filename> file in the <filename
-        class="directory">/var/log</filename> directory. To redirect the
-        output for a particular build, use the <command>centosstudio</command>
-        command</para>
-
-        <para><userinput># centosstudio --log-file /var/log/$MYLOGFILE
-        samba-server.definition</userinput></para>
-
-        <para>where <varname>$MYLOGFILE</varname> is the new name of the log
-        file.</para>
-      </note></para>
-
-    <para>If CentOS Studio finds updated packages, it will refresh the 
-    <xref linkend="repository"/> to contain just the current set
-    of packages. Specifically, when CentOS Studio determines that packages have
-    changed, it calculates the list of packages needed to satisfy solution 
-    requirements, and then adds and removes packages as necessary to bring the 
-    solution into comformance with the list. This behavior 
-    allows the <xref linkend="yum-sync-plugin" /> to rely on packages in the 
-    solution as a master list of packages to be installed on 
-    client machines.</para>
-
-    <para><important>
-        <para>If the published repository URL is the same,
-        <command>centosstudio</command> updates the solution, adding new files and
-        replacing old ones.</para>
-      </important></para>
+  <para>
+  Configuration repositories are 
+  Application repositories are the most complex package repository type. They combine elements of all the other types - configuration, patch and aggregator.
+  </para>
+  
   </section>
 
   <section>
-    <title>Modifying the solution definition</title>
+  <title>Patch Repositories</title>
 
-    <para>If you change the solution definition, or other build input 
-    such as configuration files and scripts, then you need to rerun 
-    <command>centosstudio</command>. You may redefine
-    your solution in a plethora of ways. Some of the more common options
-    could include selecting different repositories; including or excluding
-    groups, packages or custom files (configuration files, scripts or
-    triggers); or defining a new destination for the published
-    solution.</para>
+  <para>
+  Application repositores are used by ISVs or enterprise IT departments for
+  distributing software applications and default configuration.  
+  </para>
 
-    <para>If you change the <emphasis>main/name</emphasis>,
-    <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
-    elements, then you are creating a new solution with a new
-    <varname>%{id}</varname> and <xref linkend="repository-url"/>
-    matching the new parameters. To avoid confusion between the different
-    solutions, save the new solution definition with a new name.</para>
+  <para>
+  Application repositories are the most complex package repository type. They
+  combine elements of all the other types - configuration, patch and
+  aggregator.
+  </para>
+  
   </section>
 
-  <para>To try out solution updates for the samba-server example, you can 
-  make two modifications: remove a group, and modify a configuration file.</para>
+  <section>
+  <title>Aggregator Repositories</title>
 
-  <para>First, let's say you have determined you don't need packages from
-  the admin-tools group on this solution. You can remove them by removing the 
-  corresponding <emphasis>/packages/group</emphasis> element. Modify the
-  <emphasis>packages</emphasis> element to look as follows:</para>
+  <para>
+  Application repositores are used by ISVs or enterprise IT departments for
+  distributing software applications and default configuration.  
+  </para>
 
-    <para><informalexample>
-      <programlisting>
-&lt;packages&gt;
-  &lt;group&gt;core&lt;/group&gt;
-  &lt;group&gt;base&lt;/group&gt;
-  &lt;group&gt;base-x&lt;/group&gt;
-  &lt;group&gt;gnome-desktop&lt;/group&gt;
-  &lt;group&gt;smb-server&lt;/group&gt;
-&lt;/packages&gt;  </programlisting>
-    </informalexample></para>   
+  <para>
+  Application repositories are the most complex package repository type. They
+  combine elements of all the other types - configuration, patch and
+  aggregator.
+  </para>
+  
+  </section>
 
-  <para>Save the <filename>samba-server.definition</filename> file.</para>
+  <section>
+  <title>Application Repositories</title>
 
-  <para>Next, presuming you would like to change the name of the workgroup for 
-  your samba server, modify the content of the smb.conf file as follows:</para>
+  <para>
+  Application repositores are used by ISVs or enterprise IT departments for
+  distributing software applications and default configuration.  
+  </para>
 
-  <para><informalexample>
-   <programlisting>
-[global]
-  workgroup = MYCOMPANY     # was WORKGROUP
-  netbios name = SAMBA
-  security = share
+  <para>
+  Application repositories are the most complex package repository type. They
+  may combine elements of all the other types - configuration, patch and
+  aggregator.
+  </para>
+  
+  <para>
+  </para>
 
-[public]
-  comment = Public
-  path = /public
-  read only = no
-  guest only = yes
-    </programlisting>
-  </informalexample></para>
 
-  <para>Save the smb.conf file</para>
-
-  <para>Now run the command 
-  <command>centosstudio samba-server.definition</command>. You should see 
-  that a new config-rpm is generated, and that the solution
-  is updated.</para>
-
-  <para>In the next section you will see how these changes are applied to
-  previously installed client machines.</para>
-
+  </section>
 </section>

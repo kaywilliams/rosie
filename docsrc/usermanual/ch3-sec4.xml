@@ -1,28 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-    <title>Specifying Packages</title>
+<section id='building-repositories' xreflabel='Building Repositories'>
+  <title>Building Repositories</title>
 
-    <para>Once you have defined your repositories, you specify the software
-    packages and groups to include. Use the <emphasis>packages</emphasis>
-    top-level element to accomplish this.</para>
+  <para>
+  Now that you have defined your repository, you use the
+  <command>centosstudio</command> command to build it. Running CentOS Studio
+  validates the repository definition syntax, creates the repository, and logs
+  process results. The default level of screen output includes errors, build
+  status and file download and creation status. CentOS Studio also sends this
+  output to the log file, by default
+  <filename>/var/log/centosstudio.log</filename>. If a critical error occurs,
+  CentOS Studio includes detailed error information in the log file.
+  </para>
 
-    <para>The example below includes package groups for the <application
-    class="software">Samba</application> application and related tools plus the
-    <application class="software">GNOME</application> graphical user interface
-    (GUI) and common system administration tools.</para>
+  <para>
+  The initial build of a repository can be time consuming, on the order of
+  several minutes to an hour or more, depending on the location of package
+  repositories (local or remote), network connection speed, the number of
+  packages included in the repository, and the amount of content that can be
+  reused from the CentOS Studio shared cache. Subsequent builds complete in
+  much less time, often less than a minute, depending on the level and type of
+  change since the previous build.
+  </para>
 
-    <para><informalexample>
-      <programlisting>
-&lt;packages&gt;
-  &lt;group&gt;core&lt;/group&gt;
-  &lt;group&gt;base&lt;/group&gt;
-  &lt;group&gt;base-x&lt;/group&gt;
-  &lt;group&gt;gnome-desktop&lt;/group&gt;
-  &lt;group&gt;admin-tools&lt;/group&gt;
-  &lt;group&gt;smb-server&lt;/group&gt;
-&lt;/packages&gt;  </programlisting>
+  <para>To build the web-server repository we have been defining, enter the
+  command below:</para> 
+
+  <para><informalexample>
+      <programlisting>#centosstudio web-server.definition</programlisting>
     </informalexample></para>
+
+  <para>The output for an initial run details all the steps
+  for downloading packages, checking package dependencies and creating
+  images. If there are any errors, <application
+  class="software">CentOS Studio</application> notes those and, in many cases,
+  halts the process.</para>
+
+  <para>
+  When the process is complete, you can locate your new repository at
+  <filename>/var/www/html/repos/system/web-server-5-i386</filename>.
+  Package-type repositories will be located in the  
+  <filename>/var/www/html/repos/packages</filename> folder.
+  </para>
+  
+  <para>
+  You will also notice that CentOS Studio has created a new <xref
+  linkend='repository-data-file'/>,
+  <filename>web-server.definition.dat</filename>, in the same location as you
+  repository definition. Take care not to delete this file as it contains
+  important information for your repository.
+  </para>
+
+  <section>
+  <title>Using command-line macros </title>
+
+  <para>
+  Because we were careful to make use of macros while creating the definition,
+  the same definition can be used for multiple operating system versions and
+  architectures. To provide the desired version and arch when executing CentOS
+  Studio, use the <constant>--macro</constant> command line option. The example
+  below shows using command line macros to specify both version and arch.
+  </para>
+
+  <para><informalexample>
+      <programlisting>#centosstudio --macro "version:6" --macro "arch:x86_64" web-server.definition</programlisting>
+    </informalexample></para>
+  </section>
+
+  <note>
+  If your repository uses RHN channels as repositories, CentOS Studio may
+  occasionally report errors such as the following while downloading or
+  verifying repository metadata:
+
+  <programlisting>[repos] long int too large to convert to int</programlisting> 
+
+  This can happen when CentOS Studio receives invalid data from RHN. (Typically
+  this occurs when data is being replicated across RHN servers). The error may
+  be corrected by running CentOS Studio again, either immediately or after
+  waiting several minutes.
+</note>
 
 </section>

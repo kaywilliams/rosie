@@ -593,12 +593,16 @@ $remote-url/%{id}
     <listitem>
     <para>
     <xref linkend='content-text'/> value providing the name of a host, e.g.
-    <emphasis>samba-server</emphasis>. This value is provided as the module
-    macro <link linkend='deployment-macros'>%{hostname}</link>.
+    <emphasis>samba-server</emphasis>. Valid characters in hostnames include
+    a-z, A-Z, 0-9 and '-'. This value is provided as the module macro <link
+    linkend='deployment-macros'>%{hostname}</link>.
     </para>
 
     <para>
-    This attribute is optional. The default values are as follows:
+    This element is optional. The default values are shown in the table below,
+    where ID is the value of the %{id} macro, with underscores ('_')
+    automatically converted to hyphens ('_'), e.g. 'x86_64' is converted to
+    'x86-64':
     </para>
     
     <informaltable>
@@ -611,15 +615,15 @@ $remote-url/%{id}
     </row>
     <row>
     <entry>publish</entry>
-    <entry><varname>%{id}</varname></entry>
+    <entry><varname>ID</varname></entry>
     </row>
     <row>
     <entry>test-install</entry>
-    <entry><varname>%{id}</varname>-test-install</entry>
+    <entry><varname>ID</varname>-test-install</entry>
     </row>
     <row>
     <entry>test-update</entry>
-    <entry><varname>%{id}</varname>-test-update</entry>
+    <entry><varname>ID</varname>-test-update</entry>
     </row>
     </tbody>
     </tgroup>
@@ -640,7 +644,7 @@ $remote-url/%{id}
     </para>
 
     <para>
-    This attribute is optional. The default value is an empty string. A period
+    This element is optional. The default value is an empty string. A period
     character "." is prepended to the provided text if it does not exist, e.g.
     <emphasis>local</emphasis> is converted to <emphasis>.local</emphasis>.
     </para>
@@ -660,7 +664,7 @@ $remote-url/%{id}
     </para>
     
     <para>
-    This attribute is optional. The default values are as follows:
+    This element is optional. The default values are as follows:
     </para>
     
     <informaltable>
@@ -718,8 +722,8 @@ $remote-url/%{id}
     This value serves as a default for the module. If the value is
     <constant>TRUE</constant>, CentOS Studio will use SSH for individual
     scripts based on the value of the script's <emphasis>ssh</emphasis>
-    attribute. See the <xref linkend='deployment-script'/> element for
-    additional information on the <emphasis>ssh</emphasis> attribute.
+    attribute. See the script element for additional information on the <xref
+    linkend='script-ssh'/>  attribute.
     </para>
    
     <para>
@@ -865,6 +869,13 @@ $remote-url/%{id}
     </para>
     
     <para>
+    A kickstart file allows automating Anaconda system installation by 
+    providing answers to install-time questions such as selection of language,
+    network configuration, keyboard, file system configuration, mouse,
+    timezone and root password.
+    </para>
+
+    <para>
     CentOS Studio makes the kickstart available as a file
     named <filename>ks.cfg</filename> included in the root folder of the
     repository, e.g.
@@ -896,6 +907,16 @@ $remote-url/%{id}
     packages in the repository. If a '%packages' section is
     provided, it is ignored.</note>
   
+    <note>
+    Where possible, avoid using the '<emphasis>firewall</emphasis>' and
+    '<emphasis>%post</emphasis>' kickstart options, as they are applied only
+    during client installation. Instead, use <xref linkend='config-rpms'/> to
+    apply client configuration. This ensures uniform results whether the client
+    is installed from scratch, or merely updated. See the
+    <filename>httpd-config.xml</filename> <link linkend='templates'>template</link>
+    for an example of firewall configuration using a config-rpm.
+    </note>
+
     <para>
     <emphasis role='bold'>Examples</emphasis>
     </para>
@@ -1114,6 +1135,10 @@ $remote-url/%{id}
       </para>
 
       <para>
+      The script element allows six attributes: <xref linkend='script-id'/>, <xref linkend='script-type'/>, <xref linkend='script-ssh'/>, <xref linkend='script-verbose'/>, <xref linkend='script-comes-before'/> and <xref linkend='script-comes-after'/>.
+      </para>
+
+      <para>
       <emphasis role='strong'>Attributes</emphasis>
       </para>
 
@@ -1131,7 +1156,7 @@ $remote-url/%{id}
       </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="script-type" xreflable="@type">
       <term>@type</term>
       <listitem>
       <para>
@@ -1494,7 +1519,7 @@ $remote-url/%{id}
       </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="script-ssh" xreflable="@ssh">
       <term>@ssh</term>
       <listitem>
 
@@ -1541,7 +1566,7 @@ $remote-url/%{id}
       </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="script-verbose" xreflable="@verbose">
       <term>@verbose</term>
       <listitem>
       <para>
@@ -1556,7 +1581,7 @@ $remote-url/%{id}
       </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="script-comes-before" xreflable="@comes-before">
       <term>@comes-before</term>
       <listitem>
       <para>
@@ -1567,7 +1592,7 @@ $remote-url/%{id}
       </listitem>
       </varlistentry>
 
-      <varlistentry>
+      <varlistentry id="script-comes-after" xreflable="@comes-after">
       <term>@comes-after</term>
       <listitem>
       <para>

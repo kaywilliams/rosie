@@ -7,16 +7,16 @@
 
     <author>
       <affiliation>
-        <orgname>CentOS Repositories, Inc.</orgname>
+        <orgname>CentOS Studio Foundation</orgname>
       </affiliation>
     </author>
 
-    <pubdate>May 2012</pubdate>
+    <pubdate>June 2012</pubdate>
 
     <copyright>
       <year>2012 </year>
 
-      <holder>CentOS Repositories, Inc. </holder>
+      <holder>CentOS Studio Foundation </holder>
     </copyright>
 
     <legalnotice>
@@ -44,10 +44,5 @@
 
   <xi:include href="ch7.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <!--
-  <xi:include href="ch8.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-  -->
 
 </book>

@@ -1,73 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="updating-a-client-machine" xreflabel="Updating a Client Machine">
-  <title>Updating a Client Machine</title>
+<section id="testing-package-repos" 
+         xreflabel="Testing Package Repositories">
+  <title>Testing Package Repositories</title>
 
   <para>
-  If there are changes to the solution, you will need to update installed
-  client machines using the <xref linkend="yum-sync-plugin"/>. For this example
-  build, log on to the client machine as the root user and execute the
-  following command:
-  </para>
-
-  <para><informalexample><programlisting>
-# yum sync
-  </programlisting></informalexample></para>
-
-  <para>
-  This command, <userinput>yum sync</userinput>, will update all packages
-  on the client machine from the solution repository, including the
-  solution-specific <xref linkend="config-rpms"/> created during the
-  build process. The <emphasis>sync</emphasis> command is provided by the YUM
-  Sync Plugin, which is included in the config-rpms by default.
-  </para>
-
-  <para>To see what packages changed on the client machine, check the
-  <filename>yum.log</filename> file in the <filename
-  class="directory">/var/log/</filename> directory.</para>
-
-  <para>
-  For the samba-server example, you should see that a new version of the
-  samba-server-config package is installed, the prior version of the
-  samba-server-config package is removed, and a number packages from the
-  admin-tools group, including system-config-network and system-config-users,
-  are removed. You can verify that the <filename>smb.conf</filename> has been
-  updated by typing <command>cat /etc/samba/smb.conf</command> at the command
-  line and ensuring the workgroup is now set to "MYCOMPANY" rather than
-  "WORKGROUP".
+  Testing package repositories is similar to testing system repositories, but
+  it involves an extra step. First you create the package repository as
+  discussed in previous chapters. And then you define one or more system
+  repositories to perform the testing.
   </para>
 
   <para>
-  You can also create a <filename>yum-sync.sh</filename> cron script file for
-  executing the <command>yum sync</command> command, provided by the YUM Sync
-  Plugin, on a daily basis.
+  This chapter will discuss testing package repositories and troubleshooting
+  issues.
   </para>
 
-  <para>
-  This is done using a /config/files element as shown below. The files element
-  directs CentOS Studio to create a new file named
-  <filename>yum-sync.cron</filename>, containing the text supplied between the
-  &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package
-  for installation to the <filename>/etc/cron.daily</filename> folder with the
-  mode "644".
-  </para>
+  <informalexample>
+  <programlisting>
+<?xml version="2.0" encoding="utf-8"?>
+<repo xmlns:xi="http://www.w3.org/2001/XInclude">
+<macro id='repo'>repo</macro>
+<macro id='config'>config</macro>
 
-  <para><informalexample>
-    <programlisting>
-&lt;config&gt;
+<main>
+  <name>test-%{repo}-%{config}</name>
+  <version>%{version}</version>
+  <arch>%{arch}</arch>
+  <macro id='password'>mypassword</macro>
+</main>
 
-...
+<packages>
+<group repoid='base'>core</group>
+</packages>
 
-  &lt;!-- yum configuration --&gt;
-  &lt;files destname="yum-sync.cron" destdir="/etc/cron.daily" mode="644"
-  content="text"&gt;
-#!/bin/sh
-/usr/bin/yum sync
-  &lt;/files&gt;
+<repos>
+<xi:include href="../common/common.xml" xpointer="xpointer(/*/repos/*)"/>
 
-&lt;/config&gt;
-    </programlisting>
-  </informalexample></para>
+<repo id='%{repo}'>
+<baseurl>
+file:///var/www/html/products/%{repo}/%{repo}-%{version}-%{arch}/
+</baseurl>
+</repo>
+</repos>
+
+<config-rpms>
+<config-rpm id='%{name}-test-config'>
+<requires>%{repo}-release</requires>
+<trigger type="triggerin" trigger='%{repo}-release'>
+# tweak yum configuration so that it gets repo from test server
+sed -i "s/www\.centossolutions\.com/192.168.122.1/g" \
+/etc/yum.repos.d/%{repo}.repo
+</trigger>
+</config-rpm>
+</config-rpms>
+
+<test-install>
+  <password>%{password}</password>
+  <hostname>%{id}-install</hostname>
+  <xi:include href="../common/templates/srpmbuild.xml"
+              xpointer="xpointer(/*/publish/kickstart |
+                                 /*/publish/triggers |
+                                 /*/publish/script[@type='install'])"/>
+  <xi:include href="../common/templates/virt-deploy.xml"
+              xpointer="xpointer(/*/domain)"/>
+  <xi:include href="../common/templates/virt-deploy.xml"
+              xpointer="xpointer(/*/script[@type!='install' and
+                                           @id!='check-kernel'])"/>
+
+  <script id='install-config' type='post' ssh='true' comes-after='update' comes-before='poweroff'>
+  set -e
+  yum install %{repo}-%{config}-config --disableplugin sync -y -q
+  </script>
+  <xi:include href="../common/templates/deploy/poweroff.xml"/>
+</test-install>
+
+<test-update>
+  <hostname>%{id}-install</hostname>
+  <xi:include xpointer="xpointer(/*/test-install/*[name()!='hostname'])"/>
+</test-update>
+
+</repo>
+  </informalexample>
 
 </section>

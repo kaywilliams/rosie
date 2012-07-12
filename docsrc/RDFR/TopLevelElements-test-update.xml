@@ -51,15 +51,16 @@
     <para>
     Similar to the examples shown under <xref
     linkend="test-install-examples"/>, this example makes use of two files: the
-    main definition, and the <xref linkend="deploy.xml"/> template. The
-    test-update element of the main definition is shown below. The deploy.xml
-    template is described under <xref linkend="test-install-examples"/>.
+    main definition, and the <xref linkend="virt-deploy.xml"/> template. The
+    test-update element of the main definition is shown below. The
+    virt-deploy.xml template is described under <xref
+    linkend="test-install-examples"/>.
     </para>
 
     <programlisting>
 &lt;test-update>
   &lt;password>mypassword&lt;/password>
-  &lt;xi:include href="path/to/deploy.xml" xpointer="xpointer(/*/*)"/>
+  &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update>
     </programlisting>
     </informalexample>

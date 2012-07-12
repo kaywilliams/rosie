@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="config-mgmt" 
+         xreflabel="Configuration Management Systems"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Configuration Management Systems</title>
+
+  <para>
+  A final scenario supported by CentOS Studio is integration with configuration
+  management systems such as Puppet. In this scenario, system administrators use
+  CentOS Studio for initial client deployment, and the configuration
+  management system for ongoing client maintenance.
+  </para>
+
+  <para>
+  When writing repository definitions for integration with configuration management systems, you will want to do the following:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Disable the <xref linkend='yum-sync-plugin'/> using the release-rpm element.
+  Disabling the YUM Sync Plugin prevents clients from attempting to remove RPM
+  packages installed by the configuration management system, but not included
+  in the repository.
+  </listitem>
+
+  <listitem>
+  Add a config-rpm for configuring the configuration management system. This
+  RPM will install any client side software and settings needed by the
+  configuration management system. 
+  </listitem>
+
+  <listitem>
+  Add test-install and test-update elements to perform ongoing pre-production
+  testing. 
+  </listitem>
+
+  <listitem>
+  Add a publish element with a custom kickstart and one or more scripts to
+  integrate the repository with a production deployment system. See the
+  previous sections for information on integrating CentOS Studio repositories
+  within various deployment environments.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  <emphasis role='strong'>Example</emphasis>
+  </para>
+
+  <para>
+  The following example shows a skeleton definition for integrating with a
+  configuration management system.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>...&lt;/main>
+
+&lt;repos>...&lt;/repos>
+
+&lt;packages>... &lt;/packages>
+
+&lt;release-rpm>
+&lt;updates sync='false'/>
+&lt;/release-rpm>
+
+&lt;config-rpms>
+&lt;config-rpm id='configuration-management-system-config>
+&lt;requires>configuration-management-client&lt;/requires>
+&lt;script type='post'/>
+# script to perform client configuration for the configuration management system
+&lt;/script>
+&lt;/config-rpm>
+&lt;/config-rpms>
+
+&lt;publish>
+&lt;kickstart>...&lt;/kickstart>
+
+&lt;script ...>
+# script to integrate with production deployment management system
+&lt;/script>
+&lt;/publish>
+
+&lt;/repo>
+  </programlisting>
+  </informalexample>
+</section>
+

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="testing-system-repos" 
+         xreflabel="Testing System Repositories">
+  <title>Testing System Repositories</title>
+
+  <para>
+  CentOS Studio makes it possible to automate testing of both system
+  and package repositories. System repository testing is covered in this
+  chapter, while testing for package repositories is covered later in this
+  document.
+  </para>
+  
+  <para>
+  System repository testing is accomplished using the
+  <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
+  elements, in combination with deployment templates.  Given differences
+  between installation and update scenarios, separate testing must be conducted
+  for each.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Test-install</emphasis>. CentOS Studio enables
+  <emphasis>installation</emphasis> testing using the
+  <emphasis>test-install</emphasis> element. When this element is present,
+  CentOS Studio uses the provided information to perform the following tasks:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Create/update a separate repository in the test-install folder,
+  <filename>/var/www/html/repos/system/test-install</filename> by default. 
+  </listitem>
+
+  <listitem>
+  Perform a clean client machine installation, as needed, using the
+  test-install repository.
+  </listitem>
+
+  <listitem>
+  Verify the client machine installation.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  Only if all of the test-install tasks complete successfully does Centos
+  Studio continue with its processing.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Test-update</emphasis>. CentOS Studio enables
+  <emphasis>update</emphasis> testing using the
+  <emphasis>test-update</emphasis> element. When this element is present,
+  CentOS Studio uses the information provided to perform these tasks:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Create a new repository for use in performing test updates. This
+  repository is located in the test-update folder,
+  <filename>/var/www/html/repos/system/test-update</filename> by default. 
+  </listitem>
+
+  <listitem>
+  Update a client machine, if one exists, given changes in the repository. If
+  no client machine exists, perform a clean client machine installation, for
+  use during the next test cycle. Both of these activities are performed using
+  the test-update repository.
+  </listitem>
+
+  <listitem>
+  Verify the client machine update.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  Only if all of the test-update tasks complete successfully does Centos
+  Studio continue with its processing.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Deployment templates</emphasis>.  Deployment
+  templates, like other templates discussed earlier in this document, are
+  subsets of repository definitions which have been saved in separate
+  documents. These documents can then be included in the body of the main
+  definition using <xref linkend='xinclude'/>.
+  </para>
+
+  <para>
+  This chapter covers the following:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Using virtual machines to test system repository installation and updates.
+  </listitem>
+
+  <listitem>
+  Creating custom deployment templates.
+  </listitem>
+
+  <listitem>
+  Troubleshooting system repository deployment issues.
+  </listitem>
+  </itemizedlist>
+  
+
+  <xi:include href="ch5-sec1.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch5-sec2.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch5-sec3.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+</chapter>

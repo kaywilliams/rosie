@@ -8,11 +8,10 @@
   </title>
 
   <para>
-  Deployment elements, <emphasis>test-install</emphasis>, 
-  <emphasis>test-update</emphasis>,
-  <emphasis>publish</emphasis> and
-  <emphasis>iso</emphasis>, support repository testing and deployment to client
-  machines.
+  Deployment elements, <emphasis>test-install</emphasis>,
+  <emphasis>test-update</emphasis>, <emphasis>publish</emphasis>,
+  <emphasis>iso</emphasis> and <emphasis>files</emphasis> support repository
+  testing and distribution.
   </para>
  
   <para>
@@ -25,6 +24,12 @@
   <para>
   The <emphasis>iso</emphasis> element controls the creation of CD/DVD disk
   images, typically used in manual system repository installation.
+  </para>
+
+  <para>
+  The <emphasis>files</emphasis> allows distributing miscellaneous user-provided
+  files and folders, such as readme or licensing files, or configuration
+  templates, along with the repository. 
   </para>
 
   <xi:include href="DeploymentElements-common.xml"
@@ -40,6 +45,9 @@
               xpointer="element(/1)" />
 
   <xi:include href="TopLevelElements-iso.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="TopLevelElements-files.xml"
               xpointer="element(/1)" />
 
 </chapter>

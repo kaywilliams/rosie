@@ -1,275 +1,297 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="installing-physical-and-virtual-clients" 
-         xreflabel="Installing Physical and Virtual Clients">
-  <title>Installing Physical and Virtual Clients</title>
-
-  <para>Deployment to a client machine is the next step. Because 
-  <application class="software">CentOS Studio</application> creates
-  solutions in a standard operating system format, client machines
-  can be deployed using the same tools and methods as used for 
-  <application class="software">Red Hat Enterprise Linux</application> and
-  <application class="software">CentOS</application>.</para> 
+<section id="smb" xreflabel="Small Business/IT Consultant">
+  <title>Small Business/IT Consultant</title>
 
   <para>
-  For the samba-server example, we will discuss two installation methods. In
-  the first method, you will install to a physical machine using a bootable CD
-  or DVD. In the second, you will install to a virtual machine.
+  Small business system deployment is often managed by IT consultants who
+  service multiple clients. These consultants work remotely when possible, and
+  visit the customer location only as needed.  Using CentOS Studio, IT
+  Consultants can perform the tasks of system integration and testing remotely.
+  Physical installation, which involves burning a CD/DVD and using it to boot
+  the physical machine, can be performed by a tech-savvy individual within the
+  small business, or by the IT consultant during an on-site visit.
   </para>
 
   <para>
-  The methods discussed below are only two of several possible methods for
-  installing your solution to physical or virtual client machines. See the   
-  <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> and 
-  <emphasis>Red Hat Enterprise Linux 5 Virtualization Guide</emphasis> for 
-  additional methods and complete information.
+  To enable this scenario, the IT Consultant must first establish a web server
+  that customers will use to access system repositories. This can be a web
+  server at the customer location, a hosted web server, or an
+  internet-accessible web server maintained by the IT Consultant. The web
+  server can be running on any operating system. The only requirements for the web server are that:
+  <itemizedlist>
+  <listitem>
+  customer machines can access it over HTTP or HTTPS,
+  </listitem>
+  <listitem>
+  the IT Consultant has file system access to the server, for example via SSH,
+  and
+  </listitem>
+  <listitem>
+  permissions are set so that only the customer and the consultant have access
+  to customer repositories.
+  </listitem>
+  </itemizedlist>
+  </para>
+
+  <para>
+  For this scenario, we assume that the final production machines (e.g.
+  laptops, desktops or servers) will be installed manually via CD/DVD. In small
+  environments, manual deployment is often more practical than setting up the
+  infrastructure required to support automated deployment. Installation can be
+  performed by the IT Consultant or a tech-savvy indivual within the small
+  business. Maintenance will occur automatically using YUM.
+  </para>
+
+  <para>
+  We assume for this scenario that production machines are strictly
+  managed, specifically that all applications and configuration on the machines
+  are controlled by the IT Consultant rather than by end users.  Some users may
+  require a greater degree of control over their machines, in which case IT
+  consultants can accommodate these users following a strategy similar to that
+  described under <xref linkend='consumer'/>.
+  </para>
+
+  <para>
+  Key aspects of small business system repository definitions include the
+  following:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Use of the <emphasis>config-rpm</emphasis> element to configure clients to
+  periodically check the web server for updates. In the example below, this is
+  done by creating a config-rpm with the ID <emphasis>yum-sync-cron</emphasis>.
+  This config-rpm configures the client to run the <command>yum sync</command>
+  command on a daily basis using the <command>cron</command> utility. It does
+  this by installing a file named <filename>yum-sync</filename> to the
+  <filename>/etc/cron.daily</filename> folder, and setting the file mode to
+  executable. 
+  </listitem>
+
+  <listitem>
+  Use of the <emphasis>test-install</emphasis> and
+  <emphasis>test-update</emphasis> elements to perform ongoing testing 
+  prior to making the repository available for use in the customer environment.
+  </listitem>
+
+  <listitem>
+  Use of the <emphasis>remote-url</emphasis> element within the
+  <emphasis>publish</emphasis> element to specify the web server location of
+  the production repository. This is the location where customers/consultants
+  can access system installation images for creating CD/DVD discs. It is also
+  the location where client machines will access updates. In the example below,
+  the remote-url is specified as
+  <filename>http://www.company.com/repos/system/</filename>.
+  </listitem>
+
+  <listitem>
+  Use of the <emphasis>password</emphasis> element within the
+  <emphasis>publish</emphasis> element to specify the root user password for
+  the production client. If the same repository will be used to deploy multiple
+  clients, the password element can be omitted and a unique, per-machine
+  password can be provided manually at install time.
+  </listitem>
+
+  <listitem>
+  Use of the <emphasis>kickstart</emphasis> element within the
+  <emphasis>publish</emphasis> element to automate CD/DVD-based system
+  installation. If the same repository will be used to deploy multiple client
+  machines, the <emphasis>network</emphasis> option should be omitted from the
+  kickstart to avoid machine hostname collision. In this case the hostname can
+  be provided manually during the CD/DVD installation process.  Also, the
+  password option may be omitted and the password provided at install time as
+  described above.
+  </listitem>
+
+  <listitem>
+  <para>
+  Use of the <emphasis>script</emphasis> element within the
+  <emphasis>publish</emphasis> element to automate synchronization of the
+  repository from the CentOS Studio build machine to the web server location
+  specified by the <emphasis>remote-url</emphasis>. This synchronization will
+  only occur if the test-install and test-update processes have completed
+  without error.
+  </para>
+
+  <para>
+  In the example below, this is done by providing a script with the
+  <emphasis>id</emphasis> 'sync'. The <emphasis>type</emphasis> attribute for
+  the script is set to 'update', which will cause CentOS Studio to run the
+  script each time changes occur in repository content. The
+  <emphasis>ssh</emphasis> attribute is set to <constant>false</constant>,
+  directing CentOS Studio to execute the script on the build machine, rather
+  than on a remote client. The script synchronizes the published repository on
+  the build machine with the customer-accessible repository specified by
+  <emphasis>remote-url</emphasis>.
+  </para>
+
+  <para>
+  The script assumes that SSH public key authentication has been previously
+  configured between the build machine and the remote server. See the
+  <emphasis>Deployment Guide</emphasis> for Red Hat Enterprise Linux at the Red
+  Hat Documentation website <ulink url='http://docs.redhat.com'/> for
+  information on configuring key-based authentication for OpenSSH.
+  </para>
+  </listitem>
+
+  </itemizedlist>
+
+  <para>
+  The following example shows a skeleton definition for a small business system
+  repository.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Small business system repository definition</emphasis>
+  </para>
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>...&lt;/main>
+
+&lt;repos>...&lt;/repos>
+
+&lt;packages>...&lt;/packages>
+
+&lt;config-rpms>
+&lt;config-rpm id='yum-sync-cron'>
+&lt;files content='text' destdir='/etc/cron.daily' destname='yum-sync' mode='755'/>
+#!/bin/sh
+/usr/bin/yum -q -y sync
+&lt;/files>
+&lt;/config-rpm>
+...
+&lt;/config-rpms>
+
+&lt;test-install>
+&lt;password>test-password&lt;password>
+&lt;xi:include href='virt-deploy.xml'/>
+&lt;/test-install>
+
+&lt;test-update>
+&lt;password>test-password&lt;password>
+&lt;xi:include href='virt-deploy.xml'/>
+&lt;/test-update>
+
+&lt;publish>
+&lt;web-url>http://remote.company.com/repos/system/&lt;web-url>
+
+&lt;password>production-password&lt;password>
+
+&lt;kickstart>
+install
+network --hostname %{fqdn}
+rootpw --iscrypted "%{crypt-password}"
+lang en_US
+clearpart --all --initlabel
+part / --fstype ext4 --size 1 --grow --asprimary
+part swap --recommended
+part /boot --fstype ext2 --size 512 --asprimary
+bootloader --location=mbr
+timezone America/Vancouver
+auth --enablemd5 --enableshadow --enablecache
+selinux --enforcing
+reboot
+&lt;/kickstart>
+
+&lt;script id='sync-to-production-server' type='update' ssh='false'>
+#!/bin/sh
+rsync -a --delete -e ssh \
+"/var/www/html/repos/system/%{id}/" \
+"user@www.company.com:/var/www/html/repos/system/%{id}"
+&lt;/script>
+&lt;/publish>
+
+&lt;/repo>
+  </programlisting>
+  </informalexample>
+
+  <section>
+  <title>Deploying Clients Manually</title>
+
+  <para>
+  Because <application class="software">CentOS Studio</application> creates
+  system repositories in a standard format, clients can be deployed manually
+  using traditional tools and methods. For the small business scenario, we will
+  discuss installation using CD/DVD boot media. See the <emphasis>Red Hat
+  Enterprise Linux Installation Guide</emphasis> and <emphasis>Red Hat
+  Enterprise Linux Virtualization Guide</emphasis> for information on
+  additional installation methods.
   </para> 
 
-  <section><title>Installing to a Physical Machine</title>
+  <section id='cd/dvd-network-installation' 
+           xreflabel="CD/DVD Network Installation">
+  <title>CD/DVD Network Installation</title>
   
   <para>
-  In this method, you will use a network install image (<filename>boot.iso</filename>)
-  to create an installation CD or DVD. To start the installation, you will boot
-  the client machine using the CD/DVD. The installer program contained on the
-  CD/DVD will then use the network to download files from the solution URL
-  to complete the installation. To complete this example, you must have
-  configured the build machine as a web server, as described in 
-  <xref linkend="configuring-a-build-machine"/> 
-  </para>
-
-    <section>
-      <title>Creating boot media</title>
-      <para>After <application class="software">CentOS Studio</application>
-      completes the build, you  will find your solution in a folder beneath
-      the <filename class="directory">/var/www/html/solutions</filename> 
-      default directory on the download server. The folder name will be
-      the solution <varname>%{id}</varname>, e.g.
-      <filename>samba-server-5-i386</filename>.</para>
-
-      <para>To install to a client machine, you burn a boot image to a separate
-      media. For this example, burn the <filename>boot.iso</filename> image 
-      (found in the <filename class="directory">/os/images</filename> folder 
-      below the <filename class="directory">/solutions/samba-server-5-i386
-      </filename> folder, above) to a CD or DVD.</para>
-
-      <para>To burn the image, one option is to run the
-      <command>cdrecord</command> command from the <filename
-      class="directory">/os/images</filename> folder as illustrated below. Note
-      the scanbus number sequence, then record the ISO image onto a CD or DVD
-      and label the media, including the number sequence. The number sequence,
-      e.g. 1,0,0, may differ from machine to machine.</para>
-
-      <para><informalexample>
-          <programlisting># cdrecord -scanbus -dev=ATA
-# cdrecord -v -dao dev=ATA:1,0,0 boot.iso</programlisting>
-        </informalexample></para>
-    </section>
-
-    <section>
-      <title>Booting a client machine</title>
-      <para>
-      Now you are ready to create your client. Place the boot media into the
-      CD/DVD drive of the client machine. Now restart the client, booting from
-      the CD or DVD. The boot process will load an installation program, or
-      <emphasis>installer</emphasis> from the CD or DVD into system memory. The
-      installer will complete the installation, retrieving additional content
-      over the network from the <xref linkend="repository-url"/>. When the
-      installation successfully completes, the client machine will reboot and
-      display a login prompt. You can check the <filename>sys.log</filename>
-      file for installation and boot process log information.
-      </para>
-    </section>
-  </section>
-
-  <section><title>Installing to a Virtual Machine</title>
-
-  <para>
-  Machine virtualization is a relatively new technology with many possibilities
-  for simplifying system administration. In the samba-server example, we will
-  use machine virtualization to test client installation, quickly and easily,
-  without requiring a separate physical client machine, or the creation of
-  physical boot media media (e.g. a CD/DVD disc as in the prior method).
-  Repository testing using virtual machines is convenient, even when your target
-  clients are physical machines, as it allows you to work more efficiently
-  during the highly iterative development and testing process. To use the
-  method described below, you must have previously configured the build machine
-  to meet exacting hardware, operating system, and configuration requirements.
-  See the section on <xref linkend="configuring-a-build-machine"/> for more
-  information.
+  In this method, the consultant/customer will use the network install image
+  (<filename>boot.iso</filename>) to create an installation CD or DVD.  The
+  image can be found in the <filename>images</filename> folder for the
+  repository, e.g. <filename
+  class="directory">/var/www/html/repos/system/web-server-6-x86_64/images/</filename>.
   </para>
 
   <para>
-  Once you have configured, and rebooted, your machine as described under
-  <emphasis>Configuring a Build Machine</emphasis>, you are ready to install a
-  new virtual machine using either the <command>virt-manager</command> or
-  <command>virt-install</command> commands. For best results, complete the
-  process one time using virt-manager. Virt-manager provides a graphical user
-  interface that will aid your understanding of the process and help you to
-  ensure that your machine is configured correctly. Once you are familiar with
-  the process, you may find it more efficient to use the command-line utility,
-  <application type="software">virt-install</application>, to complete
-  additional virtual machine installations.
+  The first step is to download the <filename>boot.iso</filename> file to a
+  local machine, and then use CD writing software to burn it to CD/DVD media.
+  Depending on the operating system of the local machine, this may be as simple
+  as right clicking the file and choosing "Burn disc image" or "Write to Disk".
+  On older Windows operating systems, a separate application may be needed 
+  to provide ISO image burning capability.
   </para>
 
-    <section><title>Using virt-manager</title>
-      <para>
-      Virt-manager provides a graphical user interface for creating and
-      managing virtual machines. For the samba-server example, create a new
-      virtual machine using virt-manager as follows:
-      </para>
-
-      <orderedlist>
-        <listitem>
-        As the root user, start virt-manager by typing "<userinput>virt-manager
-        &amp;</userinput>" at the command prompt.
-        </listitem>
-        <listitem>
-        Click on the row beginning with the name "localhost". This will enable
-        the "New" button in the lower right corner of the dialog. If the new
-        button is not available, try exiting virt-manager, switching to the
-        root user, and restarting.
-        </listitem>
-        <listitem>
-        Click the "New" button. This brings up a dialog titled "Create a new
-        virtual machine". Click the "Forward" button.
-        </listitem>
-        <listitem>
-        In the "Virtual Machine Name" panel, type
-        <userinput>samba-server</userinput> as the machine name. Click the
-        "Forward" button.
-        </listitem>
-        <listitem>
-        In the "Virtualization Method" panel, ensure that the "Fully
-        Virtualized" option is active and selected. If it is greyed out, your
-        machine may not support kernel virtualization extensions, or it may not
-        be configured correctly. Return to the section on <xref
-        linkend="configuring-a-build-machine"/> for hardware and software
-        requirements, and machine configuration instructions. Be sure to reboot
-        the machine after following all instructions. If the "Fully
-        Virtualized" option is active and selected, click the "Forward" button.
-        </listitem>
-        <listitem>
-        In the "Installation Method" panel, click the "Network Install Tree"
-        option. Click "Forward".
-        </listitem>
-        <listitem>
-        In the "Installation Source" panel, type
-        "<userinput>http://$IP/solutions/samba-server-5-i386/os</userinput>",
-        where $IP is the IP address of the build machine, locatable by typing
-        <userinput>ifconfig eth0</userinput> at a command prompt on the build
-        machine.  Alternatively, if your build machine is locatable via DNS,
-        you can enter the Fully Qualified Domain Name (FQDN) of the build
-        machine in place of the IP address. Note, however, that you cannot
-        enter a hostname (e.g. "myhost") that is not a FQDN (e.g.
-        "myhost.mycompany.com"), as domain searching is not currently supported
-        when using virtual networks. Doing so will result in an error later in
-        the installation process ("Unable to retrieve
-        http://myhost/solutions/samba-server/os/images/stage2.img"). Click
-        "Forward".
-        </listitem>
-        <listitem>
-        In the "Storage" panel, ensure the "File (disk image)" option is
-        selected and the value is set to
-        <userinput>/var/lib/libvirt/images/samba-server.img</userinput>. In
-        subsequent installations (after deleting an existing virtual machine -
-        see <xref linkend="deleting-a-virtual-machine"/>) virt-manager will
-        attempt to automatically increment the image name, e.g. to
-        <userinput>/var/lib/libvirt/images/samba-server-1.img</userinput>. To
-        preserve disk space on the build machine, you should either reset the
-        image name to <userinput>samba-server.img</userinput>, or make it a
-        practice to clean out the /var/lib/libvirt/images folder on a regular
-        basis. Click "Forward".
-        </listitem>
-        <listitem>
-        In the remaining panels, accept the default values and continue to
-        click "Forward".
-        </listitem>
-        <listitem>
-        Click "Finish" to start the installation. If you get an error "Unable
-        to retrieve http://$IP/solutions/samba-server-5-i386/os/stage2.img"
-        during installation, check that 1) you have typed the url correctly, 2)
-        you have provided an IP address or FQDN in the host portion of the URL
-        and 3) the httpd service is running on your build machine and you have
-        allowed port 80 traffic through the machine's firewall (see <xref
-        linkend="configuring-a-build-machine"/>).
-        </listitem>
-        <listitem>
-        Once installation completes, choose "Reboot".
-        </listitem>
-        <listitem>
-        In the resulting dialog, click "Run" to start the machine and test that
-        it functions as expected.
-        </listitem>
-      </orderedlist>
-
-    </section>
-
-    <section><title>Using virt-install</title>
-      <para>
-      The <command>virt-install</command> utility provides a command-line user
-      interface for installing virtual machines. For the samba-server example,
-      use virt-install to create a new virtual machine as follows. You must be
-      the root user.
-      </para>
-
-        <para><informalexample><programlisting>
-# virt-install --accelerate --hvm --connect qemu:///system \
-	--network network:default \
-	--name samba-server --ram=512\
-	--file=/var/lib/libvirt/images/samba-server.img \
-	--file-size=4 --vnc --location=http://$IP/solutions/samba-server-5-i386/os
-        </programlisting></informalexample></para>
-
-      <para>
-      The variable $IP above indicates the IP address of the build machine,
-      locatable by typing <userinput>ipconfig eth0</userinput> at the command
-      line.
-      </para>
-
-      <para>
-      See the section on virt-manager above for help with related common
-      problems and error messages.
-      </para>
-    </section>
-
-    <section id="deleting-a-virtual-machine" xreflabel="Deleting a virtual machine"><title>Deleting a virtual machine</title>
-
-      <para>
-      While developing a new solution, you may wish to reuse the same
-      virtual-machine name for testing multiple iterations of the same
-      solution. You can do this using <command>virt-manager</command> as
-      follows:
-      </para>
-
-      <itemizedlist>
-        <listitem>
-        From the virt-manager graphical user interface, click on the line
-        beginning "samba-server".
-        </listitem>
-        <listitem>
-        If the machine is currently running, choose Shutdown and/or Force Off.
-        </listitem>
-        <listitem>
-        Then click the "Delete" button in the lower right corner of the dialog.
-        </listitem>
-      </itemizedlist>
-    </section>
-
+  <para>
+  Once CD or DVD disk is created, the next step is to place it into the CD/DVD
+  drive of the client to be installed, and restart the machine, directing the
+  machine to boot from the CD/DVD device if necessary. The boot process will
+  load the installer which will complete the installation, retrieving RPM
+  packages over the network from the <xref linkend="repository-url"/>. If the
+  hostname and root password are missing from the kickstart file, the installer
+  will prompt for them at the beginning of installation. 
+  </para>
   </section>
 
-  <section><title>Verifying the Installation</title>
-    <para>
-    One quick test to make sure the install completed correctly, on either a
-    physical or virtual client, is to verify the contents of the
-    <filename>smb.conf</filename> installed on the client machine. It should
-    match the one provided in the solution definition.
-    </para>
+  <section>
+  <title>CD/DVD Complete Installation</title>
+  <para>
+  CentOS Studio can also create complete CD/CVD install media. In
+  this case, the installer program will retrieve RPM packages directly from the
+  CD/DVD media, rather than downloading them over the network. This method is
+  convenient for installing clients with limited network connectivity. 
+  </para>
 
-    <para>
-    Congratulations! You now have a Samba server installed on a CentOS 5
-    client machine.
-    </para>
+  <para>
+  To direct CentOS Studio to create complete CD/DVD installation images, add an
+  <emphasis>iso</emphasis> element to the repository definition, as follows:
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;iso>
+&lt;set>DVD&lt;/set>
+&lt;/iso>
+  </programlisting>
+  </informalexample>
+
+  <para>
+  See the <xref linkend='rdfr'/> for the complete syntax of the iso element. 
+  </para>
+
+  <para>
+  After running CentOS Studio again, the iso image (or images) will be
+  available from the <filename>iso</filename> folder of the repository, e.g.
+  <filename
+  class="directory">/var/www/html/repos/system/web-server-6-x86_64/iso/</filename>.
+  Burn the resulting image(s) to media, and use them to boot client
+  machines as described under <xref linkend='cd/dvd-network-installation'/>
+  above.
+  </para>
+
   </section>
-
 </section>
+</section>
+

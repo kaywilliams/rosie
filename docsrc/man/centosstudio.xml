@@ -74,7 +74,7 @@ DEFINITION.</para>
 <para>OPTIONS refers to the command-line options described below.
 DEFINITION refers to a repository definition file, see the Repository
 Definition File Reference at <ulink
-url="http://www.centossolutions.com/centosstudio/documentation"/> for more
+url="http://www.centosstudio.org/centosstudio/documentation"/> for more
 information.</para>
 </refsect1>
 
@@ -291,7 +291,7 @@ option.
 
 <refsect1 id="centosstudio.1-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.centossolutions.com/centosstudio"/> for contact and support
+url="http://www.centosstudio.org/centosstudio"/> for contact and support
 information.</para>
 </refsect1>
 
@@ -309,13 +309,13 @@ information.</para>
 <refsect1 id="centosstudio.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>centosstudio.conf(5)</member>
-<member><ulink url="http://www.centossolutions.com/centosstudio"/></member>
+<member><ulink url="http://www.centosstudio.org/centosstudio"/></member>
 
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-author"><title>AUTHOR</title>
-<para><author><othername>CentOS Solutions, Inc.</othername>
+<para><author><othername>CentOS Studio Foundation</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

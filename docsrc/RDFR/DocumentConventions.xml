@@ -112,10 +112,8 @@
 
     <note>
     <para>
-    Be sure to escape the <constant>&lt;</constant> and
-    <constant>&gt;</constant> characters using
-    <constant>&amp;lt;</constant> and <constant>&amp;gt;</constant>,
-    respectively.
+    Be sure to escape the <constant>&lt;</constant> character using
+    <constant>&amp;lt;</constant>.
     </para>
     </note>
     </listitem>

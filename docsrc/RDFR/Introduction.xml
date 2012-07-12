@@ -56,13 +56,13 @@
 
     <note>
     On a system with the CentOS Studio RPM installed, this file can be found as
-    <filename>system.definition</filename> in the examples folder at
+    <filename>web-server.definition</filename> in the examples folder at
     <filename>/usr/share/centosstudio/templates/</filename>.
     </note>
 
     <informalexample>
     <programlisting>
-<xi:include href="templates/system.definition" parse="text"/>
+<xi:include href="templates/web-server.definition" parse="text"/>
     </programlisting>
     </informalexample>
   </section>

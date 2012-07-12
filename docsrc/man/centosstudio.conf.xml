@@ -211,7 +211,7 @@ used basis.</para>
 
 <refsect1 id="centosstudio.conf.5-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.centossolutions.com/centosstudio"/> for contact and support
+url="http://www.centosstudio.org/centosstudio"/> for contact and support
 information.</para>
 </refsect1>
 
@@ -229,12 +229,12 @@ information.</para>
 
 <refsect1 id="centosstudio.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://www.centossolutions.com/centosstudio">http://www.centossolutions.com/centosstudio</ulink></member>
+<member><ulink url="http://www.centosstudio.org/centosstudio">http://www.centosstudio.org/centosstudio</ulink></member>
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="centosstudio.conf.5-author"><title>AUTHOR</title>
-<para><author><othername>CentOS Solutions, Inc.</othername>
+<para><author><othername>CentOS Studio Foundation</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

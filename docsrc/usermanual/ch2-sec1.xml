@@ -6,15 +6,21 @@
   </title>
 
   <para>
-  <application class="software">CentOS Studio</application> provides a standard
-  platform to configure, test, deploy and maintain systems and applications
-  based on CentOS and Red Hat Enterprise Linux.  CentOS Studio assembles
-  software, configuration and, optionally, installation images, into a standard
-  deployment format, called a <emphasis>repository</emphasis>. Repositories can
-  be used to test, install and maintain client machines across a wide range of
-  IT environments - including physical, virtual and cloud.
+  <application class="software">CentOS Studio</application> provides a platform
+to manage Linux system and application deployment. CentOS Studio works with
+CentOS, a stable, free and widely-adopted version of Linux, and Red Hat
+Enterprise Linux, the commercial operating system from which CentOS is derived.
   </para>
 
+  <para>
+  CentOS Studio assembles software, customizations and, optionally,
+  installation images, into a standard  deployment format, a YUM package
+  repository. YUM package repositories, called
+  <emphasis>repositories</emphasis> throughout this document, can be used to
+  test, deploy and maintain systems and applications across a wide variety of
+  IT  environments.
+  </para>
+ 
   <para>Using CentOS Studio you can create and maintain repositories:</para>
 
   <para><itemizedlist>
@@ -30,11 +36,14 @@
       </listitem>
 
       <listitem>
-        <para>specify system and application configuration,</para>
+        <para>
+        build additional packages containing client machine configuration,
+        customization scripts, and custom applications,
+        </para>
       </listitem>
 
       <listitem>
-        <para>build a repository,</para>
+        <para>build a system or package repository,</para>
       </listitem>
 
       <listitem>
@@ -67,15 +76,7 @@
   </mediaobject>
 
   <para>
-  <application class="software">CentOS Studio</application> reads a repository
-  definition, gathers input (installation images, software packages, and
-  configuration files), and creates a repository. Using the repository, you can
-  test, deploy and update client machines.
-  </para>
-
-  <para>
   In summary, CentOS Studio is a production life cycle manager for use in
-  defining, building, testing, deploying and maintaining repositories that can
-  be easily installed and updated in a wide variety of IT environments.  
+  deploying Linux systems and applications.  
   </para>
 </section>

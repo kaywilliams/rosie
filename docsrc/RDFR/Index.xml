@@ -7,12 +7,12 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>May 2012</pubdate>
+    <pubdate>June 2012</pubdate>
 
     <copyright id="copyright">
       <year>2012</year>
 
-      <holder>CentOS Solutions, Inc.</holder>
+      <holder>CentOS Studio Foundation</holder>
     </copyright>
 
     <legalnotice id="legal-notice">
@@ -21,12 +21,12 @@
 
     <author id="author">
       <affiliation>
-        <orgname>CentOS Solutions, Inc.</orgname>
+        <orgname>CentOS Studio Foundation</orgname>
       </affiliation>
 
       <authorblurb>
-        <para><email>centosstudio@centossolutions.com</email></para>
-        <para><email>centosstudio@centossolutions.com</email></para>
+        <para><email>centosstudio@centosstudio.org</email></para>
+        <para><email>centosstudio@centosstudio.org</email></para>
       </authorblurb>
     </author>
 

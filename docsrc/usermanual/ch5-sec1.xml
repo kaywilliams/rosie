@@ -1,51 +1,232 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="creating-deployment-scripts" xreflabel="Creating Deployment Scripts">
-  <title>Creating Deployment Scripts</title>
+<section id="using-virtual-machines" 
+         xreflabel="Using Virtual Machines"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Using Virtual Machines</title>
 
-  <para>The first step is to create common deployment scripts that can be used across installation and update test sessions.</para>
+  
+  <para>
+  A convenient method for testing system repositories is to use the virtual
+  machine deployment template, <filename>virt-deploy.xml</filename>, located in
+  the <xref linkend='templates'/> folder. This template allows testing system
+  repositories using virtual machines running on the CentOS Studio build
+  machine.
+  </para>
+  
+  <para>
+  This chapter assumes a basic level of knowledge about using and managing
+  virtual machines on CentOS and Red Hat Enterprise Linux systems. To learn
+  more about virtualization, see the <emphasis>Virtualization Getting Started
+  Guide</emphasis>, <emphasis>Virtualization Host Configuration and Guest
+  Installation Guide</emphasis> and <emphasis>Virtualization Administration
+  Guiide</emphasis> included with the Red Hat Enterprise Linux documentation.
+  </para>
 
-    <para>
-    The CentOS Studio model for automated deployment is simple, yet flexible and
-    and extensible. Repositories can be deployed in a variety of operating
-    environments, for example using virtual machines running on a local host,
-    virtual machines running on remote or cloud-based hosts, or physical
-    machines managed by enterprise systems management systems.
-    </para>
+  <para>
+  Before using the instructions in this section, you will need to be running
+  CentOS Studio on a KVM-compatible machine. You will also need to install the
+  <emphasis>centosstudio-virt-config</emphasis> RPM package. See <xref
+  linkend="configuring-a-build-machine"/> for information on determining
+  whether your machine is KVM-compatible. See the CentOS Studio download
+  page at <ulink
+  url="http://www.centosstudio.org/centosstudio">http://www.centosstudio.org/centosstudio</ulink>
+  for information on installing the
+  <emphasis>centosstudio-virt-config</emphasis> package.
+  </para>
+
+  <para>  
+  Before we continue with the details of using the virt-deploy.xml template,
+  let's take a moment to review the web-server definition we have created so
+  far. This definition includes all the needed information to create a basic
+  web-server system repository based on the CentOS operating system.  For
+  reference, it is included in the <xref linkend='templates'/> folder as
+  <filename>web-server.definition</filename>.
+  </para>
+
+  <para>
+  <emphasis role='strong'>web-server.definition</emphasis>
+  </para>
+  <informalexample>
+  <programlisting>
+<xi:include href='templates/web-server.definition' parse='text'/></programlisting>
+  </informalexample>
+
+  <para>
+  This definition will serve as a starting point for the examples in the
+  remainder of this chapter.
+  </para>
+
+  <section id='adding-a-test-install-element' 
+           xreflabel='Adding a test-install element'>
+  <title>Adding a test-install element</title>
+
+  <para>
+  You can use virt-deploy.xml to test client machine installation by adding a
+  <emphasis>test-install</emphasis> element to
+  <filename>web-server.definition</filename>, specifying a password, and
+  including the template as shown below:
+  </para>
+  <informalexample>
+  <programlisting>
+&lt;test-install>
+&lt;password>secret&lt;/password>
+&lt;xi:include href="virt-deploy.xml">
+&lt;/test-install>
+  </programlisting>
+  </informalexample>
+  </section>
+
+  <para>
+  Next, run CentOS Studio again as follows:
+  </para>
+
+  <informalexample>
+  <programlisting>
+# centosstudio web-server.definition
+  </programlisting>
+  </informalexample>
+
+  <para>
+  During this build cycle, CentOS Studio completes the following:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Creates a new repository at 
+  </para>
   
-    <para>
-    To accomplish this flexibility, CentOS Studio allows users to provide
-    scripts for completing various deployment and maintenance actions. These
-    scripts can be written in any shell scripting language.  By default, CentOS
-    Studio executes some scripts on the local build machine and others on the
-    client machine using <application class="software">Secure Shell
-    (SSH)</application>.
-    </para>
+  <para>
+  <filename>/var/www/html/repos/system/test-install/web-server-6-x86_64</filename>.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Creates a new virtual machine with the hostname
+  <emphasis>web-server-6-x86-64-test-install.local</emphasis> and the root
+  password <emphasis>secret</emphasis>. You can view the virtual machine
+  using the <command>virt-viewer</command> command line utility.
+  </para>
+  <note>
+  If a password is not provided using the <emphasis>password</emphasis>
+  element, CentOS Studio will generate one. You can locate
+  generated passwords in the <xref linkend='repository-data-file'/>.
+  </note>
+  </listitem>
+
+  <listitem>
+  Verifies the client machine installation, halting process if an error
+  occurs. See the <xref linkend='troubleshooting-system-repos'/> section for
+  help resolving errors.
+  </listitem>
+
+  <listitem>
+  Saves information about the installation to the client machine. This
+  information is used for performance reasons. It allows CentOS Studio to skip
+  installation testing in future build cycles if no installation-related
+  changes have occurred. 
+  </listitem>
+  </itemizedlist>
   
-    <para>
-    When CentOS Studio executes a script using SSH, it first copies it to the
-    client machine using <application class="software">Secure Copy
-    (SCP)</application>. After copying, it then executes the script using SSH
-    as the <emphasis>root</emphasis> user. CentOS Studio leaves copied scripts
-    on the remote machine to assist with troubleshooting. They can be located
-    in the <filename>/var/lib/centosstudio</filename> folder. For
-    information on other files CentOS Studio copies to the
-    <filename>/root/sysconfig/centosstudio</filename> folder, see the <xref
-    linkend="config-rpms"/> element. See also the <emphasis> CentOS Studio User
-    Manual</emphasis> for more information on testing and troubleshooting
-    solution installation and updates.
-    </para>
-    
-    <para>
-    CentOS Studio supports password authentication for SSH connections. It does
-    not support public key or host-based authentication.
-    </para>
-    
-    <para>
-    Users can disable CentOS Studio's built in SSH execution for any script.
-    This allows users to provide support for remote connections and
-    authentication using any method desired directly within the user-provided
-    script.
-    </para>
+  <para>
+  If the test installation completes successfully, CentOS Studio continues
+  processing, including synchronizing any repository changes to the
+  final publish location at 
+  </para>
+
+  <para>
+  <filename>/var/www/html/repos/system/web-server-6-x86_64</filename>.
+  </para>
+
+  <para>
+  During subsequent build cycles, CentOS Studio completes the following:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Synchronizes any repository changes to the test-install location.
+  </listitem>
+
+  <listitem>
+  Determines whether changes have occurred that require retesting installation.
+  </listitem>
+
+  <listitem>
+  If so, it deletes the existing machine, and completes the installation and
+  verification steps listed above.
+  </listitem>
+  </itemizedlist>
+
+  <section>
+  <title>Adding a test-update element</title>
+  <para>
+  Update testing is similar to install testing, you first add a
+  <emphasis>test-update</emphasis> element, and then include the
+  virt-deploy.xml template.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;test-update>
+&lt;password>secret&lt;/password>
+&lt;xi:include href="virt-deploy.xml">
+&lt;/test-update>
+  </programlisting>
+  </informalexample>
+
+  <para>
+  During the first build cycle after the <emphasis>test-update</emphasis>
+  element has been added, CentOS Studio creates a new machine to use as a
+  baseline for performing future update testing. It does this following the
+  steps described under <xref linkend='adding-a-test-install-element'/>
+  above. In the update case, however, the repository location is
+  </para>
+  
+  <para> 
+  <filename>/var/www/html/repos/system/test-updates/web-server-6-x86_64</filename>
+  </para>
+
+  <para>
+  and the machine name is <emphasis>web-server-6-x86-64-test-update.local</emphasis>.
+  </para>
+
+  <para>
+  During subsequent runs, CentOS Studio updates packages on the test machine to
+  conform to packages in the system repository. As with test-install, 
+  processing is halted if an error occurs.
+  </para>
+
+  <para>
+  As with test-install, CentOS Studio will also reinstall the test machine if
+  necessary. This happens much less frequently, however. By default CentOS
+  Studio only reinstalls the test-update machine if it is unable to activate
+  the machine or establish an SSH connection to it.
+  </para>
+  </section>
+
+  <section>
+  <title>Additional test-install and test-update elements</title>
+
+  <para>
+  The test-install and test-update elements accept a number of additional
+  sub-elements. These can be used to specify an alternate repository location
+  or hostname, to customize installation settings, or to specify deployment
+  configuration or scripts. We will discuss many of these sub-elements in the
+  next section. See the <xref linkend='rdfr'/> chapter on <emphasis>Deployment
+  Elements</emphasis>, however, for complete information.
+  </para>
+
+  </section>
+
+  <para>
+  In this section you used the <emphasis>test-install</emphasis> and
+  <emphasis>test-update</emphasis> element along with the
+  <filename>virt-deploy.xml</filename> template to automate system testing. In
+  the next section we will take a look at the contents of virt-deploy.xml and
+  discuss deployment templates in general.
+  </para>
+ 
 </section>

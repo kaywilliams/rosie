@@ -82,10 +82,10 @@
       </listitem>
       
       <listitem>
-      Run user-provided scripts specified via
-      <emphasis>script</emphasis> and <emphasis>trigger</emphasis> elements.
+      Run user-provided scripts specified via <emphasis>script</emphasis> and
+      <emphasis>trigger</emphasis> elements.
       </listitem>
-
+      
       <listitem>
       Place copies of user-provided scripts in a troubleshooting folder on
       client machines. The name of the folder is
@@ -143,17 +143,22 @@ samba-server-config-5-1.el5.noarch.rpm
       <para>
       <xref linkend='content-text'/> identifier for the config-rpm. Also serves
       as the name for the config-rpm. For clarity, often specified by appending
-      the term "config", as shown in the following example:
+      the term "config", as shown in the following example.
       </para>
-
-      <informalexample>
-      <programlisting>
-&lt;config-rpm id="example-config">
-      </programlisting>
-      </informalexample>
       </listitem>
       </varlistentry>
       </variablelist>
+
+      <para><emphasis role='strong'>Example</emphasis></para>
+      <informalexample>
+      <programlisting>
+&lt;config-rpm id="example-config">
+
+...
+
+&lt;/config-rpm>
+      </programlisting>
+      </informalexample>
 
       <para>
       <emphasis role='strong'>Elements</emphasis>
@@ -254,6 +259,19 @@ FULLNAME repository.
         The <emphasis>requires</emphasis> element can occur zero or more times
         </para>
 
+        <para><emphasis role='strong'>Example</emphasis></para>
+        <informalexample>
+        <programlisting>
+&lt;config-rpm id="samba-config">
+
+&lt;requires>samba&lt;/requires>
+&lt;requires>samba-common&lt;/requires>
+
+...
+
+&lt;/config-rpm>
+        </programlisting>
+        </informalexample>
         </listitem>
       </varlistentry>
 
@@ -313,7 +331,7 @@ FULLNAME repository.
         <para>
         <emphasis>@destdir</emphasis>: See the path-like attribute
         <emphasis><xref linkend="destdir" /></emphasis>. Controls the
-        location to which this file should be installed on client
+        location to which this file or folder should be installed on client
         machines. The default value is
         <filename>/var/lib/centosstudio/config/%{name}/RPMID/files</filename>
         </para>
@@ -329,8 +347,32 @@ FULLNAME repository.
         <emphasis><xref linkend="mode" /></emphasis>.
         </para>
 
-        <para>See <xref linkend="path-like-element"/> for more information.</para>
-      </listitem>
+        <para>
+        See <xref linkend="path-like-element"/> for more information.
+        </para>
+
+        <para>
+        <emphasis role='strong'>Example</emphasis>
+        </para>
+
+        <para>
+        This example installs a file named <filename>smb.conf</filename>,
+        located in the same folder as the definition on the build machine, in
+        the <filename>/etc/samba</filename> folder on client machines.
+        </para>
+
+        <informalexample>
+        <programlisting>
+&lt;config-rpm id="samba-config">
+
+...
+
+&lt;files destdir="/etc/samba"&gt;smb.conf&lt;/files&gt;
+
+&lt;/config-rpm>
+        </programlisting>
+        </informalexample>
+        </listitem>
       </varlistentry>
 
       <varlistentry id="config-rpms-script"
@@ -341,8 +383,21 @@ FULLNAME repository.
 
         <listitem>
         <para>
-        Specifies a script to run during RPM installation or removal. Can occur
-        zero or more times.
+        Specifies a script to run during installation or removal of the
+        config-rpm.
+        </para>
+        
+        <para>
+        Depending on the script type, it can run each time the RPM is
+        installed, uninstalled or updated. For this reason, it should be
+        written to be idempotent, meaning that it can be run multiple times
+        with the same result. See the the section on <emphasis>Configuration
+        Packages</emphasis> in the <emphasis>CentOS Studio User
+        Manual</emphasis> for more information on writing idempotent scripts.
+        </para>
+
+        <para>
+        Can occur zero or more times.
         </para>
 
         <para>
@@ -378,6 +433,32 @@ FULLNAME repository.
         variable.
         </para>
 
+        <para>
+        <emphasis role='strong'>Example</emphasis>
+        </para>
+
+        <para>
+        The example below defines a script that will run after installation of
+        the config-rpm, specifically, after all files defined by
+        <emphasis>files</emphasis> elements above have been installed. The
+        particular function of this script is to restart the samba service
+        (named <emphasis>smb</emphasis>) and configure it to run at system boot.
+        </para>
+
+        <informalexample>
+        <programlisting>
+&lt;config-rpm id="samba-config">
+
+...
+
+&lt;script type="post"&gt;
+service smb restart
+chkconfig smb on
+&lt;/script&gt;
+
+&lt;/config-rpm>
+        </programlisting>
+        </informalexample>
         </listitem>
       </varlistentry>
 
@@ -389,8 +470,20 @@ FULLNAME repository.
 
         <listitem>
         <para>
-        Specifies a script to run during RPM installation and removal. Can occur
-        zero or more times.
+        Specifies a script to run during installation or removal of another
+        package or capability.
+        </para>
+
+        <para>
+        Because the script runs each time the trigger event occurs, it should
+        be written to be idempotent, meaning that it can be run multiple times
+        with the same result. See the the section on <emphasis>Configuration
+        Packages</emphasis> in the <emphasis>CentOS Studio User
+        Manual</emphasis> for more information on writing idempotent scripts.
+        </para>
+
+        <para>
+        Can occur zero or more times.
         </para>
 
         <para>
@@ -413,14 +506,45 @@ FULLNAME repository.
         </para>
 
         <para>
-        <emphasis>@type</emphasis>: Specifies the type of RPM trigger
-        script; must be one of "triggerin", "triggerun", or "triggerpostun".
-        This attribute is required. For more information on defining trigger
-        scripts in RPM spec files, see the Fedora project's
-        <emphasis>"RPM Guide"</emphasis> by Eric Foster-Johnson. See Also the
-        <emphasis>@trigger</emphasis>
-        attribute.
+        <emphasis>@type</emphasis>: Specifies the type of trigger script; must
+        be one of "triggerin", "triggerun", or "triggerpostun".  This attribute
+        is required. For more information on defining trigger scripts, see the
+        Fedora project's <emphasis>"RPM Guide"</emphasis> by Eric
+        Foster-Johnson. See Also the <emphasis>@trigger</emphasis> attribute.
         </para>
+
+        <para>
+        <emphasis role='strong'>Example</emphasis>
+        </para>
+
+        <para>
+        This example below shows defining a script that will run on client
+        machines each time the <emphasis>bugzilla</emphasis> package is
+        installed or updated. This particular script serves to execute a
+        bugzilla-provided script (<emphasis>checksetup.pl</emphasis>) after
+        first ensuring that a required folder exists.
+        </para>
+
+        <informalexample>
+        <programlisting>
+&lt;config-rpm id="bugzilla-config">
+
+...
+
+&lt;trigger type="triggerin" trigger="bugzilla">
+if [[ $1 = 1 ]]; then
+  # bugzilla-3.2.10 checksetup.pl fails if this directory doesn't
+  # exist. It should create it on it's own, but since it doesn't, we will.
+  if [ ! -e /usr/share/bugzilla/contrib ]; then
+    mkdir /usr/share/bugzilla/contrib
+  fi
+  # run checksetup.pl
+  /usr/share/bugzilla/checksetup.pl
+fi
+&lt;/trigger&gt;
+&lt;/config-rpm>
+        </programlisting>
+        </informalexample>
         </listitem>
       </varlistentry>
       </variablelist>
@@ -430,48 +554,4 @@ FULLNAME repository.
     </variablelist>
 
   </section>
-
-  <section>
-    <title>
-    Examples
-    </title>
-
-    <informalexample>
-    <programlisting>
-&lt;config-rpms&gt;
-&lt;config-rpm id="samba"&gt;
-&lt;requires&gt;samba&lt;/requires&gt;
-&lt;requires&gt;samba-common&lt;/requires&gt;
-
-&lt;!-- put smb.conf in /etc/samba on the client machine --&gt;
-&lt;files destdir="/etc/samba"&gt;smb.conf&lt;/files&gt;
-
-&lt;!-- add an RPM %post script --&gt;
-&lt;script type="post"&gt;
-service smb restart
-chkconfig smb on
-&lt;/script&gt;
-&lt;/config-rpm&gt;
-
-&lt;config-rpm id="aliases"&gt;
-&lt;!-- rename and change mode of aliases.txt --&gt;
-&lt;files destdir="/etc" destname="aliases" mode="0600"&gt;
-  aliases.txt
-&lt;/files&gt;
-&lt;/config-rpm&gt;
-
-&lt;config-rpm id="hosts"&gt;
-&lt;!-- create /etc/hosts using the supplied text --&gt;
-&lt;files destdir="/etc" destname="hosts" content="text"&gt;
-# Do not remove the following line, or various programs
-# that require network functionality will fail.
-127.0.0.1   localhost.localdomain localhost
-::1         localhost.localdomain localhost
-&lt;/files&gt;
-&lt;/config-rpm&gt;
-&lt;/config-rpms&gt;
-    </programlisting>
-    </informalexample>
-  </section>
-
 </section>
