@@ -2,6 +2,9 @@
 <script id='virt-delete' type='delete'>
 #!/bin/bash
 set -e
-if [[ `virsh list` = *\ %{fqdn}\ * ]]; then virsh destroy %{fqdn}; fi
+if [[ `virsh list` = *\ %{fqdn}\ * ]]; then
+  virsh managedsave-remove %{fqdn}
+  virsh destroy %{fqdn}
+fi
 if [[ `virsh list --all` = *\ %{fqdn}\ * ]]; then virsh undefine %{fqdn}; fi
 </script>

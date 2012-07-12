@@ -38,11 +38,10 @@ esac
 
 <script type = 'post'>
 # Start web server and configure to start at system boot
-SERVICE=httpd
-if [[ -z `pidof $SERVICE` ]] ; then
-  service $SERVICE start
+if [[ -z `pidof httpd` ]] ; then
+  service httpd start > /dev/null
 fi
-chkconfig --level 345 $SERVICE on
+chkconfig --level 345 httpd on
 
 # Enable http traffic through the firewall
 if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
@@ -50,7 +49,7 @@ if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
   # /etc/sysconfig/iptables doesn't exist yet if we're running under anaconda
   if ! ps aux | grep "[/]usr/bin/anaconda"; then
     service iptables-httpd start
-    service iptables restart
+    service iptables restart > /dev/null
   fi
 fi
 </script>

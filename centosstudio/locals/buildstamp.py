@@ -19,4 +19,8 @@ L_BUILDSTAMP_FORMAT = LocalsDict({
     'productpath': REMOVE,
     'webloc':      dict(index=3),
   },
+   "anaconda-13.21.176-1": {
+    'final':       dict(index=3, string='%(final)s'),
+    'webloc':      dict(index=4),
+  },
 })

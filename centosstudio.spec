@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.46
+Version: 1.48
 Release: 1%{?dist}
 Summary: Platform for deploying CentOS and RHEL-based systems and applications
 
@@ -72,7 +72,11 @@ Enterprise Linux. See http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
+<<<<<<< local
 * Thu Jun 14 2012 Kay Williams <kay@centosstudio.org> - 1.0.46-1
+=======
+* Wed Jul 11 2012 Kay Williams <kay@centossolutions.com> - 1.0.48-1
+>>>>>>> other
 - Beta 1 Build
 
 * Mon Jul 08 2011 Kay Williams <kay@centosstudio.org> - 0.9.1-1
