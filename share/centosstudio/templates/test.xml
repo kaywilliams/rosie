@@ -17,7 +17,7 @@ baseurl - full url to package repository on build machine, must be accessible fr
 -->
 
 <main>
-  <name>test-%{repo}-%{scenario}</name>
+  <name>%{repo}-%{scenario}</name>
   <version>%{version}</version>
   <arch>%{arch}</arch>
 </main>
@@ -46,26 +46,12 @@ sed -i "s|^baseurl.*|baseurl = %{baseurl}|" /etc/yum.repos.d/%{repo}.repo
 
 <test-install>
   <password>%{password}</password>
-  <hostname>%{id}-install</hostname>
-  <xi:include href="srpmbuild.xml"
-              xpointer="xpointer(/*/publish/kickstart |
-                                 /*/publish/triggers |
-                                 /*/publish/script[@type='install'])"/>
-  <xi:include href="virt-deploy.xml"
-              xpointer="xpointer(/*/domain)"/>
-  <xi:include href="virt-deploy.xml"
-              xpointer="xpointer(/*/script[@type!='install' and
-                                           @id!='check-kernel'])"/>
-
-  <script id='install-config' type='post' ssh='true' comes-after='update' comes-before='poweroff'>
-  yum install %{repo}-%{scenario}-config --disableplugin sync -y -q
-  </script>
+  <xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
   <xi:include href="deploy/poweroff.xml"/>
 </test-install>
 
 <test-update>
-  <hostname>%{id}-update</hostname>
-  <xi:include xpointer="xpointer(/*/test-install/*[name()!='hostname'])"/>
+  <xi:include xpointer="xpointer(/*/test-install/*)"/>
 </test-update>
 
 </repo>
