@@ -54,8 +54,7 @@ virt-install --name %{fqdn} --ram 1000 \
              --file /var/lib/libvirt/images/%{fqdn}.img \
              --file-size 10 \
              --location %{url} \
-             --extra-args "lang=en_US keymap=us ip=dhcp noipv6\
-               ks=%{url}/ks.cfg"\
+             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
              --noreboot
 </script>
 
