@@ -88,6 +88,8 @@ class TestUpdateEvent(DeployEventMixin, Event):
     self.kstext = self.cvars['test-update-kstext']
     self.repomdfile = self.cvars['test-update-repomdfile']
     self.DATA['variables'].append('repomdfile')
+    self.default_install_triggers = [ 'kickstart', 'install_scripts',
+                                      'post_install_scripts' ]
     DeployEventMixin.setup(self)
 
 
