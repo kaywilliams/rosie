@@ -213,16 +213,16 @@ class PublishSetupEventMixin:
     return self.config.getxpath('boot-options/text()', default)
 
   def get_password(self):
-    if self.moduleid == 'publish':
-      password = (self.config.getxpath('password/text()', '') or 
-                  self.datfile.getxpath('/*/%s/password/text()' % self.moduleid, ''))
-      if not password:
-        password = self.gen_password()
-    else:
-      password = (self.config.getxpath('password/text()', '') or 
-                  self.cvars['publish-setup-options']['password'])
+    password = self.config.getxpath('password/text()', '')
+    
+    if password:
+      self.pwtype='user'
+      return password
 
-    return password
+    else:
+      self.pwtype='generated'
+      return (self.datfile.getxpath('/*/%s/generated-password/text()' 
+              % self.moduleid, '') or self.gen_password())
 
   def gen_password(self):
     size = 8 
@@ -230,19 +230,12 @@ class PublishSetupEventMixin:
                     string.letters + string.digits) for i in range(size)])
 
   def get_cryptpw(self, password):
-    cryptpw=self.datfile.getxpath('/*/publish/crypt-password/text()', '')
-
-    if self.moduleid != 'publish':
-      cryptpw = self.datfile.getxpath('/*/%s/crypt-password/text()' % self.moduleid,
-                                 cryptpw)
-
-    if len(cryptpw) > 0:
-      # discard saved cryptpw if it is no longer valid
-      salt = cryptpw[:11]
-      if cryptpw != self.encrypt_password(password, salt):
-        cryptpw = ''
-
-    return cryptpw or self.encrypt_password(password)
+    if password == self.datfile.getxpath('/*/%s/%s-password/text()'
+                                         % (self.moduleid, self.pwtype), ''):
+      return self.datfile.getxpath('/*/%s/crypt-password/text()'
+                                         % self.moduleid)
+    else:
+      return self.encrypt_password(password)
 
   def encrypt_password(self, password, salt=None):
     if salt is None:
@@ -261,27 +254,23 @@ class PublishSetupEventMixin:
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
-    if (len(self.config.getxpath('password/text()', '')) == 0 and 
-        self.moduleid == 'publish'):
-      password = uElement('password', parent=parent, text=self.password)
-    else:
-      password = uElement('password', parent=parent, text=None)
+    if self.pwtype == 'user':
+      userpw = uElement('user-password', parent=parent, text=self.password)
+    else: 
+      userpw = uElement('user-password', parent=parent, text=None)
 
-    # set crypt_password
-    if (self.moduleid == 'publish' or 
-        self.password != self.cvars.setdefault(
-                         'publish-setup-options', {}).setdefault(
-                         'password', '')):
-      crypt_password = uElement('crypt-password', parent=parent, 
-                       text=self.crypt_password)
-    else:
-      crypt_password = uElement('crypt-password', parent=parent, text=None)
+    if self.pwtype == 'generated':
+      genpw = uElement('generated-password', parent=parent, text=self.password)
+    else: 
+      genpw = uElement('generated-password', parent=parent, text=None)
+
+    # set crypt-password
+    cryppw = uElement('crypt-password', parent=parent, text=self.crypt_password)
 
     #cleanup empty nodes
-    for elem in [ password, crypt_password ]:
+    for elem in [ userpw, genpw, cryppw ]:
       if elem.text == None: elem.getparent().remove(elem)
     if len(parent) == 0: parent.getparent().remove(parent)
-
     root.write()
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and

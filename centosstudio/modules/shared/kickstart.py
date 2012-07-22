@@ -74,5 +74,12 @@ class KickstartEventMixin:
 
     self.DATA['output'].append(self.ksfile)
 
+  def apply(self):
+    self.cvars['%s-kstext' % self.moduleid] = self.ksfile.read_text()
+
+  def verify_kickstart_cvars(self):
+    "verify kickstart cvars exist"
+    self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
+
 class KickstartValidationError(CentOSStudioEventError):
   message = ( "%(message)s" ) 

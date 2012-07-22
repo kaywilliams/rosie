@@ -123,8 +123,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     self.io.chcon(self.localpath)
 
   def apply(self):
-    self.cvars['%s-kstext' % self.moduleid] = self.kstext # provided by ks mixin
     self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin
+    KickstartEventMixin.apply(self) 
 
   def verify_repomdfile(self):
     "verify repomd file exists"

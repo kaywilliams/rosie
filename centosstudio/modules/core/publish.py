@@ -110,13 +110,14 @@ class KickstartEvent(KickstartEventMixin, Event):
 
     self.ksxpath = 'kickstart'
     KickstartEventMixin.setup(self)
-
+ 
   def run(self):
     KickstartEventMixin.run(self)
 
   def apply(self):
     self.cvars['kickstart-file'] = self.ksfile
     self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
+    KickstartEventMixin.apply(self)
 
   def verify_cvars(self):
     "kickstart file exists"
@@ -199,13 +200,13 @@ class DeployEvent(DeployEventMixin, Event):
     self.diff.setup(self.DATA)
 
     self.webpath = self.cvars['publish-setup-options']['webpath'] 
+    self.kstext = self.cvars['publish-kstext']
     # allowing deploy event to run when the repocreate is disabled for 
     # improved testing performance
     if 'repomd-file' in self.cvars:
       self.repomdfile = self.cvars['repomd-file']
     else:
       self.repomdfile = ''
-    # not setting kstext since kickstart is not a trigger for this event
 
     self.DATA['variables'].extend(['webpath', 'repomdfile'])
     DeployEventMixin.setup(self)

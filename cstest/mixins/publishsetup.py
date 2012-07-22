@@ -240,17 +240,11 @@ def PublishSetupMixinTest_NoPassword(self):
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
-    # print "password: ", self.event.password
-    # print "saved password: ", saved(self, 'password/text()')
-    # print "saved cryptpw: ", saved(self, 'crypt-password/text()')
-    # print "saved elem: ", saved(self, '.')
-    if self.moduleid == 'publish':
-      additional_tests = self.event.password == saved(self, 'password/text()') \
-                         and len(saved(self, 'crypt-password/text()')) > 0 
-    else:
-      additional_tests = len(saved(self, '.')) == 0
-
-    self.failUnless(self.event.password and additional_tests) 
+    self.failUnless(self.event.password 
+                    and self.event.password == saved(self, 
+                        'generated-password/text()') 
+                    and len(saved(self, 'user-password/text()')) == 0
+                    and len(saved(self, 'crypt-password/text()')) > 0 )
 
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
@@ -271,8 +265,7 @@ def PublishSetupMixinTest_Password(self):
     self.tb.dispatch.execute(until=self.event.id)
     self.failUnless(self.event.cvars['%s-setup-options' % self.moduleid]
                     ['password'] == 'password')
-    self.failUnless(saved(self, 'password/text()') == '')
-    self.failUnless(saved(self, 'crypt-password/text()') != '')
+    self.failUnless(saved(self, 'user-password/text()') == 'password')
 
   decorate(self, 'setUp', prefn=pre_setUp)
   self.runTest = runTest
