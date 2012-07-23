@@ -15,7 +15,7 @@ if [[ $? != 0 ]] &amp;&amp; [[ ! `echo $warning | grep docbook-style-xsl` ]]; th
 fi
 </script>
 
-<script id='remove-docbook-style-xsl' type='post' ssh='true' comes-after='update' comes-before='check-kernel'>
+<script id='remove-docbook-style-xsl' type='post' ssh='true' comes-after='copy' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty postun scripts; force removal
 rpm -e srpmbuild-centosstudio-config
