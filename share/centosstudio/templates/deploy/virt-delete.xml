@@ -6,5 +6,8 @@ if [[ `virsh list` = *\ %{fqdn}\ * ]]; then
   virsh managedsave-remove %{fqdn}
   virsh destroy %{fqdn}
 fi
-if [[ `virsh list --all` = *\ %{fqdn}\ * ]]; then virsh undefine %{fqdn}; fi
+if [[ `virsh list --all` = *\ %{fqdn}\ * ]]; then 
+  virsh undefine %{fqdn}
+  virsh vol-delete --pool default %{fqdn}.img
+fi
 </script>
