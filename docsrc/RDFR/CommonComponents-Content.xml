@@ -58,8 +58,7 @@
 
       <programlisting>
 FALSE: ("no"|"false"|"off"|"0")
-TRUE:  ("yes"|"true"|"on"|"1")
-      </programlisting>
+TRUE:  ("yes"|"true"|"on"|"1")</programlisting>
     </section>
   </section>
 
@@ -90,8 +89,7 @@ TRUE:  ("yes"|"true"|"on"|"1")
       <para>
       Capability strings have the following syntax:
       <programlisting>
-capability [ comparison_operator  version ]
-      </programlisting></para>
+capability [ comparison_operator  version ]</programlisting></para>
 
       <para>
       Comparison operators can be one of the following. Note that the 
@@ -128,8 +126,7 @@ capability [ comparison_operator  version ]
         <programlisting>
 centos-release &amp;lt; 5
 bash &gt;= 2.5.1
-samba
-        </programlisting>
+samba</programlisting>
         </informalexample>
       </section>
 
@@ -145,8 +142,7 @@ samba
         <programlisting>
 /bin/bash
 /usr/bin/python
-/sbin/chkconfig
-        </programlisting>
+/sbin/chkconfig</programlisting>
 
       </section>
 
@@ -163,8 +159,7 @@ samba
         <programlisting>
 rpm(CompressedFileNames)
 libc.so.6
-config(bash) = 3.2-20.fc9
-        </programlisting>
+config(bash) = 3.2-20.fc9</programlisting>
         </informalexample>
       </section>
 
@@ -177,8 +172,7 @@ config(bash) = 3.2-20.fc9
 rpm -q --provides samba 
 
 # list capabilities of a file on disk
-rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm
-      </programlisting>
+rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm</programlisting>
       </para>
       </note>
     </section>
@@ -258,8 +252,7 @@ rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm
       <programlisting>
 644
 755
-1444
-      </programlisting>
+1444</programlisting>
     </section>
 
   </section>
@@ -300,8 +293,7 @@ name-ver
 name-ver-rel
 name-ver-rel.arch
 name-epoch:ver-rel.arch
-epoch:name-ver-rel.arch
-      </programlisting>
+epoch:name-ver-rel.arch</programlisting>
     </section>
 
     <section>
@@ -318,8 +310,7 @@ kernel-2.4.1
 kernel-2.4.1-10
 kernel-2.4.1-10.i686
 kernel-0:2.4.1-10.i686
-0:kernel-2.4.1-10.i686
-      </programlisting>
+0:kernel-2.4.1-10.i686</programlisting>
       </informalexample>
     </section>
 
@@ -369,8 +360,7 @@ kernel-0:2.4.1-10.i686
         </para>
 
         <programlisting>
-[DIRNAME/]BASENAME
-        </programlisting>
+[DIRNAME/]BASENAME</programlisting>
 
       </section>
 
@@ -387,8 +377,7 @@ kernel-0:2.4.1-10.i686
         </para>
 
         <programlisting>
-$scheme://[$username[:$password]@][($hostname|$ipaddress)][:$port]/[$path]
-        </programlisting>
+$scheme://[$username[:$password]@][($hostname|$ipaddress)][:$port]/[$path]</programlisting>
       </section>
     </section>
 
@@ -410,8 +399,7 @@ $scheme://[$username[:$password]@][($hostname|$ipaddress)][:$port]/[$path]
         <informalexample>
         <programlisting>
 /var/www/html
-data/inputs
-        </programlisting>
+data/inputs</programlisting>
         </informalexample>
       </section>
 
@@ -431,8 +419,7 @@ data/inputs
 file:///var/www/html
 file://localhost/var/www/html
 http://www.example.com/directory/file
-https://myuser:mypassword@www.example.com:443/secure/directory/file
-        </programlisting>
+https://myuser:mypassword@www.example.com:443/secure/directory/file</programlisting>
         </informalexample>
       </section>
     </section>
@@ -496,8 +483,7 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file
       <programlisting>
 file:///path/to/file/or/folder
 http://example.server.com/path/to/file/or/folder
-https://example.server.com/path/to/file/or/folder
-      </programlisting>
+https://example.server.com/path/to/file/or/folder</programlisting>
       </informalexample>
       </section>
     </section>

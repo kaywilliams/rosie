@@ -38,8 +38,7 @@
 
   <informalexample>
   <programlisting>
-<command>centosstudio</command> /path/to/definition
-  </programlisting>
+<command>centosstudio</command> /path/to/definition</programlisting>
   </informalexample>
 
   <xi:include href="DocumentConventions.xml"
@@ -62,8 +61,7 @@
 
     <informalexample>
     <programlisting>
-<xi:include href="templates/web-server.definition" parse="text"/>
-    </programlisting>
+<xi:include href="templates/web-server.definition" parse="text"/></programlisting>
     </informalexample>
   </section>
 

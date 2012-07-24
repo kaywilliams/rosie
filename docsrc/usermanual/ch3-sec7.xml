@@ -10,8 +10,7 @@
 
   <para><informalexample><programlisting>
 # yum clean metadata
-# yum sync
-  </programlisting></informalexample></para>
+# yum sync</programlisting></informalexample></para>
 
   <para>The first command, <userinput>yum clean metadata</userinput>, ensures that YUM is using current repository information. For improved performance, YUM caches repository metadata as a matter of course, with a default cache expiration period of 1.5 hours. While you are building and testing a new solution, you will want to override this behavior by forcing YUM to clean the metadata cache prior to each execution of the <command>yum sync</command> command. See the <emphasis>metadata_expire</emphasis> option in <command>man yum.conf</command>, as well as <command>man yum</command> for more information on YUM's caching and cleaning options.</para>
 

@@ -56,8 +56,7 @@
 
       <programlisting>
 # $basename is the basename of $input
-$root/$default/$basename
-      </programlisting>
+$root/$default/$basename</programlisting>
 
       <para>
       Allows overriding the value of <varname>$basename</varname> by specifying
@@ -66,8 +65,7 @@ $root/$default/$basename
 
       <programlisting>
 # destname=outfile.txt
-$root/$default/outfile.txt
-      </programlisting>
+$root/$default/outfile.txt</programlisting>
 
       <para>
       Allows customizing the final location of the path by specifying a value in
@@ -82,8 +80,7 @@ $root/$default/outfile.txt
 # destdir=var/www/html  (relative)
 $root/$default/var/www/html/$basename
 # destdir=/var/www/html (absolute)
-$root/var/www/html/$basename
-      </programlisting>
+$root/var/www/html/$basename</programlisting>
 
       <para>
       The above two concepts can be combined to allow complete control
@@ -94,8 +91,7 @@ $root/var/www/html/$basename
 # destdir=var/www/html,  basename=outfile.txt
 $root/$default/var/www/html/outfile.txt
 # destdir=/var/www/html, basename=outfile.txt
-$root/var/www/html/outfile.txt
-      </programlisting>
+$root/var/www/html/outfile.txt</programlisting>
 
     </section>
 
@@ -109,8 +105,7 @@ $root/var/www/html/outfile.txt
              [destname=BASENAME]
              [mode=MODE]&gt;
   <varname>$input</varname>
-&lt;/ELEMENTNAME&gt;
-      </programlisting>
+&lt;/ELEMENTNAME&gt;</programlisting>
 
     </section>
 

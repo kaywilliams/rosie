@@ -33,8 +33,7 @@
            [content=("file"|"text")]&gt;
      (PATH|TEXT)
    &lt;/files&gt;*
- &lt;/release-rpm&gt;]
-    </programlisting>
+ &lt;/release-rpm&gt;]</programlisting>
   </section>
 
   <section>
@@ -123,8 +122,7 @@
 &lt;/files&gt;
 
 &lt;files>templates&lt;/files>
-&lt;/files>
-    </programlisting>
+&lt;/files></programlisting>
     </informalexample>
   </section>
 

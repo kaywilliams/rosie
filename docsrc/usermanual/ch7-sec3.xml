@@ -339,8 +339,7 @@
 &lt;xi:include href="path/to/test.xml"
             xpointer="xpointer(/*/test-install | /*/test-updates)"/>
 
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
   </section>
 
@@ -435,8 +434,7 @@
 ...
 &lt;/test-update>
 
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
   </section>
 
@@ -527,8 +525,7 @@ for v in $VERSIONS; do
     "/var/www/html/repos/package/$REPO-$v-$a/" \
     "user@repos.company.com:/var/www/html/$REPO-$v-$a"
   done
-done
-  </programlisting>
+done</programlisting>
   </informalexample>
 
   <para>
@@ -542,8 +539,7 @@ done
   <programlisting>
 cp application-test.sh /etc/cron.daily
 chown root:root application-test.sh
-chmod +x application-test.sh
-  </programlisting>
+chmod +x application-test.sh</programlisting>
   </informalexample>
 
   <para>

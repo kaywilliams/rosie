@@ -65,8 +65,7 @@
 
   <informalexample>
   <programlisting>
-rpm -Uvh path/to/downloaded/rpm
-  </programlisting>
+rpm -Uvh path/to/downloaded/rpm</programlisting>
   </informalexample>
   </listitem>
 
@@ -77,8 +76,7 @@ rpm -Uvh path/to/downloaded/rpm
 
   <informalexample>
   <programlisting>
-yum install package1 package2
-  </programlisting>
+yum install package1 package2</programlisting>
   </informalexample>
   </listitem>
   </itemizedlist>

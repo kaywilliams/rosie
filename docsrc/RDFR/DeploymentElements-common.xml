@@ -72,8 +72,7 @@
     [comes-after=TEXT]
     &gt;TEXT
   &lt;/script&gt;]*
-&lt;ELEMENT/&gt;]
-    </programlisting>
+&lt;ELEMENT/&gt;]</programlisting>
   </section>
 
   <section id="deployment-macros" xreflabel="macros">
@@ -326,8 +325,7 @@
 
       <informalexample>
       <programlisting>
-&lt;local-dir&gt;/my/web/root/repos/system/&lt;/local-dir&gt;
-      </programlisting>
+&lt;local-dir&gt;/my/web/root/repos/system/&lt;/local-dir&gt;</programlisting>
       </informalexample>
 
       </listitem>
@@ -390,8 +388,7 @@
 
       <informalexample>
       <programlisting>
-$remote-url/%{id}
-      </programlisting>
+$remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
@@ -486,8 +483,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-&lt;remote-url fqdn="true" /&gt;
-      </programlisting>
+&lt;remote-url fqdn="true" /&gt;</programlisting>
       </informalexample>
 
       <para>
@@ -521,8 +517,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-&lt;remote-url interface="eth1"/&gt;
-      </programlisting>
+&lt;remote-url interface="eth1"/&gt;</programlisting>
       </informalexample>
 
       <para>
@@ -558,8 +553,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-&lt;remote-url&gt;http://repos.company.com/&lt;/remote-url&gt;
-      </programlisting>
+&lt;remote-url&gt;http://repos.company.com/&lt;/remote-url&gt;</programlisting>
       </informalexample>
 
       <para>
@@ -726,8 +720,7 @@ $remote-url/%{id}
     executing the following command:
     
     <programlisting>
-/usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""
-    </programlisting>
+/usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""</programlisting>
     </para>
 
     <para>
@@ -824,8 +817,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>     
-&lt;boot-options&gt;lang=el_GR keymap=gr&lt;/boot-options&gt;
-      </programlisting>
+&lt;boot-options&gt;lang=el_GR keymap=gr&lt;/boot-options&gt;</programlisting>
       </informalexample>
 
       </listitem>
@@ -912,8 +904,7 @@ $remote-url/%{id}
     <programlisting>
 &lt;kickstart&gt;
 <xi:include href='templates/deploy/ks.cfg' parse='text'/>
-&lt;/kickstart&gt;
-    </programlisting>
+&lt;/kickstart&gt;</programlisting>
     </informalexample>
   
     <para>
@@ -924,8 +915,7 @@ $remote-url/%{id}
     <programlisting>
 &lt;kickstart&gt;
 &lt;xi:include href="ks.cfg" parse="text"/&gt;
-&lt;/kickstart&gt;
-    </programlisting>
+&lt;/kickstart&gt;</programlisting>
     </informalexample>
 
     </listitem>
@@ -967,8 +957,7 @@ $remote-url/%{id}
 
     <informalexample>
     <programlisting>
-<xi:include href='templates/deploy/ssh-config.xml' parse='text'/>
-    </programlisting>
+<xi:include href='templates/deploy/ssh-config.xml' parse='text'/></programlisting>
     </informalexample>
   
     <para>
@@ -979,8 +968,7 @@ $remote-url/%{id}
 
     <informalexample>
     <programlisting>
-&lt;xi:include href="path/to/ssh-config.xml"/&gt;
-    </programlisting>
+&lt;xi:include href="path/to/ssh-config.xml"/&gt;</programlisting>
     </informalexample>
 
     </listitem>
@@ -1174,8 +1162,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-<xi:include href='templates/deploy/virt-activate.xml' parse='text'/> 
-      </programlisting>
+<xi:include href='templates/deploy/virt-activate.xml' parse='text'/> </programlisting>
       </informalexample>
 
       <para>
@@ -1184,8 +1171,7 @@ $remote-url/%{id}
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="path/to/deploy/virt-activate.xml"/>
-      </programlisting>
+&lt;xi:include href="path/to/deploy/virt-activate.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1229,8 +1215,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-<xi:include href='templates/deploy/test-triggers.xml' parse='text'/> 
-      </programlisting>
+<xi:include href='templates/deploy/test-triggers.xml' parse='text'/> </programlisting>
       </informalexample>
 
       <para>
@@ -1239,8 +1224,7 @@ $remote-url/%{id}
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="path/to/deploy/test-triggers.xml"/>
-      </programlisting>
+&lt;xi:include href="path/to/deploy/test-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1276,8 +1260,7 @@ $remote-url/%{id}
 
 <xi:include href='templates/deploy/virt-delete.xml'/>
 
-&lt;/publish&gt;
-      </programlisting>
+&lt;/publish&gt;</programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1335,8 +1318,7 @@ $remote-url/%{id}
 
 <xi:include href='templates/deploy/virt-install.xml'/>
 
-&lt;/publish&gt;
-      </programlisting>
+&lt;/publish&gt;</programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1381,8 +1363,7 @@ $remote-url/%{id}
 
 <xi:include href='templates/deploy/verify-install.xml'/> 
 
-&lt;/publish&gt;
-      </programlisting>
+&lt;/publish&gt;</programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1469,8 +1450,7 @@ $remote-url/%{id}
 
 <xi:include href='templates/deploy/update.xml'/>
 
-&lt;/publish&gt;
-      </programlisting>
+&lt;/publish&gt;</programlisting>
       </informalexample>
 
       <para>
@@ -1481,8 +1461,7 @@ $remote-url/%{id}
 
       <informalexample>
       <programlisting>
-<xi:include href='templates/deploy/poweroff.xml'/>
-      </programlisting>
+<xi:include href='templates/deploy/poweroff.xml'/></programlisting>
       </informalexample>
       </listitem>
       </varlistentry>

@@ -76,8 +76,7 @@
     [&lt;template>PATH&lt;/template>]
   &lt;/srpm>
   [&lt;template>TEXT&lt;/template>]
-&lt;/srpmbuild>]
-    </programlisting>
+&lt;/srpmbuild>]</programlisting>
   </section>
 
   <section>
@@ -159,8 +158,7 @@
 &lt;path>
 http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhnlib-2.5.22-10.el6.src.rpm
 &lt;/path>
-&lt;srpm>
-      </programlisting>
+&lt;srpm></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -191,8 +189,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhnlib-2.5
 &lt;repo>
 http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;/repo>
-&lt;srpm>
-      </programlisting>
+&lt;srpm></programlisting>
       </informalexample>
 
       </listitem>
@@ -253,8 +250,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 #!/bin/bash
 fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
 &lt;/script>
-&lt;srpm>
-     </programlisting>
+&lt;srpm></programlisting>
      </informalexample>
      </listitem>
     </varlistentry>
@@ -411,8 +407,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
 &lt;srpm id="my-package">
 &lt;template>srpmbuild-custom.xml&lt;/template>
 ...
-&lt;/srpm>
-      </programlisting>
+&lt;/srpm></programlisting>
       </informalexample>
       </section>
 
@@ -430,8 +425,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       </para>
       <informalexample>
       <programlisting>
-<xi:include href="templates/srpmbuild-custom.xml" parse="text"/>
-      </programlisting>
+<xi:include href="templates/srpmbuild-custom.xml" parse="text"/></programlisting>
       </informalexample>
       </section>
 
@@ -449,8 +443,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       </para>
       <informalexample>
       <programlisting>
-<xi:include href="templates/srpmbuild.xml" parse="text"/>
-      </programlisting>
+<xi:include href="templates/srpmbuild.xml" parse="text"/></programlisting>
       </informalexample>
       </section>
 

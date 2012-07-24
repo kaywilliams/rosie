@@ -97,8 +97,7 @@
 &lt;test-install>
   &lt;password>mypassword&lt;/password>
   &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
-&lt;/test-install>
-    </programlisting>
+&lt;/test-install></programlisting>
     </section>
 
     <section id="virt-deploy.xml" xreflabel="virt-deploy.xml">

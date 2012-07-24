@@ -36,8 +36,7 @@
   &lt;public&gt;TEXT&lt;/public&gt;
   &lt;secret&gt;TEXT&lt;/secret&gt;
   [&lt;passphrase&gt;TEXT&lt;/passphrase&gt;]
- &lt;/gpgsign&gt;]
-    </programlisting>
+ &lt;/gpgsign&gt;]</programlisting>
   </section>
 
   <section>
@@ -154,8 +153,7 @@ TBefZqqYtL+kacCEgCIYH2Fhm0I=
   &lt;/public&gt;
 
   &lt;passphrase&gt;my long passphrase&lt;/passphrase&gt;
-&lt;/gpgsign&gt;
-    </programlisting>
+&lt;/gpgsign&gt;</programlisting>
     </informalexample>
   </section>
 

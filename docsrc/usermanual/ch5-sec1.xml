@@ -73,8 +73,7 @@
 &lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)">
-&lt;/test-install>
-  </programlisting>
+&lt;/test-install></programlisting>
   </informalexample>
   </section>
 
@@ -84,8 +83,7 @@
 
   <informalexample>
   <programlisting>
-# centosstudio web-server.definition
-  </programlisting>
+# centosstudio web-server.definition</programlisting>
   </informalexample>
 
   <para>
@@ -173,8 +171,7 @@
 &lt;test-update>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
-&lt;/test-update>
-  </programlisting>
+&lt;/test-update></programlisting>
   </informalexample>
 
   <para>

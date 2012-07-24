@@ -35,8 +35,7 @@
     <programlisting>
 [&lt;iso&gt;
    &lt;set&gt;TEXT&lt;/set&gt;*
- &lt;/iso&gt;]
-    </programlisting>
+ &lt;/iso&gt;]</programlisting>
   </section>
 
   <section>
@@ -107,8 +106,7 @@
   &lt;set&gt;400000000&lt;/set&gt; &lt;!--  400000000 bytes/disc --&gt;
   &lt;set&gt;640 mb&lt;/set&gt;    &lt;!--  640000000 bytes/disc --&gt;
   &lt;set&gt;640 mib&lt;/set&gt;   &lt;!--  671088640 bytes/disc --&gt;
-&lt;/iso&gt;
-    </programlisting>
+&lt;/iso&gt;</programlisting>
     </informalexample>
   </section>
 

@@ -219,8 +219,7 @@ auth --enablemd5 --enableshadow --enablecache
 selinux --enforcing
 reboot
 &lt;/kickstart>
-&lt;/test-install>
-  </programlisting>
+&lt;/test-install></programlisting>
   </informalexample>
 
   <para>
@@ -281,8 +280,7 @@ virt-install --name %{fqdn} --ram 2000 \
 &lt;xi:include href="virt-deploy.xml" 
             xpointer="xpointer(/*/*[@id!='check-kernel' and
                                     @id!='virt-install'])"/>
-&lt;/test-install>
-  </programlisting>
+&lt;/test-install></programlisting>
   </informalexample>
 
   <para>
@@ -338,8 +336,7 @@ virt-install --name %{fqdn} --ram 2000 \
 &lt;xi:include href=’deploy/save-triggers.xml’/>
 &lt;xi:include href=’deploy/update.xml’/>
 &lt;xi:include href=’deploy/check-kernel.xml’/>
-&lt;/xml>
-  </programlisting>
+&lt;/xml></programlisting>
   </informalexample>
 
 
@@ -428,8 +425,7 @@ reboot
 &lt;xi:include href=’delete.xml’/>
 &lt;xi:include href=’install.xml’/>
 &lt;xi:include href=’update.xml’/>
-&lt;/xml>
-  </programlisting>
+&lt;/xml></programlisting>
   </informalexample>
   </section>
 

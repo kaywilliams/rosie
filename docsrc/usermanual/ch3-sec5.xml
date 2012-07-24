@@ -29,8 +29,7 @@
 
   <para>
   <informalexample><programlisting>
-# centosstudio web-server.definition
-  </programlisting></informalexample>
+# centosstudio web-server.definition</programlisting></informalexample>
   </para>
 
   <para>
@@ -49,8 +48,7 @@ PARAMS="\
 
 for params in $PARAMS; do
   centosstudio $params 
-done
-  </programlisting>
+done</programlisting>
   </informalexample></para>
 
   <para>

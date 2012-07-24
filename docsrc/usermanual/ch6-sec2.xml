@@ -195,8 +195,7 @@ rsync -a --delete -e ssh \
 &lt;/script>
 &lt;/publish>
 
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
 
   <section>
@@ -262,8 +261,7 @@ rsync -a --delete -e ssh \
   <programlisting>
 &lt;iso>
 &lt;set>DVD&lt;/set>
-&lt;/iso>
-  </programlisting>
+&lt;/iso></programlisting>
   </informalexample>
 
   <para>

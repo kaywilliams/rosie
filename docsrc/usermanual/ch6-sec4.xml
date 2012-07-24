@@ -59,8 +59,7 @@ rsync -a --delete -e ssh \
 &lt;/script>
 &lt;/publish>
 
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
 
 </section>

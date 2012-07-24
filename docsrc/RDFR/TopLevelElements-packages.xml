@@ -34,8 +34,7 @@
   [&lt;package&gt;PACKAGE&lt;/package&gt;]*
 
   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
-&lt;/packages&gt;
-      </programlisting>
+&lt;/packages&gt;</programlisting>
   </section>
 
   <section>
@@ -160,8 +159,7 @@
 
   &lt;!-- exclude system-config-soundcard from the system --&gt;
   &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
-&lt;/packages&gt;  
-    </programlisting>
+&lt;/packages&gt;  </programlisting>
     </informalexample>
   </section>
 

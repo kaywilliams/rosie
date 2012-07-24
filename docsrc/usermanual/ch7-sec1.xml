@@ -49,8 +49,7 @@
 &lt;main&gt;
   ...
   &lt;type&gt;package&lt;/type&gt;
-&lt;/main&gt;
-  </programlisting>
+&lt;/main&gt;</programlisting>
   </informalexample>
 
   <para>
@@ -115,8 +114,7 @@
 ...
 &lt;download>false&lt;/download>
 &lt;/repo>
-&lt;/repos>
-  </programlisting>
+&lt;/repos></programlisting>
   </informalexample>
 
   <para>
@@ -187,8 +185,7 @@ Subkey-Type: ELG-E
 Subkey-Length: 1024
 Expire-Date: 0
 Name-Real: My CentOS Studio Signing Key
-Passphrase: The quick brown fox jumped over the lazy dog.
-  </programlisting>
+Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 
   <para>  
   Next, type the following at the command line, replacing
@@ -196,8 +193,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   </para>
 
   <programlisting>
-# gpg --batch --gen-key myfile 
-  </programlisting>
+# gpg --batch --gen-key myfile </programlisting>
 
   <para>
   Once the process is complete, check that the key was generated successfully
@@ -205,8 +201,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   </para>
 
   <programlisting>
-# gpg --list-keys
-  </programlisting>
+# gpg --list-keys</programlisting>
 
   <para>
   You should see an item with the uid of "My CentOS Studio Signing Key"
@@ -221,8 +216,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
 
   <programlisting>
 # gpg --export -a "My CentOS Studio Signing Key" &gt; RPM-GPG-KEY-mykey
-# gpg --export-secret-key -a "My CentOS Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret
-  </programlisting>
+# gpg --export-secret-key -a "My CentOS Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   You can verify the exported files using the commands:
@@ -230,20 +224,17 @@ Passphrase: The quick brown fox jumped over the lazy dog.
 
   <programlisting>
 # cat RPM-GPG-KEY-mykey
-# cat RPM-GPG-KEY-mykey-secret
-  </programlisting>
+# cat RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   As each file is listed, it should begin with the following text, respectively: 
   </para>
 
   <programlisting>
------BEGIN PGP PUBLIC KEY BLOCK-----
-  </programlisting>
+-----BEGIN PGP PUBLIC KEY BLOCK-----</programlisting>
 
   <programlisting>
------BEGIN PGP PRIVATE KEY BLOCK-----
-  </programlisting>
+-----BEGIN PGP PRIVATE KEY BLOCK-----</programlisting>
 
   <para>After verifying the exported keys, it is no longer necessary to keep
   them in the GPG keyring. You can delete them from the keyring using the
@@ -252,8 +243,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
 
   <programlisting>
 # gpg --delete-secret-keys "My CentOS Studio Signing Key"  
-# gpg --delete-keys "My CentOS Studio Signing Key"  
-  </programlisting>
+# gpg --delete-keys "My CentOS Studio Signing Key"  </programlisting>
   </section>
 
   <section>
@@ -273,8 +263,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   &lt;public&gt;&lt;xi:include href="RPM-GPG-KEY-mykey" parse="text"&gt;&lt;public&gt;
   &lt;secret&gt;&lt;xi:include href="RPM-GPG-KEY-mykey-secret" parse="text"&gt;&lt;/secret&gt;
   &lt;passphrase&gt;The quick brown fox jumped over the lazy dog.&lt;/passphrase&gt;
-&lt;gpgsign&gt;
-  </programlisting>
+&lt;gpgsign&gt;</programlisting>
   </section>
   </section>
 
@@ -315,8 +304,7 @@ application.definition
 templates/
   scenario1-config.xml
   scenario2-config.xml
-  scenario3-config.xml
-  </programlisting>
+  scenario3-config.xml</programlisting>
   </informalexample>
 
   <para>

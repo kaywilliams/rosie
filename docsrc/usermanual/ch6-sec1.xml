@@ -108,8 +108,7 @@ firstboot --reconfig
 &lt;/script>
 &lt;/publish>
 
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
   </section>
 

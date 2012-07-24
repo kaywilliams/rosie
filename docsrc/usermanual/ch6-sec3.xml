@@ -233,8 +233,7 @@ images/boot.iso = sha1:ad145a27e1b55678996816210c79265d97a089a4
 images/product.img = sha1:e3b46cda9c9307dbf961cf0381fc51d361fee45f
 images/pxeboot/initrd.img = sha1:de0dc556a5682892b8b704d9b3294610cf760af7
 images/pxeboot/vmlinuz = sha1:3e26b6cc2837db07768afabced4ae4ff86f05d46
-images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94
-  </programlisting>
+images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94</programlisting>
   </informalexample>
 
   <section>
@@ -365,8 +364,7 @@ rsync -a --delete -e ssh \
 "/var/www/html/repos/system/%{id}/images/pxeboot" \
 "user@pxe.company.com:/pxe/file/location/%{id}"
 &lt;/script>
-&lt;publish>
-  </programlisting>
+&lt;publish></programlisting>
   </informalexample>
 
   <para>
@@ -382,8 +380,7 @@ rsync -a --delete -e ssh \
   <informalexample>
   <programlisting>
 kernel /path/to/vmlinuz/on/pxeboot/server
-append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/repos/system/web-server-6-x86_64/ks.cfg ...
-  </programlisting>
+append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/repos/system/web-server-6-x86_64/ks.cfg ...</programlisting>
   </informalexample>
 
   <para>

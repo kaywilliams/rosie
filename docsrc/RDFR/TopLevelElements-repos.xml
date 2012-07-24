@@ -187,8 +187,7 @@
       <programlisting>
 &lt;repo id="repogroup"&gt;
   &lt;baseurl&gt;/var/repos&lt;/baseurl&gt;
-&lt;/repo&gt;
-      </programlisting>
+&lt;/repo&gt;</programlisting>
 
       <para>
       This repository contains all the packages available in each
@@ -214,8 +213,7 @@
     [&lt;include>PACKAGE&lt;/include>]* | 
     [&lt;systemid>TEXT&lt;/systemid>])
   &lt;/repo>
-&lt;/repos>]
-    </programlisting>
+&lt;/repos>]</programlisting>
   </section>
 
   <section>
@@ -464,8 +462,7 @@
 &lt;!-- include only xorg-x11-drv packages --&gt;
 &lt;include&gt;xorg-x11-drv*&lt;/include&gt;
 &lt;/repo&gt;
-&lt;/repos&gt;
-      </programlisting>
+&lt;/repos&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -499,8 +496,7 @@
 &lt;baseurl&gt;rhn:///rhel-%{arch}-server-vt-%{version}&lt;/baseurl&gt;
 &lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
 &lt;/repo&gt;
-&lt;/repos&gt; 
-      </programlisting>
+&lt;/repos&gt; </programlisting>
       </informalexample>
     </section>
   </section>

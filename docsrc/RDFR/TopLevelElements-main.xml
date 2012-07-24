@@ -30,8 +30,7 @@
  [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;bug-url&gt;URL&lt;/bug-url&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
-&lt;/main&gt;
-    </programlisting>
+&lt;/main&gt;</programlisting>
   </section>
 
   <section>
@@ -239,8 +238,7 @@
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
   &lt;log-file&gt;/home/centosstudiouser/samba-server.log&lt;/log-file&gt;
-&lt;/main&gt;
-    </programlisting>
+&lt;/main&gt;</programlisting>
     </informalexample>
   </section>
 

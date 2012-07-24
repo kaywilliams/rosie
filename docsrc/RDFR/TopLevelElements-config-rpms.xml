@@ -50,8 +50,7 @@
       TEXT
      &lt;/trigger&gt;]*
    &lt;/config-rpm&gt;
-&lt;/config-rpms&gt;]
-    </programlisting>
+&lt;/config-rpms&gt;]</programlisting>
   </section>
 
   <section>
@@ -116,8 +115,7 @@
 
       <informalexample>
       <programlisting>
-RPMID-%{version}-RELEASE.DIST.noarch.rpm
-      </programlisting>
+RPMID-%{version}-RELEASE.DIST.noarch.rpm</programlisting>
       </informalexample>
 
       <para>
@@ -128,8 +126,7 @@ RPMID-%{version}-RELEASE.DIST.noarch.rpm
 
       <informalexample>
       <programlisting>
-samba-server-config-5-1.el5.noarch.rpm
-      </programlisting>
+samba-server-config-5-1.el5.noarch.rpm</programlisting>
       </informalexample>
       <para>
       <emphasis role='strong'>Attributes</emphasis>
@@ -156,8 +153,7 @@ samba-server-config-5-1.el5.noarch.rpm
 
 ...
 
-&lt;/config-rpm>
-      </programlisting>
+&lt;/config-rpm></programlisting>
       </informalexample>
 
       <para>
@@ -269,8 +265,7 @@ FULLNAME repository.
 
 ...
 
-&lt;/config-rpm>
-        </programlisting>
+&lt;/config-rpm></programlisting>
         </informalexample>
         </listitem>
       </varlistentry>
@@ -369,8 +364,7 @@ FULLNAME repository.
 
 &lt;files destdir="/etc/samba"&gt;smb.conf&lt;/files&gt;
 
-&lt;/config-rpm>
-        </programlisting>
+&lt;/config-rpm></programlisting>
         </informalexample>
         </listitem>
       </varlistentry>
@@ -456,8 +450,7 @@ service smb restart
 chkconfig smb on
 &lt;/script&gt;
 
-&lt;/config-rpm>
-        </programlisting>
+&lt;/config-rpm></programlisting>
         </informalexample>
         </listitem>
       </varlistentry>
@@ -542,8 +535,7 @@ if [[ $1 = 1 ]]; then
   /usr/share/bugzilla/checksetup.pl
 fi
 &lt;/trigger&gt;
-&lt;/config-rpm>
-        </programlisting>
+&lt;/config-rpm></programlisting>
         </informalexample>
         </listitem>
       </varlistentry>

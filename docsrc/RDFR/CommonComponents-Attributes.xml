@@ -35,16 +35,14 @@
 
       <informalexample>
       <programlisting>     
-&lt;files destdir="etc/samba"&gt;smb.conf&lt;/files&gt;
-      </programlisting>
+&lt;files destdir="etc/samba"&gt;smb.conf&lt;/files&gt;</programlisting>
       </informalexample>
 
       The path specified above results in the following destination.
 
       <informalexample>
       <programlisting>
-/etc/samba/smb.conf
-      </programlisting>
+/etc/samba/smb.conf</programlisting>
       </informalexample>
       </para>
 
@@ -92,16 +90,14 @@
 
       <informalexample>
       <programlisting>
-&lt;files destdir="/root" destname=".bashrc"&gt;bashrc&lt;/files&gt;
-      </programlisting>
+&lt;files destdir="/root" destname=".bashrc"&gt;bashrc&lt;/files&gt;</programlisting>
       </informalexample>
 
       The above example results in the following.
 
       <informalexample>
       <programlisting>     
-/root/.bashrc
-      </programlisting>
+/root/.bashrc</programlisting>
       </informalexample>
       </para>
     </section>
@@ -150,8 +146,7 @@
 
       <informalexample>
       <programlisting>
-&lt;files mode="755"&gt;config.sh&lt;/files&gt;
-      </programlisting>
+&lt;files mode="755"&gt;config.sh&lt;/files&gt;</programlisting>
       </informalexample>
       </para>
     </section>

@@ -55,8 +55,7 @@
 
   <informalexample>
   <programlisting>
-&lt;release-rpm enabled='false'/>
-  </programlisting>
+&lt;release-rpm enabled='false'/></programlisting>
   </informalexample>
 
   <section>

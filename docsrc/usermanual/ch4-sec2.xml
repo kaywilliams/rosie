@@ -114,8 +114,7 @@
 ...
 
 &lt;/config-rpm&gt;
-&lt;/config-rpms>
-  </programlisting>
+&lt;/config-rpms></programlisting>
   </informalexample>
 
   <para>
@@ -158,8 +157,7 @@
 &lt;requires>/bin/ps&lt;/requires>
 &lt;requires>/sbin/pidof&lt;/requires>
 
-&lt;/config-rpm&gt;
-    </programlisting>
+&lt;/config-rpm&gt;</programlisting>
   </informalexample></para>
 
   <para>
@@ -257,8 +255,7 @@ fi
      exit 0
      ;;
 esac
-&lt;/files>
-      </programlisting>
+&lt;/files></programlisting>
     </informalexample></para>
   
     <note>
@@ -323,8 +320,7 @@ if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
     service iptables restart
   fi
 fi
-&lt;/script>
-        </programlisting>
+&lt;/script></programlisting>
       </informalexample></para>
 
   <section>
@@ -510,8 +506,7 @@ if ! grep "<emphasis>some text</emphasis>" <emphasis>file</emphasis>; then echo 
     <programlisting>
 &lt;config-rpms>
 &lt;xi:include href="templates/httpd-config.xml"/>
-&lt;/config-rpms>
-    </programlisting>
+&lt;/config-rpms></programlisting>
     </informalexample>
 
     <para>

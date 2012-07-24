@@ -61,8 +61,7 @@
 &lt;test-update>
   &lt;password>mypassword&lt;/password>
   &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
-&lt;/test-update>
-    </programlisting>
+&lt;/test-update></programlisting>
     </informalexample>
   </section>
 

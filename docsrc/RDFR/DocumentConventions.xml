@@ -143,8 +143,7 @@
  &lt;element/&gt;   &lt;!-- 1 required --&gt;
  &lt;element/&gt;*  &lt;!-- 1 required, additional allowed --&gt;
 [&lt;element/&gt;]  &lt;!-- 0-1 allowed --&gt;
-[&lt;element/&gt;]* &lt;!-- 0 or more allowed --&gt;
-    </programlisting>
+[&lt;element/&gt;]* &lt;!-- 0 or more allowed --&gt;</programlisting>
     </para>
     </note>
 
