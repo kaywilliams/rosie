@@ -53,8 +53,8 @@
       <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an ISO
       image file to a local or web-available network location. See the
-      <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis>, under
-      the topic <emphasis>Preparing for a Network Installation</emphasis>, for
+      <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> under
+      the topic <emphasis>Preparing for a Network Installation</emphasis> for
       more information.
       </para>
 
@@ -85,7 +85,7 @@
       access software from RHN. You may copy this file to the CentOS Studio
       build machine if necessary. Note, to ensure the systemid has access to
       the software desired for your repository, you can use the Red Hat
-      Network web user interface to locate the machine, and view and alter it's
+      Network web user interface to locate the machine, and view and alter its
       channel subscriptions.</para>
 
       <para>After the above steps are completed, you are ready to create RHN
@@ -127,7 +127,7 @@
       By default, all packages in all repositories are available for 
       CentOS Studio to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
-      element. See the section on<xref linkend="packages" /> for information.
+      element. See the section on <xref linkend="packages" /> for information.
       </para>
 
       <para>
@@ -180,7 +180,7 @@
       <para>
       For example, if there are three repositories
       <filename>repoA</filename>, <filename>repoB</filename>, and
-      <filename>repoC</filename> in a folder <filename>/var/repos</filename>,
+      <filename>repoC</filename> in folder <filename>/var/repos</filename>,
       all the repos can be included in CentOS Studio using a repo group:
       </para>
 

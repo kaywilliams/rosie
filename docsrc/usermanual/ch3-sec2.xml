@@ -7,7 +7,7 @@
 
   <para>
   For the purpose of this user guide, examples, processes and illustrations
-  will focus on defining, building, deploying and updating a <application
+  will focus on defining, building, deploying and updating an <application
   class="software">Apache</application> web server based on <application
   class="software">CentOS</application> version 5 or 6. Apache is a project of
   the <ulink url="http://www.apache.org/">Apache Software Foundation</ulink>. 
@@ -24,7 +24,7 @@
   the <application class="software">CentOS Studio</application> build machine,
   as described in the previous chapter, you need to create a repository
   definition (<filename class="extension">web-server.definition</filename>).
-  Then you run <command>centosstudio</command> to validate the file and and
+  Then you run <command>centosstudio</command> to validate the file and
   build the repository.
   </para>
 
@@ -62,7 +62,31 @@
     multiple definitions, are discussed in the Repository Definition File
     Reference (RDFR).
     </para>   
+  </section>
 
+  <section>
+    <title>Saving a repository definition</title>
+    
+    <para>
+    Repository definitions are commonly saved with the name of the repository
+    and the file extension "<filename>.definition</filename>", e.g.
+    <filename>web-server.definition</filename>. Templates (discussed later in
+    this chapter) are commonly saved with the extension
+    "<filename>.xml</filename>". 
+    </para>
+
+    <para>
+    These naming strategies are only guidelines, however. You can name your
+    files and templates as you like and CentOS Studio will happily process
+    them.
+    </para>
+
+    <caution>
+    Definitions and templates, as well as CentOS Studio-generated <link
+    linkend='repository-data-file'>repository data files</link>, contain
+    sensitive data including system root passwords, and GPG private keys. Take
+    care to save your definitions and templates in a secure location.
+    </caution>
   </section>
 
   <section>
@@ -113,8 +137,8 @@
     <para>
     To make use of macros, change the repository definition as shown below.
     This example, like the one above, defaults to creating a repository based
-    on CentOS 6 for the x86_64 archtecture.  In addition, it enables providing an
-    alternative OS version or archicture using command-line macros. Command
+    on CentOS 6 for the x86_64 architecture.  In addition, it enables providing
+    an alternative OS version or archicture using command-line macros. Command
     line macros will be discussed in more detail in the <xref
     linkend='building-repositories'/> section of this chapter.
     </para>
@@ -172,7 +196,7 @@
     </informalexample></para>
 
   <para>
-  See the <xref linkend="repository-types"/> section of this document for more
+  See the <xref linkend="repositories"/> section of this document for more
   information on types.
   </para>
 
@@ -180,7 +204,7 @@
 
   <para>
   Save the file as <filename>web-server.definition</filename> before
-  preceding.
+  proceeding.
   </para>
 
   <section id="specifying-input-repositories" 
@@ -337,7 +361,7 @@
         software from RHN. You may copy this file to the CentOS Studio build
         machine if necessary. Note, to ensure the systemid has access to the
         software desired for your repository, you can use the Red Hat Network
-        web user interface to locate the system, and view and alter it's
+        web user interface to locate the system, and view and alter its
         channel subscriptions.
         </para></listitem>
       </itemizedlist>
@@ -532,7 +556,7 @@
     </para>
 
     <para>
-    In addition to groups, you can also also specify individual packages, as
+    In addition to groups, you can also specify individual packages, as
     shown below.
     </para>
 

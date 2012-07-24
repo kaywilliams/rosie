@@ -84,7 +84,7 @@
     <para>
     The repository data file is created in the same folder as the repository
     definition. It uses the same filename as the definition with the inclusion
-    of a a <filename>.dat</filename> file extension. For example, given the
+    of a <filename>.dat</filename> file extension. For example, given the
     full path to a repository definition:
     </para>
   

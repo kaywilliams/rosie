@@ -6,7 +6,7 @@
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Using Deployment Templates</title>
   <para>
-  The CentOS Studio model for automated deployment is simple, yet flexible and
+  The CentOS Studio model for automated deployment is simple, yet flexible 
   and extensible. Deployment can occur in a variety of operating environments,
   for example using virtual machines running on a local host, virtual machines
   running on remote or cloud-based hosts, physical machines managed by
@@ -20,7 +20,7 @@
   two cases were introduced in the previous section on <xref
   linkend='using-virtual-machines'/>. The <emphasis>publish</emphasis> case
   will be introduced later in the chapter on <xref
-  linkend="client-deployment"/>. Each case is represented by an element of the
+  linkend="deployment-scenarios"/>. Each case is represented by an element of the
   corresponding name in the repository definition.
   </para>
 
@@ -181,16 +181,16 @@
   The default <filename>ks.cfg</filename> file uses macros (see the RDFR for
   information on deployment macros) to allow the hostname and root password to
   be filled in at CentOS Studio runtime. Often, however, you will want to
-  customize additional kickstart options such as timezone, or drive partioning
-  configuration. To do this, you will need to provide a custom kickstart
-  element. This can be accomplished using several different methods. Perhaps
-  the easiest method, however, is shown in the example
+  customize additional kickstart options such as timezone, or drive
+  partitioning configuration. To do this, you will need to provide a custom
+  kickstart element. This can be accomplished using several different methods.
+  Perhaps the easiest method, however, is shown in the example
   <emphasis>test-install</emphasis> element below.
   </para>
 
   <para>
   In this example, you start with a test-install element, add a password
-  element and xinclude the virt-deploy template. The xinclude statement is
+  element and XInclude the virt-deploy template. The XInclude statement is
   varies from ones you have used previously, however, in that it contains an
   xpointer attribute.  Xpointer is used to include all elements from the file,
   <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
@@ -208,11 +208,12 @@
 network --hostname %{fqdn}
 rootpw --iscrypted "%{crypt-password}"
 lang en_US
+zerombr
+bootloader --location=mbr
 clearpart --all --initlabel
 part / --fstype ext4 --size 1 --grow --asprimary
 part swap --recommended
-part /boot --fstype ext2 --size 512 --asprimary
-bootloader --location=mbr
+part /boot --fstype ext3 --size 512 --asprimary
 timezone America/Denver  #change timezone to Denver
 auth --enablemd5 --enableshadow --enablecache
 selinux --enforcing
@@ -301,11 +302,11 @@ virt-install --name %{fqdn} --ram 2000 \
   machines on the local CentOS Studio build machine running a lib-virt
   compatible hypervisor (KVM). Your particular deployment scenario, however,
   may require you to work with virtual machines running on remote hosts with
-  different hypervisors (e.g. VMWare, Hyper-V, Amazon Web Services). To support
-  this case, you will need to create a new composite template. This template
-  will be similar to <filename>virt-deploy.xml</filename>. In the new template,
-  you will need to adjust the <emphasis>domain</emphasis> element, and provide
-  custom scripts to replace the <emphasis>virt-activate</emphasis>,
+  different hypervisors (e.g. VMware, Hyper-V and Amazon Web Services). To
+  support this case, you will need to create a new composite template. This
+  template will be similar to <filename>virt-deploy.xml</filename>. In the new
+  template, you will need to adjust the <emphasis>domain</emphasis> element,
+  and provide custom scripts to replace the <emphasis>virt-activate</emphasis>,
   <emphasis>virt-delete</emphasis> and <emphasis>virt-install</emphasis>
   scripts.
   </para>
@@ -373,21 +374,21 @@ virt-install --name %{fqdn} --ram 2000 \
   <para>
   To deploy and update multiple clients based on the same repository
   definition, again you will create a new composite template. In this template,
-  you will -
+  you will do the following: 
   </para>
 
   <itemizedlist>
   <listitem>
-  provide custom scripts that communication with the management solution to
-  complete all desired actions,
+  Provide custom scripts that communication with the management solution to
+  complete all desired actions
   </listitem>
 
   <listitem>
-  disable SSH for all scripts using the <emphasis>ssh</emphasis> element and
+  Disable SSH for all scripts using the <emphasis>ssh</emphasis> element
   </listitem>
   
   <listitem>
-  provide a custom kickstart file that does not specify a hostname. The
+  Provide a custom kickstart file that does not specify a hostname. The
   hostname will need to be set by dhcp to avoid assigning the same name to
   multiple systems.
   </listitem>
@@ -408,11 +409,12 @@ virt-install --name %{fqdn} --ram 2000 \
 install
 rootpw --iscrypted "%{crypt-password}"
 lang en_US
+zerombr
+bootloader --location=mbr
 clearpart --all --initlabel
 part / --fstype ext4 --size 1 --grow --asprimary
 part swap --recommended
-part /boot --fstype ext2 --size 512 --asprimary
-bootloader --location=mbr
+part /boot --fstype ext3 --size 512 --asprimary
 timezone America/Vancouver
 auth --enablemd5 --enableshadow --enablecache
 selinux --enforcing

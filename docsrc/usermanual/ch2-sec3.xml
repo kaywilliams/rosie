@@ -73,7 +73,7 @@
   CentOS Studio creates two types of packages, the  <xref
   linkend="release-rpm"/> and optional <xref linkend="config-rpms"/>. The
   release-rpm contains CentOS Studio-generated YUM update configuration.
-  Config-rpm packages contains user-provided files and scripts specified in the
+  Config-rpm packages contain user-provided files and scripts specified in the
   repository definition. Both are discussed under <xref
   linkend="building-rpms" />.
   </para>
@@ -103,7 +103,7 @@
   network installation images from the CentOS-compatible repository and
   modifies them to include repository-specific information. CentOS Studio can
   be used to completely automate client installations. The chapters on <xref
-  linkend='testing-system-repos'/> and <xref linkend="client-deployment"/>
+  linkend='testing-system-repos'/> and <xref linkend="deployment-scenarios"/>
   describe this in detail.
   </listitem>
   </itemizedlist>
@@ -133,7 +133,7 @@
   contains system installation images. Together, the YUM repository and system
   installation images support the complete range of system and application
   deployment and maintenance scenarios. See the chapters on <xref
-  linkend='testing-system-repos'/>, <xref linkend='client-deployment'/> and
+  linkend='testing-system-repos'/>, <xref linkend='deployment-scenarios'/> and
   <xref linkend='package-repos'/> for more information.
   </listitem>
 
@@ -179,7 +179,7 @@
 
   <para>
   See the chapters on <xref linkend='testing-system-repos'/>, <xref
-  linkend='client-deployment'/> and <xref
+  linkend='deployment-scenarios'/> and <xref
   linkend='package-repos'/> for additional information.
   </para>
   </section>

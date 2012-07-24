@@ -42,9 +42,10 @@
   repository content from a remote web server.
   </para>
 
+  <informalexample>
   <programlisting>
-<xi:include href="templates/publish.xml" parse="text"/>
-  </programlisting>
+<xi:include href="templates/publish.xml" parse="text"/></programlisting>
+  </informalexample>
   </section>
 
 </section>

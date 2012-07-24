@@ -88,7 +88,7 @@
 
   <listitem>
   Operating system independence. You may want to create a single package
-  repository that is applicable to users of either CentOS or Red Hat Enterprise
+  repository that is applicable to users of CentOS or Red Hat Enterprise
   Linux, rather than maintaining separate repositories for each.  
   </listitem>
   </itemizedlist>
@@ -147,7 +147,7 @@
   approach is typically sufficient. Because the public keys are automatically
   distributed and installed on client systems (using the <xref
   linkend='yum-sync-plugin'/> or an external configuration management system),
-  end users to not need to recognize and explicitly <emphasis>trust</emphasis>
+  end users do not need to recognize and explicitly <emphasis>trust</emphasis>
   the CentOS Studio-generated key.
   </para>
 
@@ -168,7 +168,7 @@
   <section>
   <title>Creating keys</title>
   <para>
-  For our example, we will create keys using the batch mode for gpg key
+  For our example, we will create keys using the batch mode for GPG key
   creation. While the key is being created, the process may stall and you may
   need to do some additional work (move the mouse, switch windows, download
   some web pages, etc.) to create sufficient random data. 
@@ -201,7 +201,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
 
   <para>
   Once the process is complete, check that the key was generated successfully
-  use the following command:
+  using the following command:
   </para>
 
   <programlisting>
@@ -216,7 +216,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   <section>
   <title>Exporting keys</title>
   <para>
-  To export the newly created keys from the gpg keyring, complete the following:
+  To export the newly created keys from the GPG keyring, complete the following:
   </para>
 
   <programlisting>
@@ -225,7 +225,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   </programlisting>
 
   <para>
-  You can verify the exported files using the comands:
+  You can verify the exported files using the commands:
   </para>
 
   <programlisting>
@@ -246,7 +246,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   </programlisting>
 
   <para>After verifying the exported keys, it is no longer necessary to keep
-  them in the gpg keyring. You can delete them from the keyring using the
+  them in the GPG keyring. You can delete them from the keyring using the
   following commands:
   </para>
 
@@ -278,7 +278,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.
   </section>
   </section>
 
-  <section>
+  <section id='using-configuration-templates' 
+           xreflabel='Using configuration templates'>
   <title>Using configuration templates</title>
   <para>
   In some cases you will use package repositories to distribute software for
@@ -354,12 +355,12 @@ templates/
 &lt;files>
 &lt;files>templates&lt;/files>
 &lt;/files>
-&lt;/repo>
-  </programlisting>
+&lt;/repo></programlisting>
   </informalexample>
 
   <para>
-  The template files defines each of the three config-rpms for the repository, for example:
+  The template files define each of the three config-rpms for the repository,
+  for example:
   </para>
 
   <para>
@@ -371,8 +372,7 @@ templates/
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;config-rpm id='scenario1-config'>
 ...
-&lt;/config-rpm>
-  </programlisting>
+&lt;/config-rpm></programlisting>
   </informalexample>
 
   <para>
@@ -386,8 +386,7 @@ templates/
 gpgkeys/
 Packages/
 repodata/
-templates/
-  </programlisting>
+templates/</programlisting>
   </informalexample>
 
   <para>

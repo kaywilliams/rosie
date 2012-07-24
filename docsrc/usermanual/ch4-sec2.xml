@@ -37,7 +37,7 @@
     <itemizedlist>
     <listitem>
     The <emphasis>config-rpms</emphasis> (plural) element, a simple container
-    for <emphasis>config-rpm</emphasis> (singular) elments. This is the most
+    for <emphasis>config-rpm</emphasis> (singular) elements. This is the most
     common parent element, and will be shown in the examples below.
     </listitem>
 
@@ -178,7 +178,7 @@
   <listitem>
   <para>
   It supports content reuse. For example, many repositories may require web
-  server configuration. By listing web server requrements in a config-rpm
+  server configuration. By listing web server requirements in a config-rpm
   element, the config-rpm element can be saved as a template in a separate
   file, and included across multiple repositories. This approach is covered in
   more detail under <xref linkend='config-templates'/> later in this chapter.
@@ -219,7 +219,7 @@
     The example below shows configuring the client machine firewall for web
     server access.  The files element directs CentOS Studio to create a file
     named <filename>iptables-httpd</filename> using text provided in the body
-    of the element, and install it to the <filename>/etc/rd.d/init.d</filename>
+    of the element, and install it to the <filename>/etc/rc.d/init.d</filename>
     folder with the file mode "644". The file itself is written to be OS
     version independent by making use of the %{version} macro to include
     conditional logic.
@@ -274,7 +274,7 @@ esac
   <section>
     <title>Using scripts</title>
 
-    <para><emphasis>Config-rpm</emphasis> elements also allows you to run
+    <para><emphasis>Config-rpm</emphasis> elements also allow you to run
     scripts when the config-rpm is installed, uninstalled or updated.
     </para>
 
@@ -423,7 +423,7 @@ if ! grep "<emphasis>some text</emphasis>" <emphasis>file</emphasis>; then echo 
   <itemizedlist>
   <listitem>added since the last config-rpm update</listitem>
   <listitem>modified since the last config-rpm update</listitem>
-  <listitem>differs from the the file on disk</listitem>
+  <listitem>differs from the file on disk</listitem>
   <listitem>removed since the last config-rpm update</listitem>
   </itemizedlist>
   </para>
@@ -469,7 +469,7 @@ if ! grep "<emphasis>some text</emphasis>" <emphasis>file</emphasis>; then echo 
     it runs when an external package or capability is installed or uninstalled.
     Triggers allow config-rpms that depend on other packages to properly
     configure themselves when those other packages are installed or removed.
-    See the the Fedora Project's documentation website for general information
+    See the Fedora Project's documentation website for general information
     on triggers. See also the <xref linkend='rdfr'/> chapter on
     <emphasis>config-rpms</emphasis> for complete information on the
     <emphasis>trigger</emphasis> element, including an example.

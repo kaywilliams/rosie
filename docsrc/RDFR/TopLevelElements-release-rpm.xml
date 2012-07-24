@@ -88,7 +88,7 @@
       <listitem>
       <para>
       Controls inclusion of the <application class="software">YUM</application>
-      sync plugin; also controls whether gpgchecking is performed. 
+      sync plugin; also controls whether gpgcheck is performed. 
       </para>
 
       <para>
@@ -106,7 +106,7 @@
       default behavior 1) to disable all repositories other than the
       system repository and 2) to provide a <emphasis>sync</emphasis>
       argument that allows adding <emphasis>and removing</emphasis> installed
-      packages on client machines in alignment with with available packages in
+      packages on client machines in alignment with available packages in
       the system repository. When the value of <xref linkend="main-type"/>
       is "system", the default value is <constant>TRUE</constant>. When the
       value of <xref linkend="main-type"/> is "package", the sync attribute
@@ -116,7 +116,7 @@
       <para>
       <emphasis>@gpgcheck</emphasis>: <xref linkend='content-boolean'/> value
       indicating whether packages should be checked for valid GPG signatures.
-      This value controls whether CentOS Studio performs gpgchecking when
+      This value controls whether CentOS Studio performs gpgcheck when
       creating the repository. It also controls whether YUM checks
       packages from the repository prior to performing client machine 
       updates. The default value is <constant>TRUE</constant>.
@@ -136,7 +136,7 @@
     <programlisting>
 &lt;release-rpm&gt;
 
-  &lt;!-- exclude the yum sync plugin and disables gpgchecking--&gt;
+  &lt;!-- exclude the yum sync plugin and disable gpgcheck--&gt;
   &lt;updates sync="false" gpgcheck="false"/&gt;
 
 &lt;/release-rpm&gt;

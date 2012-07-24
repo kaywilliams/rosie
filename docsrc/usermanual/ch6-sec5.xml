@@ -9,7 +9,7 @@
   CentOS Studio also supports replicated client and scale-out deployments. In
   this scenario, many client machines share duplicate software and
   configuration. For these environments, traditional client installation, which
-  can take 5-10 minutes per client, is inefficent.  Instead, it is preferable
+  can take 5-10 minutes per client, is inefficient.  Instead, it is preferable
   to make a single machine image which can be applied to client hard drives
   using an efficient low-level disk copy process.
   </para>

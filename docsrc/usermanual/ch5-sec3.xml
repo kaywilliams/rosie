@@ -64,7 +64,7 @@
   Config-rpm script errors will typically be reported within the context of
   either the <emphasis>verify-install</emphasis> or the
   <emphasis>update</emphasis> deployment scripts. From the error messages, you
-  can determine the package in which the script error occured.
+  can determine the package in which the script error occurred.
   </para>
   
   <para>

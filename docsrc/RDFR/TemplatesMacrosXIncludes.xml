@@ -334,7 +334,7 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
     <emphasis role="strong">XML Elements.</emphasis> XML elements can be used
     along with macros and XIncludes to support conditional content inclusion.
     Conditional content inclusion is a powerful and practical tool. It
-    allows a single repository definition, or xincluded file, to be used across
+    allows a single repository definition, or XIncluded file, to be used across
     multiple operating system versions and architectures, even when repository
     requirements vary.
     </para>
@@ -447,7 +447,7 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
       <note>
       On a system with the CentOS Studio RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/centosstduio/templates/</filename>.
+      <filename>/usr/share/centosstudio/templates/</filename>.
       </note>
 
       <para><emphasis role="strong">repos.xml</emphasis></para>
@@ -482,7 +482,7 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
       Often it is convenient to reuse a single definition across multiple
       operating system versions and architectures, even when content
       requirements differ. This can be done using a combination of macros,
-      Xincludes and XML elements.
+      XIncludes and XML elements.
       </para>
 
       <para>
@@ -530,7 +530,7 @@ centosstudio --macro "version:6" --macro "arch:i386" path/to/definition
   <para>
   In summary, macros, XIncludes and xml elements ease many tasks in repository
   definition creation. They will be shown in many examples in the remainder of
-  this document, as well as in other CentOS Studio documention and example
+  this document, as well as in other CentOS Studio documentation and example
   files.
   </para>
 

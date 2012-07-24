@@ -101,7 +101,7 @@
 
   <para>
   The sync plugin can be excluded from the release-rpm using the
-  <emphasis>release-rpm/updates</emphasis> element. see the <xref
+  <emphasis>release-rpm/updates</emphasis> element. See the <xref
   linkend='rdfr'/> for more information on the <emphasis>release-rpm</emphasis>
   element.
   </para>
@@ -116,8 +116,8 @@
   <informalexample><para><command># yum --disableplugins sync ...</command></para></informalexample>
 
   <para>
-  See the chapter on <xref linkend="client-deployment"/> for information on
-  using the YUM sync plugin in various deployment scenarios.
+  See the chapter on <xref linkend="deployment-scenarios"/>
+  for information on using the YUM sync plugin in various deployment scenarios.
   </para>
 
   </section>

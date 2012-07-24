@@ -34,7 +34,7 @@
     <para>
     The tag "Definition" gives a description of the top-level element.
     Definitions include a short explanation of the item’s purpose,
-    what happens when its used, elements and attributes enclosed within
+    what happens when it's used, elements and attributes enclosed within
     that item, what values it accepts, the default value, whether it is
     required and the number of times it may appear.
     </para>
@@ -177,7 +177,7 @@
     <para>
     When an element's text value or attribute accepts a particular class
     of input, this content type is indicated by monospace font without a
-    leading dollarsign, e.g. <varname>BOOLEAN</varname>.
+    leading dollar sign, e.g. <varname>BOOLEAN</varname>.
     </para>
     </listitem>
   </varlistentry>

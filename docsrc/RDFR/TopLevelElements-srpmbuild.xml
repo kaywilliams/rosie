@@ -321,7 +321,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       <para>
       The template is a complete repository definition specifying input
       repositories, packages, config-rpms and deployment scripts needed to
-      create the SRPM build machine and build rpms.
+      create the SRPM build machine and build RPMs.
       </para>
 
       <para>
@@ -365,7 +365,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       <emphasis role='strong'>%{rpms-dir}:</emphasis>
       The path to a folder on the CentOS Studio build machine where built RPMs
       should be copied. This path takes the following form, where
-      <varname>$SRPMID</varname> is the the value of the
+      <varname>$SRPMID</varname> is the value of the
       <emphasis>@id</emphasis> attribute for the <emphasis>srpm</emphasis>
       element.
       <simplelist>
@@ -377,7 +377,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       <emphasis role="strong">%{spec}:</emphasis> The full path to the SRPM
       spec file on the SRPM build machine. This path takes the following form,
       where $SPECFILE is the <xref linkend="content-basename"/> of the spec
-      fileas determined by reading information available within the provided
+      file as determined by reading information available within the provided
       SRPM.
       <simplelist>
       <member><filename>/%{build-dir}/SPECS/$SPECFILE</filename></member>
@@ -385,7 +385,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpm}:</emphasis> The full path to the the SRPM
+      <emphasis role='strong'>%{srpm}:</emphasis> The full path to the SRPM
       file on the SRPM build machine. This path takes the following form, where
       $SRPMFILE is the <xref linkend="content-basename"/> of the provided SRPM.  
       <simplelist>

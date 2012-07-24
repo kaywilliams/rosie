@@ -63,7 +63,7 @@
   <para>
   The <emphasis>OS-based trees</emphasis> model is the traditional model. In
   this model there is one installation tree per operating system version and
-  architecture combination. For example, Cent0S-6-x86_64, RHEL-6Server-x86-64,
+  architecture combination, for example Cent0S-6-x86_64, RHEL-6Server-x86-64,
   Windows-7Ultimate-x86_64, etc.
   </para>
 

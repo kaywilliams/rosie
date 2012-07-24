@@ -17,7 +17,7 @@
   Specifically, when CentOS Studio determines that packages have changed, it
   calculates the list of packages needed to satisfy repository requirements,
   and then adds and removes packages as necessary to bring the repository into
-  comformance with the list. This behavior allows the <xref
+  conformance with the list. This behavior allows the <xref
   linkend="yum-sync-plugin" /> to rely on packages in the repository as a
   master list of packages to be installed on client machines.
   </para>

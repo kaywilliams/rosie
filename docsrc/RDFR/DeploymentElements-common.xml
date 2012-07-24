@@ -33,7 +33,7 @@
 
     <listitem>
     <para>
-    Optionally, exceute user-provided scripts to perform
+    Optionally, execute user-provided scripts to perform
     testing, installation, updates, notification and other deployment-related
     tasks.
     </para>
@@ -84,7 +84,7 @@
     <para>
     Deployment elements provide the following <emphasis>module
     macros</emphasis>. See the <xref linkend='macros'/> section for more
-    information on macos generally.
+    information on macros generally.
     </para>
 
     <para>
@@ -381,7 +381,7 @@
       </tgroup>
       </informaltable>
       <para>
-      The value of the remote-url is also used in determining the the
+      The value of the remote-url is also used in determining the
       <varname>%{url}</varname> module macro value. The url macro provides the
       complete web path to the repository. The value of the url macro is as
       follows, where <varname>$remote-url</varname> is the value from the table
@@ -435,7 +435,7 @@ $remote-url/%{id}
       <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
       that determines whether <application class="software">CentOS
       Studio</application> uses the build machine's fully qualified domain name
-      or IP address in the automatically-computed remote url.
+      or IP address in the automatically-computed remote-url.
       </para>
       
       <para>This attribute is optional. The default value is
@@ -479,8 +479,8 @@ $remote-url/%{id}
       </simplelist>
 
       <para>
-      <emphasis role='bold'>Example 2</emphasis> - automatic remote url
-      computation using FQDN.  In this example, the remote url is automatically
+      <emphasis role='bold'>Example 2</emphasis> - automatic remote-url
+      computation using FQDN.  In this example, the remote-url is automatically
       computed using the FQDN of the build machine.
       </para>
 
@@ -513,8 +513,8 @@ $remote-url/%{id}
       </simplelist>
 
       <para>
-      <emphasis role='bold'>Example 3</emphasis> - automatic remote url
-      computation using a specific interface.  In this example, the remote url
+      <emphasis role='bold'>Example 3</emphasis> - automatic remote-url
+      computation using a specific interface.  In this example, the remote-url
       is automatically computed using the IP address of the specified
       interface, "eth1". 
       </para>
@@ -549,9 +549,9 @@ $remote-url/%{id}
 
       <para>
       <emphasis role='bold'>Example 4</emphasis> - manual configuration of
-      remote url.  In this example, the repository is created on the build
+      remote-url.  In this example, the repository is created on the build
       machine, but later moved to a web server, or web server farm, for final
-      publication. In this case, the remote url must be  manually specified.
+      publication. In this case, the remote-url must be  manually specified.
       This example specifies an 'http' location; an 'https' location would be
       specified in the same manner.
       </para>
@@ -645,7 +645,7 @@ $remote-url/%{id}
 
     <para>
     This element is optional. The default value is an empty string. A period
-    character "." is prepended to the provided text if it does not exist, e.g.
+    character "." is prefixed to the provided text if it does not exist, e.g.
     <emphasis>local</emphasis> is converted to <emphasis>.local</emphasis>.
     </para>
     
@@ -664,35 +664,10 @@ $remote-url/%{id}
     </para>
     
     <para>
-    This element is optional. The default values are as follows:
-    </para>
-    
-    <informaltable>
-    <tgroup cols='2'>
-    <colspec colwidth='1in'/>
-    <tbody valign='top'>
-    <row>
-    <entry><emphasis role='strong'>Module</emphasis></entry>
-    <entry><emphasis role='strong'>Default Value</emphasis></entry>
-    </row>
-    <row>
-    <entry>publish</entry>
-    <entry>
-    A random password is automatically generated and stored in the <xref
+    This element is optional. If not provided, a random password is
+    automatically generated and stored in the <xref
     linkend="repository-data-file"/>. 
-    </entry>
-    </row>
-    <row>
-    <entry>test-install</entry>
-    <entry>The publish element password.</entry>
-    </row>
-    <row>
-    <entry>test-update</entry>
-    <entry>The publish element password.</entry>
-    </row>
-    </tbody>
-    </tgroup>
-    </informaltable>
+    </para>
 
     <para>
     CentOS Studio also generates an encrypted version of the password and makes
@@ -720,8 +695,8 @@ $remote-url/%{id}
 
     <para>
     This value serves as a default for the module. If the value is
-    <constant>TRUE</constant>, CentOS Studio will use SSH for individual
-    scripts based on the value of the script's <emphasis>ssh</emphasis>
+    <constant>TRUE</constant>, CentOS Studio will use SSH for an individual
+    script based on the value of the script's <emphasis>ssh</emphasis>
     attribute. See the script element for additional information on the <xref
     linkend='script-ssh'/>  attribute.
     </para>
@@ -831,7 +806,7 @@ $remote-url/%{id}
       <para>
       Provided as a module macro, <link
       linkend="deployment-macros">%{boot-options}</link>, for use within
-      deployment element content, primarly <constant>install</constant>-type
+      deployment element content, primarily <constant>install</constant>-type
       scripts. See the <xref linkend="deployment-script"/> element below for
       more information.
       </para>
@@ -891,7 +866,7 @@ $remote-url/%{id}
      </para>
 
     <para>
-    For information on creating kickstart files, see the the chapter
+    For information on creating kickstart files, see the chapter
     on <emphasis>Kickstart Installations</emphasis> in the <emphasis>Red Hat
     Enterprise Linux Installation Guide</emphasis>, available from the Red Hat
     website.
@@ -913,8 +888,9 @@ $remote-url/%{id}
     during client installation. Instead, use <xref linkend='config-rpms'/> to
     apply client configuration. This ensures uniform results whether the client
     is installed from scratch, or merely updated. See the
-    <filename>httpd-config.xml</filename> <link linkend='templates'>template</link>
-    for an example of firewall configuration using a config-rpm.
+    <filename>httpd-config.xml</filename> <link
+    linkend='templates'>template</link> for an example of firewall
+    configuration using a config-rpm.
     </note>
 
     <para>
@@ -1060,15 +1036,20 @@ $remote-url/%{id}
       </para>
       
       <para>
-      For the <xref linkend='test-update'/> and <xref
-      linkend='publish'/> modules, the default value is an empty string, "".
+      For the <xref linkend='publish'/> modules, the default value is an empty
+      string, "".
       </para>
       
       <para>
+      For the <xref linkend='test-update'/>, the default value is
+      "<constant>kickstart install_scripts post_install_scripts</constant>".
+      These triggers correspond to module macros of the same name.
+      </para>
+
+      <para>
       For the <xref linkend="test-install"/> module, the default value is "
       <constant>release_rpm config_rpms kickstart treeinfo install_scripts
-      post_install_scripts</constant>". These triggers correspond to
-      module macros of the same name.
+      post_install_scripts</constant>".
       </para>
 
       <para>
@@ -1199,7 +1180,7 @@ $remote-url/%{id}
 
       <para>
       The template can be included in a definition using an <link
-      linkend="xincludes">xinclude</link> such as the following:
+      linkend="xincludes">XInclude</link> such as the following:
       </para>
       <informalexample>
       <programlisting>
@@ -1220,16 +1201,11 @@ $remote-url/%{id}
       </para>
 
       <para>
-      CentOS Studio makes a number of macros available to assist with script
-      operation. These include <link
-      linkend="deployment-macros">%{trigger-file}</link> macro. Using a list
-      of triggers identified by the <link
-      linkend="deployment-macros">%{triggers}</link> macro, it then attempts
-      to compare current trigger values to saved trigger values. CentOS Studio
-      calculates a number of current trigger values and makes them available
-      via the %{release_rpm}, %{config_rpms}, %{kickstart}, %{treeinfo},
-      %{install_scripts} and %{post_install_scripts} macros.  Current trigger
-      values contains the text of a Bash shell script.
+      CentOS Studio makes a number of macros available to assist with
+      <emphasis> test-trigger</emphasis> script operation. These are listed in
+      the <xref linkend='deployment-macros'/> section of this chapter, under
+      the label <emphasis>Trigger Macros</emphasis>. The example below shows
+      how they can be used in a <emphasis>test-triggers</emphasis> script.
       </para>
 
       <para>
@@ -1240,16 +1216,15 @@ $remote-url/%{id}
       </para>
      
       <para>
-      The template first reads a file (identified by the <link
-      linkend="deployment-macros">%{trigger-file}</link> macro) of saved
-      trigger values.  Using a list of triggers identified by the <link
-      linkend="deployment-macros">%{triggers}</link> macro, it then attempts
-      to compare current trigger values to saved trigger values. CentOS Studio
-      calculates a number of current trigger values and makes them available
-      via the %{release_rpm}, %{config_rpms}, %{kickstart}, %{treeinfo},
-      %{install_scripts} and %{post_install_scripts} macros.  Current trigger
-      values.  If any of the current triggers differs from the correspoinding
-      saved trigger, the script returns an exit status of '1'.
+      The template first reads a file (identified by the %{trigger-file} macro)
+      of saved trigger values.  Using a list of triggers identified by the
+      %{triggers} macro, it then attempts to compare current trigger values to
+      saved trigger values. CentOS Studio calculates a number of current
+      trigger values and makes them available via the %{release_rpm},
+      %{config_rpms}, %{kickstart}, %{treeinfo}, %{install_scripts} and
+      %{post_install_scripts} macros.  If any of the current triggers differs
+      from the corresponding saved trigger, the script returns an exit status
+      of '1'.
       </para>
 
       <informalexample>
@@ -1260,7 +1235,7 @@ $remote-url/%{id}
 
       <para>
       The template can be included in a definition using an <link
-      linkend="xincludes">xinclude</link> such as the following:
+      linkend="xincludes">XInclude</link> such as the following:
       </para>
       <informalexample>
       <programlisting>
@@ -1333,7 +1308,7 @@ $remote-url/%{id}
       </para>
 
       <para>
-      The <emphasis>install-script</emphasis> element provides a a bash script
+      The <emphasis>install-script</emphasis> element provides a bash script
       which completes the actual machine installation. In this case, the script
       executes the <command>virt-install</command> command to create a new
       virtual machine.  The script uses the <varname>%{fqdn}</varname>
@@ -1437,8 +1412,8 @@ $remote-url/%{id}
       e.g. when deployment scripts change or when RPM packages are updated in
       the deployment repository. Post tasks might include performing client
       updates, restarting clients if the kernel package has been updated, or
-      shutting down a clients if it's purpose has been accomplished during the
-      course of module execution (e.g. building or testing rpms). Must return a
+      shutting down a client if its purpose has been accomplished during the
+      course of module execution (e.g. building or testing RPMs). Must return a
       non-zero exit status if post tasks fail.
       </para>
 

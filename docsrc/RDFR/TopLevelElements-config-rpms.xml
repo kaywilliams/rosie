@@ -108,7 +108,7 @@
       The file name for the created config-rpm is in the following format,
       where <varname>RPMID</varname> is taken from the <emphasis>@id</emphasis>
       attribute, %{version} is a global run-time macro, RELEASE is computed at
-      run time, and DIST is a identifier for the base operating system
+      run time, and DIST is an identifier for the base operating system
       distribution (e.g. 'el6'). See the introduction to the <xref
       linkend='release-rpm'/> element for additional information on release
       numbers and the <xref linkend='repository-data-file'/>. 
@@ -391,7 +391,7 @@ FULLNAME repository.
         Depending on the script type, it can run each time the RPM is
         installed, uninstalled or updated. For this reason, it should be
         written to be idempotent, meaning that it can be run multiple times
-        with the same result. See the the section on <emphasis>Configuration
+        with the same result. See the section on <emphasis>Configuration
         Packages</emphasis> in the <emphasis>CentOS Studio User
         Manual</emphasis> for more information on writing idempotent scripts.
         </para>
@@ -422,7 +422,7 @@ FULLNAME repository.
         <itemizedlist>
         <listitem>added since the last configuration package update</listitem>
         <listitem>modified since the last configuration package update</listitem>
-        <listitem>differs from the the file on disk</listitem>
+        <listitem>differs from the file on disk</listitem>
         <listitem>removed since the last configuration package update</listitem>
         </itemizedlist>
 
@@ -477,7 +477,7 @@ chkconfig smb on
         <para>
         Because the script runs each time the trigger event occurs, it should
         be written to be idempotent, meaning that it can be run multiple times
-        with the same result. See the the section on <emphasis>Configuration
+        with the same result. See the section on <emphasis>Configuration
         Packages</emphasis> in the <emphasis>CentOS Studio User
         Manual</emphasis> for more information on writing idempotent scripts.
         </para>
@@ -501,7 +501,7 @@ chkconfig smb on
 
         <para>
         <emphasis>@trigger</emphasis>: <xref linkend='content-capability'/> this
-        script triggers on.  This attribute is required. See Also the
+        script triggers on.  This attribute is required. See also the
         <emphasis>@type</emphasis> attribute.
         </para>
 
@@ -510,7 +510,7 @@ chkconfig smb on
         be one of "triggerin", "triggerun", or "triggerpostun".  This attribute
         is required. For more information on defining trigger scripts, see the
         Fedora project's <emphasis>"RPM Guide"</emphasis> by Eric
-        Foster-Johnson. See Also the <emphasis>@trigger</emphasis> attribute.
+        Foster-Johnson. See also the <emphasis>@trigger</emphasis> attribute.
         </para>
 
         <para>
@@ -534,7 +534,7 @@ chkconfig smb on
 &lt;trigger type="triggerin" trigger="bugzilla">
 if [[ $1 = 1 ]]; then
   # bugzilla-3.2.10 checksetup.pl fails if this directory doesn't
-  # exist. It should create it on it's own, but since it doesn't, we will.
+  # exist. It should create it on its own, but since it doesn't, we will.
   if [ ! -e /usr/share/bugzilla/contrib ]; then
     mkdir /usr/share/bugzilla/contrib
   fi

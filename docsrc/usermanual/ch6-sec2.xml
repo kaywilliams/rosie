@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="smb" xreflabel="Small Business/IT Consultant">
+<section id="smb" xreflabel="Small Business/IT Consultant"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Small Business/IT Consultant</title>
 
   <para>
@@ -40,7 +41,7 @@
   laptops, desktops or servers) will be installed manually via CD/DVD. In small
   environments, manual deployment is often more practical than setting up the
   infrastructure required to support automated deployment. Installation can be
-  performed by the IT Consultant or a tech-savvy indivual within the small
+  performed by the IT Consultant or a tech-savvy individual within the small
   business. Maintenance will occur automatically using YUM.
   </para>
 
@@ -169,12 +170,12 @@
 
 &lt;test-install>
 &lt;password>test-password&lt;password>
-&lt;xi:include href='virt-deploy.xml'/>
+&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install>
 
 &lt;test-update>
 &lt;password>test-password&lt;password>
-&lt;xi:include href='virt-deploy.xml'/>
+&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update>
 
 &lt;publish>
@@ -183,19 +184,7 @@
 &lt;password>production-password&lt;password>
 
 &lt;kickstart>
-install
-network --hostname %{fqdn}
-rootpw --iscrypted "%{crypt-password}"
-lang en_US
-clearpart --all --initlabel
-part / --fstype ext4 --size 1 --grow --asprimary
-part swap --recommended
-part /boot --fstype ext2 --size 512 --asprimary
-bootloader --location=mbr
-timezone America/Vancouver
-auth --enablemd5 --enableshadow --enablecache
-selinux --enforcing
-reboot
+<xi:include href="templates/deploy/ks.cfg" parse='text'/>
 &lt;/kickstart>
 
 &lt;script id='sync-to-production-server' type='update' ssh='false'>

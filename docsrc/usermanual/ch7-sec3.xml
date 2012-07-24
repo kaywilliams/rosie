@@ -2,86 +2,554 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section id="testing-package-repos" 
-         xreflabel="Testing Package Repositories">
+         xreflabel="Testing Package Repositories"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Testing Package Repositories</title>
 
   <para>
-  Testing package repositories is similar to testing system repositories, but
-  it involves an extra step. First you create the package repository as
-  discussed in previous chapters. And then you define one or more system
-  repositories to perform the testing.
+  Testing package repositories is a two-step process. First you create the
+  package repository. Then you define one or more system repositories to
+  perform deployment testing on test machines.
   </para>
 
   <para>
-  This chapter will discuss testing package repositories and troubleshooting
-  issues.
+  The number of system repositories needed to perform the testing varies by the
+  number of unique <emphasis>system configuration scenarios</emphasis>
+  supported by the package repository. An application-type repository may
+  support multiple system configuration scenarios. For example, enterprise web
+  applications commonly support both single-machine and scale-out
+  (multiple-machine) scenarios. Testing for simple package repositories such as
+  configuration, patch and aggregation-type repositories can often be
+  accomplished using a single system repository.
+  </para>
+
+  <para>
+  Package repository testing is typically accomplished through the use of
+  multiple files:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  Repository Definition - definition for a package repository.
+  </listitem>
+
+  <listitem>
+  <para>
+  Test Machine Template - provides common elements for creating 
+  test machines in a given deployment environment.
+  </para>
+
+  <para>
+  CentOS Studio provides a template, <filename>test.xml</filename>, to
+  assist with the task of testing package repositories. The
+  <filename>test.xml</filename> template makes use of the
+  <filename>virt-deploy.xml</filename> template (described under <xref
+  linkend='using-virtual-machines'/>) to allow testing package repositories
+  using local virtual machines.
+  </para>
+ </listitem>
+  
+  <listitem>
+  Repository Test Machine Template - user-created template that inherits from
+  the <emphasis>test machine template</emphasis> for testing a
+  <emphasis>specific</emphasis> package repository.
+  </listitem>
+  
+  <listitem>
+  Scenario Test Machine Definitions - user-created definitions that inherits
+  from the <emphasis>Repository Test Template</emphasis> for testing a specific
+  package repository <emphasis>scenario</emphasis>. For simple repositories
+  that support only a single scenario, the <emphasis>Repository Test Machine
+  Template</emphasis> and <emphasis>Scenario Test Machine Definition</emphasis>
+  can be combined in a single file.
+  </listitem>
+
+  <listitem>
+  Test Script - user-created script that uses CentOS Studio to refresh the
+  package repository and complete testing using one or more system repositories.
+  </listitem>
+  </itemizedlist>
+
+
+  <section id='repository-definition'
+           xreflabel='Repository Definition'>
+  <title>Repository Definition</title>
+  
+  <para>
+  Package repository testing starts with a repository definition, as described
+  in the previous two sections of this chapter.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Example Repository Definition</emphasis> The example
+  below, named <filename>application.definition</filename>, shows a skeleton
+  application repository definition. This definition makes use of configuration
+  packages and templates to provide for two unique system configuration
+  scenarios, referred to as <emphasis>scenario1</emphasis> and
+  <emphasis>scenario2</emphasis>. See the sections on <xref
+  linkend='building-config-rpms'/> and <xref
+  linkend='using-configuration-templates'/> for background on configuration
+  packages and templates.
+  </para>
+
+  <para>
+  The example definition also provides a <emphasis>publish</emphasis> element
+  with a <emphasis>remote-url</emphasis>. This allows repository build and
+  testing to occur on the CentOS Studio build machine, with final publishing to
+  a remote server.
   </para>
 
   <informalexample>
   <programlisting>
-<?xml version="2.0" encoding="utf-8"?>
-<repo xmlns:xi="http://www.w3.org/2001/XInclude">
-<macro id='repo'>repo</macro>
-<macro id='config'>config</macro>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
-<main>
-  <name>test-%{repo}-%{config}</name>
-  <version>%{version}</version>
-  <arch>%{arch}</arch>
-  <macro id='password'>mypassword</macro>
-</main>
+&lt;main>
+&lt;name>application&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
 
-<packages>
-<group repoid='base'>core</group>
-</packages>
+&lt;gpgsign>
+&lt;!-- gpgsign elements -->
+&lt;/gpgsign>
 
-<repos>
-<xi:include href="../common/common.xml" xpointer="xpointer(/*/repos/*)"/>
+&lt;repos>
+&lt;!-- repository definitions -->
+&lt;/repos>
 
-<repo id='%{repo}'>
-<baseurl>
-file:///var/www/html/products/%{repo}/%{repo}-%{version}-%{arch}/
-</baseurl>
-</repo>
-</repos>
+&lt;packages>
+&lt;!-- package and group listings -->
+&lt;/packages>
 
-<config-rpms>
-<config-rpm id='%{name}-test-config'>
-<requires>%{repo}-release</requires>
-<trigger type="triggerin" trigger='%{repo}-release'>
-# tweak yum configuration so that it gets repo from test server
-sed -i "s/www\.centossolutions\.com/192.168.122.1/g" \
-/etc/yum.repos.d/%{repo}.repo
-</trigger>
-</config-rpm>
-</config-rpms>
+&lt;srpmbuild>
+&lt;!-- application build definition -->
+&lt;/srpmbuild>
 
-<test-install>
-  <password>%{password}</password>
-  <hostname>%{id}-install</hostname>
-  <xi:include href="../common/templates/srpmbuild.xml"
-              xpointer="xpointer(/*/publish/kickstart |
-                                 /*/publish/triggers |
-                                 /*/publish/script[@type='install'])"/>
-  <xi:include href="../common/templates/virt-deploy.xml"
-              xpointer="xpointer(/*/domain)"/>
-  <xi:include href="../common/templates/virt-deploy.xml"
-              xpointer="xpointer(/*/script[@type!='install' and
-                                           @id!='check-kernel'])"/>
+&lt;config-rpms>
+&lt;xi:include href="templates/scenario1-config.xml"/>
+&lt;xi:include href="templates/scenario2-config.xml"/>
+&lt;/config-rpms>
 
-  <script id='install-config' type='post' ssh='true' comes-after='update' comes-before='poweroff'>
-  set -e
-  yum install %{repo}-%{config}-config --disableplugin sync -y -q
-  </script>
-  <xi:include href="../common/templates/deploy/poweroff.xml"/>
-</test-install>
+&lt;files>
+&lt;files>templates&lt;/files>
+&lt;/files>
 
-<test-update>
-  <hostname>%{id}-install</hostname>
-  <xi:include xpointer="xpointer(/*/test-install/*[name()!='hostname'])"/>
-</test-update>
+&lt;publish>
+&lt;remote-url>https//repos.company.com/&lt;/remote-url>
+&lt;/publish>
 
-</repo>
+&lt;/repo></programlisting>
   </informalexample>
+
+  </section>
+
+  <section id='test-machine-template'
+           xreflabel='Test Machine Template'>
+  <title>Test Machine Template</title>
+  <para>
+  The next file needed for package repository testing is a test machine
+  template. This template provides configuration for testing a package
+  repository in a given deployment environment, such as a local or remote
+  virtual machine. By default, CentOS Studio provides the
+  <filename>test.xml</filename> template, included in the <xref
+  linkend='templates'/> folder. This file allows testing package repositories
+  using local virtual machines.
+  </para>
+
+  <para>
+  Users can create alternative templates to substitute with the CentOS Studio
+  provided <filename>test.xml</filename> template. These templates can allow
+  testing package repositories in environments other than local virtual
+  machines.
+  </para>
+
+  <para>
+  The <filename>test.xml</filename> template, or user-provided alternative,
+  defines a number of top level elements for the system repository:
+  Elements defined by the test template are typically included in the <xref
+  linkend="repository-test-machine-template"/>, discussed in the next
+  section.
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  A <emphasis>main</emphasis> element. This sets the <emphasis>name</emphasis>,
+  <emphasis>version</emphasis> and <emphasis>arch</emphasis> elements using
+  information provided by macros in the <xref
+  linkend='repository-test-machine-template'/> and <xref
+  linkend='scenario-test-machine-definitions'/>, described later in this chapter.
+  </listitem>
+
+  <listitem>
+  A <emphasis>packages</emphasis> element providing a list of core packages
+  required for the test deployment environment.  <filename>Test.xml</filename>
+  lists a single group, <emphasis>core</emphasis>. 
+  </listitem>
+
+  <listitem>
+  A <emphasis>repos</emphasis> element with a single repo for the package
+  repository to be tested. The baseurl for the repo is provided by a macro in
+  the <xref linkend='repository-test-machine-template'/>.
+  </listitem>
+
+  <listitem>
+  A <emphasis>config-rpms</emphasis> element with a single config-rpm directing
+  the test machine to access the package repository from a test server, rather
+  than a final published server.  This effectively overrides the
+  <emphasis>publish/remote-url</emphasis> element for the package repository,
+  if one was provided.
+  </listitem>
+
+  <listitem>
+  A <emphasis>test-install</emphasis> element directing CentOS Studio to
+  install a test machine in the deployment environment. The
+  <emphasis>test-install</emphasis> element in the
+  <filename>test.xml</filename> template performs three actions. First, it sets
+  a password using a macro provided by the <xref
+  linkend='repository-test-machine-template'/>. Next it includes all elements
+  from the <filename>virt-deploy</filename> template. Finally, it adds a
+  <emphasis>poweroff</emphasis> script to shutdown the machine after the test
+  process is complete.
+  </listitem>
+
+  <listitem>
+  A <emphasis>test-update</emphasis> element directing CentOS Studio to update
+  a test machine in the deployment environment. The
+  <emphasis>test.xml</emphasis> template simply reuses content from the
+  <emphasis>test-install</emphasis> element, since the same actions are
+  performed on both test-install and test-update machines.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  <emphasis role='strong'><filename>test.xml</filename></emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+<xi:include href='templates/test.xml' parse='text'/></programlisting>
+  </informalexample>
+  </section>
+
+  <section id='repository-test-machine-template'
+           xreflabel='Repository Test Machine Template'>
+  <title>Repository Test Machine Template</title>
+  <para>
+  The next file is the repository test machine template. This file
+  provides common information for use in testing one or more <emphasis>system
+  configuration scenarios</emphasis> for the package repository. It uses
+  information from the <xref linkend='test-machine-template'/> and provides
+  information for use by one or more <xref
+  linkend='scenario-test-machine-definitions'/>.
+  </para>
+
+  <para>
+  Elements defined in the <emphasis>repository test machine template</emphasis>
+  include the following:
+  </para>
+ 
+  <itemizedlist>
+  <listitem>
+  <emphasis>Macro</emphasis> elements defining the name, version and arch of
+  the package repository, as well as a root password to be used for the test
+  machines and a baseurl indicating the location of the repository on the test
+  server.  The baseurl must be accessible to both the CentOS Studio build
+  machine and the test machine.  When using the <filename>test.xml</filename>
+  template, specifically, the baseurl should be a location on the local virtual
+  network, e.g.
+  <filename>http://192.168.122.1/repos/package/repoid</filename>.
+  </listitem>
+
+  <listitem>
+  A <emphasis>main</emphasis> element, included from the <xref
+  linkend='test-machine-template'/>
+  </listitem>
+
+  <listitem>
+  A <emphasis>packages</emphasis> element including packages from the <xref
+  linkend='test-machine-template'/> as well as other package and groups needed
+  for testing the repository. In general, the package and group elements you
+  specify should be unique to testing the package repository.  The packages you
+  are testing are responsible for defining their own general requirements via
+  RPM.
+  </listitem>
+
+  <listitem>
+  A <emphasis>repos</emphasis> element including the package repository from
+  the <xref linkend='test-machine-template'/>, base OS and updates
+  repositories, and any other repositories containing packages required for
+  testing.
+  </listitem>
+
+  <listitem>
+  A <emphasis>config-rpms</emphasis> element including the config-rpm element
+  from the <xref linkend='test-machine-template'/>, as well as any additional
+  configuration needed for testing the repository.
+  </listitem>
+
+  <listitem>
+  <emphasis>Test-install</emphasis> and
+  <emphasis>test-update</emphasis> elements including corresponding elements
+  from the <xref linkend='test-machine-template'/>, or adjusting as necessary
+  to suit the needs of the particular package repository.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  <emphasis role='strong'>Example Repository Test Machine Template</emphasis>.
+  The skeleton example below, named <filename>application-test.xml</filename>,
+  shows a test machine template for the package repository defined under <xref
+  linkend='repository-definition'/> earlier in this section. 
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="2.0" encoding="utf-8"?>
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+
+&lt;macro id='repo'>application&lt;/macro>
+&lt;macro id='version'>6&lt;/macro>
+&lt;macro id='arch'>x86_64&lt;/macro>
+&lt;macro id='password'>password&lt;/macro>
+&lt;macro id='baseurl'>http://192.168.122.1/repos/package/%{repo}-%{version}-%{arch}/&lt;/macro>
+
+&lt;xi:include href='path/to/test.xml' xpointer="xpointer(/*/main)"/>
+
+&lt;packages>
+&lt;xi:include href='path/to/test.xml' xpointer="xpointer(/*/packages/*)"/>
+...
+&lt;/packages>
+
+&lt;repos>
+&lt;xi:include href="path/to/test.xml" xpointer="xpointer(/*/repos/*)"/>
+...
+&lt;/repos>
+
+&lt;config-rpms>
+&lt;xi:include href="path/to/test.xml" 
+            xpointer="xpointer(/*/config-rpms/config-rpm/*)"/>
+&lt;config-rpm id='test-%{repo}-config'>
+...
+&lt;/config-rpm>
+...
+&lt;/config-rpms>
+
+&lt;xi:include href="path/to/test.xml"
+            xpointer="xpointer(/*/test-install | /*/test-updates)"/>
+
+&lt;/repo>
+  </programlisting>
+  </informalexample>
+  </section>
+
+  <section id='scenario-test-machine-definitions'
+           xreflabel="Scenario Test Machine Definitions">
+  <title>Scenario Test Machine Definitions</title>
+
+  <para>
+  The next files are the scenario test machine definitions. These files
+  provide information pertinent to a specific <emphasis>system
+  configuration scenario</emphasis> for the package repository. They use
+  information from the <xref linkend='repository-test-machine-template'/>.
+  </para>
+
+  <para>
+  If your package repository can be tested using a single system
+  configuration, you may wish to combine this file with the
+  <xref linkend='repository-test-machine-template'/> described above into a
+  single repository test definition, e.g.
+  <filename>application-test.definition</filename>.
+  </para>
+
+  <para>
+  Elements defined in the <emphasis>repository test machine template</emphasis>
+  include the following:
+  </para>
+ 
+  <itemizedlist>
+  <listitem>
+  A <emphasis>macro</emphasis> element providing the name of the scenario.
+  </listitem>
+
+  <listitem>
+  Additional <emphasis>macro</emphasis> elements and a
+  <emphasis>main</emphasis> element, included from the <xref
+  linkend='repository-test-machine-template'/>
+  </listitem>
+
+  <listitem>
+  <emphasis>Repos</emphasis>, <emphasis>packages</emphasis>,
+  <emphasis>config-rpms</emphasis>, <emphasis>test-install</emphasis> and
+  <emphasis>test-updates</emphasis> elements, each of which includes content
+  from the <xref linkend='repository-test-machine-template'/> as provides
+  additional content, as needed, for testing the specific scenario.
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  <emphasis role='strong'>Example Scenario Test Machine Definition</emphasis>
+  The skeleton example below, named
+  <filename>scenario1-test.definition</filename>, shows a definition for
+  testing the <emphasis>scenario1</emphasis> scenario.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?>
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+
+&lt;macro id='scenario'>scenario1&lt;/macro>
+
+&lt;xi:include href="application-test.xml" xpointer="xpointer(//macro | /*/main)"/>
+
+&lt;repos>
+&lt;xi:include href="application-test.xml" xpointer="xpointer(/*/repos/*)"/>
+...
+&lt;/repos>
+
+&lt;packages>
+&lt;xi:include href="application-test.xml" xpointer="xpointer(/*/packages/*)"/>
+...
+&lt;/packages>
+
+&lt;config-rpms>
+&lt;xi:include href="application-test.xml" xpointer="xpointer(/*/config-rpms/*)"/>
+...
+&lt;/config-rpms>
+
+&lt;test-install>
+&lt;xi:include href="application-test.xml" xpointer="xpointer(/*/test-install/*)"/>
+&lt;script id='test-install' ssh='true' verbose='true' type='post' comes-after='update' comes-before='poweroff'>
+...
+&lt;/script>
+...
+&lt;/test-update>
+
+&lt;test-update>
+&lt;xi:include href="application-test.xml" xpointer="xpointer(/*/test-update/*)"/>
+&lt;script id='test-update' ssh='true' verbose='true' type='post' comes-after='update' comes-before='poweroff'>
+...
+&lt;script>
+...
+&lt;/test-update>
+
+&lt;/repo>
+  </programlisting>
+  </informalexample>
+  </section>
+
+  <section id='test-script'
+           xreflabel="Test Script">
+  <title>Test Script</title>
+  <para>
+  Once you have completed and tested your package repository definition and all
+  scenario test machine definitions, you are ready for the final step, creating
+  a script to update the repository and run tests on an ongoing basis. With
+  this script, you can ensure the quality and accuracy of your repository, and
+  you can do it in an automated manner.
+  </para>
+
+  <para>
+  This can be particularly useful if you are creating multiple versions of your
+  package repository, and have multiple configuration scenarios, as in our
+  example below.
+  </para>
+
+  <para>
+  <emphasis type='strong'>Example Test Script</emphasis>. The example test
+  script below, named <filename>application-test.sh</filename> performs three
+  activities:
+  </para>
+  
+  <itemizedlist>
+  <listitem>
+  Creates an <emphasis>application</emphasis> package repository for each
+  supported combination of CentOS version (5 and 6) and architecture (i386 and
+  x86_64).
+  </listitem>
+
+  <listitem>
+  Tests each of these repositories under two system configuration
+  scenarios (scenario1 and scenario2).
+  </listitem>
+
+  <listitem>
+  Synchronizes the package repository to the final production server.
+  </listitem>
+  </itemizedlist>
+
+  <informalexample>
+  <programlisting>
+#!/bin/sh
+set -e
+
+ROOT="path/to/repos"
+
+CENTOSSTUDIO="/usr/bin/centosstudio"
+LOG_LEVEL=1
+
+REPO=application
+VERSIONS="5 6"
+ARCHS="i386 x86_64"
+SCENARIOS="scenario1 scenario2"
+ 
+# update the package repositories
+echo -e "\nupdating $REPO repositories"
+for v in $VERSIONS; do
+  for a in $ARCHS; do 
+    $CENTOSSTUDIO \
+    $ROOT/$REPO/$REPO.definition \
+    --macro "repo:$REPO" --macro "version:$v" --macro "arch:$a" \
+    -l$LOG_LEVEL \
+  done
+done
+
+# test scenario configuration
+for s in $SCENARIOS; do
+  echo -e "\ntesting $REPO $s configuration"
+  for v in $VERSIONS; do 
+    for a in $ARCHS; do 
+    $CENTOSSTUDIO $ROOT/$REPO/$s-test.definition \
+    --macro "repo:$REPO" ---macro "scenario:$s" --macro "version:$v" \
+    --macro "arch:$a" \
+    -l$LOG_LEVEL\
+    done
+  done
+done
+
+# sync repositories to production server
+echo -e "\nsyncing $REPO repositories to production server"
+for v in $VERSIONS; do
+  for a in $ARCHS; do
+    rsync -a --delete -e ssh \
+    "/var/www/html/repos/package/$REPO-$v-$a/" \
+    "user@repos.company.com:/var/www/html/$REPO-$v-$a"
+  done
+done
+  </programlisting>
+  </informalexample>
+
+  <para>
+  You can configure your script to run on a period basic using the
+  <application>cron</application> utility. For example, to have cron execute
+  your <filename>application-test.sh</filename> script on a nightly basis,
+  complete these commands:
+  </para>
+  
+  <informalexample>
+  <programlisting>
+cp application-test.sh /etc/cron.daily
+chown root:root application-test.sh
+chmod +x application-test.sh
+  </programlisting>
+  </informalexample>
+
+  <para>
+  Type <command>man cron</command> at the command line for additional
+  information on using the cron utility to automate periodic processes.
+  </para>
+  </section>
 
 </section>

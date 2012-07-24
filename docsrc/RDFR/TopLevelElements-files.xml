@@ -60,7 +60,7 @@
       Accepts four attributes:
       <emphasis>@content</emphasis>,
       <emphasis>@destdir</emphasis>,
-      <emphasis>@destname</emphasis>, and
+      <emphasis>@destname</emphasis> and
       <emphasis>@mode</emphasis>.
       </para>
 

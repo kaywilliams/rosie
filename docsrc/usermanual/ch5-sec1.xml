@@ -21,7 +21,7 @@
   more about virtualization, see the <emphasis>Virtualization Getting Started
   Guide</emphasis>, <emphasis>Virtualization Host Configuration and Guest
   Installation Guide</emphasis> and <emphasis>Virtualization Administration
-  Guiide</emphasis> included with the Red Hat Enterprise Linux documentation.
+  Guide</emphasis> included with the Red Hat Enterprise Linux documentation.
   </para>
 
   <para>
@@ -72,7 +72,7 @@
   <programlisting>
 &lt;test-install>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml">
+&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)">
 &lt;/test-install>
   </programlisting>
   </informalexample>
@@ -172,7 +172,7 @@
   <programlisting>
 &lt;test-update>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml">
+&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update>
   </programlisting>
   </informalexample>

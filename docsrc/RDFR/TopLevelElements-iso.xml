@@ -72,7 +72,7 @@
 
       <para>
       By default, sizes are computed using 1000 bytes per megabyte.
-      In order to use 1024 bytes per megabyte, insert a 'i' after the
+      In order to use 1024 bytes per megabyte, insert an 'i' after the
       order designator; for example, "640 MIB" or "4.7GiB".
       </para>
       <para>
