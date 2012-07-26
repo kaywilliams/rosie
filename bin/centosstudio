@@ -162,9 +162,7 @@ class BuildCli:
     try:
       import centosstudio.main
     except ImportError, e:
-      print "Unable to load core centosstudio files"
-      raise #!
-      sys.exit(1)
+      sys.exit("Unable to load core centosstudio files\n")
  
     cb = BuildCliCallback()
 
@@ -172,25 +170,29 @@ class BuildCli:
     try:
       sbuilder = centosstudio.main.Build(opts, args, callback=cb)
       sbuilder.main()
-    except SystemExit: # raised by list-events and validate-only
-      sys.exit()
     except (KeyboardInterrupt):
+      msg = "\nCentOS Studio halted on user input\n"
+      cb.logger.logfile.file_object.write(msg)
+      sys.exit(msg)
+    except CentOSStudioError, e:
       cb.logger.write(0, '\n') # start on a new line
-      cb.logger.log(0, "CentOS Studio halted on user input")
-      sys.exit(1)
-    except CentOSStudioError, e: 
-      cb.logger.write(0, '\n') # start on a new line
-      if cb.debug: cb.logger.log(0, traceback.format_exc())
-      cb.logger.log(0, e)
-      sys.exit(1)
+      if cb.debug:
+        msg = traceback.format_exc()
+        cb.logger.logfile.file_object.write(msg)
+        sys.exit(msg)
+      else:
+        msg = str(e) + '\n'
+        cb.logger.logfile.file_object.write(msg)
+        sys.exit(msg)
     except Exception, e:
-      traceback.print_exc(file=cb.logger.logfile.file_object)
+      tb = traceback.format_exc()
+      cb.logger.logfile.file_object.write(tb)
       if cb.logger.test(4) or cb.debug: 
-        raise
+        sys.exit(tb)
       else:
         cb.logger.write(0, '\n') # start on a new line
         if hasattr(cb.logger.logfile.file_object, 'name'):
-          cb.logger.write(0,
+          msg = ( 
             "An unhandled exception has been generated while running "
             "CentOS Studio. The traceback has been recorded in the log "
             "file at '%s'. Please report this error by sending a copy "
@@ -198,16 +200,16 @@ class BuildCli:
             "relevant information to centosstudio@centosstudio.org\n\n"
             "Error message was: %s\n"
             % (cb.logger.logfile.file_object.name, e))
-          sys.exit(1)
+          cb.logger.logfile.file_object.write(msg)
+          sys.exit(msg)
         else:
-          cb.logger.write(0,           
+          msg = (           
             "An unhandled exception has been generated while running "
             "CentOS Studio. Please report this error by sending a copy "
             "of the error message, your system definition file and any other "
             "relevant information to centosstudio@centosstudio.org\n\n"
-            "Error message was:\n")
-          raise
-      sys.exit(1)
+            "Error message was: %s\n" % tb)
+          sys.exit(msg)
 
     # else we're done - exit with success
     sys.exit()
