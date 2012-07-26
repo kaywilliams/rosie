@@ -23,6 +23,8 @@ import os
 import re
 import time
 
+from centosstudio.event import Event
+
 from centosstudio.util import listfmt
 from centosstudio.util import pps
 from centosstudio.util import rxml
@@ -233,20 +235,20 @@ class CentOSStudioRepoGroup(CentOSStudioRepo):
       self._populate_repos()
     return self._repos
 
-class RepoSetupEventMixin:
+class RepoSetupEventMixin(Event):
   """Uses ReposFromXml to add repos to the repos cvar. Creates repos cvar if
      it does not exist"""
   def __init__(self):
     self.provides = set(['repos'])
 
-  def setup(self):
+  def apply(self):
     if self.config.xpath('repo', []):
       (self.cvars.setdefault('repos', RepoContainer()).
                              add_repos(ReposFromXml(self.config.getxpath('.'),
                              cls=CentOSStudioRepoGroup)))
 
 
-class RepoEventMixin:
+class RepoEventMixin(Event):
   def __init__(self, *args, **kwargs):
     self.repos = RepoContainer()
 

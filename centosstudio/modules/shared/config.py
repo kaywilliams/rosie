@@ -18,7 +18,7 @@
 import re
 
 from centosstudio.errors   import CentOSStudioEventError, DuplicateIdsError
-from centosstudio.event    import Event
+from centosstudio.event    import Event, CLASS_META
 from centosstudio.util     import pps
 
 from centosstudio.modules.shared import (MkrpmRpmBuildMixin,
@@ -37,8 +37,9 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
 
     # convert user provided id to a valid class name
     rpmid = config.getxpath('@id')
-    name = re.sub('[^0-9a-zA-Z_]', '', rpmid)
-    name = '%sConfigRpmEvent' % name.capitalize()
+    name = re.sub('[^0-9a-zA-Z_]', '', rpmid).capitalize()
+    setup_name = '%sConfigRpmSetupEvent' % name
+    base_name = '%sConfigRpmEvent' % name
 
     # get config path and rpmid
     config_base = '%s[@id="%s"]' % (xpath, rpmid)
@@ -47,28 +48,58 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
     if rpmid in config_rpm_ids:
       raise DuplicateIdsError(element=element_name, id=rpmid)
 
-    # create new class
-    exec """%s = ConfigRpmEvent('%s', 
-                         (ConfigRpmEventMixin,), 
+    # create new classes
+    exec """%s = config.ConfigRpmSetupEvent('%s', 
+                         (config.ConfigRpmSetupEventMixin,), 
                          { 'rpmid'      : '%s',
                            'config_base': '%s',
-                           '__init__'   : __init__,
+                           '__init__'   : config.init_config_setup_event,
                          }
                         )""" % (
-                        name, name, rpmid, config_base) in globals
+                        setup_name, setup_name, rpmid, config_base) in globals
+
+    exec """%s = config.ConfigRpmEvent('%s', 
+                         (config.ConfigRpmEventMixin,), 
+                         { 'rpmid'      : '%s',
+                           'config_base': '%s',
+                           '__init__'   : config.init_config_event,
+                         }
+                        )""" % (
+                        base_name, base_name, rpmid, config_base) in globals
 
     # update lists with new classname
     config_rpm_ids.append(rpmid)
-    new_events.append(name)
+    for name in [setup_name, base_name]:
+      new_events.append(name)
 
   # update cvars rpm-event-ids
   ptr.cvars['config-rpm-ids'] = config_rpm_ids
 
   return new_events
 
+class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
 
-class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin, 
-                          RepoSetupEventMixin):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = '%s-rpm-setup' % self.rpmid,
+      parentid = 'config-rpms-setup',
+      ptr = ptr,
+      version = 1.00,
+      provides = ['config-rpm-setup'],
+      config_base = self.config_base,
+      suppress_run_message = True,
+    )
+
+    self.DATA = {
+      'input':     [],
+      'config':    ['.'],
+      'variables': [],
+      'output':    [],
+    }
+
+    RepoSetupEventMixin.__init__(self)
+
+class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin): 
   config_mixin_version = "1.01"
 
   def __init__(self, ptr, *args, **kwargs):
@@ -92,7 +123,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin,
     }
 
     MkrpmRpmBuildMixin.__init__(self)
-    RepoSetupEventMixin.__init__(self)
 
   def validate(self):
     self.io.validate_destnames([ path for path in 
@@ -134,8 +164,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin,
     # user debugging
     self.debugdir    = self.source_folder // self.installdir
     self.debug_postfile = self.debugdir/'post-script'
-
-    RepoSetupEventMixin.setup(self)
 
   def run(self):
     MkrpmRpmBuildMixin.run(self)
@@ -437,6 +465,10 @@ fi
       return None
 
 # ------ Metaclass for creating Config RPM Events -------- #
+class ConfigRpmSetupEvent(type):
+  def __new__(meta, classname, supers, classdict):
+    return type.__new__(meta, classname, supers, classdict)
+
 class ConfigRpmEvent(type):
   def __new__(meta, classname, supers, classdict):
     return type.__new__(meta, classname, supers, classdict)
@@ -445,3 +477,11 @@ class ConfigRpmEvent(type):
 # -------- Error Classes --------#
 class ConfigRpmEventError(CentOSStudioEventError): 
   message = "%(message)s"
+
+
+# -------- init methods called by new_rpm_events -------- #
+def init_config_setup_event(self, ptr, *args, **kwargs):
+  ConfigRpmSetupEventMixin.__init__(self, ptr, *args, **kwargs)
+
+def init_config_event(self, ptr, *args, **kwargs):
+  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)

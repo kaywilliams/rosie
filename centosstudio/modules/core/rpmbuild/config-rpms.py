@@ -17,10 +17,34 @@
 #
 from centosstudio.event    import Event, CLASS_META
 
-from centosstudio.modules.shared import (ConfigRpmEvent,
-                                         ConfigRpmEventMixin,
-                                         make_config_rpm_events,
-                                         MkrpmRpmBuildMixin,)
+from centosstudio.modules.shared import config, MkrpmRpmBuildMixin
+
+
+# -------- provide module information to dispatcher -------- #
+def get_module_info(ptr, *args, **kwargs):
+  module_info = dict(
+    api         = 5.0,
+    events      = ['ConfigRpmsSetupEvent', 'ConfigRpmsEvent'],
+    description = 'modules that create RPMs based on user-provided configuration',
+  )
+  modname = __name__.split('.')[-1]
+  new_rpm_events = config.make_config_rpm_events(ptr, modname, 'config-rpm', 
+                                                 globals=globals())
+  module_info['events'].extend(new_rpm_events)
+
+  return module_info
+
+class ConfigRpmsSetupEvent(Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'config-rpms-setup',
+      parentid = 'setup-events',
+      ptr = ptr,
+      properties = CLASS_META,
+      version = '1.00',
+      suppress_run_message = True
+    )
+
 
 class ConfigRpmsEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
@@ -34,21 +58,3 @@ class ConfigRpmsEvent(Event):
       conditionally_comes_before = ['srpmbuild'],
       suppress_run_message = True
     )
-
-# -------- provide module information to dispatcher -------- #
-def get_module_info(ptr, *args, **kwargs):
-  module_info = dict(
-    api         = 5.0,
-    events      = ['ConfigRpmsEvent'],
-    description = 'modules that create RPMs based on user-provided configuration',
-  )
-  modname = __name__.split('.')[-1]
-  new_rpm_events = make_config_rpm_events(ptr, modname, 'config-rpm', 
-                                          globals=globals())
-  module_info['events'].extend(new_rpm_events)
-
-  return module_info
-
-# -------- init method called by new_rpm_events -------- #
-def __init__(self, ptr, *args, **kwargs):
-  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)

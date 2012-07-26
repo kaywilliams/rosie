@@ -22,12 +22,10 @@ from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
+from centosstudio.modules.shared import config
 from centosstudio.modules.shared import DeployEventMixin
 from centosstudio.modules.shared import TestPublishEventMixin
-from centosstudio.modules.shared import (ConfigRpmEvent,
-                                         ConfigRpmEventMixin,
-                                         make_config_rpm_events,
-                                         MkrpmRpmBuildMixin,)
+from centosstudio.modules.shared import MkrpmRpmBuildMixin
 
 P = pps.path
 
@@ -38,15 +36,11 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'performs test installations on client systems',
   )
   modname = __name__.split('.')[-1]
-  new_rpm_events = make_config_rpm_events(ptr, modname, 'config-rpm', 
-                                          globals=globals())
+  new_rpm_events = config.make_config_rpm_events(ptr, modname, 'config-rpm', 
+                                                 globals=globals())
   module_info['events'].extend(new_rpm_events)
 
   return module_info
-
-# -------- init method called by new_rpm_events -------- #
-def __init__(self, ptr, *args, **kwargs):
-  ConfigRpmEventMixin.__init__(self, ptr, *args, **kwargs)
 
 
 class TestInstallSetupEvent(TestPublishEventMixin, Event):

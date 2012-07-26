@@ -94,7 +94,12 @@ class Test_ConfigRpmRepos(ConfigRpmEventTestCase):
   def runTest(self):
     self.execute_predecessors(self.event)
     self.event.setup()
+
+    # did config-rpm-setup-event add the rep?
     self.failUnless("test" in self.event.cvars['repos'])
+
+    # did the repos event process it?
+    self.failUnless(self.event.cvars['repos']['test'].localurl)
 
 
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
