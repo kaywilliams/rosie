@@ -184,10 +184,11 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
 
     # resolve global macros - do this early so that global macros
     # can be used in event ids for config-rpms and srpmbuild events
-    macros = {'%{name}':    self.name,
-             '%{version}':  self.version,
-             '%{arch}':     self.arch,
-             '%{id}':       self.repoid,
+    macros = {'%{name}':          self.name,
+             '%{version}':        self.version,
+             '%{arch}':           self.arch,
+             '%{id}':             self.repoid,
+             '%{definition-dir}': self.definition.file.dirname,
              }
 
     self.definition.resolve_macros(xpaths=['.'], map=macros)
