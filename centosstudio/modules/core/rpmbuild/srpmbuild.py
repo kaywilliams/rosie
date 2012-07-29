@@ -38,8 +38,8 @@ from centosstudio.util         import rxml
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 
-from centosstudio.modules.shared import (DeployEventMixin, ShelveMixin, 
-                                         RpmBuildMixin) 
+from centosstudio.modules.shared import (DeployEventMixin, InputEventMixin,
+                                         ShelveMixin, RpmBuildMixin) 
 
 from fnmatch import fnmatch
 
@@ -69,7 +69,8 @@ class SrpmBuildEvent(Event):
       suppress_run_message = True
     )
 
-class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
+class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, InputEventMixin,
+                          ShelveMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-srpm' % self.srpmid, 
@@ -108,6 +109,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   
   def setup(self):
     self.diff.setup(self.DATA)
+    InputEventMixin.setup(self)
     RpmBuildMixin.setup(self)
   
     # resolve macros
@@ -190,6 +192,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
     # use RpmBuildMixin to sign rpms, cache rpmdata, and add rpms as output
     self.rpms = [ self._get_rpmbuild_data(f) for f in rpmfiles ]
     RpmBuildMixin.run(self)
+    InputEventMixin.run(self)
 
   def _get_srpm_from_path(self, path):
     if path.endswith('.src.rpm'): # add the file

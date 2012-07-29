@@ -25,14 +25,16 @@ from centosstudio.errors import (CentOSStudioError, CentOSStudioEventError,
 from centosstudio.util import pps
 from centosstudio.util import resolve 
 
-from centosstudio.modules.shared import (ExecuteEventMixin, ScriptFailedError,
+from centosstudio.modules.shared import (InputEventMixin, ExecuteEventMixin,
+                                         ScriptFailedError,
                                          SSHFailedError, SSHScriptFailedError)
+# InputEventMixin loads ExecuteEventMixin
 
 from centosstudio.util.graph import DirectedNodeMixin
 
 from UserDict import DictMixin
 
-class DeployEventMixin(ExecuteEventMixin):
+class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
@@ -41,6 +43,8 @@ class DeployEventMixin(ExecuteEventMixin):
                                         'config-rpms'])
 
   def setup(self): 
+    InputEventMixin.setup(self)
+
     # needs to be called after self.repomdfile and self.kstext are set
     self.cvar_root = '%s-setup-options' % self.moduleid
 
@@ -152,6 +156,8 @@ class DeployEventMixin(ExecuteEventMixin):
                           id=script.id, mode='750', content='text')
 
   def run(self):
+    InputEventMixin.run(self)
+
     for scripts in self.types.values():
       for script in scripts:
         self.io.process_files(what=script.id)

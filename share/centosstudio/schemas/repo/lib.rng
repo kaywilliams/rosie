@@ -229,6 +229,16 @@
     <ref name="attribute-content"/>
   </define>
 
+  <define name='element-input-script'>
+    <zeroOrMore>
+      <element name='input-script'>
+        <optional>
+          <attribute name='verbose'><ref name="value-boolean"/></attribute>
+        </optional>
+        <text/>
+      </element>
+    </zeroOrMore>
+  </define>
 
   <!-- deploy elements -->
   <define name="content-deploy-elements">
@@ -269,6 +279,8 @@
     </optional>
 
     <zeroOrMore><ref name="element-config-rpm"/></zeroOrMore>
+
+    <ref name="element-input-script"/>
 
     <optional>
       <element name="triggers">

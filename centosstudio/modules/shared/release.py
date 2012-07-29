@@ -26,7 +26,7 @@ from centosstudio.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
                                          Trigger, TriggerContainer)
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
-  release_mixin_version = "1.23"
+  release_mixin_version = "1.24"
 
   def __init__(self, rpmconf=None): # call after creating self.DATA
     if rpmconf is not None:
@@ -164,7 +164,11 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       repofile.dirname.mkdirs()
       repofile.write_lines(lines)
 
-      self.DATA['output'].append(repofile)
+      # include repofile at root of repository
+      pubfile = self.REPO_STORE / 'repo.conf'
+      repofile.cp(pubfile)
+
+      self.DATA['output'].extend([repofile, pubfile])
 
   def _include_sync_plugin(self):
     # config
