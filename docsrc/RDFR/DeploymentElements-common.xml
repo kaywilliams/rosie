@@ -72,6 +72,9 @@
     [comes-after=TEXT]
     &gt;TEXT
   &lt;/script&gt;]*
+
+  [&lt;input-script&gt;TEXT&lt;/input-script&gt;]*
+
 &lt;ELEMENT/&gt;]</programlisting>
   </section>
 
