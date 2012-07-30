@@ -107,6 +107,7 @@
       <variablelist>
       <varlistentry id='srpm-id' xreflabel="SRPMID">
       <term>id</term>
+
       <listitem>
       <para>
       A unique one-word <varname>ID</varname> specifying the name of the
@@ -127,6 +128,7 @@
       <variablelist>
       <varlistentry>
       <term>path</term>
+      
       <listitem>
       <para>
       <xref linkend="content-path"/> value specifying a location for the SRPM.
@@ -165,6 +167,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhnlib-2.5
 
     <varlistentry>
       <term>repo</term>
+
       <listitem>
       <para>
       <xref linkend="content-url"/> value specifying a package repository where
@@ -197,11 +200,12 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 
     <varlistentry>
       <term>script</term>
+
       <listitem>
       <para>
       <xref linkend="content-text"/> value providing a script to be executed on
       the local machine that performs desired actions, ultimately copying an
-      SRPM to a specified location.
+      SRPM to a specified location. The script is executed as the root user.
       </para>
 
       <para>
@@ -264,13 +268,14 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
     </listitem>
     </varlistentry>
 
-    </variablelist> 
+    </variablelist>
 
     </listitem>
     </varlistentry>
 
     <varlistentry id='srpmbuild-template' xreflabel='template'>
       <term>template</term>
+
       <listitem>
       <para>
       <xref linkend="content-path"/> to a definition template to be used for

@@ -28,8 +28,6 @@
 
           <optional><element name="template"><text/></element></optional>
 
-          <ref name='element-input-script'/>
-
           </interleave>
 
         </element>

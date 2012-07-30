@@ -15,8 +15,16 @@
 
     <para>
     Creates an RPM used to install and update repository-specific YUM
-    configuration on client machines. The RPM is named as follows where %{name}
-    is a global run-time <link linkend='macros'>macro</link>:
+    configuration on client machines. Also makes a YUM configuration file
+    available for download directly from the repository publish folder.
+    </para>
+   
+    <itemizedlist>
+    <listitem>
+    <para>
+    The RPM created by the <emphasis>release-rpm</emphasis> event is named as
+    follows, where %{name} is a global run-time <link
+    linkend='macros'>macro</link>:
     </para>
 
     <synopsis>%{name}-release</synopsis>
@@ -57,6 +65,22 @@
     number allows installed client machines to determine that a new
     release-rpm is available for download and installation.
     </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    The release-rpm event also makes a YUM repository configuration file, named
+    <filename>repo.conf</filename>, available from the root of the repository,
+    e.g.
+    <filename>http://server.company.com/repos/system/samba-server-5-i386/repo.conf</filename>.
+    This file can be used by automated processes in situations where it is
+    undesirable to install the release-rpm. This is most common when using YUM
+    to install repository packages in a <command>chroot</command> environment,
+    such as when creating system images.
+    </para>
+    </listitem>
+    </itemizedlist>
+
 
   </section>
 

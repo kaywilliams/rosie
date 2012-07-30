@@ -1560,6 +1560,73 @@ $remote-url/%{id}</programlisting>
       </listitem>
     </varlistentry>
 
+    <varlistentry>
+    <term>input-script</term>
+
+    <listitem>
+    <para>
+    <xref linkend='content-text'/> content of a script used for determining
+    whether the deployment event should run during the current CentOS Studio
+    session. CentOS Studio executes the script on the local machine as the root
+    user.
+    </para>
+
+    <para>
+    Provides a single run-time <link linkend="macros">macro</link>:
+    </para>
+
+    <para>
+    <emphasis role='strong'>%{input-dir}:</emphasis> The path to a folder
+    where the <emphasis>input-script</emphasis> should copy files.
+    </para>
+
+    <para>
+    CentOS Studio tests for changes in files in the %{input-dir} folder based
+    on filename and timestamp. If any files have changed, it causes the
+    deployment event to run.
+    </para>
+
+    <para>
+    The <emphasis>input-script</emphasis> element is optional. One or more
+    elements are allowed.
+    </para>
+
+    <para>
+    In most cases this element is not required as CentOS Studio automatically
+    runs the event only when necessary. In some cases, however, it is desirable
+    to cause the event to run based on external factors, such as changes to a
+    file used by one of the scripts described in the previous element.
+    </para>
+
+    <para>
+    <emphasis role='strong'>Example</emphasis> - in the example below, the text
+    of a script is provided. The script tests if the current version of a
+    source code repository matches the version saved to a file in the
+    <emphasis>%{input-dir}</emphasis> folder. If not, it writes the new version
+    to the file. CentOS Studio checks for changes to files in the
+    <emphasis>%{input-dir}</emphasis> and, if so, causes the deployment event
+    to run.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;input-script>
+#!/bin/sh
+# track the latest source code repository revision so that tests run each
+# time the repository changes
+
+set -e
+file=%{input-dir}/hgtip
+hgtip_curr=`hg identify https://example.com/path/to/hg/source/code/repo`
+hgtip_last=`[ -f $file ] &amp;&amp; cat $file || echo ''`
+if [[ $hgtip_curr != $hgtip_last ]]; then
+  echo $hgtip_curr > $file
+fi
+&lt;/input-script></programlisting>
+    </informalexample>
+    </listitem>
+    </varlistentry>
+
     </variablelist>
   </section>
 

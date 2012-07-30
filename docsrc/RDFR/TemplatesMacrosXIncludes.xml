@@ -114,12 +114,29 @@
     </para>
     
     <para>
-    Global run-time macros include <varname>%{name}</varname>,
-    <varname>%{version}</varname>, <varname>%{arch}</varname> and
-    <varname>%{id}</varname>. The values of these macros correspond to elements
-    in the <varname>/main</varname> element, unless of course they are
+    Global run-time macros include the following:
+    
+    <simplelist type='horiz'>
+    <member><varname>%{name}</varname></member>
+    <member><varname>%{version}</varname></member>
+    <member><varname>%{arch}</varname></member>
+    <member><varname>%{id}</varname></member>
+    <member><varname>%{definition-dir}</varname></member>
+    </simplelist>
+    </para>
+    
+    <para>
+    The values of the first four macros correspond to elements
+    in the <varname>/main</varname> element, unless they are
     overridden by command-line or in-document macros. See <xref
     linkend="main"/> for more information on these macros.
+    </para>
+
+    <para>
+    The value of the final macro, <varname>%{definition-dir}</varname>
+    corresponds to the folder location of the definition. This macro is
+    commonly used within scripts for locating files and folders relative to the
+    definition file.
     </para>
     
     <para>
