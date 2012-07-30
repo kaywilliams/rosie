@@ -41,15 +41,19 @@ class KickstartEventMixin:
     self.ksfile = self.REPO_STORE/self.ksname
 
     # read the text or file specified in the kickstart element
-    elem = self.config.getxpath(self.ksxpath)
+    self.kstext = self.config.getxpath('%s/text()' % self.ksxpath, '')
+    if len(self.kstext) == 0: 
+      return
+
     self.ks_source = '' # track source for use in error messages
-    self.kstext = (elem.text or '')
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
                     ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
 
     self.DATA['variables'].extend(['ksfile', 'kstext'])
 
   def run(self):
+    if len(self.kstext) == 0:
+      return
     ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]
 
     # test for missing ks parameters
@@ -75,10 +79,14 @@ class KickstartEventMixin:
     self.DATA['output'].append(self.ksfile)
 
   def apply(self):
+    if len(self.kstext) == 0: 
+      return
     self.cvars['%s-kstext' % self.moduleid] = self.ksfile.read_text()
 
   def verify_kickstart_cvars(self):
     "verify kickstart cvars exist"
+    if len(self.kstext) == 0: 
+      return
     self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
 
 class KickstartValidationError(CentOSStudioEventError):

@@ -100,6 +100,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                           % self.moduleid, what='os-dir')
 
     # modify release-rpm
+    (self.REPO_STORE/'repo.conf').rm(force=True) # remove link
     ReleaseRpmEventMixin.run(self)
     self.rpm.rpm_path.cp(self.REPO_STORE/'Packages')
     self.DATA['output'].append(self.REPO_STORE/'Packages'/
@@ -124,7 +125,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
 
   def apply(self):
     self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin
-    KickstartEventMixin.apply(self) 
+    if self.config.getxpath('kickstart', None) is not None:
+      KickstartEventMixin.apply(self)
+    else:
+      self.cvars['%s-kstext' % self.moduleid] = self.kstext
 
   def verify_repomdfile(self):
     "verify repomd file exists"
