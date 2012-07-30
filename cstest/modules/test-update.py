@@ -73,6 +73,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(make_extension_suite(PublishSetupEventTestCase, distro, version, arch))
 
   # deploy
-  suite.addTest(make_extension_suite(TestUpdateEventTestCase, distro, version, arch))
+  if check_vm_config():
+    suite.addTest(make_extension_suite(TestUpdateEventTestCase, distro, version, arch))
 
   return suite
