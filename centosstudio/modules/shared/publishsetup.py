@@ -26,13 +26,14 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.callback import LinkCallback
-from centosstudio.errors   import CentOSStudioEventError
-from centosstudio.errors   import SimpleCentOSStudioEventError
-from centosstudio.util     import pps
-from centosstudio.util     import shlib
+from centosstudio.callback   import LinkCallback
+from centosstudio.errors     import CentOSStudioEventError
+from centosstudio.errors     import SimpleCentOSStudioEventError
+from centosstudio.cslogging  import L1
+from centosstudio.util       import pps
+from centosstudio.util       import shlib
 
-from centosstudio.util.rxml import datfile
+from centosstudio.util.rxml  import datfile
 
 # Include this mixin in any event that requires hostname and password 
 class PublishSetupEventMixin:
@@ -91,7 +92,8 @@ class PublishSetupEventMixin:
     if self.ssh:
       if not keyfile.exists():
         try:
-          cmd = 'ssh-keygen -t rsa -f %s -N ""' % keyfile 
+          self.log(1, L1("'ssh key not found, generating"))
+          cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % keyfile 
           shlib.execute(cmd)
         except shlib.ShExecError, e:
           message = ("Error occurred creating ssh keys for the "

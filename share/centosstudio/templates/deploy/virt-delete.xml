@@ -2,12 +2,12 @@
 <script id='virt-delete' type='delete'>
 #!/bin/bash
 set -e
-if [[ `virsh list` = *\ %{fqdn}\ * ]]; then
-  virsh managedsave-remove %{fqdn}
-  virsh destroy %{fqdn}
+if [[ `/usr/bin/virsh list` = *\ %{fqdn}\ * ]]; then
+  /usr/bin/virsh managedsave-remove %{fqdn}
+  /usr/bin/virsh destroy %{fqdn}
 fi
-if [[ `virsh list --all` = *\ %{fqdn}\ * ]]; then 
-  virsh undefine %{fqdn}
-  virsh vol-delete --pool default %{fqdn}.img
+if [[ `/usr/bin/virsh list --all` = *\ %{fqdn}\ * ]]; then 
+  /usr/bin/virsh undefine %{fqdn}
+  /usr/bin/virsh vol-delete --pool default %{fqdn}.img
 fi
 </script>

@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='virt-install' type='install'>
+<script id='virt-install' type='install' verbose='true'>
 #!/bin/bash
-virt-install --name %{fqdn} --ram 1000 \
-             --file /var/lib/libvirt/images/%{fqdn}.img \
-             --file-size 30 \
-             --location %{url} \
-             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
-             --noreboot
+set -e
+
+# install machine
+/usr/sbin/virt-install --name %{fqdn} --ram 1000 \
+                       --file /var/lib/libvirt/images/%{fqdn}.img \
+                       --file-size 30 \
+                       --location %{url} \
+                       --extra-args "%{boot-options} ks=%{url}/ks.cfg" \
+                       --noreboot
+
+# wait for install to complete and machine to shutdown
+do_message=true
+while [[ `virsh domstate %{fqdn}` = "running" ]]; do
+  if [[ $do_message = "true" ]]; then 
+    echo "waiting for installation to complete..."
+    do_message=false
+  fi
+  sleep 2 
+done
 </script>
