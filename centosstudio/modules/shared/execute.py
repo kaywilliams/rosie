@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import errno
+import fcntl
+import os
 import paramiko
 import select
 import signal
@@ -108,18 +111,25 @@ class ExecuteEventMixin:
     proc = subprocess.Popen("%s" % cmd, shell=True, stdout=subprocess.PIPE, 
                                                     stderr=subprocess.PIPE)
 
+    self.make_async(proc.stdout)
+    self.make_async(proc.stderr)
+
+    outlines = []
     errlines = []
     header_logged = False
     while True:
-      outline = proc.stdout.readline().rstrip()
-      errline = proc.stderr.readline().rstrip()
+      select.select([proc.stdout, proc.stderr], [], [], 0.0)
+      outline = self.read_async(proc.stdout)
+      errline = self.read_async(proc.stderr)
       if outline != '' or errline != '' or proc.poll() is None:
-        if outline and (verbose or self.logger.test(4)): 
-          if not header_logged:
-            self.logger.log_header(0, "%s event - '%s' script output" %
-                                  (self.id, pps.path(cmd).basename))
-            header_logged = True
-          self.log(0, outline)
+        if outline:
+          outlines.append(outline)
+          if verbose or self.logger.test(4): 
+            if not header_logged:
+              self.logger.log_header(0, "%s event - '%s' script output" %
+                                    (self.id, pps.path(cmd).basename))
+              header_logged = True
+            self.log(0, outline)
         if errline: errlines.append(errline) 
       else:
         break
@@ -128,13 +138,28 @@ class ExecuteEventMixin:
       self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
     if proc.returncode != 0:
-      raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(errlines))
+      raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(outlines + errlines))
     return
+
+  # Helper function to add the O_NONBLOCK flag to a file descriptor
+  def make_async(self, fd):
+    fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) | os.O_NONBLOCK)
+  
+  # Helper function to read some data from a file descriptor, ignoring EAGAIN errors
+  def read_async(self, fd):
+    try:
+      data = fd.read()
+      return data.rstrip('\n')
+    except IOError, e:
+      if e.errno != errno.EAGAIN:
+        raise e
+      else:
+        return ''
 
 
 #------ Errors ------#
 class ScriptFailedError(CentOSStudioEventError):
-  message = "Error occured running '%(cmd)s'. See error message below:\n %(errtxt)s"
+  message = "Error occured running '%(cmd)s'. See script output below:\n %(errtxt)s"
 
 class SSHFailedError(ScriptFailedError):
   message = "%(message)s"
