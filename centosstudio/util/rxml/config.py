@@ -26,6 +26,7 @@ __version__  = '3.0'
 __date__     = 'June 13th, 2007'
 
 import lxml
+import types
 
 from xml.sax.saxutils import escape
 
@@ -161,7 +162,11 @@ class ConfigElement(tree.XmlTreeElement):
        characters themselves
     """
     try:
-      return self.xpath(paths)[0]
+      result = self.xpath(paths)[0]
+      if isinstance(result, types.NoneType):
+        return fallback
+      else:
+        return result
     except errors.XmlPathError:
       if not isinstance(fallback, tree.NoneObject):
         return fallback
