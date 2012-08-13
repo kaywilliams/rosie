@@ -92,7 +92,7 @@ class PublishSetupEventMixin:
     if self.ssh:
       if not keyfile.exists():
         try:
-          self.log(1, L1("'ssh key not found, generating"))
+          self.log(1, L1("ssh key not found, generating"))
           cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % keyfile 
           shlib.execute(cmd)
         except shlib.ShExecError, e:
