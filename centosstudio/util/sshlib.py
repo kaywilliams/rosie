@@ -64,6 +64,9 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
             paramiko.BadAuthenticationType), e:
       raise ConnectionFailedError(str(e), params)
     except (socket.error, paramiko.SSHException), e:
+      if "No existing session" in str(e): 
+        # connection closed, e.g. after being refused
+        raise ConnectionFailedError(str(e), params)
       if i == 0:
         max = Decimal(retries) * sleep / 60
         if callback is not None:
