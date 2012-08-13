@@ -240,10 +240,12 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
       if flags: t[id+'_flags'] = ' '.join(flags)
       triggers.append(t)
 
-      # add 'set -e' to bash trigger scripts for consistent behavior with
-      # non-trigger scripts
-      if inter is None or 'bash' in inter:
-        file.write_text('set -e\n' + file.read_text())
+      # add 'set -e' and installdir to bash trigger scripts for consistent
+      # behavior with non-trigger scripts
+      if inter is None or inter in ['/bin/bash', 'bin/sh']:
+        text = 'set -e\n'
+        text = text + 'installdir=%s\n' % self.installdir
+        file.write_text(text + file.read_text())
 
       # make the file executable
       file.chmod(0750)
@@ -437,7 +439,9 @@ fi
     if scripts:
       #write file for inclusion in rpm for end user debugging
       s = scripts[:]
+      s.insert(0, 'installdir=%s\n' % self.installdir)
       s.insert(0, 'set -e\n')
+      s.insert(0, '#!/bin/bash\n')
       file =  self.debugdir/'%s-script' % script_type
       file.dirname.mkdirs()
       file.write_lines(s)
@@ -456,8 +460,10 @@ fi
       script += item + '\n'
 
     if script:
-      script = 'set -e \n' + script # force the script to fail at runtime if 
-                                    # any item within it fails
+      set = 'set -e \n' # force the script to fail at runtime if 
+                        # any item within it fails
+      installdir = 'installdir=%s\n' % self.installdir
+      script = set + installdir + script 
       self.scriptdir.mkdirs()
       (self.scriptdir/id).write_text(script)
       return self.scriptdir/id
