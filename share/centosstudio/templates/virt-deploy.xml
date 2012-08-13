@@ -2,6 +2,7 @@
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- install and update a local virtual machine -->
+<macro id='file-size'>30</macro>
 
 <domain>local</domain>
 <kickstart><xi:include href='deploy/ks.cfg' parse='text'/></kickstart>

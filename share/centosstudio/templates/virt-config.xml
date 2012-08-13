@@ -8,33 +8,91 @@
 <requires>virt-manager</requires>
 <requires>virt-viewer</requires>
 <requires>/usr/bin/virsh</requires>
+
 <files destdir="/etc/NetworkManager/dispatcher.d" destname="99-centosstudio-virt-config" mode="755" content="text">
 #!/bin/bash
 
 # add dnsmasq as resolver for default libvirt virtual network
-[[ `grep '192.168.122.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
-nameserver 192.168.122.1
+[[ `grep '192.168.123.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
+nameserver 192.168.123.1
 }' /etc/resolv.conf
+</files>
 
-# configure default network as a subdomain of host domain. This allows dns
-# lookups of host.subdomain.domain. It also allows sendmail to send admin email
-# from root@host.subdomain.domain, which is both an understandable address and 
-# a "valid" internet email address. The latter is important, else smart email
-# hosts will reject email as being sent from an invalid sender domain.
+<files destdir="/etc/libvirt/qemu/networks" destname="centosstudio.tmpl" content="text">
+&lt;network>
+  &lt;name>centosstudio&lt;/name>
+  &lt;domain name='local.%domain'/>
+  &lt;bridge name="virbr1" />
+  &lt;forward/>
+  &lt;ip address="192.168.123.1" netmask="255.255.255.0">
+    &lt;dhcp>
+      &lt;range start="192.168.123.2" end="192.168.123.254" />
+    &lt;/dhcp>
+  &lt;/ip>
+&lt;/network>
+</files>
 
-domain=`hostname -d 2>/dev/null || echo ''`
-text="&lt;domain name='local.$domain'/&gt;"
-file="/etc/libvirt/qemu/networks/default.xml"
-if [[ ! `grep "$text" $file` ]]; then   # correct domain not in file
-  sed -i "/&lt;domain.*&gt;/d" $file    # remove incorrect domain, if exists
-  sed -i "/&lt;name.*&gt;/ a\  $text" $file  # add correct domain
+<script type="post">
+# run dispatcher.d script if it has changed
+file=/etc/NetworkManager/dispatcher.d/99-centosstudio-virt-config
+if [[ $changed = *$file* ]] ; then
+  $file
+fi
+
+# ensure consistent ip forwarding
+# wish we could do this using a sysctl.d script, but NetworkManager seems to
+# overwrite the value each time it is restarted, without calling sysctl.d
+# scripts.
+text="net.ipv4.ip_forward"
+file="/etc/sysctl.conf"
+if [[ `grep "$text" $file` = *0* ]] ; then
+  sed -i "s/^$text.*/$text = 1/" $file # modify file 
+  /bin/cp -r $file $installdir         # backup file for use during cleanup
   if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    virsh net-destroy default
-    virsh net-create $file
+    sysctl -q -p                         # update sysctl
   fi
 fi
-</files>
-<script type="post">
-service NetworkManager restart
+
+# Starting from template file, create centosstudio network as a subdomain of
+# host domain. This allows dns lookups of host.subdomain.domain. It also allows
+# sendmail to send admin email from root@host.subdomain.domain, which is both an
+# understandable address and a "valid" internet email address. The latter is
+# important, else smart email hosts will reject email as being sent from an
+# invalid sender domain.
+
+domain=`hostname -d 2>/dev/null || echo ''`
+path="/etc/libvirt/qemu/networks/centosstudio"
+virsh="/usr/bin/virsh"
+if [[ $changed = *\ $path.tmpl\ * ]] ; then
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    if virsh net-info centosstudio >/dev/null 2>&amp;1; then
+      virsh net-destroy centosstudio >/dev/null 2>&amp;1 || true
+      virsh net-undefine centosstudio >/dev/null
+    fi
+  fi
+  /bin/cp -f $path.tmpl $path.xml
+  sed -i "s/%domain/$domain/" $path.xml
+  /bin/ln -sf $path.xml `dirname $path`/autostart
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    virsh net-define $path.xml >/dev/null
+    virsh net-start centosstudio >/dev/null
+  fi
+fi
+</script>
+
+<script type='postun'>
+if [[ $1 = 0 ]]; then
+  # revert /etc/sysctl.conf if necessary 
+  text="net.ipv4.ip_forward"
+  file="/etc/sysctl.conf"
+  if [ -f $installdir/sysctl.conf ] ; then
+    if diff $file $installdir/sysctl.conf ; then 
+      /bin/cp -f $installdir/sysctl.conf $file
+      sed -i "s/^$text.*/$text = 0/" $file # modify file 
+      sysctl -q -p                         # update sysctl
+      /bin/rm -f $installdir/sysctl.conf   # remove backup file 
+    fi
+  fi
+fi
 </script>
 </config-rpm>

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<macro id="name">srpmbuild</macro>
+<macro id="fullname">RPM Build Virtual Machine</macro>
 <macro id="version">6</macro>
 <macro id="arch">x86_64</macro>
 
 <main>
-<name>srpmbuild</name>
-<fullname>RPM Build Virtual Machine</fullname>
+<name>%{name}</name>
+<fullname>%{fullname}</fullname>
 <version>%{version}</version>
 <arch>%{arch}</arch>
 </main>
@@ -36,6 +38,7 @@
 <xml id="packages-6"><group>buildsys-build</group></xml>
 
 <publish>
+<macro id='file-size'>10</macro>
 <password>srpmbuild</password>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
@@ -48,15 +51,6 @@ skipx
 <triggers>
 kickstart install_scripts post_install_scripts
 </triggers>
-
-<script id='virt-install' type='install'>
-virt-install --name %{fqdn} --ram 1000 \
-             --file /var/lib/libvirt/images/%{fqdn}.img \
-             --file-size 10 \
-             --location %{url} \
-             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
-             --noreboot
-</script>
 
 <script id='rpmbuild' type='post' ssh='true' comes-after='update' comes-before='check-kernel, shutdown'>
 #!/bin/bash
@@ -128,10 +122,7 @@ finally:
 </script>
 
 <xi:include href="virt-deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='kickstart' and
-                                    name()!='script'])"/>
-<xi:include href="virt-deploy.xml"
-            xpointer="xpointer(/*/script[@id!='virt-install'])"/>
+            xpointer="xpointer(/*/*[name()!='kickstart'])"/>
 </publish>
 
 </repo>
