@@ -41,9 +41,8 @@ class DeployMixinTestCase:
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
-    install = deploy.getxpath("/*/script[@id='virt-install']")
-    text = install.getxpath("text()").replace('--file-size 30', '--file-size 6')
-    install.text = text
+    macro = deploy.getxpath("/*/macro[@id='file-size']")
+    macro.text = '6' 
 
     # update packages
     pkgcontent=etree.XML("""
