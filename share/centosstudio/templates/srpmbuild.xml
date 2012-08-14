@@ -41,7 +41,7 @@
 <macro id='file-size'>10</macro>
 <password>srpmbuild</password>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
-<remote-url>http://192.168.122.1/repos/.srpmbuild</remote-url>
+<remote-url>http://192.168.123.1/repos/.srpmbuild</remote-url>
 
 <kickstart>
 <xi:include href="deploy/ks.cfg" parse="text"/>
