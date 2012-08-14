@@ -153,7 +153,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     self.md5file     = self.installdir/'md5sums'
 
     # add files for synchronization to the build folder
-    self.io.add_xpath('files', self.srcfiledir) 
+    self.io.add_xpath('files', self.srcfiledir, allow_text=True) 
 
     # add triggers for synchronization to scripts folder
     for script in self.config.xpath('trigger', []):
