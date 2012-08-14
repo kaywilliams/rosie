@@ -131,9 +131,11 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
     return mgcache[key]
 
   def touri(self):
-    # think about this...
-    return self.__class__(self)
-    #raise ValueError("MirrorPaths cannot be converted into a valid URI")
+    if len(self.mirrorgroup) == 1:
+      return self.__class__(self.realm) / self.__class__(self.basename)
+    else:
+      return self.__class__(self)
+      #raise ValueError("MirrorPaths cannot be converted into a valid URI")
 
 class MirrorlistEmptyError(ValueError):
   def __init__(self, filename):

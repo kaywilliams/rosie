@@ -33,11 +33,14 @@ from centosstudio.util.difftest.filesdiff import DiffTuple
 
 from centosstudio.util.pps.constants import TYPE_DIR
 
-from centosstudio.errors    import (CentOSStudioEventError, CentOSStudioIOError, RhnSupportError,
-                            assert_file_readable, assert_file_has_content)
-from centosstudio.cslogging   import L1, L2
-from centosstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
-from centosstudio.validate  import InvalidConfigError
+from centosstudio.errors    import (CentOSStudioEventError,
+                                    CentOSStudioIOError, RhnSupportError,
+                                    assert_file_readable, 
+                                    assert_file_has_content)
+from centosstudio.cslogging    import L1, L2
+from centosstudio.constants    import BOOLEANS_TRUE, BOOLEANS_FALSE
+from centosstudio.event.fileio import InputFileError
+from centosstudio.validate     import InvalidConfigError
 
 from centosstudio.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
 from centosstudio.util.repo.repo     import (YumRepo, RepoContainer, NSMAP, 
@@ -163,6 +166,15 @@ class CentOSStudioRepoGroup(CentOSStudioRepo):
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
         raise RhnSupportError()
+
+    # first make sure we can access the repomdfile location (e.g. no network or
+    # permissions errors)
+    try:
+      (self.url/self.repomdfile).stat()
+    except pps.Path.error.PathError, e:
+      if e.errno != errno.ENOENT: # report errors other than "does not exist"
+        raise InputFileError(errno=e.errno, message=e.strerror, 
+                             file=self.url.realm/self.repomdfile) 
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos

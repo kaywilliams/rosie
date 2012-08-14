@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import re
 import unittest
 
 from lxml import etree
@@ -41,8 +42,10 @@ class DeployMixinTestCase:
       pps.path(__file__).dirname.abspath()).getroot()
 
     # update default virt-install image size
-    macro = deploy.getxpath("/*/macro[@id='file-size']")
-    macro.text = '6' 
+    install = deploy.getxpath("/*/script[@id='virt-install']")
+    text = install.getxpath("text()")
+    # bad, could relace size arguments in options other than '--disk'
+    install.text = re.sub('size=[0-9]*', 'size=6', text)
 
     # update packages
     pkgcontent=etree.XML("""

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import errno
+
 from centosstudio.util import pps
 from centosstudio.util import rxml
 from centosstudio.util import shlib 
@@ -95,21 +97,22 @@ class IOObject(object):
     try:
       f.stat()
     except pps.Path.error.PathError, e:
+      if isinstance(f, pps.Path.mirror.MirrorPath):
+        f = f.touri()        
       if xpath is not None:
-        if allow_text:
+        if allow_text and e.errno == errno.ENOENT: # file not found
           suggest = ("If you are providing text rather than a file, add the "
                      "attribute 'content=\"text\"' to the '%s' "
                      "element. " % xpath)
         else:
           suggest = ""
-        raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                      file=f, suggest=suggest, xpath=xpath)
+        raise XpathInputFileError(errno=e.errno, message=e.strerror, 
+                                  file=f, suggest=suggest, xpath=xpath)
       else:
-        raise MissingInputFileError(errno=e.errno, message=e.strerror, 
-                                    file=f)
+        raise InputFileError(errno=e.errno, message=e.strerror, file=f)
 
   def add_item(self, src, dst, id=None, mode=None, content='file',
-               allow_text='false', xpath=None):
+               allow_text=False, xpath=None):
     """
     Adds source/destination pairs to list of possible files to be processed.
 
@@ -345,11 +348,11 @@ class TransactionData(object):
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
-class MissingXpathInputFileError(CentOSStudioEventError):
-  message = ("Cannot find the file or folder '%(file)s'. Check that it exists "
-             "and that the '%(xpath)s' element is correct. %(suggest)s"
+class XpathInputFileError(CentOSStudioEventError):
+  message = ("Error accessing the specified file or folder '%(file)s'. Check "
+             "that the '%(xpath)s' element is correct. %(suggest)s"
              "[errno %(errno)d] %(message)s.")
 
-class MissingInputFileError(CentOSStudioEventError):
-  message = ("Cannot find the specified file or folder '%(file)s'. "
+class InputFileError(CentOSStudioEventError):
+  message = ("Error accessing the specified file or folder '%(file)s'. "
              "[errno %(errno)d] %(message)s.")

@@ -24,12 +24,15 @@ from centosstudio.util.pps.Path.remote   import RemotePath_Stat
 
 from centosstudio.util.pps.PathStat.http import HttpPathStat
 
+from error import error_transform
+
 # if system doesn't have up2date_client; raises ImportError which is excepted
 import sys
 sys.path.insert(0, '/usr/share/rhn')
 from up2date_client import config as rhnconfig
 from up2date_client import rhnserver
 from up2date_client import up2dateAuth
+from up2date_client import up2dateErrors 
 
 # set up default config file
 rhnconfig.cfg = rhnconfig.Config(None)
@@ -76,6 +79,11 @@ class RhnPath_Stat(RemotePath_Stat):
   def _mkstat(self, populate=False):
     # convert self to the 'real' path and return that stat
     return self.touri()._mkstat(populate=populate)
+
+  _protect = ['_login', '_mkstat']
+
+for fn in RhnPath_Stat._protect:
+  setattr(RhnPath_Stat, fn, error_transform(getattr(RhnPath_Stat, fn)))
 
 # cache of sessions, keyed by channel
 sessions = {}

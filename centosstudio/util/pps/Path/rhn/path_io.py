@@ -18,8 +18,18 @@
 
 from centosstudio.util.pps.Path.http import HttpPath_IO
 
+from error import error_transform
+
 class RhnPath_IO(HttpPath_IO):
 
   def open(self, *args, **kwargs):
     # convert self to the 'real' path and return that
     return self.touri().open(*args, **kwargs)
+
+  _protect = ['utime', 'chmod', 'chown', 'rename', 'mkdir', 'rmdir', 'mknod',
+              'touch', 'remove', 'unlink', 'link', 'symlink', 'readlink',
+              'open']
+
+
+for fn in RhnPath_IO._protect:
+  setattr(RhnPath_IO, fn, error_transform(getattr(RhnPath_IO, fn)))

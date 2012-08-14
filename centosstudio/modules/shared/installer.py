@@ -24,7 +24,7 @@ from centosstudio.util import pps
 from centosstudio.callback     import TimerCallback
 from centosstudio.errors       import CentOSStudioEventError
 from centosstudio.cslogging    import L1
-from centosstudio.event.fileio import MissingInputFileError
+from centosstudio.event.fileio import InputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 
@@ -98,7 +98,7 @@ class ImageModifyMixin:
   def add_or_create_image(self):
     try:
       self._add_image()
-    except (MissingInputFileError, InvalidImageFormatError):
+    except (InputFileError, InvalidImageFormatError):
       self._create_image()
   def create_image(self):
     self._create_image()

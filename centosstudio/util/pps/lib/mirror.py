@@ -50,7 +50,7 @@ def trymirrors(meth):
           try:
             return meth(self, mi//self.path, *args, **kwargs)
           except PathError, e:
-            if e.errno in HOSTUNAVAIL:
+            if e.errno in HOSTUNAVAIL and len(self.mirrorgroup) > 1:
               self.mirrorgroup.disable_mirror() # disable failed mirror
               continue
             else:
