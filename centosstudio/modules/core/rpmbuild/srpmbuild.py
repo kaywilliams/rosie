@@ -28,6 +28,7 @@ from centosstudio.callback     import TimerCallback
 from centosstudio.cslogging    import MSG_MAXWIDTH, L0, L1, L2
 from centosstudio.errors       import (CentOSStudioError,
                                        CentOSStudioEventError,
+                                       MissingIdError,
                                        DuplicateIdsError)
 from centosstudio.event        import Event, CLASS_META
 from centosstudio.main         import Build
@@ -406,7 +407,9 @@ def get_module_info(ptr, *args, **kwargs):
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
 
     # convert user provided id to a valid class name
-    id = config.getxpath('@id')
+    id = config.getxpath('@id', None)
+    if id == None:
+      raise MissingIdError(element='srpmbuild')
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 

@@ -126,9 +126,13 @@ class RhnSupportError(RuntimeError, CentOSStudioEventError):
              "'rhn-client-tools' packages from the centosstudio software repo "
              "at www.centosstudio.org" )
 
+class MissingIdError(CentOSStudioEventError):
+  message = ("Validation Error: Missing 'id' attribute while validating "
+             "'%(element)s' elements.")
+
 class DuplicateIdsError(CentOSStudioEventError):
-  message = ("Error: Duplicate ids found while validating '%(element)s' "
-             "elements. The duplicate id is '%(id)s'")
+  message = ("Validation Error: Duplicate ids found while validating "
+             "'%(element)s' elements. The duplicate id is '%(id)s'")
 
 class CentOSStudioEventErrorHandler:
   def _handle_Exception(self, e, event=''):

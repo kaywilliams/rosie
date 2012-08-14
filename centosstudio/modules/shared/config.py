@@ -17,7 +17,8 @@
 #
 import re
 
-from centosstudio.errors   import CentOSStudioEventError, DuplicateIdsError
+from centosstudio.errors   import (CentOSStudioEventError, MissingIdError,
+                                   DuplicateIdsError)
 from centosstudio.event    import Event, CLASS_META
 from centosstudio.util     import pps
 
@@ -36,7 +37,9 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
   for config in ptr.definition.xpath(xpath, []):
 
     # convert user provided id to a valid class name
-    rpmid = config.getxpath('@id')
+    rpmid = config.getxpath('@id', None)
+    if rpmid == None: 
+      raise MissingIdError(element=modname)
     name = re.sub('[^0-9a-zA-Z_]', '', rpmid).capitalize()
     setup_name = '%sConfigRpmSetupEvent' % name
     base_name = '%sConfigRpmEvent' % name
