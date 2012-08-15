@@ -27,22 +27,17 @@
           </row>
 
           <row>
-            <entry>/usr/lib/python<varname>$version</varname>/site-packages/centosstudio</entry>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/centosstudio/</entry>
 
-            <entrytbl cols="1">
-              <tbody>
-                <row>
-                  <entry>Python code for <application
-                  class="software">CentOS Studio</application>, where
-                  <varname>$version</varname> is the <application
-                  class="software">Python</application> version.</entry>
-                </row>
-              </tbody>
-            </entrytbl>
+            <entry>
+            Python code for <application class="software">CentOS
+            Studio</application>, where <varname>$version</varname> is the
+            <application class="software">Python</application> version.
+            </entry>
           </row>
 
           <row>
-            <entry>/usr/share/doc/centosstudio-<varname>$version</varname></entry>
+            <entry>/usr/share/doc/centosstudio-<varname>$version/</varname></entry>
 
             <entry>Documentation for <application
             class="software">CentOS Studio</application>, where
@@ -51,13 +46,13 @@
           </row>
 
           <row>
-            <entry>/usr/share/centosstudio/schemas</entry>
+            <entry>/usr/share/centosstudio/schemas/</entry>
 
             <entry>Relax NG schemas for repository definition validation.
             </entry>
           </row>
           <row>
-            <entry>/usr/share/centosstudio/templates</entry>
+            <entry>/usr/share/centosstudio/templates/</entry>
 
             <entry>
             Templates for use in definition creation. See the section on <xref
@@ -70,6 +65,15 @@
             <entry>CentOS Studio stores cached content in this folder. See
             the centosstudio and centosstudio.conf man pages for cache-related
             options.
+            </entry>
+          </row>
+
+          <row>
+            <entry>/var/lib/centosstudio/</entry>
+
+            <entry>
+            Location where CentOS Studio stores variable data including data
+            for troubleshooting installed config-rpm and deployment scripts.
             </entry>
           </row>
 

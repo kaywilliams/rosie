@@ -88,8 +88,7 @@
       <listitem>
       Place copies of user-provided scripts in a troubleshooting folder on
       client machines. The name of the folder is
-      <filename>/var/lib/centosstudio/config/%name/RPMID</filename>, where
-      %{name} is specified by <xref linkend='main-name'/> and
+      <filename>/var/lib/centosstudio/config/RPMID</filename>, where
       <varname>RPMID</varname> is specified by the <emphasis>@id</emphasis>
       attribute. Files in this folder assist with troubleshooting "scriptlet
       failed" errors during installation and updates of the rpm. Within the
@@ -280,10 +279,11 @@ FULLNAME repository.
         <para>
         <xref linkend='content-capability'/>, typically the name of an RPM
         package, that must be removed from the client machines prior to
-        installation of the config-rpm. Useful for removing conflicting or undesirable
-        software from client machines, particularly for machines without the YUM
-        sync plugin.  See also the <xref linkend="release-rpm-updates"/> element
-        for information on the YUM sync plugin.
+        installation of the config-rpm. Useful for removing conflicting or
+        undesirable software from client machines, particularly for machines
+        without the YUM sync plugin.  See also the <xref
+        linkend="release-rpm-updates"/> element for information on the YUM sync
+        plugin.
         </para>
 
         <para>
@@ -391,6 +391,23 @@ FULLNAME repository.
         </para>
 
         <para>
+        To facilitate debugging, CentOS Studio automatically adds the command
+        <command>set -e</command> at the top of each script. This causes the
+        entire script to exit immediately if any internal command exits with a
+        non-zero status. See <command>man set</command> for additional
+        information on the <command>-e</command> option.
+        </para>
+
+        <para>
+        To provide a convenient location for scripts to store data related to
+        install, uninstall or update of the config-rpm, CentOS Studio provides
+        a variable, <varname>$installdir</varname>, to each script. The
+        <varname>$installdir</varname> variable specifies the location where
+        variable data for the config-rpm is installed,
+        <filename>/var/cache/centosstudio/config/RPMID</filename>.  
+        </para>
+
+        <para>
         Can occur zero or more times.
         </para>
 
@@ -407,11 +424,14 @@ FULLNAME repository.
         by Eric Foster-Johnson.
         </para>
 
-        <para>Provides a runtime variable <emphasis>$changed</emphasis> for use
-        by user-provided scripts. The <emphasis>$changed</emphasis> variable
-        contains a string-separated list of files, currently or previously
-        installed by the configuration package, that meet one or more of the
-        following criteria:
+        <para>
+        For <emphasis>post</emphasis>-type scripts, CentOS Studio provides an
+        additional runtime variable, <emphasis>$changed</emphasis>.  This
+        variable can be used to perform conditional actions based on the status
+        of files installed by the config-rpm. The <emphasis>$changed</emphasis>
+        variable contains a string-separated list of files, currently or
+        previously installed by the configuration package, that meet one or
+        more of the following criteria:
 
         <itemizedlist>
         <listitem>added since the last configuration package update</listitem>
@@ -473,6 +493,16 @@ chkconfig smb on
         with the same result. See the section on <emphasis>Configuration
         Packages</emphasis> in the <emphasis>CentOS Studio User
         Manual</emphasis> for more information on writing idempotent scripts.
+        </para>
+
+        <para>
+        As with regular scripts, CentOS Studio adds the <command>set
+        -e</command> command and provides the <varname>$installdir</varname>
+        variable to each trigger script. This is only done, however, for
+        trigger scripts with the <emphasis>@interpreter</emphasis> attribute
+        set to <filename>/bin/sh</filename> (the default) or
+        <filename>/bin/bash</filename>. See the <xref
+        linkend='config-rpms-script'/> element for additional information.
         </para>
 
         <para>

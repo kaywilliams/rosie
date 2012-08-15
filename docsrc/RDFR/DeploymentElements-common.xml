@@ -820,7 +820,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>     
-&lt;boot-options&gt;lang=el_GR keymap=gr&lt;/boot-options&gt;</programlisting>
+&lt;boot-options&gt;lang=el_GR keymap=gr ksdevice=eth0&lt;/boot-options&gt;</programlisting>
       </informalexample>
 
       </listitem>
