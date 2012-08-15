@@ -197,13 +197,11 @@ class ConfigElement(tree.XmlTreeElement):
             if len(subresult) > 0:
               result.append(' '.join(subresult))
           if result: break
-      #elif 'text()' in p:
-      #  result = tree.XmlTreeElement.xpath(self, p)
-      #  if len(result) > 0:
-      #    result = tree.XmlTreeElement.xpath(self,p)
-      #    if len(result) > 0:
-      #      result = [ ' '.join(result) ]
-      #    if result: break
+      elif 'text()' in p:
+        result = tree.XmlTreeElement.xpath(self, p)
+        if len(result) > 0:
+          result = [ ' '.join(result) ]
+        if result: break
       else:
         result = tree.XmlTreeElement.xpath(self, p)
         if result: break
