@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.52
+Version: 1.53
 Release: 1%{?dist}
 Summary: Platform for deploying CentOS and RHEL-based systems and applications
 
@@ -72,6 +72,17 @@ Enterprise Linux. See http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
+* Wed Aug 15 2012 Kay Williams <kay@centosstudio.org> - 1.0.53-1
+- improvements to deploy script output; i.e. local scipt output now async
+- fixes to virt-deploy.xml, et al., to allow cron execution
+- error improvements for missing/unavailable files
+- added $installdir convenience variable for config-rpm scripts and triggers
+- modified virt-deploy.xml, et al., to create virtual machines using a 'centosstudio' network, rather than the default virtual network
+- modified srpmbuild.xml and deploy.xml to use common virt-install script
+- fixed absolute path resolution for srpmbuild templates
+- allow macro definitions within text elements, e.g. deploy scripts
+- updated documentation and test cases per above
+
 * Mon Jul 30 2012 Kay Williams <kay@centosstudio.org> - 1.0.52-1
 - Beta 1 Build
 
