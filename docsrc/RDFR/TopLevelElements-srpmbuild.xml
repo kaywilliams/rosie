@@ -310,6 +310,14 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       element.
       </para>
 
+      <note>
+      User-provided srpmbuild templates should provide a unique value for the
+      <emphasis>/main/name</emphasis> element of each template. This results in
+      additional srpmbuild machines (one per template). However, it also
+      prevents a single srpmbuild machine from being reinstalled each time an
+      srpm changes.
+      </note>
+
       <para>
       The default template describes one possible implementation for an SRPM
       build machine. Using this template, CentOS Studio creates virtual SRPM
