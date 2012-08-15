@@ -137,10 +137,11 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
         default = results[0]
         break
 
-    self.template = pps.path(self.config.getxpath('/*/%s/template/text()'
+    self.template = self.io.abspath(
+                      pps.path(self.config.getxpath('/*/%s/template/text()'
                       % self.moduleid,
-                      self.config.getxpath('template/text()', default))
-                      ).abspath()
+                      self.config.getxpath('template/text()', default)))
+                      )
     self.io.validate_input_file(self.template)
     self.DATA['input'].append(self.template)
 
