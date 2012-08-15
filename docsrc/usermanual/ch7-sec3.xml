@@ -259,7 +259,7 @@
   machine and the test machine.  When using the <filename>test.xml</filename>
   template, specifically, the baseurl should be a location on the local virtual
   network, e.g.
-  <filename>http://192.168.122.1/repos/package/repoid</filename>.
+  <filename>http://192.168.123.1/repos/package/repoid</filename>.
   </listitem>
 
   <listitem>
@@ -313,7 +313,7 @@
 &lt;macro id='version'>6&lt;/macro>
 &lt;macro id='arch'>x86_64&lt;/macro>
 &lt;macro id='password'>password&lt;/macro>
-&lt;macro id='baseurl'>http://192.168.122.1/repos/package/%{repo}-%{version}-%{arch}/&lt;/macro>
+&lt;macro id='baseurl'>http://192.168.123.1/repos/package/%{repo}-%{version}-%{arch}/&lt;/macro>
 
 &lt;xi:include href='path/to/test.xml' xpointer="xpointer(/*/main)"/>
 
