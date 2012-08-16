@@ -1,8 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='check-kernel' type='post'>
-#!/bin/bash
-if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
-  echo "running kernel differs from installed - restarting machine"
-  shutdown -r now
-fi
+<script id='check-kernel' type='post' comes-after='update' comes-before='poweroff'>
+#!/usr/bin/python
+import sys
+import yum
+
+from subprocess import call, Popen, PIPE, STDOUT
+
+yb = yum.YumBase()
+yb.preconf.init_plugins = False 
+yb.setCacheDir()
+
+ts = yb.rpmdb.readOnlyTS()
+running_kernel = yum.misc.get_running_kernel_pkgtup(ts)
+arch = running_kernel[1]
+latest_kernel = yb.pkgSack.returnNewestByNameArch(('kernel', arch))[0].pkgtup
+
+if running_kernel != latest_kernel:
+  n, a, e, v, r = latest_kernel
+  kernel_path = '/boot/vmlinuz-' + '.'.join([v,r])
+  p = Popen(['/sbin/grubby', '--default-kernel'], 
+             stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+  default_kernel = p.communicate()[0].rstrip()
+  result = p.returncode
+
+  if result != 0:
+    sys.exit("ERROR: check-kernel was unable to determine the default boot kernel. Check your boot configuration manually to ensure the latest kernel '%s' is the default, and restart the machine." % '.'.join([n,v,r,a]))
+
+  elif '.'.join([v, r, a]) not in default_kernel:
+    sys.exit("ERROR: check-kernel has determined that the latest kernel '%s' is not the default boot kernel. Uninstall earlier kernel versions manually, and restart the machine." % '.'.join([n,v,r,a]))
+
+  else:
+    print "Running kernel differs from installed - restarting machine"
+    subprocess.call(['/sbin/shutdown', '-r', 'now'])
 </script>
