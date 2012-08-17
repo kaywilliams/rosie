@@ -152,6 +152,9 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
+    # resolve module macros
+    self.config.resolve_macros('.', {'%{installdir}': self.installdir})
+
     # add files for synchronization to the build folder
     self.io.add_xpath('files', self.srcfiledir, allow_text=True) 
 
@@ -243,11 +246,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
       if flags: t[id+'_flags'] = ' '.join(flags)
       triggers.append(t)
 
-      # add 'set -e' and installdir to bash trigger scripts for consistent
-      # behavior with non-trigger scripts
+      # add 'set -e' to bash trigger scripts for consistent behavior with
+      # regular scripts
       if inter is None or inter in ['/bin/bash', 'bin/sh']:
         text = 'set -e\n'
-        text = text + 'installdir=%s\n' % self.installdir
         file.write_text(text + file.read_text())
 
       # make the file executable
@@ -442,7 +444,6 @@ fi
     if scripts:
       #write file for inclusion in rpm for end user debugging
       s = scripts[:]
-      s.insert(0, 'installdir=%s\n' % self.installdir)
       s.insert(0, 'set -e\n')
       s.insert(0, '#!/bin/bash\n')
       file =  self.debugdir/'%s-script' % script_type
@@ -465,8 +466,7 @@ fi
     if script:
       set = 'set -e \n' # force the script to fail at runtime if 
                         # any item within it fails
-      installdir = 'installdir=%s\n' % self.installdir
-      script = set + installdir + script 
+      script = set + script 
       self.scriptdir.mkdirs()
       (self.scriptdir/id).write_text(script)
       return self.scriptdir/id
