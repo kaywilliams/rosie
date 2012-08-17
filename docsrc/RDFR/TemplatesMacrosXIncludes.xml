@@ -140,12 +140,12 @@
     </para>
     
     <para>
-    Certain modules also provide <emphasis>module</emphasis> run-time
-    macros. These modules include <emphasis>srpmbuild</emphasis>,
-    <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
-    <emphasis>publish</emphasis>. See the chapters on <xref
-    linkend="srpmbuild"/> and <xref linkend="deployment-elements"/> for more
-    information on these macros.
+    Certain modules also provide <emphasis>module</emphasis> run-time macros.
+    These modules include <emphasis>config-rpms</emphasis>,
+    <emphasis>srpmbuild</emphasis>, <emphasis>test-install</emphasis>,
+    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. See the
+    chapters on <xref linkend="config-rpms"/>, <xref linkend="srpmbuild"/> and
+    <xref linkend="deployment-elements"/> for more information on these macros.
     </para>
     
     <section>

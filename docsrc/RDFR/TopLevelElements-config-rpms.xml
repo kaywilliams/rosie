@@ -17,6 +17,64 @@
     Creates RPMs used to install and update repository-specific configuration
     on client machines.
     </para>
+
+    <para>
+    RPMs defined within the config-rpms element have three primary functions.
+    </para>
+    
+    <itemizedlist>
+    <listitem>
+    Install user-provided configuration files specified via
+    <emphasis>files</emphasis> elements. 
+    </listitem>
+    
+    <listitem>
+    Run user-provided scripts specified via <emphasis>script</emphasis> and
+    <emphasis>trigger</emphasis> elements.
+    </listitem>
+    
+    <listitem>
+    Place copies of user-provided scripts in a troubleshooting folder on client
+    machines. The name of the folder is
+    <filename>/var/lib/centosstudio/config/RPMID</filename>, where
+    <varname>RPMID</varname> is specified by the <emphasis>@id</emphasis>
+    attribute of the config-rpm. Files in this folder assist with
+    troubleshooting "scriptlet failed" errors during installation and updates
+    of the rpm. Within the troubleshooting folder, scripts are named according
+    to the script type, e.g.  <filename>post-script</filename>.  Triggers are
+    similarly named, but they also include the name provided in the
+    <emphasis>@trigger</emphasis> attribute, e.g.
+    <filename>triggerin-drupal-script</filename>. See the <emphasis>CentOS
+    Studio User Guide</emphasis> for more information on testing and
+    troubleshooting client machine installation and updates.
+    </listitem>
+    </itemizedlist>
+  
+    <para>
+    The file name for a created config-rpm is in the following format, where
+    <varname>RPMID</varname> is taken from the <emphasis>@id</emphasis>
+    attribute, %{version} is a global run-time macro, RELEASE is computed at
+    run time, and DIST is an identifier for the base operating system
+    distribution (e.g. 'el6'). See the introduction to the <xref
+    linkend='release-rpm'/> element for additional information on release
+    numbers and the <xref linkend='repository-data-file'/>. 
+    </para>
+
+    <informalexample>
+    <programlisting>
+RPMID-%{version}-RELEASE.DIST.noarch.rpm</programlisting>
+    </informalexample>
+
+    <para>
+    For example, for a config-rpm with the id "samba-server-config", and a
+    base operating system distribution of CentOS 5, the first time the rpm is
+    generated, the file name would be as follows:
+    </para>
+
+    <informalexample>
+    <programlisting>
+samba-server-config-5-1.el5.noarch.rpm</programlisting>
+    </informalexample>
   </section>
 
   <section>
@@ -53,6 +111,37 @@
 &lt;/config-rpms&gt;]</programlisting>
   </section>
 
+  <section id='installdir-macro' xreflabel='installdir'>
+  <title>Macros</title>
+
+  <para>
+  CentOS Studio provides one <emphasis>module run-time macro</emphasis> to
+  config-rpms: <emphasis>%{installdir}</emphasis>.
+  </para>
+
+  <para>
+  The <emphasis>%{installdir}</emphasis> macro specifies the location where
+  variable data for the config-rpm is installed, specifically
+  <filename>/var/cache/centosstudio/config/RPMID</filename>, where RPMID is
+  taken from the <emphasis>@id</emphasis> of the config-rpm element. This can
+  be useful for scripts specified within <xref linkend='config-rpms-files'/>,
+  <xref linkend='config-rpms-script'/> and <xref linkend='config-rpms-trigger'/>
+  elements, as it provides these scripts with a convenient location for storing
+  their own runtime data.
+  </para>
+
+  <para>
+  The <filename>ssh-config.xml</filename> file located within the <xref
+  linkend="templates"/> folder shows an example of using the
+  <emphasis>%{installdir}</emphasis> macro.
+  </para>
+
+  <para>
+  See the <xref linkend='macros'/> section for more information on macros
+  generally.
+  </para>
+  </section>
+
   <section>
     <title>
     Elements
@@ -66,67 +155,10 @@
 
       <listitem>
       <para>
-      Container element identifying a config rpm to be created by CentOS
-      Studio.
+      Container element identifying an individual config rpm to be created by
+      CentOS Studio.
       </para>
 
-      <para>
-      RPMs defined within the config-rpms element have three primary functions.
-      </para>
-      
-      <itemizedlist>
-      <listitem>
-      Install user-provided configuration files specified via
-      <emphasis>files</emphasis> elements. 
-      </listitem>
-      
-      <listitem>
-      Run user-provided scripts specified via <emphasis>script</emphasis> and
-      <emphasis>trigger</emphasis> elements.
-      </listitem>
-      
-      <listitem>
-      Place copies of user-provided scripts in a troubleshooting folder on
-      client machines. The name of the folder is
-      <filename>/var/lib/centosstudio/config/RPMID</filename>, where
-      <varname>RPMID</varname> is specified by the <emphasis>@id</emphasis>
-      attribute. Files in this folder assist with troubleshooting "scriptlet
-      failed" errors during installation and updates of the rpm. Within the
-      troubleshooting folder, scripts are named according to the script type,
-      e.g.  <filename>post-script</filename>.  Triggers are similarly named,
-      but they also include the name provided in the
-      <emphasis>@trigger</emphasis> attribute, e.g.
-      <filename>triggerin-drupal-script</filename>. See the <emphasis>CentOS
-      Studio User Guide</emphasis> for more information on testing and
-      troubleshooting client machine installation and updates.
-      </listitem>
-      </itemizedlist>
-  
-      <para>
-      The file name for the created config-rpm is in the following format,
-      where <varname>RPMID</varname> is taken from the <emphasis>@id</emphasis>
-      attribute, %{version} is a global run-time macro, RELEASE is computed at
-      run time, and DIST is an identifier for the base operating system
-      distribution (e.g. 'el6'). See the introduction to the <xref
-      linkend='release-rpm'/> element for additional information on release
-      numbers and the <xref linkend='repository-data-file'/>. 
-      </para>
-
-      <informalexample>
-      <programlisting>
-RPMID-%{version}-RELEASE.DIST.noarch.rpm</programlisting>
-      </informalexample>
-
-      <para>
-      For example, for a config-rpm with the id "samba-server-config", and a
-      base operating system distribution of CentOS 5, the first time the rpm is
-      generated, the file name would be as follows:
-      </para>
-
-      <informalexample>
-      <programlisting>
-samba-server-config-5-1.el5.noarch.rpm</programlisting>
-      </informalexample>
       <para>
       <emphasis role='strong'>Attributes</emphasis>
       </para>
@@ -214,7 +246,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpm-repo" 
-                    xreflabel="config-rpm/repo">
+                    xreflabel="repo">
         <term>
         repo
         </term>
@@ -235,7 +267,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpms-requires" 
-                    xreflabel="config-rpms/rpm/requires">
+                    xreflabel="requires">
         <term>
         requires
         </term>
@@ -270,7 +302,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpms-obsoletes" 
-                    xreflabel="config-rpms/rpm/obsoletes">
+                    xreflabel="obsoletes">
         <term>
         obsoletes
         </term>
@@ -294,7 +326,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpms-files"
-                    xreflabel="config-rpms/rpm/files">
+                    xreflabel="files">
         <term>
         files
         </term>
@@ -370,7 +402,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpms-script"
-                    xreflabel="config-rpms/rpm/script">
+                    xreflabel="script">
         <term>
         script
         </term>
@@ -399,12 +431,8 @@ FULLNAME repository.
         </para>
 
         <para>
-        To provide a convenient location for scripts to store data related to
-        install, uninstall or update of the config-rpm, CentOS Studio provides
-        a variable, <varname>$installdir</varname>, to each script. The
-        <varname>$installdir</varname> variable specifies the location where
-        variable data for the config-rpm is installed,
-        <filename>/var/cache/centosstudio/config/RPMID</filename>.  
+        Scripts that create and store data during runtime operation may wish
+        to use the <xref linkend='installdir-macro'/> macro.
         </para>
 
         <para>
@@ -476,7 +504,7 @@ chkconfig smb on
       </varlistentry>
 
       <varlistentry id="config-rpms-trigger"
-                    xreflabel="config-rpms/rpm/trigger">
+                    xreflabel="trigger">
         <term>
         trigger
         </term>
@@ -497,12 +525,16 @@ chkconfig smb on
 
         <para>
         As with regular scripts, CentOS Studio adds the <command>set
-        -e</command> command and provides the <varname>$installdir</varname>
-        variable to each trigger script. This is only done, however, for
-        trigger scripts with the <emphasis>@interpreter</emphasis> attribute
-        set to <filename>/bin/sh</filename> (the default) or
+        -e</command> command to each trigger script. This is only done,
+        however, for trigger scripts with the <emphasis>@interpreter</emphasis>
+        attribute set to <filename>/bin/sh</filename> (the default) or
         <filename>/bin/bash</filename>. See the <xref
         linkend='config-rpms-script'/> element for additional information.
+        </para>
+
+        <para>
+        Triggers that create and store data during runtime operation may wish
+        to use the <xref linkend='installdir-macro'/> macro.
         </para>
 
         <para>
