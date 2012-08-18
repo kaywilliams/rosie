@@ -169,8 +169,8 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       raise CentOSStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.repoid  = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
-                                      (self.name, self.version, self.arch))
+    self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
+                                          (self.name, self.version, self.arch))
 
     # validate initial variables
     for name in VALIDATE_DATA:
@@ -472,16 +472,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     # setup datfile name
-    datfn = '%s.dat' % self.definition.file
-    if '%{name}' in self.initial_macros:
-      datfn = '%s-%s' % (datfn, self.initial_macros['%{name}'])
-    if '%{version}' in self.initial_macros:
-      datfn = '%s-%s' % (datfn, self.initial_macros['%{version}'])
-    if '%{arch}' in self.initial_macros:
-      datfn = '%s-%s' % (datfn, self.initial_macros['%{arch}'])
-    if '%{id}' in self.initial_macros:
-      datfn = '%s.dat' % (self.initial_macros['%{id}'])
-    self.datfn = datfn
+    self.datfn = '%s.dat' % self.repoid
 
     cache_max_size = self.mainconfig.getxpath('/centosstudio/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
@@ -541,7 +532,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     di['arch']              = self.arch
     di['type']              = self.type
     di['basearch']          = self.basearch
-    di['repoid']        = self.repoid
+    di['repoid']            = self.repoid
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
     di['packagepath']       = 'Packages'
