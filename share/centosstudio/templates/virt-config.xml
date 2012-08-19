@@ -33,6 +33,11 @@ nameserver 192.168.123.1
 </files>
 
 <script type="post">
+# start libvirtd if not running
+if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+  ( pidof libvirtd || service libvirtd start ) >/dev/null
+fi
+
 # run dispatcher.d script if it has changed
 file=/etc/NetworkManager/dispatcher.d/99-centosstudio-virt-config
 if [[ $changed = *$file* ]] ; then
@@ -65,7 +70,6 @@ path="/etc/libvirt/qemu/networks/centosstudio"
 virsh="/usr/bin/virsh"
 if [[ $changed = *\ $path.tmpl\ * ]] ; then
   if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    ( pidof libvirtd || service libvirtd start ) >/dev/null
     if virsh net-info centosstudio >/dev/null 2>&amp;1; then
       virsh net-destroy centosstudio >/dev/null 2>&amp;1 || true
       virsh net-undefine centosstudio >/dev/null
@@ -75,7 +79,6 @@ if [[ $changed = *\ $path.tmpl\ * ]] ; then
   sed -i "s/%domain/$domain/" $path.xml
   /bin/ln -sf $path.xml `dirname $path`/autostart
   if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    ( pidof libvirtd || service libvirtd start ) >/dev/null
     virsh net-define $path.xml >/dev/null
     virsh net-start centosstudio >/dev/null
   fi
