@@ -85,20 +85,16 @@
         <listitem>
 	  <para>
           A file maintained by CentOS Studio to track CentOS Studio-generated
-          repository input data.  The file is created in the same folder as the
-          repository definition, using the same filename, with a
-          <filename>.dat</filename> file extension. For example, given the full
-          path to a repository definition:
+          repository input data. The file is created in the same folder as the
+          repository definition, with a filename consisting of the <xref
+          linkend='repository-id'/> with the <filename>.dat</filename> file
+          extension. For example, given the repository ID
+          "web-server-6-x86_64", CentOS Studio will create a repository
+          definition file as follows:
           </para>
 
           <para><informalexample>
-          <filename>/~/web-server.definition</filename></informalexample>
-          </para>
-
-          <para>CentOS Studio will create the data file as follows:</para>
-
-          <para><informalexample>
-          <filename>/~/web-server.definition.dat</filename></informalexample>
+          <filename>web-server-6-x86_64.dat</filename></informalexample>
           </para>
 
           <caution>

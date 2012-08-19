@@ -48,7 +48,7 @@
   <para>
   You will also notice that CentOS Studio has created a new <xref
   linkend='repository-data-file'/>,
-  <filename>web-server.definition.dat</filename>, in the same location as you
+  <filename>web-server-5-i386.dat</filename>, in the same location as you
   repository definition. Take care not to delete this file as it contains
   important information for your repository.
   </para>

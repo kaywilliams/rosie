@@ -72,28 +72,31 @@
 
     <para>
     CentOS Studio creates a file, referred to as the <emphasis>repository data
-    file</emphasis>, to track and maintain CentOS Studio-generated repository
-    input data. Examples of data in this file include release numbers for
-    generated RPMs, generated GPG signing keys, and generated passwords and
-    crypt passwords. See the chapters on <xref linkend='rpm-elements'/> and
-    <xref linkend='deployment-elements'/> for more information on these topics.
+    file</emphasis> or <emphasis>datfile</emphasis>, to track and maintain
+    CentOS Studio-generated repository input data. Examples of data in this
+    file include release numbers for generated RPMs, generated GPG signing
+    keys, and generated passwords and crypt passwords. See the chapters on
+    <xref linkend='rpm-elements'/> and <xref linkend='deployment-elements'/>
+    for more information on these topics.
     </para>
    
     <para>
     The repository data file is created in the same folder as the repository
-    definition. It uses the same filename as the definition with the inclusion
-    of a <filename>.dat</filename> file extension. For example, given the
-    full path to a repository definition:
-    </para>
-  
-    <para><informalexample>
-    <filename>/~/samba-server.definition</filename></informalexample>
+    definition with a filename consisting of the repository ID followed by the
+    <filename>.dat</filename> file extension. For example, given a repository
+    with the ID "samba-server-6-x86_64", the data file will have the following
+    name:
     </para>
   
     <para>CentOS Studio will create the repository data file as follows:</para>
   
     <para><informalexample>
-    <filename>/~/samba-server.definition.dat</filename></informalexample>
+    <filename>samba-server-6-x86_64.dat</filename></informalexample>
+    </para>
+
+    <para>
+    See the <xref linkend="main"/> element for information on specifying the
+    repository ID.
     </para>
 
     <caution>
