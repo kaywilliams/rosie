@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    centosstudio
-Version: 1.53
+Version: 1.54
 Release: 1%{?dist}
 Summary: Platform for deploying CentOS and RHEL-based systems and applications
 
@@ -72,6 +72,14 @@ Enterprise Linux. See http://www.centosstudio.org for more information.
 %{_mandir}/man1/centosstudio.1.gz
 
 %changelog
+* Wed Aug 22 2012 Kay Williams <kay@centosstudio.org> - 1.0.54-1
+- fixes to virt deploy template dependencies
+- check-kernel template now more general/robust
+- converted config-rpm installdir variable to a macro, which is more generally useful
+- updated datfile naming convention for greater stability
+- virt-config template starts libvirtd if not running
+- updates to documentation and testing to reflect the above
+
 * Wed Aug 15 2012 Kay Williams <kay@centosstudio.org> - 1.0.53-1
 - improvements to deploy script output; i.e. local scipt output now async
 - fixes to virt-deploy.xml, et al., to allow cron execution
