@@ -46,7 +46,10 @@ sed -i "s|^baseurl.*|baseurl = %{baseurl}|" /etc/yum.repos.d/%{repo}.repo
 
 <test-install>
   <password>%{password}</password>
-  <xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+  <xi:include href="virt-deploy.xml"
+              xpointer="xpointer(/*/*[name() != 'script'])"/>
+  <xi:include href="virt-deploy.xml"
+              xpointer="xpointer(/*//script[@id != 'check-kernel'])"/>
   <xi:include href="deploy/poweroff.xml"/>
 </test-install>
 
