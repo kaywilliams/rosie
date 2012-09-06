@@ -107,7 +107,7 @@
 
     <para>
     This example copies two items to the repository tree. The first is a file
-    named <filename>README</filename> which is created by CentOS Studio using
+    named <filename>README</filename> which is created by Repo Studio using
     text provided within the element. The second is a folder named
     <filename>templates</filename> located in the same folder as the repository
     definition on the build machine. Both will be copied to the root of the

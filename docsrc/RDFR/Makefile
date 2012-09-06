@@ -31,7 +31,7 @@ RDFR.html:
 
 RDFR.pdf:
 	@make checkpkg BINARY=$(DBLATEX) INSTRUCTIONS="Install the dblatex package."
-	$(DBLATEX) -o RDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/centosstudiodocs.specs --pdf Index.xml
+	$(DBLATEX) -o RDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/repostudiodocs.specs --pdf Index.xml
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

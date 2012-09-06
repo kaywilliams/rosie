@@ -42,17 +42,17 @@
     </listitem>
 
     <listitem>
-    Create a new instance of CentOS Studio to perform the SRPM build process.
+    Create a new instance of Repo Studio to perform the SRPM build process.
     This instance is created using a definition <emphasis>template</emphasis>,
-    which can be either the default template provided by CentOS Studio, or a
+    which can be either the default template provided by Repo Studio, or a
     user-provided template specified using the <emphasis>template</emphasis>
-    element. CentOS Studio modifies the template at run time to
+    element. Repo Studio modifies the template at run time to
     include repository and SRPM-specific information. See <xref
     linkend="srpmbuild-template"/> for more information.
     </listitem>
 
     <listitem>
-    Verify the RPMs provided by the external CentOS Studio instance.
+    Verify the RPMs provided by the external Repo Studio instance.
     </listitem>
 
     <listitem>
@@ -134,9 +134,9 @@
       <xref linkend="content-path"/> value specifying a location for the SRPM.
       If the specified path ends with <emphasis>".src.rpm"</emphasis> CentOS
       Studio attempts to download the SRPM from the location specified.
-      Otherwise, CentOS Studio attempts to find an SRPM beginning with the name
+      Otherwise, Repo Studio attempts to find an SRPM beginning with the name
       specified in the <emphasis>@id</emphasis> attribute in the folder
-      specified. If multiple SRPMs are found, CentOS Studio selects the SRPM
+      specified. If multiple SRPMs are found, Repo Studio selects the SRPM
       with the highest version and release number. 
       </para>
       
@@ -252,7 +252,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;srpm id="my-package">
 &lt;script>
 #!/bin/bash
-fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
+fetch.py %{srpm-id} https://www.repostudio.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
 &lt;/script>
 &lt;srpm></programlisting>
      </informalexample>
@@ -290,19 +290,19 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       </para>
 
       <para>
-      The <emphasis>template</emphasis> element is optional. CentOS Studio
+      The <emphasis>template</emphasis> element is optional. Repo Studio
       provides a default template, shown in the examples
-      section below. On a system with CentOS Studio installed, the default
+      section below. On a system with Repo Studio installed, the default
       template can be found in the <xref linkend='templates'/> folder at
-      <filename>/usr/share/centosstudio/templates/srpmbuild.xml</filename>.
+      <filename>/usr/share/repostudio/templates/srpmbuild.xml</filename>.
       </para>
 
       <para>
-      More broadly, by default, CentOS Studio searches for a template with the
+      More broadly, by default, Repo Studio searches for a template with the
       filename <filename>srpmbuild.xml</filename> located in the default
-      share path <filename>/usr/share/centosstudio</filename>, a share path
-      specified in the <filename>centosstudio.conf</filename> file, or a share
-      path specified on the CentOS Studio command line.
+      share path <filename>/usr/share/repostudio</filename>, a share path
+      specified in the <filename>repostudio.conf</filename> file, or a share
+      path specified on the Repo Studio command line.
       </para>
 
       <para>
@@ -320,7 +320,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
 
       <para>
       The default template describes one possible implementation for an SRPM
-      build machine. Using this template, CentOS Studio creates virtual SRPM
+      build machine. Using this template, Repo Studio creates virtual SRPM
       build machines on the local system. In most cases the default template is
       sufficient. Users wishing to customize the default template should create
       a new file and include desired segments of the default template using
@@ -334,7 +334,7 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       </para>
 
       <para>
-      CentOS Studio modifies the template at run time in the following ways:
+      Repo Studio modifies the template at run time in the following ways:
       </para>
 
       <itemizedlist>
@@ -372,13 +372,13 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
 
       <para>
       <emphasis role='strong'>%{rpms-dir}:</emphasis>
-      The path to a folder on the CentOS Studio build machine where built RPMs
+      The path to a folder on the Repo Studio build machine where built RPMs
       should be copied. This path takes the following form, where
       <varname>$SRPMID</varname> is the value of the
       <emphasis>@id</emphasis> attribute for the <emphasis>srpm</emphasis>
       element.
       <simplelist>
-      <member><filename>/var/cache/centosstudio/%{id}/$SRPMID-srpm/rpms</filename></member>
+      <member><filename>/var/cache/repostudio/%{id}/$SRPMID-srpm/rpms</filename></member>
       </simplelist>
       </para>
 
@@ -429,8 +429,8 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       <para>
       This example shows creating a custom template, using <xref
       linkend="xincludes"/> to reuse portions of the default template (shown
-      below).  On a system with CentOS Studio installed, this file can be found
-      at <filename>/usr/share/centosstudio/templates/srpmbuild-custom.xml</filename>.
+      below).  On a system with Repo Studio installed, this file can be found
+      at <filename>/usr/share/repostudio/templates/srpmbuild-custom.xml</filename>.
       </para>
 
       <para>
@@ -447,8 +447,8 @@ fetch.py %{srpm-id} https://www.centosstudio.org/hg/public/%{srpm-id} %{srpm-dir
       <para>
       The section below shows the complete default
       <filename>srpmbuild.xml</filename> as a reference. On a system with
-      CentOS Studio installed, this file can be found at
-      <filename>/usr/share/centosstudio/templates/srpmbuild.xml</filename>.
+      Repo Studio installed, this file can be found at
+      <filename>/usr/share/repostudio/templates/srpmbuild.xml</filename>.
       </para>
 
       <para>

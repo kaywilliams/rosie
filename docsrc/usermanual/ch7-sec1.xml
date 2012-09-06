@@ -53,7 +53,7 @@
   </informalexample>
 
   <para>
-  After using CentOS Studio to build the repository, you can locate it in the
+  After using Repo Studio to build the repository, you can locate it in the
   package repositories folder, <filename>/var/www/html/repos/package</filename>
   by default.
   </para>
@@ -63,13 +63,13 @@
   <title>Excluding packages from external repositories</title>
   <para>
   Packages in your repository will often have dependencies on packages in
-  external repositories. CentOS Studio helps you ensure that your packages will
+  external repositories. Repo Studio helps you ensure that your packages will
   install and update as expected by ensuring that required package are
   available.
   </para>
 
   <para>
-  As a convenience, CentOS Studio allows you to download packages from external
+  As a convenience, Repo Studio allows you to download packages from external
   repositories and include them in your repository. As a result, users of your
   repository will have fewer repositories to track and manage.
   </para>
@@ -102,7 +102,7 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Example</emphasis> - In this example CentOS Studio
+  <emphasis role='strong'>Example</emphasis> - In this example Repo Studio
   will use the <emphasis>'proprietary-repo'</emphasis> to resolve dependencies,
   but will not download packages from it to your repository.
   </para>
@@ -133,20 +133,20 @@
   </para>
   
   <para>
-  CentOS Studio automatically signs all packages it creates using
+  Repo Studio automatically signs all packages it creates using
   <emphasis>release-rpm</emphasis>, <emphasis>config-rpm</emphasis> and
   <emphasis>srpmbuild</emphasis> elements.
   </para>
 
   <para>
-  In the default cause, CentOS Studio automatically generates a key pair, one
+  In the default cause, Repo Studio automatically generates a key pair, one
   per repository, and stores key data in the <xref
   linkend="repository-data-file"/>.  For system-type repositories, this
   approach is typically sufficient. Because the public keys are automatically
   distributed and installed on client systems (using the <xref
   linkend='yum-sync-plugin'/> or an external configuration management system),
   end users do not need to recognize and explicitly <emphasis>trust</emphasis>
-  the CentOS Studio-generated key.
+  the Repo Studio-generated key.
   </para>
 
   <para>
@@ -184,7 +184,7 @@ Key-Length: 1024
 Subkey-Type: ELG-E
 Subkey-Length: 1024
 Expire-Date: 0
-Name-Real: My CentOS Studio Signing Key
+Name-Real: My Repo Studio Signing Key
 Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 
   <para>  
@@ -204,7 +204,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 # gpg --list-keys</programlisting>
 
   <para>
-  You should see an item with the uid of "My CentOS Studio Signing Key"
+  You should see an item with the uid of "My Repo Studio Signing Key"
   </para>
   </section>
 
@@ -215,8 +215,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   </para>
 
   <programlisting>
-# gpg --export -a "My CentOS Studio Signing Key" &gt; RPM-GPG-KEY-mykey
-# gpg --export-secret-key -a "My CentOS Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
+# gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
+# gpg --export-secret-key -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   You can verify the exported files using the commands:
@@ -242,8 +242,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   </para>
 
   <programlisting>
-# gpg --delete-secret-keys "My CentOS Studio Signing Key"  
-# gpg --delete-keys "My CentOS Studio Signing Key"  </programlisting>
+# gpg --delete-secret-keys "My Repo Studio Signing Key"  
+# gpg --delete-keys "My Repo Studio Signing Key"  </programlisting>
   </section>
 
   <section>
@@ -364,7 +364,7 @@ templates/
   </informalexample>
 
   <para>
-  After using CentOS Studio to create your repository, you can locate it at
+  After using Repo Studio to create your repository, you can locate it at
   <filename>/var/www/html/repos/package/application-6-x86_64</filename>. The
   tree structure of the repository will look as follows:
   </para>

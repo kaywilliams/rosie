@@ -3,9 +3,9 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--CentOS Studio Command reference -->
+<!--Repo Studio Command reference -->
 
-<refentry id="command.centosstudio">
+<refentry id="command.repostudio">
 <refentryinfo>
 <date>2012-04-18</date>
 </refentryinfo>
@@ -13,11 +13,11 @@
 <refmeta>
 <refentrytitle>CentOSStudio Commands</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo>CentOS Studio</refmiscinfo>
+<refmiscinfo>Repo Studio</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>centosstudio</refname>
+<refname>repostudio</refname>
 <refpurpose>builds, tests, deploys and maintains system and application repositories based on CentOS and Red Hat Enterprise Linux.</refpurpose>
 </refnamediv>
 
@@ -27,7 +27,7 @@
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
-<command>centosstudio</command>
+<command>repostudio</command>
 <arg choice="opt">
 <option>[-c | --config ] <replaceable class="parameter">PATH</replaceable></option>
 </arg>
@@ -64,22 +64,22 @@
 </cmdsynopsis>
 </refsynopsisdiv>
 
-<refsect1 id="centosstudio.1-description"><title>DESCRIPTION</title>
+<refsect1 id="repostudio.1-description"><title>DESCRIPTION</title>
 <para>Builds and maintains the repository defined in the file at
 DEFINITION.</para>
 </refsect1>
 
-<refsect1 id="centosstudio.1-usage"><title>USAGE</title>
-<para><command>centosstudio</command> [OPTIONS] DEFINITION</para>
+<refsect1 id="repostudio.1-usage"><title>USAGE</title>
+<para><command>repostudio</command> [OPTIONS] DEFINITION</para>
 <para>OPTIONS refers to the command-line options described below.
 DEFINITION refers to a repository definition file, see the Repository
 Definition File Reference at <ulink
-url="http://www.centosstudio.org/centosstudio/documentation"/> for more
+url="http://www.repostudio.org/repostudio/documentation"/> for more
 information.</para>
 </refsect1>
 
 
-<refsect1 id="centosstudio.1-options"><title>OPTIONS</title>
+<refsect1 id="repostudio.1-options"><title>OPTIONS</title>
 <para>Command options are listed in alphabetical order.</para>
 <variablelist>
 
@@ -87,10 +87,10 @@ information.</para>
   <term><option>-c; --config <replaceable class="parameter">CENTOSSTUDIO_CONF</replaceable></option></term>
   <listitem>
     <para> Specifies the directory and filename <replaceable
-    class="parameter">CENTOSSTUDIO_CONF</replaceable> of the centosstudio
+    class="parameter">CENTOSSTUDIO_CONF</replaceable> of the repostudio
     configuration file.  The default value is <filename
-    class="directory">/etc/centosstudio/centosstudio.conf</filename>.  See the
-    <filename>centosstudio.conf(5)</filename> man page for CentOS Studio
+    class="directory">/etc/repostudio/repostudio.conf</filename>.  See the
+    <filename>repostudio.conf(5)</filename> man page for Repo Studio
     configuration options.</para>
 
   </listitem>
@@ -99,7 +99,7 @@ information.</para>
 <varlistentry>
   <term><option>--force <replaceable class="parameter">MODULE</replaceable></option></term>
   <listitem>
-        <para>Forces a CentOS Studio <replaceable
+        <para>Forces a Repo Studio <replaceable
         class="parameter">MODULE</replaceable> to execute, even if the module
         would ordinarily be skipped for optimizations in speed. Forcing a
         module forces its children recursively. This option can be specified
@@ -115,8 +115,8 @@ class="parameter">MODULE3</replaceable></para>
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>By default, CentOS Studio searches directories listed on the system
-    path to locate CentOS Studio modules.  The --lib-path option allows
+    <para>By default, Repo Studio searches directories listed on the system
+    path to locate Repo Studio modules.  The --lib-path option allows
     specifing additional directory <replaceable
     class="parameter">PATHs</replaceable> to search.  This option can be
     specified more than once; for example:</para>
@@ -132,9 +132,9 @@ class="parameter">PATH3</replaceable></para>
   <listitem>
     <para>
     Specifies the directory and filename <replaceable
-    class="parameter">PATH</replaceable> to which CentOS Studio writes logging
+    class="parameter">PATH</replaceable> to which Repo Studio writes logging
     information.  The default path is
-    <filename>/var/log/centosstudio.log</filename>.  See also the command option
+    <filename>/var/log/repostudio.log</filename>.  See also the command option
     <command>--log-level</command>.
     </para>
     <para>
@@ -149,7 +149,7 @@ class="parameter">PATH3</replaceable></para>
     <para>
     Specifies the level of detail displayed on the console during a
     build.  There are six levels <replaceable class="parameter">N</replaceable>
-    (0 to 5) with Level 3 being CentOS Studio's default level.
+    (0 to 5) with Level 3 being Repo Studio's default level.
     </para>
 <para>LEVELS
 <programlisting>
@@ -202,9 +202,9 @@ and not the log file. Level 5 detail is always written to the log file.
   <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
     <para> Specifies a directory <replaceable
-    class="parameter">PATH</replaceable> where CentOS Studio can locate shared
+    class="parameter">PATH</replaceable> where Repo Studio can locate shared
     program data such as example files and XML schema files. The default path is
-    <filename>/usr/share/centosstudio/</filename>. This option can be specified
+    <filename>/usr/share/repostudio/</filename>. This option can be specified
     more than once, as demonstrated below:</para>
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable>
@@ -240,15 +240,15 @@ DEFINITION file after resolving macro and include elements.</para>
 </variablelist>
 </refsect1>
 
-<refsect1 id="centosstudio.1-variables"><title>VARIABLES</title>
-<para>CentOS Studio command options, where indicated, use three variables:
+<refsect1 id="repostudio.1-variables"><title>VARIABLES</title>
+<para>Repo Studio command options, where indicated, use three variables:
 MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 
 <variablelist>
 <varlistentry>
   <term>MODULE</term>
   <listitem>
-        <para>The id of a CentOS Studio module.  See the MODULES section,
+        <para>The id of a Repo Studio module.  See the MODULES section,
         below, for more information.</para>
   </listitem>
 </varlistentry>
@@ -256,7 +256,7 @@ MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para> A local file path.  CentOS Studio resolves paths relative to the
+    <para> A local file path.  Repo Studio resolves paths relative to the
     current working directory.</para>
   </listitem>
 </varlistentry>
@@ -264,17 +264,17 @@ MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 <varlistentry>
   <term>CENTOSSTUDIO_CONF</term>
   <listitem>
-    <para>The directory and filename of the CentOS Studio configuration file.</para>
+    <para>The directory and filename of the Repo Studio configuration file.</para>
   </listitem>
 </varlistentry>
 </variablelist>
 </refsect1>
 
-<refsect1 id="centosstudio.1-modules"><title>MODULES</title>
+<refsect1 id="repostudio.1-modules"><title>MODULES</title>
 <para>
 A module performs an individual step in the build process, such as
 downloading software packages, creating packages or creating ISO images. 
-On subsequent builds of the same repository, CentOS Studio automatically
+On subsequent builds of the same repository, Repo Studio automatically
 determines whether a module can be skipped in favor of using cached data from a
 previous build. Users can override the default determination using the
 <command>--skip</command> and <command>--force</command> options.
@@ -283,39 +283,39 @@ previous build. Users can override the default determination using the
 Module names correspond to top-level elements in the DEFINITION.
 </para>
 <para>
-Developers can write custom CentOS Studio modules and direct CentOS
-Studio to use them via the <command>--lib-path</command> centosstudio command
+Developers can write custom Repo Studio modules and direct CentOS
+Studio to use them via the <command>--lib-path</command> repostudio command
 option.
 </para>
 </refsect1>
 
-<refsect1 id="centosstudio.1-bugs"><title>BUGS</title>
+<refsect1 id="repostudio.1-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.centosstudio.org/centosstudio"/> for contact and support
+url="http://www.repostudio.org/repostudio"/> for contact and support
 information.</para>
 </refsect1>
 
-<refsect1 id="centosstudio.1-files"><title>FILES</title>
+<refsect1 id="repostudio.1-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member><ulink url="file:///usr/share/centosstudio/">/usr/share/centosstudio/</ulink></member>
-<member><ulink url="file:///usr/bin/centosstudio">/usr/bin/centosstudio</ulink></member>
-<member><ulink url="file:///etc/centosstudio/centosstudio.conf">/etc/centosstudio/centosstudio.conf</ulink></member>
-<member><ulink url="file:///var/log/centosstudio.log">/var/log/centosstudio.log</ulink></member>
-<member><ulink url="file:///var/cache/centosstudio/">/var/cache/centosstudio/</ulink></member>
-<member><ulink url="file:///var/lib/centosstudio/">/var/lib/centosstudio/</ulink></member>
+<member><ulink url="file:///usr/share/repostudio/">/usr/share/repostudio/</ulink></member>
+<member><ulink url="file:///usr/bin/repostudio">/usr/bin/repostudio</ulink></member>
+<member><ulink url="file:///etc/repostudio/repostudio.conf">/etc/repostudio/repostudio.conf</ulink></member>
+<member><ulink url="file:///var/log/repostudio.log">/var/log/repostudio.log</ulink></member>
+<member><ulink url="file:///var/cache/repostudio/">/var/cache/repostudio/</ulink></member>
+<member><ulink url="file:///var/lib/repostudio/">/var/lib/repostudio/</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="centosstudio.1-see_also"><title>SEE ALSO</title>
+<refsect1 id="repostudio.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member>centosstudio.conf(5)</member>
-<member><ulink url="http://www.centosstudio.org/centosstudio"/></member>
+<member>repostudio.conf(5)</member>
+<member><ulink url="http://www.repostudio.org/repostudio"/></member>
 
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="centosstudio.1-author"><title>AUTHOR</title>
-<para><author><othername>CentOS Studio Foundation</othername>
+<refsect1 id="repostudio.1-author"><title>AUTHOR</title>
+<para><author><othername>Repo Studio Project</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

@@ -11,7 +11,7 @@
   The repository definition file contains instructions for building system and
   package repositories. It defines repository content and configuration: name,
   version, and architecture; packages to include; packages to build; and
-  testing and publishing instructions. CentOS Studio uses repository
+  testing and publishing instructions. Repo Studio uses repository
   definitions to assemble, create and publish repositories. Other programs,
   such as <application class="software">YUM</application>, <application
   class="software">Anaconda</application>, and <application
@@ -22,7 +22,7 @@
   <para>
   The repository definition is a text-based file in XML format. Within the file
   are a series of top-level elements that equate to modules, or steps, within
-  the CentOS Studio build process. These elements, in turn, contain their own
+  the Repo Studio build process. These elements, in turn, contain their own
   attributes and elements. The only required top-level element is <emphasis
   role="strong"><xref linkend="main" /></emphasis>; all other top-level
   elements are optional or conditional, based on the type of repository being
@@ -32,13 +32,13 @@
 
   <para>
   A repository definition can be located in any local directory and invoked 
-  from the command line using the command <command>centosstudio</command> 
+  from the command line using the command <command>repostudio</command> 
   followed by the full or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>centosstudio</command> /path/to/definition</programlisting>
+<command>repostudio</command> /path/to/definition</programlisting>
   </informalexample>
 
   <xi:include href="DocumentConventions.xml"
@@ -54,9 +54,9 @@
     </para>
 
     <note>
-    On a system with the CentOS Studio RPM installed, this file can be found as
+    On a system with the Repo Studio RPM installed, this file can be found as
     <filename>web-server.definition</filename> in the examples folder at
-    <filename>/usr/share/centosstudio/templates/</filename>.
+    <filename>/usr/share/repostudio/templates/</filename>.
     </note>
 
     <informalexample>
@@ -71,9 +71,9 @@
     </title>
 
     <para>
-    CentOS Studio creates a file, referred to as the <emphasis>repository data
+    Repo Studio creates a file, referred to as the <emphasis>repository data
     file</emphasis> or <emphasis>datfile</emphasis>, to track and maintain
-    CentOS Studio-generated repository input data. Examples of data in this
+    Repo Studio-generated repository input data. Examples of data in this
     file include release numbers for generated RPMs, generated GPG signing
     keys, and generated passwords and crypt passwords. See the chapters on
     <xref linkend='rpm-elements'/> and <xref linkend='deployment-elements'/>
@@ -88,7 +88,7 @@
     name:
     </para>
   
-    <para>CentOS Studio will create the repository data file as follows:</para>
+    <para>Repo Studio will create the repository data file as follows:</para>
   
     <para><informalexample>
     <filename>samba-server-6-x86_64.dat</filename></informalexample>
@@ -102,7 +102,7 @@
     <caution>
     <para>
     Care must be taken not to delete the repository data file. Doing so will
-    cause CentOS Studio to regenerate missing information. As a result,
+    cause Repo Studio to regenerate missing information. As a result,
     installed client machines may fail to download updated RPMs or may report
     errors when performing RPM GPG key checking. 
     </para>

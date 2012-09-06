@@ -1,8 +1,8 @@
-For information on installing and using CentOS Studio, please go to the
+For information on installing and using Repo Studio, please go to the
 following web pages:
 
-To install CentOS Studio using YUM (recommended), see
-http://www.centosstudio.org/centosstudio/download
+To install Repo Studio using YUM (recommended), see
+http://www.repostudio.org/repostudio/download
 
-To install CentOS Studio from sources (for developers), see
-http://www.centosstudio.org/centosstudio/source
+To install Repo Studio from sources (for developers), see
+http://www.repostudio.org/repostudio/source

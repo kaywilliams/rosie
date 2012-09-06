@@ -14,13 +14,13 @@
     </title>
 
     <para>
-    Specifies GPG keys to use for signing and verifying CentOS Studio created
-    RPM packages. If not provided, CentOS Studio automatically generates
+    Specifies GPG keys to use for signing and verifying Repo Studio created
+    RPM packages. If not provided, Repo Studio automatically generates
     signing keys. This element is optional.
     </para>
 
     <para>
-    See the <emphasis>CentOS Studio User Manual</emphasis> for more 
+    See the <emphasis>Repo Studio User Manual</emphasis> for more 
     information on creating and using signing keys.
     </para>
 

@@ -2,18 +2,18 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">CentOS Studio</application> Overview
+  <title><application class="software">Repo Studio</application> Overview
   </title>
 
   <para>
-  <application class="software">CentOS Studio</application> provides a platform
-to manage Linux system and application deployment. CentOS Studio works with
+  <application class="software">Repo Studio</application> provides a platform
+to manage Linux system and application deployment. Repo Studio works with
 CentOS, a stable, free and widely-adopted version of Linux, and Red Hat
 Enterprise Linux, the commercial operating system from which CentOS is derived.
   </para>
 
   <para>
-  CentOS Studio assembles software, customizations and, optionally,
+  Repo Studio assembles software, customizations and, optionally,
   installation images, into a standard  deployment format, a YUM package
   repository. YUM package repositories, called
   <emphasis>repositories</emphasis> throughout this document, can be used to
@@ -21,7 +21,7 @@ Enterprise Linux, the commercial operating system from which CentOS is derived.
   IT  environments.
   </para>
  
-  <para>Using CentOS Studio you can create and maintain repositories:</para>
+  <para>Using Repo Studio you can create and maintain repositories:</para>
 
   <para><itemizedlist>
       <listitem>
@@ -72,11 +72,11 @@ Enterprise Linux, the commercial operating system from which CentOS is derived.
       <imagedata fileref="overview.png" />
     </imageobject>
 
-    <caption><para>CentOS Studio Overview</para></caption>
+    <caption><para>Repo Studio Overview</para></caption>
   </mediaobject>
 
   <para>
-  In summary, CentOS Studio is a production life cycle manager for use in
+  In summary, Repo Studio is a production life cycle manager for use in
   deploying Linux systems and applications.  
   </para>
 </section>

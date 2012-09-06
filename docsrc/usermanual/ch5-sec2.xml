@@ -6,7 +6,7 @@
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Using Deployment Templates</title>
   <para>
-  The CentOS Studio model for automated deployment is simple, yet flexible 
+  The Repo Studio model for automated deployment is simple, yet flexible 
   and extensible. Deployment can occur in a variety of operating environments,
   for example using virtual machines running on a local host, virtual machines
   running on remote or cloud-based hosts, physical machines managed by
@@ -68,7 +68,7 @@
   </para>
 
   <para>
-  CentOS Studio includes a number of deployment templates in the <xref
+  Repo Studio includes a number of deployment templates in the <xref
   linkend='templates'/> folder. In the previous section, we discussed one of
   these templates, a composite template named
   <filename>virt-deploy.xml</filename>.  In addition to virt-deploy.xml, the
@@ -93,7 +93,7 @@
   <title>Exploring virt-deploy.xml</title>
 
   <para>
-  The virt-deploy template provides an example for how CentOS Studio can be
+  The virt-deploy template provides an example for how Repo Studio can be
   used to deploy and maintain client systems. This particular template works by
   providing settings and scripts to accomplish the following:
   </para>
@@ -106,7 +106,7 @@
   Automate operating system installation using a kickstart file (kickstart).
   </listitem>
   <listitem>
-  Configure client machines to allow SSH access from the CentOS Studio build
+  Configure client machines to allow SSH access from the Repo Studio build
   machine (ssh-config.xml).
   </listitem>
   <listitem>
@@ -114,7 +114,7 @@
   (test-triggers.xml).
   </listitem>
   <listitem>
-  Activate, delete, and install a virtual machine running on the CentOS Studio
+  Activate, delete, and install a virtual machine running on the Repo Studio
   build machine (virt-activate.xml, virt-delete.xml and virt-install.xml).
   </listitem>
   <listitem>
@@ -180,7 +180,7 @@
   <para>
   The default <filename>ks.cfg</filename> file uses macros (see the RDFR for
   information on deployment macros) to allow the hostname and root password to
-  be filled in at CentOS Studio runtime. Often, however, you will want to
+  be filled in at Repo Studio runtime. Often, however, you will want to
   customize additional kickstart options such as timezone, or drive
   partitioning configuration. To do this, you will need to provide a custom
   kickstart element. This can be accomplished using several different methods.
@@ -225,7 +225,7 @@ reboot
   <para>
   See the RDFR for more information on the <emphasis>kickstart</emphasis>
   element, including notes on several kickstart options to avoid when using
-  kickstart in combination with CentOS Studio.
+  kickstart in combination with Repo Studio.
   </para>
 
   </section>
@@ -233,7 +233,7 @@ reboot
   <section>
   <title>Providing custom scripts</title>
   <para>
-  CentOS Studio allows users to provide scripts for completing various
+  Repo Studio allows users to provide scripts for completing various
   deployment and maintenance actions. These scripts can be written in any shell
   scripting language. 
   </para>
@@ -297,7 +297,7 @@ virt-install --name %{fqdn} --ram 2000 \
 
   <para>
   The virt-deploy template makes it easy to create, deploy and maintain virtual
-  machines on the local CentOS Studio build machine running a lib-virt
+  machines on the local Repo Studio build machine running a lib-virt
   compatible hypervisor (KVM). Your particular deployment scenario, however,
   may require you to work with virtual machines running on remote hosts with
   different hypervisors (e.g. VMware, Hyper-V and Amazon Web Services). To
@@ -363,7 +363,7 @@ virt-install --name %{fqdn} --ram 2000 \
   will either remove the update script from your composite template, or
   provide a custom update script that starts the appropriate update procedure
   on your management solution. If the custom script should execute on the
-  CentOS Studio build machine rather than on the installed client, be sure to
+  Repo Studio build machine rather than on the installed client, be sure to
   set the update script's <emphasis>@ssh</emphasis> attribute to false. See the
   RDFR for more information on script attributes.
   </para>

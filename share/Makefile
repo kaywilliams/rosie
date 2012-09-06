@@ -1,4 +1,4 @@
-SUBDIRS = centosstudio
+SUBDIRS = repostudio
 
 .PHONY: all clean install
 

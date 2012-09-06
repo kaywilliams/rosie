@@ -7,7 +7,7 @@
 
   <para>
   Virtual machine and hosted system deployment is another scenario supported by
-  CentOS Studio. This scenario covers deployment to a range of hypervisor and
+  Repo Studio. This scenario covers deployment to a range of hypervisor and
   hosted solutions including VMWare, Hyper-V, KVM, Xen and Amazon Web
   Services. Some virtual machine management solutions support PXE-based
   deployment. If so, PXE deployment is recommended. See the section on <xref
@@ -16,17 +16,17 @@
 
   <para>
   If your virtual machine management solution does not support PXE-based
-  deployment, another option is to use CentOS Studio to create virtual machine
+  deployment, another option is to use Repo Studio to create virtual machine
   images in the desired format. These images can then be deployed to the
   production environment.
   </para>
 
   <para>
-  To use CentOS Studio for creating virtual machine images, you start with a
+  To use Repo Studio for creating virtual machine images, you start with a
   repository definition as shown in the <xref linkend='smb'/>
   scenario. To this definition you provide an additional
   <emphasis>update</emphasis>-type script to create the virtual machine image.
-  CentOS Studio will execute the script each time the repository is updated,
+  Repo Studio will execute the script each time the repository is updated,
   ensuring that the installation image is always current. See the script element below for an example. 
   </para>
 

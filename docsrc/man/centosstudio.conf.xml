@@ -3,34 +3,34 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--CentOS Studio Configuration reference -->
+<!--Repo Studio Configuration reference -->
 
-<refentry id="configuration.centosstudio">
+<refentry id="configuration.repostudio">
 <refentryinfo>
 <date>2012-04-18</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>centosstudio.conf</refentrytitle>
+<refentrytitle>repostudio.conf</refentrytitle>
 <manvolnum>5</manvolnum>
-<refmiscinfo>CentOS Studio</refmiscinfo>
-<refmiscinfo class="sectdesc">CentOS Studio Configuration Reference</refmiscinfo>
+<refmiscinfo>Repo Studio</refmiscinfo>
+<refmiscinfo class="sectdesc">Repo Studio Configuration Reference</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>centosstudio.conf</refname>
-<refpurpose>Configuration file for CentOS Studio.</refpurpose>
+<refname>repostudio.conf</refname>
+<refpurpose>Configuration file for Repo Studio.</refpurpose>
 </refnamediv>
 
-<refsect1 id='centosstudio.conf.5-description'><title>DESCRIPTION</title>
-<para>CentOS Studio uses an optional configuration file centosstudio.conf
-located at <filename>/etc/centosstudio/</filename>. The location of this file
+<refsect1 id='repostudio.conf.5-description'><title>DESCRIPTION</title>
+<para>Repo Studio uses an optional configuration file repostudio.conf
+located at <filename>/etc/repostudio/</filename>. The location of this file
 can be overridden using the <command>-c</command> or
-<command>--config</command> CentOS Studio command line option. The default
-CentOS Studio installation does not include a centosstudio.conf file.</para>
+<command>--config</command> Repo Studio command line option. The default
+Repo Studio installation does not include a repostudio.conf file.</para>
 </refsect1>
 
-<refsect1 id='centosstudio.conf.5-optional-elements'><title>ELEMENTS</title>
+<refsect1 id='repostudio.conf.5-optional-elements'><title>ELEMENTS</title>
 
 <para>All elements are optional.</para>
 
@@ -39,10 +39,10 @@ CentOS Studio installation does not include a centosstudio.conf file.</para>
 <varlistentry>
   <term><option>lib-path</option></term>
   <listitem>
-    <para>By default, CentOS Studio searches directories listed on the system
-    path to locate CentOS Studio modules. The lib-path element allows
+    <para>By default, Repo Studio searches directories listed on the system
+    path to locate Repo Studio modules. The lib-path element allows
     specifying additional directory <replaceable
-    class="parameter">PATHs</replaceable> in which one or more CentOS Studio
+    class="parameter">PATHs</replaceable> in which one or more Repo Studio
     modules can be found. Multiple path elements are allowed.  This element
     corresponds to the <command>--lib-path</command> command-line
     option.</para>
@@ -56,9 +56,9 @@ CentOS Studio installation does not include a centosstudio.conf file.</para>
   <term><option>log-file</option></term>
   <listitem>
     <para>Specifies the directory and filename <replaceable
-    class="parameter">PATH</replaceable> to which CentOS Studio writes logging
+    class="parameter">PATH</replaceable> to which Repo Studio writes logging
     information.  The default path is
-    <filename>/var/log/centosstudio.log</filename>.   CentOS Studio creates the
+    <filename>/var/log/repostudio.log</filename>.   Repo Studio creates the
     log file if none exists. This element corresponds to the
     <command>--log-file</command> command-line option.</para>
 <programlisting>
@@ -74,9 +74,9 @@ CentOS Studio installation does not include a centosstudio.conf file.</para>
     <para>Specifies a directory <replaceable
     class="parameter">PATH</replaceable> in which one or more of CentOS
     Studio's shared files can be found; the directory contains a hierarchy
-    enabling CentOS Studio to extract files for schemas,
+    enabling Repo Studio to extract files for schemas,
     <filename>*.rng</filename>, and example files.  The default path is
-    <filename>/usr/share/centosstudio</filename>.  Multiple path elements are
+    <filename>/usr/share/repostudio</filename>.  Multiple path elements are
     allowed.  This element corresponds to the <option>--share-path</option>
     command-line option .</para>
 <programlisting>
@@ -89,7 +89,7 @@ CentOS Studio installation does not include a centosstudio.conf file.</para>
   <term><option>debug</option></term>
   <listitem>
     <para>Specifies a boolean value which enables or disables debug mode in
-    CentOS Studio.  Enabling debug mode causes exception tracebacks, which are
+    Repo Studio.  Enabling debug mode causes exception tracebacks, which are
     normally visible only in the log file, to be additionally displayed on the
     command line.</para>
 <programlisting>
@@ -101,18 +101,18 @@ CentOS Studio installation does not include a centosstudio.conf file.</para>
 </variablelist>
 </refsect1>
 
-<refsect1 id='centosstudio.conf.5-optional-cache'>
+<refsect1 id='repostudio.conf.5-optional-cache'>
 <title>CACHE ELEMENTS</title>
-<para>CentOS Studio caches data across sessions for improved performance.  The
+<para>Repo Studio caches data across sessions for improved performance.  The
 cache element allows specifying cache-related options.</para>
 
 <variablelist>
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where CentOS Studio
+<para>The <literal>path</literal> child element specifies where Repo Studio
 stores both shared and per-solution cache data.  The default is
-<filename>/var/cache/centosstudio</filename>.
+<filename>/var/cache/repostudio</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -127,12 +127,12 @@ stores both shared and per-solution cache data.  The default is
   <listitem>
     <para>The <literal>max-size</literal> child element specifies the maximum
     size for the shared cache located at <filename>CACHEDIR/.cache</filename>.
-    The shared cache contains a copy of all files downloaded by CentOS Studio.
+    The shared cache contains a copy of all files downloaded by Repo Studio.
     There is no human-readable form of the shared cache. The default size is
     30GB. The recommended minimum size is 5GB. The default suffix is GB; other
     available suffixes are MB, GiB and TB.</para>
 
-<para>CentOS Studio deletes files from the shared cache on a least-recently
+<para>Repo Studio deletes files from the shared cache on a least-recently
 used basis.</para>
 <programlisting>
 &lt;cache&gt;
@@ -146,8 +146,8 @@ used basis.</para>
 </refsect1>
 
 
-<refsect1 id="centosstudio.conf.5-variables"><title>VARIABLES</title>
-<para>CentOS Studio element values, where indicated, use the variables below.</para>
+<refsect1 id="repostudio.conf.5-variables"><title>VARIABLES</title>
+<para>Repo Studio element values, where indicated, use the variables below.</para>
 
 <variablelist>
 
@@ -162,7 +162,7 @@ used basis.</para>
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where CentOS Studio stores shared
+    <para>CACHEDIR is the directory location where Repo Studio stores shared
     and per-solution cache data.</para>
   </listitem>
 </varlistentry>
@@ -170,7 +170,7 @@ used basis.</para>
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para>PATH is a local absolute or relative file path. CentOS Studio
+    <para>PATH is a local absolute or relative file path. Repo Studio
     resolves relative paths from the current working directory.</para>
   </listitem>
 </varlistentry>
@@ -186,55 +186,55 @@ used basis.</para>
 </variablelist>
 </refsect1>
 
- <refsect1 id="centosstudio.conf.5-examples">
+ <refsect1 id="repostudio.conf.5-examples">
     <title>EXAMPLES</title>
     <para>
-      An example CentOS Studio configuration file with multiple listings for
+      An example Repo Studio configuration file with multiple listings for
       share-path and lib-path elements is shown below:
     </para>
 
     <programlisting>
-&lt;centosstudio&gt;
+&lt;repostudio&gt;
     &lt;share-path&gt;/usr/share&lt;/share-path&gt;
-    &lt;share-path&gt;~/centosstudio/share&lt;/share-path&gt;
+    &lt;share-path&gt;~/repostudio/share&lt;/share-path&gt;
     &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
-    &lt;lib-path&gt;~/centosstudio/lib&lt;/lib-path&gt;
-    &lt;log-file&gt;~/centosstudio.log&lt;/log-file&gt;
+    &lt;lib-path&gt;~/repostudio/lib&lt;/lib-path&gt;
+    &lt;log-file&gt;~/repostudio.log&lt;/log-file&gt;
     &lt;cache&gt;
-        &lt;path&gt;~/centosstudio/cache&lt;/path&gt;
+        &lt;path&gt;~/repostudio/cache&lt;/path&gt;
         &lt;max-size&gt;5GB&lt;/max-size&gt;
     &lt;/cache&gt;
-&lt;/centosstudio&gt;
+&lt;/repostudio&gt;
     </programlisting>
 
 </refsect1>
 
-<refsect1 id="centosstudio.conf.5-bugs"><title>BUGS</title>
+<refsect1 id="repostudio.conf.5-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.centosstudio.org/centosstudio"/> for contact and support
+url="http://www.repostudio.org/repostudio"/> for contact and support
 information.</para>
 </refsect1>
 
-<refsect1 id="centosstudio.conf.5-files"><title>FILES</title>
+<refsect1 id="repostudio.conf.5-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member>centosstudio(1)</member>
-<member><ulink url="file:///etc/centosstudio/centosstudio.conf">/etc/centosstudio/centosstudio.conf</ulink></member>
-<member><ulink url="file:///usr/bin/centosstudio">/usr/bin/centosstudio</ulink></member>
-<member><ulink url="file:///usr/share/centosstudio/">/usr/share/centosstudio</ulink></member>
-<member><ulink url="file:///var/cache/centosstudio/">/var/cache/centosstudio/</ulink></member>
-<member><ulink url="file:///var/log/centosstudio.log">/var/log/centosstudio.log</ulink></member>
+<member>repostudio(1)</member>
+<member><ulink url="file:///etc/repostudio/repostudio.conf">/etc/repostudio/repostudio.conf</ulink></member>
+<member><ulink url="file:///usr/bin/repostudio">/usr/bin/repostudio</ulink></member>
+<member><ulink url="file:///usr/share/repostudio/">/usr/share/repostudio</ulink></member>
+<member><ulink url="file:///var/cache/repostudio/">/var/cache/repostudio/</ulink></member>
+<member><ulink url="file:///var/log/repostudio.log">/var/log/repostudio.log</ulink></member>
 </simplelist></para>
 </refsect1>
 
 
-<refsect1 id="centosstudio.conf.5-seealso"><title>SEE ALSO</title>
+<refsect1 id="repostudio.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://www.centosstudio.org/centosstudio">http://www.centosstudio.org/centosstudio</ulink></member>
+<member><ulink url="http://www.repostudio.org/repostudio">http://www.repostudio.org/repostudio</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="centosstudio.conf.5-author"><title>AUTHOR</title>
-<para><author><othername>CentOS Studio Foundation</othername>
+<refsect1 id="repostudio.conf.5-author"><title>AUTHOR</title>
+<para><author><othername>Repo Studio Project</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

@@ -1,9 +1,9 @@
-PKGNAME := centosstudio
+PKGNAME := repostudio
 SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-SUBDIRS = bin docsrc/man etc share centosstudio
+SUBDIRS = bin docsrc/man etc share repostudio
 
 BUILDARGS =
 

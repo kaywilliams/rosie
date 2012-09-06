@@ -173,7 +173,7 @@
     </entry>
 
     <entry>
-    A CentOS Studio-generated encrypted version of the %{password} macro. See
+    A Repo Studio-generated encrypted version of the %{password} macro. See
     the <xref linkend='password'/> element for additional information.
     </entry>
     </row>
@@ -219,7 +219,7 @@
     </entry>
 
     <entry>
-    List of triggers to be evaluated in determining whether CentOS Studio
+    List of triggers to be evaluated in determining whether Repo Studio
     should execute installation-related deployment scripts.  Takes its value
     from the <xref linkend='triggers'/> element.
     </entry>
@@ -276,7 +276,7 @@
 
       <listitem>
       <para>
-      <xref linkend='content-path'/> to a folder where CentOS Studio will
+      <xref linkend='content-path'/> to a folder where Repo Studio will
       publish this repository. For repositories to be accessible on the web,
       the directory must be in the build machine’s local webroot, e.g. the
       Apache <varname>DocumentRoot</varname>.
@@ -427,7 +427,7 @@ $remote-url/%{id}</programlisting>
       </para>
       
       <para>
-      This attribute is optional. By default, CentOS Studio uses the first
+      This attribute is optional. By default, Repo Studio uses the first
       active, non-loopback network interface.
       </para>
 
@@ -667,7 +667,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    CentOS Studio also generates an encrypted version of the password and makes
+    Repo Studio also generates an encrypted version of the password and makes
     it available as the module macro <link
     linkend='deployment-macros'>%{crypt-password}</link>. The encrypted
     password is recommended for use in the <emphasis>kickstart</emphasis>
@@ -683,7 +683,7 @@ $remote-url/%{id}</programlisting>
 
     <listitem>
     <para>
-    <xref linkend='content-boolean'/> value controlling whether CentOS Studio
+    <xref linkend='content-boolean'/> value controlling whether Repo Studio
     will attempt to execute <emphasis>scripts</emphasis> directly on the 
     <emphasis>client machine</emphasis> identified by the <link
     linkend='deployment-macros'>%{fqdn}</link> module macro using SSH. Scripts
@@ -692,17 +692,17 @@ $remote-url/%{id}</programlisting>
 
     <para>
     This value serves as a default for the module. If the value is
-    <constant>TRUE</constant>, CentOS Studio will use SSH for an individual
+    <constant>TRUE</constant>, Repo Studio will use SSH for an individual
     script based on the value of the script's <emphasis>ssh</emphasis>
     attribute. See the script element for additional information on the <xref
     linkend='script-ssh'/>  attribute.
     </para>
    
     <para>
-    If the value is <constant>FALSE</constant>, CentOS Studio will not use SSH
+    If the value is <constant>FALSE</constant>, Repo Studio will not use SSH
     for any script. If a script has been defined that requires SSH, either by
     default or via the <emphasis>ssh</emphasis> attribute of the script
-    element, CentOS Studio will fail with an error message.
+    element, Repo Studio will fail with an error message.
     </para>
     
     <para>
@@ -713,13 +713,13 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    CentOS Studio supports public key authentication for SSH connections.  If
+    Repo Studio supports public key authentication for SSH connections.  If
     the value of the <emphasis>ssh</emphasis> element is
-    <constant>TRUE</constant>, CentOS Studio will check to see if SSH has 
+    <constant>TRUE</constant>, Repo Studio will check to see if SSH has 
     been configured for the root user on the build machine. Specifically, it
     does this by testing for the existence of a file named
     <filename>/root/.ssh/id_rsa.pub</filename>. If this file does not exist,
-    CentOS Studio will attempt to configure SSH for the build machine by
+    Repo Studio will attempt to configure SSH for the build machine by
     executing the following command:
     
     <programlisting>
@@ -737,11 +737,11 @@ $remote-url/%{id}</programlisting>
     <para>
     As a final step, users must also configure client machines to allow SSH
     access from the build machine. This can be accomplished using a <xref
-    linkend="config-rpm"/>. CentOS Studio includes an example template to
-    complete this task. On a system with CentOS Studio installed, the file can
+    linkend="config-rpm"/>. Repo Studio includes an example template to
+    complete this task. On a system with Repo Studio installed, the file can
     be found as <filename>ssh-config.xml</filename> in the <xref
     linkend='templates'/> folder at
-    <filename>/usr/share/centosstudio/templates/deploy</filename>. See the
+    <filename>/usr/share/repostudio/templates/deploy</filename>. See the
     <xref linkend='deploy-config-rpm'/> element below for an example of using
     this template.
     </para>
@@ -808,7 +808,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      Also used by CentOS Studio during the creation of ISO images. See the
+      Also used by Repo Studio during the creation of ISO images. See the
       section on the <xref linkend='iso'/> top-level element for more
       information.
       </para>
@@ -846,7 +846,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    CentOS Studio makes the kickstart available as a file
+    Repo Studio makes the kickstart available as a file
     named <filename>ks.cfg</filename> included in the root folder of the
     repository, e.g.
     <filename>http://server.company.com/repos/system/samba-server-5-i386/ks.cfg</filename>.
@@ -873,7 +873,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <note>It is not necessary to specify a '%packages' section in the kickstart
-    file. CentOS Studio automatically configures the installer to install all
+    file. Repo Studio automatically configures the installer to install all
     packages in the repository. If a '%packages' section is
     provided, it is ignored.</note>
   
@@ -900,7 +900,7 @@ $remote-url/%{id}</programlisting>
     linkend='deployment-macros'>module macros</link>. On a system with CentOS
     Studio installed, the text of the kickstart shown below can be found as a
     file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
-    folder at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+    folder at <filename>/usr/share/repostudio/templates/deploy</filename>.
     </para>
 
     <informalexample>
@@ -953,9 +953,9 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    On a system with CentOS Studio installed, this config-rpm template can be
+    On a system with Repo Studio installed, this config-rpm template can be
     found as a file named <filename>ssh-config.xml</filename> in the examples
-    folder at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+    folder at <filename>/usr/share/repostudio/templates/deploy</filename>.
     </para>
 
     <informalexample>
@@ -990,7 +990,7 @@ $remote-url/%{id}</programlisting>
 
       <note>
       <para>
-      CentOS Studio executes installation-related scripts
+      Repo Studio executes installation-related scripts
       (<xref linkend='delete'/>, <xref linkend='install'/>, <xref
       linkend='post-install'/> and <xref linkend='save-triggers'/>) only when
       one of the following conditions is true.
@@ -1052,7 +1052,7 @@ $remote-url/%{id}</programlisting>
       <term>@activate</term>
       <listitem>
       <para>
-      <xref linkend="content-boolean"/> value indicating whether CentOS Studio
+      <xref linkend="content-boolean"/> value indicating whether Repo Studio
       should execute install-related scripts if an <xref
       linkend='activate'/>-type script returns a non-zero exit status.
       </para>
@@ -1068,7 +1068,7 @@ $remote-url/%{id}</programlisting>
       <term>@connect</term>
       <listitem>
       <para>
-      <xref linkend="content-boolean"/> value indicating whether CentOS Studio
+      <xref linkend="content-boolean"/> value indicating whether Repo Studio
       should execute install-related scripts if the <xref linkend='ssh'/>
       element is <constant>TRUE</constant> and an SSH connection to the client
       machine identified by <link linkend='deployment-macros'>%{fqdn}</link>
@@ -1151,7 +1151,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>virt-activate.xml</filename> which is included in the
       <xref linkend='templates'/> folder 
-      at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+      at <filename>/usr/share/repostudio/templates/deploy</filename>.
       </para>
       
       <para>
@@ -1190,7 +1190,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      CentOS Studio makes a number of macros available to assist with
+      Repo Studio makes a number of macros available to assist with
       <emphasis> test-trigger</emphasis> script operation. These are listed in
       the <xref linkend='deployment-macros'/> section of this chapter, under
       the label <emphasis>Trigger Macros</emphasis>. The example below shows
@@ -1201,14 +1201,14 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
       <xref linkend='templates'/> folder 
-      at <filename>/usr/share/centosstudio/templates/deploy</filename>.
+      at <filename>/usr/share/repostudio/templates/deploy</filename>.
       </para>
      
       <para>
       The template first reads a file (identified by the %{trigger-file} macro)
       of saved trigger values.  Using a list of triggers identified by the
       %{triggers} macro, it then attempts to compare current trigger values to
-      saved trigger values. CentOS Studio calculates a number of current
+      saved trigger values. Repo Studio calculates a number of current
       trigger values and makes them available via the %{release_rpm},
       %{config_rpms}, %{kickstart}, %{treeinfo}, %{install_scripts} and
       %{post_install_scripts} macros.  If any of the current triggers differs
@@ -1345,7 +1345,7 @@ $remote-url/%{id}</programlisting>
       quite possibly one of the config-rpms (defined using a <xref
       linkend='config-rpm'/> element), failed to install as expected. See the
       examples section below for a script that scans for and reports "scriptlet
-      failed" errors. See the <emphasis>CentOS Studio User Manual</emphasis>
+      failed" errors. See the <emphasis>Repo Studio User Manual</emphasis>
       for information on troubleshooting "scriptlet failed" errors related to
       the config-rpm.
       </para>
@@ -1481,7 +1481,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
 
       <para>
-      <varname>BOOLEAN</varname> value that determines whether CentOS Studio
+      <varname>BOOLEAN</varname> value that determines whether Repo Studio
       should attempt to execute the script via SSH.
       Default values are shown in the table below. 
       </para>
@@ -1507,16 +1507,16 @@ $remote-url/%{id}</programlisting>
       </informaltable>
 
       <para>
-      If the ssh attribute is <constant>TRUE</constant>, CentOS Studio attempts
+      If the ssh attribute is <constant>TRUE</constant>, Repo Studio attempts
       to copy the script to the client machine identified by the <link
       linkend='deployment-macros'>%{fqdn}</link> macro and execute it from the
-      <filename>/var/lib/centosstudio/</filename> folder with root privileges.
+      <filename>/var/lib/repostudio/</filename> folder with root privileges.
       The file will be given the same name as the <xref linkend='script-id'/>
       attribute.
       </para>
 
       <para>
-      If the ssh attribute is <constant>FALSE</constant>, CentOS Studio relies
+      If the ssh attribute is <constant>FALSE</constant>, Repo Studio relies
       on the script to perform all steps to connect, authenticate, and execute
       on one or more client machines.
       </para>
@@ -1528,7 +1528,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       <xref linkend='content-boolean'/> value indicating whether the Standard
-      Output from the script should be displayed as output from CentOS Studio.
+      Output from the script should be displayed as output from Repo Studio.
       </para>
 
       <para>
@@ -1569,8 +1569,8 @@ $remote-url/%{id}</programlisting>
     <listitem>
     <para>
     <xref linkend='content-text'/> content of a script used for determining
-    whether the deployment event should run during the current CentOS Studio
-    session. CentOS Studio executes the script on the local machine as the root
+    whether the deployment event should run during the current Repo Studio
+    session. Repo Studio executes the script on the local machine as the root
     user.
     </para>
 
@@ -1584,7 +1584,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    CentOS Studio tests for changes in files in the %{input-dir} folder based
+    Repo Studio tests for changes in files in the %{input-dir} folder based
     on filename and timestamp. If any files have changed, it causes the
     deployment event to run.
     </para>
@@ -1595,7 +1595,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    In most cases this element is not required as CentOS Studio automatically
+    In most cases this element is not required as Repo Studio automatically
     runs the event only when necessary. In some cases, however, it is desirable
     to cause the event to run based on external factors, such as changes to a
     file used by one of the scripts described in the previous element.
@@ -1606,7 +1606,7 @@ $remote-url/%{id}</programlisting>
     of a script is provided. The script tests if the current version of a
     source code repository matches the version saved to a file in the
     <emphasis>%{input-dir}</emphasis> folder. If not, it writes the new version
-    to the file. CentOS Studio checks for changes to files in the
+    to the file. Repo Studio checks for changes to files in the
     <emphasis>%{input-dir}</emphasis> and, if so, causes the deployment event
     to run.
     </para>

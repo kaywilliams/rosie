@@ -6,16 +6,16 @@
 
   <para>
   Now that you have completed, tested and published your package repository,
-  you are ready for customers to use it. They can use it with CentOS Studio for
+  you are ready for customers to use it. They can use it with Repo Studio for
   creating their own package or system repositories.  Or they can install
   packages from your repository manually on existing systems. We will discuss
   each of these scenarios below.
   </para>
 
   <section>
-  <title>With CentOS Studio</title>
+  <title>With Repo Studio</title>
   <para>
-  Your customers can use CentOS Studio for including content from your
+  Your customers can use Repo Studio for including content from your
   repository within their own system and package repositories. They can do this
   by including the following elements in their definitions:
   </para>

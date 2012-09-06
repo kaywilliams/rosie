@@ -5,16 +5,16 @@
   <title>Updating Repositories</title>
 
   <para>
-  To keep your repository current, you will need to run CentOS Studio on a
-  regular basis. Each time CentOS Studio runs, it checks for changes in the
+  To keep your repository current, you will need to run Repo Studio on a
+  regular basis. Each time Repo Studio runs, it checks for changes in the
   repository definition or in input data - such as new packages available from
   an input repository - and refreshes the repository as necessary.
   </para>
 
   <para>
-  If CentOS Studio finds updated packages, it refreshes the <xref
+  If Repo Studio finds updated packages, it refreshes the <xref
   linkend="repository"/> to contain just the current set of packages.
-  Specifically, when CentOS Studio determines that packages have changed, it
+  Specifically, when Repo Studio determines that packages have changed, it
   calculates the list of packages needed to satisfy repository requirements,
   and then adds and removes packages as necessary to bring the repository into
   conformance with the list. This behavior allows the <xref
@@ -29,7 +29,7 @@
 
   <para>
   <informalexample><programlisting>
-# centosstudio web-server.definition</programlisting></informalexample>
+# repostudio web-server.definition</programlisting></informalexample>
   </para>
 
   <para>
@@ -47,7 +47,7 @@ PARAMS="\
   "
 
 for params in $PARAMS; do
-  centosstudio $params 
+  repostudio $params 
 done</programlisting>
   </informalexample></para>
 

@@ -36,7 +36,7 @@
     <listitem>
     Place copies of user-provided scripts in a troubleshooting folder on client
     machines. The name of the folder is
-    <filename>/var/lib/centosstudio/config/RPMID</filename>, where
+    <filename>/var/lib/repostudio/config/RPMID</filename>, where
     <varname>RPMID</varname> is specified by the <emphasis>@id</emphasis>
     attribute of the config-rpm. Files in this folder assist with
     troubleshooting "scriptlet failed" errors during installation and updates
@@ -115,14 +115,14 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
   <title>Macros</title>
 
   <para>
-  CentOS Studio provides one <emphasis>module run-time macro</emphasis> to
+  Repo Studio provides one <emphasis>module run-time macro</emphasis> to
   config-rpms: <emphasis>%{installdir}</emphasis>.
   </para>
 
   <para>
   The <emphasis>%{installdir}</emphasis> macro specifies the location where
   variable data for the config-rpm is installed, specifically
-  <filename>/var/cache/centosstudio/config/RPMID</filename>, where RPMID is
+  <filename>/var/cache/repostudio/config/RPMID</filename>, where RPMID is
   taken from the <emphasis>@id</emphasis> of the config-rpm element. This can
   be useful for scripts specified within <xref linkend='config-rpms-files'/>,
   <xref linkend='config-rpms-script'/> and <xref linkend='config-rpms-trigger'/>
@@ -156,7 +156,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
       <listitem>
       <para>
       Container element identifying an individual config rpm to be created by
-      CentOS Studio.
+      Repo Studio.
       </para>
 
       <para>
@@ -360,7 +360,7 @@ FULLNAME repository.
         <emphasis><xref linkend="destdir" /></emphasis>. Controls the
         location to which this file or folder should be installed on client
         machines. The default value is
-        <filename>/var/lib/centosstudio/config/%{name}/RPMID/files</filename>
+        <filename>/var/lib/repostudio/config/%{name}/RPMID/files</filename>
         </para>
 
         <para>
@@ -418,12 +418,12 @@ FULLNAME repository.
         installed, uninstalled or updated. For this reason, it should be
         written to be idempotent, meaning that it can be run multiple times
         with the same result. See the section on <emphasis>Configuration
-        Packages</emphasis> in the <emphasis>CentOS Studio User
+        Packages</emphasis> in the <emphasis>Repo Studio User
         Manual</emphasis> for more information on writing idempotent scripts.
         </para>
 
         <para>
-        To facilitate debugging, CentOS Studio automatically adds the command
+        To facilitate debugging, Repo Studio automatically adds the command
         <command>set -e</command> at the top of each script. This causes the
         entire script to exit immediately if any internal command exits with a
         non-zero status. See <command>man set</command> for additional
@@ -453,7 +453,7 @@ FULLNAME repository.
         </para>
 
         <para>
-        For <emphasis>post</emphasis>-type scripts, CentOS Studio provides an
+        For <emphasis>post</emphasis>-type scripts, Repo Studio provides an
         additional runtime variable, <emphasis>$changed</emphasis>.  This
         variable can be used to perform conditional actions based on the status
         of files installed by the config-rpm. The <emphasis>$changed</emphasis>
@@ -519,12 +519,12 @@ chkconfig smb on
         Because the script runs each time the trigger event occurs, it should
         be written to be idempotent, meaning that it can be run multiple times
         with the same result. See the section on <emphasis>Configuration
-        Packages</emphasis> in the <emphasis>CentOS Studio User
+        Packages</emphasis> in the <emphasis>Repo Studio User
         Manual</emphasis> for more information on writing idempotent scripts.
         </para>
 
         <para>
-        As with regular scripts, CentOS Studio adds the <command>set
+        As with regular scripts, Repo Studio adds the <command>set
         -e</command> command to each trigger script. This is only done,
         however, for trigger scripts with the <emphasis>@interpreter</emphasis>
         attribute set to <filename>/bin/sh</filename> (the default) or

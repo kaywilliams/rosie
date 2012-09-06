@@ -12,7 +12,7 @@
   </para>
   
   <para>
-  CentOS Studio automatically creates a release package for the repository. You
+  Repo Studio automatically creates a release package for the repository. You
   can control aspects of the release package using the
   <emphasis>release-rpm</emphasis> element.
   </para>
@@ -62,7 +62,7 @@
   <title>Yum Sync Plugin</title>
 
   <para>
-  CentOS Studio provides an extension to YUM, called the <emphasis>YUM sync
+  Repo Studio provides an extension to YUM, called the <emphasis>YUM sync
   plugin</emphasis>, that allows keeping installed clients up to date with
   changes in a "master" repository. The YUM sync plugin is installed to client
   machines by default (for <emphasis>system</emphasis>-type repositories) via
@@ -77,7 +77,7 @@
 
   <para>
   In addition to installing the sync plugin, the release-rpm also configures
-  the sync plugin to use the CentOS Studio-generated repository as the master
+  the sync plugin to use the Repo Studio-generated repository as the master
   repository. This disables all other package repositories on the client
   machine, allowing the plugin to get an accurate list of what packages
   <emphasis>should be installed</emphasis> on the client using packages

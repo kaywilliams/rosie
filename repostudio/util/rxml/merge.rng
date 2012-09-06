@@ -1,0 +1,113 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         xmlns:xm="http://www.repostudio.org/ns/merge"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="xm:merge">
+      <oneOrMore>
+      <choice>
+      <ref name="element-action-insert"/>
+      <ref name="element-action-remove"/>
+      <ref name="element-action-update"/>
+      <ref name="element-action-replace"/>
+      <ref name="element-action-chmod"/>
+      </choice>
+      </oneOrMore>
+    </element>
+  </start>
+
+  <define name="anything">
+    <zeroOrMore>
+      <choice>
+        <element>
+          <anyName/>
+          <ref name="anything"/>
+        </element>
+        <attribute>
+          <anyName/>
+          <text/>
+        </attribute>
+      </choice>
+    </zeroOrMore>
+  </define>
+
+  <define name="content-unvalidated">
+    <zeroOrMore>
+      <element>
+        <anyName>
+        <except>
+        <nsName ns="http://www.repostudio.org/ns/merge"/>
+        </except>
+        </anyName>
+        <ref name="anything"/>
+        <text/>
+      </element>
+    </zeroOrMore>
+  </define>
+
+  <define name="element-action-insert">
+    <element name="xm:action">
+      <interleave>
+      <attribute name="xm:type"><value>insert</value></attribute>
+      <attribute name="xm:path"/>
+      <attribute name="xm:position"/>
+      <attribute name="xm:unique"/>
+      </interleave>
+      <text/>
+      <ref name="content-unvalidated"/>
+    </element>
+  </define>
+
+  <define name="element-action-remove">
+    <element name="xm:action">
+      <interleave>
+      <attribute name="xm:type"><value>remove</value></attribute>
+      <attribute name="xm:path"/>
+      </interleave>
+    </element>
+  </define>
+
+  <define name="element-action-update">
+    <element name="xm:action">
+      <interleave>
+      <attribute name="xm:type"><value>update</value></attribute>
+      <attribute name="xm:path"/>
+      <ref name="attribute-non-merge"/>
+      </interleave>
+      <text/>
+    </element>
+  </define>
+
+  <define name="element-action-replace">
+    <element name="xm:action">
+      <interleave>
+      <attribute name="xm:type"><value>replace</value></attribute>
+      <attribute name="xm:path"/>
+      </interleave>
+      <text/>
+      <ref name="content-unvalidated"/>
+    </element>
+  </define>
+
+  <define name="element-action-chmod">
+    <element name="xm:action">
+      <interleave>
+      <attribute name="xm:type"><value>chmod</value></attribute>
+      <attribute name="xm:path"/>
+      <attribute name="xm:value"/>
+      </interleave>
+    </element>
+  </define>
+
+  <define name="attribute-non-merge">
+    <zeroOrMore>
+    <attribute>
+      <anyName>
+      <except>
+      <nsName ns="http://www.repostudio.org/ns/merge"/>
+      </except>
+      </anyName>
+    </attribute>
+    </zeroOrMore>
+  </define>
+
+</grammar>

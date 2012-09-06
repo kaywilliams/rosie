@@ -15,14 +15,14 @@
         <imagedata fileref="build_overview.png" />
       </imageobject>
 
-      <caption><para>CentOS Studio Build Process</para></caption>
+      <caption><para>Repo Studio Build Process</para></caption>
     </mediaobject>
 
   <section>
   <title>Input</title>
 
   <para>
-  <application class="software">CentOS Studio</application> uses three classes
+  <application class="software">Repo Studio</application> uses three classes
   of input: a base operating system repository, additional package
   repositories, and configuration files and scripts.
   </para>
@@ -30,7 +30,7 @@
   <itemizedlist>
   <listitem>
   <emphasis role="strong">Base Operating System Repository.</emphasis>
-  CentOS Studio requires a CentOS-compatible operating system repository as
+  Repo Studio requires a CentOS-compatible operating system repository as
   input for creating new repositories. Currently supported operating system
   repositories include CentOS and Red Hat Enterprise Linux, versions 5 and 6
   for i386 and x86_64 architectures. See <xref
@@ -61,7 +61,7 @@
   <title>Process</title>
 
   <para>
-  <application class="software">CentOS Studio</application> uses information
+  <application class="software">Repo Studio</application> uses information
   from the <xref linkend="repository_definition"/> to gather repository
   content. It uses this information to complete three primary steps.
   </para>
@@ -70,19 +70,19 @@
   <listitem>
   <para>
   <emphasis role="strong">Create repository-specific RPM packages.</emphasis>
-  CentOS Studio creates two types of packages, the  <xref
+  Repo Studio creates two types of packages, the  <xref
   linkend="release-rpm"/> and optional <xref linkend="config-rpms"/>. The
-  release-rpm contains CentOS Studio-generated YUM update configuration.
+  release-rpm contains Repo Studio-generated YUM update configuration.
   Config-rpm packages contain user-provided files and scripts specified in the
   repository definition. Both are discussed under <xref
   linkend="building-rpms" />.
   </para>
 
   <para>
-  During this step, CentOS Studio also creates a <xref
+  During this step, Repo Studio also creates a <xref
   linkend="repository-data-file"/>, if one does not exist, in the same folder
   as the repository definition. The file has a .dat extension. This file is
-  used to store CentOS Studio generated input data, such as release numbers for
+  used to store Repo Studio generated input data, such as release numbers for
   generated RPMs, that should be maintained along with the repository
   definition.
   </para>
@@ -90,7 +90,7 @@
 
   <listitem>
   <emphasis role="strong">Assemble a package repository.</emphasis> Using the
-  repository definition, CentOS Studio compiles a list of required packages. It
+  repository definition, Repo Studio compiles a list of required packages. It
   then resolves package dependencies, downloads packages, and creates a
   complete, consistent package repository. The package repository is used
   during network installations to client machines. It is also used during
@@ -99,9 +99,9 @@
 
   <listitem>
   <emphasis role="strong">Customize system installation images
-  (optional).</emphasis> For system-type repositories, CentOS Studio downloads
+  (optional).</emphasis> For system-type repositories, Repo Studio downloads
   network installation images from the CentOS-compatible repository and
-  modifies them to include repository-specific information. CentOS Studio can
+  modifies them to include repository-specific information. Repo Studio can
   be used to completely automate client installations. The chapters on <xref
   linkend='testing-system-repos'/> and <xref linkend="deployment-scenarios"/>
   describe this in detail.
@@ -109,9 +109,9 @@
   </itemizedlist>
 
   <para>
-  <application class="software">CentOS Studio</application> stores repository
+  <application class="software">Repo Studio</application> stores repository
   content, both input and generated, in the cache folder, by default <filename
-  type="directory">/var/cache/centosstudio/</filename>. It reuses information
+  type="directory">/var/cache/repostudio/</filename>. It reuses information
   from the cache on subsequent runs, where possible, to improve build
   performance.
   </para>
@@ -121,7 +121,7 @@
   <title>Output</title>
 
   <para>
-  CentOS Studio outputs a complete repository, a repository data file and a log
+  Repo Studio outputs a complete repository, a repository data file and a log
   file.
   </para>
 
@@ -139,15 +139,15 @@
 
   <listitem>
   <emphasis role="strong">Repository Data File.</emphasis> As mentioned above,
-  CentOS Studio creates a <xref linkend="repository-data-file"/> during the
-  build process. This file is used to track CentOS Studio generated input
+  Repo Studio creates a <xref linkend="repository-data-file"/> during the
+  build process. This file is used to track Repo Studio generated input
   information. 
   </listitem>
 
   <listitem>
-  <emphasis role="strong">CentOS Studio Log File.</emphasis> CentOS Studio
+  <emphasis role="strong">Repo Studio Log File.</emphasis> Repo Studio
   sends output both to the screen and to a log file, located by default at
-  <filename>/var/log/centosstudio.log.</filename>
+  <filename>/var/log/repostudio.log.</filename>
   </listitem>
   </itemizedlist>
   </section>
@@ -156,7 +156,7 @@
   <title>Test, Deploy and Maintain</title>
 
   <para>
-  The repository generated by CentOS Studio is used to perform testing,
+  The repository generated by Repo Studio is used to perform testing,
   deployment and maintenance to client machines. These steps can be performed
   in one of three ways:
 
@@ -166,7 +166,7 @@
   </listitem>
   
   <listitem>
-  Automatically by CentOS Studio using deployment scripts.
+  Automatically by Repo Studio using deployment scripts.
   </listitem>
   
   <listitem>

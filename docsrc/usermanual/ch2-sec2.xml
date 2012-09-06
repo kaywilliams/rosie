@@ -5,7 +5,7 @@
   <title>Repositories</title>
 
 <para>
-CentOS Studio creates YUM package repositories. YUM is an application used to
+Repo Studio creates YUM package repositories. YUM is an application used to
 manage updates for CentOS and RHEL, similar to Microsoft Update for Windows.
 YUM package repositories play a central role in updating client machines. They
 play an equally prominent role in client machine installation, as the same
@@ -54,13 +54,13 @@ without needing to migrate system images and configuration databases.
 <para>
 YUM repositories are in use by some organizations today for deploying internal
 systems and applications. Adoption has been limited, however, given learning
-curve and overhead. CentOS Studio lowers the bar for IT Professionals by
+curve and overhead. Repo Studio lowers the bar for IT Professionals by
 providing a flexible, automated platform to create and maintain YUM
 repositories.
 </para>
 
   <para>
-  CentOS Studio creates two types of repositories: <emphasis>system</emphasis>
+  Repo Studio creates two types of repositories: <emphasis>system</emphasis>
   and <emphasis>package</emphasis>.
   </para>
 
@@ -73,7 +73,7 @@ repositories.
   installation and updates. Clients can be updated against the system
   repository using either traditional or synchronization methods, the latter
   ensuring that client packages are kept in strict compliance with the system
-  repository. CentOS Studio provides the YUM Sync Plugin to enable this support.
+  repository. Repo Studio provides the YUM Sync Plugin to enable this support.
   </para>
   </section>
 

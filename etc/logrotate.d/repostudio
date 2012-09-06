@@ -1,0 +1,6 @@
+/var/log/repostudio.log {
+    missingok
+    notifempty
+    rotate 4
+    size 500k
+}
