@@ -2,10 +2,17 @@
 <script id='virt-delete' type='delete'>
 #!/bin/bash
 set -e
-/usr/bin/virsh managedsave-remove %{fqdn} 
+# remove managedsave image, if domain exists
+if [[ `/usr/bin/virsh list --all` = *\ %{fqdn}\ * ]]; then 
+  /usr/bin/virsh managedsave-remove %{fqdn} 
+fi
+
+# destroy domain, if active
 if [[ `/usr/bin/virsh list` = *\ %{fqdn}\ * ]]; then
   /usr/bin/virsh destroy %{fqdn}
 fi
+
+# undefine domain and delete image, if domain exists
 if [[ `/usr/bin/virsh list --all` = *\ %{fqdn}\ * ]]; then 
   /usr/bin/virsh undefine %{fqdn}
   /usr/bin/virsh vol-delete --pool default %{fqdn}.img
