@@ -2,8 +2,8 @@
 <script id='virt-delete' type='delete'>
 #!/bin/bash
 set -e
+/usr/bin/virsh managedsave-remove %{fqdn} 
 if [[ `/usr/bin/virsh list` = *\ %{fqdn}\ * ]]; then
-  /usr/bin/virsh managedsave-remove %{fqdn}
   /usr/bin/virsh destroy %{fqdn}
 fi
 if [[ `/usr/bin/virsh list --all` = *\ %{fqdn}\ * ]]; then 
