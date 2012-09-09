@@ -105,7 +105,7 @@
       </para>
 
       <variablelist>
-      <varlistentry id='srpm-id' xreflabel="SRPMID">
+      <varlistentry id='srpmid' xreflabel="SRPMID">
       <term>id</term>
 
       <listitem>
@@ -210,22 +210,22 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 
       <para>
       Provides three run-time <xref linkend="macros"/>:
-      <emphasis>srpm-id</emphasis>, <emphasis>srpm-dir</emphasis> and
-      <emphasis>srpm-last</emphasis>.
+      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis> and
+      <emphasis>srpmlast</emphasis>.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpm-id}:</emphasis> The name of the SRPM as
+      <emphasis role='strong'>%{srpmid}:</emphasis> The name of the SRPM as
       specified by the <emphasis>@id</emphasis> attribute.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpm-dir}:</emphasis> The path to a folder
+      <emphasis role='strong'>%{srpmdir}:</emphasis> The path to a folder
       where the script should copy the SRPM upon completion.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpm-last}:</emphasis> The full filename,
+      <emphasis role='strong'>%{srpmlast}:</emphasis> The full filename,
       including version and revision, of the last SRPM provided by the script.
       The script may wish to use this value as a performance optimization to
       determine whether a new SRPM must be created and provided.
@@ -240,11 +240,11 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       <para>
       In the example below, the TEXT of a script is provided to perform custom
       actions, and ultimately copy an SRPM to the location identified by the
-      <emphasis>srpm-dir</emphasis> macro. The script shown below makes a call
+      <emphasis>srpmdir</emphasis> macro. The script shown below makes a call
       to a custom external program (<filename>fetch.py</filename>) providing
       command line parameters that that the program will use to process and
       copy the SRPM to the location identified by 
-      <emphasis>%{srpm-dir}</emphasis>. 
+      <emphasis>%{srpmdir}</emphasis>. 
       </para>
   
       <informalexample>
@@ -252,7 +252,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;srpm id="my-package">
 &lt;script>
 #!/bin/bash
-fetch.py %{srpm-id} https://www.repostudio.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
+fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{srpmlast}
 &lt;/script>
 &lt;srpm></programlisting>
      </informalexample>

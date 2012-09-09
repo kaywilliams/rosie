@@ -113,9 +113,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   
     # resolve macros
     srpmlast = self.unshelve('srpmlast', 'None')
-    macros = {'%{srpm-id}': self.srpmid,
-              '%{srpm-dir}': self.srpmdir,
-              '%{srpm-last}': srpmlast,
+    macros = {'%{srpmid}': self.srpmid,
+              '%{srpmdir}': self.srpmdir,
+              '%{srpmlast}': srpmlast,
              }
     self.config.resolve_macros('.', macros)
   
@@ -402,7 +402,7 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'modules that accept SRPMs and build RPMs',
   )
 
-  srpm_ids = getattr(ptr, 'cvars[\'srpm-ids\']', [])
+  srpmids = getattr(ptr, 'cvars[\'srpmids\']', [])
 
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
@@ -415,7 +415,7 @@ def get_module_info(ptr, *args, **kwargs):
     name = '%sSrpmBuildEvent' % name.capitalize()
 
     # ensure unique srpm ids
-    if id in srpm_ids:
+    if id in srpmids:
       raise DuplicateIdsError(element='srpm', id=id)
 
     # create new class
@@ -426,14 +426,14 @@ def get_module_info(ptr, *args, **kwargs):
                          }
                         )""" % (name, name, id) in globals()
 
-    # update srpm_ids with new id
-    srpm_ids.append(id)
+    # update srpmids with new id
+    srpmids.append(id)
 
     # update module info with new classname
     module_info['events'].append(name)
 
-  # update cvars srpm-ids
-  ptr.cvars['srpm-ids'] = srpm_ids
+  # update cvars srpmids
+  ptr.cvars['srpmids'] = srpmids
 
   return module_info
 
