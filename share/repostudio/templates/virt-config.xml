@@ -11,22 +11,89 @@
 
 <files destdir="/etc/NetworkManager/dispatcher.d" destname="99-repostudio-virt-config" mode="755" content="text">
 #!/bin/bash
+#Create/update repostudio virtual network
 
-# add dnsmasq as resolver for default libvirt virtual network
-[[ `grep '192.168.123.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
-nameserver 192.168.123.1
+# Assign domain name as a subdomain of host domain. This allows dns lookups
+# of host.subdomain.domain. It also allows the the host mailer to send admin
+# email from root@host.subdomain.domain, which is both an understandable 
+# address and a "valid" internet email address. The latter is important, 
+# else smart email hosts will reject email as being sent from an
+# invalid sender domain.
+domain=`hostname -d 2>/dev/null || echo ''`
+
+# Assign name for virtual bridge
+start=1
+end=99
+success=false
+for i in `seq $start $end`; do 
+  brname=virbr$i
+  if ! (ifconfig | grep $brname) >/dev/null ; then
+    success=true
+    break
+  fi
+done
+if [[ $success = false ]]; then
+  echo "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again." >&amp;2
+fi
+
+# Assign IP address for virtual network
+start=123
+end=255
+success=false
+for i in `seq $start $end`; do 
+  ipnet=$i
+  if ! (ifconfig | grep 192.168.$ipnet.1) >/dev/null ; then
+    success=true
+    break
+  fi
+done
+if [[ $success = false ]]; then
+  echo "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again." >&amp;2
+fi
+
+# Create/update repostudio.xml
+working="%{installdir}"
+libvirt="/etc/libvirt/qemu/networks"
+
+/bin/cp -f $working/repostudio.tmpl $working/repostudio.xml
+sed -i "s/%domain/$domain/g" $working/repostudio.xml
+sed -i "s/%brname/$brname/g" $working/repostudio.xml
+sed -i "s/%ipnet/$ipnet/g" $working/repostudio.xml
+
+if ! ([ -e $working/repostudio.last ] &amp;&amp; \
+      diff $working/repostudio.xml $working/repostudio.last>/dev/null); then
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    if virsh net-info repostudio >/dev/null 2>&amp;1; then
+      virsh net-destroy repostudio >/dev/null 2>&amp;1 || true
+      virsh net-undefine repostudio >/dev/null
+    fi
+  fi
+  /bin/cp -f $working/repostudio.xml $libvirt/repostudio.xml
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    virsh net-define $libvirt/repostudio.xml >/dev/null
+    virsh net-start repostudio >/dev/null
+    virsh net-autostart repostudio >/dev/null
+  else
+    /bin/ln -sf $libvirt/repostudio.xml $libvirt/autostart
+  fi
+fi
+/bin/mv -f $working/repostudio.xml $working/repostudio.last
+
+# add dnsmasq as resolver for libvirt virtual network
+[[ `grep '192.168.$ipnet.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
+nameserver 192.168.$ipnet.1
 }' /etc/resolv.conf
 </files>
 
-<files destdir="/etc/libvirt/qemu/networks" destname="repostudio.tmpl" content="text">
+<files destdir="%{installdir}" destname="repostudio.tmpl" content="text">
 &lt;network>
   &lt;name>repostudio&lt;/name>
-  &lt;domain name='local.%domain'/>
-  &lt;bridge name="virbr1" />
+  &lt;domain name="local.%domain"/>
+  &lt;bridge name="%brname" />
   &lt;forward/>
-  &lt;ip address="192.168.123.1" netmask="255.255.255.0">
+  &lt;ip address="192.168.%ipnet.1" netmask="255.255.255.0">
     &lt;dhcp>
-      &lt;range start="192.168.123.2" end="192.168.123.254" />
+      &lt;range start="192.168.%ipnet.2" end="192.168.%ipnet.254" />
     &lt;/dhcp>
   &lt;/ip>
 &lt;/network>
@@ -57,32 +124,6 @@ if [[ `grep "$text" $file` = *0* ]] ; then
     sysctl -q -p                       # update sysctl
   fi
 fi
-
-# Starting from template file, create repostudio network as a subdomain of
-# host domain. This allows dns lookups of host.subdomain.domain. It also allows
-# sendmail to send admin email from root@host.subdomain.domain, which is both an
-# understandable address and a "valid" internet email address. The latter is
-# important, else smart email hosts will reject email as being sent from an
-# invalid sender domain.
-
-domain=`hostname -d 2>/dev/null || echo ''`
-path="/etc/libvirt/qemu/networks/repostudio"
-virsh="/usr/bin/virsh"
-if [[ $changed = *\ $path.tmpl\ * ]] ; then
-  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    if virsh net-info repostudio >/dev/null 2>&amp;1; then
-      virsh net-destroy repostudio >/dev/null 2>&amp;1 || true
-      virsh net-undefine repostudio >/dev/null
-    fi
-  fi
-  /bin/cp -f $path.tmpl $path.xml
-  sed -i "s/%domain/$domain/" $path.xml
-  /bin/ln -sf $path.xml `dirname $path`/autostart
-  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    virsh net-define $path.xml >/dev/null
-    virsh net-start repostudio >/dev/null
-  fi
-fi
 </script>
 
 <script type='postun'>
@@ -97,6 +138,10 @@ if [[ $1 = 0 ]]; then
       sysctl -q -p                         # update sysctl
       /bin/rm -f %{installdir}/sysctl.conf # remove backup file 
     fi
+  fi
+  if virsh net-info repostudio >/dev/null 2>&amp;1; then
+    virsh net-destroy repostudio >/dev/null 2>&amp;1 || true
+    virsh net-undefine repostudio >/dev/null
   fi
 fi
 </script>
