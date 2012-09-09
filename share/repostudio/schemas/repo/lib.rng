@@ -51,7 +51,7 @@
 
   <define name="element-files">
     <element name="files">
-      <ref name="attribute-destdir-absolute"/>
+      <ref name="attribute-destdir"/>
       <ref name="attribute-destname"/>
       <ref name="attribute-mode"/>
       <ref name="attribute-content"/>
@@ -153,19 +153,6 @@
     </data>
   </define>
 
-  <!-- path values -->
-  <define name="value-filename">
-    <data type="token">
-      <param name="pattern">[^/]*</param>
-    </data>
-  </define>
-
-  <define name="value-absolute-local-path">
-    <data type="token">
-      <param name="pattern">/.*</param>
-    </data>
-  </define>
-
   <define name="value-mode">
     <data type="token">
       <param name="pattern">[0]?[0-7]?[0-7][0-7][0-7]</param>
@@ -186,19 +173,9 @@
     </optional>
   </define>
 
-  <define name="attribute-destdir-absolute">
-    <optional>
-    <attribute name="destdir">
-      <ref name="value-absolute-local-path"/>
-    </attribute>
-    </optional>
-  </define>
-
   <define name="attribute-destname">
     <optional>
-    <attribute name="destname">
-      <ref name="value-filename"/>
-    </attribute>
+    <attribute name="destname"/>
     </optional>
   </define>
 
