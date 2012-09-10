@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 from repostudio.util   import pps 
 from repostudio.util   import rxml 
 
@@ -89,7 +89,7 @@ class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
                                  attrs={'id':   'test',
                                         'type': 'post-script'})
     script.text = 'echo "hello"'
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError,
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):
@@ -105,7 +105,7 @@ class Test_ErrorOnSshDisabled(TestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
   "test comes-before and comes-after"
@@ -151,7 +151,7 @@ class Test_ReinstallOnReleaseRpmChange(ReinstallTestInstallEventTestCase):
     self.execute_predecessors(self.event)
     name = self.event.cvars['release-rpm']
     self.event.cvars['rpmbuild-data'][name]['rpm-release'] += '1'
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
@@ -169,7 +169,7 @@ class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_ReinstallOnKickstartChange(ReinstallTestInstallEventTestCase):
@@ -178,7 +178,7 @@ class Test_ReinstallOnKickstartChange(ReinstallTestInstallEventTestCase):
   def runTest(self):
     self.execute_predecessors(self.event)
     self.event.cvars['test-install-kstext'] = ''
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_ReinstallOnTreeinfoChange(ReinstallTestInstallEventTestCase):
@@ -187,7 +187,7 @@ class Test_ReinstallOnTreeinfoChange(ReinstallTestInstallEventTestCase):
   def runTest(self):
     self.execute_predecessors(self.event)
     self.event.cvars['base-treeinfo-text'] = ''
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
@@ -200,7 +200,7 @@ class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
                                  attrs={'id':   'install-test',
                                         'type': 'install'})
     script.text = 'echo "Hello"'
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase):
@@ -213,7 +213,7 @@ class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase)
                                  attrs={'id':   'post-install-test',
                                         'type': 'post-install'})
     script.text = 'echo "hello"'
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase):
   "reinstalls if a save-triggers script changes"
@@ -225,7 +225,7 @@ class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase
                                  attrs={'id':   'save-triggers-test',
                                         'type': 'save-triggers'})
     script.text = 'echo "hello"'
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')

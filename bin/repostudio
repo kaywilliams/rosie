@@ -30,7 +30,7 @@ import traceback
 
 from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 
-from repostudio.errors    import CentOSStudioError
+from repostudio.errors    import RepoStudioError
 from repostudio.cslogging import L0
 from repostudio.util      import pps
 
@@ -174,7 +174,7 @@ class BuildCli:
       msg = "\nRepo Studio halted on user input\n"
       cb.logger.logfile.file_object.write(msg)
       sys.exit(msg)
-    except CentOSStudioError, e:
+    except RepoStudioError, e:
       cb.logger.write(0, '\n') # start on a new line
       if cb.debug:
         msg = traceback.format_exc()

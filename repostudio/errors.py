@@ -8,7 +8,7 @@ from repostudio.util     import pps
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
-  "Raise a CentOSStudioIOError (or subclass) if a file is not readable or empty."
+  "Raise a RepoStudioIOError (or subclass) if a file is not readable or empty."
   assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
   fp = None
   errno = None
@@ -22,13 +22,13 @@ def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
     fp and fp.close()
 
   if errno and message:
-    raise (cls or CentOSStudioIOError)(errno=errno,
+    raise (cls or RepoStudioIOError)(errno=errno,
                                file=srcfile or file,
                                message=message,
                                **kwargs)
 
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
-  "Raise a CentOSStudioIOError (or subclass) if a file isn't readable"
+  "Raise a RepoStudioIOError (or subclass) if a file isn't readable"
   fp = None
   errno = None; message = None
   try:
@@ -38,7 +38,7 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
       errno = e.errno; message = os.strerror(e.errno)
 
     if errno and message:
-      raise (cls or CentOSStudioIOError)(errno=errno,
+      raise (cls or RepoStudioIOError)(errno=errno,
                                  file=(srcfile or file).replace('\n','\\n'),
                                  message=message,
                                  **kwargs)
@@ -46,9 +46,9 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
     fp and fp.close()
 
 
-class CentOSStudioError(Exception): pass
+class RepoStudioError(Exception): pass
 
-class InvalidOptionError(CentOSStudioError):
+class InvalidOptionError(RepoStudioError):
   def __init__(self, value, name, accepted):
     self.value = value
     self.name = name
@@ -59,7 +59,7 @@ class InvalidOptionError(CentOSStudioError):
             "Repo Studio. %s" % 
             (self.value, self.name, self.accepted))
 
-class InvalidConfigError(CentOSStudioError):
+class InvalidConfigError(RepoStudioError):
   def __init__(self, file, name, value, accepted):
     self.file = file
     self.name = name
@@ -71,7 +71,7 @@ class InvalidConfigError(CentOSStudioError):
             "invalid value '%s'. %s" %
             (self.file, self.name, self.value, self.accepted))
 
-class CentOSStudioEventError(CentOSStudioError):
+class RepoStudioEventError(RepoStudioError):
   message = None
   def __init__(self, *args, **kwargs):
     self.map = {}
@@ -103,42 +103,42 @@ class CentOSStudioEventError(CentOSStudioError):
   def __str__(self):
     return self.message % self.map
 
-class SimpleCentOSStudioEventError(CentOSStudioEventError):
+class SimpleRepoStudioEventError(RepoStudioEventError):
   message = "%(message)s\n"
 
-class CentOSStudioIOError(CentOSStudioEventError, IOError):
+class RepoStudioIOError(RepoStudioEventError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
-class PpsPathError(CentOSStudioEventError):
+class PpsPathError(RepoStudioEventError):
   def __str__(self):
     if self.error.errno == 21: # EISDIR
       pass
 
-class ShLibError(CentOSStudioEventError):
+class ShLibError(RepoStudioEventError):
   def __init__(self, e):
     self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, CentOSStudioEventError):
+class RhnSupportError(RuntimeError, RepoStudioEventError):
   def __str__(self):
     return ( "RHN support not enabled - please install the 'rhnlib' and "
              "'rhn-client-tools' packages from the repostudio software repo "
              "at www.repostudio.org" )
 
-class MissingIdError(CentOSStudioEventError):
+class MissingIdError(RepoStudioEventError):
   message = ("Validation Error: Missing 'id' attribute while validating "
              "'%(element)s' elements.")
 
-class DuplicateIdsError(CentOSStudioEventError):
+class DuplicateIdsError(RepoStudioEventError):
   message = ("Validation Error: Duplicate ids found while validating "
              "'%(element)s' elements. The duplicate id is '%(id)s'")
 
-class CentOSStudioEventErrorHandler:
+class RepoStudioEventErrorHandler:
   def _handle_Exception(self, e, event=''):
     event = event or self.dispatch.currevent.id
     e = '\n[%s] %s' % (event, handle_Exception(e))
-    raise CentOSStudioError(e)
+    raise RepoStudioError(e)
 
 
 def handle_Exception(e):

@@ -26,7 +26,7 @@ import sys
 import traceback
 
 from repostudio.cslogging import L2, MSG_MAXWIDTH
-from repostudio.errors import CentOSStudioEventError
+from repostudio.errors import RepoStudioEventError
 from repostudio.util import pps
 from repostudio.util import sshlib 
 
@@ -158,7 +158,7 @@ class ExecuteEventMixin:
 
 
 #------ Errors ------#
-class ScriptFailedError(CentOSStudioEventError):
+class ScriptFailedError(RepoStudioEventError):
   message = "Error occured running '%(cmd)s'. See script output below:\n %(errtxt)s"
 
 class SSHFailedError(ScriptFailedError):

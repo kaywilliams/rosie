@@ -27,8 +27,8 @@ from crypt import crypt
 from random import choice
 
 from repostudio.callback   import LinkCallback
-from repostudio.errors     import CentOSStudioEventError
-from repostudio.errors     import SimpleCentOSStudioEventError
+from repostudio.errors     import RepoStudioEventError
+from repostudio.errors     import SimpleRepoStudioEventError
 from repostudio.cslogging  import L1
 from repostudio.util       import pps
 from repostudio.util       import shlib
@@ -79,7 +79,7 @@ class PublishSetupEventMixin:
     for key in ['%{url}', '%{hostname}', '%{domain}', '%{fqdn}', '%{password}', 
                 '%{boot-options}']:
       if key in map[key]['value']:
-        raise SimpleCentOSStudioEventError(
+        raise SimpleRepoStudioEventError(
           "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
           (key, self.moduleid, map[key]['conf']))
     self.macros = {} # making this an instance attr so rstest can access
@@ -313,14 +313,14 @@ def get_interfaces():
 
 
 #------ Error Classes ------#
-class InterfaceIOError(CentOSStudioEventError):
+class InterfaceIOError(RepoStudioEventError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )
 
-class InvalidHostnameError(CentOSStudioEventError):
+class InvalidHostnameError(RepoStudioEventError):
   message = "Invalid Hostname: %(message)s"
 
-class FQDNNotFoundError(CentOSStudioEventError):
+class FQDNNotFoundError(RepoStudioEventError):
   message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
               "IP address '%(ipaddr)s' on interface '%(interface)s'. "
               "Valid FQDNs must contain at least one '.' to separate host "
@@ -331,5 +331,5 @@ class FQDNNotFoundError(CentOSStudioEventError):
               "alternative interface for obtaining the IP address. See the "
               "Repo Studio documentation on 'Publish' for more information.") 
 
-class KeyGenerationFailed(CentOSStudioEventError):
+class KeyGenerationFailed(RepoStudioEventError):
   message = "%(message)s"

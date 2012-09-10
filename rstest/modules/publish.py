@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 from repostudio.util   import pps
 
 from rstest      import EventTestCase, ModuleTestSuite
@@ -75,7 +75,7 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
    if self.event.cvars['pykickstart-version'] < '1.74' and self.event.cvars['base-info']['version'][:1] >= '6':
      pass # el5 pykickstart can't validate el6 files
    else:
-     self.failUnlessRaises(CentOSStudioError, self.event)
+     self.failUnlessRaises(RepoStudioError, self.event)
 
   def tearDown(self):
     EventTestCase.tearDown(self)

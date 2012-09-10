@@ -52,14 +52,14 @@ from repostudio.util.sync import link
 from repostudio.callback  import (SyncCallback, CachedSyncCallback,
                                     LinkCallback, SyncCallbackCompressed)
 from repostudio.constants import *
-from repostudio.errors    import (CentOSStudioEventErrorHandler, 
-                                    CentOSStudioEventError,
-                                    CentOSStudioError,
+from repostudio.errors    import (RepoStudioEventErrorHandler, 
+                                    RepoStudioEventError,
+                                    RepoStudioError,
                                     InvalidOptionError,
                                     InvalidConfigError)
 from repostudio.event     import Event, CLASS_META
 from repostudio.cslogging import make_log, L0, L1, L2
-from repostudio.validate  import (CentOSStudioValidationHandler,
+from repostudio.validate  import (RepoStudioValidationHandler,
                                     InvalidEventError)
 
 from repostudio.event.loader import Loader
@@ -102,7 +102,7 @@ VALIDATE_DATA = {
                  'error':      FILENAME_ERROR},}
 
 
-class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object):
+class Build(RepoStudioEventErrorHandler, RepoStudioValidationHandler, object):
   """
   Primary build class - framework upon which a custom repostudio is generated
 
@@ -151,7 +151,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       self._get_config(options, arguments)
       self._get_definition(options, arguments)
     except rxml.errors.XmlError, e:
-      raise CentOSStudioError(e)
+      raise RepoStudioError(e)
 
     # now that we have mainconfig, use it to set debug mode, if specified
     if self.mainconfig.pathexists('/repostudio/debug'):
@@ -166,7 +166,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       self.arch     = self.definition.getxpath(qstr % 'arch')
       self.type     = self.definition.getxpath(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
-      raise CentOSStudioError("Validation of %s failed. %s" % 
+      raise RepoStudioError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
     self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
@@ -203,7 +203,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     try:
       self.logger = make_log(options.logthresh, self.logfile)
     except IOError, e:
-      raise CentOSStudioError("Error opening log file for writing: %s" % e)
+      raise RepoStudioError("Error opening log file for writing: %s" % e)
     if callback: callback.set_logger(self.logger)
 
     # set up additional attributes for use by events
@@ -238,11 +238,11 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      raise CentOSStudioError("Error loading core repostudio files: %s" % 
+      raise RepoStudioError("Error loading core repostudio files: %s" % 
             traceback.format_exc())
 
     except InvalidEventError, e:
-      raise CentOSStudioError("\n%s" % e)
+      raise RepoStudioError("\n%s" % e)
 
     # list events, if requested
     if options.list_events:
@@ -276,13 +276,13 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       try:
         try:
           self.dispatch.execute(until=None)
-        except CentOSStudioEventError, e:
+        except RepoStudioEventError, e:
           self._handle_Exception(e)
       finally:
         self._lock.release()
       self._log_footer()
     else:
-      raise CentOSStudioError("\nAnother instance of repostudio (pid %d) is "
+      raise RepoStudioError("\nAnother instance of repostudio (pid %d) is "
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.repoid ))
 
@@ -356,7 +356,7 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
       try:
         r.update(self.module_map[moduleid])
       except KeyError:
-        raise CentOSStudioError("Module '%s' does not exist or was not loaded"
+        raise RepoStudioError("Module '%s' does not exist or was not loaded"
                                 % moduleid)
     r.update(events or [])
     return r
@@ -375,9 +375,9 @@ class Build(CentOSStudioEventErrorHandler, CentOSStudioValidationHandler, object
     try:
       e = self.dispatch.get(eventid)
     except dispatch.UnregisteredEventError:
-      raise CentOSStudioError("Unregistered event '%s'" % eventid)
+      raise RepoStudioError("Unregistered event '%s'" % eventid)
     if not e._check_status(status):
-      raise CentOSStudioError("Cannot %s protected event '%s'" % (str, eventid))
+      raise RepoStudioError("Cannot %s protected event '%s'" % (str, eventid))
     e.status = status
 
   def _compute_import_dirs(self, options):

@@ -21,7 +21,7 @@ import copy
 import os
 import sys
 
-from repostudio.errors import CentOSStudioError, CentOSStudioEventError
+from repostudio.errors import RepoStudioError, RepoStudioEventError
 from repostudio.util   import pps
 from repostudio.util   import rxml
 
@@ -31,22 +31,22 @@ from repostudio.cslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
-class CentOSStudioValidationHandler:
+class RepoStudioValidationHandler:
   def validate_configs(self):
     try:
       self._validate_configs()
     except InvalidSchemaError, e:
-      raise CentOSStudioError("Schema file used in validation appears to be invalid:\n%s" % e)
+      raise RepoStudioError("Schema file used in validation appears to be invalid:\n%s" % e)
  
     except InvalidConfigError, e:
-      raise CentOSStudioError("Validation against schema failed:\n%s" % e)
+      raise RepoStudioError("Validation against schema failed:\n%s" % e)
     except (InvalidXmlError, rxml.errors.ConfigError), e:
-      raise CentOSStudioError(e)
-    except CentOSStudioError:
+      raise RepoStudioError(e)
+    except RepoStudioError:
       raise
     except Exception, e:
       raise
-      raise CentOSStudioError("Unhandled exception while performing validation: %s" % e)
+      raise RepoStudioError("Unhandled exception while performing validation: %s" % e)
  
 
   def _validate_configs(self):
@@ -91,7 +91,7 @@ class CentOSStudioValidationHandler:
       if event.enabled:
         try:
           event.validate()
-        except CentOSStudioEventError, e:
+        except RepoStudioEventError, e:
           self._handle_Exception(e, event.id) 
 
   def _verify_tle_elements(self, expected_elements):

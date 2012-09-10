@@ -27,7 +27,7 @@ from repostudio.util.rxml import datfile
 from repostudio.util.rxml.errors import XmlPathError
 
 from repostudio.cslogging    import L1
-from repostudio.errors       import CentOSStudioEventError
+from repostudio.errors       import RepoStudioEventError
 
 from repostudio.event import Event
 
@@ -188,5 +188,5 @@ EOF""" % (name, pubring, secring)
 
 
 # -------- Error Classes --------#
-class InvalidKeyError(CentOSStudioEventError):
+class InvalidKeyError(RepoStudioEventError):
   message = "The %(type)s key provided does not appear to be valid."

@@ -19,7 +19,7 @@
 import hashlib
 import yum
 
-from repostudio.errors         import CentOSStudioEventError
+from repostudio.errors         import RepoStudioEventError
 from repostudio.event          import Event
 from repostudio.util.repo      import YumRepo
 from repostudio.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
@@ -210,5 +210,5 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
                               for x in self.unshelve('keys', []) ]
 
 
-class GPGKeyError(CentOSStudioEventError):
+class GPGKeyError(RepoStudioEventError):
   message = "%(message)s"

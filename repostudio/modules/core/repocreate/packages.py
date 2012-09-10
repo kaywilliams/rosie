@@ -22,7 +22,7 @@ import fnmatch
 from repostudio.util import magic
 
 from repostudio.constants import KERNELS
-from repostudio.errors    import assert_file_has_content, CentOSStudioEventError
+from repostudio.errors    import assert_file_has_content, RepoStudioEventError
 from repostudio.event     import Event
 from repostudio.cslogging import L1
 
@@ -279,10 +279,10 @@ class CompsEvent(Event):
 
 
 #------ ERRORS ------#
-class NoPackagesOrGroupsSpecifiedError(CentOSStudioEventError):
+class NoPackagesOrGroupsSpecifiedError(RepoStudioEventError):
   message = "%(message)s"
 
-class CompsError(CentOSStudioEventError): pass
+class CompsError(RepoStudioEventError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

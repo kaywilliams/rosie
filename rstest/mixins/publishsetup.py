@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors    import CentOSStudioError
+from repostudio.errors    import RepoStudioError
 from repostudio.util.rxml import config, datfile
 
 from rstest      import EventTestCase, decorate
@@ -130,7 +130,7 @@ def PublishSetupMixinTest_LongHostname(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event) 
+    self.failUnlessRaises(RepoStudioError, self.event) 
 
   def tearDown():
     EventTestCase.tearDown(self)
@@ -154,7 +154,7 @@ def PublishSetupMixinTest_LongHostnameSegment(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event) 
+    self.failUnlessRaises(RepoStudioError, self.event) 
 
   def tearDown():
     EventTestCase.tearDown(self)
@@ -176,7 +176,7 @@ def PublishSetupMixinTest_HostnameLeadingHyphen(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
   def tearDown():
     EventTestCase.tearDown(self)
@@ -198,7 +198,7 @@ def PublishSetupMixinTest_HostnameTrailingHyphen(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event) 
+    self.failUnlessRaises(RepoStudioError, self.event) 
 
   def tearDown():
     EventTestCase.tearDown(self)
@@ -220,7 +220,7 @@ def PublishSetupMixinTest_HostnameInvalidCharacters(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event) 
+    self.failUnlessRaises(RepoStudioError, self.event) 
 
   def tearDown():
     EventTestCase.tearDown(self)

@@ -17,7 +17,7 @@
 #
 import re
 
-from repostudio.errors   import (CentOSStudioEventError, MissingIdError,
+from repostudio.errors   import (RepoStudioEventError, MissingIdError,
                                    DuplicateIdsError)
 from repostudio.event    import Event, CLASS_META
 from repostudio.util     import pps
@@ -485,7 +485,7 @@ class ConfigRpmEvent(type):
 
 
 # -------- Error Classes --------#
-class ConfigRpmEventError(CentOSStudioEventError): 
+class ConfigRpmEventError(RepoStudioEventError): 
   message = "%(message)s"
 
 

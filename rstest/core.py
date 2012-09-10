@@ -19,7 +19,7 @@ import unittest
 
 from rstest import EventTestCase, EventTestCaseDummy, decorate
 
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70

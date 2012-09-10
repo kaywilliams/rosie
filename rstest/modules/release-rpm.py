@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors   import CentOSStudioError
+from repostudio.errors   import RepoStudioError
 from repostudio.util     import pps
 from repostudio.util     import repo
 from repostudio.util     import rxml

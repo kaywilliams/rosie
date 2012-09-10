@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors   import CentOSStudioError
+from repostudio.errors   import RepoStudioError
 from repostudio.util     import pps 
 from repostudio.util     import rxml
 
@@ -105,7 +105,7 @@ class Test_SigningKeysValid(GpgsignTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
   
 class Test_GeneratesSigningKeys(GpgsignTestCase):
   "Generates signing keys"
@@ -183,7 +183,7 @@ class Test_SigningKeysBadPassphrase(GpgsignTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')

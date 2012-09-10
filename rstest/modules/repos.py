@@ -20,7 +20,7 @@ import unittest
 from rstest      import EventTestCase, ModuleTestSuite, TestBuild
 from rstest.core import make_core_suite
 
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 
 class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
@@ -34,7 +34,7 @@ class Test_NoBase(ReposEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError,
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):

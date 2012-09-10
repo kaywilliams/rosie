@@ -18,7 +18,7 @@
 import unittest
 
 from repostudio.cslogging import L3
-from repostudio.errors    import CentOSStudioEventError
+from repostudio.errors    import RepoStudioEventError
 
 class BuildTestResult(unittest.TestResult):
 
@@ -66,5 +66,5 @@ class BuildTestResult(unittest.TestResult):
         s += '%s' % err
     return s
 
-class VerifyError(CentOSStudioEventError):
+class VerifyError(RepoStudioEventError):
   message="%(message)s"

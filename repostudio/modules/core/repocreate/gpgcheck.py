@@ -18,7 +18,7 @@
 import rpmUtils
 import yum
 
-from repostudio.errors    import (CentOSStudioEventError, CentOSStudioIOError,
+from repostudio.errors    import (RepoStudioEventError, RepoStudioIOError,
                                     assert_file_has_content)
 from repostudio.event     import Event
 from repostudio.cslogging import L1
@@ -110,10 +110,10 @@ class GpgcheckEvent(Event):
    
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(CentOSStudioEventError):
+class RpmSignatureInvalidError(RepoStudioEventError):
   message = ("The '%(pkg)s' package from the '%(repo)s' repository failed GPG "
              "key check. The error was '%(error)s'. You may need to list "
              "additional gpgkeys in your repo definition(s).")
 
-class GpgkeyIOError(CentOSStudioIOError):
+class GpgkeyIOError(RepoStudioIOError):
   message = "Cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"

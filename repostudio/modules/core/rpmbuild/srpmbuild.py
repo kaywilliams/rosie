@@ -26,8 +26,8 @@ import yum
 
 from repostudio.callback     import TimerCallback
 from repostudio.cslogging    import MSG_MAXWIDTH, L0, L1, L2
-from repostudio.errors       import (CentOSStudioError,
-                                       CentOSStudioEventError,
+from repostudio.errors       import (RepoStudioError,
+                                       RepoStudioEventError,
                                        MissingIdError,
                                        DuplicateIdsError)
 from repostudio.event        import Event, CLASS_META
@@ -168,7 +168,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     try:
       self.builder.main()
-    except CentOSStudioError, e:
+    except RepoStudioError, e:
       raise BuildMachineCreationError(
                     template='based on \'%s\'' % self.template, 
                     error=e, idstr="--> build machine id: %s\n" %
@@ -282,7 +282,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
   def _initialize_builder(self):
     try:
       self.builder = SrpmBuild(self, self._get_build_machine_options(), [])
-    except CentOSStudioError, e:
+    except RepoStudioError, e:
       raise BuildMachineCreationError(
               template='based on \'%s\'' % self.template, 
               error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
@@ -439,7 +439,7 @@ def get_module_info(ptr, *args, **kwargs):
 
 
 # -------- Error Classes --------#
-class SrpmBuildEventError(CentOSStudioEventError): 
+class SrpmBuildEventError(RepoStudioEventError): 
   message = ("%(message)s")
 
 class InvalidRepoError(SrpmBuildEventError):

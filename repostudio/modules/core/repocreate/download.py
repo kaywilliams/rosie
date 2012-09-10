@@ -20,7 +20,7 @@ import time
 
 from rpmUtils.arch import getArchList
 
-from repostudio.errors    import CentOSStudioEventError 
+from repostudio.errors    import RepoStudioEventError 
 from repostudio.event     import Event
 from repostudio.main      import ARCH_MAP 
 
@@ -105,5 +105,5 @@ class DownloadEvent(ShelveMixin, Event):
    
 
 #------ ERRORS ------#
-class RpmsNotFoundError(CentOSStudioEventError):
+class RpmsNotFoundError(RepoStudioEventError):
   message = "The following RPMs were not found in any input repos:\n%(rpms)s"

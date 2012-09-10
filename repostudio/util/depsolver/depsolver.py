@@ -27,7 +27,7 @@ logger.addHandler(handler)
 class DepsolveError(yum.Errors.MiscError):
   pass
 
-class CentOSStudioYum(yum.YumBase):
+class RepoStudioYum(yum.YumBase):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
     yum.YumBase.__init__(self)
@@ -153,11 +153,11 @@ class CentOSStudioYum(yum.YumBase):
     self.comps = None
     del self.ts
 
-class Depsolver(CentOSStudioYum):
+class Depsolver(RepoStudioYum):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
 
-    CentOSStudioYum.__init__(self,
+    RepoStudioYum.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,

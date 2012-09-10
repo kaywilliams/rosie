@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors  import CentOSStudioError
+from repostudio.errors  import RepoStudioError
 from repostudio.util    import pps
 from repostudio.util    import repo
 from repostudio.util    import rxml
@@ -72,7 +72,7 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError, 
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError, 
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):
@@ -205,7 +205,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError, 
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError, 
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):

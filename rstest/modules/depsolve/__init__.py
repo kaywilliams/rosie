@@ -23,7 +23,7 @@ from repostudio.util import rxml
 
 from repostudio.constants import KERNELS
 
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 
 from rstest      import EventTestCase, ModuleTestSuite, _run_make
 from rstest.core import make_core_suite
@@ -193,7 +193,7 @@ class Test_ConflictingPackages(DepsolveEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

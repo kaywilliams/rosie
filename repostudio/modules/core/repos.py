@@ -21,12 +21,12 @@ import ConfigParser
 from repostudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from repostudio.util.versort import Version
 
-from repostudio.errors   import assert_file_has_content, assert_file_readable, CentOSStudioEventError
+from repostudio.errors   import assert_file_has_content, assert_file_readable, RepoStudioEventError
 from repostudio.event    import Event
 from repostudio.cslogging  import L1, L2
 from repostudio.validate import InvalidConfigError
 
-from repostudio.modules.shared import RepoEventMixin, CentOSStudioRepoGroup, CentOSStudioRepoFileParseError
+from repostudio.modules.shared import RepoEventMixin, RepoStudioRepoGroup, RepoStudioRepoFileParseError
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -64,14 +64,14 @@ class ReposEvent(RepoEventMixin, Event):
 
     updates  = self.cvars.get('repos', RepoContainer())
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.getxpath('.'), cls=CentOSStudioRepoGroup))
+      updates.add_repos(ReposFromXml(self.config.getxpath('.'), cls=RepoStudioRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
       try:
-        updates.add_repos(ReposFromFile(fn, cls=CentOSStudioRepoGroup))
+        updates.add_repos(ReposFromFile(fn, cls=RepoStudioRepoGroup))
       except RepoFileParseError, e:
-        raise CentOSStudioRepoFileParseError(e.args[0])
+        raise RepoStudioRepoFileParseError(e.args[0])
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -140,15 +140,15 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
-class InstallerRepoNotFoundError(CentOSStudioEventError):
+class InstallerRepoNotFoundError(RepoStudioEventError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository. When building a system repo, at least one "
               "operating system repository must be specified.")
 
-class TreeinfoNotFoundError(CentOSStudioEventError):
+class TreeinfoNotFoundError(RepoStudioEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
               "at '%(repourl)s' " )
 
-class UnsupportedInstallerRepoError(CentOSStudioEventError):
+class UnsupportedInstallerRepoError(RepoStudioEventError):
   message = ( "The '%(repoid)s' repository containing '%(family)s %(version)s' "
               "at '%(repourl)s' is not supported." )

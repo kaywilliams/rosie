@@ -17,7 +17,7 @@
 #
 import rpm
 
-from repostudio.errors import CentOSStudioEventError
+from repostudio.errors import RepoStudioEventError
 from repostudio.util.versort import Version
 
 class KickstartEventMixin:
@@ -89,5 +89,5 @@ class KickstartEventMixin:
       return
     self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
 
-class KickstartValidationError(CentOSStudioEventError):
+class KickstartValidationError(RepoStudioEventError):
   message = ( "%(message)s" ) 

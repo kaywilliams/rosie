@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from repostudio.errors import CentOSStudioError
+from repostudio.errors import RepoStudioError
 
 from repostudio.util import pps
 from repostudio.util import repo
@@ -51,7 +51,7 @@ class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
@@ -78,7 +78,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 def make_suite(distro, version, arch, *args, **kwargs):

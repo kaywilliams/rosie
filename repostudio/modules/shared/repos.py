@@ -33,8 +33,8 @@ from repostudio.util.difftest.filesdiff import DiffTuple
 
 from repostudio.util.pps.constants import TYPE_DIR
 
-from repostudio.errors    import (CentOSStudioEventError,
-                                    CentOSStudioIOError, RhnSupportError,
+from repostudio.errors    import (RepoStudioEventError,
+                                    RepoStudioIOError, RhnSupportError,
                                     assert_file_readable, 
                                     assert_file_has_content)
 from repostudio.cslogging    import L1, L2
@@ -47,14 +47,14 @@ from repostudio.util.repo.repo     import (YumRepo, RepoContainer, NSMAP,
                                              InvalidFileError)
 from repostudio.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'CentOSStudioRepo', 
-           'CentOSStudioRepoGroup', 'CentOSStudioRepoFileParseError']
+__all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'RepoStudioRepo', 
+           'RepoStudioRepoGroup', 'RepoStudioRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class CentOSStudioRepo(YumRepo):
+class RepoStudioRepo(YumRepo):
   keyfilter = ['id', 'systemid']
   treeinfofile = pps.path('.treeinfo')
 
@@ -120,7 +120,7 @@ class CentOSStudioRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
-class RhnCentOSStudioRepo(CentOSStudioRepo):
+class RhnRepoStudioRepo(RepoStudioRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
@@ -130,7 +130,7 @@ class RhnCentOSStudioRepo(CentOSStudioRepo):
   def read_repomd(self):
     i = 0; consistent = False
     while i < self.MAX_TRIES:
-      CentOSStudioRepo.read_repomd(self)
+      RepoStudioRepo.read_repomd(self)
       if self.EMPTY_FILE_CSUM not in \
         self.repomd.xpath('//repo:data/repo:checksum/text()',
                           namespaces=NSMAP):
@@ -140,9 +140,9 @@ class RhnCentOSStudioRepo(CentOSStudioRepo):
       raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
-class CentOSStudioRepoGroup(CentOSStudioRepo):
+class RepoStudioRepoGroup(RepoStudioRepo):
   def __init__(self, **kwargs):
-    CentOSStudioRepo.__init__(self, **kwargs)
+    RepoStudioRepo.__init__(self, **kwargs)
 
     self._repos = None
     self.has_installer_files = False
@@ -158,10 +158,10 @@ class CentOSStudioRepoGroup(CentOSStudioRepo):
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
-    cls = CentOSStudioRepo
+    cls = RepoStudioRepo
     try:
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnCentOSStudioRepo
+        cls = RhnRepoStudioRepo
     except AttributeError:
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
@@ -257,7 +257,7 @@ class RepoSetupEventMixin(Event):
     if self.config.xpath('repo', []):
       (self.cvars.setdefault('repos', RepoContainer()).
                              add_repos(ReposFromXml(self.config.getxpath('.'),
-                             cls=CentOSStudioRepoGroup)))
+                             cls=RepoStudioRepoGroup)))
 
 
 class RepoEventMixin(Event):
@@ -444,43 +444,43 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.checksum()
 
 
-class NoReposEnabledError(CentOSStudioEventError, RuntimeError):
+class NoReposEnabledError(RepoStudioEventError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(CentOSStudioEventError, RuntimeError):
+class RepodataNotFoundError(RepoStudioEventError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InvalidRepomdFileError(CentOSStudioEventError, RuntimeError):
+class InvalidRepomdFileError(RepoStudioEventError, RuntimeError):
   message = "%(message)s"
 
-class InconsistentRepodataError(CentOSStudioEventError, RuntimeError):
+class InconsistentRepodataError(RepoStudioEventError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
-class SystemidIOError(CentOSStudioIOError):
+class SystemidIOError(RepoStudioIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(CentOSStudioEventError, InvalidConfigError):
+class SystemidUndefinedError(RepoStudioEventError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(CentOSStudioEventError):
+class SystemidInvalidError(RepoStudioEventError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
-class PkgsfileIOError(CentOSStudioIOError):
+class PkgsfileIOError(RepoStudioIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class CentOSStudioRepoFileParseError(CentOSStudioEventError):
+class RepoStudioRepoFileParseError(RepoStudioEventError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(CentOSStudioEventError):
+class RepomdCsumMismatchError(RepoStudioEventError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(CentOSStudioEventError):
+class MirrorlistFormatInvalidError(RepoStudioEventError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

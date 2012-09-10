@@ -17,7 +17,7 @@
 #
 import unittest
 
-from repostudio.errors   import CentOSStudioError
+from repostudio.errors   import RepoStudioError
 from repostudio.util     import pps 
 
 from repostudio.modules.core.rpmbuild.gpgsign import InvalidKeyError
@@ -65,7 +65,7 @@ class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError,
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError,
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):
@@ -83,7 +83,7 @@ class Test_Config(TestSrpmTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, CentOSStudioError, 
+    unittest.TestCase.failUnlessRaises(self, RepoStudioError, 
       TestBuild, self.conf, self.options, [])
 
   def tearDown(self):
@@ -132,11 +132,11 @@ class Test_FromScript(TestSrpmTestCase):
       <srpm id='package1'>
         <script>
         #!/bin/bash
-        rm -rf %%{srpm-dir}
-        mkdir %%{srpm-dir}
+        rm -rf %%{srpmdir}
+        mkdir %%{srpmdir}
         srpm=%s/repo1/SRPMS/package1-1.0-2.src.rpm
-        if [[ $srpm != '%%{srpm-last}' ]]; then 
-          cp -a $srpm '%%{srpm-dir}'
+        if [[ $srpm != '%%{srpmlast}' ]]; then 
+          cp -a $srpm '%%{srpmdir}'
         fi
         </script>
       </srpm>
@@ -185,7 +185,7 @@ class Test_InvalidRpm(TestSrpmTestCase):
   def runTest(self):
     self.event.test_verify_rpms = True
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(CentOSStudioError, self.event)
+    self.failUnlessRaises(RepoStudioError, self.event)
 
 
 class Test_Apply(TestSrpmTestCase):

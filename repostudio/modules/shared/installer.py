@@ -22,7 +22,7 @@ from repostudio.util import magic
 from repostudio.util import pps
 
 from repostudio.callback     import TimerCallback
-from repostudio.errors       import CentOSStudioEventError
+from repostudio.errors       import RepoStudioEventError
 from repostudio.cslogging    import L1
 from repostudio.event.fileio import InputFileError
 
@@ -189,6 +189,6 @@ class FileDownloadMixin:
     self.io.process_files(what='FileDownloadMixin', cache=True)
 
 
-class InvalidImageFormatError(CentOSStudioEventError, StandardError):
+class InvalidImageFormatError(RepoStudioEventError, StandardError):
   message = ( "Error reading image file '%(image)s': invalid format: expected "
               "%(expected)s, got %(got)s" )

@@ -62,7 +62,7 @@ class DepsolverMixin(object):
   def resolve(self):
     self._create_repoconfig()
 
-    solver = CentOSStudioDepsolver(
+    solver = RepoStudioDepsolver(
       all_packages = self.all_packages,
       user_required = self.user_required,
       config = str(self.depsolve_repo),
@@ -105,7 +105,7 @@ class DepsolverMixin(object):
     self.depsolve_repo.write_lines(conf)
 
 
-class CentOSStudioDepsolver(Depsolver):
+class RepoStudioDepsolver(Depsolver):
   def __init__(self, all_packages=None, user_required=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):

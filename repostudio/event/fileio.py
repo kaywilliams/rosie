@@ -23,7 +23,7 @@ from repostudio.util import shlib
 
 from repostudio.util.pps.constants import *
 
-from repostudio.errors   import CentOSStudioEventError
+from repostudio.errors   import RepoStudioEventError
 from repostudio.validate import InvalidConfigError
 
 class IOMixin:
@@ -348,11 +348,11 @@ class TransactionData(object):
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
-class XpathInputFileError(CentOSStudioEventError):
+class XpathInputFileError(RepoStudioEventError):
   message = ("Error accessing the specified file or folder '%(file)s'. Check "
              "that the '%(xpath)s' element is correct. %(suggest)s"
              "[errno %(errno)d] %(message)s.")
 
-class InputFileError(CentOSStudioEventError):
+class InputFileError(RepoStudioEventError):
   message = ("Error accessing the specified file or folder '%(file)s'. "
              "[errno %(errno)d] %(message)s.")

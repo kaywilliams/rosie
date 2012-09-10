@@ -20,7 +20,7 @@ import paramiko
 import re
 
 from repostudio.cslogging import L0, L1
-from repostudio.errors import (CentOSStudioError, CentOSStudioEventError,
+from repostudio.errors import (RepoStudioError, RepoStudioEventError,
                                  DuplicateIdsError)
 from repostudio.util import pps
 from repostudio.util import resolve 
@@ -166,7 +166,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     if self._reinstall():
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
-        raise CentOSStudioError('test fail on reinstall')
+        raise RepoStudioError('test fail on reinstall')
       self._execute('delete')
       self._execute('install')
       self._execute('activate')
@@ -339,6 +339,6 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
-class InvalidTriggerNameError(CentOSStudioEventError):
+class InvalidTriggerNameError(RepoStudioEventError):
   message = ("Invalid character in trigger name '%(trigger)s'. Valid "
              "characters are a-z, A-Z, 0-9 and _.")

@@ -21,7 +21,7 @@ import yum.Errors
 
 from repostudio.callback  import PkglistCallback
 from repostudio.constants import KERNELS
-from repostudio.errors    import assert_file_has_content, CentOSStudioEventError
+from repostudio.errors    import assert_file_has_content, RepoStudioEventError
 from repostudio.event     import Event
 from repostudio.cslogging import L1
 
@@ -97,7 +97,7 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
     try:
       pkgs_by_repo = self.resolve() # in DepsolverMixin
     except (DepsolveError, yum.Errors.InstallError), e:
-      raise CentOSStudioDepsolveError(str(e))
+      raise RepoStudioDepsolveError(str(e))
 
     count = 0
     for tups in pkgs_by_repo.itervalues():
@@ -150,11 +150,11 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
         break
 
 
-class InvalidPkglistFormatError(CentOSStudioEventError):
+class InvalidPkglistFormatError(RepoStudioEventError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class CentOSStudioDepsolveError(CentOSStudioEventError):
+class RepoStudioDepsolveError(RepoStudioEventError):
   message = ( "Error(s) resolving package dependencies: \n"
               "--> %(message)s" )

@@ -17,7 +17,7 @@
 #
 import yum
 
-from depsolver import Depsolver, CentOSStudioYum
+from depsolver import Depsolver, RepoStudioYum
 from callback  import DepSolverCallback
 
 def resolve(packages=None, required=None, config='/etc/yum.conf',

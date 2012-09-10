@@ -27,7 +27,7 @@ import rpmUtils
 from repostudio.util import mkrpm
 from repostudio.util import pps
 
-from repostudio.errors    import CentOSStudioEventError
+from repostudio.errors    import RepoStudioEventError
 from repostudio.event     import Event
 from repostudio.cslogging import L1
 
@@ -40,7 +40,7 @@ __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger',
 
 class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
-  Mixin for working with CentOSStudio-created rpms including both from-srpm
+  Mixin for working with RepoStudio-created rpms including both from-srpm
   (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
   """
   rpmbuild_mixin_version = "1.02"
@@ -489,7 +489,7 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildError(CentOSStudioEventError):
+class RpmBuildError(RepoStudioEventError):
   message="%(message)s"
 
 class RpmBuildFailedException(RpmBuildError):

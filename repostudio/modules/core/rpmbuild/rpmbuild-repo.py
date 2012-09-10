@@ -25,7 +25,7 @@ from repostudio.event   import Event
 from repostudio.cslogging import L1, L2
 
 from repostudio.modules.shared import comps
-from repostudio.modules.shared import CentOSStudioRepoGroup
+from repostudio.modules.shared import RepoStudioRepoGroup
 
 from repostudio.util.repo.repo import RepoContainer
 
@@ -80,10 +80,10 @@ class RpmbuildRepoEvent(Event):
         #self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
         #                  self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
-      rpmbuild_rpms  = CentOSStudioRepoGroup(id=self.cid, name=self.cid,
+      rpmbuild_rpms  = RepoStudioRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
                               gpgkey='file://%s' % self.pubkey,)
-      #rpmbuild_srpms = CentOSStudioRepoGroup(id=self.csid, name=self.csid,
+      #rpmbuild_srpms = RepoStudioRepoGroup(id=self.csid, name=self.csid,
       #                             baseurl=self.RPMBUILD_SRPMS)
 
       self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms})

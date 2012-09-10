@@ -27,7 +27,7 @@ from repostudio.util import sync
 
 from repostudio.cslogging import L0, L1
 
-from repostudio.errors import CentOSStudioEventError
+from repostudio.errors import RepoStudioEventError
 
 from repostudio.event.diff   import DiffMixin
 from repostudio.event.fileio import IOMixin
@@ -116,7 +116,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
       self.apply()
       t_apply = time.time()
       self.verify()
-    except (CentOSStudioEventError, Exception, KeyboardInterrupt), e:
+    except (RepoStudioEventError, Exception, KeyboardInterrupt), e:
       self.error(e)
       raise
     t_end = time.time()
