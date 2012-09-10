@@ -433,7 +433,7 @@ $remote-url/%{id}</programlisting>
 
       <para>
       <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
-      that determines whether <application class="software">CentOS
+      that determines whether <application class="software">Repo
       Studio</application> uses the build machine's fully qualified domain name
       or IP address in the automatically-computed remote-url.
       </para>
@@ -897,7 +897,7 @@ $remote-url/%{id}</programlisting>
     the text of a kickstart file providing all information required to fully
     automate a client machine installation. It uses <varname>%{fqdn}</varname>
     and <varname>%{crypt-password}</varname> <link
-    linkend='deployment-macros'>module macros</link>. On a system with CentOS
+    linkend='deployment-macros'>module macros</link>. On a system with Repo
     Studio installed, the text of the kickstart shown below can be found as a
     file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
     folder at <filename>/usr/share/repostudio/templates/deploy</filename>.

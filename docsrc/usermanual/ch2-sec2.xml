@@ -4,60 +4,56 @@
 <section id='repositories' xreflabel='repositories'>
   <title>Repositories</title>
 
-<para>
-Repo Studio creates YUM package repositories. YUM is an application used to
-manage updates for CentOS and RHEL, similar to Microsoft Update for Windows.
-YUM package repositories play a central role in updating client machines. They
-play an equally prominent role in client machine installation, as the same
-repositories are used for both.
-</para>
+  <para>
+  Repo Studio creates RPM package repositories. RPM is a package management
+  system used by CentOS, Red Hat Enterprise Linux, and others to install, update
+  and remove software and configuration on client systems. Packages are 
+  discrete units of software and configuration managed by RPM. 
+  </para>
+  
+  <para>
+  Repositories are collections of packages, typically located on remote servers
+  or CD/DVD media. Repositories are generally organized by the architecture (e.g.
+  i386 or x86_64) and version (e.g. 5 or 6) of a base operating system.
+  </para>
+  
+  <para>
+  RPM package repositories are prevalent in Linux software distribution today.
+  They are used by operating system providers, by software and hardware vendors,
+  and by systems administrators.
+  </para>
+  
+  <para>
+  Repositories have several key benefits for managing deployment of software and
+  configuration:
+  </para>
+  
+  <itemizedlist>
+  <listitem>
+  <para>
+  Uniform. Repositories can be used to deploy software and configuration
+  uniformly, independent of the source (OS provider, OEM, ISV, or internal IT).
+  This consistency eases integration and facilitate automation.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Scalable. Package repositories are scalable to meet the needs of a wide range
+  of deployment scenarios including consumer/OEM, small business, enterprise,
+  hosted, and even web farm and massively scaled.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Modular. Because packages describe their relationships and dependencies
+  internally, it becomes easy to mix, match, replace, update and remove them to
+  create custom repositories talored to a variety of needs.
+  </para>
+  </listitem>
+  </itemizedlist>
 
-<para>
-YUM repositories are prevalent in Linux software distribution today. They are
-used by operating system providers, as well as by major independent software
-vendors and hardware providers, including Adobe, HP and Dell.
-</para>
-
-<para>
-As a platform for system and application deployment, repositories have several key benefits:
-</para>
-
-<itemizedlist>
-<listitem>
-<para>
-Uniform. Repositories can be used to deploy software and configuration
-uniformly, independent of the source (OS provider, OEM, ISV, or internal IT).
-This consistency reduces overhead, facilitates automation, and eases
-integration of components across multiple providers.
-</para>
-</listitem>
-
-<listitem>
-<para>
-Scalable. Package repositories are scalable to meet the needs of a wide range
-of deployment scenarios including consumer/OEM, small business, enterprise,
-hosted, and even web farm and massively scaled.
-</para>
-</listitem>
-
-<listitem>
-<para>
-Modular. Because package repositories are native to the operating system, most
-major enterprise systems management solutions also support them natively. This
-allows IT professionals greater flexibility in their operating environments,
-without needing to migrate system images and configuration databases.
-</para>
-</listitem>
-</itemizedlist>
-
-
-<para>
-YUM repositories are in use by some organizations today for deploying internal
-systems and applications. Adoption has been limited, however, given learning
-curve and overhead. Repo Studio lowers the bar for IT Professionals by
-providing a flexible, automated platform to create and maintain YUM
-repositories.
-</para>
 
   <para>
   Repo Studio creates two types of repositories: <emphasis>system</emphasis>

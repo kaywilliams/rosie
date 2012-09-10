@@ -198,7 +198,7 @@
 
   <para>
   As with test-install, Repo Studio will also reinstall the test machine if
-  necessary. This happens much less frequently, however. By default CentOS
+  necessary. This happens much less frequently, however. By default Repo
   Studio only reinstalls the test-update machine if it is unable to activate
   the machine or establish an SSH connection to it.
   </para>

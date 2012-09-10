@@ -7,7 +7,7 @@
 
   <para>
   As you work with Repo Studio to create deployment templates and
-  config-rpms, you will occasionally run into errors. When these occur, CentOS
+  config-rpms, you will occasionally run into errors. When these occur, Repo
   Studio halts operation and displays error information to the console. It also
   records error messages in the Repo Studio log file, by default
   <filename>/var/log/repostudio.log</filename>.

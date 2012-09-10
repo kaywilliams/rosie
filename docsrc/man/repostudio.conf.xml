@@ -7,7 +7,7 @@
 
 <refentry id="configuration.repostudio">
 <refentryinfo>
-<date>2012-04-18</date>
+<date>2012-09-10</date>
 </refentryinfo>
 
 <refmeta>
@@ -72,7 +72,7 @@ Repo Studio installation does not include a repostudio.conf file.</para>
   <term><option>share-path</option></term>
   <listitem>
     <para>Specifies a directory <replaceable
-    class="parameter">PATH</replaceable> in which one or more of CentOS
+    class="parameter">PATH</replaceable> in which one or more of Repo
     Studio's shared files can be found; the directory contains a hierarchy
     enabling Repo Studio to extract files for schemas,
     <filename>*.rng</filename>, and example files.  The default path is

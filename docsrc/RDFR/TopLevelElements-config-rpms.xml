@@ -44,7 +44,7 @@
     to the script type, e.g.  <filename>post-script</filename>.  Triggers are
     similarly named, but they also include the name provided in the
     <emphasis>@trigger</emphasis> attribute, e.g.
-    <filename>triggerin-drupal-script</filename>. See the <emphasis>CentOS
+    <filename>triggerin-drupal-script</filename>. See the <emphasis>Repo
     Studio User Guide</emphasis> for more information on testing and
     troubleshooting client machine installation and updates.
     </listitem>
@@ -111,23 +111,28 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
 &lt;/config-rpms&gt;]</programlisting>
   </section>
 
-  <section id='installdir-macro' xreflabel='installdir'>
+  <section id='configrpm-macros' xreflabel='config-rpm macros'>
   <title>Macros</title>
 
   <para>
-  Repo Studio provides one <emphasis>module run-time macro</emphasis> to
-  config-rpms: <emphasis>%{installdir}</emphasis>.
+  Repo Studio provides two <emphasis>module run-time macros</emphasis> to
+  config-rpms: <emphasis>%{rpmid}</emphasis> and
+  <emphasis>%{installdir}</emphasis>.
   </para>
 
   <para>
-  The <emphasis>%{installdir}</emphasis> macro specifies the location where
-  variable data for the config-rpm is installed, specifically
-  <filename>/var/cache/repostudio/config/RPMID</filename>, where RPMID is
-  taken from the <emphasis>@id</emphasis> of the config-rpm element. This can
-  be useful for scripts specified within <xref linkend='config-rpms-files'/>,
-  <xref linkend='config-rpms-script'/> and <xref linkend='config-rpms-trigger'/>
-  elements, as it provides these scripts with a convenient location for storing
-  their own runtime data.
+  The <emphasis role='strong'>%{rpmid}</emphasis> macro contains the value
+  specified by the <emphasis>@id</emphasis> attribute of the config-rpm element.
+  </para>
+
+  <para>
+  The <emphasis role='strong'>%{installdir}</emphasis> macro specifies the
+  location where variable data for the config-rpm is installed, specifically
+  <filename>/var/cache/repostudio/config/%{rpmid}</filename>.  This can be
+  useful for scripts specified within <xref linkend='config-rpms-files'/>,
+  <xref linkend='config-rpms-script'/> and <xref
+  linkend='config-rpms-trigger'/> elements, as it provides these scripts with a
+  convenient location for storing their own runtime data.
   </para>
 
   <para>
@@ -217,13 +222,12 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
 
         <para>
         The <emphasis>description</emphasis> element is optional. The default
-        value is shown below, where RPMID is specified by the
-        <emphasis>@id</emphasis> attribute and FULLNAME is specified by <xref
+        value is shown below, where FULLNAME is specified by <xref
         linkend="main-fullname"/>.
         </para>
 
         <synopsis>
-The RPMID package provides configuration files and scripts for the
+The %{rpmid} package provides configuration files and scripts for the
 FULLNAME repository. 
         </synopsis>
         </listitem>
@@ -360,7 +364,7 @@ FULLNAME repository.
         <emphasis><xref linkend="destdir" /></emphasis>. Controls the
         location to which this file or folder should be installed on client
         machines. The default value is
-        <filename>/var/lib/repostudio/config/%{name}/RPMID/files</filename>
+        <filename>%{installdir}/files</filename>.
         </para>
 
         <para>
@@ -432,7 +436,7 @@ FULLNAME repository.
 
         <para>
         Scripts that create and store data during runtime operation may wish
-        to use the <xref linkend='installdir-macro'/> macro.
+        to use the <link linkend='configrpm-macros'>%{installdir}</link> macro.
         </para>
 
         <para>
@@ -534,7 +538,7 @@ chkconfig smb on
 
         <para>
         Triggers that create and store data during runtime operation may wish
-        to use the <xref linkend='installdir-macro'/> macro.
+        to use the <link linkend='configrpm-macros'>%{installdir}</link> macro.
         </para>
 
         <para>

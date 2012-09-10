@@ -6,66 +6,54 @@
   </title>
 
   <para>
-  <application class="software">Repo Studio</application> provides a platform
-to manage Linux system and application deployment. Repo Studio works with
-CentOS, a stable, free and widely-adopted version of Linux, and Red Hat
-Enterprise Linux, the commercial operating system from which CentOS is derived.
+  Repo Studio is a free, open source application and framework to create RPM
+  package repositories for use with CentOS and Red Hat Enterprise Linux.
   </para>
-
+  
   <para>
-  Repo Studio assembles software, customizations and, optionally,
-  installation images, into a standard  deployment format, a YUM package
-  repository. YUM package repositories, called
-  <emphasis>repositories</emphasis> throughout this document, can be used to
-  test, deploy and maintain systems and applications across a wide variety of
-  IT  environments.
+  Repo Studio allows creating two types of repositories - system and package.
   </para>
- 
-  <para>Using Repo Studio you can create and maintain repositories:</para>
-
-  <para><itemizedlist>
-      <listitem>
-        <para>
-        select input repositories including a base operating system repository
-        and additional package repositories,
-        </para>
-      </listitem>
-
-      <listitem>
-        <para>select packages and groups to include,</para>
-      </listitem>
-
-      <listitem>
-        <para>
-        build additional packages containing client machine configuration,
-        customization scripts, and custom applications,
-        </para>
-      </listitem>
-
-      <listitem>
-        <para>build a system or package repository,</para>
-      </listitem>
-
-      <listitem>
-        <para>test it on client machines,</para>
-      </listitem>
-
-      <listitem>
-        <para>deploy it to client machines,</para>
-      </listitem>
-
-      <listitem>
-        <para>change repositories, packages and configuration,</para>
-      </listitem>
-
-      <listitem>
-        <para>rebuild the repository and</para>
-      </listitem>
-
-      <listitem>
-        <para>update client machines.</para>
-      </listitem>
-    </itemizedlist></para>
+  
+  <para>
+  <emphasis role='strong'>System repositories</emphasis>, also known as
+  <emphasis>custom distributions</emphasis>, are useful for system
+  administrators who wish to deploy CentOS or Red Hat Enterprise Linux within
+  their organizations, but with added, or removed, packages and modified
+  default configuration.
+  </para>
+  
+  <para>
+  <emphasis role='strong'>Package repositories</emphasis> are useful for
+  independent software vendors (ISVs) and system administrators who wish to
+  deliver software that can be easily deployed and updated using standard
+  operating system tools.
+  </para>
+  
+  <para>
+  Repo Studio automates common repository creation tasks:
+  
+  <itemizedlist>
+  <listitem>
+  Builds packages starting from SRPMs or from user-provided files and scripts. 
+  </listitem>
+  
+  <listitem>
+  Downloads packages from existing package repositories.
+  </listitem>
+  
+  <listitem>
+  Signs created packages.
+  </listitem>
+  
+  <listitem>
+  Creates repository metadata.
+  </listitem>
+  
+  <listitem>
+  Tests system installation and updates.
+  </listitem>
+  </itemizedlist>
+  </para>
 
   <mediaobject>
     <imageobject>
@@ -75,8 +63,4 @@ Enterprise Linux, the commercial operating system from which CentOS is derived.
     <caption><para>Repo Studio Overview</para></caption>
   </mediaobject>
 
-  <para>
-  In summary, Repo Studio is a production life cycle manager for use in
-  deploying Linux systems and applications.  
-  </para>
 </section>

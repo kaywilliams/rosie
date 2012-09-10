@@ -132,7 +132,7 @@
       <listitem>
       <para>
       <xref linkend="content-path"/> value specifying a location for the SRPM.
-      If the specified path ends with <emphasis>".src.rpm"</emphasis> CentOS
+      If the specified path ends with <emphasis>".src.rpm"</emphasis> Repo
       Studio attempts to download the SRPM from the location specified.
       Otherwise, Repo Studio attempts to find an SRPM beginning with the name
       specified in the <emphasis>@id</emphasis> attribute in the folder

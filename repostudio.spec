@@ -3,7 +3,7 @@
 Name:    repostudio
 Version: 1.55
 Release: 1%{?dist}
-Summary: Platform for deploying CentOS and RHEL-based systems and applications
+Summary: Creates RPM package repositories for use with CentOS and Red Hat Enterprise Linux
 
 License:   GPL
 Group:     Applications/System
