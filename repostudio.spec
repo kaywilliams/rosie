@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    repostudio
-Version: 1.55
+Version: 1.56
 Release: 1%{?dist}
 Summary: Creates RPM package repositories for use with CentOS and Red Hat Enterprise Linux
 
@@ -72,6 +72,10 @@ Enterprise Linux. See http://www.repostudio.org for more information.
 %{_mandir}/man1/repostudio.1.gz
 
 %changelog
+* Mon Sep 10 2012 Kay Williams <kay@repostudio.org> - 1.0.56.1
+- product naming and documentation updates
+- virt-config template flexibility and resilience updates
+
 * Thu Aug 23 2012 Kay Williams <kay@repostudio.org> - 1.0.55-1
 - fixes to virt deploy template dependencies
 - check-kernel template now more general/robust
