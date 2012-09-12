@@ -22,33 +22,48 @@
 domain=`hostname -d 2>/dev/null || echo ''`
 
 # Assign name for virtual bridge
-start=1
-end=99
-success=false
-for i in `seq $start $end`; do 
-  brname=virbr$i
-  if ! (ifconfig | grep $brname) >/dev/null ; then
-    success=true
-    break
+if virsh net-info repostudio >/dev/null 2>&amp;1; then
+  # use existing bridge name
+  brname=`virsh net-info repostudio | sed -n 's/Bridge:\s*\(.*\)/\1/p'`
+else
+  # pick an unused name
+  start=1
+  end=99
+  success=false
+  for i in `seq $start $end`; do 
+    brname=virbr$i
+    if ! ifconfig $brname >/dev/null 2>&amp;1 ; then
+      success=true
+      break
+    fi
+  done
+  if [[ $success = false ]]; then
+    echo "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again." >&amp;2
   fi
-done
-if [[ $success = false ]]; then
-  echo "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again." >&amp;2
 fi
 
 # Assign IP address for virtual network
-start=123
-end=255
-success=false
-for i in `seq $start $end`; do 
-  ipnet=$i
-  if ! (ifconfig | grep 192.168.$ipnet.1) >/dev/null ; then
-    success=true
-    break
+xml=`virsh net-dumpxml repostudio 2>/dev/null`
+ipaddr=`echo $xml | sed -n "s/.*&lt;ip address='\([0-9.]\+\).*/\1/p"`
+ipstart=`echo $xml | sed -n "s/.*&lt;range start='\([0-9.]\+\).*/\1/p"`
+ipend=`echo $xml | sed -n "s/.*&lt;range.* end='\([0-9.]\+\).*/\1/p"`
+
+if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then 
+  start=123
+  end=255
+  success=false
+  for i in `seq $start $end`; do 
+    ipaddr="192.168.$i.1"
+    ipstart="192.168.$i.2"
+    ipend="192.168.$i.254"
+    if ! (ifconfig | grep $ipaddr) >/dev/null ; then
+      success=true
+      break
+    fi
+  done
+  if [[ $success = false ]]; then
+    echo "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again." >&amp;2
   fi
-done
-if [[ $success = false ]]; then
-  echo "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again." >&amp;2
 fi
 
 # Create/update repostudio.xml
@@ -58,7 +73,9 @@ libvirt="/etc/libvirt/qemu/networks"
 /bin/cp -f $working/repostudio.tmpl $working/repostudio.xml
 sed -i "s/%domain/$domain/g" $working/repostudio.xml
 sed -i "s/%brname/$brname/g" $working/repostudio.xml
-sed -i "s/%ipnet/$ipnet/g" $working/repostudio.xml
+sed -i "s/%ipaddr/$ipaddr/g" $working/repostudio.xml
+sed -i "s/%ipstart/$ipstart/g" $working/repostudio.xml
+sed -i "s/%ipend/$ipend/g" $working/repostudio.xml
 
 if ! ([ -e $working/repostudio.last ] &amp;&amp; \
       diff $working/repostudio.xml $working/repostudio.last>/dev/null); then
@@ -80,9 +97,9 @@ fi
 /bin/mv -f $working/repostudio.xml $working/repostudio.last
 
 # add dnsmasq as resolver for libvirt virtual network
-[[ `grep '192.168.$ipnet.1' /etc/resolv.conf` ]] || sed -i '1,/^nameserver/ {/^nameserver/i\
-nameserver 192.168.$ipnet.1
-}' /etc/resolv.conf
+[[ `grep "$ipaddr" /etc/resolv.conf` ]] || sed -i "1,/^nameserver/ {/^nameserver/i\
+nameserver $ipaddr
+}" /etc/resolv.conf
 </files>
 
 <files destdir="%{installdir}" destname="repostudio.tmpl" content="text">
@@ -91,9 +108,9 @@ nameserver 192.168.$ipnet.1
   &lt;domain name="local.%domain"/>
   &lt;bridge name="%brname" />
   &lt;forward/>
-  &lt;ip address="192.168.%ipnet.1" netmask="255.255.255.0">
+  &lt;ip address="%ipaddr" netmask="255.255.255.0">
     &lt;dhcp>
-      &lt;range start="192.168.%ipnet.2" end="192.168.%ipnet.254" />
+      &lt;range start="%ipstart" end="%ipend" />
     &lt;/dhcp>
   &lt;/ip>
 &lt;/network>
