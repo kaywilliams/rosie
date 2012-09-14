@@ -26,6 +26,9 @@
   <xi:include href="ch4-sec3.xml" xpointer="element(/1)"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
 
+  <xi:include href="ch4-sec4.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
   <para>
   This concludes our chapters on creating a basic repository and
   building RPMs for inclusion in the repository. The next chapters will discuss

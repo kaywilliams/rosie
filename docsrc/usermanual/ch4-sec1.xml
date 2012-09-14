@@ -59,14 +59,15 @@
   </informalexample>
 
   <section>
-  <title>Yum Sync Plugin</title>
+  <title>YUM Sync Plugin</title>
 
   <para>
   Repo Studio provides an extension to YUM, called the <emphasis>YUM sync
   plugin</emphasis>, that allows keeping installed clients up to date with
   changes in a "master" repository. The YUM sync plugin is installed to client
   machines by default (for <emphasis>system</emphasis>-type repositories) via
-  the release-rpm.
+  the release-rpm. For <emphasis>package</emphasis>-type repositories, the
+  plugin is automatically disabled.
   </para>
 
   <mediaobject>
@@ -89,7 +90,7 @@
   <emphasis>sync</emphasis> for use with YUM:
   </para>
 
-  <informalexample><para><command># yum sync</command></para></informalexample>
+  <informalexample><programlisting># yum sync</programlisting></informalexample>
 
   <para>
   The <emphasis>sync</emphasis> argument behaves similarly to the YUM
@@ -100,9 +101,20 @@
 
   <para>
   The sync plugin can be excluded from the release-rpm using the
-  <emphasis>release-rpm/updates</emphasis> element. See the <xref
-  linkend='rdfr'/> for more information on the <emphasis>release-rpm</emphasis>
-  element.
+  <emphasis>release-rpm/updates</emphasis> element as shown below:
+  </para>
+  
+  <informalexample>
+  <programlisting>
+&lt;release-rpm>
+&lt;updates sync="false"/>
+&lt;/release-rpm>
+  </programlisting>
+  </informalexample>
+
+  <para>
+  See the <xref linkend='rdfr'/> for more information on the
+  <emphasis>release-rpm</emphasis> element.
   </para>
   
   <para>
@@ -112,7 +124,9 @@
   parameter, for example: 
   </para>
 
-  <informalexample><para><command># yum --disableplugins sync ...</command></para></informalexample>
+  <informalexample>
+  <programlisting># yum --disableplugins sync ...</programlisting>
+  </informalexample>
 
   <para>
   See the chapter on <xref linkend="deployment-scenarios"/>
