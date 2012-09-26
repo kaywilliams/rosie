@@ -127,7 +127,9 @@ class IOObject(object):
     """
     if content == 'text':
       if xpath not in self.ptr.diff.config.cdata:
-        self.ptr.diff.config.cdata.append(xpath)
+        # add relative xpath to config diff data
+        mod=self.ptr._configtree.getpath(self.ptr.config.getxpath('.')) + '/'
+        self.ptr.diff.config.cdata.append(xpath[len(mod):])
 
     else: # content == 'file'
       # absolute paths will not be affected by this join
@@ -171,7 +173,7 @@ class IOObject(object):
       s,d,f,m,c = self._process_path_xml(item, destname=destname,
                                          mode=mode, content=content,
                                          destdir_fallback=destdir_fallback)
-      item_xpath = self.ptr._configtree.getpath(item).split("/")[-1]
+      item_xpath = self.ptr._configtree.getpath(item)
       self.add_item(s, dst//d/f, id=id, mode=m or mode, content=c, 
                     allow_text=allow_text, xpath=item_xpath )
 
