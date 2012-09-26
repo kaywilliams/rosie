@@ -171,7 +171,7 @@ class IOObject(object):
       s,d,f,m,c = self._process_path_xml(item, destname=destname,
                                          mode=mode, content=content,
                                          destdir_fallback=destdir_fallback)
-      item_xpath = self.ptr._configtree.getpath(item)
+      item_xpath = self.ptr._configtree.getpath(item).split("/")[-1]
       self.add_item(s, dst//d/f, id=id, mode=m or mode, content=c, 
                     allow_text=allow_text, xpath=item_xpath )
 
