@@ -38,7 +38,8 @@ else
     fi
   done
   if [[ $success = false ]]; then
-    echo "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again." >&amp;2
+    logger -t "repostudio-virt-config" -s "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again."
+    exit 1
   fi
 fi
 
@@ -62,7 +63,8 @@ if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then
     fi
   done
   if [[ $success = false ]]; then
-    echo "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again." >&amp;2
+    logger -t "repostudio-virt-config" -s "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again."
+    exit 1
   fi
 fi
 
@@ -100,6 +102,9 @@ fi
 [[ `grep "$ipaddr" /etc/resolv.conf` ]] || sed -i "1,/^nameserver/ {/^nameserver/i\
 nameserver $ipaddr
 }" /etc/resolv.conf
+
+# save ipaddr for use during uninstall
+echo "$ipaddr" > %{installdir}/virt-ipaddr
 </files>
 
 <files destdir="%{installdir}" destname="repostudio.tmpl" content="text">
@@ -160,6 +165,10 @@ if [[ $1 = 0 ]]; then
     virsh net-destroy repostudio >/dev/null 2>&amp;1 || true
     virsh net-undefine repostudio >/dev/null
   fi
+
+  # remove ipaddr from resolv.conf
+  ipaddr=`cat %{installdir}/virt-ipaddr`
+  sed -i "/nameserver $ipaddr/d" /etc/resolv.conf
 fi
 </script>
 </config-rpm>
