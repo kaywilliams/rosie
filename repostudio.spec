@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    repostudio
-Version: 1.57
+Version: 1.58
 Release: 1%{?dist}
 Summary: RPM Repository Management System for use with CentOS and Red Hat Enterprise Linux
 
@@ -72,6 +72,13 @@ Enterprise Linux. See http://www.repostudio.org for more information.
 %{_mandir}/man1/repostudio.1.gz
 
 %changelog
+* Wed Sep 26 2012 Kay Williams <kay@repostudio.org> - 1.0.58.1
+- documentation updates
+- fixed a bug in difference testing for config-rpms that caused rpms to be
+  rebuilt in some cases if their relative location in the definition file
+  changed
+- improved error and uninstall handling for the virt-config.xml template 
+
 * Wed Sep 12 2012 Kay Williams <kay@repostudio.org> - 1.0.57.1
 - product naming and documentation updates
 - virt-config template flexibility and resilience updates
