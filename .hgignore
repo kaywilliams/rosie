@@ -7,4 +7,5 @@ syntax: regexp
 .*\#.*\#$
 sstest/modules/[^/]+/repo[0-9]+.*
 sstest/modules/[^/]+/[^/]+-test-repos[0-9]*\.repo
+sstest/modules/shared/test-repos\.repo
 sstest/test.log
