@@ -130,7 +130,7 @@
       </para>
 
       <para>
-      See the <emphasis>Repo Studio User Manual</emphasis> for  
+      See the <emphasis>System Studio User Manual</emphasis> for  
       information on differences between package and system repositories.
       </para>
 
@@ -163,10 +163,10 @@
       <listitem>
       <para>
       <xref linkend="content-text"/> value specifying a unique id for the
-      repository. Used as the directory name for the repository in the Repo
+      repository. Used as the directory name for the repository in the System
       Studio publish and cache folders (by default
       <emphasis>/var/www/html/repos/</emphasis> and
-      <emphasis>/var/cache/repostudio</emphasis>, respectively).
+      <emphasis>/var/cache/systemstudio</emphasis>, respectively).
       </para>
 
       <para>
@@ -209,14 +209,14 @@
 
       <listitem>
       <para>
-      <xref linkend="content-path"/> to a file where Repo Studio should
+      <xref linkend="content-path"/> to a file where System Studio should
       write the repository’s log information. The file is created if it does
       not exist.
       </para>
 
       <para>
       This element is optional. The default value is
-      <filename>/var/log/repostudio.log</filename>.
+      <filename>/var/log/systemstudio.log</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -237,7 +237,7 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;log-file&gt;/home/repostudiouser/samba-server.log&lt;/log-file&gt;
+  &lt;log-file&gt;/home/systemstudiouser/samba-server.log&lt;/log-file&gt;
 &lt;/main&gt;</programlisting>
     </informalexample>
   </section>

@@ -7,7 +7,7 @@
   <title>Building Custom Packages</title>
 
   <para>
-  Repo Studio allows building custom RPMs starting from user-specified
+  System Studio allows building custom RPMs starting from user-specified
   Source RPMs (SRPMs). SRPMs are a standard mechanism for distributing source
   code in a way that is easy to modify and compile into installation packages
   (RPMs) for different operating system architectures. See the Fedora Project's
@@ -16,7 +16,7 @@
   </para>
 
   <para>
-  The process Repo Studio uses to build RPMs from SRPMs includes these steps:
+  The process System Studio uses to build RPMs from SRPMs includes these steps:
   </para>
 
   <itemizedlist>
@@ -56,13 +56,13 @@
 
     <listitem>
     A script that completes desired actions and finally copies an SRPM to a
-    location specified by Repo Studio. This is useful, for example, for
+    location specified by System Studio. This is useful, for example, for
     creating an SRPM from scratch starting from a Source Code Management
     system, or for patching an existing SRPM.
     </listitem>
 
     <listitem>
-    Optionally, you can specify a custom template for Repo Studio to use for
+    Optionally, you can specify a custom template for System Studio to use for
     creating the rpmbuild environment and for building and verifying the RPMs.
     </listitem>
   </itemizedlist>

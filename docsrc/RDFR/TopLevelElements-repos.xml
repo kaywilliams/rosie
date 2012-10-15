@@ -13,13 +13,13 @@
     </title>
 
     <para>
-    Contains a list of input repositories that Repo Studio uses to download  
+    Contains a list of input repositories that System Studio uses to download  
     packages for the repository.
     </para>
 
     <para>
     When the value of <xref linkend="main-type"/> is "system", <application
-    class="software">Repo Studio </application> requires at least one input
+    class="software">System Studio </application> requires at least one input
     repository.  Repositories are specified using <emphasis>repo</emphasis>
     elements (see <emphasis><xref linkend="repo" /></emphasis>). Valid
     repository definitions must include a minimum of one baseurl.
@@ -39,15 +39,15 @@
       <filename>isolinux</filename>, respectively, and are used to create
       installation images for the system. Base repositories include CentOS base
       repositories, Red Hat Enterprise Linux base repositories, or any system
-      repository created by Repo Studio. Multiple base repositories may be
+      repository created by System Studio. Multiple base repositories may be
       specified, making it possible to create new system repositories, for
-      example, by starting with a Repo Studio created system repository and
+      example, by starting with a System Studio created system repository and
       adding packages from compatible CentOS or RHEL base and update
       repositories.
       </para>
       
       <para>
-      For CentOS, and Repo Studio-created repositories, the base repository
+      For CentOS, and System Studio-created repositories, the base repository
       will be a public or local mirror.  For Red Hat Enterprise Linux, it will
       be an install tree created by using the <command>mount -o loop
       <emphasis>isofile</emphasis>
@@ -66,12 +66,12 @@
       Red Hat Network Repositories
       </title>
       <para>
-      Repo Studio supports connecting to and downloading packages from Red
+      System Studio supports connecting to and downloading packages from Red
       Hat Network (RHN) servers. 
       </para>
 
       <para>
-      Prior to using Repo Studio to access updates from RHN you will
+      Prior to using System Studio to access updates from RHN you will
       need to create a systemid. This requires an available subscription to 
       Red Hat Enterprise Linux. See the Red Hat web site for purchase
       information. Once you have an available subscription, install Red Hat 
@@ -81,8 +81,8 @@
       <command>rhn_register</command> command. Once the machine has successfully
       registered with RHN, a systemid file will be created in the 
       <filename type="directory">/etc/sysconfig/</filename> folder of the
-      machine. This is the file you will use to configure Repo Studio to
-      access software from RHN. You may copy this file to the Repo Studio
+      machine. This is the file you will use to configure System Studio to
+      access software from RHN. You may copy this file to the System Studio
       build machine if necessary. Note, to ensure the systemid has access to
       the software desired for your repository, you can use the Red Hat
       Network web user interface to locate the machine, and view and alter its
@@ -125,7 +125,7 @@
 
       <para>
       By default, all packages in all repositories are available for 
-      Repo Studio to use. Packages can be excluded from <emphasis>all 
+      System Studio to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
       element. See the section on <xref linkend="packages" /> for information.
       </para>
@@ -153,7 +153,7 @@
       selectively remove specific packages from the list of available packages
       for the repository. Any package matching one or more of the
       <varname>PACKAGE</varname> patterns specified in a
-      <emphasis>repo/exclude</emphasis> element will be ignored by Repo
+      <emphasis>repo/exclude</emphasis> element will be ignored by System
       Studio.
       </para>
 
@@ -171,7 +171,7 @@
       </title>
 
       <para>
-      Repo Studio supports an expanded type of repository, a
+      System Studio supports an expanded type of repository, a
       "repository group". A repository group is a collection of standard
       YUM repositories within a single folder. This feature allows, for 
       example, defining a Red Hat Enterprise Linux installation tree as a
@@ -181,7 +181,7 @@
       For example, if there are three repositories
       <filename>repoA</filename>, <filename>repoB</filename>, and
       <filename>repoC</filename> in folder <filename>/var/repos</filename>,
-      all the repos can be included in Repo Studio using a repo group:
+      all the repos can be included in System Studio using a repo group:
       </para>
 
       <programlisting>
@@ -350,7 +350,7 @@
         <para>
         This element can occur zero or more times for any given repository.
         By default, however, one or more keys must be provided across all
-        repositories. Repo Studio uses GPG keys to verify that packages 
+        repositories. System Studio uses GPG keys to verify that packages 
         are from trusted providers. Verification can be disabled (not 
         recommended) by setting <emphasis>release-rpm/updates@gpgcheck</emphasis>
         to <constant>FALSE</constant>.
@@ -442,7 +442,7 @@
       </para>
 
       <para>
-      Additionally, Repo Studio will include any and all repositories defined
+      Additionally, System Studio will include any and all repositories defined
       in the file <filename>centos-extras.repo</filename>.
       </para>
 

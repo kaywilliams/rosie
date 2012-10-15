@@ -53,7 +53,7 @@
   </informalexample>
 
   <para>
-  After using Repo Studio to build the repository, you can locate it in the
+  After using System Studio to build the repository, you can locate it in the
   package repositories folder, <filename>/var/www/html/repos/package</filename>
   by default.
   </para>
@@ -63,13 +63,13 @@
   <title>Excluding packages from external repositories</title>
   <para>
   Packages in your repository will often have dependencies on packages in
-  external repositories. Repo Studio helps you ensure that your packages will
+  external repositories. System Studio helps you ensure that your packages will
   install and update as expected by ensuring that required package are
   available.
   </para>
 
   <para>
-  As a convenience, Repo Studio allows you to download packages from external
+  As a convenience, System Studio allows you to download packages from external
   repositories and include them in your repository. As a result, users of your
   repository will have fewer repositories to track and manage.
   </para>
@@ -102,7 +102,7 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Example</emphasis> - In this example Repo Studio
+  <emphasis role='strong'>Example</emphasis> - In this example System Studio
   will use the <emphasis>'proprietary-repo'</emphasis> to resolve dependencies,
   but will not download packages from it to your repository.
   </para>
@@ -127,7 +127,7 @@
   <title>Providing GPG signing keys</title>
 
   <para>
-  Repo Studio automatically signs packages it creates using GPG signing keys.
+  System Studio automatically signs packages it creates using GPG signing keys.
   When users of your repository first install created packages, they will be
   asked to confirm installation of the repository's public key given summary
   information. To provide your users with specific, recognizable information on
@@ -239,7 +239,7 @@ templates/
   </informalexample>
 
   <para>
-  After using Repo Studio to create your repository, you can locate it at
+  After using System Studio to create your repository, you can locate it at
   <filename>/var/www/html/repos/package/application-6-x86_64</filename>. The
   tree structure of the repository will look as follows:
   </para>

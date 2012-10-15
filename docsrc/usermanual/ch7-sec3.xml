@@ -40,7 +40,7 @@
   </para>
 
   <para>
-  Repo Studio provides a template, <filename>test.xml</filename>, to
+  System Studio provides a template, <filename>test.xml</filename>, to
   assist with the task of testing package repositories. The
   <filename>test.xml</filename> template makes use of the
   <filename>virt-deploy.xml</filename> template (described under <xref
@@ -65,7 +65,7 @@
   </listitem>
 
   <listitem>
-  Test Script - user-created script that uses Repo Studio to refresh the
+  Test Script - user-created script that uses System Studio to refresh the
   package repository and complete testing using one or more system repositories.
   </listitem>
   </itemizedlist>
@@ -95,7 +95,7 @@
   <para>
   The example definition also provides a <emphasis>publish</emphasis> element
   with a <emphasis>remote-url</emphasis>. This allows repository build and
-  testing to occur on the Repo Studio build machine, with final publishing to
+  testing to occur on the System Studio build machine, with final publishing to
   a remote server.
   </para>
 
@@ -152,14 +152,14 @@
   The next file needed for package repository testing is a test machine
   template. This template provides configuration for testing a package
   repository in a given deployment environment, such as a local or remote
-  virtual machine. By default, Repo Studio provides the
+  virtual machine. By default, System Studio provides the
   <filename>test.xml</filename> template, included in the <xref
   linkend='templates'/> folder. This file allows testing package repositories
   using local virtual machines.
   </para>
 
   <para>
-  Users can create alternative templates to substitute with the Repo Studio
+  Users can create alternative templates to substitute with the System Studio
   provided <filename>test.xml</filename> template. These templates can allow
   testing package repositories in environments other than local virtual
   machines.
@@ -203,7 +203,7 @@
   </listitem>
 
   <listitem>
-  A <emphasis>test-install</emphasis> element directing Repo Studio to
+  A <emphasis>test-install</emphasis> element directing System Studio to
   install a test machine in the deployment environment. The
   <emphasis>test-install</emphasis> element in the
   <filename>test.xml</filename> template performs three actions. First, it sets
@@ -215,7 +215,7 @@
   </listitem>
 
   <listitem>
-  A <emphasis>test-update</emphasis> element directing Repo Studio to update
+  A <emphasis>test-update</emphasis> element directing System Studio to update
   a test machine in the deployment environment. The
   <emphasis>test.xml</emphasis> template simply reuses content from the
   <emphasis>test-install</emphasis> element, since the same actions are
@@ -255,7 +255,7 @@
   <emphasis>Macro</emphasis> elements defining the name, version and arch of
   the package repository, as well as a root password to be used for the test
   machines and a baseurl indicating the location of the repository on the test
-  server.  The baseurl must be accessible to both the Repo Studio build
+  server.  The baseurl must be accessible to both the System Studio build
   machine and the test machine.  When using the <filename>test.xml</filename>
   template, specifically, the baseurl should be a location on the local virtual
   network, e.g.
@@ -485,7 +485,7 @@ set -e
 
 ROOT="path/to/repos"
 
-CENTOSSTUDIO="/usr/bin/repostudio"
+CENTOSSTUDIO="/usr/bin/systemstudio"
 LOG_LEVEL=1
 
 REPO=application

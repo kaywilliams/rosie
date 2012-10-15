@@ -7,7 +7,7 @@
   <title>Deployment Scenarios</title>
 
   <para>
-  Because Repo Studio creates system repositories in a standard format, they
+  Because System Studio creates system repositories in a standard format, they
   can be used in a wide range of deployment scenarios. This chapter builds on
   techniques described in previous chapters to discuss client deployment in
   consumer/OEM, small business/IT Consultant, enterprise, hosted, and even web

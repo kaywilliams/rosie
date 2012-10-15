@@ -90,7 +90,7 @@
       <emphasis>@repoid</emphasis>: The id of the repository from which
       to obtain group data.  This id corresponds to a <emphasis>repoid</emphasis>
       defined in a <emphasis role="strong">repo</emphasis> element. If not specified,
-      <application class="software">Repo Studio</application> merges all matching
+      <application class="software">System Studio</application> merges all matching
       groups from all repo groupfiles.
       </para>
       </listitem>
@@ -128,7 +128,7 @@
     </title>
 
     <para>
-    In the example below, the repository that Repo Studio generates will
+    In the example below, the repository that System Studio generates will
     include packages from several groups as well as a few individual packages.
     Packages from the "base" and "core" groups of the "base" repository
     will be included.  Packages from the remaining groups will be included,

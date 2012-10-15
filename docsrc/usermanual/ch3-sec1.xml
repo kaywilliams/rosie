@@ -5,9 +5,9 @@
   <title>Configuring a Build Machine</title>
 
   <para>
-  <application class='software'>Repo Studio</application> installation
+  <application class='software'>System Studio</application> installation
   requires a machine running CentOS or Red Hat Enterprise Linux (RHEL)
-  version 6 for the x86_64 architecture. <application class="software">Repo
+  version 6 for the x86_64 architecture. <application class="software">System
   Studio</application> is designed to work in a networked environment.
   </para>
 
@@ -15,7 +15,7 @@
   Recent advances in virtualization, including the introduction of a
   Kernel-based Virtual Machine system (KVM), have made it both easy and
   compelling to use virtual machines for testing client installation and
-  updates. For this reason, we recommend installing Repo Studio on a machine
+  updates. For this reason, we recommend installing System Studio on a machine
   with one of the following processor architectures:
   </para>
 
@@ -33,8 +33,8 @@
   <para>For capacity planning purposes, the machine should have a separate
   logical or physical drive for the <filename
   class="directory">/var</filename> directory. <application
-  class="software">Repo Studio</application> uses the <filename
-  class="directory">/var/cache/repostudio</filename> folder for caching 
+  class="software">System Studio</application> uses the <filename
+  class="directory">/var/cache/systemstudio</filename> folder for caching 
   repository content and the <filename 
   class="directory">/var/www/html/repos</filename> folder for storing
   completed repositories. The recommended minimum drive space allocated for
@@ -47,9 +47,9 @@
   Technology Attachment (SATA) interfaces.</para>
 
   <para>
-  To install Repo Studio, follow the instructions on the download page at
+  To install System Studio, follow the instructions on the download page at
   <ulink
-  url="http://www.repostudio.org/repostudio">http://www.repostudio.org/repostudio</ulink>.
+  url="http://www.systemstudio.org/systemstudio">http://www.systemstudio.org/systemstudio</ulink>.
   </para>
 
   <para>Now you are ready to begin defining your repository!</para>

@@ -6,7 +6,7 @@
   <title>Testing System Repositories</title>
 
   <para>
-  Repo Studio makes it possible to automate testing of both system
+  System Studio makes it possible to automate testing of both system
   and package repositories. System repository testing is covered in this
   chapter, while testing for package repositories is covered later in this
   document.
@@ -21,10 +21,10 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. System Studio enables
   <emphasis>installation</emphasis> testing using the
   <emphasis>test-install</emphasis> element. When this element is present,
-  Repo Studio uses the provided information to perform the following tasks:
+  System Studio uses the provided information to perform the following tasks:
   </para>
 
   <itemizedlist>
@@ -49,10 +49,10 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Test-update</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-update</emphasis>. System Studio enables
   <emphasis>update</emphasis> testing using the
   <emphasis>test-update</emphasis> element. When this element is present,
-  Repo Studio uses the information provided to perform these tasks:
+  System Studio uses the information provided to perform these tasks:
   </para>
 
   <itemizedlist>

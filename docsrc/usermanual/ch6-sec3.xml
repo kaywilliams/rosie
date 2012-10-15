@@ -10,17 +10,17 @@
   administrators, often with the assistance of deployment automation
   infrastructure such as network installation servers or more highly integrated
   systems/operations management solutions. Enterprise system administrators can
-  use Repo Studio to perform system integration, testing and maintenance,
+  use System Studio to perform system integration, testing and maintenance,
   while using existing infrastructure to automate system deployment.
   </para>
 
   <para>
-  Two primary strategies can be followed for integrating Repo Studio
+  Two primary strategies can be followed for integrating System Studio
   repositories with enterprise deployment management systems. One of those is
-  to use Repo Studio repositories for performing Preboot Execution
+  to use System Studio repositories for performing Preboot Execution
   Environment (PXE)-based system installations. PXE is an efficient deployment
   infrastructure, supported by most enterprise management solutions.  The other
-  strategy is to use Repo Studio to generate system images in a format
+  strategy is to use System Studio to generate system images in a format
   supported by the deployment system. PXE-based deployment will be discussed in
   this chapter. System image-based deployment will be covered in the chapter on
   <xref linkend='virtual'/>.
@@ -34,7 +34,7 @@
   </para>
 
   <para>
-  Repo Studio enables PXE deployment by creating system repositories in a
+  System Studio enables PXE deployment by creating system repositories in a
   standard operating system distribution format known as an
   <emphasis>installation tree</emphasis>. An installation tree is a folder in
   the file system that contains all the needed files and subfolders to perform
@@ -43,7 +43,7 @@
 
   <para>
   In this section we will first discuss installation tree models and
-  benefits of the Repo Studio model. Then we will explore files included in
+  benefits of the System Studio model. Then we will explore files included in
   an <emphasis>installation tree</emphasis> at a summary level. With this as
   background, we will discuss how installation trees can be integrated with
   existing PXE-based deployment infrastructure.
@@ -96,7 +96,7 @@
   <section>
   <title>System-based trees</title>
   <para>
-  Repo Studio enables an alternative model, the <emphasis>system-based
+  System Studio enables an alternative model, the <emphasis>system-based
   trees</emphasis> model. In this model, all of the information for deploying
   individual systems is contained in a standard format within the installation
   tree, rather than in a proprietary format within the deployment system. This
@@ -109,7 +109,7 @@
   administrators can deploy systems using the traditional <emphasis>os-based
   tree</emphasis> model, while at the same time using the using the
   <emphasis>system-based tree</emphasis> model for deploying systems created
-  using Repo Studio.
+  using System Studio.
   </para>
 
   <para>
@@ -122,7 +122,7 @@
   <section id='install-trees' xreflabel='Installation Trees'>
   <title>Installation trees</title>
   <para>
-  Repo Studio produces system repositories in a standard operating system
+  System Studio produces system repositories in a standard operating system
   distribution format known as an <emphasis>installation tree</emphasis>.
   An installation tree is a set of files and folders in the file system.
   Included in the installation tree is a YUM package repository. Also included
@@ -169,7 +169,7 @@
   including the name of the base operating system and variant, if any, and the
   operating system version and architecture. We will discuss the
   <emphasis>variant</emphasis> field further later in this section as we look
-  at a Repo Studio generated treeinfo file.
+  at a System Studio generated treeinfo file.
   </listitem>
 
   <listitem>
@@ -189,9 +189,9 @@
   </itemizedlist>
 
   <para>
-  Repo Studio generates treeinfo files for the system repositories it
+  System Studio generates treeinfo files for the system repositories it
   creates. These files look much like the treeinfo shown above for the base
-  CentOS operating system. The major difference is that Repo Studio uses the
+  CentOS operating system. The major difference is that System Studio uses the
   <emphasis>variant</emphasis> field to list the full name of the repository,
   taken from <emphasis>main/fullname</emphasis> element of the repository
   definition.  It also tailors the image locations, timestamps and checksums to
@@ -199,7 +199,7 @@
   </para>
 
   <para>
-  Following is a <filename>.treeinfo</filename> file produced by Repo Studio
+  Following is a <filename>.treeinfo</filename> file produced by System Studio
   for the web-server repository we have been using an example throughout this
   document. This file can be located at
   <filename>/var/www/html/repos/system/web-server-6-x86_64/.treeinfo</filename>.
@@ -239,7 +239,7 @@ images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94</programlisti
   <section>
   <title>Kickstart files</title>
   <para>
-  To assist with enterprise deployment scenarios, Repo Studio includes the
+  To assist with enterprise deployment scenarios, System Studio includes the
   user-provided kickstart file in the installation trees it generates.  It does
   this in two ways. First, it places a copy of the kickstart at the root of the
   tree as <filename>ks.cfg</filename>. Additionally, it modifies the
@@ -260,7 +260,7 @@ images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94</programlisti
   <title>PXE-based System Deployment</title>
 
   <para>
-  Because Repo Studio system repositories are created in a standard
+  Because System Studio system repositories are created in a standard
   <emphasis>installation tree</emphasis> format, they can be used with any
   deployment system that supports the Preboot Execution Environment (PXE)
   protocol.
@@ -288,7 +288,7 @@ images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94</programlisti
   server for deploying system repositories. Similar to the small business
   scenario described in the previous section, the web server can be running on
   any operating system - the only requirements being that 1) client systems can
-  access it over HTTP/HTTPS and 2) the Repo Studio build machine can
+  access it over HTTP/HTTPS and 2) the System Studio build machine can
   copy/synchronize files to its underlying file system.
   </para>
 
@@ -350,7 +350,7 @@ images/install.img = sha1:8423efa5e8d210592b6877d3da86f43502b9fc94</programlisti
   web server to the PXE boot server. This can be accomplished using additional
   elements in the repository definition as shown below. These additions will
   cause the kernel and initrd images to be copied to the PXE server each time
-  Repo Studio updates production images.
+  System Studio updates production images.
   </para>
 
   <informalexample>

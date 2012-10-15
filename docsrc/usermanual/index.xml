@@ -3,11 +3,11 @@
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <book>
   <bookinfo>
-    <title>Repo Studio User Manual</title>
+    <title>System Studio User Manual</title>
 
     <author>
       <affiliation>
-        <orgname>Repo Studio Project</orgname>
+        <orgname>System Studio Project</orgname>
       </affiliation>
     </author>
 
@@ -16,7 +16,7 @@
     <copyright>
       <year>2012 </year>
 
-      <holder>Repo Studio Project </holder>
+      <holder>System Studio Project </holder>
     </copyright>
 
     <legalnotice>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='virt-config'>
+<!--configure libvirt default network for local dns resolution-->
+<requires>NetworkManager</requires>
+<requires>libvirt</requires>
+<requires>qemu-kvm</requires>
+<requires>python-virtinst</requires>
+<requires>virt-manager</requires>
+<requires>virt-viewer</requires>
+<requires>/usr/bin/virsh</requires>
+
+<files destdir="/etc/NetworkManager/dispatcher.d" destname="99-systemstudio-virt-config" mode="755" content="text">
+#!/bin/bash
+#Create/update systemstudio virtual network
+
+# Assign domain name as a subdomain of host domain. This allows dns lookups
+# of host.subdomain.domain. It also allows the the host mailer to send admin
+# email from root@host.subdomain.domain, which is both an understandable 
+# address and a "valid" internet email address. The latter is important, 
+# else smart email hosts will reject email as being sent from an
+# invalid sender domain.
+domain=`hostname -d 2>/dev/null || echo ''`
+
+# Assign name for virtual bridge
+if virsh net-info systemstudio >/dev/null 2>&amp;1; then
+  # use existing bridge name
+  brname=`virsh net-info systemstudio | sed -n 's/Bridge:\s*\(.*\)/\1/p'`
+else
+  # pick an unused name
+  start=1
+  end=99
+  success=false
+  for i in `seq $start $end`; do 
+    brname=virbr$i
+    if ! ifconfig $brname >/dev/null 2>&amp;1 ; then
+      success=true
+      break
+    fi
+  done
+  if [[ $success = false ]]; then
+    logger -t "systemstudio-virt-config" -s "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again."
+    exit 1
+  fi
+fi
+
+# Assign IP address for virtual network
+xml=`virsh net-dumpxml systemstudio 2>/dev/null`
+ipaddr=`echo $xml | sed -n "s/.*&lt;ip address='\([0-9.]\+\).*/\1/p"`
+ipstart=`echo $xml | sed -n "s/.*&lt;range start='\([0-9.]\+\).*/\1/p"`
+ipend=`echo $xml | sed -n "s/.*&lt;range.* end='\([0-9.]\+\).*/\1/p"`
+
+if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then 
+  start=123
+  end=255
+  success=false
+  for i in `seq $start $end`; do 
+    ipaddr="192.168.$i.1"
+    ipstart="192.168.$i.2"
+    ipend="192.168.$i.254"
+    if ! (ifconfig | grep $ipaddr) >/dev/null ; then
+      success=true
+      break
+    fi
+  done
+  if [[ $success = false ]]; then
+    logger -t "systemstudio-virt-config" -s "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again."
+    exit 1
+  fi
+fi
+
+# Create/update systemstudio.xml
+working="%{installdir}"
+libvirt="/etc/libvirt/qemu/networks"
+
+/bin/cp -f $working/systemstudio.tmpl $working/systemstudio.xml
+sed -i "s/%domain/$domain/g" $working/systemstudio.xml
+sed -i "s/%brname/$brname/g" $working/systemstudio.xml
+sed -i "s/%ipaddr/$ipaddr/g" $working/systemstudio.xml
+sed -i "s/%ipstart/$ipstart/g" $working/systemstudio.xml
+sed -i "s/%ipend/$ipend/g" $working/systemstudio.xml
+
+if ! ([ -e $working/systemstudio.last ] &amp;&amp; \
+      diff $working/systemstudio.xml $working/systemstudio.last>/dev/null); then
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    if virsh net-info systemstudio >/dev/null 2>&amp;1; then
+      virsh net-destroy systemstudio >/dev/null 2>&amp;1 || true
+      virsh net-undefine systemstudio >/dev/null
+    fi
+  fi
+  /bin/cp -f $working/systemstudio.xml $libvirt/systemstudio.xml
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    virsh net-define $libvirt/systemstudio.xml >/dev/null
+    virsh net-start systemstudio >/dev/null
+    virsh net-autostart systemstudio >/dev/null
+  else
+    /bin/ln -sf $libvirt/systemstudio.xml $libvirt/autostart
+  fi
+fi
+/bin/mv -f $working/systemstudio.xml $working/systemstudio.last
+
+# add dnsmasq as resolver for libvirt virtual network
+[[ `grep "$ipaddr" /etc/resolv.conf` ]] || sed -i "1,/^nameserver/ {/^nameserver/i\
+nameserver $ipaddr
+}" /etc/resolv.conf
+
+# save ipaddr for use during uninstall
+echo "$ipaddr" > %{installdir}/virt-ipaddr
+</files>
+
+<files destdir="%{installdir}" destname="systemstudio.tmpl" content="text">
+&lt;network>
+  &lt;name>systemstudio&lt;/name>
+  &lt;domain name="local.%domain"/>
+  &lt;bridge name="%brname" />
+  &lt;forward/>
+  &lt;ip address="%ipaddr" netmask="255.255.255.0">
+    &lt;dhcp>
+      &lt;range start="%ipstart" end="%ipend" />
+    &lt;/dhcp>
+  &lt;/ip>
+&lt;/network>
+</files>
+
+<script type="post">
+# start libvirtd if not running
+if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+  ( pidof libvirtd || service libvirtd start ) >/dev/null
+fi
+
+# run dispatcher.d script if it has changed
+file=/etc/NetworkManager/dispatcher.d/99-systemstudio-virt-config
+if [[ $changed = *$file* ]] ; then
+  $file
+fi
+
+# ensure consistent ip forwarding
+# wish we could do this using a sysctl.d script, but NetworkManager seems to
+# overwrite the value each time it is restarted, without calling sysctl.d
+# scripts.
+text="net.ipv4.ip_forward"
+file="/etc/sysctl.conf"
+if [[ `grep "$text" $file` = *0* ]] ; then
+  sed -i "s/^$text.*/$text = 1/" $file # modify file 
+  /bin/cp -r $file %{installdir}       # backup file for use during cleanup
+  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+    sysctl -q -p                       # update sysctl
+  fi
+fi
+</script>
+
+<script type='postun'>
+if [[ $1 = 0 ]]; then
+  # revert /etc/sysctl.conf if necessary 
+  text="net.ipv4.ip_forward"
+  file="/etc/sysctl.conf"
+  if [ -f %{installdir}/sysctl.conf ] ; then
+    if diff $file %{installdir}/sysctl.conf ; then 
+      /bin/cp -f %{installdir}/sysctl.conf $file
+      sed -i "s/^$text.*/$text = 0/" $file # modify file 
+      sysctl -q -p                         # update sysctl
+      /bin/rm -f %{installdir}/sysctl.conf # remove backup file 
+    fi
+  fi
+  if virsh net-info systemstudio >/dev/null 2>&amp;1; then
+    virsh net-destroy systemstudio >/dev/null 2>&amp;1 || true
+    virsh net-undefine systemstudio >/dev/null
+  fi
+
+  # remove ipaddr from resolv.conf
+  ipaddr=`cat %{installdir}/virt-ipaddr`
+  sed -i "/nameserver $ipaddr/d" /etc/resolv.conf
+fi
+</script>
+</config-rpm>

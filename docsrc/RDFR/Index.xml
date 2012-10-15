@@ -12,7 +12,7 @@
     <copyright id="copyright">
       <year>2012</year>
 
-      <holder>Repo Studio Project</holder>
+      <holder>System Studio Project</holder>
     </copyright>
 
     <legalnotice id="legal-notice">
@@ -21,12 +21,12 @@
 
     <author id="author">
       <affiliation>
-        <orgname>Repo Studio Project</orgname>
+        <orgname>System Studio Project</orgname>
       </affiliation>
 
       <authorblurb>
-        <para><email>repostudio@repostudio.org</email></para>
-        <para><email>repostudio@repostudio.org</email></para>
+        <para><email>systemstudio@systemstudio.org</email></para>
+        <para><email>systemstudio@systemstudio.org</email></para>
       </authorblurb>
     </author>
 

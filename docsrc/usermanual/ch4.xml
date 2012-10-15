@@ -7,7 +7,7 @@
 
   <para>
   Now that you have completed a basic definition you can add to it by creating
-  RPM packages that are specific to your repository. Repo Studio builds
+  RPM packages that are specific to your repository. System Studio builds
   three types of RPMs: the release-rpm, config-rpms, and RPMs that
   start from source RPMs (SRPMs). 
   </para>

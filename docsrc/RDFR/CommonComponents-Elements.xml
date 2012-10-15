@@ -27,12 +27,12 @@
       </para>
 
       <para>
-      <application class="software">Repo Studio</application> supports reading
+      <application class="software">System Studio</application> supports reading
       from <varname>$input</varname>s for file, http, and https locations,
       and writing to file locations. Unless otherwise specified,
       <varname>$input</varname> may refer to both file and folder locations.
       If the <varname>$input</varname> does not exist or is otherwise
-      unreadable, <application class="software">Repo Studio</application> typically
+      unreadable, <application class="software">System Studio</application> typically
       will raise an error and exit.
       </para>
       

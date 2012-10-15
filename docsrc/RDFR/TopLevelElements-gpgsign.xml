@@ -14,13 +14,13 @@
     </title>
 
     <para>
-    Specifies GPG keys to use for signing and verifying Repo Studio created
-    RPM packages. If not provided, Repo Studio automatically generates
+    Specifies GPG keys to use for signing and verifying System Studio created
+    RPM packages. If not provided, System Studio automatically generates
     signing keys. This element is optional.
     </para>
 
     <para>
-    See the <emphasis>Repo Studio User Manual</emphasis> for more 
+    See the <emphasis>System Studio User Manual</emphasis> for more 
     information on creating and using signing keys.
     </para>
 

@@ -16,7 +16,7 @@
   </para>
 
   <para>
-  Repo Studio can be used in consumer deployment scenarios in two ways.
+  System Studio can be used in consumer deployment scenarios in two ways.
   First, by automating the creation and maintenance of package repositories for
   distributing hardware drivers and other OEM provided software and
   configuration. This will be discussed further in the chapter on <xref
@@ -121,7 +121,7 @@ firstboot --reconfig
   repository definitions with the system selection process. Because definitions
   are in standard XML format, they can be generated using a number of
   programming languages. Once created, they can be verified, and the
-  repositories created, by executing the Repo Studio application
+  repositories created, by executing the System Studio application
   programmatically.
   </para>
   </section>

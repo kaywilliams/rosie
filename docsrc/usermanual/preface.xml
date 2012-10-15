@@ -22,26 +22,26 @@
     <title>What's Not Covered</title>
 
     <para>
-    This manual complements several <application class="software">Repo
+    This manual complements several <application class="software">System
     Studio</application> documents. The "Installation Instructions" and
     "Getting Started Guide" provide basic information about obtaining and
-    installing Repo Studio and creating a basic CentOS repository.  The
+    installing System Studio and creating a basic CentOS repository.  The
     "Repository Definition File Reference" (RDFR) contains the syntax for
-    repository definition elements and attributes. Finally, Repo Studio has
+    repository definition elements and attributes. Finally, System Studio has
     a set of <emphasis role="strong">man pages</emphasis> explaining the
-    <command>repostudio</command> command, its options and the Repo Studio
-    configuration file, <filename>repostudio.conf</filename>. This manual
+    <command>systemstudio</command> command, its options and the System Studio
+    configuration file, <filename>systemstudio.conf</filename>. This manual
     contains references to all four throughout the text.
     </para>
 
     <para>
-    These Repo Studio documents are available at the Repo Studio
+    These System Studio documents are available at the System Studio
     website.
     </para>
 
     <para>
-    <ulink url="http://www.repostudio.org/repostudio/docs/">
-    http://www.repostudio.org/repostudio/docs/ </ulink>
+    <ulink url="http://www.systemstudio.org/systemstudio/docs/">
+    http://www.systemstudio.org/systemstudio/docs/ </ulink>
     </para>
 
   </section>
@@ -50,7 +50,7 @@
     <title>How to Read</title>
 
     <para>
-    The intent of the manual is to help you use Repo Studio effectively to
+    The intent of the manual is to help you use System Studio effectively to
     deploy and maintain Linux-based systems and applications using YUM package
     repositories. This manual takes a top-down approach, explaining the
     concepts before giving steps, commands and examples that you can use to
@@ -81,7 +81,7 @@
         <term><emphasis role="strong">Commands</emphasis></term>
 
         <listitem>
-          <para><command>Command</command> names in Repo Studio or
+          <para><command>Command</command> names in System Studio or
           <function>function</function> names in other programs appear
           throughout the document.</para>
         </listitem>
@@ -171,7 +171,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/repostudio</screen>
+          <screen>/usr/bin/systemstudio</screen>
         </listitem>
       </varlistentry>
 
@@ -196,7 +196,7 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>Repo Studio variables are presented in monospace font,
+          <para>System Studio variables are presented in monospace font,
           e.g. <varname>%{id}</varname>.</para>
         </listitem>
       </varlistentry>
@@ -204,11 +204,11 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Getting Repo Studio</title>
+    <title>Getting System Studio</title>
 
-    <para>Repo Studio and associated documents are available at
-    <ulink url="http://www.repostudio.org/repostudio/"> the 
-    Repo Studio website</ulink> 
-    at www.repostudio.org/repostudio.</para>
+    <para>System Studio and associated documents are available at
+    <ulink url="http://www.systemstudio.org/systemstudio/"> the 
+    System Studio website</ulink> 
+    at www.systemstudio.org/systemstudio.</para>
   </section>
 </chapter>

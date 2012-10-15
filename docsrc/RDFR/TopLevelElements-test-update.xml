@@ -14,7 +14,7 @@
     </title>
 
     <para>
-    <emphasis>Test-update</emphasis> is the second Repo Studio module related
+    <emphasis>Test-update</emphasis> is the second System Studio module related
     to repository testing. It allows testing repository updates. As with
     <emphasis>test-install</emphasis> this testing occurs prior to publishing
     the final repository.  The <emphasis>test-update</emphasis> event
@@ -42,8 +42,8 @@
 
     <informalexample>
     <para>
-    The following example configures Repo Studio to perform a test
-    update to a local virtual machine. See the <emphasis>Repo Studio User
+    The following example configures System Studio to perform a test
+    update to a local virtual machine. See the <emphasis>System Studio User
     Manual</emphasis> for information on configuring the build machine to
     support virtual machine installations.
     </para>

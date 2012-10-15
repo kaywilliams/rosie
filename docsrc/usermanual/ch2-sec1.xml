@@ -2,16 +2,16 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">Repo Studio</application> Overview
+  <title><application class="software">System Studio</application> Overview
   </title>
 
   <para>
-  Repo Studio is a free, open source application and framework to create RPM
+  System Studio is a free, open source application and framework to create RPM
   package repositories for use with CentOS and Red Hat Enterprise Linux.
   </para>
   
   <para>
-  Repo Studio allows creating two types of repositories - system and package.
+  System Studio allows creating two types of repositories - system and package.
   </para>
   
   <para>
@@ -30,7 +30,7 @@
   </para>
   
   <para>
-  Repo Studio automates common repository creation tasks:
+  System Studio automates common repository creation tasks:
   
   <itemizedlist>
   <listitem>
@@ -60,7 +60,7 @@
       <imagedata fileref="overview.png" />
     </imageobject>
 
-    <caption><para>Repo Studio Overview</para></caption>
+    <caption><para>System Studio Overview</para></caption>
   </mediaobject>
 
 </section>

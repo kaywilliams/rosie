@@ -1,4 +1,4 @@
-SUBDIRS = repostudio
+SUBDIRS = systemstudio
 
 .PHONY: all clean install
 

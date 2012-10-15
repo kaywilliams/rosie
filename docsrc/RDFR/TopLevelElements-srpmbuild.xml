@@ -42,17 +42,17 @@
     </listitem>
 
     <listitem>
-    Create a new instance of Repo Studio to perform the SRPM build process.
+    Create a new instance of System Studio to perform the SRPM build process.
     This instance is created using a definition <emphasis>template</emphasis>,
-    which can be either the default template provided by Repo Studio, or a
+    which can be either the default template provided by System Studio, or a
     user-provided template specified using the <emphasis>template</emphasis>
-    element. Repo Studio modifies the template at run time to
+    element. System Studio modifies the template at run time to
     include repository and SRPM-specific information. See <xref
     linkend="srpmbuild-template"/> for more information.
     </listitem>
 
     <listitem>
-    Verify the RPMs provided by the external Repo Studio instance.
+    Verify the RPMs provided by the external System Studio instance.
     </listitem>
 
     <listitem>
@@ -132,11 +132,11 @@
       <listitem>
       <para>
       <xref linkend="content-path"/> value specifying a location for the SRPM.
-      If the specified path ends with <emphasis>".src.rpm"</emphasis> Repo
+      If the specified path ends with <emphasis>".src.rpm"</emphasis> System
       Studio attempts to download the SRPM from the location specified.
-      Otherwise, Repo Studio attempts to find an SRPM beginning with the name
+      Otherwise, System Studio attempts to find an SRPM beginning with the name
       specified in the <emphasis>@id</emphasis> attribute in the folder
-      specified. If multiple SRPMs are found, Repo Studio selects the SRPM
+      specified. If multiple SRPMs are found, System Studio selects the SRPM
       with the highest version and release number. 
       </para>
       
@@ -252,7 +252,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;srpm id="my-package">
 &lt;script>
 #!/bin/bash
-fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{srpmlast}
+fetch.py %{srpmid} https://www.systemstudio.org/hg/public/%{srpmid} %{srpmdir} %{srpmlast}
 &lt;/script>
 &lt;srpm></programlisting>
      </informalexample>
@@ -290,19 +290,19 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
       </para>
 
       <para>
-      The <emphasis>template</emphasis> element is optional. Repo Studio
+      The <emphasis>template</emphasis> element is optional. System Studio
       provides a default template, shown in the examples
-      section below. On a system with Repo Studio installed, the default
+      section below. On a system with System Studio installed, the default
       template can be found in the <xref linkend='templates'/> folder at
-      <filename>/usr/share/repostudio/templates/srpmbuild.xml</filename>.
+      <filename>/usr/share/systemstudio/templates/srpmbuild.xml</filename>.
       </para>
 
       <para>
-      More broadly, by default, Repo Studio searches for a template with the
+      More broadly, by default, System Studio searches for a template with the
       filename <filename>srpmbuild.xml</filename> located in the default
-      share path <filename>/usr/share/repostudio</filename>, a share path
-      specified in the <filename>repostudio.conf</filename> file, or a share
-      path specified on the Repo Studio command line.
+      share path <filename>/usr/share/systemstudio</filename>, a share path
+      specified in the <filename>systemstudio.conf</filename> file, or a share
+      path specified on the System Studio command line.
       </para>
 
       <para>
@@ -320,7 +320,7 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
 
       <para>
       The default template describes one possible implementation for an SRPM
-      build machine. Using this template, Repo Studio creates virtual SRPM
+      build machine. Using this template, System Studio creates virtual SRPM
       build machines on the local system. In most cases the default template is
       sufficient. Users wishing to customize the default template should create
       a new file and include desired segments of the default template using
@@ -334,7 +334,7 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
       </para>
 
       <para>
-      Repo Studio modifies the template at run time in the following ways:
+      System Studio modifies the template at run time in the following ways:
       </para>
 
       <itemizedlist>
@@ -372,13 +372,13 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
 
       <para>
       <emphasis role='strong'>%{rpms-dir}:</emphasis>
-      The path to a folder on the Repo Studio build machine where built RPMs
+      The path to a folder on the System Studio build machine where built RPMs
       should be copied. This path takes the following form, where
       <varname>$SRPMID</varname> is the value of the
       <emphasis>@id</emphasis> attribute for the <emphasis>srpm</emphasis>
       element.
       <simplelist>
-      <member><filename>/var/cache/repostudio/%{id}/$SRPMID-srpm/rpms</filename></member>
+      <member><filename>/var/cache/systemstudio/%{id}/$SRPMID-srpm/rpms</filename></member>
       </simplelist>
       </para>
 
@@ -429,8 +429,8 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
       <para>
       This example shows creating a custom template, using <xref
       linkend="xincludes"/> to reuse portions of the default template (shown
-      below).  On a system with Repo Studio installed, this file can be found
-      at <filename>/usr/share/repostudio/templates/srpmbuild-custom.xml</filename>.
+      below).  On a system with System Studio installed, this file can be found
+      at <filename>/usr/share/systemstudio/templates/srpmbuild-custom.xml</filename>.
       </para>
 
       <para>
@@ -447,8 +447,8 @@ fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{s
       <para>
       The section below shows the complete default
       <filename>srpmbuild.xml</filename> as a reference. On a system with
-      Repo Studio installed, this file can be found at
-      <filename>/usr/share/repostudio/templates/srpmbuild.xml</filename>.
+      System Studio installed, this file can be found at
+      <filename>/usr/share/systemstudio/templates/srpmbuild.xml</filename>.
       </para>
 
       <para>

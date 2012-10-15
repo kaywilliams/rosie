@@ -6,15 +6,15 @@
   <title>Troubleshooting</title>
 
   <para>
-  As you work with Repo Studio to create deployment templates and
-  config-rpms, you will occasionally run into errors. When these occur, Repo
+  As you work with System Studio to create deployment templates and
+  config-rpms, you will occasionally run into errors. When these occur, System
   Studio halts operation and displays error information to the console. It also
-  records error messages in the Repo Studio log file, by default
-  <filename>/var/log/repostudio.log</filename>.
+  records error messages in the System Studio log file, by default
+  <filename>/var/log/systemstudio.log</filename>.
   </para>
 
   <para>
-  In addition to displaying and logging error messages, Repo Studio provides
+  In addition to displaying and logging error messages, System Studio provides
   assistance for troubleshooting errors that occur during client-side script
   processing. Client-side scripts include some deployment scripts and
   config-rpm scripts and triggers. 
@@ -24,11 +24,11 @@
   <title>Troubleshooting errors in client-side deployment scripts</title>
 
   <para>
-  When Repo Studio executes a deployment script using SSH, it first copies
+  When System Studio executes a deployment script using SSH, it first copies
   the script to the client machine and then executes it from there. To assist
-  with troubleshooting, Repo Studio leaves copied scripts on the client
+  with troubleshooting, System Studio leaves copied scripts on the client
   machine.  They can be located in the folder at
-  <filename>/var/lib/repostudio/deploy</filename>.
+  <filename>/var/lib/systemstudio/deploy</filename>.
   </para>
   
   <para>  
@@ -41,7 +41,7 @@
 
   <note>
   You can view virtual clients created by the virt-deploy template by typing
-  <command>virt-manager</command> at the command line of the Repo Studio
+  <command>virt-manager</command> at the command line of the System Studio
   build machine.
   </note>
   </section>
@@ -50,9 +50,9 @@
   <title>Troubleshooting errors in config-rpm scripts</title>
 
   <para>
-  In addition, Repo Studio saves copies of config-rpm scripts on client
+  In addition, System Studio saves copies of config-rpm scripts on client
   machines. These can be located in the
-  <filename>/var/lib/repostudio/config</filename> folder, in subfolders by
+  <filename>/var/lib/systemstudio/config</filename> folder, in subfolders by
   RPM ID, e.g. <emphasis>httpd-config</emphasis>. Within the RPM ID subfolder,
   files are named by script type, e.g. <emphasis>post-script</emphasis> and
   <emphasis>postun-script</emphasis>.  Trigger scripts are named by trigger
@@ -70,7 +70,7 @@
   <para>
   Errors in trigger scripts can be more difficult to troubleshoot. You will
   need to search folders in the
-  <filename>/var/lib/repostudio/config</filename> folder to locate which
+  <filename>/var/lib/systemstudio/config</filename> folder to locate which
   config-rpm, if any, provided the errant trigger script.
   </para>
 
