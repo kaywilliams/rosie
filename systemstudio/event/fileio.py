@@ -99,6 +99,8 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if isinstance(f, pps.Path.mirror.MirrorPath):
         f = f.touri()        
+      if f.islink() and not (f.dirname/f.readlink()).exists():
+        raise BrokenLinkError(file=f, target=f.dirname/f.readlink())
       if xpath is not None:
         if allow_text and e.errno == errno.ENOENT: # file not found
           suggest = ("If you are providing text rather than a file, add the "
@@ -358,3 +360,7 @@ class XpathInputFileError(SystemStudioEventError):
 class InputFileError(SystemStudioEventError):
   message = ("Error accessing the specified file or folder '%(file)s'. "
              "[errno %(errno)d] %(message)s.")
+             
+class BrokenLinkError(SystemStudioEventError):
+  message = ("Error accessing the file referenced by '%(file)s'. It appears "
+             "to be a link to a missing file '%(target)s'.")
