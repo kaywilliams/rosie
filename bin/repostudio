@@ -197,7 +197,7 @@ class BuildCli:
             "Repo Studio. The traceback has been recorded in the log "
             "file at '%s'. Please report this error by sending a copy "
             "of your log file, system definition file and any other "
-            "relevant information to repostudio@repostudio.org\n\n"
+            "relevant information to bugs@repostudio.org\n\n"
             "Error message was: %s\n"
             % (cb.logger.logfile.file_object.name, e))
           cb.logger.logfile.file_object.write(msg)
@@ -207,7 +207,7 @@ class BuildCli:
             "An unhandled exception has been generated while running "
             "Repo Studio. Please report this error by sending a copy "
             "of the error message, your system definition file and any other "
-            "relevant information to repostudio@repostudio.org\n\n"
+            "relevant information to bugs@repostudio.org\n\n"
             "Error message was: %s\n" % tb)
           sys.exit(msg)
 
