@@ -5,20 +5,20 @@
   <title>Building Configuration Packages</title>
 
   <para>
-  <application class="software">System Studio</application> allows you to
+  <application class="software">Repo Studio</application> allows you to
   deploy and update client configuration in the same manner as you deploy and
   update individual software components, using RPM packages.  This
   simplifies your tasks as a system administrator by allowing you to manage
   software and configuration using uniform tools and processes.  Creating RPM
   packages manually can be cumbersome and time consuming. <application
-  class="software">System Studio</application> reduces overhead by creating
+  class="software">Repo Studio</application> reduces overhead by creating
   RPMs automatically during the build process, based on information you provide
   in the repository definition, and by providing a framework for you to test
   RPMs.
   </para>
 
   <para>
-  In System Studio, configuration packages are defined using
+  In Repo Studio, configuration packages are defined using
   <emphasis>config-rpm</emphasis> elements. This section covers config-rpm
   parent elements, defining config-rpms and creating config-rpm templates.
   Config-rpm testing is covered in the chapters on <xref
@@ -62,7 +62,7 @@
   <title>Defining config-rpms</title>
 
   <para>
-  Using System Studio, you can define config-rpms to complete the
+  Using Repo Studio, you can define config-rpms to complete the
   following:
   </para>
 
@@ -196,7 +196,7 @@
   The <emphasis>config-rpm/repo</emphasis> element, discussed in the RDFR,
   allows you to identify additional input repositories. These elements have the
   same syntax as <emphasis>repos/repo</emphasis> elements, and operationally
-  System Studio treats them the same. Specifying input repositories within the
+  Repo Studio treats them the same. Specifying input repositories within the
   context of a config-rpm is useful when creating config-rpm templates, as it
   allows template authors to ensure that repositories are available to satisfy
   config-rpm requirements.   
@@ -215,7 +215,7 @@
     
     <para>
     The example below shows configuring the client machine firewall for web
-    server access.  The files element directs System Studio to create a file
+    server access.  The files element directs Repo Studio to create a file
     named <filename>iptables-httpd</filename> using text provided in the body
     of the element, and install it to the <filename>/etc/rc.d/init.d</filename>
     folder with the file mode "644". The file itself is written to be OS
@@ -488,7 +488,7 @@ if ! grep "<emphasis>some text</emphasis>" <emphasis>file</emphasis>; then echo 
     The following example shows a file named <filename>httpd-config.xml</filename>,
     which is a compilation of the individual examples of this section. For
     reference, the <filename>httpd-config.xml</filename> file is also included in the
-    System Studio <xref linkend='templates'/> folder.
+    Repo Studio <xref linkend='templates'/> folder.
     </para>
 
     <informalexample>

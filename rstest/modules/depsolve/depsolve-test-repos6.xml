@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<build-repos>
+  <path>/tmp/rstest/</path>
+  <repo id="repo6">
+    <package>
+      <name>package1</name>
+      <version>1.0</version>
+      <release>1</release>
+      <conflicts>package2</conflicts>
+      <force-arch>noarch</force-arch>
+    </package>
+    <package>
+      <name>package2</name>
+      <version>1.0</version>
+      <release>1</release>
+      <force-arch>noarch</force-arch>
+    </package>
+  </repo>
+</build-repos>

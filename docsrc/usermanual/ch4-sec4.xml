@@ -12,20 +12,20 @@
   </para>
   
   <para>
-  System Studio automatically signs all packages it creates using
+  Repo Studio automatically signs all packages it creates using
   <emphasis>release-rpm</emphasis>, <emphasis>config-rpm</emphasis> and
   <emphasis>srpmbuild</emphasis> elements. To sign the packages, it uses either
   automatically generated or user-provided keys.
   </para>
 
   <para>
-  In the default cause, System Studio automatically generates a key pair, one per
+  In the default cause, Repo Studio automatically generates a key pair, one per
   repository, and stores key data in the <xref
   linkend="repository-data-file"/>.  If the <xref linkend='yum-sync-plugin'/>
   is enabled for the repository, this approach is typically sufficient as 
   public keys are automatically distributed and installed on client
   systems by the plugin, and end users do not need to recognize and explicitly
-  <emphasis>trust</emphasis> the System Studio-generated key.
+  <emphasis>trust</emphasis> the Repo Studio-generated key.
   </para>
 
   <para>
@@ -70,7 +70,7 @@ Key-Length: 1024
 Subkey-Type: ELG-E
 Subkey-Length: 1024
 Expire-Date: 0
-Name-Real: My System Studio Signing Key
+Name-Real: My Repo Studio Signing Key
 Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 
   <para>  
@@ -90,7 +90,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 # gpg --list-keys</programlisting>
 
   <para>
-  You should see an item with the uid of "My System Studio Signing Key"
+  You should see an item with the uid of "My Repo Studio Signing Key"
   </para>
   </section>
 
@@ -101,8 +101,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   </para>
 
   <programlisting>
-# gpg --export -a "My System Studio Signing Key" &gt; RPM-GPG-KEY-mykey
-# gpg --export-secret-key -a "My System Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
+# gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
+# gpg --export-secret-key -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   You can verify the exported files using the commands:
@@ -128,8 +128,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   </para>
 
   <programlisting>
-# gpg --delete-secret-keys "My System Studio Signing Key"  
-# gpg --delete-keys "My System Studio Signing Key"  </programlisting>
+# gpg --delete-secret-keys "My Repo Studio Signing Key"  
+# gpg --delete-keys "My Repo Studio Signing Key"  </programlisting>
   </section>
 
   <section>

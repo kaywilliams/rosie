@@ -1,0 +1,3 @@
+TexInputs: latex/
+TexStyle:  repostudiodocs
+XslParam:  xsl/param.xsl

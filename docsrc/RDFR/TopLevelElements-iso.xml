@@ -17,9 +17,9 @@
     </para>
 
     <para>
-    Also used by System Studio during
+    Also used by Repo Studio during
     the creation of <emphasis>iso</emphasis> images. 
-    When creating iso images, including the boot.iso image, System Studio
+    When creating iso images, including the boot.iso image, Repo Studio
     appends provided options to each "append" line in the syslinux
     configuration file. In addition, iso images are automatically configured
     to use a kickstart, if provided. 
@@ -91,7 +91,7 @@
     </title>
 
     <para>
-    In the following example, <application class="software">System
+    In the following example, <application class="software">Repo
     Studio</application> will create four sets of ISO images; one with 4.7
     gigabytes per disc ("DVD"), one with 400 megabytes per disc ("400000000"),
     one with 640 megabytes per disc ("640 mb"), and one with 640 mebibytes per

@@ -4,7 +4,7 @@
 <section>
   <title>Glossary of Terms</title>
 
-  <para>Following are terms specific to the System Studio environment. They are arranged in alphabetical order.</para>
+  <para>Following are terms specific to the Repo Studio environment. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
 
@@ -13,7 +13,7 @@
 
         <listitem>
           <para>The machine on which <application
-          class="software">System Studio</application> is installed.</para>
+          class="software">Repo Studio</application> is installed.</para>
         </listitem>
       </varlistentry>
 
@@ -31,7 +31,7 @@
 
         <listitem>
 	  <para>
-          RPM packages created by System Studio during the build process.
+          RPM packages created by Repo Studio during the build process.
           These packages contain user-specified configuration files and
           scripts.
           </para>
@@ -51,7 +51,7 @@
 
         <listitem>
 	  <para>
-          An RPM package created by System Studio during the build process.
+          An RPM package created by Repo Studio during the build process.
           This package contains the <xref linkend='yum-sync-plugin'/>
           and YUM configuration for the repository.
           </para>
@@ -71,7 +71,7 @@
 
         <listitem>
 	  <para>
-          A deployment repository created during the System Studio build
+          A deployment repository created during the Repo Studio build
           process. Provides RPM packages and, optionally, installation images
           for use during client machine installations and updates. Can be
           accessed over the network from the <xref linkend="repository-url"/>.
@@ -84,12 +84,12 @@
 
         <listitem>
 	  <para>
-          A file maintained by System Studio to track System Studio-generated
+          A file maintained by Repo Studio to track Repo Studio-generated
           repository input data. The file is created in the same folder as the
           repository definition, with a filename consisting of the <xref
           linkend='repository-id'/> with the <filename>.dat</filename> file
           extension. For example, given the repository ID
-          "web-server-6-x86_64", System Studio will create a repository
+          "web-server-6-x86_64", Repo Studio will create a repository
           definition file as follows:
           </para>
 
@@ -100,7 +100,7 @@
           <caution>
           <para>
           Care must be taken not to delete the repository data file. Doing so
-          will cause System Studio to regenerate missing information. As a
+          will cause Repo Studio to regenerate missing information. As a
           result, installed client machines may fail to download updated RPMs
           or may report errors when performing RPM GPG key checking. 
           </para>
@@ -113,7 +113,7 @@
         <term><emphasis role="strong">repository definition</emphasis></term>
 
         <listitem>
-          <para>A file that defines how System Studio should build, configure
+          <para>A file that defines how Repo Studio should build, configure
           and store a repository. By convention the file uses the <filename
           class="extension">.definition</filename> extension. The file is in
           XML format as defined in the <xref linkend="rdfr"/>.</para>
@@ -127,8 +127,8 @@
 	  <para>
           The rules of syntax for the repository definition. See the separate
           document at <ulink
-          url="http://www.systemstudio.org/systemstudio/documentation/">
-          http://www.systemstudio.org/systemstudio/documentation/ </ulink>.
+          url="http://www.repostudio.org/documentation/">
+          http://www.repostudio.org/documentation/ </ulink>.
           </para>
         </listitem>
       </varlistentry>
@@ -225,7 +225,7 @@
         <listitem>
 	  <para>
           A <application class="software">YUM</application> plugin provided by
-          System Studio that allows synchronizing packages on client machines
+          Repo Studio that allows synchronizing packages on client machines
           with packages in the <xref linkend="repository"/>.  The plugin is
           included by default in the <xref linkend="release-rpm" />,
           which serves as the mechanism for installing it on client machines.

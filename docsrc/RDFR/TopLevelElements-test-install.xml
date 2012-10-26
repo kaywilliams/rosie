@@ -22,9 +22,9 @@
     </para>
 
     <para>
-    System Studio accomplishes installation testing using deployment scripts
+    Repo Studio accomplishes installation testing using deployment scripts
     described in the Common Model. Should any of the scripts fail to complete
-    successfully, System Studio halts processing prior to running the
+    successfully, Repo Studio halts processing prior to running the
     <emphasis>test-update</emphasis> and <emphasis>publish</emphasis> events.
     </para>
 
@@ -48,8 +48,8 @@
 
     <informalexample>
     <para>
-    The following examples configure System Studio to perform a test
-    install to a local virtual machine. See the <emphasis>System Studio User
+    The following examples configure Repo Studio to perform a test
+    install to a local virtual machine. See the <emphasis>Repo Studio User
     Manual</emphasis> for information on configuring the build machine to
     support virtual machine installations.
     </para>

@@ -9,7 +9,7 @@
   </title>
 
   <para>
-  To assist with definition creation and reuse, System Studio supports
+  To assist with definition creation and reuse, Repo Studio supports
   Templates, Macros and XIncludes.
   </para>
   
@@ -59,17 +59,17 @@
     </para>
 
     <para>
-    System Studio supports three types of macros: <emphasis>command-line
+    Repo Studio supports three types of macros: <emphasis>command-line
     macros</emphasis>, <emphasis>in-document macros</emphasis>, and
     <emphasis>run-time macros</emphasis>. 
     </para>
 
     <para>
     <emphasis role="strong">Command-Line Macros</emphasis> are specified using
-    one or more macro options on the systemstudio command line. Macro
+    one or more macro options on the repostudio command line. Macro
     options use the following syntax: <emphasis>--macro id:value</emphasis>.
     Macros specified on the command line are the first to be resolved during
-    System Studio processing, and their values override values provided by
+    Repo Studio processing, and their values override values provided by
     any other macro element or run-time macro. <xref
     linkend="macro-command-line-example"/> shows a common usage scenario.
     </para>
@@ -108,7 +108,7 @@
 
     <para>
     <emphasis role="strong">Run-Time Macros</emphasis> are macros that are
-    defined by System Studio during the build process rather than defined by
+    defined by Repo Studio during the build process rather than defined by
     users. Run-time macros are the last to be resolved. Like in-document
     macros, run-time macros fall into two categories: global and module.
     </para>
@@ -161,12 +161,12 @@
       <para>
       In this example the macro placeholders <varname>%{version}</varname> and
       <varname>%{arch}</varname> will be replaced with the values "6" and
-      "i386", respectively, when System Studio is executed using the following
+      "i386", respectively, when Repo Studio is executed using the following
       command line:
       </para>
 
       <programlisting>
-systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
+repostudio --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
 
       <para>
       This allows a single definition to be used across multiple version and
@@ -197,10 +197,10 @@ systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </progra
       <para>
       This example is similar to Example 1, with the addition of global
       in-document macros for <emphasis>version</emphasis> and
-      <emphasis>arch</emphasis>. When System Studio is executed with the
+      <emphasis>arch</emphasis>. When Repo Studio is executed with the
       command line from Example 1, the results will be the same as in that
       example (since command-line macros are resolved first). However, when
-      System Studio is executed with no macros specified on the command line,
+      Repo Studio is executed with no macros specified on the command line,
       the values for version and macro will be "5" and "x86_64" respectively,
       as defined below.
       </para>
@@ -235,11 +235,11 @@ systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </progra
       </para>
 
       <para>
-      If System Studio is executed with the command line shown in Example 1,
+      If Repo Studio is executed with the command line shown in Example 1,
       however, the placeholders in the <varname>repos</varname> element will be
       substituted with the values '6' and 'i386' respectively. This is
       undesirable and will lead to errors and inconsistent behavior since,
-      internally, System Studio will believe it is trying to build a repository
+      internally, Repo Studio will believe it is trying to build a repository
       compatible with a version 5, i386 architecture operating system. If you
       plan to use command-line macros, you should use the definition syntax
       shown in Examples 1 or 2 above.  That is the syntax we will show through
@@ -372,7 +372,7 @@ systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </progra
     </informalexample>
 
     <para>
-    For processing purposes, System Studio ignores these elements. Their only
+    For processing purposes, Repo Studio ignores these elements. Their only
     role is to support conditional content inclusion.  See <xref
     linkend="conditional-xinclude-example"/> for a complete example.
     </para>
@@ -455,9 +455,9 @@ systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </progra
       </para>
 
       <note>
-      On a system with the System Studio RPM installed, the <filename>
+      On a system with the Repo Studio RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/systemstudio/templates/</filename>.
+      <filename>/usr/share/repostudio/templates/</filename>.
       </note>
 
       <para><emphasis role="strong">repos.xml</emphasis></para>
@@ -537,7 +537,7 @@ systemstudio --macro "version:6" --macro "arch:i386" path/to/definition </progra
   <para>
   In summary, macros, XIncludes and xml elements ease many tasks in repository
   definition creation. They will be shown in many examples in the remainder of
-  this document, as well as in other System Studio documentation and example
+  this document, as well as in other Repo Studio documentation and example
   files.
   </para>
 

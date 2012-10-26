@@ -5,18 +5,18 @@
     <title>Validating a Definition</title>
 
     <para>Once your definition is complete, you can use 
-    <application class="software">System Studio</application> to validate
+    <application class="software">Repo Studio</application> to validate
     its syntax.
     </para>
 
     <para>
     <informalexample>
-      <programlisting>#systemstudio --validate-only web-server.definition</programlisting>
+      <programlisting>#repostudio --validate-only web-server.definition</programlisting>
     </informalexample>
     </para>
 
     <para>If your definition is valid, 
-    <application class="software">System Studio</application> will display the 
+    <application class="software">Repo Studio</application> will display the 
     complete definition and exit. Otherwise, it will display error information,
     allowing you to locate and correct issues.</para>
 

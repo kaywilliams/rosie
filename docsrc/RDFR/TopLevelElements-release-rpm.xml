@@ -47,7 +47,7 @@
 
     <para>
     For example, given a repository with the name "samba-server" and
-    version "5", the first time System Studio creates the repository, the
+    version "5", the first time Repo Studio creates the repository, the
     release-rpm will have the following file name:
     </para>
 
@@ -58,7 +58,7 @@
     <para>
     The release number "1" will be written to the repository data file.
     When configuration changes in the future, e.g. when the sync is
-    enabled or disabled, System Studio will increment the release number
+    enabled or disabled, Repo Studio will increment the release number
     by 1, create a new release-rpm (in this case
     "samba-server-release-5-2.noarch.rpm"), and store the new release
     number ("2") in the repository data file. The incremented version
@@ -123,7 +123,7 @@
       <para>
       <emphasis>@sync</emphasis>: <xref linkend='content-boolean'/> value indicating
       whether to include the <application
-      class="software">System Studio</application>-provided <application
+      class="software">Repo Studio</application>-provided <application
       class="software">YUM</application> sync plugin in the config RPM. The
       sync plugin overrides <application class="software">YUM</application>'s
       default behavior 1) to disable all repositories other than the
@@ -139,7 +139,7 @@
       <para>
       <emphasis>@gpgcheck</emphasis>: <xref linkend='content-boolean'/> value
       indicating whether packages should be checked for valid GPG signatures.
-      This value controls whether System Studio performs gpgcheck when
+      This value controls whether Repo Studio performs gpgcheck when
       creating the repository. It also controls whether YUM checks
       packages from the repository prior to performing client machine 
       updates. The default value is <constant>TRUE</constant>.

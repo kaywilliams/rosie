@@ -21,10 +21,10 @@
 
   <para>
   Creating the web server repository entails several steps. After configuring
-  the <application class="software">System Studio</application> build machine,
+  the <application class="software">Repo Studio</application> build machine,
   as described in the previous chapter, you need to create a repository
   definition (<filename class="extension">web-server.definition</filename>).
-  Then you run <command>systemstudio</command> to validate the file and
+  Then you run <command>repostudio</command> to validate the file and
   build the repository.
   </para>
 
@@ -77,12 +77,12 @@
 
     <para>
     These naming strategies are only guidelines, however. You can name your
-    files and templates as you like and System Studio will happily process
+    files and templates as you like and Repo Studio will happily process
     them.
     </para>
 
     <caution>
-    Definitions and templates, as well as System Studio-generated <link
+    Definitions and templates, as well as Repo Studio-generated <link
     linkend='repository-data-file'>repository data files</link>, contain
     sensitive data including system root passwords, and GPG private keys. Take
     care to save your definitions and templates in a secure location.
@@ -96,11 +96,11 @@
     The first required element of the definition, <emphasis>main</emphasis>,
     includes the name of the repository, the repository architecture and the
     version. By default, these three items make up the default repository id
-    (<varname>%{id}</varname>), which System Studio uses to create folders for
+    (<varname>%{id}</varname>), which Repo Studio uses to create folders for
     storing the completed repository (under <filename
     type="directory">/var/www/html/repos</filename>, by default) and for
     caching repository content (under <filename
-    type="directory">/var/cache/systemstudio</filename>, by default).
+    type="directory">/var/cache/repostudio</filename>, by default).
     </para>
 
     <para><note>
@@ -160,9 +160,9 @@
     Each time you change a repository's id, either implicitly by changing the
     <emphasis>name</emphasis>, <emphasis>version</emphasis> or
     <emphasis>arch</emphasis> elements, or explicitly by changing the
-    <emphasis>id</emphasis> element, System Studio creates new folders in the
+    <emphasis>id</emphasis> element, Repo Studio creates new folders in the
     publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
-    <emphasis>/var/cache/systemstudio</emphasis>, by default, respectively). To
+    <emphasis>/var/cache/repostudio</emphasis>, by default, respectively). To
     preserve hard drive space, you may wish to review the publish and cache
     folders on occasion. Folders for obsolete repository ids can be deleted
     using standard file system methods (e.g. <command>rm -rf
@@ -176,7 +176,7 @@
   <title>Specifying a repository type</title>
 
   <para>
-  By default, System Studio creates <emphasis>system</emphasis>-type
+  By default, Repo Studio creates <emphasis>system</emphasis>-type
   repositories. To create a <emphasis>package</emphasis>-type repository, add
   the <emphasis>type</emphasis> element to the <emphasis>main</emphasis>
   section.
@@ -212,7 +212,7 @@
   <title>Specifying Input Repositories</title>
 
     <para>
-    During the repository creation process, System Studio obtains software from
+    During the repository creation process, Repo Studio obtains software from
     other existing repositories, referred to as <emphasis>input
     repositories</emphasis> in this document.  In this section, you will define
     the input repositories to be used for creating your repository.
@@ -231,7 +231,7 @@
       The base repository is unique in that it contains <filename
       class="directory">isolinux</filename> and <filename
       class="directory">images</filename> folders in addition to RPM packages.
-      Existing System Studio-created system repositories can also serve as
+      Existing Repo Studio-created system repositories can also serve as
       Operating System Base Repositories.
       </para></listitem>
 
@@ -273,11 +273,11 @@
   </para>
   
   <para>
-  System Studio gives special meaning to repositories with the ids
+  Repo Studio gives special meaning to repositories with the ids
   "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
   repositories are assumed to be associated with the base operating system. This
   special meaning applies only when creating <emphasis>package</emphasis>-type
-  repositories. Specifically, when creating package-type repositories, System
+  repositories. Specifically, when creating package-type repositories, Repo
   Studio automatically sets the <emphasis>download</emphasis> property to
   <emphasis>false</emphasis> for the base and updates input repositories.
   </para>
@@ -304,7 +304,7 @@
   <title>CentOS repositories</title>
 
     <para>
-    This example directs System Studio to use public mirrors to access the
+    This example directs Repo Studio to use public mirrors to access the
     CentOS base and updates repositories. Because it makes use of %{version}
     and %{arch} macros, it can be used for CentOS version 5 or 6, with either
     i386 or x86_64 architecture.  The line breaks shown are for readability
@@ -333,19 +333,22 @@
     <section>
     <title>Red Hat Enterprise Linux repositories</title>
       <para>
-      Prior to using System Studio to access Red Hat Enterprise Linux
+      Prior to using Repo Studio to access Red Hat Enterprise Linux
       repositories, you will need to complete the following steps:</para>
 
       <itemizedlist>
 
         <listitem><para>Create a Red Hat Enterprise Linux 6 install tree. This
         can be accomplished by downloading an ISO image (a single DVD image is
-        recommended for easier mounting) from Red Hat Network and using the 
-        <command>mount -o loop</command> command to mount the 
-        <filename>.iso</filename> to a folder location. See the <emphasis>Red
-        Hat Enterprise Linux 6 Installation Guide</emphasis>, under the topic
-        <emphasis>Preparing for a Network Installation</emphasis>, for more
-        information.</para></listitem>
+        recommended for easier mounting) from Red Hat Network and using the
+        <command>mount -o loop</command> command to mount the
+        <filename>.iso</filename> to a folder location. You can then copy the
+        contents of the ISO image to a permanent folder. Be sure to also copy
+        the hidden <filename>.treeinfo</filename> file from the root of the ISO
+        image to the permanent folder to avoid errors during Repo Studio
+        operation. See the <emphasis>Red Hat Enterprise Linux 6 Installation
+        Guide</emphasis>, under the topic <emphasis>Preparing for a Network
+        Installation</emphasis>, for more information.</para></listitem>
 
         <listitem><para>
         Create a systemid for accessing updates from RHN. This step requires an
@@ -357,8 +360,8 @@
         <command>rhn_register</command> command. Once the system has
         successfully registered with RHN, a systemid file will be created in
         the <filename type="directory">/etc/sysconfig/</filename> folder of the
-        machine. You will use this file to configure System Studio to access
-        software from RHN. You may copy this file to the System Studio build
+        machine. You will use this file to configure Repo Studio to access
+        software from RHN. You may copy this file to the Repo Studio build
         machine if necessary. Note, to ensure the systemid has access to the
         software desired for your repository, you can use the Red Hat Network
         web user interface to locate the system, and view and alter its
@@ -398,7 +401,7 @@
         </itemizedlist>
       </para>
 
-      <para>In the following example, System Studio will contact the RHN server
+      <para>In the following example, Repo Studio will contact the RHN server
       located at <filename type="directory">xmlrpc.rhn.examplecompany.com
       </filename> and request packages from the 
       <filename>rhel-x86_64-server-6</filename> software channel.</para>

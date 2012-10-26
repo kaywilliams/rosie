@@ -7,12 +7,12 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>August 2012</pubdate>
+    <pubdate>October 2012</pubdate>
 
     <copyright id="copyright">
       <year>2012</year>
 
-      <holder>System Studio Project</holder>
+      <holder>Repo Studio Project</holder>
     </copyright>
 
     <legalnotice id="legal-notice">
@@ -21,12 +21,12 @@
 
     <author id="author">
       <affiliation>
-        <orgname>System Studio Project</orgname>
+        <orgname>Repo Studio Project</orgname>
       </affiliation>
 
       <authorblurb>
-        <para><email>systemstudio@systemstudio.org</email></para>
-        <para><email>systemstudio@systemstudio.org</email></para>
+        <para><email>repostudio@repostudio.org</email></para>
+        <para><email>repostudio@repostudio.org</email></para>
       </authorblurb>
     </author>
 
