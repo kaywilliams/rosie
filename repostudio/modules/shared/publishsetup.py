@@ -154,7 +154,10 @@ class PublishSetupEventMixin:
       raise InterfaceIOError(ifname, str(e))
   
     if self.config.getbool(xpath+'/@fqdn', 'False'):
-      hostname, aliases, _ = socket.gethostbyaddr(realm)
+      try:
+        hostname, aliases, _ = socket.gethostbyaddr(realm)
+      except socket.herror:
+        raise UnknownHostnameError(realm, ifname) 
       names = [hostname]
       names.extend(aliases)
       for name in names:
@@ -319,6 +322,14 @@ class InterfaceIOError(RepoStudioEventError):
 
 class InvalidHostnameError(RepoStudioEventError):
   message = "Invalid Hostname: %(message)s"
+
+class UnknownHostnameError(RepoStudioEventError):
+  message = ( "Unable to locate a hostname for IP address '%(ipaddr)s' on "
+              "on interface '%(interface)s'. Please check with your network "
+              "administrator to ensure the DNS reverse record is correctly "
+              "configured. Otherwise, please specify an alternative "
+              "interface for obtaining the IP address. See the "
+              "Repo Studio documentation on 'Publish' for more information.") 
 
 class FQDNNotFoundError(RepoStudioEventError):
   message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
