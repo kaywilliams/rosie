@@ -50,13 +50,13 @@ class PublishSetupEventMixin:
   def setup(self):
     self.datfile = self.parse_datfile()
 
-    # set remote host 
-    self.remote_host = self.get_remote_host()
-    self.config.resolve_macros('.', {'%{remote-host}': self.remote_host})
+    # set build host 
+    self.build_host = self.get_build_host()
+    self.config.resolve_macros('.', {'%{build-host}': self.build_host})
 
     # set additional attributes
     self.localpath = self.get_local()
-    self.webpath = self.get_webpath(self.remote_host)
+    self.webpath = self.get_webpath(self.build_host)
     self.domain = self.get_domain() # get_hostname() uses this for validation
     self.hostname = self.get_hostname()
     self.fqdn = self.hostname + self.domain 
@@ -137,39 +137,39 @@ class PublishSetupEventMixin:
     local = self.config.getpath('local-dir/text()', default)
     return local / self.repoid
   
-  def get_remote_host(self):
+  def get_build_host(self):
     ifname = self.config.getxpath('remote-url/@interface', None)
     if not ifname:
       ifname,_ = get_first_active_interface()
     try:
-      remote_host = get_ipaddr(ifname)
+      build_host = get_ipaddr(ifname)
     except IOError, e:
       raise InterfaceIOError(ifname, str(e))
 
     if self.config.getbool('remote-url/@fqdn', 'False'):
       try:
-        hostname, aliases, _ = socket.gethostbyaddr(remote_host)
+        hostname, aliases, _ = socket.gethostbyaddr(build_host)
       except socket.herror:
-        raise UnknownHostnameError(remote_host, ifname) 
+        raise UnknownHostnameError(build_host, ifname) 
       names = [hostname]
       names.extend(aliases)
       for name in names:
         if '.' in name: # name is fqdn
-          remote_host = name
+          build_host = name
           break
       else:
-        raise FQDNNotFoundError(remote_host, ifname, names)
+        raise FQDNNotFoundError(build_host, ifname, names)
 
-    return remote_host
+    return build_host
     
-  def get_webpath(self, remote_host):
+  def get_webpath(self, build_host):
     if self.moduleid == 'publish':
       default = 'repos/%s' % self.type
     else:
       default = 'repos/%s/%s' % (self.type, self.moduleid)
 
     remote = pps.path(self.config.getxpath('remote-url/text()', 
-                      'http://'+remote_host+'/'+default))
+                      'http://'+build_host+'/'+default))
                         
     return remote / self.repoid
 

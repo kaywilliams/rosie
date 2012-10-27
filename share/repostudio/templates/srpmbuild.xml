@@ -40,7 +40,7 @@
 <publish>
 <password>srpmbuild</password>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
-<remote-url interface='virbrrs'>http://%{remote-host}/repos/.srpmbuild</remote-url>
+<remote-url interface='virbrrs'>http://%{build-host}/repos/.srpmbuild</remote-url>
 
 <kickstart>
 <xi:include href="deploy/ks.cfg" parse="text"/>
