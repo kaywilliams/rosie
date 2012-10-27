@@ -316,7 +316,7 @@ def _make_path(element, path, fallback=None, relative=False, multiple=True):
        
   # process results
   if not multiple: # filter to a single item if requested
-    strings[:1]   
+    strings[:1]
   for i in range(len(strings)):
     if not isinstance(strings[i], basestring):
       raise ValueError("query must return a string, got a %s" % 

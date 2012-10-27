@@ -21,28 +21,6 @@
 # invalid sender domain.
 domain=`hostname -d 2>/dev/null || echo ''`
 
-# Assign name for virtual bridge
-if virsh net-info repostudio >/dev/null 2>&amp;1; then
-  # use existing bridge name
-  brname=`virsh net-info repostudio | sed -n 's/Bridge:\s*\(.*\)/\1/p'`
-else
-  # pick an unused name
-  start=1
-  end=99
-  success=false
-  for i in `seq $start $end`; do 
-    brname=virbr$i
-    if ! ifconfig $brname >/dev/null 2>&amp;1 ; then
-      success=true
-      break
-    fi
-  done
-  if [[ $success = false ]]; then
-    logger -t "repostudio-virt-config" -s "ERROR: Unable to assign virtual bridge name in the range 'virbr$start' to 'virbr$end'. Please destroy and undefine an existing virtual network and try again."
-    exit 1
-  fi
-fi
-
 # Assign IP address for virtual network
 xml=`virsh net-dumpxml repostudio 2>/dev/null`
 ipaddr=`echo $xml | sed -n "s/.*&lt;ip address='\([0-9.]\+\).*/\1/p"`
@@ -111,7 +89,7 @@ echo "$ipaddr" > %{installdir}/virt-ipaddr
 &lt;network>
   &lt;name>repostudio&lt;/name>
   &lt;domain name="local.%domain"/>
-  &lt;bridge name="%brname" />
+  &lt;bridge name="virbrrs" />
   &lt;forward/>
   &lt;ip address="%ipaddr" netmask="255.255.255.0">
     &lt;dhcp>
