@@ -100,13 +100,24 @@
     <colspec colwidth='1.5in'/>
     <tbody valign='top'>
     <row>
+    <entry id='build-host-macro' xreflabel='build-host'>
+    %{build-host}
+    </entry>
+
+    <entry>
+    A Repo-Studio-calculated host name or IP Address for the build machine.
+    Described under the <xref linkend='remote-url'/> element.
+    </entry>
+    </row>
+
+    <row>
     <entry id='url-macro' xreflabel='url'>
     %{url}
     </entry>
 
     <entry>
-    A full <xref linkend='content-url'/> to the deployment repository. Described
-    under the <xref linkend='remote-url'/> element.
+    A full <xref linkend='content-url'/> to the repository on the repository
+    download server. Described under the <xref linkend='remote-url'/> element.
     </entry>
     </row>
 
@@ -347,9 +358,10 @@
 
       <para>
       This element is optional. The default values are listed in the following
-      table, where <varname>$ipaddress</varname> is computed using the value of
-      the <emphasis>@interface</emphasis> attribute, and TYPE is the value of
-      <xref linkend='main-type'/>. 
+      table, where <varname>%{build-host}</varname> is computed using the
+      values of the <emphasis>@interface</emphasis> and
+      <emphasis>@fqdn</emphasis> attributes, and TYPE is the value of <xref
+      linkend='main-type'/>. 
       </para>
 
       <informaltable>
@@ -363,19 +375,19 @@
       <row>
       <entry>publish</entry>
       <entry>
-      <filename>http://$ipaddress/repos/TYPE/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/repos/TYPE/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-install</entry>
       <entry>
-      <filename>http://$ipaddress/repos/TYPE/test-install/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/repos/TYPE/test-install/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-update</entry>
       <entry>
-      <filename>http://$ipaddress/repos/TYPE/test-update/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/repos/TYPE/test-update/<varname>%{id}</varname></filename>
       </entry>
       </row>
       </tbody>
@@ -404,7 +416,7 @@ $remote-url/%{id}</programlisting>
       As a security measure, to prevent man-in-the-middle style web server
       attacks, you may wish to configure the <emphasis>remote-url</emphasis>
       for SSL-only access.  See your web server documentation for information on
-      configuring SSL. See also Example 4 below for information on specifying
+      configuring SSL. See also Example 5 below for information on specifying
       an https remote-url. 
       </para>
 
@@ -421,8 +433,8 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis>@interface</emphasis>: <xref linkend='content-text'/> value
       specifying the network interface name, e.g. "eth1", from which to obtain
-      the <varname>$ipaddress</varname> of the repository.  This attribute only
-      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
+      the <varname>%{build-host}</varname> of the repository.  This attribute
+      only has an effect if <emphasis>remote-url/@fqdn</emphasis> is
       <constant>FALSE</constant>.
       </para>
       
@@ -550,8 +562,6 @@ $remote-url/%{id}</programlisting>
       remote-url.  In this example, the repository is created on the build
       machine, but later moved to a web server, or web server farm, for final
       publication. In this case, the remote-url must be  manually specified.
-      This example specifies an 'http' location; an 'https' location would be
-      specified in the same manner.
       </para>
 
       <informalexample>
@@ -580,6 +590,22 @@ $remote-url/%{id}</programlisting>
       <filename>http://repos.company.com/samba-server-5-i386</filename>
       </member>
       </simplelist>
+
+      <para>
+      <emphasis role='bold'>Example 5</emphasis> - manual configuration using
+      the <link linkend='deployment-macros'>%{build-host}</link> module macro.
+      In this example, the repository is created on the build machine, but will
+      be accessed over 'https' rather than the default http protocol. 
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;remote-url fqdn="true"&gt;https://%{build-host}/repos/system/&lt;/remote-url&gt;</programlisting>
+      </informalexample>
+
+      <para>
+      The resulting values are the same as shown in Example 2.
+      </para>
 
       </listitem>
     </varlistentry>
