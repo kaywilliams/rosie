@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    repostudio
-Version: 1.59
+Version: 1.60
 Release: 1%{?dist}
 Summary: Builds custom versions of CentOS and Red Hat Enterprise Linux
 
@@ -72,6 +72,10 @@ http://www.repostudio.org for more information.
 %{_mandir}/man1/repostudio.1.gz
 
 %changelog
+* Sat Oct 27 2012 Kay Williams <kay@repostudio.org> - 1.0.60.1
+- virt-config/virt-install improvements
+- product naming and documentation updates
+
 * Mon Oct 15 2012 Kay Williams <kay@repostudio.org> - 1.0.59.1
 - product naming and documentation updates
 
