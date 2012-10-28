@@ -72,7 +72,7 @@
   <programlisting>
 &lt;test-install>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)">
+&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install></programlisting>
   </informalexample>
   </section>
