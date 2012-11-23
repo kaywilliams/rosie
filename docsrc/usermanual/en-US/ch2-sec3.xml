@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Building Repositories</title>
+
+  <para>
+  During the build process, <application class="software">Repo
+  Studio</application> gathers content, processes it, creates a repository, and
+  optionally runs scripts to test, deploy or maintain client machines.
+  </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="build_overview.png" />
+      </imageobject>
+
+      <caption><para>Repo Studio Build Process</para></caption>
+    </mediaobject>
+
+  <section>
+  <title>Input</title>
+
+  <para>
+  <application class="software">Repo Studio</application> uses three classes
+  of input: a base operating system repository, additional package
+  repositories, and configuration files and scripts.
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  <emphasis role="strong">Base Operating System Repository.</emphasis>
+  Repo Studio requires a CentOS-compatible operating system repository as
+  input for creating new repositories. Currently supported operating system
+  repositories include CentOS and Red Hat Enterprise Linux, versions 5 and 6
+  for i386 and x86_64 architectures. See <xref
+  linkend="specifying-input-repositories" /> for more information.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Additional Package Repositories.</emphasis> Repo
+  Studio uses RPM package repositories to locate and download additional
+  software components for the repository. A typical repository definition will
+  specify multiple additional input repositories, including a operating system
+  update repository, and repositories made available from other internal and
+  external providers. See <xref linkend="specifying-input-repositories" /> for
+  more information.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Configuration Files and Scripts.</emphasis> The final
+  category of repository content is user-provided configuration files and
+  scripts.  Files are copied and scripts are executed during client machine
+  installation and updates. For more information, see <xref
+  linkend="building-rpms" />.
+  </para>
+  </listitem>
+  </itemizedlist>
+  </section>
+
+  <section>
+  <title>Process</title>
+
+  <para>
+  <application class="software">Repo Studio</application> uses information
+  from the <xref linkend="repository-definition"/> to gather repository
+  content. It uses this information to complete three primary steps.
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  <emphasis role="strong">Create repository-specific RPM packages.</emphasis>
+  Repo Studio creates two types of packages, the  <xref
+  linkend="release-rpm"/> and optional <xref linkend="config-rpms"/>. The
+  release-rpm contains Repo Studio-generated YUM update configuration.
+  Config-rpm packages contain user-provided files and scripts specified in the
+  repository definition. Both are discussed under <xref
+  linkend="building-rpms" />.
+  </para>
+
+  <para>
+  During this step, Repo Studio also creates a <xref
+  linkend="repository-data-file"/>, if one does not exist, in the same folder
+  as the repository definition. The file has a .dat extension. This file is
+  used to store Repo Studio generated input data, such as release numbers for
+  generated RPMs, that should be maintained along with the repository
+  definition.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Assemble a package repository.</emphasis> Using the
+  repository definition, Repo Studio compiles a list of required packages. It
+  then resolves package dependencies, downloads packages, and creates a
+  complete, consistent package repository. The package repository is used
+  during network installations to client machines. It is also used during
+  client machine updates.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Customize system installation images
+  (optional).</emphasis> For system-type repositories, Repo Studio downloads
+  network installation images from the CentOS-compatible repository and
+  modifies them to include repository-specific information. Repo Studio can
+  be used to completely automate client installations. The chapters on <xref
+  linkend='testing-system-repos'/> and <xref linkend="deployment-scenarios"/>
+  describe this in detail.
+  </para>
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  <application class="software">Repo Studio</application> stores repository
+  content, both input and generated, in the cache folder, by default <filename
+  class="directory">/var/cache/repostudio/</filename>. It reuses information
+  from the cache on subsequent runs, where possible, to improve build
+  performance.
+  </para>
+  </section>
+
+  <section>
+  <title>Output</title>
+
+  <para>
+  Repo Studio outputs a complete repository, a repository data file and a log
+  file.
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  <emphasis role="strong">Repository.</emphasis> The primary output of the
+  build process is a complete YUM package repository containing RPM packages.
+  For <emphasis>system</emphasis>-type repositories, the repository also
+  contains system installation images. Together, the YUM repository and system
+  installation images support the complete range of system and application
+  deployment and maintenance scenarios. See the chapters on <xref
+  linkend='testing-system-repos'/>, <xref linkend='deployment-scenarios'/> and
+  <xref linkend='package-repos'/> for more information.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Repository Data File.</emphasis> As mentioned above,
+  Repo Studio creates a <xref linkend="repository-data-file"/> during the
+  build process. This file is used to track Repo Studio generated input
+  information. 
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  <emphasis role="strong">Repo Studio Log File.</emphasis> Repo Studio
+  sends output both to the screen and to a log file, located by default at
+  <filename>/var/log/repostudio.log.</filename>
+  </para>
+  </listitem>
+  </itemizedlist>
+  </section>
+
+  <section>
+  <title>Test, Deploy and Update</title>
+
+  <para>
+  The repository generated by Repo Studio is used to perform testing,
+  deployment and maintenance to client machines. These steps can be performed
+  in one of three ways:
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Manually by the user or administrator.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Automatically by Repo Studio using deployment scripts.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Or, because repositories are in a standard format, automatically by any
+  systems management system that can deploy and maintain native CentOS and Red
+  Hat Enterprise Linux systems.
+  </para>
+  </listitem>
+  </itemizedlist>
+  </para>
+
+  <para>
+  See the chapters on <xref linkend='testing-system-repos'/>, <xref
+  linkend='deployment-scenarios'/> and <xref
+  linkend='package-repos'/> for additional information.
+  </para>
+  </section>
+
+</section>

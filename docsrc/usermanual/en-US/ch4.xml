@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="building-rpms" xreflabel="Building RPM Packages">
+
+  <title>Building RPM Packages</title>
+
+  <para>
+  Now that you have completed a basic definition you can add to it by creating
+  RPM packages that are specific to your repository. Repo Studio builds
+  three types of RPMs: the release-rpm, config-rpms, and RPMs that
+  start from source RPMs (SRPMs). 
+  </para>
+
+  <para>
+  These topics will be discussed in the following sections.
+  </para>
+
+
+  <xi:include href="ch4-sec1.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch4-sec2.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch4-sec3.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch4-sec4.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+</chapter>

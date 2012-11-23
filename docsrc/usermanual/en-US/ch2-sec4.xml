@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Repo Studio Files and Folders</title>
+
+  <para><application class="software">Repo Studio</application> has several
+  key files and folders, listed in the table below.</para>
+
+  <para><informaltable>
+
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>/etc/repostudio/repostudio.conf</entry>
+
+            <entry><application>Repo Studio</application> looks
+            for this file to locate repostudio configuration. See the
+            repostudio and repostudio.conf man pages for more information.
+            This file is optional and does not exist in the default Repo Studio
+            installation.</entry>
+          </row>
+          <row>
+            <entry>/usr/bin/repostudio</entry>
+
+            <entry>The <command>repostudio</command> command.</entry>
+          </row>
+
+          <row>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/repostudio/</entry>
+
+            <entry>
+            Python code for <application class="software">Repo
+            Studio</application>, where <varname>$version</varname> is the
+            <application class="software">Python</application> version.
+            </entry>
+          </row>
+
+          <row>
+            <entry>/usr/share/doc/repostudio-<varname>$version/</varname></entry>
+
+            <entry>Documentation for <application
+            class="software">Repo Studio</application>, where
+            <varname>$version</varname> is the <application
+            class="software">Repo Studio</application> version.</entry>
+          </row>
+
+          <row>
+            <entry>/usr/share/repostudio/schemas/</entry>
+
+            <entry>Relax NG schemas for repository definition validation.
+            </entry>
+          </row>
+          <row>
+            <entry>/usr/share/repostudio/../../share/repostudio/templates/</entry>
+
+            <entry>
+            Templates for use in definition creation. See the section on <xref
+            linkend='templates'/> in the Glossary of Terms for more information.
+            </entry>
+          </row>
+          <row>
+            <entry>/var/cache/repostudio/</entry>
+
+            <entry>Repo Studio stores cached content in this folder. See
+            the repostudio and repostudio.conf man pages for cache-related
+            options.
+            </entry>
+          </row>
+
+          <row>
+            <entry>/var/lib/repostudio/</entry>
+
+            <entry>
+            Location where Repo Studio stores variable data including data
+            for troubleshooting installed config-rpm and deployment scripts.
+            </entry>
+          </row>
+
+          <row>
+            <entry>/var/log/repostudio.log</entry>
+
+            <entry>Repo Studio's default log file.</entry>
+          </row>
+
+          <row>
+            <entry>/var/www/html/repos/</entry>
+
+            <entry>
+            Repo Studio publishes completed repositories to
+            <filename>system</filename> and <filename>package</filename>
+            subfolders of this folder by default. An alternative location can
+            be specified on a per-repository basis within a repository
+            definition.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable></para>
+
+</section>

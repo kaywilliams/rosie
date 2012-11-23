@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="building-release-rpm" xreflabel="Building a Release Package">
+  <title>Building a Release Package</title>
+
+  <para>
+  A release package is an essential component of a YUM repository. It contains
+  information that allows client machines to connect to the repository using
+  YUM. YUM then manages download, install and update of RPM packages on the
+  individual client machines.
+  </para>
+  
+  <para>
+  Repo Studio automatically creates a release package for the repository. You
+  can control aspects of the release package using the
+  <emphasis>release-rpm</emphasis> element.
+  </para>
+
+  <para>
+  The release package, referred to as the <xref linkend='release-rpm'/> is
+  created by default, even if no <emphasis>release-rpm</emphasis> element is
+  specified in the definition. In the default case, the release-rpm performs
+  two actions:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+    <para>
+    Installs a YUM repository definition for the repository in the
+    <filename>/etc/yum.repos.d</filename> folder. This configures client
+    machines to check for updates in the repository each time YUM is run.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    For <emphasis>system</emphasis>-type repositories, installs a plugin module
+    for YUM that supports addition and removal of packages on the client
+    machine in synchronization with changes in the repository.  See the section
+    below for more information on the <application class="software">YUM Sync
+    Plugin</application>.
+    </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+  The <emphasis>release-rpm</emphasis> element allows you to disable
+  installation of the Yum Sync Plugin, as well as to control GPG key checking
+  for downloaded RPM packages. See the <xref linkend='rdfr'/> for complete
+  information on the <emphasis>release-rpm</emphasis> element.
+  </para>
+
+  <para>
+  You can disable creation of the release-rpm, if desired, as shown below. This
+  may be useful if you desire to create a custom release package, for example
+  as shown in the section on <xref linkend="building-custom-rpms"/>.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;release-rpm enabled='false'/></programlisting>
+  </informalexample>
+
+  <section>
+  <title>YUM Sync Plugin</title>
+
+  <para>
+  Repo Studio provides an extension to YUM, called the <emphasis>YUM sync
+  plugin</emphasis>, that allows keeping installed clients up to date with
+  changes in a "master" repository. The YUM sync plugin is installed to client
+  machines by default (for <emphasis>system</emphasis>-type repositories) via
+  the release-rpm. For <emphasis>package</emphasis>-type repositories, the
+  plugin is automatically disabled.
+  </para>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="updates.png" />
+    </imageobject>
+  </mediaobject>
+
+  <para>
+  In addition to installing the sync plugin, the release-rpm also configures
+  the sync plugin to use the Repo Studio-generated repository as the master
+  repository. This disables all other package repositories on the client
+  machine, allowing the plugin to get an accurate list of what packages
+  <emphasis>should be installed</emphasis> on the client using packages
+  available in the repository.
+  </para>
+
+  <para>
+  The sync plugin provides a new command line argument
+  <emphasis>sync</emphasis> for use with YUM:
+  </para>
+
+  <informalexample><programlisting># yum sync</programlisting></informalexample>
+
+  <para>
+  The <emphasis>sync</emphasis> argument behaves similarly to the YUM
+  <emphasis>update</emphasis> argument, with two additions: 1) it adds packages
+  from the repository that are not installed on the client, and 2) it removes
+  packages from the client that do not exist in the repository.
+  </para> 
+
+  <para>
+  The sync plugin can be excluded from the release-rpm using the
+  <emphasis>release-rpm/updates</emphasis> element as shown below:
+  </para>
+  
+  <informalexample>
+  <programlisting>
+&lt;release-rpm>
+&lt;updates sync="false"/>
+&lt;/release-rpm>
+  </programlisting>
+  </informalexample>
+
+  <para>
+  See the <xref linkend='rdfr'/> for more information on the
+  <emphasis>release-rpm</emphasis> element.
+  </para>
+  
+  <para>
+  In addition, the sync plugin can be disabled on individual client machines
+  using the <filename>/etc/yum/yumplugin.d/sync.conf</filename> file. It can
+  also be disabled at YUM runtime using the --disableplugins command line
+  parameter, for example: 
+  </para>
+
+  <informalexample>
+  <programlisting># yum --disableplugins sync ...</programlisting>
+  </informalexample>
+
+  <para>
+  See the chapter on <xref linkend="deployment-scenarios"/>
+  for information on using the YUM sync plugin in various deployment scenarios.
+  </para>
+
+  </section>
+
+</section>

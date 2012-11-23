@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="providing-signing-keys" xreflabel="Providing GPG Signing Keys">
+  <title>Providing GPG Signing Keys</title>
+
+  <para>
+  RPM packages are typically signed with GPG keys as a measure of ensuring
+  package authenticity. GPG keys come in pairs, secret and public. Packages are
+  signed using the secret key. The private key is distributed to client
+  systems, which use it to verify the package at install time.
+  </para>
+  
+  <para>
+  Repo Studio automatically signs all packages it creates using
+  <emphasis>release-rpm</emphasis>, <emphasis>config-rpm</emphasis> and
+  <emphasis>srpmbuild</emphasis> elements. To sign the packages, it uses either
+  automatically generated or user-provided keys.
+  </para>
+
+  <para>
+  In the default cause, Repo Studio automatically generates a key pair, one per
+  repository, and stores key data in the <xref
+  linkend="repository-data-file"/>.  If the <xref linkend='yum-sync-plugin'/>
+  is enabled for the repository, this approach is typically sufficient as 
+  public keys are automatically distributed and installed on client
+  systems by the plugin, and end users do not need to recognize and explicitly
+  <emphasis>trust</emphasis> the Repo Studio-generated key.
+  </para>
+
+  <para>
+  When the YUM sync plugin is disabled, however, either manually via the
+  <emphasis>release-rpm</emphasis> element or automatically for
+  <emphasis>package-type</emphasis> repositories, the opposite is true. In this
+  case, users are prompted to install GPG keys after viewing summary
+  information and, thus, it is often desirable to provide GPG signing keys
+  containing specific, user-recognizable information about the key and
+  provider.
+  </para>
+
+  <para>
+  See the <xref linkend='release-rpm'/> chapter for more information on the YUM
+  sync plugin.
+  </para>
+
+  <para>
+  Using the <emphasis>gpgsign</emphasis> element, you can provide signing keys
+  for use with your repository. The process involves three steps: creating
+  keys, exporting keys, and creating the gpgsign element.
+  </para>
+
+  <section>
+  <title>Creating keys</title>
+  <para>
+  For our example, we will create keys using the batch mode for GPG key
+  creation. While the key is being created, the process may stall and you may
+  need to do some additional work (move the mouse, switch windows, download
+  some web pages, etc.) to create sufficient random data. 
+  </para>
+
+  <para>
+  Create a file with the following content. Modify the lines starting with
+  <emphasis>Name-Real</emphasis> and <emphasis>Passphrase</emphasis>. The
+  passphrase line is optional.
+  </para>
+
+  <programlisting>
+Key-Type: DSA
+Key-Length: 1024
+Subkey-Type: ELG-E
+Subkey-Length: 1024
+Expire-Date: 0
+Name-Real: My Repo Studio Signing Key
+Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
+
+  <para>  
+  Next, type the following at the command line, replacing
+  <emphasis>myfile</emphasis> with the name of the file created above:  
+  </para>
+
+  <programlisting>
+# gpg --batch --gen-key myfile </programlisting>
+
+  <para>
+  Once the process is complete, check that the key was generated successfully
+  using the following command:
+  </para>
+
+  <programlisting>
+# gpg --list-keys</programlisting>
+
+  <para>
+  You should see an item with the uid of "My Repo Studio Signing Key"
+  </para>
+  </section>
+
+  <section>
+  <title>Exporting keys</title>
+  <para>
+  To export the newly created keys from the GPG keyring, complete the following:
+  </para>
+
+  <programlisting>
+# gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
+# gpg --export-secret-key -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
+
+  <para>
+  You can verify the exported files using the commands:
+  </para>
+
+  <programlisting>
+# cat RPM-GPG-KEY-mykey
+# cat RPM-GPG-KEY-mykey-secret</programlisting>
+
+  <para>
+  As each file is listed, it should begin with the following text, respectively: 
+  </para>
+
+  <programlisting>
+-----BEGIN PGP PUBLIC KEY BLOCK-----</programlisting>
+
+  <programlisting>
+-----BEGIN PGP PRIVATE KEY BLOCK-----</programlisting>
+
+  <para>After verifying the exported keys, it is no longer necessary to keep
+  them in the GPG keyring. You can delete them from the keyring using the
+  following commands:
+  </para>
+
+  <programlisting>
+# gpg --delete-secret-keys "My Repo Studio Signing Key"  
+# gpg --delete-keys "My Repo Studio Signing Key"  </programlisting>
+  </section>
+
+  <section>
+  <title>Creating the gpgsign element</title>
+  <para>
+  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Repository Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
+  </para>
+
+  <para>
+  To use XInclude, first copy the public and secret key files to a location
+  relative to the repository definition, e.g. to the same folder. Then add 
+  a <emphasis>gpgsign</emphasis> element as follows:
+  </para>
+
+  <programlisting>
+&lt;gpgsign&gt;
+  &lt;public&gt;&lt;xi:include href="RPM-GPG-KEY-mykey" parse="text"&gt;&lt;public&gt;
+  &lt;secret&gt;&lt;xi:include href="RPM-GPG-KEY-mykey-secret" parse="text"&gt;&lt;/secret&gt;
+  &lt;passphrase&gt;The quick brown fox jumped over the lazy dog.&lt;/passphrase&gt;
+&lt;gpgsign&gt;</programlisting>
+
+  <para>
+  This concludes our chapters on creating a basic repository and
+  building RPMs for inclusion in the repository. The next chapters will discuss
+  repository testing, deployment and maintenance.
+  </para>
+  </section>
+
+</section>

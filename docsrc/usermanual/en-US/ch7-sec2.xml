@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="package-repository-types" 
+         xreflabel="Package Repository Types">
+  <title>Package Repository Types</title>
+
+  <para>
+  Repo Studio supports several common package repository types:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Configuration Repositories - used for distributing organization-specific
+  operating system or application configuration.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Patch Repositories - used for distributing patched software or configuration,
+  typically within an organization.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Aggregation Repositories - used for aggregating packages from multiple
+  repositories into a single convenience repository.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Application Repositories - used for distributing application software and
+  default configuration.
+  </para>
+  </listitem>
+  </itemizedlist>
+ 
+  <para>
+  These types are not mutually exclusive, in fact they often overlap. In this
+  section, we provide skeleton definitions for each package repository type.
+  </para>
+
+  <section>
+  <title>Configuration Repositories</title>
+
+  <para>
+  Configuration repositories are used by enterprise systems administrators for
+  distributing enterprise-specific configuration, such as client authentication
+  (Kerberos/LDAP, etc.) and network (DHCP/DNS) configuration.
+  </para>
+
+  <para>
+  The skeleton template below shows elements common to configuration
+  repositories.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Skeleton configuration repository
+  definition</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>
+&lt;name>config-repo&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
+
+&lt;gpgsign>
+&lt;!-- gpgsign elements -->
+&lt;/gpgsign>
+
+&lt;config-rpms>
+&lt;!-- config-rpm definitions -->
+&lt;/config-rpms>
+
+&lt;/repo></programlisting>
+  </informalexample>
+  </section>
+
+  <section>
+  <title>Patch Repositories</title>
+
+  <para>
+  Patch repositories are used by ISVs or enterprise IT departments for
+  distributing modified software applications and default configuration.  
+  </para>
+  
+  <para>
+  The skeleton template below shows elements common to patch repositories.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Skeleton patch repository definition</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>
+&lt;name>patch-repo&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
+
+&lt;gpgsign>
+&lt;!-- gpgsign elements -->
+&lt;/gpgsign>
+
+&lt;srpmbuild>
+&lt;!-- srpm definitions -->
+&lt;/srpmbuild>
+
+&lt;/repo></programlisting>
+  </informalexample>
+  </section>
+
+  <section>
+  <title>Aggregation Repositories</title>
+
+  <para>
+  Aggregation repositories are used by ISVs or enterprise IT departments for
+  aggregating packages from multiple repositories into a single convenience
+  repository.
+  </para>
+  
+  <para>
+  The skeleton template below shows elements common to aggregation repositories.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Skeleton aggregation repository definition</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>
+&lt;name>aggregation-repo&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
+
+&lt;repos>
+&lt;!-- repository definitions -->
+&lt;/repos>
+
+&lt;packages>
+&lt;!-- package and group listings -->
+&lt;/packages>
+
+&lt;/repo></programlisting>
+  </informalexample>
+  </section>
+
+  <section>
+  <title>Application Repositories</title>
+
+  <para>
+  Application repositories are used by ISVs or enterprise IT departments for
+  distributing software applications and default configuration.  
+  </para>
+
+  <para>
+  Application repositories are the most complex package repository type. Often
+  they combine elements of all the other types - configuration, patch and
+  aggregation.
+  </para>
+  
+  <para>
+  The skeleton template below shows elements common to application repositories.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Skeleton application repository definition</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main>
+&lt;name>application-repo&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
+
+&lt;gpgsign>
+&lt;!-- gpgsign elements -->
+&lt;/gpgsign>
+
+&lt;repos>
+&lt;!-- repository definitions -->
+&lt;/repos>
+
+&lt;packages>
+&lt;!-- package and group listings -->
+&lt;/packages>
+
+&lt;config-rpms>
+&lt;!-- config-rpm definitions -->
+&lt;/config-rpms>
+
+&lt;srpmbuild>
+&lt;!-- srpm build definitions -->
+&lt;/srpmbuild>
+
+&lt;files>
+&lt;!-- file inclusion definitions -->
+&lt;/files>
+&lt;/repo></programlisting>
+  </informalexample>
+  </section>
+
+</section>

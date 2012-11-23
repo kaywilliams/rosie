@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Glossary of Terms</title>
+
+  <para>Following are terms specific to the Repo Studio environment. They are arranged in alphabetical order.</para>
+
+  <para><variablelist>
+
+      <varlistentry id="build-machine" xreflabel="build machine">
+        <term><emphasis role="strong">build machine</emphasis></term>
+
+        <listitem>
+          <para>The machine on which <application
+          class="software">Repo Studio</application> is installed.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="client-machine" xreflabel="client machine">
+        <term><emphasis role="strong">client machine</emphasis></term>
+
+        <listitem>
+          <para>The target machine on which repository content is installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms" xreflabel="config-rpms">
+        <term><emphasis role="strong">config-rpms</emphasis></term>
+
+        <listitem>
+	  <para>
+          RPM packages created by Repo Studio during the build process.
+          These packages contain user-specified configuration files and
+          scripts.
+          </para>
+
+          <para>
+          For more information on config-rpms, see the <xref
+          linkend="building-rpms"/> chapter in this document. See
+          also the section on <emphasis>config-rpms</emphasis> in the
+          <xref linkend='rdfr'/>.
+          </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="release-rpm" xreflabel="release-rpm">
+        <term><emphasis role="strong">release-rpm</emphasis></term>
+
+        <listitem>
+	  <para>
+          An RPM package created by Repo Studio during the build process.
+          This package contains the <xref linkend='yum-sync-plugin'/>
+          and YUM configuration for the repository.
+          </para>
+
+          <para>
+          For more information on the release-rpm and how to customize its
+          content, see the <xref linkend="building-rpms"/> chapter
+          in this document. See also the section on
+          <emphasis>release-rpm</emphasis> in the <xref linkend='rdfr'/>.
+          </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository" xreflabel="repository">
+        <term><emphasis role="strong">repository</emphasis></term>
+
+        <listitem>
+	  <para>
+          A deployment repository created during the Repo Studio build
+          process. Provides RPM packages and, optionally, installation images
+          for use during client machine installations and updates. Can be
+          accessed over the network from the <xref linkend="repository-url"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-data-file" xreflabel="repository data file">
+        <term><emphasis role="strong">repository data file</emphasis></term>
+
+        <listitem>
+	  <para>
+          A file maintained by Repo Studio to track Repo Studio-generated
+          repository input data. The file is created in the same folder as the
+          repository definition, with a filename consisting of the <xref
+          linkend='repository-id'/> with the <filename>.dat</filename> file
+          extension. For example, given the repository ID
+          "web-server-6-x86_64", Repo Studio will create a repository
+          definition file as follows:
+          </para>
+
+          <informalexample>
+          <para>
+          <filename>web-server-6-x86_64.dat</filename>
+          </para>
+          </informalexample>
+
+          <warning>
+          <para>
+          Care must be taken not to delete the repository data file. Doing so
+          will cause Repo Studio to regenerate missing information. As a
+          result, installed client machines may fail to download updated RPMs
+          or may report errors when performing RPM GPG key checking. 
+          </para>
+          </warning>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-definition" xreflabel="repository definition">
+        <term><emphasis role="strong">repository definition</emphasis></term>
+
+        <listitem>
+          <para>A file that defines how Repo Studio should build, configure
+          and store a repository. By convention the file uses the <filename
+          class="extension">.definition</filename> extension. The file is in
+          XML format as defined in the <xref linkend="rdfr"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="rdfr" xreflabel="RDFR">
+        <term><emphasis role="strong">Repository Definition File Reference (RDFR)</emphasis></term>
+
+        <listitem>
+	  <para>
+          The rules of syntax for the repository definition. See the separate
+          document at <ulink
+          url="http://www.repostudio.org/documentation/">
+          http://www.repostudio.org/documentation/ </ulink>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-id" xreflabel="repository ID">
+        <term><emphasis
+        role="strong"><varname>repository ID</varname></emphasis></term>
+
+        <listitem>
+          <para>
+          The id for a repository. Corresponds to the global run-time macro
+          %{id}. See the Macros section of the <xref linkend='rdfr'/> for more
+          information on macros.
+          </para>
+          
+          <para>
+          The default value is
+          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
+          where these values correspond to the <emphasis>name</emphasis>,
+          <emphasis>version</emphasis> and <emphasis>arch</emphasis> for the
+          repository.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="repository-url" xreflabel="repository URL">
+        <term><emphasis role="strong">repository URL</emphasis></term>
+
+        <listitem>
+	  <para>
+          The web location (URL) for downloading repository content. By default
+          the repository URL is as follows, where $IP_ADDRESS is the address of
+          the build machine, <constant>TYPE</constant> is the type of the
+          repository (system or package), and %{id} is the <xref
+          linkend='repository-id'/>
+          </para>
+
+          <informalexample>
+          <para>
+	  <filename>http://$IP_ADDRESS/repos/TYPE/%{id}</filename>
+          </para>
+          </informalexample>
+
+	  <para>
+          For example, if the IP Address for the build machine is
+          <filename>192.168.1.5</filename> and the repository type is
+          <emphasis>system</emphasis> with an id of
+          <emphasis>web-server-5-i386</emphasis> the repository URL is as
+          follows:
+          </para>
+
+          <informalexample>
+          <para>
+          <filename>http://192.168.1.5/repos/system/web-server-5-i386</filename>
+          </para>
+          </informalexample>
+
+	  <para>
+          The repository URL is configurable using the
+          <emphasis>remote-url</emphasis> element described in the
+          <emphasis>Deployment Elements</emphasis> chapter of the <xref
+          linkend='rdfr'/>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="templates" xreflabel="templates">
+        <term><emphasis role="strong">templates</emphasis></term>
+
+        <listitem>
+  <para>
+  The Repo Studio installation includes a number of templates to assist with
+  common definition creation tasks. These templates are located in the folder
+  at <filename>/usr/share/repostudio/../../share/repostudio/templates/</filename>. The templates are
+  not discussed in detail here, however, many are referenced in the relevant
+  sections throughout the remainder of this document.
+  </para>
+
+  <caution>
+  <para>
+  Do not modify files in the
+  <filename>/usr/share/repostudio/../../share/repostudio/templates</filename> folder. Changes to
+  these files will be overwritten when updated versions of the Repo Studio
+  RPM are installed.
+  </para>
+
+  <para>
+  Instead, copy files to a new location before editing.
+  </para>
+  </caution>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id='xinclude' xreflabel="XIncludes">
+        <term>
+        <emphasis role="strong">XML Inclusions (XIncludes)</emphasis>
+        </term>
+
+        <listitem>
+          <para>
+          A standard method of reusing content within and across XML documents,
+          sponsored by the World Wide Web Consortium (W3C). See <ulink
+          url="http://www.w3.org/TR/xinclude/"/> for complete information on
+          the W3C standard. See also the <xref linkend='rdfr'/> for general
+          information on using XML Inclusions (XIncludes) within repository
+          definitions.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="yum-sync-plugin" xreflabel="YUM Sync Plugin">
+        <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
+
+        <listitem>
+	  <para>
+          A <application class="software">YUM</application> plugin provided by
+          Repo Studio that allows synchronizing packages on client machines
+          with packages in the <xref linkend="repository"/>.  The plugin is
+          included by default in the <xref linkend="release-rpm" />,
+          which serves as the mechanism for installing it on client machines.
+          </para>
+
+          <para>
+          The plugin establishes the <xref linkend='repository'/> as the
+          <emphasis>master repository</emphasis>, disables all other
+          repositories, and provides a new argument, <emphasis>sync</emphasis>,
+          to YUM. Help for the <emphasis>sync</emphasis> argument is available
+          on client machines using the <command>yum help</command> command.
+          Running <command>yum sync</command> allows YUM to calculate package
+          additions and removals based on packages available in the repository.
+          For more information, see the section on <xref
+          linkend="building-release-rpm"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist></para>
+</section>

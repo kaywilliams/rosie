@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title><application class="software">Repo Studio</application> Overview
+  </title>
+
+  <para>
+  Repo Studio is a free, open source application and framework to create RPM
+  package repositories for use with CentOS and Red Hat Enterprise Linux.
+  </para>
+  
+  <para>
+  Repo Studio allows creating two types of repositories - system and package.
+  </para>
+  
+  <para>
+  <emphasis role='strong'>System repositories</emphasis>, also known as
+  <emphasis>custom distributions</emphasis>, are useful for system
+  administrators who wish to deploy CentOS or Red Hat Enterprise Linux within
+  their organizations, but with added, or removed, packages and modified
+  default configuration.
+  </para>
+  
+  <para>
+  <emphasis role='strong'>Package repositories</emphasis> are useful for
+  independent software vendors (ISVs) and system administrators who wish to
+  deliver software that can be easily deployed and updated using standard
+  operating system package management tools.
+  </para>
+  
+  <para>
+  Repo Studio automates common repository creation tasks:
+  </para>
+  
+  <itemizedlist>
+  <listitem>
+  <para>
+  Builds packages starting from SRPMs or from user-provided files and scripts. 
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Downloads packages from existing package repositories.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Signs created packages.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Creates repository metadata.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Tests system installation and updates.
+  </para>
+  </listitem>
+  </itemizedlist>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="overview.png" />
+    </imageobject>
+
+    <caption><para>Repo Studio Overview</para></caption>
+  </mediaobject>
+
+</section>

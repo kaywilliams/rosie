@@ -1,0 +1,4 @@
+<!ENTITY PRODUCT "deploy">
+<!ENTITY BOOKID "RDFR">
+<!ENTITY YEAR "2012">
+<!ENTITY HOLDER "| You need to change the HOLDER entity in the en-US/RDFR.ent file |">

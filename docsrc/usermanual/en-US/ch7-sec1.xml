@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="defining-package-repos" xreflabel="Defining Package Repositories">
+  <title>Defining Package Repositories</title>
+
+  <para>
+  Defining package repositories is much like defining system repositories, as
+  discussed in the chapters on <xref linkend='building-a-system-repo'/> and
+  <xref linkend='building-rpms'/> earlier in this document. Technically,
+  package repositories are subsets of system repositories, containing just the
+  packages needed to deploy application-specific or organization-specific
+  software and configuration.
+  </para>
+
+  <para>
+  Four aspects of particular relevance when creating package repository
+  definitions are as follows:
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Setting the repository type
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Identifying external packages to include
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Providing GPG signing keys 
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Using configuration templates
+  </para>
+  </listitem>
+  </itemizedlist>
+  </para>
+
+  <section>
+  <title>Setting the repository type</title>
+  <para>
+  The first step for creating a package repository is to add a
+  <emphasis>type</emphasis> element to the <emphasis>main</emphasis> top-level
+  element, as shown in the example below.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;main&gt;
+  ...
+  &lt;type&gt;package&lt;/type&gt;
+&lt;/main&gt;</programlisting>
+  </informalexample>
+
+  <para>
+  After using Repo Studio to build the repository, you can locate it in the
+  package repositories folder, <filename>/var/www/html/repos/package</filename>
+  by default.
+  </para>
+  </section>
+
+  <section>
+  <title>Excluding packages from external repositories</title>
+  <para>
+  Packages in your repository will often have dependencies on packages in
+  external repositories. Repo Studio helps you ensure that your packages will
+  install and update as expected by ensuring that required package are
+  available.
+  </para>
+
+  <para>
+  As a convenience, Repo Studio allows you to download packages from external
+  repositories and include them in your repository. As a result, users of your
+  repository will have fewer repositories to track and manage.
+  </para>
+
+  <para>
+  In some cases, however, you will want to exclude packages from external
+  repositories:
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Distribution rights. You may not have the rights to distribute some external
+  packages.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Operating system independence. You may want to create a single package
+  repository that is applicable to users of CentOS or Red Hat Enterprise
+  Linux, rather than maintaining separate repositories for each.  
+  </para>
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  You can exclude packages from specific repositories using the <emphasis
+  role='strong'>repo/download</emphasis> element. By default, the value of this
+  element is <emphasis>'false'</emphasis>, meaning that packages will not be
+  downloaded, for repos with the <emphasis role='strong'>@id</emphasis> of
+  <emphasis>'base'</emphasis> or <emphasis>'updates'</emphasis> and
+  <emphasis>'true'</emphasis> for all others.
+  </para>
+
+  <para>
+  <emphasis role='strong'>Example</emphasis> - In this example Repo Studio
+  will use the <emphasis>'proprietary-repo'</emphasis> to resolve dependencies,
+  but will not download packages from it to your repository.
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;repos>
+&lt;repo id='proprietary-repo'>
+...
+&lt;download>false&lt;/download>
+&lt;/repo>
+&lt;/repos></programlisting>
+  </informalexample>
+
+  <para>
+  For more information, see the <emphasis>Repos</emphasis> section in the <xref
+  linkend='rdfr'/>
+  </para>
+  </section>
+
+  <section>
+  <title>Providing GPG signing keys</title>
+
+  <para>
+  Repo Studio automatically signs packages it creates using GPG signing keys.
+  When users of your repository first install created packages, they will be
+  asked to confirm installation of the repository's public key given summary
+  information. To provide your users with specific, recognizable information on
+  which to base their decision, you will want to manually create GPG signing
+  keys for use with your package repositories. 
+  </para>
+
+  <para>
+  See the chapter on <xref linkend="providing-signing-keys"/> for complete
+  information on creating keys and using them within your repository
+  definitions.
+  </para>
+  </section>
+
+  <section id='using-configuration-templates' 
+           xreflabel='Using configuration templates'>
+  <title>Using configuration templates</title>
+  <para>
+  In some cases you will use package repositories to distribute software for
+  external use. This is a common scenario for ISV applications, and
+  applies to community developed and internal applications as well.
+  </para>
+
+  <para>
+  Often such software will support multiple possible configurations. You can
+  use configuration templates to define and test common configurations.  You
+  can distribute these templates along with your repository, making it easy for
+  external users to customize and deploy your software in their own
+  environments.
+  </para>
+
+  <para>
+  In the example below you will create and use configuration templates for a
+  small repository containing four packages. The first package contains
+  application software. We will refer to this package as
+  <emphasis>application</emphasis>. The remaining three packages contain
+  configuration for three alternative application scenarios. The package names
+  are <emphasis>scenario1</emphasis>, <emphasis>scenario2</emphasis> and
+  <emphasis>scenario3</emphasis> respectively.
+  </para>
+
+  <para>
+  Your definition will consist of four files in the file system as shown below:
+  </para>
+
+  <informalexample>
+  <programlisting>
+application.definition
+templates/
+  scenario1-config.xml
+  scenario2-config.xml
+  scenario3-config.xml</programlisting>
+  </informalexample>
+
+  <para>
+  The <filename>application.definition</filename> file defines the repository,
+  creates the application package, includes the config templates, and copies
+  the templates folder to the repository tree.
+  </para>
+
+  <para>
+  <emphasis role='strong'>application.definition</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;main>
+&lt;name>application&lt;/name>
+&lt;arch>x86_64&lt;/arch>
+&lt;version>6&lt;/version>
+&lt;type>package&lt;/type>
+&lt;/main>
+
+&lt;srpmbuild id='application'>
+&lt;script>
+# script to create the application package
+&lt;/script>
+&lt;/srpmbuild>
+
+&lt;config-rpms>
+&lt;xi:include href="../../../../../share/repostudio/templates/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/repostudio/templates/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/repostudio/templates/scenario3-config.xml"/>
+&lt;/config-rpms>
+
+&lt;files>
+&lt;files>templates&lt;/files>
+&lt;/files>
+&lt;/repo></programlisting>
+  </informalexample>
+
+  <para>
+  The template files define each of the three config-rpms for the repository,
+  for example:
+  </para>
+
+  <para>
+  <emphasis role='strong'>scenario1-config.xml</emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;config-rpm id='scenario1-config'>
+...
+&lt;/config-rpm></programlisting>
+  </informalexample>
+
+  <para>
+  After using Repo Studio to create your repository, you can locate it at
+  <filename>/var/www/html/repos/package/application-6-x86_64</filename>. The
+  tree structure of the repository will look as follows:
+  </para>
+
+  <informalexample>
+  <programlisting>
+gpgkeys/
+Packages/
+repodata/
+templates/</programlisting>
+  </informalexample>
+
+  <para>
+  The templates folder contains copies of the configuration templates.
+  Customers can use these as starting points for further customizing and
+  deploying your application within their organizations.
+  </para>
+
+  </section>
+</section>

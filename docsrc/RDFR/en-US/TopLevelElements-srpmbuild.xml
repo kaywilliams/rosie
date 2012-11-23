@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="srpmbuild"
+         xreflabel="srpmbuild">
+  <title>
+  Srpmbuild 
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Builds RPMs starting from user-provided Source RPMs (SRPMs).
+    </para>
+
+    <para>
+    <emphasis>Srpmbuild</emphasis> is a meta-module. It reads the
+    <emphasis>srpmbuild</emphasis> element and creates a new srpm module for
+    each encountered <emphasis>srpm</emphasis> element. The new modules are
+    named as follows, where <varname>$SRPMID</varname> is taken from the
+    <emphasis>@id</emphasis> provided for the SRPM:
+    <synopsis>
+    $SRPMID-srpm
+    </synopsis>
+    </para>
+
+    <para>
+    Individual SRPM modules complete a series of tasks aimed at building,
+    verifying and including one or more RPMs, built from the provided SRPM, in
+    the repository. Those tasks include the following:
+    </para>
+
+    <itemizedlist>
+    <listitem>
+    <para>
+    Obtain the SRPM from one of the provided mechanisms:
+    <emphasis>path</emphasis>, <emphasis>repo</emphasis> or 
+    <emphasis>script</emphasis>.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    Create a new instance of Repo Studio to perform the SRPM build process.
+    This instance is created using a definition <emphasis>template</emphasis>,
+    which can be either the default template provided by Repo Studio, or a
+    user-provided template specified using the <emphasis>template</emphasis>
+    element. Repo Studio modifies the template at run time to
+    include repository and SRPM-specific information. See <xref
+    linkend="srpmbuild-template"/> for more information.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    Verify the RPMs provided by the external Repo Studio instance.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    Include the provided RPMs in the current repository.
+    </para>
+    </listitem>
+    </itemizedlist>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;srpmbuild>
+  &lt;srpm id=TEXT>*
+    (&lt;path>URL&lt;/path> | 
+     &lt;repo>PATH&lt;/repo> | 
+     &lt;script>TEXT&lt;/script>)
+    [&lt;template>PATH&lt;/template>]
+  &lt;/srpm>
+  [&lt;template>TEXT&lt;/template>]
+&lt;/srpmbuild>]</programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="srpm" xreflabel="srpm">
+      <term>
+      srpm 
+      </term>
+
+      <listitem>
+      <para>
+      A container element specifying information needed to build RPMs starting
+      from a user-provided SRPM.
+      </para>
+
+      <para>
+      At least one <emphasis>srpm</emphasis> element is required. 
+      </para>
+
+      <para>
+      <emphasis role='strong'>Attributes</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry id='srpmid' xreflabel="SRPMID">
+      <term>id</term>
+
+      <listitem>
+      <para>
+      A unique one-word <varname>ID</varname> specifying the name of the
+      SRPM. 
+      </para>
+
+      <para>
+      The <emphasis>@id</emphasis> attribute is required.
+      </para>
+      </listitem>
+      </varlistentry>
+      </variablelist>
+
+      <para>
+      <emphasis role='strong'>Elements</emphasis>
+      </para>
+
+      <variablelist>
+      <varlistentry>
+      <term>path</term>
+      
+      <listitem>
+      <para>
+      <xref linkend="content-path"/> value specifying a location for the SRPM.
+      If the specified path ends with <emphasis>".src.rpm"</emphasis> Repo
+      Studio attempts to download the SRPM from the location specified.
+      Otherwise, Repo Studio attempts to find an SRPM beginning with the name
+      specified in the <emphasis>@id</emphasis> attribute in the folder
+      specified. If multiple SRPMs are found, Repo Studio selects the SRPM
+      with the highest version and release number. 
+      </para>
+      
+      <para>
+      This element is optional; however, one of
+      <emphasis>repo</emphasis>, <emphasis>path</emphasis> or
+      <emphasis>script</emphasis> elements must be provided.
+      </para>
+
+      <para>
+      The example below shows specifying an SRPM by providing the full path to
+      the desired file. Line breaks have been added to the
+      <emphasis>path</emphasis> element for improved readability. In a real
+      repository definition, line breaks are not allowed within
+      <varname>PATH</varname> content.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;srpm id="rhnlib">
+&lt;path>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhnlib-2.5.22-10.el6.src.rpm
+&lt;/path>
+&lt;srpm></programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>repo</term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-url"/> value specifying a package repository where
+      the SRPM specified using the <emphasis>@id</emphasis> attribute can be
+      located.
+      </para>
+
+      <para>
+      This element is optional; however, one of 
+      <emphasis>repo</emphasis>, <emphasis>path</emphasis> or
+      <emphasis>script</emphasis> elements must be provided.
+      </para>
+
+      <para>
+      The example below shows specifying the URL to an RPM package repository
+      where the SRPM can be located.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;srpm id="rhn-client-tools">
+&lt;repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
+&lt;/repo>
+&lt;srpm></programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>script</term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value providing a script to be executed on
+      the local machine that performs desired actions, and ultimately copies an
+      SRPM to the %{srpmdir} location. Repo Studio executes the script with
+      root user permissions.
+      </para>
+
+      <para>
+      Provides three run-time <xref linkend="macros"/>:
+      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis> and
+      <emphasis>srpmlast</emphasis>.
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{srpmid}:</emphasis> The name of the SRPM as
+      specified by the <emphasis>@id</emphasis> attribute.
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{srpmdir}:</emphasis> The path to a folder where
+      the script should copy an SRPM upon completion. Note that Repo Studio
+      allows only a single SRPM file to exist in the srpmdir. Scripts are
+      responsible for removing any files, e.g. a file cached from a previous
+      build, prior to copying a new SRPM file.
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{srpmlast}:</emphasis> The full filename,
+      including version and revision, of the last SRPM provided by the script.
+      The script may wish to use this value as a performance optimization to
+      determine whether a new SRPM must be created and provided.
+      </para>
+
+      <para>
+      This element is optional; however, one of
+      <emphasis>repo</emphasis>, <emphasis>path</emphasis> or
+      <emphasis>script</emphasis> elements must be provided.
+      </para>
+
+      <para>
+      In the example below, the TEXT of a script is provided to perform custom
+      actions, and ultimately copy an SRPM to the location identified by the
+      <emphasis>srpmdir</emphasis> macro. The script shown below makes a call
+      to a custom external program (<filename>fetch.py</filename>) providing
+      command line parameters that that the program will use to process and
+      copy the SRPM to the location identified by 
+      <emphasis>%{srpmdir}</emphasis>. 
+      </para>
+  
+      <informalexample>
+      <programlisting>
+&lt;srpm id="my-package">
+&lt;script>
+#!/bin/bash
+fetch.py %{srpmid} https://www.repostudio.org/hg/public/%{srpmid} %{srpmdir} %{srpmlast}
+&lt;/script>
+&lt;srpm></programlisting>
+     </informalexample>
+
+     </listitem>
+    </varlistentry>
+
+    <varlistentry>
+    <term>template</term>
+    <listitem>
+    <para>
+    See the <xref linkend="srpmbuild-template"/> element below.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    </variablelist>
+
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='srpmbuild-template' xreflabel='template'>
+      <term>template</term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-path"/> to a definition template to be used for
+      creating the SRPM build machine and building RPMs.
+      </para>
+
+      <para>
+      When used within the <emphasis>srpm</emphasis> element, indicates a
+      template to be used for the given SRPM. When used within the
+      <emphasis>srpmbuild</emphasis> element, indicates a global template to
+      be used across all SRPMS. 
+      </para>
+
+      <para>
+      The <emphasis>template</emphasis> element is optional. Repo Studio
+      provides a default template, shown in the examples
+      section below. On a system with Repo Studio installed, the default
+      template can be found in the <xref linkend='templ-sec'/> folder at
+      <filename>/usr/share/repostudio/../../share/repostudio/templates/srpmbuild.xml</filename>.
+      </para>
+
+      <para>
+      More broadly, by default, Repo Studio searches for a template with the
+      filename <filename>srpmbuild.xml</filename> located in the default
+      share path <filename>/usr/share/repostudio</filename>, a share path
+      specified in the <filename>repostudio.conf</filename> file, or a share
+      path specified on the Repo Studio command line.
+      </para>
+
+      <para>
+      Users can override the default using the <emphasis>template</emphasis>
+      element.
+      </para>
+
+      <note>
+      <para>
+      User-provided srpmbuild templates should provide a unique value for the
+      <emphasis>/main/name</emphasis> element of each template. This results in
+      additional srpmbuild machines (one per template). However, it also
+      prevents a single srpmbuild machine from being reinstalled each time an
+      srpm changes.
+      </para>
+      </note>
+
+      <para>
+      The default template describes one possible implementation for an SRPM
+      build machine. Using this template, Repo Studio creates virtual SRPM
+      build machines on the local system. In most cases the default template is
+      sufficient. Users wishing to customize the default template should create
+      a new file and include desired segments of the default template using
+      XIncludes. See the examples section below for more information.
+      </para>
+      
+      <para>
+      The template is a complete repository definition specifying input
+      repositories, packages, config-rpms and deployment scripts needed to
+      create the SRPM build machine and build RPMs.
+      </para>
+
+      <para>
+      Repo Studio modifies the template at run time in the following ways:
+      </para>
+
+      <itemizedlist>
+      <listitem>
+      <para>
+      Adds a <emphasis>config-rpms/rpm</emphasis> element with the name
+      <filename>%{id}-$SRPMID-config</filename>. This rpm installs the
+      user-provided SRPM on the SRPM build machine. It also ensures that all
+      RPMs required to build the SRPM are installed on the build machine.
+      </para>
+      </listitem>
+
+      <listitem>
+      <para>
+      Adds/replaces <emphasis>repos/repo</emphasis> elements in the template
+      with repos specified in the parent definition.
+      </para>
+      </listitem>
+
+      <listitem>
+      <para>
+      Adds a <emphasis>gpgsign</emphasis> element containing gpgsign keys
+      specified in the parent definition, if any.
+      </para>
+      </listitem>
+
+      <listitem>
+      <para>
+      Resolves the following run-time <xref linkend="macros"/>:
+      </para>
+      <para>
+      <emphasis role='strong'>%{build-dir}:</emphasis>
+      The path to the default rpmbuild folder on the SRPM build machine. 
+      The summary below shows <emphasis> build-dir </emphasis> values by
+      the operating system version of the SRPM build machine.
+
+      <simplelist>
+      <member>Version 5: <filename>/usr/src/redhat</filename></member>
+      <member>Version 6: <filename>/root/rpmbuild</filename></member>
+      </simplelist>
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{rpms-dir}:</emphasis>
+      The path to a folder on the Repo Studio build machine where built RPMs
+      should be copied. This path takes the following form, where
+      <varname>$SRPMID</varname> is the value of the
+      <emphasis>@id</emphasis> attribute for the <emphasis>srpm</emphasis>
+      element.
+      <simplelist>
+      <member><filename>/var/cache/repostudio/%{id}/$SRPMID-srpm/rpms</filename></member>
+      </simplelist>
+      </para>
+
+      <para>
+      <emphasis role="strong">%{spec}:</emphasis> The full path to the SRPM
+      spec file on the SRPM build machine. This path takes the following form,
+      where $SPECFILE is the <xref linkend="content-basename"/> of the spec
+      file as determined by reading information available within the provided
+      SRPM.
+      <simplelist>
+      <member><filename>/%{build-dir}/SPECS/$SPECFILE</filename></member>
+      </simplelist>
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{srpm}:</emphasis> The full path to the SRPM
+      file on the SRPM build machine. This path takes the following form, where
+      $SRPMFILE is the <xref linkend="content-basename"/> of the provided SRPM.  
+      <simplelist>
+      <member><filename>%{build-dir}/SPECS/$SRPMFILE</filename></member>
+      </simplelist>
+      </para>
+      </listitem>
+      </itemizedlist>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+
+    <section>
+    <title>Examples</title>
+
+    <section>
+    <title>Example 1 - Specifying a custom template</title>
+    <para>
+    This example shows specifying a custom template. Because the <emphasis>
+    template</emphasis> element is used within an <emphasis>srpm</emphasis> 
+    element, the template will be used only for this SRPM.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;srpm id="my-package">
+&lt;template>srpmbuild-custom.xml&lt;/template>
+...
+&lt;/srpm></programlisting>
+    </informalexample>
+    </section>
+
+    <section>
+    <title>Example 2 - Creating a custom template</title>
+    <para>
+    This example shows creating a custom template, using <xref
+    linkend="xincludes"/> to reuse portions of the default template (shown
+    below).  On a system with Repo Studio installed, this file can be found
+    at <filename>/usr/share/repostudio/../../share/repostudio/templates/srpmbuild-custom.xml</filename>.
+    </para>
+
+    <para>
+    <emphasis role="strong">srpmbuild-custom.xml</emphasis>
+    </para>
+    <informalexample>
+    <programlisting>
+<xi:include href="../../../../../share/repostudio/templates/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </informalexample>
+    </section>
+
+    <section>
+    <title>Example 3 - Default srpmbuild.xml</title>
+    <para>
+    The section below shows the complete default
+    <filename>srpmbuild.xml</filename> as a reference. On a system with
+    Repo Studio installed, this file can be found at
+    <filename>/usr/share/repostudio/../../share/repostudio/templates/srpmbuild.xml</filename>.
+    </para>
+
+    <para>
+    <emphasis role="strong">srpmbuild.xml</emphasis>
+    </para>
+    <informalexample>
+    <programlisting>
+<xi:include href="../../../../../share/repostudio/templates/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </informalexample>
+    </section>
+
+    </section>
+
+  </section>
+
+</section>

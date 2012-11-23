@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id='repositories' xreflabel='repositories'>
+  <title>Repositories</title>
+
+  <para>
+  Repo Studio creates RPM package repositories. RPM is a package management
+  system used by CentOS, Red Hat Enterprise Linux, and others to install, update
+  and remove software and configuration on client systems. Packages are 
+  discrete units of software and configuration managed by RPM. 
+  </para>
+  
+  <para>
+  Repositories are collections of packages, typically located on remote servers
+  or CD/DVD media. Repositories are generally organized by the architecture (e.g.
+  i386 or x86_64) and version (e.g. 5 or 6) of a base operating system.
+  </para>
+  
+  <para>
+  RPM package repositories are prevalent in Linux software distribution today.
+  They are used by operating system providers, by software and hardware vendors,
+  and by systems administrators.
+  </para>
+  
+  <para>
+  Repositories have several key benefits for managing deployment of software and
+  configuration:
+  </para>
+  
+  <itemizedlist>
+  <listitem>
+  <para>
+  Uniform. Repositories can be used to deploy software and configuration
+  uniformly, independent of the source (OS provider, OEM, ISV, or internal IT).
+  This consistency eases integration and facilitate automation.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Scalable. Package repositories are scalable to meet the needs of a wide range
+  of deployment scenarios including consumer/OEM, small business, enterprise,
+  hosted, and even web farm and massively scaled.
+  </para>
+  </listitem>
+  
+  <listitem>
+  <para>
+  Modular. Because packages describe their relationships and dependencies
+  internally, it becomes easy to mix, match, replace, update and remove them to
+  create custom repositories talored to a variety of needs.
+  </para>
+  </listitem>
+  </itemizedlist>
+
+
+  <para>
+  Repo Studio creates two types of repositories: <emphasis>system</emphasis>
+  and <emphasis>package</emphasis>.
+  </para>
+
+  <section>
+  <title>System Repositories</title>
+  <para>
+  System repositories are used to deploy and maintain complete client machines.
+  They contain installation images along with all the software and
+  configuration (in the form of RPM packages) necessary to perform client
+  installation and updates. Clients can be updated against the system
+  repository using either traditional or synchronization methods, the latter
+  ensuring that client packages are kept in strict compliance with the system
+  repository. Repo Studio provides the YUM Sync Plugin to enable this support.
+  </para>
+  </section>
+
+  <section>
+  <title>Package Repositories</title>
+  <para>
+  Package repositories have two uses. They can serve as input to system
+  repositories. They can also be used for deploying applications to unmanaged
+  client machines, such as consumer desktops. Package repositories do not
+  contain installation images. Neither generally do they contain packages from
+  the base operating system, as these are assumed to be either previously
+  installed on the client, or available through standard operating system
+  update methods, i.e. YUM.
+  </para>
+
+  <para>
+  This document will describe creating both system and package repositories.
+  </para>
+  </section>
+
+</section>

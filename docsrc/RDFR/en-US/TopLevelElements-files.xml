@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="files"
+         xreflabel="files">
+  <title>
+  Files 
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Copies user-specified files and folders to the root of the repository tree.
+    </para>
+
+    <para>
+    Accepts one or more <emphasis>files</emphasis> elements.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;files>
+   &lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
+           [content=("file"|"text")]&gt;
+     (PATH|TEXT)
+   &lt;/files&gt;*
+ &lt;/release-rpm&gt;]</programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+
+    <varlistentry id="files-files"
+                  xreflabel="files/files">
+      <term>
+      files
+      </term>
+
+      <listitem>
+      <para>
+      Specifies a file or folder containing files to copy to the root of
+      the repository tree. One or more files elements are required.
+      </para>
+
+      <para>
+      Accepts four attributes:
+      <emphasis>@content</emphasis>,
+      <emphasis>@destdir</emphasis>,
+      <emphasis>@destname</emphasis> and
+      <emphasis>@mode</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
+      When <emphasis>content</emphasis> is
+      "file", the element's text value is treated as a
+      <varname>PATH</varname> to a file, whereas when it is "text", the
+      element's text value is interpreted as the raw text to use for creating
+      a file with the name specified using the @destname attribute.
+      The default value is "file".
+      </para>
+
+      <para>
+      <emphasis>@destdir</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="destdir" endterm='destdir-short' /></emphasis>. Controls the location to
+      which this file or folder should be copied within the repository tree.
+      The default value is the root of the tree, '<filename>/</filename>'.
+      </para>
+
+      <para>
+      <emphasis>@destname</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="destname" /></emphasis>. If
+      <emphasis>@content</emphasis> is "text", this attribute is required.
+      </para>
+
+      <para>
+      <emphasis>@mode</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="mode" /></emphasis>.
+      </para>
+
+      <para>
+      See <xref linkend="path-like-element"/> for more information.
+      </para>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    This example copies two items to the repository tree. The first is a file
+    named <filename>README</filename> which is created by Repo Studio using
+    text provided within the element. The second is a folder named
+    <filename>templates</filename> located in the same folder as the repository
+    definition on the build machine. Both will be copied to the root of the
+    repository.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;files>
+&lt;files content="text" destname="README">
+# text of readme file
+&lt;/files&gt;
+
+&lt;files>templates&lt;/files>
+&lt;/files></programlisting>
+    </informalexample>
+  </section>
+
+</section>
