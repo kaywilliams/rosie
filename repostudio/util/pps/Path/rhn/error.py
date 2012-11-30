@@ -39,7 +39,11 @@ def transform(e, file=None):
   """
   assert isinstance(e, up2dateErrors.Error)
 
-  no = None
+  # default to "No message of desired type"
+  no = errno.ENOMSG 
+
+  if isinstance(e, up2dateErrors.InsuffMgmntEntsError):
+    no = errno.EPERM
 
   if isinstance(e, up2dateErrors.PasswordError):
     no = errno.EACCES
