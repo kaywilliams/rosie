@@ -59,9 +59,9 @@ class IsoEventTestCase(EventTestCase):
 class IsoEventBootOptionsTestCase(BootOptionsMixinTestCase, IsoEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     IsoEventTestCase.__init__(self, distro, version, arch, conf)
-    self.default_args = ['method=cdrom']
     self.image = None
     self.do_defaults = True
+    self.default_args = []
 
   def setUp(self):
     IsoEventTestCase.setUp(self)
@@ -156,26 +156,41 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
     IsoEventBootOptionsTestCase.setUp(self)
     self.do_defaults = True
 
-# not running this test as virt-install from cdrom requires user
-# intervention at the boot prompt and also for mediacheck
-# also, need to modify _conf to create a full working os tree 
-# i.e. with treeinfo.
+# Note 1 - Not running this test for el5 since a couple of anaconda bugs(?)
+# prevent us from creating an automated install - (1) media check runs
+# automatically, (2) if a kickstart is provided on the command line, anaconda
+# prompts to learn where the installation repository is located (cdrom, network,
+# etc.) 
+# Note 2 - this test could be made faster if we provided a general method
+# for modifing the isolinux configuration, which by default waits 60 seconds
+# for the user to manually select the installation type.
 class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   "installs successfully from iso"
+  _conf = [
+  """<iso>
+    <set>CD</set>
+  </iso>""",
+  """<packages><group>core</group></packages>""",
+  ]
 
   def __init__(self, distro, version, arch, *args, **kwargs):
     IsoEventTestCase.__init__(self, distro, version, arch)
-    DeployMixinTestCase.__init__(self, distro, version, arch)
+    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
     install_script = self.conf.getxpath(
-                     '/*/publish/script[id="install-script"]')
+                     '/*/publish/script[@id="virt-install"]')
     install_script.text = """
 #!/bin/bash
 virt-install --name %{fqdn} --ram 1000 \
+             --network network=repostudio \
              --file /var/lib/libvirt/images/%{fqdn}.img \
              --file-size 6 \
-             --cdrom %{url}/iso/CD/%{name}-disc1.iso \
+             --cdrom /var/www/html/repos/system/%{id}/iso/CD/%{name}-disc1.iso \
              --noreboot
     """
+
+  def runTest(self):
+    self.tb.dispatch.execute(until='deploy')
+
 
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('iso')
@@ -190,9 +205,9 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_SetsChanged(distro, version, arch))
   suite.addTest(Test_BootOptionsDefault(distro, version, arch))
   # see note above at the class definition for Test_InstallFromIso
-  #if check_vm_config:
-    #suite.addTest(Test_InstallFromIso(distro, version, arch))
+  if check_vm_config and version > '5':
+    suite.addTest(Test_InstallFromIso(distro, version, arch))
     # dummy test to shutoff vm
-    #suite.addTest(dm_make_suite(IsoEventTestCase, distro, version, arch, ))
+    suite.addTest(dm_make_suite(Test_InstallFromIso, distro, version, arch, ))
 
   return suite
