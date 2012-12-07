@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 
-<section id="creating-a-repository-definition" xreflabel="Creating a Repository Definition">
+<section id="creating-a-repository-definition">
   <title>Creating a Repository Definition</title>
 
   <para>
@@ -40,8 +40,7 @@
     </para>
 
     <para><informalexample>
-      <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
@@ -83,10 +82,10 @@
 
     <warning>
     <para>
-    Definitions and templates, as well as Repo Studio-generated <link
-    linkend='repository-data-file'>repository data files</link>, contain
-    sensitive data including system root passwords, and GPG private keys. Take
-    care to save your definitions and templates in a secure location.
+    Definitions and templates, as well as Repo Studio-generated repository data
+    files (see <xref linkend='repository-data-file'/>), contain sensitive data
+    including system root passwords, and GPG private keys. Take care to save
+    your definitions and templates in a secure location.
     </para>
     </warning>
   </section>
@@ -115,8 +114,7 @@
     be <filename>web-server-6-x86_64</filename>. </para>
 
     <para><informalexample>
-      <programlisting>
-&lt;main&gt;
+      <programlisting>&lt;main&gt;
   &lt;fullname&gt;Example Web Server&lt;/fullname&gt;
   &lt;name&gt;web-server&lt;/name&gt;
   &lt;version&gt;6&lt;/version&gt;
@@ -141,13 +139,12 @@
     This example, like the one above, defaults to creating a repository based
     on CentOS 6 for the x86_64 architecture.  In addition, it enables providing
     an alternative OS version or archicture using command-line macros. Command
-    line macros will be discussed in more detail in the <xref
-    linkend='building-repositories'/> section of this chapter.
+    line macros will be discussed in more detail in <xref
+    linkend='building-repositories'/>.
     </para>
 
     <para><informalexample>
-      <programlisting>
-&lt;macro id='version'>6&lt;macro>
+      <programlisting>&lt;macro id='version'>6&lt;macro>
 &lt;macro id='arch'>x86_64&lt;macro>
 
 &lt;main&gt;
@@ -167,8 +164,8 @@
     <emphasis>/var/cache/repostudio</emphasis>, by default, respectively). To
     preserve hard drive space, you may wish to review the publish and cache
     folders on occasion. Folders for obsolete repository ids can be deleted
-    using standard file system methods (e.g. <synopsis>rm -rf
-    <emphasis>obsolete_folder</emphasis></synopsis>).
+    using standard file system methods, as shown below: 
+    <synopsis>rm -rf <emphasis>obsolete_folder</emphasis></synopsis>
     </para>
     </note>
 
@@ -185,8 +182,7 @@
   </para>
 
     <para><informalexample>
-      <programlisting>
-&lt;macro id='version'>6&lt;macro>
+      <programlisting>&lt;macro id='version'>6&lt;macro>
 &lt;macro id='arch'>x86_64&lt;macro>
 
 &lt;main&gt;
@@ -198,8 +194,7 @@
     </informalexample></para>
 
   <para>
-  See the <xref linkend="repositories"/> section of this document for more
-  information on types.
+  See <xref linkend="repositories"/> for more information on types.
   </para>
 
   <para>
@@ -208,8 +203,7 @@
   </para>
   </section>
 
-  <section id="specifying-input-repositories" 
-           xreflabel="Specifying Input Repositories">
+  <section id="specifying-input-repositories">
   <title>Specifying Input Repositories</title>
 
     <para>
@@ -313,8 +307,7 @@
     </para>
 
     <para><informalexample>
-    <programlisting>
-&lt;repos&gt;
+    <programlisting>&lt;repos&gt;
 
 &lt;repo id="base"&gt;
 &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
@@ -409,8 +402,7 @@
 
       <para>
       <informalexample>
-      <programlisting>
-&lt;repos&gt;
+      <programlisting>&lt;repos&gt;
 
 &lt;repo id="base"&gt;
 &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
@@ -447,8 +439,7 @@
     </para>
 
     <informalexample>
-    <programlisting>
-<xi:include href="../../../../../share/repostudio/templates/repos.xml" parse="text"
+    <programlisting><xi:include href="../../../../../share/repostudio/templates/repos.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
     </informalexample>
 
@@ -569,7 +560,7 @@
     <para>
     Often, however, for greater flexibility and definition reuse, individual
     packages are specified within the context of <xref linkend='config-rpms'/>.
-    Config-rpms will be discussed later in this document, in the chapter on
+    Config-rpms will be discussed later in this document, in 
     <xref linkend='building-rpms'/>.
     </para>
 

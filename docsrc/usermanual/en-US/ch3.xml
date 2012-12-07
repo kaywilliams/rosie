@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<chapter id='building-a-system-repo'
-         xreflabel="Building a System Repository">
+<chapter id='building-a-system-repo'>
   <title>Building a System Repository</title>
 
   <xi:include href="ch3-sec1.xml" xpointer="element(/1)"

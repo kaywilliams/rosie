@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="consumer" xreflabel="Consumer/OEM">
+<section id="consumer">
   <title>Consumer/OEM</title>
 
   <para>
@@ -19,7 +19,7 @@
   Repo Studio can be used in consumer deployment scenarios in two ways.
   First, by automating the creation and maintenance of package repositories for
   distributing hardware drivers and other OEM provided software and
-  configuration. This will be discussed further in the chapter on <xref
+  configuration. This will be discussed further in <xref
   linkend='package-repos'/>.  Second, by automating client system deployment.
   The latter is discussed below.
   </para>
@@ -90,8 +90,7 @@
   <emphasis role='strong'>Consumer system repository definition</emphasis>
   </para>
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>
@@ -140,8 +139,7 @@ firstboot --reconfig
   For high-volume OEM scenarios where the same software and configuration will
   be installed across multiple client systems, an image copy-based approach
   will be preferable to the per-machine installation approach described above.
-  See the <xref linkend='scale'/> section later in this chapter for more
-  information.
+  See <xref linkend='scale'/> later in this chapter for more information.
   </para>
   </section>
 </section>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="using-deployment-templates" 
-         xreflabel="Using Deployment Templates">
+<section id="using-deployment-templates" >
   <title>Using Deployment Templates</title>
   <para>
   The Repo Studio model for automated deployment is simple, yet flexible 
@@ -16,11 +15,11 @@
   <para>
   The model includes three deployment cases, <emphasis>test-install</emphasis>,
   <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. The first
-  two cases were introduced in the previous section on <xref
+  two cases were introduced previously in <xref
   linkend='using-virtual-machines'/>. The <emphasis>publish</emphasis> case
-  will be introduced later in the chapter on <xref
-  linkend="deployment-scenarios"/>. Each case is represented by an element of the
-  corresponding name in the repository definition.
+  will be introduced later under <xref linkend="deployment-scenarios"/>. Each
+  case is represented by an element of the corresponding name in the repository
+  definition.
   </para>
 
   <para>
@@ -171,8 +170,7 @@
   <emphasis role='strong'>virt-deploy.xml</emphasis>
   </para>
   <informalexample>
-  <programlisting>
-<xi:include href='../../../../../share/repostudio/templates/virt-deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/repostudio/templates/virt-deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -202,8 +200,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-<xi:include href="../../../../../share/repostudio/templates/deploy/ks.cfg" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/repostudio/templates/deploy/ks.cfg" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -228,8 +225,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;test-install>
+  <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="virt-deploy.xml" 
             xpointer="xpointer(/*/*[name()!='kickstart'])"/>
@@ -299,8 +295,7 @@ reboot
   </itemizedlist>
   
   <informalexample>
-  <programlisting>
-&lt;test-install>
+  <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="poweroff.xml"/>
 &lt;script id='virt-install' type='install'>
@@ -326,8 +321,7 @@ virt-install --name %{fqdn} --ram 2000 \
 
   </section>
 
-  <section id='install-vm-to-remote-host'
-           xreflabel='Installing a virtual machine to a remote host'>
+  <section id='install-vm-to-remote-host' >
   <title>Installing a virtual machine to a remote host</title>
 
   <para>
@@ -356,8 +350,7 @@ virt-install --name %{fqdn} --ram 2000 \
   <emphasis role='strong'><filename>ami-deploy.xml</filename></emphasis>
   </para>
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?>
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
 &lt;xml xmlns:xi="http://www.w3.org/2001/XInclude">
 &lt;!-- install and update an Amazon Machine Image (AMI) -->
 &lt;domain>mydomain.com&lt;/domain>
@@ -437,8 +430,7 @@ virt-install --name %{fqdn} --ram 2000 \
   </para>
   
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?>
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
 &lt;xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
 &lt;!-- install and update multiple systems using an external solution -->

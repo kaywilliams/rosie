@@ -1,6 +1,6 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="building-config-rpms" xreflabel="Building Configuration Packages">
+<section id="building-config-rpms">
   <title>Building Configuration Packages</title>
 
   <para>
@@ -20,8 +20,8 @@
   In Repo Studio, configuration packages are defined using
   <emphasis>config-rpm</emphasis> elements. This section covers config-rpm
   parent elements, defining config-rpms and creating config-rpm templates.
-  Config-rpm testing is covered in the chapters on <xref
-  linkend='testing-system-repos'/> and <xref linkend='testing-package-repos'/>.
+  Config-rpm testing is covered in <xref linkend='testing-system-repos'/> and
+  <xref linkend='testing-package-repos'/>.
   </para>
   
   <section>
@@ -49,7 +49,7 @@
     Specifying config-rpms within the context of deployment elements is useful
     for deployment template authors. It allows them to ensure that
     deployment-environment specific configuration is included within the
-    repository. This topic is discussed further in the chapter on <xref
+    repository. This topic is discussed further in <xref
     linkend='testing-system-repos'/>, later in this document.
     </para>
     </listitem>
@@ -118,8 +118,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;config-rpms>
+  <programlisting>&lt;config-rpms>
 &lt;config-rpm id="httpd-config"&gt;
 
 ...
@@ -160,8 +159,7 @@
   </para>
 
   <para><informalexample>
-    <programlisting>
-&lt;config-rpm id="httpd-config"&gt;
+    <programlisting>&lt;config-rpm id="httpd-config"&gt;
 
 &lt;requires>httpd&lt;/requires>
 &lt;requires>iptables&lt;/requires>
@@ -190,7 +188,7 @@
   server configuration. By listing web server requirements in a config-rpm
   element, the config-rpm element can be saved as a template in a separate
   file, and included across multiple repositories. This approach is covered in
-  more detail under <xref linkend='config-templates'/> later in this chapter.
+  more detail under <xref linkend='config-templates'/>.
   </para>
   </listitem>
 
@@ -215,7 +213,7 @@
   </section>
 
 
-  <section id="installing-files" xreflabel="Installing files">
+  <section id="installing-files">
     <title>Installing files</title>
   
     <para>
@@ -235,8 +233,7 @@
     </para>
   
     <para><informalexample>
-      <programlisting>
-&lt;files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d'
+      <programlisting>&lt;files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d'
        mode='750'>
 #!/bin/sh
 #
@@ -319,8 +316,7 @@ esac
     </para>
 
     <para><informalexample>
-      <programlisting>
-&lt;script type='post'>
+      <programlisting>&lt;script type='post'>
 # Start web server and configure to start at system boot
 SERVICE=httpd
 if [[ -z `pidof $SERVICE` ]] ; then
@@ -476,7 +472,7 @@ fi
 
   </section>
 
-  <section id="using-triggers" xreflabel="Using triggers">
+  <section id="using-triggers">
     <title>Using triggers</title>
   
     <para>
@@ -492,7 +488,7 @@ fi
   </section>
   </section>
  
-  <section id='config-templates' xreflabel="Using config-rpm templates">
+  <section id='config-templates'>
   <title>Using config-rpm templates</title>
 
     <para>
@@ -511,8 +507,7 @@ fi
     </para>
 
     <informalexample>
-    <programlisting>
-<xi:include href="../../../../../share/repostudio/templates/httpd-config.xml" parse="text"
+    <programlisting><xi:include href="../../../../../share/repostudio/templates/httpd-config.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
     </informalexample>
 
@@ -522,8 +517,7 @@ fi
     </para>
 
     <informalexample>
-    <programlisting>
-&lt;config-rpms>
+    <programlisting>&lt;config-rpms>
 &lt;xi:include href="../../../../../share/repostudio/templates/httpd-config.xml"/>
 &lt;/config-rpms></programlisting>
     </informalexample>

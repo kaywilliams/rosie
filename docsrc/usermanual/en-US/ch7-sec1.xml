@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="defining-package-repos" xreflabel="Defining Package Repositories">
+<section id="defining-package-repos">
   <title>Defining Package Repositories</title>
 
   <para>
   Defining package repositories is much like defining system repositories, as
-  discussed in the chapters on <xref linkend='building-a-system-repo'/> and
-  <xref linkend='building-rpms'/> earlier in this document. Technically,
-  package repositories are subsets of system repositories, containing just the
-  packages needed to deploy application-specific or organization-specific
-  software and configuration.
+  discussed in <xref linkend='building-a-system-repo'/> and <xref
+  linkend='building-rpms'/> earlier in this document. Technically, package
+  repositories are subsets of system repositories, containing just the packages
+  needed to deploy application-specific or organization-specific software and
+  configuration.
   </para>
 
   <para>
@@ -53,8 +53,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;main&gt;
+  <programlisting>&lt;main&gt;
   ...
   &lt;type&gt;package&lt;/type&gt;
 &lt;/main&gt;</programlisting>
@@ -120,8 +119,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;repos>
+  <programlisting>&lt;repos>
 &lt;repo id='proprietary-repo'>
 ...
 &lt;download>false&lt;/download>
@@ -148,14 +146,12 @@
   </para>
 
   <para>
-  See the chapter on <xref linkend="providing-signing-keys"/> for complete
-  information on creating keys and using them within your repository
-  definitions.
+  See <xref linkend="providing-signing-keys"/> for complete information on
+  creating keys and using them within your repository definitions.
   </para>
   </section>
 
-  <section id='using-configuration-templates' 
-           xreflabel='Using configuration templates'>
+  <section id='using-configuration-templates'>
   <title>Using configuration templates</title>
   <para>
   In some cases you will use package repositories to distribute software for
@@ -186,8 +182,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-application.definition
+  <programlisting>application.definition
 templates/
   scenario1-config.xml
   scenario2-config.xml
@@ -205,8 +200,7 @@ templates/
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 &lt;main>
 &lt;name>application&lt;/name>
@@ -243,8 +237,7 @@ templates/
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;config-rpm id='scenario1-config'>
 ...
 &lt;/config-rpm></programlisting>
@@ -257,8 +250,7 @@ templates/
   </para>
 
   <informalexample>
-  <programlisting>
-gpgkeys/
+  <programlisting>gpgkeys/
 Packages/
 repodata/
 templates/</programlisting>

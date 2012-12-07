@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="building-release-rpm" xreflabel="Building a Release Package">
+<section id="building-release-rpm">
   <title>Building a Release Package</title>
 
   <para>
@@ -54,12 +54,11 @@
   <para>
   You can disable creation of the release-rpm, if desired, as shown below. This
   may be useful if you desire to create a custom release package, for example
-  as shown in the section on <xref linkend="building-custom-rpms"/>.
+  as shown in <xref linkend="building-custom-rpms"/>.
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;release-rpm enabled='false'/></programlisting>
+  <programlisting>&lt;release-rpm enabled='false'/></programlisting>
   </informalexample>
 
   <section>
@@ -76,8 +75,9 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="updates.png" />
+      <imagedata fileref="./images/updates.png" />
     </imageobject>
+    <caption>Updates</caption>
   </mediaobject>
 
   <para>
@@ -133,7 +133,7 @@
   </informalexample>
 
   <para>
-  See the chapter on <xref linkend="deployment-scenarios"/>
+  See <xref linkend="deployment-scenarios"/>
   for information on using the YUM sync plugin in various deployment scenarios.
   </para>
 

@@ -5,13 +5,20 @@
 ]>
 <authorgroup>
 	<author>
-		<firstname>Dude</firstname>
-		<surname>McPants</surname>
+		<firstname>Kay</firstname>
+		<surname>Williams</surname>
 		<affiliation>
-			<orgname>Somewhere</orgname>
-			<orgdiv>Someone</orgdiv>
+			<orgname>Deploy Project</orgname>
 		</affiliation>
-		<email>Dude.McPants@example.com</email>
+		<email>kay@deployproject.org</email>
+	</author>
+	<author>
+		<firstname>Susan</firstname>
+		<surname>Baird-Joshi</surname>
+		<affiliation>
+			<orgname>Caliber A</orgname>
+		</affiliation>
+		<email>sdbj@calibera.com</email>
 	</author>
 </authorgroup>
 

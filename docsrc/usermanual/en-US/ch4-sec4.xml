@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="providing-signing-keys" xreflabel="Providing GPG Signing Keys">
+<section id="providing-signing-keys">
   <title>Providing GPG Signing Keys</title>
 
   <para>
@@ -64,8 +64,7 @@
   passphrase line is optional.
   </para>
 
-  <programlisting>
-Key-Type: DSA
+  <programlisting>Key-Type: DSA
 Key-Length: 1024
 Subkey-Type: ELG-E
 Subkey-Length: 1024
@@ -78,16 +77,14 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   <emphasis>myfile</emphasis> with the name of the file created above:  
   </para>
 
-  <programlisting>
-# gpg --batch --gen-key myfile </programlisting>
+  <programlisting># gpg --batch --gen-key myfile </programlisting>
 
   <para>
   Once the process is complete, check that the key was generated successfully
   using the following command:
   </para>
 
-  <programlisting>
-# gpg --list-keys</programlisting>
+  <programlisting># gpg --list-keys</programlisting>
 
   <para>
   You should see an item with the uid of "My Repo Studio Signing Key"
@@ -100,35 +97,30 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   To export the newly created keys from the GPG keyring, complete the following:
   </para>
 
-  <programlisting>
-# gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
+  <programlisting># gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
 # gpg --export-secret-key -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   You can verify the exported files using the commands:
   </para>
 
-  <programlisting>
-# cat RPM-GPG-KEY-mykey
+  <programlisting># cat RPM-GPG-KEY-mykey
 # cat RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   As each file is listed, it should begin with the following text, respectively: 
   </para>
 
-  <programlisting>
------BEGIN PGP PUBLIC KEY BLOCK-----</programlisting>
+  <programlisting>-----BEGIN PGP PUBLIC KEY BLOCK-----</programlisting>
 
-  <programlisting>
------BEGIN PGP PRIVATE KEY BLOCK-----</programlisting>
+  <programlisting>-----BEGIN PGP PRIVATE KEY BLOCK-----</programlisting>
 
   <para>After verifying the exported keys, it is no longer necessary to keep
   them in the GPG keyring. You can delete them from the keyring using the
   following commands:
   </para>
 
-  <programlisting>
-# gpg --delete-secret-keys "My Repo Studio Signing Key"  
+  <programlisting># gpg --delete-secret-keys "My Repo Studio Signing Key"  
 # gpg --delete-keys "My Repo Studio Signing Key"  </programlisting>
   </section>
 
@@ -144,8 +136,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   a <emphasis>gpgsign</emphasis> element as follows:
   </para>
 
-  <programlisting>
-&lt;gpgsign&gt;
+  <programlisting>&lt;gpgsign&gt;
   &lt;public&gt;&lt;xi:include href="RPM-GPG-KEY-mykey" parse="text"&gt;&lt;public&gt;
   &lt;secret&gt;&lt;xi:include href="RPM-GPG-KEY-mykey-secret" parse="text"&gt;&lt;/secret&gt;
   &lt;passphrase&gt;The quick brown fox jumped over the lazy dog.&lt;/passphrase&gt;

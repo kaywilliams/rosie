@@ -28,8 +28,7 @@
   </para>
 
   <para>
-  <informalexample><programlisting>
-# repostudio web-server.definition</programlisting></informalexample>
+  <informalexample><programlisting># repostudio web-server.definition</programlisting></informalexample>
   </para>
 
   <para>
@@ -39,8 +38,7 @@
   </para>
 
   <para><informalexample>
-  <programlisting>
-#!/bin/sh
+  <programlisting>#!/bin/sh
 DEF_DIR=/root/definitions
 PARAMS="\
   $DEF_DIR/web-server.definition \

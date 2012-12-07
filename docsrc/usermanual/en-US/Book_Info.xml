@@ -4,9 +4,9 @@
 %BOOK_ENTITIES;
 ]>
 <bookinfo id="book-usermanual-usermanual">
-	<title>usermanual</title>
+	<title>User Manual</title>
 	<subtitle>Managing system and application deployment with Deploy</subtitle>
-	<productname>deploy</productname>
+	<productname>Deploy</productname>
 	<productnumber>1.0</productnumber>
 	<edition>1.0</edition>
 	<pubsnumber>0</pubsnumber>

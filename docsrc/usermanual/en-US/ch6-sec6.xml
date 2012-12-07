@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="config-mgmt" 
-         xreflabel="Configuration Management Systems">
+<section id="config-mgmt">
   <title>Configuration Management Systems</title>
 
   <para>
@@ -65,8 +64,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>

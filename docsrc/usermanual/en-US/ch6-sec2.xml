@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="smb" xreflabel="Small Business/IT Consultant">
+<section id="smb">
   <title>Small Business/IT Consultant</title>
 
   <para>
@@ -163,8 +163,7 @@
   <emphasis role='strong'>Small business system repository definition</emphasis>
   </para>
   <informalexample>
-  <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>
@@ -228,8 +227,7 @@ rsync -a --delete -e ssh \
   additional installation methods.
   </para> 
 
-  <section id='cd-dvd-network-installation' 
-           xreflabel="CD/DVD Network Installation">
+  <section id='cd-dvd-network-installation' >
   <title>CD/DVD Network Installation</title>
   
   <para>
@@ -275,8 +273,7 @@ rsync -a --delete -e ssh \
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;iso>
+  <programlisting>&lt;iso>
 &lt;set>DVD&lt;/set>
 &lt;/iso></programlisting>
   </informalexample>

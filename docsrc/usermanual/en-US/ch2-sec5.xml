@@ -8,8 +8,8 @@
 
   <para><variablelist>
 
-      <varlistentry id="build-machine" xreflabel="build machine">
-        <term><emphasis role="strong">build machine</emphasis></term>
+      <varlistentry id="build-machine">
+        <term>build machine</term>
 
         <listitem>
           <para>The machine on which <application
@@ -17,8 +17,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="client-machine" xreflabel="client machine">
-        <term><emphasis role="strong">client machine</emphasis></term>
+      <varlistentry id="client-machine">
+        <term>client machine</term>
 
         <listitem>
           <para>The target machine on which repository content is installed.
@@ -26,8 +26,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="config-rpms" xreflabel="config-rpms">
-        <term><emphasis role="strong">config-rpms</emphasis></term>
+      <varlistentry id="config-rpms">
+        <term>config-rpms</term>
 
         <listitem>
 	  <para>
@@ -46,8 +46,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="release-rpm" xreflabel="release-rpm">
-        <term><emphasis role="strong">release-rpm</emphasis></term>
+      <varlistentry id="release-rpm">
+        <term>release-rpm</term>
 
         <listitem>
 	  <para>
@@ -66,8 +66,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository" xreflabel="repository">
-        <term><emphasis role="strong">repository</emphasis></term>
+      <varlistentry id="repository">
+        <term>repository</term>
 
         <listitem>
 	  <para>
@@ -79,8 +79,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository-data-file" xreflabel="repository data file">
-        <term><emphasis role="strong">repository data file</emphasis></term>
+      <varlistentry id="repository-data-file">
+        <term>repository data file</term>
 
         <listitem>
 	  <para>
@@ -111,8 +111,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository-definition" xreflabel="repository definition">
-        <term><emphasis role="strong">repository definition</emphasis></term>
+      <varlistentry id="repository-definition">
+        <term>repository definition</term>
 
         <listitem>
           <para>A file that defines how Repo Studio should build, configure
@@ -122,8 +122,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="rdfr" xreflabel="RDFR">
-        <term><emphasis role="strong">Repository Definition File Reference (RDFR)</emphasis></term>
+      <varlistentry id="rdfr">
+        <term>Repository Definition File Reference (RDFR)</term>
 
         <listitem>
 	  <para>
@@ -135,9 +135,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository-id" xreflabel="repository ID">
-        <term><emphasis
-        role="strong"><varname>repository ID</varname></emphasis></term>
+      <varlistentry id="repository-id">
+        <term>repository ID</term>
 
         <listitem>
           <para>
@@ -156,8 +155,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository-url" xreflabel="repository URL">
-        <term><emphasis role="strong">repository URL</emphasis></term>
+      <varlistentry id="repository-url">
+        <term>repository URL</term>
 
         <listitem>
 	  <para>
@@ -197,22 +196,22 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="templates" xreflabel="templates">
-        <term><emphasis role="strong">templates</emphasis></term>
+      <varlistentry id="templates">
+        <term>templates</term>
 
         <listitem>
   <para>
   The Repo Studio installation includes a number of templates to assist with
   common definition creation tasks. These templates are located in the folder
-  at <filename>/usr/share/repostudio/../../share/repostudio/templates/</filename>. The templates are
+  at <filename>/usr/share/repostudio/templates/</filename>. The templates are
   not discussed in detail here, however, many are referenced in the relevant
   sections throughout the remainder of this document.
   </para>
 
-  <caution>
+  <important>
   <para>
   Do not modify files in the
-  <filename>/usr/share/repostudio/../../share/repostudio/templates</filename> folder. Changes to
+  <filename>/usr/share/repostudio/templates</filename> folder. Changes to
   these files will be overwritten when updated versions of the Repo Studio
   RPM are installed.
   </para>
@@ -220,13 +219,13 @@
   <para>
   Instead, copy files to a new location before editing.
   </para>
-  </caution>
+  </important>
         </listitem>
       </varlistentry>
 
-      <varlistentry id='xinclude' xreflabel="XIncludes">
+      <varlistentry id='xinclude'>
         <term>
-        <emphasis role="strong">XML Inclusions (XIncludes)</emphasis>
+        XML Inclusions (XIncludes)
         </term>
 
         <listitem>
@@ -241,8 +240,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="yum-sync-plugin" xreflabel="YUM Sync Plugin">
-        <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
+      <varlistentry id="yum-sync-plugin">
+        <term>YUM Sync Plugin</term>
 
         <listitem>
 	  <para>
@@ -261,8 +260,7 @@
           on client machines using the <command>yum help</command> command.
           Running <command>yum sync</command> allows YUM to calculate package
           additions and removals based on packages available in the repository.
-          For more information, see the section on <xref
-          linkend="building-release-rpm"/>.
+          For more information, see <xref linkend="building-release-rpm"/>.
           </para>
         </listitem>
       </varlistentry>

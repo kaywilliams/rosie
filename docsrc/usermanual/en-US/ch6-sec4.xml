@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="virtual" xreflabel="Virtual/Hosted">
+<section id="virtual">
   <title>Virtual/Hosted</title>
 
   <para>
@@ -43,8 +43,7 @@
   the virtual machine management solution.
   </para>
   <informalexample>
-  <programlisting>
-&lt;publish>
+  <programlisting>&lt;publish>
 ...
 &lt;script id='create-virtual-machine-image' type='update' ssh='false'>
 # reuse content from the virt-install.xml template to create the vm image

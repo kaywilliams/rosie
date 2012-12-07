@@ -38,8 +38,8 @@
   <listitem>
   <para>
   <emphasis>Config-rpm</emphasis> elements reusing and customizing
-  configuration templates you have made available in your repository. See the
-  section on <xref linkend='using-configuration-templates'/> for more
+  configuration templates you have made available in your repository. See
+  <xref linkend='using-configuration-templates'/> for more
   information on providing configuration templates for your customers to modify.
   </para>
   </listitem>
@@ -72,8 +72,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-rpm -Uvh path/to/downloaded/rpm</programlisting>
+  <programlisting>rpm -Uvh path/to/downloaded/rpm</programlisting>
   </informalexample>
   </listitem>
 
@@ -83,8 +82,7 @@ rpm -Uvh path/to/downloaded/rpm</programlisting>
   </para>
 
   <informalexample>
-  <programlisting>
-yum install package1 package2</programlisting>
+  <programlisting>yum install package1 package2</programlisting>
   </informalexample>
   </listitem>
   </itemizedlist>

@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">Repo Studio</application> Overview
+  <title>Repo Studio Overview
   </title>
 
   <para>
@@ -67,7 +67,7 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="overview.png" />
+      <imagedata fileref="./images/overview.png" />
     </imageobject>
 
     <caption><para>Repo Studio Overview</para></caption>

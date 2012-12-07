@@ -12,7 +12,7 @@
 
     <mediaobject>
       <imageobject>
-        <imagedata fileref="build_overview.png" />
+        <imagedata fileref="./images/build_overview.png" />
       </imageobject>
 
       <caption><para>Repo Studio Build Process</para></caption>

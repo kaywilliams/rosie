@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="using-virtual-machines" 
-         xreflabel="Using Virtual Machines">
+<section id="using-virtual-machines" >
   <title>Using Virtual Machines</title>
 
   
@@ -48,8 +47,7 @@
   <emphasis role='strong'>web-server.definition</emphasis>
   </para>
   <informalexample>
-  <programlisting>
-<xi:include href='../../../../../share/repostudio/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/repostudio/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -57,8 +55,7 @@
   remainder of this chapter.
   </para>
 
-  <section id='adding-a-test-install-element' 
-           xreflabel='Adding a test-install element'>
+  <section id='adding-a-test-install-element' >
   <title>Adding a test-install element</title>
 
   <para>
@@ -68,8 +65,7 @@
   including the template as shown below:
   </para>
   <informalexample>
-  <programlisting>
-&lt;test-install>
+  <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install></programlisting>
@@ -80,8 +76,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-# repostudio web-server.definition</programlisting>
+  <programlisting># repostudio web-server.definition</programlisting>
   </informalexample>
 
   <para>
@@ -179,8 +174,7 @@
   </para>
 
   <informalexample>
-  <programlisting>
-&lt;test-update>
+  <programlisting>&lt;test-update>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update></programlisting>

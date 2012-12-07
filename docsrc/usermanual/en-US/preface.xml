@@ -65,23 +65,7 @@
 
     <variablelist>
       <varlistentry>
-        <term><emphasis role="strong">Caution</emphasis></term>
-
-        <listitem>
-          <para>The Caution tag flags issues of importance.</para>
-
-          <warning>
-          <para>
-          Using the 'dd' command to copy the diskboot.img file onto a USB key
-          will destroy existing data on the device.
-          </para>
-          </warning>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><emphasis role="strong">Commands</emphasis></term>
+        <term>Commands</term>
 
         <listitem>
           <para><command>Command</command> names in Repo Studio or
@@ -91,8 +75,8 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Elements and
-        Attributes</emphasis></term>
+        <term>Elements and
+        Attributes</term>
 
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
@@ -109,8 +93,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="example" xreflabel="example">
-        <term><emphasis role="strong">Examples</emphasis></term>
+      <varlistentry id="examples">
+        <term>Example</term>
 
         <listitem>
           <para>Code examples appear in a box, displayed below.</para>
@@ -122,7 +106,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Filenames</emphasis></term>
+        <term>Filenames</term>
 
         <listitem>
           <para><filename>Filenames</filename>, <filename
@@ -134,7 +118,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Important</emphasis></term>
+        <term>Important</term>
 
         <listitem>
           <para>Critical items appear with an "Important" set off tag: </para>
@@ -147,13 +131,13 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Notes</emphasis></term>
+        <term>Notes</term>
 
         <listitem>
           <para>
           Within repository definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
-          linkend="example" />.
+          linkend="examples" />.
           </para>
 
           <para>
@@ -170,7 +154,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Screen output</emphasis></term>
+        <term>Screen output</term>
 
         <listitem>
           <para>Computer output to the screen can be <computeroutput>inline
@@ -182,11 +166,11 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">User Input</emphasis></term>
+        <term>User Input</term>
 
         <listitem>
           <para>Commands entered by the user appear as <userinput>inline
-          commands</userinput> or formatted as an <xref linkend="example" />.
+          commands</userinput> or formatted as an <xref linkend="examples" />.
           If the latter, then special characters indicate different users, as
           shown below.</para>
 
@@ -199,7 +183,7 @@ $ precedes lines entered as a normal user</programlisting>
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Variables</emphasis></term>
+        <term>Variables</term>
 
         <listitem>
           <para>Repo Studio variables are presented in monospace font,
