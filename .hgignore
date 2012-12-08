@@ -5,9 +5,9 @@ syntax: glob
 
 syntax: regexp
 .*\#.*\#$
-docsrc/usermanual/tmp/.*
-docsrc/RDFR/tmp/.*
+docsrc/.*/tmp/.*
+docsrc/brand/publish/.*
 rstest/modules/[^/]+/repo[0-9]+.*
 rstest/modules/[^/]+/[^/]+-test-repos[0-9]*\.repo
 rstest/modules/shared/test-repos\.repo
-rstest/test.log
+rstest/test\.log
