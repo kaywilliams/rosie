@@ -142,7 +142,10 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
     self.DATA['variables'].append('cvars[\'treeinfo-text\']')
     self.DATA['input'].append(self.cvars['pkgorder-file'])
 
-    self.bootoptions.setup(defaults=['method=cdrom'], include_ks='local')
+    # note: el5 anaconda boot options seems to be broken in a couple of ways
+    # * mediacheck runs even when not specified
+    # * method=cdrom (or repo=cdrom) ignored when ks=<something> present
+    self.bootoptions.setup(defaults=[], include_ks='local')
 
   def run(self):
     oldsets = None
