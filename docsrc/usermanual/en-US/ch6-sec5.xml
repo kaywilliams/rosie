@@ -5,7 +5,7 @@
   <title>Replicated Clients/Scale-Out</title>
 
   <para>
-  Repo Studio also supports replicated client and scale-out deployments. In
+  Deploy also supports replicated client and scale-out deployments. In
   this scenario, many client machines share duplicate software and
   configuration. For these environments, traditional client installation, which
   can take 5-10 minutes per client, is inefficient.  Instead, it is preferable
@@ -14,7 +14,7 @@
   </para>
 
   <para>
-  Repo Studio supports this scenario in the same manner as the <xref
+  Deploy supports this scenario in the same manner as the <xref
   linkend='virtual'/> scenario. In particular, you will start with a repository
   definition similar to that shown in the <xref linkend='smb'/> scenario. To
   that definition you will add a <emphasis>publish/script</emphasis> element

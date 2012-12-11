@@ -4,6 +4,6 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/etc/logrotate.d
-	install -pm 644 repostudio $(DESTDIR)/etc/logrotate.d/repostudio
+	install -pm 644 deploy $(DESTDIR)/etc/logrotate.d/deploy
 
 clean:

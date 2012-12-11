@@ -4,7 +4,7 @@
 <section id="using-deployment-templates" >
   <title>Using Deployment Templates</title>
   <para>
-  The Repo Studio model for automated deployment is simple, yet flexible 
+  The Deploy model for automated deployment is simple, yet flexible 
   and extensible. Deployment can occur in a variety of operating environments,
   for example using virtual machines running on a local host, virtual machines
   running on remote or cloud-based hosts, physical machines managed by
@@ -76,7 +76,7 @@
   </para>
 
   <para>
-  Repo Studio includes a number of deployment templates in the <xref
+  Deploy includes a number of deployment templates in the <xref
   linkend='templates'/> folder. In the previous section, we discussed one of
   these templates, a composite template named
   <filename>virt-deploy.xml</filename>.  In addition to virt-deploy.xml, the
@@ -103,7 +103,7 @@
   <title>Exploring virt-deploy.xml</title>
 
   <para>
-  The virt-deploy template provides an example for how Repo Studio can be
+  The virt-deploy template provides an example for how Deploy can be
   used to deploy and maintain client systems. This particular template works by
   providing settings and scripts to accomplish the following:
   </para>
@@ -121,7 +121,7 @@
   </listitem>
   <listitem>
   <para>
-  Configure client machines to allow SSH access from the Repo Studio build
+  Configure client machines to allow SSH access from the Deploy build
   machine (ssh-config.xml).
   </para>
   </listitem>
@@ -133,7 +133,7 @@
   </listitem>
   <listitem>
   <para>
-  Activate, delete, and install a virtual machine running on the Repo Studio
+  Activate, delete, and install a virtual machine running on the Deploy
   build machine (virt-activate.xml, virt-delete.xml and virt-install.xml).
   </para>
   </listitem>
@@ -170,7 +170,7 @@
   <emphasis role='strong'>virt-deploy.xml</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/repostudio/templates/virt-deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/virt-deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -200,13 +200,13 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/repostudio/templates/deploy/ks.cfg" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks.cfg" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
-  The default <filename>ks.cfg</filename> file uses macros (see the RDFR for
+  The default <filename>ks.cfg</filename> file uses macros (see the DDFR for
   information on deployment macros) to allow the hostname and root password to
-  be filled in at Repo Studio runtime. Often, however, you will want to
+  be filled in at Deploy runtime. Often, however, you will want to
   customize additional kickstart options such as timezone, or drive
   partitioning configuration. To do this, you will need to provide a custom
   kickstart element. This can be accomplished using several different methods.
@@ -248,9 +248,9 @@ reboot
   </informalexample>
 
   <para>
-  See the RDFR for more information on the <emphasis>kickstart</emphasis>
+  See the DDFR for more information on the <emphasis>kickstart</emphasis>
   element, including notes on several kickstart options to avoid when using
-  kickstart in combination with Repo Studio.
+  kickstart in combination with Deploy.
   </para>
 
   </section>
@@ -258,7 +258,7 @@ reboot
   <section>
   <title>Providing custom scripts</title>
   <para>
-  Repo Studio allows users to provide scripts for completing various
+  Deploy allows users to provide scripts for completing various
   deployment and maintenance actions. These scripts can be written in any shell
   scripting language. 
   </para>
@@ -314,7 +314,7 @@ virt-install --name %{fqdn} --ram 2000 \
   </informalexample>
 
   <para>
-  See the RDFR for complete information on deployment scripts, including the
+  See the DDFR for complete information on deployment scripts, including the
   comes-before and comes-after attributes which allow ordering of script
   execution.
   </para>
@@ -326,7 +326,7 @@ virt-install --name %{fqdn} --ram 2000 \
 
   <para>
   The virt-deploy template makes it easy to create, deploy and maintain virtual
-  machines on the local Repo Studio build machine running a lib-virt
+  machines on the local Deploy build machine running a lib-virt
   compatible hypervisor (KVM). Your particular deployment scenario, however,
   may require you to work with virtual machines running on remote hosts with
   different hypervisors (e.g. VMware, Hyper-V and Amazon Web Services). To
@@ -391,9 +391,9 @@ virt-install --name %{fqdn} --ram 2000 \
   will either remove the update script from your composite template, or
   provide a custom update script that starts the appropriate update procedure
   on your management solution. If the custom script should execute on the
-  Repo Studio build machine rather than on the installed client, be sure to
+  Deploy build machine rather than on the installed client, be sure to
   set the update script's <emphasis>@ssh</emphasis> attribute to false. See the
-  RDFR for more information on script attributes.
+  DDFR for more information on script attributes.
   </para>
 
   <para>

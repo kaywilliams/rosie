@@ -1,4 +1,4 @@
-SUBDIRS = repostudio
+SUBDIRS = deploy
 
 .PHONY: all clean install
 

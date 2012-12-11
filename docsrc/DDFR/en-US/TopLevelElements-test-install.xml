@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="test-install"
+         xreflabel="test-install">
+  <title>
+  Test-install
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    The <emphasis>test-install</emphasis> top-level element supports automated
+    installation testing. The test-install element is based on the Deployment
+    Elements Common Model.  See <xref
+    linkend="deployment-elements-common-model"/> for a complete description of
+    syntax, macros, attributes and elements.
+    </para>
+
+    <para>
+    Deploy accomplishes installation testing using deployment scripts
+    described in the Common Model. Should any of the scripts fail to complete
+    successfully, Deploy halts processing prior to running the
+    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis> events.
+    </para>
+
+    <para>
+    Because its focus is on installation testing, the test-install event
+    attempts to perform a clean client installation each time install-related
+    changes occur in the repository. The list of factors that trigger a clean
+    client installation are described under <xref linkend='triggers'/>.
+    </para>
+
+    <para>
+    <emphasis>Test-install</emphasis> is an optional element.
+    </para>
+
+  </section>
+
+  <section id="test-install-examples" xreflabel="Test-Install Examples">
+    <title>
+    Examples
+    </title>
+
+    <para>
+    The following examples configure Deploy to perform a test
+    install to a local virtual machine. See the <emphasis>Deploy User
+    Manual</emphasis> for information on configuring the build machine to
+    support virtual machine installations.
+    </para>
+
+    <para>
+    This example makes use of two files:
+    
+    <itemizedlist>
+    <listitem><para>
+    The main repository definition containing a
+    <emphasis>test-install</emphasis> element.
+    </para></listitem>
+
+    <listitem>
+    <para>
+    A template named <filename>virt-deploy.xml</filename> containing deployment
+    scripts. The <filename>virt-deploy.xml</filename> file is also used across
+    <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
+    top-level element examples.
+    </para>
+    </listitem>
+    
+    </itemizedlist>
+    </para>
+
+    <section>
+    <title>
+    Example - Test-Install Element
+    </title>
+
+    <para>
+    This test-install element accomplishes the following:
+
+    <itemizedlist>
+    <listitem><para>
+    Sets a root password for the client machine.</para>
+    </listitem>
+
+    <listitem>
+    <para>
+    Uses XInclude to include all top-level elements from the virt-deploy.xml
+    template.
+    </para>
+    </listitem>
+    </itemizedlist>
+    </para>
+
+    <programlisting>
+&lt;test-install>
+  &lt;password>mypassword&lt;/password>
+  &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;/test-install></programlisting>
+    </section>
+
+    <section id="virt-deploy.xml" xreflabel="virt-deploy.xml">
+    <title>
+    Example - <filename>virt-deploy.xml</filename> template
+    </title>
+
+    <para>
+    The virt-deploy.xml template, shown below, provides the configuration
+    necessary to deploy and maintain a local virtual machine. Virt-deploy.xml
+    in turn makes use of many additional templates. See the <xref
+    linkend='templ-sec'/> section of this document for information on locating
+    and using templates.
+    </para>
+
+    <programlisting><xi:include href='../../../../../share/deploy/templates/virt-deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </section>
+
+  </section>
+
+</section>

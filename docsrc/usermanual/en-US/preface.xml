@@ -25,23 +25,23 @@
     This manual complements several <application class="software">Repo
     Studio</application> documents. The "Installation Instructions" and
     "Getting Started Guide" provide basic information about obtaining and
-    installing Repo Studio and creating a basic CentOS repository.  The
-    "Repository Definition File Reference" (RDFR) contains the syntax for
-    repository definition elements and attributes. Finally, Repo Studio has
+    installing Deploy and creating a basic CentOS repository.  The
+    "Deploy Definition File Reference" (DDFR) contains the syntax for
+    repository definition elements and attributes. Finally, Deploy has
     a set of <emphasis role="strong">man pages</emphasis> explaining the
-    <command>repostudio</command> command, its options and the Repo Studio
-    configuration file, <filename>repostudio.conf</filename>. This manual
+    <command>deploy</command> command, its options and the Deploy
+    configuration file, <filename>deploy.conf</filename>. This manual
     contains references to all four throughout the text.
     </para>
 
     <para>
-    These Repo Studio documents are available at the Repo Studio
+    These Deploy documents are available at the Deploy
     website.
     </para>
 
     <para>
-    <ulink url="http://www.repostudio.org/repostudio/docs/">
-    http://www.repostudio.org/repostudio/docs/ </ulink>
+    <ulink url="http://www.deployproject.org/deploy/docs/">
+    http://www.deployproject.org/deploy/docs/ </ulink>
     </para>
 
   </section>
@@ -50,7 +50,7 @@
     <title>How to Read</title>
 
     <para>
-    The intent of the manual is to help you use Repo Studio effectively to
+    The intent of the manual is to help you use Deploy effectively to
     deploy and maintain Linux-based systems and applications using YUM package
     repositories. This manual takes a top-down approach, explaining the
     concepts before giving steps, commands and examples that you can use to
@@ -68,7 +68,7 @@
         <term>Commands</term>
 
         <listitem>
-          <para><command>Command</command> names in Repo Studio or
+          <para><command>Command</command> names in Deploy or
           <function>function</function> names in other programs appear
           throughout the document.</para>
         </listitem>
@@ -83,7 +83,7 @@
           equivalents. The active node is always considered to be the root,
           repo; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the RDFR and their child elements
+          children. Top-level elements in the DDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>repo</emphasis>. For
@@ -161,7 +161,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/repostudio</screen>
+          <screen>/usr/bin/deploy</screen>
         </listitem>
       </varlistentry>
 
@@ -186,7 +186,7 @@ $ precedes lines entered as a normal user</programlisting>
         <term>Variables</term>
 
         <listitem>
-          <para>Repo Studio variables are presented in monospace font,
+          <para>Deploy variables are presented in monospace font,
           e.g. <varname>%{id}</varname>.</para>
         </listitem>
       </varlistentry>
@@ -194,11 +194,11 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Getting Repo Studio</title>
+    <title>Getting Deploy</title>
 
-    <para>Repo Studio and associated documents are available at
-    <ulink url="http://www.repostudio.org/repostudio/"> the 
-    Repo Studio website</ulink> 
-    at www.repostudio.org/repostudio.</para>
+    <para>Deploy and associated documents are available at
+    <ulink url="http://www.deployproject.org/deploy/"> the 
+    Deploy website</ulink> 
+    at www.deployproject.org/deploy.</para>
   </section>
 </chapter>

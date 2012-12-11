@@ -40,7 +40,7 @@
   </para>
 
   <para>
-  Repo Studio provides a template, <filename>test.xml</filename>, to
+  Deploy provides a template, <filename>test.xml</filename>, to
   assist with the task of testing package repositories. The
   <filename>test.xml</filename> template makes use of the
   <filename>virt-deploy.xml</filename> template (described under <xref
@@ -70,7 +70,7 @@
 
   <listitem>
   <para>
-  Test Script - user-created script that uses Repo Studio to refresh the
+  Test Script - user-created script that uses Deploy to refresh the
   package repository and complete testing using one or more system repositories.
   </para>
   </listitem>
@@ -99,13 +99,13 @@
   <para>
   The example definition also provides a <emphasis>publish</emphasis> element
   with a <emphasis>remote-url</emphasis>. This allows repository build and
-  testing to occur on the Repo Studio build machine, with final publishing to
+  testing to occur on the Deploy build machine, with final publishing to
   a remote server.
   </para>
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>application&lt;/name>
@@ -131,8 +131,8 @@
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/repostudio/templates/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/repostudio/templates/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/scenario2-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>
@@ -154,14 +154,14 @@
   The next file needed for package repository testing is a test machine
   template. This template provides configuration for testing a package
   repository in a given deployment environment, such as a local or remote
-  virtual machine. By default, Repo Studio provides the
+  virtual machine. By default, Deploy provides the
   <filename>test.xml</filename> template, included in the <xref
   linkend='templates'/> folder. This file allows testing package repositories
   using local virtual machines.
   </para>
 
   <para>
-  Users can create alternative templates to substitute with the Repo Studio
+  Users can create alternative templates to substitute with the Deploy
   provided <filename>test.xml</filename> template. These templates can allow
   testing package repositories in environments other than local virtual
   machines.
@@ -215,7 +215,7 @@
 
   <listitem>
   <para>
-  A <emphasis>test-install</emphasis> element directing Repo Studio to
+  A <emphasis>test-install</emphasis> element directing Deploy to
   install a test machine in the deployment environment. The
   <emphasis>test-install</emphasis> element in the
   <filename>test.xml</filename> template performs three actions. First, it sets
@@ -229,7 +229,7 @@
 
   <listitem>
   <para>
-  A <emphasis>test-update</emphasis> element directing Repo Studio to update
+  A <emphasis>test-update</emphasis> element directing Deploy to update
   a test machine in the deployment environment. The
   <emphasis>test.xml</emphasis> template simply reuses content from the
   <emphasis>test-install</emphasis> element, since the same actions are
@@ -243,7 +243,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/repostudio/templates/test.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/test.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
   </section>
 
@@ -270,7 +270,7 @@
   <emphasis>Macro</emphasis> elements defining the name, version and arch of
   the package repository, as well as a root password to be used for the test
   machines and a baseurl indicating the location of the repository on the test
-  server.  The baseurl must be accessible to both the Repo Studio build
+  server.  The baseurl must be accessible to both the Deploy build
   machine and the test machine.  When using the <filename>test.xml</filename>
   template, specifically, the baseurl should be a location on the local virtual
   network, e.g.
@@ -332,7 +332,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="2.0" encoding="utf-8"?>
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
 
 &lt;macro id='repo'>application&lt;/macro>
 &lt;macro id='version'>6&lt;/macro>
@@ -427,7 +427,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
 
 &lt;macro id='scenario'>scenario1&lt;/macro>
 
@@ -521,7 +521,7 @@ set -e
 
 ROOT="path/to/repos"
 
-REPOSTUDIO="/usr/bin/repostudio"
+REPOSTUDIO="/usr/bin/deploy"
 LOG_LEVEL=1
 
 REPO=application

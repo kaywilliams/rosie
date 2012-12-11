@@ -12,20 +12,20 @@
   </para>
   
   <para>
-  Repo Studio automatically signs all packages it creates using
+  Deploy automatically signs all packages it creates using
   <emphasis>release-rpm</emphasis>, <emphasis>config-rpm</emphasis> and
   <emphasis>srpmbuild</emphasis> elements. To sign the packages, it uses either
   automatically generated or user-provided keys.
   </para>
 
   <para>
-  In the default cause, Repo Studio automatically generates a key pair, one per
+  In the default cause, Deploy automatically generates a key pair, one per
   repository, and stores key data in the <xref
   linkend="repository-data-file"/>.  If the <xref linkend='yum-sync-plugin'/>
   is enabled for the repository, this approach is typically sufficient as 
   public keys are automatically distributed and installed on client
   systems by the plugin, and end users do not need to recognize and explicitly
-  <emphasis>trust</emphasis> the Repo Studio-generated key.
+  <emphasis>trust</emphasis> the Deploy-generated key.
   </para>
 
   <para>
@@ -69,7 +69,7 @@ Key-Length: 1024
 Subkey-Type: ELG-E
 Subkey-Length: 1024
 Expire-Date: 0
-Name-Real: My Repo Studio Signing Key
+Name-Real: My Deploy Signing Key
 Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 
   <para>  
@@ -87,7 +87,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   <programlisting># gpg --list-keys</programlisting>
 
   <para>
-  You should see an item with the uid of "My Repo Studio Signing Key"
+  You should see an item with the uid of "My Deploy Signing Key"
   </para>
   </section>
 
@@ -97,8 +97,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   To export the newly created keys from the GPG keyring, complete the following:
   </para>
 
-  <programlisting># gpg --export -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey
-# gpg --export-secret-key -a "My Repo Studio Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
+  <programlisting># gpg --export -a "My Deploy Signing Key" &gt; RPM-GPG-KEY-mykey
+# gpg --export-secret-key -a "My Deploy Signing Key" &gt; RPM-GPG-KEY-mykey-secret</programlisting>
 
   <para>
   You can verify the exported files using the commands:
@@ -120,14 +120,14 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   following commands:
   </para>
 
-  <programlisting># gpg --delete-secret-keys "My Repo Studio Signing Key"  
-# gpg --delete-keys "My Repo Studio Signing Key"  </programlisting>
+  <programlisting># gpg --delete-secret-keys "My Deploy Signing Key"  
+# gpg --delete-keys "My Deploy Signing Key"  </programlisting>
   </section>
 
   <section>
   <title>Creating the gpgsign element</title>
   <para>
-  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Repository Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
+  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Deploy Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
   </para>
 
   <para>

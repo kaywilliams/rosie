@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div id="attribute-content">
+  <para>
+  <emphasis>@content</emphasis>: Accepts either "file" or "text".  When
+  <emphasis>content</emphasis> is "file", the element's text value is treated
+  as a <varname>PATH</varname> to a file, whereas when it is "text", the
+  element's text value is interpreted as the raw text to use for creating a
+  file. The default value is "file".
+  </para>
+</div>
+
+<div id='templates-description'>
+  <para>
+  The Deploy installation includes a number of templates to assist with
+  common definition creation tasks. These templates are located in the folder
+  at <filename>/usr/share/deploy/templates/</filename>. The templates are
+  not discussed in detail here, however, many are referenced in the relevant
+  sections throughout the remainder of this document.
+  </para>
+
+  <caution>
+  <para>
+  Do not modify files in the
+  <filename>/usr/share/deploy/templates</filename> folder. Changes to
+  these files will be overwritten when updated versions of the Deploy
+  RPM are installed.
+  </para>
+
+  <para>
+  Instead, copy files to a new location before editing.
+  </para>
+  </caution>
+</div>
+
+</div>

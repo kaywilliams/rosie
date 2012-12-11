@@ -1,0 +1,299 @@
+Test posix methods of path objects
+
+Set up the environment
+  >>> from deploy.util import pps
+  >>> P = pps.Path.posix.PosixPath
+  >>> H = pps.Path.http.HttpPath
+  >>> import os
+  >>> oldwd = os.getcwd()
+  >>> os.chdir('/tmp')
+
+
+Path.__div__ performs path joining as if each argument were a separate
+directory or file.  If the second argument is an absolute path, the first
+argument is ignored.  If the second argument is a string, it is converted
+into a path for joining.
+  >>> P('/a/b') / P('c/d')
+  PosixPath('/a/b/c/d')
+  >>> P('a/b') / P('c/d')
+  PosixPath('a/b/c/d')
+  >>> P('/a/b/') / P('c/d/')
+  PosixPath('/a/b/c/d/')
+  >>> P('/a/b') / P('/c/d')
+  PosixPath('/c/d')
+  >>> P('/a/b') / 'c/d'
+  PosixPath('/a/b/c/d')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b') / H('c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/a/b/') / H('c/d/')
+  HttpPath('http://www.ex.com/a/b/c/d/')
+  >>> H('http://www.ex.com/a/b') / H('http://www.ex2.com/c/d')
+  HttpPath('http://www.ex2.com/c/d')
+  >>> H('http://www.ex.com/a/b') / 'c/d'
+  HttpPath('http://www.ex.com/a/b/c/d')
+
+
+Path.__floordiv__ is the same as Path.__div__ with the exception that the
+second argument is always intepreted as a relative path, even if it is actually
+absolute.
+  >>> P('/a/b') // P('c/d')
+  PosixPath('/a/b/c/d')
+  >>> P('a/b') // P('c/d')
+  PosixPath('a/b/c/d')
+  >>> P('/a/b/') // P('c/d/')
+  PosixPath('/a/b/c/d/')
+  >>> P('/a/b') // P('/c/d')
+  PosixPath('/a/b/c/d')
+  >>> P('/a/b') // 'c/d'
+  PosixPath('/a/b/c/d')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b') // H('c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/a/b/') // H('c/d/')
+  HttpPath('http://www.ex.com/a/b/c/d/')
+  >>> H('http://www.ex.com/a/b') // H('http://www.ex2.com/c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/a/b') // 'c/d'
+  HttpPath('http://www.ex.com/a/b/c/d')
+
+
+Path.__rdiv__ allows a string to be __div__'d with a Path object.  It otherwise
+has the same behavior as Path.__div__
+  >>> '/a/b' / P('c/d')
+  PosixPath('/a/b/c/d')
+  >>> '/a/b' / P('/c/d')
+  PosixPath('/c/d')
+  >>> '/a/b/' / P('c/d/')
+  PosixPath('/a/b/c/d/')
+
+And for non-local paths
+  >>> 'http://www.ex.com/a/b' / H('c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> 'http://www.ex.com/a/b' / H('/c/d')
+  HttpPath('/c/d')
+  >>> 'http://www.ex.com/a/b/' / H('c/d/')
+  HttpPath('http://www.ex.com/a/b/c/d/')
+
+
+Path.__rfloordiv__ allows a string to be __floordiv__'d with a Path object.
+It otherwise has the same behavior as Path.__floordiv__
+  >>> '/a/b' // P('c/d')
+  PosixPath('/a/b/c/d')
+  >>> '/a/b' // P('/c/d')
+  PosixPath('/a/b/c/d')
+  >>> '/a/b/' // P('c/d/')
+  PosixPath('/a/b/c/d/')
+
+And for non-local paths:
+  >>> 'http://www.ex.com/a/b' // H('c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> 'http://www.ex.com/a/b' // H('/c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> 'http://www.ex.com/a/b/' // H('c/d/')
+  HttpPath('http://www.ex.com/a/b/c/d/')
+
+
+See pps_pathtokens.txt for test cases for Path.tokens
+
+
+NOTE - The following two algorithms (basename and dirname) perform path
+normalization on their output.  Its possible that this isn't desired behavior
+(the unix utiliities don't do this); we may want to investigate this in the
+future.
+
+Path.basename is set to the final element in a path, per the unix basename
+utility (with the very likely exception of some wierd corner cases that I'm
+unaware of).  Unlike some versions of basename, it does not suffer from the
+weakness of trailing slashes throwing off its result
+  >>> P('/a/b/c/d').basename
+  PosixPath('d')
+  >>> P('/').basename
+  PosixPath('/')
+  >>> P('//').basename
+  PosixPath('/')
+  >>> P('/a/b/c/d/').basename
+  PosixPath('d')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b/c/d').basename
+  HttpPath('d')
+  >>> H('http://www.ex.com/').basename
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com//').basename
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com').basename
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com/a/b/c/d/').basename
+  HttpPath('d')
+
+
+Path.dirname is set to the full path minus the basename, per the unix dirname
+utility (again with the likely exception of weird corner cases I don't know
+about).  As with basename, it is not sensitive to trailing slash related issues.
+  >>> P('/a/b/c/d').dirname
+  PosixPath('/a/b/c')
+  >>> P('/').dirname
+  PosixPath('/')
+  >>> P('//').dirname
+  PosixPath('/')
+  >>> P('/a/b/c/d/').dirname
+  PosixPath('/a/b/c')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b/c/d').dirname
+  HttpPath('http://www.ex.com/a/b/c')
+  >>> H('http://www.ex.com/').dirname
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com//').dirname
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com').dirname
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com/a/b/c/d/').dirname
+  HttpPath('http://www.ex.com/a/b/c')
+
+
+Path.abspath() returns an absolute Path of the given Path.  If the Path is
+already absolute (has a root) then this has no effect; if it is relative, then
+the Path is joined onto the current working directory and returned.
+  >>> P('a/b/c/d').abspath()
+  PosixPath('/tmp/a/b/c/d')
+  >>> P('/a/b/c/d').abspath()
+  PosixPath('/a/b/c/d')
+  >>> H('http://www.ex.com/a/b/c/d').abspath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+
+
+Path.normcase() returns the Path object with its case normalized.  As PPS
+currently doesn't support Windows clients, this merely returns a copy of the
+original Path.  In the case of non-local paths, however, the protocol and 
+scheme are not case sensitive; thus, these values are normalized.
+  >>> P('/a/b/c/d').normcase()
+  PosixPath('/a/b/c/d')
+  >>> P('/a/b/C/D').normcase()
+  PosixPath('/a/b/C/D')
+  >>> H('http://www.ex.com/a/b/c/d').normcase()
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/a/b/C/D').normcase()
+  HttpPath('http://www.ex.com/a/b/C/D')
+  >>> H('HTTP://www.Ex.COM/a/b/C/D').normcase()
+  HttpPath('http://www.ex.com/a/b/C/D')
+
+
+Path.normpath() returns a normalized version of the Path object, handling the
+following normalizations:
+1) Transforms URIs of the form 'file://<path>' into just '<path>'
+2) Roots all URIs that contain a realm by prefixing the given path with '/'
+3) Replaces all occurances of multiple '/' with a single '/' (except an 
+   initial '//', which is an initial separator)
+4) Resolves any curdir ('.') and pardir ('..') arguments
+  >>> P('/a/b/c/d').normpath()
+  PosixPath('/a/b/c/d')
+  >>> P('//a/b///c/d/').normpath()
+  PosixPath('//a/b/c/d')
+  >>> P('///a/b///c/d/').normpath()
+  PosixPath('/a/b/c/d')
+  >>> P('file:///a/b/c/d').normpath()
+  PosixPath('/a/b/c/d')
+  >>> P('/tmp/../a/b/./c/d/.').normpath()
+  PosixPath('/a/b/c/d')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b/c/d').normpath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com//a/b///c/d/').normpath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com').normpath()
+  HttpPath('http://www.ex.com/')
+  >>> H('http://www.ex.com/tmp/../a/b/./c/d/.').normpath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+
+NOTE: Path.realpath() probably doesn't belong in here as it involves reading
+symlinks.
+
+
+NOTE: Path.expanduser(), Path.expanda/bs(), and Path.expand() probably don't
+belong in here either as they involve reading environment variables
+
+
+Path.relpath() returns the location of the Path relative to the current working
+directory.  If the only common ancestor of two paths is their root, the result
+will contain the correct series of pardirs ('..' in unix and windows) to reach
+the root followed by the original argument.  If there is no common ancestor
+in two paths, including the root, the result is the original argument.  (This
+case can only happen if Path itself is absolute, since by definition a relative
+path is relative to the current working directory.)
+  >>> P('/a/b/c/d').relpath()
+  PosixPath('../a/b/c/d')
+  >>> P('a/b/c/d').relpath()
+  PosixPath('a/b/c/d')
+  >>> P('/tmp/a/b/c/d').relpath()
+  PosixPath('a/b/c/d')
+  >>> H('http://www.ex.com/a/b/c/d').relpath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> P('.').relpath()
+  PosixPath('.')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b/c/d').relpath()
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/tmp/a/b/c/d').relpath()
+  HttpPath('http://www.ex.com/tmp/a/b/c/d')
+
+
+Path.relpathto() returns a Path object representing the relative path from
+the Path to the given argument.  Its behavior is exactly the same as
+Path.relpath(), above ( in fact, Path.relpath() is implemented as
+P(os.getcwd()).relpathto(Path) )
+  >>> P('/tmp').relpathto('/a/b/c/d')
+  PosixPath('../a/b/c/d')
+  >>> P('/tmp').relpathto('a/b/c/d')
+  PosixPath('a/b/c/d')
+  >>> P('/tmp').relpathto('/tmp/a/b/c/d')
+  PosixPath('a/b/c/d')
+  >>> P('/tmp').relpathto('http://www.ex.com/a/b/c/d')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> P('/tmp').relpathto('/tmp')
+  PosixPath('.')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/tmp').relpathto('http://www.ex.com/a/b/c/d')
+  HttpPath('../a/b/c/d')
+  >>> H('http://www.ex.com/tmp').relpathto('http://www.ex.com/tmp/a/b/c/d')
+  HttpPath('a/b/c/d')
+  >>> H('http://www.ex.com/tmp').relpathto('/a/b/c/d')
+  PosixPath('/a/b/c/d')
+  >>> H('http://www.ex.com/tmp').relpathto('http://www.ex.com/tmp')
+  HttpPath('.')
+
+
+Path.relpathfrom() returns a Path object representing the relative path from
+the given argument to the Path.  Its behavior is exactly the same as
+Path.relpathto(), above ( in fact, Path.relpathto() is implemented as
+pps.path(arg).relpathto(Path) )
+  >>> P('/a/b/c/d').relpathfrom('/tmp')
+  PosixPath('../a/b/c/d')
+  >>> P('a/b/c/d').relpathfrom('/tmp')
+  PosixPath('a/b/c/d')
+  >>> P('/tmp/a/b/c/d').relpathfrom('/tmp')
+  PosixPath('a/b/c/d')
+  >>> P('/tmp').relpathfrom('http://www.ex.com/a/b/c/d')
+  PosixPath('/tmp')
+  >>> P('/tmp').relpathfrom('/tmp')
+  PosixPath('.')
+
+And for non-local paths:
+  >>> H('http://www.ex.com/a/b/c/d').relpathfrom('http://www.ex.com/tmp')
+  HttpPath('../a/b/c/d')
+  >>> H('http://www.ex.com/tmp/a/b/c/d').relpathfrom('http://www.ex.com/tmp')
+  HttpPath('a/b/c/d')
+  >>> H('http://www.ex.com/a/b/c/d').relpathfrom('/tmp')
+  HttpPath('http://www.ex.com/a/b/c/d')
+  >>> H('http://www.ex.com/tmp').relpathfrom('http://www.ex.com/tmp')
+  HttpPath('.')
+
+
+Reset the environment
+  >>> os.chdir(oldwd)

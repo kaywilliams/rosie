@@ -1,0 +1,64 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="deploy">
+
+      <optional>
+      <element name="packages">
+
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <optional>
+        <attribute name="ignoremissing"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
+        <attribute name="excludedocs"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
+        <attribute name="default"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <interleave>
+
+        <zeroOrMore>
+        <ref name="element-group"/>
+        </zeroOrMore>
+
+        <zeroOrMore>
+        <element name="package"><text/></element>
+        </zeroOrMore>
+
+        <zeroOrMore>
+        <element name="exclude"><text/></element>
+        </zeroOrMore>
+
+        </interleave>
+
+      </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+  <define name="element-group">
+    <element name="group">
+
+      <optional>
+      <attribute name="repoid"/>
+      </optional>
+      <optional>
+      <attribute name="optional"><ref name="value-boolean"/></attribute>
+      </optional>
+      <optional>
+      <attribute name="default"><ref name="value-boolean"/></attribute>
+      </optional>
+
+      <text/>
+
+    </element>
+  </define>
+
+</grammar>

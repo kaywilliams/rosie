@@ -5,7 +5,7 @@
   <title>Testing System Repositories</title>
 
   <para>
-  Repo Studio makes it possible to automate testing of both system
+  Deploy makes it possible to automate testing of both system
   and package repositories. System repository testing is covered in this
   chapter, while testing for package repositories is covered later in this
   document.
@@ -20,16 +20,16 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   <emphasis>installation</emphasis> testing using the
   <emphasis>test-install</emphasis> element. When this element is present,
-  Repo Studio uses the provided information to perform the following tasks:
+  Deploy uses the provided information to perform the following tasks:
   </para>
 
   <itemizedlist>
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Create/update a separate repository in the test-install folder,
   <filename>/var/www/html/repos/system/test-install</filename> by default. 
   </para>
@@ -37,7 +37,7 @@
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Perform a clean client machine installation, as needed, using the
   test-install repository.
   </para>
@@ -45,7 +45,7 @@
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Verify the client machine installation.
   </para>
   </listitem>
@@ -57,16 +57,16 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Test-update</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-update</emphasis>. Deploy enables
   <emphasis>update</emphasis> testing using the
   <emphasis>test-update</emphasis> element. When this element is present,
-  Repo Studio uses the information provided to perform these tasks:
+  Deploy uses the information provided to perform these tasks:
   </para>
 
   <itemizedlist>
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Create a new repository for use in performing test updates. This
   repository is located in the test-update folder,
   <filename>/var/www/html/repos/system/test-update</filename> by default. 
@@ -75,7 +75,7 @@
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Update a client machine, if one exists, given changes in the repository. If
   no client machine exists, perform a clean client machine installation, for
   use during the next test cycle. Both of these activities are performed using
@@ -85,7 +85,7 @@
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Verify the client machine update.
   </para>
   </listitem>
@@ -111,21 +111,21 @@
   <itemizedlist>
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Using virtual machines to test system repository installation and updates.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Creating custom deployment templates.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Repo Studio enables
+  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Troubleshooting system repository deployment issues.
   </para>
   </listitem>

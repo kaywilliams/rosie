@@ -7,7 +7,7 @@
   <para>
   Small business system deployment is often managed by IT consultants who
   service multiple clients. These consultants work remotely when possible, and
-  visit the customer location only as needed.  Using Repo Studio, IT
+  visit the customer location only as needed.  Using Deploy, IT
   Consultants can perform the tasks of system integration and testing remotely.
   Physical installation, which involves burning a CD/DVD and using it to boot
   the physical machine, can be performed by a tech-savvy individual within the
@@ -125,7 +125,7 @@
   <para>
   Use of the <emphasis>script</emphasis> element within the
   <emphasis>publish</emphasis> element to automate synchronization of the
-  repository from the Repo Studio build machine to the web server location
+  repository from the Deploy build machine to the web server location
   specified by the <emphasis>remote-url</emphasis>. This synchronization will
   only occur if the test-install and test-update processes have completed
   without error.
@@ -134,10 +134,10 @@
   <para>
   In the example below, this is done by providing a script with the
   <emphasis>id</emphasis> 'sync'. The <emphasis>type</emphasis> attribute for
-  the script is set to 'update', which will cause Repo Studio to run the
+  the script is set to 'update', which will cause Deploy to run the
   script each time changes occur in repository content. The
   <emphasis>ssh</emphasis> attribute is set to <constant>false</constant>,
-  directing Repo Studio to execute the script on the build machine, rather
+  directing Deploy to execute the script on the build machine, rather
   than on a remote client. The script synchronizes the published repository on
   the build machine with the customer-accessible repository specified by
   <emphasis>remote-url</emphasis>.
@@ -164,7 +164,7 @@
   </para>
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>
 
@@ -198,7 +198,7 @@
 &lt;password>production-password&lt;password>
 
 &lt;kickstart>
-<xi:include href="../../../../../share/repostudio/templates/deploy/ks.cfg"
+<xi:include href="../../../../../share/deploy/templates/deploy/ks.cfg"
             parse='text' 
             xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/kickstart>
@@ -218,7 +218,7 @@ rsync -a --delete -e ssh \
   <title>Deploying Clients Manually</title>
 
   <para>
-  Because <application class="software">Repo Studio</application> creates
+  Because <application class="software">Deploy</application> creates
   system repositories in a standard format, clients can be deployed manually
   using traditional tools and methods. For the small business scenario, we will
   discuss installation using CD/DVD boot media. See the <emphasis>Red Hat
@@ -261,14 +261,14 @@ rsync -a --delete -e ssh \
   <section>
   <title>CD/DVD Complete Installation</title>
   <para>
-  Repo Studio can also create complete CD/CVD install media. In
+  Deploy can also create complete CD/CVD install media. In
   this case, the installer program will retrieve RPM packages directly from the
   CD/DVD media, rather than downloading them over the network. This method is
   convenient for installing clients with limited network connectivity. 
   </para>
 
   <para>
-  To direct Repo Studio to create complete CD/DVD installation images, add an
+  To direct Deploy to create complete CD/DVD installation images, add an
   <emphasis>iso</emphasis> element to the repository definition, as follows:
   </para>
 
@@ -283,7 +283,7 @@ rsync -a --delete -e ssh \
   </para>
 
   <para>
-  After running Repo Studio again, the iso image (or images) will be
+  After running Deploy again, the iso image (or images) will be
   available from the <filename>iso</filename> folder of the repository, e.g.
   <filename
   class="directory">/var/www/html/repos/system/web-server-6-x86_64/iso/</filename>.

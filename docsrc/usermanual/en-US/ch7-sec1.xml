@@ -60,7 +60,7 @@
   </informalexample>
 
   <para>
-  After using Repo Studio to build the repository, you can locate it in the
+  After using Deploy to build the repository, you can locate it in the
   package repositories folder, <filename>/var/www/html/repos/package</filename>
   by default.
   </para>
@@ -70,13 +70,13 @@
   <title>Excluding packages from external repositories</title>
   <para>
   Packages in your repository will often have dependencies on packages in
-  external repositories. Repo Studio helps you ensure that your packages will
+  external repositories. Deploy helps you ensure that your packages will
   install and update as expected by ensuring that required package are
   available.
   </para>
 
   <para>
-  As a convenience, Repo Studio allows you to download packages from external
+  As a convenience, Deploy allows you to download packages from external
   repositories and include them in your repository. As a result, users of your
   repository will have fewer repositories to track and manage.
   </para>
@@ -113,7 +113,7 @@
   </para>
 
   <para>
-  <emphasis role='strong'>Example</emphasis> - In this example Repo Studio
+  <emphasis role='strong'>Example</emphasis> - In this example Deploy
   will use the <emphasis>'proprietary-repo'</emphasis> to resolve dependencies,
   but will not download packages from it to your repository.
   </para>
@@ -137,7 +137,7 @@
   <title>Providing GPG signing keys</title>
 
   <para>
-  Repo Studio automatically signs packages it creates using GPG signing keys.
+  Deploy automatically signs packages it creates using GPG signing keys.
   When users of your repository first install created packages, they will be
   asked to confirm installation of the repository's public key given summary
   information. To provide your users with specific, recognizable information on
@@ -201,7 +201,7 @@ templates/
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 &lt;main>
 &lt;name>application&lt;/name>
 &lt;arch>x86_64&lt;/arch>
@@ -216,9 +216,9 @@ templates/
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/repostudio/templates/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/repostudio/templates/scenario2-config.xml"/>
-&lt;xi:include href="../../../../../share/repostudio/templates/scenario3-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/scenario3-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>
@@ -244,7 +244,7 @@ templates/
   </informalexample>
 
   <para>
-  After using Repo Studio to create your repository, you can locate it at
+  After using Deploy to create your repository, you can locate it at
   <filename>/var/www/html/repos/package/application-6-x86_64</filename>. The
   tree structure of the repository will look as follows:
   </para>

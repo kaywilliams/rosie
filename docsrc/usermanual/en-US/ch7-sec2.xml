@@ -5,7 +5,7 @@
   <title>Package Repository Types</title>
 
   <para>
-  Repo Studio supports several common package repository types:
+  Deploy supports several common package repository types:
   </para>
 
   <itemizedlist>
@@ -64,7 +64,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>config-repo&lt;/name>
@@ -103,7 +103,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>patch-repo&lt;/name>
@@ -143,7 +143,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>aggregation-repo&lt;/name>
@@ -188,7 +188,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>application-repo&lt;/name>

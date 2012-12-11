@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="main" xreflabel="main">
+  <title>
+  Main
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>Contains basic information about the repository.</para>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+&lt;main&gt;
+  &lt;name&gt;TEXT&lt;/name&gt;
+  &lt;version&gt;("5"|"6")&lt;/version&gt;
+  &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
+  &lt;type&gt;("package"|"system")&lt;/type&gt;
+ [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
+ [&lt;id&gt;TEXT&lt;/id&gt;]
+ [&lt;bug-url&gt;URL&lt;/bug-url&gt;]
+ [&lt;log-file&gt;PATH&lt;/log-file&gt;]
+&lt;/main&gt;</programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="main-name"
+                  xreflabel="main/name">
+      <term>
+      name
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value specifying the name of the
+      repository.
+      </para>
+
+      <para>
+      The value of this element can be accessed within other elements 
+      and attributes of the definition using the run-time macro 
+      <varname>%{name}</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-version"
+                  xreflabel="main/version">
+      <term>
+      version
+      </term>
+
+      <listitem>
+      <para>
+      The version of the base operating system for the repository. Valid values
+      are "5" and "6". 
+      </para>
+
+      <para>
+      The value of this element can be accessed within other elements 
+      and attributes of the definition using the run-time macro 
+      <varname>%{version}</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-arch"
+                  xreflabel="main/arch">
+      <term>
+      arch
+      </term>
+
+      <listitem>
+      <para>
+      The architecture of the base operating system for the repository.
+      Accepts either "i386" or "x86_64".</para>
+
+      <para>
+      The value of this element can be accessed within other elements 
+      and attributes of the definition using the run-time macro 
+      <varname>%{arch}</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-type"
+                  xreflabel="main/type">
+      <term>
+      type
+      </term>
+
+      <listitem>
+      <para>
+      The type of repository to create. Valid values are "package"
+      and "system".
+      </para>
+
+      <para>
+      </para>
+
+      <para>
+      This element is optional. The default value is 'system'.
+      </para>
+
+      <para>
+      See the <emphasis>Deploy User Manual</emphasis> for  
+      information on differences between package and system repositories.
+      </para>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-fullname" xreflabel="main/fullname">
+      <term>
+      fullname
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> content specifying a human-friendly name
+      for the repository. Displays during client machine installation.
+      </para>
+
+      <para>
+      This element is optional. The default value is <varname>%{name}</varname>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-id"
+                  xreflabel="main/id">
+      <term>
+      id
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-text"/> value specifying a unique id for the
+      repository. Used as the directory name for the repository in the Repo
+      Studio publish and cache folders (by default
+      <emphasis>/var/www/html/repos/</emphasis> and
+      <emphasis>/var/cache/deploy</emphasis>, respectively).
+      </para>
+
+      <para>
+      This element is optional. The default value is
+      <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>.
+      </para>
+
+      <para>
+      The value of this element can be accessed within other elements and
+      attributes of the definition using the run-time macro 
+      <varname>%{id}</varname>.
+      </para>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      bug-url
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-url"/> to a location where users should report
+      installation issues.  This value of this element is displayed
+      when an error occurs during system installation.
+      </para>
+
+      <para>
+      This element is optional. The default value is
+      <filename>https://bugzilla.redhat.com/bugzilla/</filename>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      log-file
+      </term>
+
+      <listitem>
+      <para>
+      <xref linkend="content-path"/> to a file where Deploy should
+      write the repository’s log information. The file is created if it does
+      not exist.
+      </para>
+
+      <para>
+      This element is optional. The default value is
+      <filename>/var/log/deploy.log</filename>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;main&gt;
+  &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;version&gt;5&lt;/version&gt;
+  &lt;arch&gt;i386&lt;/arch&gt;
+  &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
+  &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
+  &lt;log-file&gt;/home/deployuser/samba-server.log&lt;/log-file&gt;
+&lt;/main&gt;</programlisting>
+    </informalexample>
+  </section>
+
+</section>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="test-update"
+         xreflabel="test-update">
+  <title>
+  Test-update
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    <emphasis>Test-update</emphasis> is the second Deploy module related
+    to repository testing. It allows testing repository updates. As with
+    <emphasis>test-install</emphasis> this testing occurs prior to publishing
+    the final repository.  The <emphasis>test-update</emphasis> event
+    follows the <emphasis>test-install</emphasis> event in the repository build
+    process.
+    </para>
+
+    <para>
+    For complete information on macros, attributes and elements for the
+    test-install top-level element, see the Deployment Elements Common Model at
+    <xref linkend="deployment-elements-common-model"/> for a complete
+    description of syntax, macros, attributes and elements.
+    </para>
+
+    <para>
+    <emphasis>Test-update</emphasis> is an optional element.
+    </para>
+
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <para>
+    The following example configures Deploy to perform a test
+    update to a local virtual machine. See the <emphasis>Deploy User
+    Manual</emphasis> for information on configuring the build machine to
+    support virtual machine installations.
+    </para>
+
+    <para>
+    Similar to the examples shown under <xref
+    linkend="test-install-examples"/>, this example makes use of two files: the
+    main definition, and the <xref linkend="virt-deploy.xml"/> template. The
+    test-update element of the main definition is shown below. The
+    virt-deploy.xml template is described under <xref
+    linkend="test-install-examples"/>.
+    </para>
+
+    <programlisting>
+&lt;test-update>
+  &lt;password>mypassword&lt;/password>
+  &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;/test-update></programlisting>
+    </informalexample>
+  </section>
+
+</section>

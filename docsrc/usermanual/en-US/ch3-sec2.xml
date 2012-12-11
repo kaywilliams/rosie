@@ -21,10 +21,10 @@
 
   <para>
   Creating the web server repository entails several steps. After configuring
-  the <application class="software">Repo Studio</application> build machine,
+  the <application class="software">Deploy</application> build machine,
   as described in the previous chapter, you need to create a repository
   definition (<filename class="extension">web-server.definition</filename>).
-  Then you run <command>repostudio</command> to validate the file and
+  Then you run <command>deploy</command> to validate the file and
   build the repository.
   </para>
 
@@ -35,17 +35,17 @@
 
     <para>A repository definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;repo&gt; and 
-    &lt;/repo&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;deploy&gt; and 
+    &lt;/deploy&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/repo&gt;</programlisting>
+&lt;/deploy&gt;</programlisting>
     </informalexample></para>
 
     <para>
@@ -59,7 +59,7 @@
     repository element. It allows the use of XIncludes within the
     document. XIncludes, a convenient mechanism for reusing content across 
     multiple definitions, are discussed in the Repository Definition File
-    Reference (RDFR).
+    Reference (DDFR).
     </para>   
   </section>
 
@@ -76,13 +76,13 @@
 
     <para>
     These naming strategies are only guidelines, however. You can name your
-    files and templates as you like and Repo Studio will happily process
+    files and templates as you like and Deploy will happily process
     them.
     </para>
 
     <warning>
     <para>
-    Definitions and templates, as well as Repo Studio-generated repository data
+    Definitions and templates, as well as Deploy-generated repository data
     files (see <xref linkend='repository-data-file'/>), contain sensitive data
     including system root passwords, and GPG private keys. Take care to save
     your definitions and templates in a secure location.
@@ -97,11 +97,11 @@
     The first required element of the definition, <emphasis>main</emphasis>,
     includes the name of the repository, the repository architecture and the
     version. By default, these three items make up the default repository id
-    (<varname>%{id}</varname>), which Repo Studio uses to create folders for
+    (<varname>%{id}</varname>), which Deploy uses to create folders for
     storing the completed repository (under <filename
     class="directory">/var/www/html/repos</filename>, by default) and for
     caching repository content (under <filename
-    class="directory">/var/cache/repostudio</filename>, by default).
+    class="directory">/var/cache/deploy</filename>, by default).
     </para>
 
     <para><note>
@@ -123,7 +123,7 @@
     </informalexample></para>
 
     <para>You can override the default repository id using an
-    <emphasis>id</emphasis> element. See the RDFR for more details about the
+    <emphasis>id</emphasis> element. See the DDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
     <para>
@@ -159,9 +159,9 @@
     Each time you change a repository's id, either implicitly by changing the
     <emphasis>name</emphasis>, <emphasis>version</emphasis> or
     <emphasis>arch</emphasis> elements, or explicitly by changing the
-    <emphasis>id</emphasis> element, Repo Studio creates new folders in the
+    <emphasis>id</emphasis> element, Deploy creates new folders in the
     publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
-    <emphasis>/var/cache/repostudio</emphasis>, by default, respectively). To
+    <emphasis>/var/cache/deploy</emphasis>, by default, respectively). To
     preserve hard drive space, you may wish to review the publish and cache
     folders on occasion. Folders for obsolete repository ids can be deleted
     using standard file system methods, as shown below: 
@@ -175,7 +175,7 @@
   <title>Specifying a repository type</title>
 
   <para>
-  By default, Repo Studio creates <emphasis>system</emphasis>-type
+  By default, Deploy creates <emphasis>system</emphasis>-type
   repositories. To create a <emphasis>package</emphasis>-type repository, add
   the <emphasis>type</emphasis> element to the <emphasis>main</emphasis>
   section.
@@ -207,7 +207,7 @@
   <title>Specifying Input Repositories</title>
 
     <para>
-    During the repository creation process, Repo Studio obtains software from
+    During the repository creation process, Deploy obtains software from
     other existing repositories, referred to as <emphasis>input
     repositories</emphasis> in this document.  In this section, you will define
     the input repositories to be used for creating your repository.
@@ -226,7 +226,7 @@
       The base repository is unique in that it contains <filename
       class="directory">isolinux</filename> and <filename
       class="directory">images</filename> folders in addition to RPM packages.
-      Existing Repo Studio-created system repositories can also serve as
+      Existing Deploy-created system repositories can also serve as
       Operating System Base Repositories.
       </para></listitem>
 
@@ -268,7 +268,7 @@
   </para>
   
   <para>
-  Repo Studio gives special meaning to repositories with the ids
+  Deploy gives special meaning to repositories with the ids
   "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
   repositories are assumed to be associated with the base operating system. This
   special meaning applies only when creating <emphasis>package</emphasis>-type
@@ -299,7 +299,7 @@
   <title>CentOS repositories</title>
 
     <para>
-    This example directs Repo Studio to use public mirrors to access the
+    This example directs Deploy to use public mirrors to access the
     CentOS base and updates repositories. Because it makes use of %{version}
     and %{arch} macros, it can be used for CentOS version 5 or 6, with either
     i386 or x86_64 architecture.  The line breaks shown are for readability
@@ -327,7 +327,7 @@
     <section>
     <title>Red Hat Enterprise Linux repositories</title>
       <para>
-      Prior to using Repo Studio to access Red Hat Enterprise Linux
+      Prior to using Deploy to access Red Hat Enterprise Linux
       repositories, you will need to complete the following steps:</para>
 
       <itemizedlist>
@@ -339,7 +339,7 @@
         <filename>.iso</filename> to a folder location. You can then copy the
         contents of the ISO image to a permanent folder. Be sure to also copy
         the hidden <filename>.treeinfo</filename> file from the root of the ISO
-        image to the permanent folder to avoid errors during Repo Studio
+        image to the permanent folder to avoid errors during Deploy
         operation. See the <emphasis>Red Hat Enterprise Linux 6 Installation
         Guide</emphasis>, under the topic <emphasis>Preparing for a Network
         Installation</emphasis>, for more information.</para></listitem>
@@ -354,8 +354,8 @@
         <command>rhn_register</command> command. Once the system has
         successfully registered with RHN, a systemid file will be created in
         the <filename class="directory">/etc/sysconfig/</filename> folder of the
-        machine. You will use this file to configure Repo Studio to access
-        software from RHN. You may copy this file to the Repo Studio build
+        machine. You will use this file to configure Deploy to access
+        software from RHN. You may copy this file to the Deploy build
         machine if necessary. Note, to ensure the systemid has access to the
         software desired for your repository, you can use the Red Hat Network
         web user interface to locate the system, and view and alter its
@@ -395,7 +395,7 @@
         </simplelist>
       </para>
 
-      <para>In the following example, Repo Studio will contact the RHN server
+      <para>In the following example, Deploy will contact the RHN server
       located at <filename class="directory">xmlrpc.rhn.examplecompany.com
       </filename> and request packages from the 
       <filename>rhel-x86_64-server-6</filename> software channel.</para>
@@ -439,7 +439,7 @@
     </para>
 
     <informalexample>
-    <programlisting><xi:include href="../../../../../share/repostudio/templates/repos.xml" parse="text"
+    <programlisting><xi:include href="../../../../../share/deploy/templates/repos.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
     </informalexample>
 
@@ -451,7 +451,7 @@
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?>
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
 
 ...
 

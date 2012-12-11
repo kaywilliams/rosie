@@ -4,7 +4,7 @@
 <section>
   <title>Glossary of Terms</title>
 
-  <para>Following are terms specific to the Repo Studio environment. They are arranged in alphabetical order.</para>
+  <para>Following are terms specific to the Deploy environment. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
 
@@ -13,7 +13,7 @@
 
         <listitem>
           <para>The machine on which <application
-          class="software">Repo Studio</application> is installed.</para>
+          class="software">Deploy</application> is installed.</para>
         </listitem>
       </varlistentry>
 
@@ -31,7 +31,7 @@
 
         <listitem>
 	  <para>
-          RPM packages created by Repo Studio during the build process.
+          RPM packages created by Deploy during the build process.
           These packages contain user-specified configuration files and
           scripts.
           </para>
@@ -51,7 +51,7 @@
 
         <listitem>
 	  <para>
-          An RPM package created by Repo Studio during the build process.
+          An RPM package created by Deploy during the build process.
           This package contains the <xref linkend='yum-sync-plugin'/>
           and YUM configuration for the repository.
           </para>
@@ -71,7 +71,7 @@
 
         <listitem>
 	  <para>
-          A deployment repository created during the Repo Studio build
+          A deployment repository created during the Deploy build
           process. Provides RPM packages and, optionally, installation images
           for use during client machine installations and updates. Can be
           accessed over the network from the <xref linkend="repository-url"/>.
@@ -84,12 +84,12 @@
 
         <listitem>
 	  <para>
-          A file maintained by Repo Studio to track Repo Studio-generated
+          A file maintained by Deploy to track Deploy-generated
           repository input data. The file is created in the same folder as the
           repository definition, with a filename consisting of the <xref
           linkend='repository-id'/> with the <filename>.dat</filename> file
           extension. For example, given the repository ID
-          "web-server-6-x86_64", Repo Studio will create a repository
+          "web-server-6-x86_64", Deploy will create a repository
           definition file as follows:
           </para>
 
@@ -102,7 +102,7 @@
           <warning>
           <para>
           Care must be taken not to delete the repository data file. Doing so
-          will cause Repo Studio to regenerate missing information. As a
+          will cause Deploy to regenerate missing information. As a
           result, installed client machines may fail to download updated RPMs
           or may report errors when performing RPM GPG key checking. 
           </para>
@@ -115,7 +115,7 @@
         <term>repository definition</term>
 
         <listitem>
-          <para>A file that defines how Repo Studio should build, configure
+          <para>A file that defines how Deploy should build, configure
           and store a repository. By convention the file uses the <filename
           class="extension">.definition</filename> extension. The file is in
           XML format as defined in the <xref linkend="rdfr"/>.</para>
@@ -123,14 +123,14 @@
       </varlistentry>
 
       <varlistentry id="rdfr">
-        <term>Repository Definition File Reference (RDFR)</term>
+        <term>Deploy Definition File Reference (DDFR)</term>
 
         <listitem>
 	  <para>
           The rules of syntax for the repository definition. See the separate
           document at <ulink
-          url="http://www.repostudio.org/documentation/">
-          http://www.repostudio.org/documentation/ </ulink>.
+          url="http://www.deployproject.org/documentation/">
+          http://www.deployproject.org/documentation/ </ulink>.
           </para>
         </listitem>
       </varlistentry>
@@ -201,9 +201,9 @@
 
         <listitem>
   <para>
-  The Repo Studio installation includes a number of templates to assist with
+  The Deploy installation includes a number of templates to assist with
   common definition creation tasks. These templates are located in the folder
-  at <filename>/usr/share/repostudio/templates/</filename>. The templates are
+  at <filename>/usr/share/deploy/templates/</filename>. The templates are
   not discussed in detail here, however, many are referenced in the relevant
   sections throughout the remainder of this document.
   </para>
@@ -211,8 +211,8 @@
   <important>
   <para>
   Do not modify files in the
-  <filename>/usr/share/repostudio/templates</filename> folder. Changes to
-  these files will be overwritten when updated versions of the Repo Studio
+  <filename>/usr/share/deploy/templates</filename> folder. Changes to
+  these files will be overwritten when updated versions of the Deploy
   RPM are installed.
   </para>
 
@@ -246,7 +246,7 @@
         <listitem>
 	  <para>
           A <application class="software">YUM</application> plugin provided by
-          Repo Studio that allows synchronizing packages on client machines
+          Deploy that allows synchronizing packages on client machines
           with packages in the <xref linkend="repository"/>.  The plugin is
           included by default in the <xref linkend="release-rpm" />,
           which serves as the mechanism for installing it on client machines.

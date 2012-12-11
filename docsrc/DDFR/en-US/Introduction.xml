@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="DDFR-Introduction">
+  <title>
+  Introduction
+  </title>
+
+  <para>
+  The repository definition file contains instructions for building system and
+  package repositories. It defines repository content and configuration: name,
+  version, and architecture; packages to include; packages to build; and
+  testing and publishing instructions. Deploy uses repository
+  definitions to assemble, create and publish repositories. Other programs,
+  such as <application class="software">YUM</application>, <application
+  class="software">Anaconda</application>, and <application
+  class="software">RPM</application> use files in repositories to deploy and
+  update client machines.
+  </para>
+
+  <para>
+  The repository definition is a text-based file in XML format. Within the file
+  are a series of top-level elements that equate to modules, or steps, within
+  the Deploy build process. These elements, in turn, contain their own
+  attributes and elements. The only required top-level element is <emphasis
+  role="strong"><xref linkend="main" /></emphasis>; all other top-level
+  elements are optional or conditional, based on the type of repository being
+  defined. Top-level elements can appear in the repository definition in any
+  order. Indentation is for readability purposes only.
+  </para>
+
+  <para>
+  A repository definition can be located in any local directory and invoked 
+  from the command line using the command <command>deploy</command> 
+  followed by the full or relative pathname to the file, such as:
+  </para>
+
+  <informalexample>
+  <programlisting>
+<command>deploy</command> /path/to/definition</programlisting>
+  </informalexample>
+
+  <xi:include href="DocumentConventions.xml"
+              xpointer="element(/1)" xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <section>
+    <title>
+    Example Repository Definition
+    </title>
+
+    <para>
+    Following is an example definition for a minimal system repository.
+    </para>
+
+    <note>
+    <para>
+    On a system with the Deploy RPM installed, this file can be found as
+    <filename>web-server.definition</filename> in the examples folder at
+    <filename>/usr/share/deploy/../../share/deploy/templates/</filename>.
+    </para>
+    </note>
+
+    <informalexample>
+    <programlisting>
+<xi:include href="../../../../../share/deploy/templates/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </informalexample>
+  </section>
+
+  <section id='datfile' xreflabel='repository data file'>
+    <title>
+    Repository Data File 
+    </title>
+
+    <para>
+    Deploy creates a file, referred to as the <emphasis>repository data
+    file</emphasis> or <emphasis>datfile</emphasis>, to track and maintain
+    Deploy-generated repository input data. Examples of data in this
+    file include release numbers for generated RPMs, generated GPG signing
+    keys, and generated passwords and crypt passwords. See the chapters on
+    <xref linkend='rpm-elements'/> and <xref linkend='deployment-elements'/>
+    for more information on these topics.
+    </para>
+   
+    <para>
+    The repository data file is created in the same folder as the repository
+    definition with a filename consisting of the repository ID followed by the
+    <filename>.dat</filename> file extension. For example, given a repository
+    with the ID "samba-server-6-x86_64", the data file will have the following
+    name:
+    </para>
+  
+    <para>Deploy will create the repository data file as follows:</para>
+  
+    <para><informalexample><programlisting>
+    <filename>samba-server-6-x86_64.dat</filename>
+    </programlisting></informalexample>
+    </para>
+
+    <para>
+    See the <xref linkend="main"/> element for information on specifying the
+    repository ID.
+    </para>
+
+    <caution>
+    <para>
+    Care must be taken not to delete the repository data file. Doing so will
+    cause Deploy to regenerate missing information. As a result,
+    installed client machines may fail to download updated RPMs or may report
+    errors when performing RPM GPG key checking. 
+    </para>
+    </caution>
+
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <ulink url="http://yum.baseurl.org/">YUM</ulink>,
+    <ulink url="http://fedoraproject.org/wiki/Anaconda">Fedora Anaconda Project</ulink>,
+    <ulink url="http://rpm.org/">RPM Package Manager</ulink>
+    </para>
+  </section>
+
+</chapter>

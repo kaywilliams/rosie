@@ -1,0 +1,44 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+
+    <element name="deploy">
+      <optional>
+      <element name="srpmbuild">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <optional><element name="template"><text/></element></optional>
+
+        <interleave>
+
+        <oneOrMore>
+        <element name="srpm">
+
+          <attribute name="id"/>
+
+          <interleave>
+
+          <choice>
+          <element name="repo"><text/></element>
+          <element name="path"><text/></element>
+          <element name="script"><text/></element>
+          </choice>
+
+          <optional><element name="template"><text/></element></optional>
+
+          </interleave>
+
+        </element>
+        </oneOrMore>
+
+        </interleave>
+      </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+</grammar>

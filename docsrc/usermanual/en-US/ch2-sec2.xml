@@ -5,7 +5,7 @@
   <title>Repositories</title>
 
   <para>
-  Repo Studio creates RPM package repositories. RPM is a package management
+  Deploy creates RPM package repositories. RPM is a package management
   system used by CentOS, Red Hat Enterprise Linux, and others to install, update
   and remove software and configuration on client systems. Packages are 
   discrete units of software and configuration managed by RPM. 
@@ -56,7 +56,7 @@
 
 
   <para>
-  Repo Studio creates two types of repositories: <emphasis>system</emphasis>
+  Deploy creates two types of repositories: <emphasis>system</emphasis>
   and <emphasis>package</emphasis>.
   </para>
 
@@ -69,7 +69,7 @@
   installation and updates. Clients can be updated against the system
   repository using either traditional or synchronization methods, the latter
   ensuring that client packages are kept in strict compliance with the system
-  repository. Repo Studio provides the YUM Sync Plugin to enable this support.
+  repository. Deploy provides the YUM Sync Plugin to enable this support.
   </para>
   </section>
 

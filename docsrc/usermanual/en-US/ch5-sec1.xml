@@ -9,7 +9,7 @@
   A convenient method for testing system repositories is to use the virtual
   machine deployment template, <filename>virt-deploy.xml</filename>, located in
   the <xref linkend='templates'/> folder. This template allows testing system
-  repositories using virtual machines running on the Repo Studio build
+  repositories using virtual machines running on the Deploy build
   machine.
   </para>
   
@@ -24,14 +24,14 @@
 
   <para>
   Before using the instructions in this section, you will need to be running
-  Repo Studio on a KVM-compatible machine. You will also need to install the
-  <emphasis>repostudio-virt-config</emphasis> RPM package. See <xref
+  Deploy on a KVM-compatible machine. You will also need to install the
+  <emphasis>deploy-virt-config</emphasis> RPM package. See <xref
   linkend="configuring-a-build-machine"/> for information on determining
-  whether your machine is KVM-compatible. See the Repo Studio download
+  whether your machine is KVM-compatible. See the Deploy download
   page at <ulink
-  url="http://www.repostudio.org/repostudio">http://www.repostudio.org/repostudio</ulink>
+  url="http://www.deployproject.org/deploy">http://www.deployproject.org/deploy</ulink>
   for information on installing the
-  <emphasis>repostudio-virt-config</emphasis> package.
+  <emphasis>deploy-virt-config</emphasis> package.
   </para>
 
   <para>  
@@ -47,7 +47,7 @@
   <emphasis role='strong'>web-server.definition</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/repostudio/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -72,15 +72,15 @@
   </informalexample>
 
   <para>
-  Next, run Repo Studio again as follows:
+  Next, run Deploy again as follows:
   </para>
 
   <informalexample>
-  <programlisting># repostudio web-server.definition</programlisting>
+  <programlisting># deploy web-server.definition</programlisting>
   </informalexample>
 
   <para>
-  During this build cycle, Repo Studio completes the following:
+  During this build cycle, Deploy completes the following:
   </para>
 
   <itemizedlist>
@@ -105,7 +105,7 @@
   <para>
   Creates a new virtual machine with the hostname
   If a password is not provided using the <emphasis>password</emphasis>
-  element, Repo Studio will generate one. You can locate
+  element, Deploy will generate one. You can locate
   generated passwords in the <xref linkend='repository-data-file'/>.
   </para>
   </note>
@@ -122,7 +122,7 @@
   <listitem>
   <para>
   Saves information about the installation to the client machine. This
-  information is used for performance reasons. It allows Repo Studio to skip
+  information is used for performance reasons. It allows Deploy to skip
   installation testing in future build cycles if no installation-related
   changes have occurred. 
   </para>
@@ -130,7 +130,7 @@
   </itemizedlist>
   
   <para>
-  If the test installation completes successfully, Repo Studio continues
+  If the test installation completes successfully, Deploy continues
   processing, including synchronizing any repository changes to the
   final publish location at 
   </para>
@@ -140,7 +140,7 @@
   </para>
 
   <para>
-  During subsequent build cycles, Repo Studio completes the following:
+  During subsequent build cycles, Deploy completes the following:
   </para>
 
   <itemizedlist>
@@ -182,7 +182,7 @@
 
   <para>
   During the first build cycle after the <emphasis>test-update</emphasis>
-  element has been added, Repo Studio creates a new machine to use as a
+  element has been added, Deploy creates a new machine to use as a
   baseline for performing future update testing. It does this following the
   steps described under <xref linkend='adding-a-test-install-element'/>
   above. In the update case, however, the repository location is
@@ -197,13 +197,13 @@
   </para>
 
   <para>
-  During subsequent runs, Repo Studio updates packages on the test machine to
+  During subsequent runs, Deploy updates packages on the test machine to
   conform to packages in the system repository. As with test-install, 
   processing is halted if an error occurs.
   </para>
 
   <para>
-  As with test-install, Repo Studio will also reinstall the test machine if
+  As with test-install, Deploy will also reinstall the test machine if
   necessary. This happens much less frequently, however. By default Repo
   Studio only reinstalls the test-update machine if it is unable to activate
   the machine or establish an SSH connection to it.

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
+<!--Deploy Configuration reference -->
+
+<refentry id="configuration.deploy">
+<refentryinfo>
+<date>2012-09-10</date>
+</refentryinfo>
+
+<refmeta>
+<refentrytitle>deploy.conf</refentrytitle>
+<manvolnum>5</manvolnum>
+<refmiscinfo>Deploy</refmiscinfo>
+<refmiscinfo class="sectdesc">Deploy Configuration Reference</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>deploy.conf</refname>
+<refpurpose>Configuration file for Deploy.</refpurpose>
+</refnamediv>
+
+<refsect1 id='deploy.conf.5-description'><title>DESCRIPTION</title>
+<para>Deploy uses an optional configuration file deploy.conf
+located at <filename>/etc/deploy/</filename>. The location of this file
+can be overridden using the <command>-c</command> or
+<command>--config</command> Deploy command line option. The default
+Deploy installation does not include a deploy.conf file.</para>
+</refsect1>
+
+<refsect1 id='deploy.conf.5-optional-elements'><title>ELEMENTS</title>
+
+<para>All elements are optional.</para>
+
+<variablelist>
+
+<varlistentry>
+  <term><option>lib-path</option></term>
+  <listitem>
+    <para>By default, Deploy searches directories listed on the system
+    path to locate Deploy modules. The lib-path element allows
+    specifying additional directory <replaceable
+    class="parameter">PATHs</replaceable> in which one or more Deploy
+    modules can be found. Multiple path elements are allowed.  This element
+    corresponds to the <command>--lib-path</command> command-line
+    option.</para>
+<programlisting>
+&lt;lib-path&gt;PATH&lt;/lib-path&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>log-file</option></term>
+  <listitem>
+    <para>Specifies the directory and filename <replaceable
+    class="parameter">PATH</replaceable> to which Deploy writes logging
+    information.  The default path is
+    <filename>/var/log/deploy.log</filename>.   Deploy creates the
+    log file if none exists. This element corresponds to the
+    <command>--log-file</command> command-line option.</para>
+<programlisting>
+&lt;log-file&gt;PATH&lt;/log-file&gt;
+</programlisting>
+
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>share-path</option></term>
+  <listitem>
+    <para>Specifies a directory <replaceable
+    class="parameter">PATH</replaceable> in which one or more of Repo
+    Studio's shared files can be found; the directory contains a hierarchy
+    enabling Deploy to extract files for schemas,
+    <filename>*.rng</filename>, and example files.  The default path is
+    <filename>/usr/share/deploy</filename>.  Multiple path elements are
+    allowed.  This element corresponds to the <option>--share-path</option>
+    command-line option .</para>
+<programlisting>
+&lt;share-path&gt;PATH&lt;/share-path&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>debug</option></term>
+  <listitem>
+    <para>Specifies a boolean value which enables or disables debug mode in
+    Deploy.  Enabling debug mode causes exception tracebacks, which are
+    normally visible only in the log file, to be additionally displayed on the
+    command line.</para>
+<programlisting>
+&lt;debug&gt;BOOLEAN&lt;/debug&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1 id='deploy.conf.5-optional-cache'>
+<title>CACHE ELEMENTS</title>
+<para>Deploy caches data across sessions for improved performance.  The
+cache element allows specifying cache-related options.</para>
+
+<variablelist>
+<varlistentry>
+  <term><option>path</option></term>
+  <listitem>
+<para>The <literal>path</literal> child element specifies where Deploy
+stores both shared and per-solution cache data.  The default is
+<filename>/var/cache/deploy</filename>.
+</para>
+<programlisting>
+&lt;cache&gt;
+    &lt;path&gt;CACHEDIR&lt;/path&gt;
+&lt;/cache&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>max-size</option></term>
+  <listitem>
+    <para>The <literal>max-size</literal> child element specifies the maximum
+    size for the shared cache located at <filename>CACHEDIR/.cache</filename>.
+    The shared cache contains a copy of all files downloaded by Deploy.
+    There is no human-readable form of the shared cache. The default size is
+    30GB. The recommended minimum size is 5GB. The default suffix is GB; other
+    available suffixes are MB, GiB and TB.</para>
+
+<para>Deploy deletes files from the shared cache on a least-recently
+used basis.</para>
+<programlisting>
+&lt;cache&gt;
+    &lt;max-size&gt;TEXT&lt;/max-size&gt;
+&lt;/cache&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+</refsect1>
+
+
+<refsect1 id="deploy.conf.5-variables"><title>VARIABLES</title>
+<para>Deploy element values, where indicated, use the variables below.</para>
+
+<variablelist>
+
+<varlistentry>
+  <term>BOOLEAN</term>
+  <listitem>
+    <para>BOOLEAN is one of the following values: Yes, yes, True, true, On, on,
+    1, No, no, False, false, Off, off, 0.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term>CACHEDIR</term>
+  <listitem>
+    <para>CACHEDIR is the directory location where Deploy stores shared
+    and per-solution cache data.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term>PATH</term>
+  <listitem>
+    <para>PATH is a local absolute or relative file path. Deploy
+    resolves relative paths from the current working directory.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term>TEXT</term>
+  <listitem>
+    <para>TEXT is a string value.  The description of each element explains
+    that element's expected values or acceptable variations.</para>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+</refsect1>
+
+ <refsect1 id="deploy.conf.5-examples">
+    <title>EXAMPLES</title>
+    <para>
+      An example Deploy configuration file with multiple listings for
+      share-path and lib-path elements is shown below:
+    </para>
+
+    <programlisting>
+&lt;deploy&gt;
+    &lt;share-path&gt;/usr/share&lt;/share-path&gt;
+    &lt;share-path&gt;~/deploy/share&lt;/share-path&gt;
+    &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
+    &lt;lib-path&gt;~/deploy/lib&lt;/lib-path&gt;
+    &lt;log-file&gt;~/deploy.log&lt;/log-file&gt;
+    &lt;cache&gt;
+        &lt;path&gt;~/deploy/cache&lt;/path&gt;
+        &lt;max-size&gt;5GB&lt;/max-size&gt;
+    &lt;/cache&gt;
+&lt;/deploy&gt;
+    </programlisting>
+
+</refsect1>
+
+<refsect1 id="deploy.conf.5-bugs"><title>BUGS</title>
+<para>See the web site at <ulink
+url="http://www.deployproject.org/deploy"/> for contact and support
+information.</para>
+</refsect1>
+
+<refsect1 id="deploy.conf.5-files"><title>FILES</title>
+<para><simplelist type="inline">
+<member>deploy(1)</member>
+<member><ulink url="file:///etc/deploy/deploy.conf">/etc/deploy/deploy.conf</ulink></member>
+<member><ulink url="file:///usr/bin/deploy">/usr/bin/deploy</ulink></member>
+<member><ulink url="file:///usr/share/deploy/">/usr/share/deploy</ulink></member>
+<member><ulink url="file:///var/cache/deploy/">/var/cache/deploy/</ulink></member>
+<member><ulink url="file:///var/log/deploy.log">/var/log/deploy.log</ulink></member>
+</simplelist></para>
+</refsect1>
+
+
+<refsect1 id="deploy.conf.5-seealso"><title>SEE ALSO</title>
+<para><simplelist type="inline">
+<member><ulink url="http://www.deployproject.org/deploy">http://www.deployproject.org/deploy</ulink></member>
+</simplelist></para>
+</refsect1>
+
+<refsect1 id="deploy.conf.5-author"><title>AUTHOR</title>
+<para><author><othername>Deploy Foundation</othername>
+<contrib>Original author</contrib>
+</author></para>
+</refsect1>
+
+</refentry>

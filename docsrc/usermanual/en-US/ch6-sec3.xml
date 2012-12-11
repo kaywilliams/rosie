@@ -9,17 +9,17 @@
   administrators, often with the assistance of deployment automation
   infrastructure such as network installation servers or more highly integrated
   systems/operations management solutions. Enterprise system administrators can
-  use Repo Studio to perform system integration, testing and maintenance,
+  use Deploy to perform system integration, testing and maintenance,
   while using existing infrastructure to automate system deployment.
   </para>
 
   <para>
-  Two primary strategies can be followed for integrating Repo Studio
+  Two primary strategies can be followed for integrating Deploy
   repositories with enterprise deployment management systems. One of those is
-  to use Repo Studio repositories for performing Preboot Execution
+  to use Deploy repositories for performing Preboot Execution
   Environment (PXE)-based system installations. PXE is an efficient deployment
   infrastructure, supported by most enterprise management solutions.  The other
-  strategy is to use Repo Studio to generate system images in a format
+  strategy is to use Deploy to generate system images in a format
   supported by the deployment system. PXE-based deployment will be discussed in
   this chapter. System image-based deployment will be covered in 
   <xref linkend='virtual'/>.
@@ -33,7 +33,7 @@
   </para>
 
   <para>
-  Repo Studio enables PXE deployment by creating system repositories in a
+  Deploy enables PXE deployment by creating system repositories in a
   standard operating system distribution format known as an
   <emphasis>installation tree</emphasis>. An installation tree is a folder in
   the file system that contains all the needed files and subfolders to perform
@@ -44,7 +44,7 @@
   <title>PXE-based System Deployment</title>
 
   <para>
-  Because Repo Studio system repositories are created in a standard
+  Because Deploy system repositories are created in a standard
   <emphasis>installation tree</emphasis> format, they can be used with any
   deployment system that supports the Preboot Execution Environment (PXE)
   protocol.
@@ -72,7 +72,7 @@
   server for deploying system repositories. Similar to the small business
   scenario described in the previous section, the web server can be running on
   any operating system - the only requirements being that 1) client systems can
-  access it over HTTP/HTTPS and 2) the Repo Studio build machine can
+  access it over HTTP/HTTPS and 2) the Deploy build machine can
   copy/synchronize files to its underlying file system.
   </para>
 
@@ -134,7 +134,7 @@
   web server to the PXE boot server. This can be accomplished using additional
   elements in the repository definition as shown below. These additions will
   cause the kernel and initrd images to be copied to the PXE server each time
-  Repo Studio updates production images.
+  Deploy updates production images.
   </para>
 
   <informalexample>

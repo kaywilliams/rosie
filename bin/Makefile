@@ -4,7 +4,7 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/usr/bin
-	install -pm 755 repostudio $(DESTDIR)/usr/bin/repostudio
+	install -pm 755 deploy $(DESTDIR)/usr/bin/deploy
 
 clean:
 
