@@ -205,7 +205,7 @@ def make_suite(distro, version, arch, *args, **kwargs):
   suite.addTest(Test_SetsChanged(distro, version, arch))
   suite.addTest(Test_BootOptionsDefault(distro, version, arch))
   # see note above at the class definition for Test_InstallFromIso
-  if check_vm_config and version > '5':
+  if check_vm_config() and version > '5':
     suite.addTest(Test_InstallFromIso(distro, version, arch))
     # dummy test to shutoff vm
     suite.addTest(dm_make_suite(Test_InstallFromIso, distro, version, arch, ))
