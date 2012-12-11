@@ -1,4 +1,4 @@
-SUBDIRS = repo 
+SUBDIRS = deploy 
 
 .PHONY: all clean install
 
