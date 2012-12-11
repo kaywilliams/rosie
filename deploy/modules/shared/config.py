@@ -338,9 +338,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     script += 'changed=\'$changed\'" %s\n' % file
     script += 'fi\n'
     script += '\n'
-    script += '# remove md5sum file if script fails\n'
-    script += 'trap "rm -f $md5file" INT TERM EXIT\n'
-    script += '\n'
     script += '\n#------ Start of User Scripts ------#\n'
     return script
 
