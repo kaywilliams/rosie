@@ -46,7 +46,7 @@ tag:
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
 archive: tag
-	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) \
+	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) -X docsrc/brand \
         $(PKGNAME)-$(VERSION).tar.gz
 
 srpm: archive
