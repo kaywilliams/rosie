@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.62
+Version: 1.63
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
@@ -71,8 +71,9 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Mon Dec 10 2012 Kay Williams <kay@deployproject.org> -1.62.1
+* Tue Dec 11 2012 Kay Williams <kay@deployproject.org> -1.63.1
 - product naming and documentation updates
+- fixed bug that was causing config postun scripts to erroneously remove files
 
 * Sat Dec 1 2012 Kay Williams <kay@deployproject.org> - 1.0.61.1
 - fix iso install boot arguments for el6; add iso install test case
