@@ -98,7 +98,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
             raise DuplicateIdsError(element='script', id=id)
           ssh = script.getbool('@ssh', self.ssh_defaults[type])
           verbose = script.getbool('@verbose', False)
-          xpath = self._configtree.getpath(script)
+          xpath = 'script[@id="%s"]' % id
           csum = self._get_script_csum(xpath)
           for x in ['comes-before', 'comes-after']:
             reqs = script.getxpath('@%s' % x, '')
@@ -120,7 +120,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                      "'%s/ssh' element." % (script.id, self.moduleid)) 
           raise SSHFailedError(message=message)
 
-    # resolve trigger macros 
+    # resolve trigger macros
     self.trigger_data = { 
       'release_rpm':          self._get_rpm_csum('release-rpm'),
       'config_rpms':          self._get_rpm_csum('config-rpms'),
@@ -133,7 +133,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       }
     self.DATA['variables'].append('trigger_data')
 
-    for key in self.trigger_data: 
+    for key in self.trigger_data:
       self.config.resolve_macros('.' , {'%%{%s}' % key: self.trigger_data[key]})
 
     triggers = self.config.getxpath('triggers/text()',
@@ -147,7 +147,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.deploydir = self.LIB_DIR / 'deploy'
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
     self.config.resolve_macros('.', {'%{trigger-file}': self.triggerfile})
-
 
     # setup to create type files - do this after macro resolution
     for scripts in self.types.values():

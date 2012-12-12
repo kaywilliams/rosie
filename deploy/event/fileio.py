@@ -128,10 +128,11 @@ class IOObject(object):
                     (if available)
     """
     if content == 'text':
-      if xpath not in self.ptr.diff.config.cdata:
-        # add relative xpath to config diff data
-        mod=self.ptr._configtree.getpath(self.ptr.config.getxpath('.')) + '/'
-        self.ptr.diff.config.cdata.append(xpath[len(mod):])
+      # add file content to diff tracking
+      if not hasattr(self.ptr, 'file_content'): self.ptr.file_content = {}
+      self.ptr.file_content[dst] = src
+      if 'file_content[\'%s\']' % dst not in self.ptr.diff.variables.vdata:
+        self.ptr.diff.variables.vdata.append('file_content[\'%s\']' % dst)
 
     else: # content == 'file'
       # absolute paths will not be affected by this join
@@ -228,7 +229,8 @@ class IOObject(object):
     # or output file has changed, or output file does not exist; sort on source
     # basename if exists, or output basename.
     tx = sorted([ t for t in self._filter_data(what=what) if
-                  (t.xpath and self.ptr.diff.config.difference(t.xpath)) or
+                  (t.xpath and self.ptr.diff.variables.difference(
+                               'file_content[\'%s\']' % t.dst)) or
                   self.ptr.diff.input.difference(t.src) or
                   self.ptr.diff.output.difference(t.dst) or
                   not t.dst.exists() or
