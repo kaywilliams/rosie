@@ -5,8 +5,7 @@
   <title>Building Repositories</title>
 
   <para>
-  During the build process, <application class="software">Repo
-  </application> gathers content, processes it, creates a repository, and
+  During the build process, <application class="software">Deploy</application> gathers content, processes it, creates a repository, and
   optionally runs scripts to test, deploy or maintain client machines.
   </para>
 
@@ -41,13 +40,13 @@
 
   <listitem>
   <para>
-  <emphasis role="strong">Additional Package Repositories.</emphasis> Repo
-   uses RPM package repositories to locate and download additional
-  software components for the repository. A typical repository definition will
-  specify multiple additional input repositories, including a operating system
-  update repository, and repositories made available from other internal and
-  external providers. See <xref linkend="specifying-input-repositories" /> for
-  more information.
+  <emphasis role="strong">Additional Package Repositories.</emphasis> Deploy
+  uses RPM package repositories to locate and download additional software
+  components for the repository. A typical repository definition will specify
+  multiple additional input repositories, including a operating system update
+  repository, and repositories made available from other internal and external
+  providers. See <xref linkend="specifying-input-repositories" /> for more
+  information.
   </para>
   </listitem>
 

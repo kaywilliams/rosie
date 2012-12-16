@@ -108,7 +108,7 @@
     </entry>
 
     <entry>
-    A Repo--calculated host name or IP Address for the build machine.
+    A Deploy--calculated host name or IP Address for the build machine.
     Described under the <xref linkend='remote-url'/> element.
     </entry>
     </row>
@@ -448,8 +448,7 @@ $remote-url/%{id}</programlisting>
 
       <para>
       <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
-      that determines whether <application class="software">Repo
-      </application> uses the build machine's fully qualified domain name
+      that determines whether <application class="software">Deploy</application> uses the build machine's fully qualified domain name
       or IP address in the automatically-computed remote-url.
       </para>
       
@@ -932,8 +931,7 @@ $remote-url/%{id}</programlisting>
     the text of a kickstart file providing all information required to fully
     automate a client machine installation. It uses <varname>%{fqdn}</varname>
     and <varname>%{crypt-password}</varname> <link
-    linkend='deployment-macros'>module macros</link>. On a system with Repo
-     installed, the text of the kickstart shown below can be found as a
+    linkend='deployment-macros'>module macros</link>. On a system with Deploy installed, the text of the kickstart shown below can be found as a
     file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
     folder at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
     </para>

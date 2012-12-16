@@ -158,8 +158,7 @@
       selectively remove specific packages from the list of available packages
       for the repository. Any package matching one or more of the
       <varname>PACKAGE</varname> patterns specified in a
-      <emphasis>repo/exclude</emphasis> element will be ignored by Repo
-      .
+      <emphasis>repo/exclude</emphasis> element will be ignored by Deploy.
       </para>
 
       <para>

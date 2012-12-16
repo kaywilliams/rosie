@@ -22,16 +22,16 @@
     <title>What's Not Covered</title>
 
     <para>
-    This manual complements several <application class="software">Repo
-    </application> documents. The "Installation Instructions" and
-    "Getting Started Guide" provide basic information about obtaining and
-    installing Deploy and creating a basic CentOS repository.  The
-    "Deploy Definition File Reference" (DDFR) contains the syntax for
-    repository definition elements and attributes. Finally, Deploy has
-    a set of <emphasis role="strong">man pages</emphasis> explaining the
-    <command>deploy</command> command, its options and the Deploy
-    configuration file, <filename>deploy.conf</filename>. This manual
-    contains references to all four throughout the text.
+    This manual complements several <application
+    class="software">Deploy</application> documents. The "Installation
+    Instructions" and "Getting Started Guide" provide basic information about
+    obtaining and installing Deploy and creating a basic CentOS repository.
+    The "Repository Definition File Reference" (RDFR) contains the syntax for
+    repository definition elements and attributes. Finally, Deploy has a set of
+    <emphasis role="strong">man pages</emphasis> explaining the
+    <command>deploy</command> command, its options and the Deploy configuration
+    file, <filename>deploy.conf</filename>. This manual contains references to
+    all four throughout the text.
     </para>
 
     <para>
@@ -83,7 +83,7 @@
           equivalents. The active node is always considered to be the root,
           repo; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the DDFR and their child elements
+          children. Top-level elements in the RDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>repo</emphasis>. For

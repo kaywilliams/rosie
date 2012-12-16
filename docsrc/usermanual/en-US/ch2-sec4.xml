@@ -30,8 +30,7 @@
             <entry>/usr/lib/python<varname>$version</varname>/site-packages/deploy/</entry>
 
             <entry>
-            Python code for <application class="software">Repo
-            </application>, where <varname>$version</varname> is the
+            Python code for <application class="software">Deploy</application>, where <varname>$version</varname> is the
             <application class="software">Python</application> version.
             </entry>
           </row>

@@ -48,9 +48,9 @@
     to the script type, e.g.  <filename>post-script</filename>.  Triggers are
     similarly named, but they also include the name provided in the
     <emphasis>@trigger</emphasis> attribute, e.g.
-    <filename>triggerin-drupal-script</filename>. See the <emphasis>Repo
-     User Guide</emphasis> for more information on testing and
-    troubleshooting client machine installation and updates.
+    <filename>triggerin-drupal-script</filename>. See the <emphasis>Deploy User
+    Guide</emphasis> for more information on testing and troubleshooting client
+    machine installation and updates.
     </para>
     </listitem>
     </itemizedlist>

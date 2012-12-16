@@ -283,8 +283,7 @@ previous build. Users can override the default determination using the
 Module names correspond to top-level elements in the DEFINITION.
 </para>
 <para>
-Developers can write custom Deploy modules and direct Repo
- to use them via the <command>--lib-path</command> deploy command
+Developers can write custom Deploy modules and direct Deploy to use them via the <command>--lib-path</command> deploy command
 option.
 </para>
 </refsect1>

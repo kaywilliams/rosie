@@ -6,8 +6,7 @@
 
   <para>
   As you work with Deploy to create deployment templates and
-  config-rpms, you will occasionally run into errors. When these occur, Repo
-   halts operation and displays error information to the console. It also
+  config-rpms, you will occasionally run into errors. When these occur, Repo   halts operation and displays error information to the console. It also
   records error messages in the Deploy log file, by default
   <filename>/var/log/deploy.log</filename>.
   </para>

@@ -202,7 +202,7 @@
   </itemizedlist>
 
   <para>
-  The <emphasis>config-rpm/repo</emphasis> element, discussed in the DDFR,
+  The <emphasis>config-rpm/repo</emphasis> element, discussed in the RDFR,
   allows you to identify additional input repositories. These elements have the
   same syntax as <emphasis>repos/repo</emphasis> elements, and operationally
   Deploy treats them the same. Specifying input repositories within the
@@ -271,7 +271,7 @@ esac
     The attribute value <emphasis>content="text"</emphasis> provides a
     convenient method to include files in the repository without needing to
     create and manage files on disk. See the Repository Definition File
-    Reference (DDFR) for more information on the
+    Reference (RDFR) for more information on the
     <emphasis>config-rpm/files</emphasis> element.
     </para>
     </note>
@@ -445,7 +445,7 @@ fi
   <itemizedlist>
   <listitem>
   <para>
-  Deploy Definition File Reference (DDFR)</para></listitem>
+  Repository Definition File Reference (RDFR)</para></listitem>
 
   <listitem>
   <para>

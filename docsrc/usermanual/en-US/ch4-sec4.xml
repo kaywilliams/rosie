@@ -127,7 +127,7 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   <section>
   <title>Creating the gpgsign element</title>
   <para>
-  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Deploy Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
+  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Repository Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
   </para>
 
   <para>

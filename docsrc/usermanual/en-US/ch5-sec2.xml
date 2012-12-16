@@ -93,9 +93,9 @@
 
   <note>
   <para>
-  Do not modify templates in the <xref linkend='templates'/> folder. Repo
-   will overwrite your changes on subsequent updates. Instead, copy
-  templates to another location and modify from there.
+  Do not modify templates in the <xref linkend='templates'/> folder. Deploy
+  will overwrite your changes on subsequent updates. Instead, copy templates to
+  another location and modify from there.
   </para>
   </note>
 
@@ -204,7 +204,7 @@
   </informalexample>
 
   <para>
-  The default <filename>ks.cfg</filename> file uses macros (see the DDFR for
+  The default <filename>ks.cfg</filename> file uses macros (see the RDFR for
   information on deployment macros) to allow the hostname and root password to
   be filled in at Deploy runtime. Often, however, you will want to
   customize additional kickstart options such as timezone, or drive
@@ -248,7 +248,7 @@ reboot
   </informalexample>
 
   <para>
-  See the DDFR for more information on the <emphasis>kickstart</emphasis>
+  See the RDFR for more information on the <emphasis>kickstart</emphasis>
   element, including notes on several kickstart options to avoid when using
   kickstart in combination with Deploy.
   </para>
@@ -314,7 +314,7 @@ virt-install --name %{fqdn} --ram 2000 \
   </informalexample>
 
   <para>
-  See the DDFR for complete information on deployment scripts, including the
+  See the RDFR for complete information on deployment scripts, including the
   comes-before and comes-after attributes which allow ordering of script
   execution.
   </para>
@@ -393,7 +393,7 @@ virt-install --name %{fqdn} --ram 2000 \
   on your management solution. If the custom script should execute on the
   Deploy build machine rather than on the installed client, be sure to
   set the update script's <emphasis>@ssh</emphasis> attribute to false. See the
-  DDFR for more information on script attributes.
+  RDFR for more information on script attributes.
   </para>
 
   <para>

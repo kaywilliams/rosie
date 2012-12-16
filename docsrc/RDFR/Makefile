@@ -1,6 +1,6 @@
 PUBLICAN = /usr/bin/publican
 DRUSH = /usr/bin/drush
-PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/DDFR
+PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/RDFR
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
 
 
@@ -34,10 +34,10 @@ publish:
 	done
 
 	# modify src attributes in html file
-	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/DDFR/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/RDFR/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
 
         # add metadata providing the desired path alias
-	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/DDFR"/g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/RDFR"/g' $(PUBDIR)/en-US/html-single/index.html
 
         # set permissions
 	chown -R apache:apache $(PUBDIR)/en-US/$d

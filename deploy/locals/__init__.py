@@ -53,7 +53,7 @@ class LocalsDict(dict):
   would not only require a great deal of space, but would be very error prone,
   as any changes would have to potentially be applied to multiple places.
 
-  Repo
+  Solution
   Instead of dictionary keys referring to a single point in anaconda's
   development cycle, a given key refers to all revisions from itself until
   the next highest key.  That is, in a LocalsDict with the keys '0', '1.5',

@@ -59,7 +59,7 @@
     repository element. It allows the use of XIncludes within the
     document. XIncludes, a convenient mechanism for reusing content across 
     multiple definitions, are discussed in the Repository Definition File
-    Reference (DDFR).
+    Reference (RDFR).
     </para>   
   </section>
 
@@ -123,7 +123,7 @@
     </informalexample></para>
 
     <para>You can override the default repository id using an
-    <emphasis>id</emphasis> element. See the DDFR for more details about the
+    <emphasis>id</emphasis> element. See the RDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
     <para>
@@ -270,11 +270,12 @@
   <para>
   Deploy gives special meaning to repositories with the ids
   "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
-  repositories are assumed to be associated with the base operating system. This
-  special meaning applies only when creating <emphasis>package</emphasis>-type
-  repositories. Specifically, when creating package-type repositories, Repo
-   automatically sets the <emphasis>download</emphasis> property to
-  <emphasis>false</emphasis> for the base and updates input repositories.
+  repositories are assumed to be associated with the base operating system.
+  This special meaning applies only when creating
+  <emphasis>package</emphasis>-type repositories. Specifically, when creating
+  package-type repositories, Deploy automatically sets the
+  <emphasis>download</emphasis> property to <emphasis>false</emphasis> for the
+  base and updates input repositories.
   </para>
 
   <para>

@@ -72,13 +72,12 @@ Deploy installation does not include a deploy.conf file.</para>
   <term><option>share-path</option></term>
   <listitem>
     <para>Specifies a directory <replaceable
-    class="parameter">PATH</replaceable> in which one or more of Repo
-    's shared files can be found; the directory contains a hierarchy
-    enabling Deploy to extract files for schemas,
-    <filename>*.rng</filename>, and example files.  The default path is
-    <filename>/usr/share/deploy</filename>.  Multiple path elements are
-    allowed.  This element corresponds to the <option>--share-path</option>
-    command-line option .</para>
+    class="parameter">PATH</replaceable> in which one or more of Deploy's
+    shared files can be found; the directory contains a hierarchy enabling
+    Deploy to extract files for schemas, <filename>*.rng</filename>, and
+    example files.  The default path is <filename>/usr/share/deploy</filename>.
+    Multiple path elements are allowed.  This element corresponds to the
+    <option>--share-path</option> command-line option .</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
 </programlisting>
