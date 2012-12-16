@@ -159,7 +159,7 @@
       for the repository. Any package matching one or more of the
       <varname>PACKAGE</varname> patterns specified in a
       <emphasis>repo/exclude</emphasis> element will be ignored by Repo
-      Studio.
+      .
       </para>
 
       <para>

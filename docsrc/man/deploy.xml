@@ -284,7 +284,7 @@ Module names correspond to top-level elements in the DEFINITION.
 </para>
 <para>
 Developers can write custom Deploy modules and direct Repo
-Studio to use them via the <command>--lib-path</command> deploy command
+ to use them via the <command>--lib-path</command> deploy command
 option.
 </para>
 </refsect1>

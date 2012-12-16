@@ -1,3 +1,8 @@
+body {
+        margin: 0px;
+        max-width: none;
+}
+
 a:link {
 	color:#293895;
         border-bottom-width: 0px;
@@ -12,23 +17,79 @@ h1 {
 	color:#293895;
 }
 
+ul {
+        padding-left: 1.5em;
+        list-style-image: none;
+        list-style-type: disc;
+}
+
+.field-name-body {
+        margin-bottom: 0px;
+        padding-bottom: 0px;
+}
+
+.field-name-body br {
+        display: none;
+        height: 0px;
+        visibility: none;
+}
+
+div.legalnotice {
+        border-bottom: 1px;
+        border-bottom-style: solid;
+	border-bottom-color: grey;
+        margin-bottom: 10px;
+}
+
+.titlepage hr {
+        display: none;
+        height: 0px;
+        visibility: none;
+}
+
 .producttitle { 
+        display: none;
+        /*
 	color: #293895;
         background-image: none;
         background-color: transparent;
+        font-weight: normal;
         height: auto;
-        padding-top: 0px;
-        padding-bottom: 0px;
+        text-align: left;
+        margin: 0px;
+        padding: 0px;
+        */
 }
 
 #title {
 	height: 0px;
 }
 
-.section h1.title {
+.book>.titlepage h1.title {
+        display: none;
+        /*
 	color:#293895;
+        text-align: left;
+        margin: 0px;
+        padding: 0px;
+        */
 }
 
+h2.subtitle, h3.subtitle {
+        display: none;
+}
+
+.edition {
+	color: #293895;
+        font-weight: none;
+        text-align: left;
+        margin: 0px;
+        margin-top: -10px;
+}
+
+h1.legalnotice {
+        display: none;
+}
 
 h2,h3,h4,h5,h6 {
 	color:#293895;
@@ -46,16 +107,18 @@ table tr.even td {
 	background-color: lightgray;
 }
 
+.informaltable td {
+        border-style: solid !important;
+        border-color: gray !important;
+        border-width: 1px !important;
+}
+
 .term{
 	color:#293895;
 }
 
 .revhistory table th {
 	color:#293895;
-}
-
-.edition {
-	color: #293895;
 }
 
 span.remark{

@@ -29,7 +29,7 @@
   and example files.
   </para>
 
-  <section id="templ-sec" xreflabel="templates">
+  <section id="templates" xreflabel="templates">
   <title>Templates</title>
 
   <xi:include href="common.xml" 

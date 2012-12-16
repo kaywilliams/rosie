@@ -53,7 +53,7 @@
 
   <para>
   Only if all of the test-install tasks complete successfully does Centos
-  Studio continue with its processing.
+   continue with its processing.
   </para>
 
   <para>
@@ -93,7 +93,7 @@
 
   <para>
   Only if all of the test-update tasks complete successfully does Centos
-  Studio continue with its processing.
+   continue with its processing.
   </para>
 
   <para>

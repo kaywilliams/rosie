@@ -31,7 +31,7 @@
 
             <entry>
             Python code for <application class="software">Repo
-            Studio</application>, where <varname>$version</varname> is the
+            </application>, where <varname>$version</varname> is the
             <application class="software">Python</application> version.
             </entry>
           </row>

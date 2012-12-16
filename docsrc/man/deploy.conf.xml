@@ -73,7 +73,7 @@ Deploy installation does not include a deploy.conf file.</para>
   <listitem>
     <para>Specifies a directory <replaceable
     class="parameter">PATH</replaceable> in which one or more of Repo
-    Studio's shared files can be found; the directory contains a hierarchy
+    's shared files can be found; the directory contains a hierarchy
     enabling Deploy to extract files for schemas,
     <filename>*.rng</filename>, and example files.  The default path is
     <filename>/usr/share/deploy</filename>.  Multiple path elements are

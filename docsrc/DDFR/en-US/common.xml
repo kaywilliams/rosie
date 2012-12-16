@@ -20,7 +20,7 @@
   sections throughout the remainder of this document.
   </para>
 
-  <caution>
+  <warning>
   <para>
   Do not modify files in the
   <filename>/usr/share/deploy/templates</filename> folder. Changes to
@@ -31,7 +31,7 @@
   <para>
   Instead, copy files to a new location before editing.
   </para>
-  </caution>
+  </warning>
 </div>
 
 </div>

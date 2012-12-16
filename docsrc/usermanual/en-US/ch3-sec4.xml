@@ -60,7 +60,7 @@
   Because we were careful to make use of macros while creating the definition,
   the same definition can be used for multiple operating system versions and
   architectures. To provide the desired version and arch when executing Repo
-  Studio, use the <constant>--macro</constant> command line option. The example
+  , use the <constant>--macro</constant> command line option. The example
   below shows using command line macros to specify both version and arch.
   </para>
 

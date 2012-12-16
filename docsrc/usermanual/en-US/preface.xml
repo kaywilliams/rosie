@@ -23,7 +23,7 @@
 
     <para>
     This manual complements several <application class="software">Repo
-    Studio</application> documents. The "Installation Instructions" and
+    </application> documents. The "Installation Instructions" and
     "Getting Started Guide" provide basic information about obtaining and
     installing Deploy and creating a basic CentOS repository.  The
     "Deploy Definition File Reference" (DDFR) contains the syntax for

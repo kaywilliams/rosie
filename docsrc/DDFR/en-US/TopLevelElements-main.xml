@@ -164,7 +164,7 @@
       <para>
       <xref linkend="content-text"/> value specifying a unique id for the
       repository. Used as the directory name for the repository in the Repo
-      Studio publish and cache folders (by default
+       publish and cache folders (by default
       <emphasis>/var/www/html/repos/</emphasis> and
       <emphasis>/var/cache/deploy</emphasis>, respectively).
       </para>

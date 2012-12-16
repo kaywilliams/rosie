@@ -4,17 +4,13 @@
 %BOOK_ENTITIES;
 ]>
 <bookinfo id="book-usermanual-usermanual">
-	<title>User Manual</title>
-	<subtitle>Managing system and application deployment with Deploy</subtitle>
 	<productname>Deploy</productname>
 	<productnumber>1.0</productnumber>
+	<title>Deploy User Manual</title>
+        <subtitle>Managing system and application deployment with Deploy</subtitle>
 	<edition>1.0</edition>
 	<pubsnumber>0</pubsnumber>
-	<abstract>
-		<para>
-			This book provides instruction for using Deploy to manage system and application deployment. The current version of Deploy works with CentOS and Red Hat Enterprise Linux. This book assumes basic familiarity with Linux system deployment and administration.
-		</para>
-	</abstract>
+        <pubdate>December 2012</pubdate>
 	<corpauthor>
 		<inlinemediaobject>
 			<imageobject>
@@ -23,6 +19,5 @@
 		</inlinemediaobject>
 	</corpauthor>
 	<xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 </bookinfo>
 

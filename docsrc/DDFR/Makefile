@@ -1,6 +1,6 @@
 PUBLICAN = /usr/bin/publican
 DRUSH = /usr/bin/drush
-PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/usermanual
+PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/DDFR
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
 
 
@@ -8,11 +8,11 @@ THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
 
 all: html pdf
 
-html: clean
+html:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
 	$(PUBLICAN) build --formats html-single --langs en-US
 
-pdf: clean
+pdf:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
 	$(PUBLICAN) build --formats pdf --langs en-US
 
@@ -34,10 +34,10 @@ publish:
 	done
 
 	# modify src attributes in html file
-	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/usermanual/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/DDFR/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
 
         # add metadata providing the desired path alias
-	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/usermanual"/g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/DDFR"/g' $(PUBDIR)/en-US/html-single/index.html
 
         # set permissions
 	chown -R apache:apache $(PUBDIR)/en-US/$d
@@ -46,7 +46,7 @@ publish:
 	# import html-single into drupal
 	# user manual feed node in Drupal is 5359
 	# future - create a feed node dynanically and use it 
-	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5359)->import());"
+	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5376)->import());"
 
 	# copy Common_Content to themesdir
 	# $(THEMESDIR)/deployproject.info makes reference to these files

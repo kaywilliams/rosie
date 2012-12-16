@@ -108,7 +108,7 @@
     </entry>
 
     <entry>
-    A Repo-Studio-calculated host name or IP Address for the build machine.
+    A Repo--calculated host name or IP Address for the build machine.
     Described under the <xref linkend='remote-url'/> element.
     </entry>
     </row>
@@ -241,12 +241,12 @@
 
     <row>
     <entry>%{release_rpm}</entry>
-    <entry>MD5 hash of current <xref linkend='release-rpm-tle'/>.</entry>
+    <entry>MD5 hash of current <xref linkend='release-rpm'/>.</entry>
     </row>
 
     <row>
     <entry>%{config_rpms}</entry>
-    <entry>MD5 hash of all current <xref linkend='config-rpms-tle'/>.</entry>
+    <entry>MD5 hash of all current <xref linkend='config-rpms'/>.</entry>
     </row>
 
     <row>
@@ -449,7 +449,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
       that determines whether <application class="software">Repo
-      Studio</application> uses the build machine's fully qualified domain name
+      </application> uses the build machine's fully qualified domain name
       or IP address in the automatically-computed remote-url.
       </para>
       
@@ -769,7 +769,7 @@ $remote-url/%{id}</programlisting>
     linkend="config-rpm"/>. Deploy includes an example template to
     complete this task. On a system with Deploy installed, the file can
     be found as <filename>ssh-config.xml</filename> in the <xref
-    linkend='templ-sec'/> folder at
+    linkend='templates'/> folder at
     <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>. See the
     <xref linkend='deploy-config-rpm'/> element below for an example of using
     this template.
@@ -914,11 +914,11 @@ $remote-url/%{id}</programlisting>
     <para>
     Where possible, avoid using the '<emphasis>firewall</emphasis>' and
     '<emphasis>%post</emphasis>' kickstart options, as they are applied only
-    during client installation. Instead, use <xref linkend='config-rpms-tle'/> to
+    during client installation. Instead, use <xref linkend='config-rpms'/> to
     apply client configuration. This ensures uniform results whether the client
     is installed from scratch, or merely updated. See the
     <filename>httpd-config.xml</filename> <link
-    linkend='templ-sec'>template</link> for an example of firewall
+    linkend='templates'>template</link> for an example of firewall
     configuration using a config-rpm.
     </para>
     </note>
@@ -933,8 +933,8 @@ $remote-url/%{id}</programlisting>
     automate a client machine installation. It uses <varname>%{fqdn}</varname>
     and <varname>%{crypt-password}</varname> <link
     linkend='deployment-macros'>module macros</link>. On a system with Repo
-    Studio installed, the text of the kickstart shown below can be found as a
-    file named <filename>ks.cfg</filename> in the <xref linkend='templ-sec'/>
+     installed, the text of the kickstart shown below can be found as a
+    file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
     folder at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
     </para>
 
@@ -1193,7 +1193,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>virt-activate.xml</filename> which is included in the
-      <xref linkend='templ-sec'/> folder 
+      <xref linkend='templates'/> folder 
       at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
       </para>
       
@@ -1243,7 +1243,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
-      <xref linkend='templ-sec'/> folder 
+      <xref linkend='templates'/> folder 
       at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
       </para>
      

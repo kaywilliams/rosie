@@ -205,7 +205,7 @@
   <para>
   As with test-install, Deploy will also reinstall the test machine if
   necessary. This happens much less frequently, however. By default Repo
-  Studio only reinstalls the test-update machine if it is unable to activate
+   only reinstalls the test-update machine if it is unable to activate
   the machine or establish an SSH connection to it.
   </para>
   </section>

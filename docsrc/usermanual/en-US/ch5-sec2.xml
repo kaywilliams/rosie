@@ -94,7 +94,7 @@
   <note>
   <para>
   Do not modify templates in the <xref linkend='templates'/> folder. Repo
-  Studio will overwrite your changes on subsequent updates. Instead, copy
+   will overwrite your changes on subsequent updates. Instead, copy
   templates to another location and modify from there.
   </para>
   </note>

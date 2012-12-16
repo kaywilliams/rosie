@@ -140,7 +140,7 @@
       <para>
       <xref linkend="content-path"/> value specifying a location for the SRPM.
       If the specified path ends with <emphasis>".src.rpm"</emphasis> Repo
-      Studio attempts to download the SRPM from the location specified.
+       attempts to download the SRPM from the location specified.
       Otherwise, Deploy attempts to find an SRPM beginning with the name
       specified in the <emphasis>@id</emphasis> attribute in the folder
       specified. If multiple SRPMs are found, Deploy selects the SRPM
@@ -305,7 +305,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
       The <emphasis>template</emphasis> element is optional. Deploy
       provides a default template, shown in the examples
       section below. On a system with Deploy installed, the default
-      template can be found in the <xref linkend='templ-sec'/> folder at
+      template can be found in the <xref linkend='templates'/> folder at
       <filename>/usr/share/deploy/../../share/deploy/templates/srpmbuild.xml</filename>.
       </para>
 

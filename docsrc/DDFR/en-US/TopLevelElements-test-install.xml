@@ -111,7 +111,7 @@
     The virt-deploy.xml template, shown below, provides the configuration
     necessary to deploy and maintain a local virtual machine. Virt-deploy.xml
     in turn makes use of many additional templates. See the <xref
-    linkend='templ-sec'/> section of this document for information on locating
+    linkend='templates'/> section of this document for information on locating
     and using templates.
     </para>
 

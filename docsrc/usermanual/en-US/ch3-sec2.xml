@@ -273,7 +273,7 @@
   repositories are assumed to be associated with the base operating system. This
   special meaning applies only when creating <emphasis>package</emphasis>-type
   repositories. Specifically, when creating package-type repositories, Repo
-  Studio automatically sets the <emphasis>download</emphasis> property to
+   automatically sets the <emphasis>download</emphasis> property to
   <emphasis>false</emphasis> for the base and updates input repositories.
   </para>
 

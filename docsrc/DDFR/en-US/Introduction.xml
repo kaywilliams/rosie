@@ -101,14 +101,14 @@
     repository ID.
     </para>
 
-    <caution>
+    <warning>
     <para>
     Care must be taken not to delete the repository data file. Doing so will
     cause Deploy to regenerate missing information. As a result,
     installed client machines may fail to download updated RPMs or may report
     errors when performing RPM GPG key checking. 
     </para>
-    </caution>
+    </warning>
 
   </section>
 

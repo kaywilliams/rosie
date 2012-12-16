@@ -8,7 +8,7 @@
   <application class='software'>Deploy</application> installation
   requires a machine running CentOS or Red Hat Enterprise Linux (RHEL)
   version 6 for the x86_64 architecture. <application class="software">Repo
-  Studio</application> is designed to work in a networked environment.
+  </application> is designed to work in a networked environment.
   </para>
 
   <para>

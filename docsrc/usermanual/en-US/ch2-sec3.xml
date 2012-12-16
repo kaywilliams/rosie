@@ -6,7 +6,7 @@
 
   <para>
   During the build process, <application class="software">Repo
-  Studio</application> gathers content, processes it, creates a repository, and
+  </application> gathers content, processes it, creates a repository, and
   optionally runs scripts to test, deploy or maintain client machines.
   </para>
 
@@ -42,7 +42,7 @@
   <listitem>
   <para>
   <emphasis role="strong">Additional Package Repositories.</emphasis> Repo
-  Studio uses RPM package repositories to locate and download additional
+   uses RPM package repositories to locate and download additional
   software components for the repository. A typical repository definition will
   specify multiple additional input repositories, including a operating system
   update repository, and repositories made available from other internal and

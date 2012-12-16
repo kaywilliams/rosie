@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="config-rpms-tle"
+<section id="config-rpms"
          xreflabel="config-rpms">
   <title>
   Config-rpms
@@ -49,7 +49,7 @@
     similarly named, but they also include the name provided in the
     <emphasis>@trigger</emphasis> attribute, e.g.
     <filename>triggerin-drupal-script</filename>. See the <emphasis>Repo
-    Studio User Guide</emphasis> for more information on testing and
+     User Guide</emphasis> for more information on testing and
     troubleshooting client machine installation and updates.
     </para>
     </listitem>
@@ -61,7 +61,7 @@
     attribute, %{version} is a global run-time macro, RELEASE is computed at
     run time, and DIST is an identifier for the base operating system
     distribution (e.g. 'el6'). See the introduction to the <xref
-    linkend='release-rpm-tle'/> element for additional information on release
+    linkend='release-rpm'/> element for additional information on release
     numbers and the <xref linkend='datfile'/>. 
     </para>
 
