@@ -35,17 +35,17 @@
 
     <para>A repository definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;deploy&gt; and 
-    &lt;/deploy&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;repo&gt; and 
+    &lt;/repo&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
     </informalexample></para>
 
     <para>
@@ -452,7 +452,7 @@
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?>
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
 
 ...
 

@@ -193,7 +193,7 @@ used basis.</para>
     </para>
 
     <programlisting>
-&lt;deploy&gt;
+&lt;repo&gt;
     &lt;share-path&gt;/usr/share&lt;/share-path&gt;
     &lt;share-path&gt;~/deploy/share&lt;/share-path&gt;
     &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
@@ -203,7 +203,7 @@ used basis.</para>
         &lt;path&gt;~/deploy/cache&lt;/path&gt;
         &lt;max-size&gt;5GB&lt;/max-size&gt;
     &lt;/cache&gt;
-&lt;/deploy&gt;
+&lt;/repo&gt;
     </programlisting>
 
 </refsect1>

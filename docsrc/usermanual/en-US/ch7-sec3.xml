@@ -105,7 +105,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>application&lt;/name>
@@ -332,7 +332,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="2.0" encoding="utf-8"?>
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
 
 &lt;macro id='repo'>application&lt;/macro>
 &lt;macro id='version'>6&lt;/macro>
@@ -427,7 +427,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
 
 &lt;macro id='scenario'>scenario1&lt;/macro>
 

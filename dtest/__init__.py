@@ -46,7 +46,7 @@ class TestBuild(Build):
     if mcf.exists():
       self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.parse(StringIO('<deploy/>')).getroot()
+      self.mainconfig = config.parse(StringIO('<repo/>')).getroot()
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
@@ -84,7 +84,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('deploy', attrs={'schema-version': '1.0'})
+    top = config.Element('repo', attrs={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)

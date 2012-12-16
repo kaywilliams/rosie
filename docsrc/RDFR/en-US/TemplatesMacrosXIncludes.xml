@@ -183,7 +183,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
 &lt;name&gt;example&lt;name&gt;
@@ -192,7 +192,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 &lt;/main&gt;
 ...
 
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
       </section>
 
@@ -215,7 +215,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;macro id="version"&gt;5&lt;macro&gt;
 &lt;macro id="arch"&gt;x86_64&lt;macro&gt;
@@ -227,7 +227,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 &lt;/main&gt;
 ...
 
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
       </section>
 
@@ -256,7 +256,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
 &lt;name&gt;example&lt;/name&gt;
@@ -272,7 +272,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 &lt;/repo&gt;
 &lt;/repos&gt;
 ...
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
       </section>
     </section> 
@@ -332,7 +332,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
     
     <informalexample>
     <programlisting>
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
     </programlisting>
     </informalexample> 
     
@@ -420,13 +420,13 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
        <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;kickstart&gt;
 &lt;xi:include href="ks.cfg" parse="text" /&gt;
 &lt;/kickstart&gt;
 ...
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -446,11 +446,11 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;xi:include href="repos.xml"/&gt;
 ...
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -490,14 +490,14 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;repos&gt;
 &lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/&gt;
 &lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/&gt;
 &lt;/repos&gt;
 
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -528,7 +528,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;macro id="version"&gt;5&lt;macro&gt;
 &lt;macro id="arch"&gt;i386&lt;macro&gt;
@@ -547,7 +547,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 &lt;group>cifs-file-server&lt;/group>
 &lt;/xml>
 ...
-&lt;/deploy&gt;</programlisting>
+&lt;/repo&gt;</programlisting>
       </informalexample>
     </section>
     </section>

@@ -91,7 +91,7 @@
   </para>
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;deploy xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>
 

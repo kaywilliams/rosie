@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<deploy xmlns:xi="http://www.w3.org/2001/XInclude">
+<repo xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
@@ -25,4 +25,4 @@
 <xi:include href='httpd-config.xml'/>
 </config-rpms>
 
-</deploy>
+</repo>

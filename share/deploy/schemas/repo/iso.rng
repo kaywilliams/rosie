@@ -1,14 +1,22 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="deploy">
+    <element name="repo">
 
       <optional>
-      <element name="publish">
+      <element name="iso">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <ref name="content-deploy-elements"/>
+
+        <interleave>
+
+        <oneOrMore>
+        <element name="set"><text/></element>
+        </oneOrMore>
+
+        </interleave>
+
       </element>
       </optional>
 
@@ -16,4 +24,5 @@
   </start>
 
   <include href="lib.rng"/>
+
 </grammar>

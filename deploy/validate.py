@@ -63,7 +63,7 @@ class DeployValidationHandler:
 
     # validate individual sections of the definition
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
-    v = DefinitionValidator([ x/'schemas/deploy' for x in self.sharedirs ],
+    v = DefinitionValidator([ x/'schemas/repo' for x in self.sharedirs ],
                            self.definition)
 
     # expand macros - per event, depth first
@@ -203,7 +203,7 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.getxpath('//rng:element[@name="deploy"]', namespaces=NSMAP)
+    app_defn = schema.getxpath('//rng:element[@name="repo"]', namespaces=NSMAP)
     if app_defn is not None:
       optional = app_defn.getxpath('rng:optional', namespaces=NSMAP)
       if optional is None:
@@ -221,12 +221,12 @@ class DefinitionValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.getxpath('//rng:element[@name="deploy"]', namespaces=NSMAP)
+    app_defn = schema.getxpath('//rng:element[@name="repo"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.getxpath('rng:element[@name="deploy"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.getxpath('rng:element[@name="repo"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)

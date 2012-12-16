@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<deploy schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <macro id="name">srpmbuild-custom</macro>
 <macro id="fullname">Custom RPM Build Virtual Machine</macro>
@@ -30,4 +30,4 @@ fi
 <xi:include href="srpmbuild.xml"
             xpointer="xpointer(/*/publish/script[@id!='update'])"/>
 </publish>
-</deploy>
+</repo>

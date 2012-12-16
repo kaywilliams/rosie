@@ -321,7 +321,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       mc = rxml.config.parse(cp).getroot()
     else:
       self.logger.log(4, "No deploy config file found at '%s'. Using default settings" % cp)
-      mc = rxml.config.fromstring('<deploy/>')
+      mc = rxml.config.fromstring('<repo/>')
 
     self.mainconfig = mc
 
