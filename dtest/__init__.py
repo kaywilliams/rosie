@@ -46,7 +46,7 @@ class TestBuild(Build):
     if mcf.exists():
       self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.parse(StringIO('<repo/>')).getroot()
+      self.mainconfig = config.parse(StringIO('<deploy/>')).getroot()
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
