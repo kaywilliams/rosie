@@ -2,14 +2,15 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
+
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
 <!--Deploy Command reference -->
 
 <refentry id="command.deploy">
 <refentryinfo>
-<date>2012-09-10</date>
+<date>2012-12-17</date>
 </refentryinfo>
-
+ 
 <refmeta>
 <refentrytitle>Deploy Commands</refentrytitle>
 <manvolnum>1</manvolnum>
@@ -33,7 +34,6 @@
 </arg>
 <arg choice="opt">
 <option>--macro <replaceable class="parameter">ID:VALUE</replaceable></option>
-
 </arg>
 <arg choice="opt">
 <option>--no-validate </option>
@@ -70,12 +70,10 @@ DEFINITION.</para>
 </refsect1>
 
 <refsect1 id="deploy.1-usage"><title>USAGE</title>
-<para><command>deploy</command> [OPTIONS] DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.
-DEFINITION refers to a repository definition file, see the Repository
-Definition File Reference at <ulink
-url="http://www.deployproject.org/documentation"/> for more
-information.</para>
+<para><command>deploy</command> [OPTIONS] DEFINITION</para> <para>OPTIONS
+refers to the command-line options described below.  DEFINITION refers to a
+repository definition file, see the Repository Definition File Reference at
+ <ulink url="http://www.deployproject.org/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -84,13 +82,13 @@ information.</para>
 <variablelist>
 
 <varlistentry>
-  <term><option>-c; --config <replaceable class="parameter">REPOSTUDIO_CONF</replaceable></option></term>
+  <term><option>-c; --config <replaceable class="parameter">DEPLOY_CONF</replaceable></option></term>
   <listitem>
     <para> Specifies the directory and filename <replaceable
-    class="parameter">REPOSTUDIO_CONF</replaceable> of the deploy
+    class="parameter">DEPLOY_CONF</replaceable> of the deploy
     configuration file.  The default value is <filename
     class="directory">/etc/deploy/deploy.conf</filename>.  See the
-    <filename>deploy.conf(5)</filename> man page for Deploy
+    <filename> deploy.conf(5)</filename> man page for Deploy
     configuration options.</para>
 
   </listitem>
@@ -106,7 +104,7 @@ information.</para>
         more than once, as in the example below:</para>
 
 <para>--force <replaceable class="parameter">MODULE1</replaceable> --force
-<replaceable class="parameter">MODULE2</replaceable> --force <replaceable
+<replaceable class="parameter"> MODULE2</replaceable> --force <replaceable
 class="parameter">MODULE3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -121,7 +119,7 @@ class="parameter">MODULE3</replaceable></para>
     class="parameter">PATHs</replaceable> to search.  This option can be
     specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path
-<replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable
+<replaceable class="parameter"> PATH2</replaceable> --lib-path <replaceable
 class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -186,7 +184,7 @@ and not the log file. Level 5 detail is always written to the log file.
     </para>
     <para>--macro <replaceable class="parameter">ID1:VALUE1</replaceable>
     --macro <replaceable class="parameter">ID2:VALUE2</replaceable> --macro
-    <replaceable class="parameter">ID3:VALUE3</replaceable>
+    <replaceable class="parameter"> ID3:VALUE3</replaceable>
     </para>
   </listitem>
 </varlistentry>
@@ -194,7 +192,7 @@ and not the log file. Level 5 detail is always written to the log file.
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of REPOSTUDIO_CONF and DEFINITION during the build process.</para>
+    <para>Disables validation of DEPLOY_CONF and DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -209,7 +207,7 @@ and not the log file. Level 5 detail is always written to the log file.
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable>
 --share-path <replaceable class="parameter">PATH2</replaceable> --share-path
-<replaceable class="parameter">PATH3</replaceable></para>
+<replaceable class="parameter"> PATH3</replaceable></para>
   </listitem>
 </varlistentry>
 
@@ -222,7 +220,7 @@ and not the log file. Level 5 detail is always written to the log file.
         children recursively. This option can be specified more than once, as
         in the example below:</para>
 <para>--skip <replaceable class="parameter">MODULE1</replaceable> --skip
-<replaceable class="parameter">MODULE2</replaceable> --skip <replaceable
+<replaceable class="parameter"> MODULE2</replaceable> --skip <replaceable
 class="parameter">MODULE3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -231,7 +229,7 @@ class="parameter">MODULE3</replaceable></para>
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs REPOSTUDIO_CONF and DEFINITION validation only; it
+<para>Performs DEPLOY_CONF and DEFINITION validation only; it
 does not build the repository.  The option also displays the complete
 DEFINITION file after resolving macro and include elements.</para>
   </listitem>
@@ -242,7 +240,7 @@ DEFINITION file after resolving macro and include elements.</para>
 
 <refsect1 id="deploy.1-variables"><title>VARIABLES</title>
 <para>Deploy command options, where indicated, use three variables:
-MODULE, PATH and REPOSTUDIO_CONF.</para>
+MODULE, PATH and DEPLOY_CONF.</para>
 
 <variablelist>
 <varlistentry>
@@ -262,7 +260,7 @@ MODULE, PATH and REPOSTUDIO_CONF.</para>
 </varlistentry>
 
 <varlistentry>
-  <term>REPOSTUDIO_CONF</term>
+  <term>DEPLOY_CONF</term>
   <listitem>
     <para>The directory and filename of the Deploy configuration file.</para>
   </listitem>
@@ -290,7 +288,7 @@ option.
 
 <refsect1 id="deploy.1-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.deployproject.org/deploy"/> for contact and support
+url="http://www.deployproject.org"/> for contact and support
 information.</para>
 </refsect1>
 
@@ -308,7 +306,7 @@ information.</para>
 <refsect1 id="deploy.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>deploy.conf(5)</member>
-<member><ulink url="http://www.deployproject.org/deploy"/></member>
+<member><ulink url="http://www.deployproject.org"/></member>
 
 </simplelist></para>
 </refsect1>

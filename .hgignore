@@ -7,6 +7,8 @@ syntax: regexp
 .*\#.*\#$
 docsrc/.*/tmp/.*
 docsrc/brand/publish/.*
+docsrc/man/.*\.html
+docsrc/man/.*\.gz
 dtest/modules/[^/]+/repo[0-9]+.*
 dtest/modules/[^/]+/[^/]+-test-repos[0-9]*\.repo
 dtest/modules/shared/test-repos\.repo

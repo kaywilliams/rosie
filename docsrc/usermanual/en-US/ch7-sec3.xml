@@ -521,7 +521,7 @@ set -e
 
 ROOT="path/to/repos"
 
-REPOSTUDIO="/usr/bin/deploy"
+DEPLOY="/usr/bin/deploy"
 LOG_LEVEL=1
 
 REPO=application
@@ -533,7 +533,7 @@ SCENARIOS="scenario1 scenario2"
 echo -e "\nupdating $REPO repositories"
 for v in $VERSIONS; do
   for a in $ARCHS; do 
-    $REPOSTUDIO \
+    $DEPLOY \
     $ROOT/$REPO/$REPO.definition \
     --macro "repo:$REPO" --macro "version:$v" --macro "arch:$a" \
     -l$LOG_LEVEL \
@@ -545,7 +545,7 @@ for s in $SCENARIOS; do
   echo -e "\ntesting $REPO $s configuration"
   for v in $VERSIONS; do 
     for a in $ARCHS; do 
-    $REPOSTUDIO $ROOT/$REPO/$s-test.definition \
+    $DEPLOY $ROOT/$REPO/$s-test.definition \
     --macro "repo:$REPO" ---macro "scenario:$s" --macro "version:$v" \
     --macro "arch:$a" \
     -l$LOG_LEVEL\

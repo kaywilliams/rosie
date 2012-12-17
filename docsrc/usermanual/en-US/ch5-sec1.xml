@@ -27,11 +27,11 @@
   Deploy on a KVM-compatible machine. You will also need to install the
   <emphasis>deploy-virt-config</emphasis> RPM package. See <xref
   linkend="configuring-a-build-machine"/> for information on determining
-  whether your machine is KVM-compatible. See the Deploy download
-  page at <ulink
-  url="http://www.deployproject.org/deploy">http://www.deployproject.org/deploy</ulink>
-  for information on installing the
-  <emphasis>deploy-virt-config</emphasis> package.
+  whether your machine is KVM-compatible. See the Deploy download page at
+  <ulink
+  url="http://www.deployproject.org/download">http://www.deployproject.org/download</ulink>
+  for information on installing the <emphasis>deploy-virt-config</emphasis>
+  package.
   </para>
 
   <para>  
@@ -47,7 +47,7 @@
   <emphasis role='strong'>web-server.definition</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/gctemplates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>

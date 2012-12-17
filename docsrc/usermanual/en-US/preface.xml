@@ -40,8 +40,8 @@
     </para>
 
     <para>
-    <ulink url="http://www.deployproject.org/deploy/docs/">
-    http://www.deployproject.org/deploy/docs/ </ulink>
+    <ulink url="http://www.deployproject.org/docs/">
+    http://www.deployproject.org/docs/ </ulink>
     </para>
 
   </section>
@@ -197,8 +197,8 @@ $ precedes lines entered as a normal user</programlisting>
     <title>Getting Deploy</title>
 
     <para>Deploy and associated documents are available at
-    <ulink url="http://www.deployproject.org/deploy/"> the 
+    <ulink url="http://www.deployproject.org/"> the 
     Deploy website</ulink> 
-    at www.deployproject.org/deploy.</para>
+    at www.deployproject.org.</para>
   </section>
 </chapter>

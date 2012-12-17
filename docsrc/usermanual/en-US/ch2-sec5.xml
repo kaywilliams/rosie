@@ -129,8 +129,8 @@
 	  <para>
           The rules of syntax for the repository definition. See the separate
           document at <ulink
-          url="http://www.deployproject.org/documentation/">
-          http://www.deployproject.org/documentation/ </ulink>.
+          url="http://www.deployproject.org/docs/">
+          http://www.deployproject.org/docs/ </ulink>.
           </para>
         </listitem>
       </varlistentry>

@@ -7,11 +7,11 @@
 
 <refentry id="configuration.deploy">
 <refentryinfo>
-<date>2012-09-10</date>
+<date>2012-12-17</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>deploy.conf</refentrytitle>
+<refentrytitle>Deploy Configuration File</refentrytitle>
 <manvolnum>5</manvolnum>
 <refmiscinfo>Deploy</refmiscinfo>
 <refmiscinfo class="sectdesc">Deploy Configuration Reference</refmiscinfo>
@@ -210,7 +210,7 @@ used basis.</para>
 
 <refsect1 id="deploy.conf.5-bugs"><title>BUGS</title>
 <para>See the web site at <ulink
-url="http://www.deployproject.org/deploy"/> for contact and support
+url="http://www.deployproject.org"/> for contact and support
 information.</para>
 </refsect1>
 
@@ -228,7 +228,7 @@ information.</para>
 
 <refsect1 id="deploy.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://www.deployproject.org/deploy">http://www.deployproject.org/deploy</ulink></member>
+<member><ulink url="http://www.deployproject.org">http://www.deployproject.org</ulink></member>
 </simplelist></para>
 </refsect1>
 

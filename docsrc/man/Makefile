@@ -3,7 +3,10 @@ MANXSL = /usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
 XSLTPROC = /usr/bin/xsltproc
 GZIP = /bin/gzip
 
-.PHONY: all checkpkg clean install deploy.1.gz deploy.conf.5.gz html
+DRUSH = /usr/bin/drush
+PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/man
+
+.PHONY: all checkpkg clean install deploy.1.gz deploy.conf.5.gz html publish 
 
 all: deploy.1.gz deploy.conf.5.gz
 
@@ -24,6 +27,29 @@ html:
 	$(XSLTPROC) --output deploy.1.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl deploy.xml
 	$(XSLTPROC) --output deploy.conf.5.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl deploy.conf.xml
 
+publish:
+	# start clean
+	rm -rf $(PUBDIR)/en-US 
+	mkdir -p $(PUBDIR)/en-US
+
+	# copy html files to pubdir
+	cp -a *.html $(PUBDIR)/en-US; \
+
+        # add metadata providing the desired path alias
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy"/g' $(PUBDIR)/en-US/deploy.1.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy.conf"/g' $(PUBDIR)/en-US/deploy.conf.5.html
+
+        # set permissions
+	chown -R apache:apache $(PUBDIR)/en-US/$d
+	restorecon -R $(PUBDIR)/en-US/$d
+
+	# import man pages into drupal
+	# deploy feed node in Drupal is 5378
+	# deploy.conf feed node in Drupal is 5379
+	# future - create a feed node dynanically and use it 
+	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5378)->import());"
+	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5379)->import());"
+	
 install:
 	mkdir -p $(DESTDIR)/usr/share/man/man5
 	mkdir -p $(DESTDIR)/usr/share/man/man1
