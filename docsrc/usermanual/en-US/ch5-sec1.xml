@@ -47,7 +47,7 @@
   <emphasis role='strong'>web-server.definition</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/gctemplates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
