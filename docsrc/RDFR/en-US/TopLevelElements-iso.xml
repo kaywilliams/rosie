@@ -13,16 +13,7 @@
     </title>
 
     <para>
-    Creates ISO images of the system repository for installation via CD or DVD.
-    </para>
-
-    <para>
-    Also used by Deploy during
-    the creation of <emphasis>iso</emphasis> images. 
-    When creating iso images, including the boot.iso image, Deploy
-    appends provided options to each "append" line in the syslinux
-    configuration file. In addition, iso images are automatically configured
-    to use a kickstart, if provided. 
+    Creates ISO images for performing system installation via CD or DVD.
     </para>
 
   </section>

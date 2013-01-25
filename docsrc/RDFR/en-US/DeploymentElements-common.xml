@@ -836,9 +836,8 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      Also used by Deploy during the creation of ISO images. See the
-      section on the <xref linkend='iso'/> top-level element for more
-      information.
+      Also used by Deploy during the creation of installation images including
+      boot.iso and images created by the <xref linkend="iso"/> module.
       </para>
 
       <para>
