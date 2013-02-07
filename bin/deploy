@@ -162,14 +162,14 @@ class BuildCli:
     try:
       import deploy.main
     except ImportError, e:
-      sys.exit("Unable to load core deploy files\n")
+      sys.exit("Deploy was unable to load a required python module:\n  * %s\n" % e)
  
     cb = BuildCliCallback()
 
-    # initialize our software builder with opts and make it go!
+    # initialize our builder with opts and make it go!
     try:
-      sbuilder = deploy.main.Build(opts, args, callback=cb)
-      sbuilder.main()
+      builder = deploy.main.Build(opts, args, callback=cb)
+      builder.main()
     except (KeyboardInterrupt):
       msg = "\nDeploy halted on user input\n"
       cb.logger.logfile.file_object.write(msg)
