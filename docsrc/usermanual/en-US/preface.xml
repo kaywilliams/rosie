@@ -8,12 +8,13 @@
     <title>Audience</title>
 
     <para>
-    This document is intended for system administrators with some knowledge of
-    CentOS or Red Hat Enterprise Linux. In particular, it assumes basic
-    experience with system installation and configuration, RPM package
-    management, system updating using YUM, XML file creation and editing,
-    system automation using BASH or other scripting languages, and networking
-    and machine virtualization.
+    This document is intended for software developers and system
+    administrators. It assumes basic experience with software packaging and
+    package repositories, as well as with system installation, system and
+    application configuration, and software updating. Background knowledge in
+    XML file creation and editing, system automation using BASH or other
+    scripting languages, and networking and machine virtualization will also
+    assist the reader.
     </para>
 
   </section>
@@ -25,18 +26,17 @@
     This manual complements several <application
     class="software">Deploy</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing Deploy and creating a basic CentOS repository.
-    The "Repository Definition File Reference" (RDFR) contains the syntax for
-    repository definition elements and attributes. Finally, Deploy has a set of
-    <emphasis role="strong">man pages</emphasis> explaining the
-    <command>deploy</command> command, its options and the Deploy configuration
-    file, <filename>deploy.conf</filename>. This manual contains references to
-    all four throughout the text.
+    obtaining and installing Deploy.  The "Repository Definition File
+    Reference" (RDFR) contains the syntax for repository definition elements
+    and attributes. Finally, Deploy has a set of <emphasis role="strong">man
+    pages</emphasis> explaining the <command>deploy</command> command, its
+    options and the Deploy configuration file,
+    <filename>deploy.conf</filename>. This manual contains references to all
+    four throughout the text.
     </para>
 
     <para>
-    These Deploy documents are available at the Deploy
-    website.
+    These Deploy documents are available at the Deploy website.
     </para>
 
     <para>
@@ -51,7 +51,7 @@
 
     <para>
     The intent of the manual is to help you use Deploy effectively to
-    deploy and maintain Linux-based systems and applications using YUM package
+    deploy and maintain systems and applications using software package
     repositories. This manual takes a top-down approach, explaining the
     concepts before giving steps, commands and examples that you can use to
     create and test your own repositories.
