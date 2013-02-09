@@ -115,12 +115,12 @@ $root/var/www/html/outfile.txt</programlisting>
       </title>
 
       <para>
-      <emphasis><xref linkend="destdir" endterm='destdir-short' /></emphasis>,
+      <emphasis><xref linkend="destdir" /></emphasis>,
       <emphasis><xref linkend="destname" /></emphasis>,
       <emphasis><xref linkend="mode" /></emphasis>,
       <xref linkend="content-path" />,
       <xref linkend="content-basename" />,
-      <xref linkend="content-dirname" endterm='dirname-short'/>
+      <xref linkend="content-dirname"/>
       </para>
     </section>
   </section>

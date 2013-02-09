@@ -329,7 +329,7 @@
 
         <para>
         See Also <emphasis>
-        <xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
+        <xref linkend="repo-including-excluding-repository-content" /></emphasis>.
         </para>
         </listitem>
       </varlistentry>
@@ -383,7 +383,7 @@
 
           <para>
           See Also <emphasis>
-          <xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
+          <xref linkend="repo-including-excluding-repository-content" /></emphasis>.
           </para>
           </listitem>
         </varlistentry>

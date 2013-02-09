@@ -374,7 +374,7 @@ FULLNAME repository.
 
         <para>
         <emphasis>@destdir</emphasis>: See the path-like attribute
-        <emphasis><xref linkend="destdir" endterm='destdir-short' /></emphasis>. Controls the
+        <emphasis><xref linkend="destdir"/></emphasis>. Controls the
         location to which this file or folder should be installed on client
         machines. The default value is
         <filename>%{installdir}/files</filename>.

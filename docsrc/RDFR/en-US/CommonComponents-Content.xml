@@ -3,8 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="CommonComponents-Content">
 
-  <section id="content-basename"
-           xreflabel="BASENAME">
+  <section id="content-basename">
     <title>
     Content: <varname>BASENAME</varname>
     </title>
@@ -26,7 +25,7 @@
       </title>
 
       <para>
-      <xref linkend="content-dirname" endterm="dirname-short"/>,
+      <xref linkend="content-dirname"/>,
       <xref linkend="path-like-element" />
       </para>
     </section>
@@ -183,7 +182,6 @@ rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm</programlisting>
     <title>
     Content: <varname>DIRNAME</varname>
     </title>
-    <titleabbrev id='dirname-short'>DIRNAME</titleabbrev>
 
     <section>
       <title>
@@ -429,7 +427,7 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file</programlist
 
       <para>
       <xref linkend="content-basename" />,
-      <xref linkend="content-dirname" endterm="dirname-short"/>,
+      <xref linkend="content-dirname"/>,
       <xref linkend="path-like-element" />
       </para>
     </section>

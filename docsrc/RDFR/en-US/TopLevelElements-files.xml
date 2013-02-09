@@ -74,7 +74,7 @@
 
       <para>
       <emphasis>@destdir</emphasis>: See the path-like attribute
-      <emphasis><xref linkend="destdir" endterm='destdir-short' /></emphasis>. Controls the location to
+      <emphasis><xref linkend="destdir"/></emphasis>. Controls the location to
       which this file or folder should be copied within the repository tree.
       The default value is the root of the tree, '<filename>/</filename>'.
       </para>
