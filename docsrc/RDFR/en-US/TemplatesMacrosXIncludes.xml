@@ -29,7 +29,7 @@
   and example files.
   </para>
 
-  <section id="templates" xreflabel="templates">
+  <section id="templates">
   <title>Templates</title>
 
   <xi:include href="common.xml" 
@@ -38,7 +38,7 @@
 
   </section>
 
-  <section id="macros" xreflabel="Macros">
+  <section id="macros">
     <title>
     Macros 
     </title>
@@ -160,8 +160,7 @@
       Examples
       </title>
  
-      <section id="macro-command-line-example" 
-               xreflabel="Example 1 - Using Command-Line Macros">
+      <section id="macro-command-line-example"> 
       <title>
       Example 1 - Using Command-Line Macros
       </title>
@@ -196,8 +195,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       </informalexample>
       </section>
 
-      <section id="macro-in-document-example" 
-               xreflabel="Example 2 - Using In-Document Macros">
+      <section id="macro-in-document-example"> 
       <title>
       Example 2 - Using In-Document Macros
       </title>
@@ -396,8 +394,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
     <section>
     <title>Examples</title>
 
-    <section id="xinclude-text-document-example" 
-             xreflabel="Example 1 - Including an entire text document">
+    <section id="xinclude-text-document-example"> 
       <title>
       Example 1 - Including an entire external <emphasis>text</emphasis>
       document.
@@ -430,8 +427,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       </informalexample>
     </section>
 
-    <section id="xinclude-xml-document-example" 
-             xreflabel="Example 2 - Include an entire external XML document">
+    <section id="xinclude-xml-document-example"> 
       <title>
       Example 2 - Including an entire external <emphasis>XML</emphasis>
       document.
@@ -454,8 +450,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       </informalexample>
     </section>
 
-    <section id="xinclude-xml-segment-example" 
-             xreflabel="Example 3 - Including XML segments">
+    <section id="xinclude-xml-segment-example">
       <title>
       Example 3 - Including XML segments.
       </title>
@@ -501,8 +496,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       </informalexample>
     </section>
 
-    <section id="conditional-xinclude-example" 
-      xreflabel="Example 4 - Conditionally including XML segments using Macros, XIncludes and XML elements">
+    <section id="conditional-xinclude-example"> 
       <title>
       Example 4 - Conditionally including XML segments using Macros, XIncludes and XML elements.
       </title>

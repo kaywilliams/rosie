@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="repos"
-         xreflabel="repos">
+<section id="repos">
   <title>
   Repos
   </title>
@@ -26,8 +25,7 @@
     Furthermore, all repositories must have a unique id.
     </para>
 
-    <section id="repo-base-repository"
-             xreflabel="Base Repository">
+    <section id="repo-base-repository">
       <title>
       Base Repositories
       </title>
@@ -65,8 +63,7 @@
 
     </section>
 
-    <section id="repo-rhn-repositories"
-             xreflabel="Red Hat Network Repositories">
+    <section id="repo-rhn-repositories">
       <title>
       Red Hat Network Repositories
       </title>
@@ -122,8 +119,7 @@
 
     </section>
 
-    <section id="repo-including-excluding-repository-contents"
-             xreflabel="Including and Excluding Repository Content">
+    <section id="repo-including-excluding-repository-content">
       <title>
       Including and Excluding Repository Content
       </title>
@@ -168,8 +164,7 @@
 
     </section>
 
-    <section id="repo-group"
-             xreflabel="Repository Groups">
+    <section id="repo-group">
       <title>
       Repository Groups
       </title>
@@ -226,8 +221,7 @@
     </title>
 
     <variablelist>
-    <varlistentry id="repo"
-                  xreflabel="repo">
+    <varlistentry id="repo">
       <term>
       repo
       </term>
@@ -430,8 +424,7 @@
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
-    <section  id="repo-include-exclude-example"
-             xreflabel="Example 1 - using repos/repo/include and repos/repo/exclude">
+    <section  id="repo-include-exclude-example">
       <title>
       Example 1 - using <emphasis>repos/repo/include</emphasis>
       and <emphasis>repos/repo/exclude</emphasis>
@@ -470,8 +463,7 @@
       </informalexample>
     </section>
 
-    <section id="repo-rhn-example"
-             xreflabel="Example 2 - Red Hat Network repositories">
+    <section id="repo-rhn-example">
       <title>
       Example 2 - Red Hat Network repositories
       </title>

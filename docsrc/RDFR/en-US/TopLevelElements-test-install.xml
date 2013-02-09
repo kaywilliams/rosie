@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="test-install"
-         xreflabel="test-install">
+<section id="test-install">
   <title>
   Test-install
   </title>
@@ -102,7 +101,7 @@
 &lt;/test-install></programlisting>
     </section>
 
-    <section id="virt-deploy.xml" xreflabel="virt-deploy.xml">
+    <section id="virt-deploy.xml">
     <title>
     Example - <filename>virt-deploy.xml</filename> template
     </title>

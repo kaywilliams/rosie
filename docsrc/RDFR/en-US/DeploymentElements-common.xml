@@ -612,7 +612,7 @@ $remote-url/%{id}</programlisting>
       </listitem>
     </varlistentry>
 
-    <varlistentry id='hostname' xreflabel='hostname'>
+    <varlistentry id='hostname'>
     <term>hostname</term>
 
     <listitem>
