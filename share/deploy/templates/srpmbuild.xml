@@ -34,7 +34,11 @@
 <package>rpmlint</package>
 <xi:include xpointer="xpointer(/*/xml[@id='packages-%{version}']/node())"/>
 </packages>
-<xml id="packages-5"><package>buildsys-build</package></xml>
+<xml id="packages-5">
+<package>buildsys-build</package>
+<!--add NetworkManager to workaround RTNETLINK/NOZEROCONF issue in el5-->
+<package>NetworkManager</package>
+</xml>
 <xml id="packages-6"><group>buildsys-build</group></xml>
 
 <publish>

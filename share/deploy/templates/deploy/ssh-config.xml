@@ -2,6 +2,7 @@
 <config-rpm id='deploy-ssh-config'>
   <requires>openssh</requires>
   <requires>openssh-clients</requires>
+  <requires>/usr/sbin/sshd</requires>
   <files destdir='/root/.ssh/'>/root/.ssh/id_rsa.pub</files>
   <script type='post'>
   # set some convenience variables
