@@ -10,7 +10,7 @@ L_BUILDSTAMP_FORMAT = LocalsDict({
     'productpath': dict(index=3, string='%(packagepath)s'),
   },
   "anaconda-10.2.0.63-1": {
-    'timestamp':   dict(string='%(timestamp)s.%(basearch)s'),
+    'timestamp':   dict(string='%(timestamp)s.%(arch)s'),
   },
   "anaconda-10.2.1.5": {
     'webloc':      dict(index=4, string='%(webloc)s'),

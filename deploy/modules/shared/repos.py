@@ -299,7 +299,7 @@ class RepoEventMixin(Event):
       # set $yumvars
       repo.vars['$releasever'] = self.config.getxpath(
                                  'releasever/text()', self.version)
-      repo.vars['$basearch']   = self.basearch
+      repo.vars['$basearch']   = self.arch
       
       # extend gpgkey to include keys from gpgkey.list
       listfile = repo.url.realm / 'gpgkeys/gpgkey.list'

@@ -134,9 +134,9 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
       try:
         n,a,__,_,_ = pkg
         if n not in KERNELS: continue
-        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.basearch,
+        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.arch,
           "the base arch of kernel package '%s' does not match the specified "
-          "base arch '%s'" % (pkg, self.basearch))
+          "base arch '%s'" % (pkg, self.arch))
         matched = True
       except AttributeError:
         pass

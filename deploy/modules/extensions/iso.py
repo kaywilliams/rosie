@@ -45,7 +45,7 @@ reposdir=/
 exclude=*debuginfo*
 
 [%s]
-name = %s - $basearch
+name = %s - $arch
 baseurl = file://%s
 '''
 

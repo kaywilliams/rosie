@@ -35,8 +35,6 @@ import textwrap
 import traceback
 import time
 
-from rpmUtils.arch import getBaseArch
-
 from deploy.util import dispatch
 from deploy.util import listfmt
 from deploy.util import lock
@@ -442,7 +440,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     # set up misc vars from the main config element
     qstr = '/*/main/%s/text()'
-    self.basearch    = getBaseArch(ARCH_MAP[self.arch])
     self.fullname    = self.definition.getxpath(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
     self.webloc      = self.definition.getxpath(qstr % 'bug-url', 
@@ -531,7 +528,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     di['version']           = self.version
     di['arch']              = self.arch
     di['type']              = self.type
-    di['basearch']          = self.basearch
     di['repoid']            = self.repoid
     di['anaconda-version']  = None
     di['fullname']          = self.fullname

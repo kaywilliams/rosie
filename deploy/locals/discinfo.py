@@ -6,7 +6,7 @@ L_DISCINFO_FORMAT = LocalsDict({
   "anaconda-0": {
     'timestamp': dict(index=0, string='%(timestamp)s'),
     'fullname':  dict(index=1, string='%(fullname)s'),
-    'basearch':  dict(index=2, string='%(basearch)s'),
+    'arch':      dict(index=2, string='%(arch)s'),
     'discs':     dict(index=3, string='%(discs)s'),
     'base':      dict(index=4, string='%(packagepath)s/base'),
     'rpms':      dict(index=5, string='%(packagepath)s'),

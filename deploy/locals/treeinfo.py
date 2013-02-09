@@ -14,10 +14,10 @@ L_TREEINFO_FORMAT = LocalsDict({
         'version':      dict(index=4, value='%(version)s'),
         'discnum':      dict(index=5, value='1'),
         'packagedir':   dict(index=6, value='%(packagepath)s'),
-        'arch':         dict(index=7, value='%(basearch)s'),
+        'arch':         dict(index=7, value='%(arch)s'),
       },
     },
-    'images-%(basearch)s': { # images-%(basearch)s section
+    'images-%(arch)s': { # images-%(arch)s section
       'index': 1,
       'content': {
         'kernel':       dict(index=0, value='images/pxeboot/vmlinuz'),
@@ -43,7 +43,7 @@ L_TREEINFO_FORMAT = LocalsDict({
     },
   },
   "anaconda-11.4.0.40": { # don't include diskboot.img anymore
-    'images-%(basearch)s': {
+    'images-%(arch)s': {
       'content': {
         'diskboot.img': REMOVE,
       },

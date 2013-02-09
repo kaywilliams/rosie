@@ -62,7 +62,7 @@ def parse_cmd_args(defaults=None):
     default='5',
     help='select the version to test')
   parser.add_option('-a', '--arch', metavar='ARCH',
-    dest='basearch',
+    dest='arch',
     default='i386',
     help='select the arch of the distribution to test')
 
@@ -132,7 +132,7 @@ def main():
     mod = imp.load_module('test-%s' % modname, fp, p, d)
     suite.addTest(mod.make_suite(distro=options.distro,
                                  version=options.version,
-                                 arch=options.basearch,
+                                 arch=options.arch,
                                  ))
   finally:
     fp and fp.close()

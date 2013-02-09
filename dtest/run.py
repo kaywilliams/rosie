@@ -34,7 +34,7 @@ TIMEFMT = '%Y-%m-%d %X'
 opt_defaults = dict(
   distro   = 'centos',
   version  = '5',
-  basearch = 'i386',
+  arch = 'i386',
   buildroot   = '/tmp/dtest',
   testlogfile = 'test.log',
   testloglevel = 2,
@@ -49,7 +49,7 @@ def reconstruct_cmd(options):
   # always include these values because they're interesting to see in cmdline
   cmd += ['-d', options.distro]
   cmd += ['-f', options.version]
-  cmd += ['-a', options.basearch]
+  cmd += ['-a', options.arch]
   # only include these values if they arent the defaults
   if options.buildroot != opt_defaults['buildroot']:
     cmd += ['-b', options.buildroot]
@@ -88,7 +88,7 @@ def log_header(options):
   START = time.time()
   logger.log(0, '#' * 70)
   logger.log(0, '# Beginning test suite run for %s-%s-%s' \
-                  % (options.distro, options.version, options.basearch))
+                  % (options.distro, options.version, options.arch))
   logger.log(0, '# at %s' % time.strftime(TIMEFMT, time.localtime(START)))
   logger.log(0, '#' * 70)
 
@@ -103,7 +103,7 @@ def log_footer(options):
   end = time.time()
   logger.log(0, '=' * 70)
   logger.log(0, '= Test suite run for %s-%s-%s' \
-                  % (options.distro, options.version, options.basearch))
+                  % (options.distro, options.version, options.arch))
   logger.log(0, '= complete at %s (elapsed %s)' \
                   % (time.strftime(TIMEFMT, time.localtime(end)),
                      datetime.timedelta(seconds=int(round(end-START)))))

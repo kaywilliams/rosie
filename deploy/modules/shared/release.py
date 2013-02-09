@@ -154,7 +154,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     if self.webpath is not None:
       baseurl = self.webpath
       lines.extend([ '[%s]' % self.masterrepo, 
-                     'name      = %s - %s' % (self.fullname, self.basearch),
+                     'name      = %s - %s' % (self.fullname, self.arch),
                      'baseurl   = %s' % baseurl,
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])

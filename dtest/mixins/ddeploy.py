@@ -51,6 +51,8 @@ class DeployMixinTestCase:
     pkgcontent=etree.XML("""
     <packages>
       <group>core</group>
+      <!--add NM as a workaround RTNETLINK/NOZEROCONF issue in el5-->
+      <package>NetworkManager</package>
     </packages>""")
     packages = self.conf.getxpath('/*/packages', None)
     if packages is None:
@@ -58,7 +60,8 @@ class DeployMixinTestCase:
     packages.extend(pkgcontent.xpath('/*/*'))
 
     # update module
-    self.hostname = "dtest-%s-%s-%s" % (self.moduleid, self.version, self.arch)
+    self.hostname = "dtest-%s-%s-%s" % (self.moduleid, self.version,
+                                        self.arch.replace("_", "-"))
     self.domain = '.local'
 
     mod = self.conf.getxpath('/*/%s' % self.mod, None)
