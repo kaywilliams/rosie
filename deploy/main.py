@@ -164,10 +164,21 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self.arch     = self.definition.getxpath(qstr % 'arch')
       self.type     = self.definition.getxpath(qstr % 'type', 'system')
     except rxml.errors.XmlPathError, e:
+      # fix me - XmlPathError is not user friendly. Fortunately, at least
+      # for now this message will never appear since missing name, version
+      # and arch elements are caught during schema validation
       raise DeployError("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e))
 
-    self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
+    if self.definition.getxpath(qstr % 'os', None):
+      self.os = self.definition.getxpath(qstr % 'os')
+      self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
+                                 (self.name, self.os, self.version, self.arch))
+    else:
+      self.os = 'centos'
+      # to avoid breaking repositories created by Deploy < 1.8, if the os
+      # is not provided, do not add it to the repoid
+      self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
                                           (self.name, self.version, self.arch))
 
     # validate initial variables

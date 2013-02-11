@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repo xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<macro id='os'>centos</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
 
 <main>
 <fullname>Example Web Server</fullname>
 <name>web-server</name>
+<os>%{os}</os>
 <version>%{version}</version>
 <arch>%{arch}</arch>
 </main>

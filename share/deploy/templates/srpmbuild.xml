@@ -3,12 +3,14 @@
 
 <macro id="name">srpmbuild</macro>
 <macro id="fullname">RPM Build Virtual Machine</macro>
+<macro id="os">centos</macro>
 <macro id="version">6</macro>
 <macro id="arch">x86_64</macro>
 
 <main>
 <name>%{name}</name>
 <fullname>%{fullname}</fullname>
+<os>%{os}</os>
 <version>%{version}</version>
 <arch>%{arch}</arch>
 </main>
