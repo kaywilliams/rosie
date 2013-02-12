@@ -21,15 +21,11 @@ import optparse
 import re
 import rpm
 import rpmUtils
-import signal
 import yum
 
-from deploy.callback     import TimerCallback
-from deploy.dlogging    import MSG_MAXWIDTH, L0, L1, L2
-from deploy.errors       import (DeployError,
-                                       DeployEventError,
-                                       MissingIdError,
-                                       DuplicateIdsError)
+from deploy.dlogging     import MSG_MAXWIDTH, L0, L1, L2
+from deploy.errors       import (DeployError, DeployEventError, 
+                                 DuplicateIdsError)
 from deploy.event        import Event, CLASS_META
 from deploy.main         import Build
 from deploy.util         import magic 
