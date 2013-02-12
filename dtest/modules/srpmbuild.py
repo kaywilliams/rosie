@@ -209,8 +209,8 @@ class Test_Shutdown(TestSrpmTestCase):
     # shutdown srpmbuild vm
     exec "import libvirt" in globals()
     conn = libvirt.open("qemu:///system")
-    vm = conn.lookupByName("srpmbuild-%s-%s.local" % (self.version, 
-                            self.arch.replace("_", "-")))
+    vm = conn.lookupByName("srpmbuild-centos-%s-%s.local" % (
+                           self.version, self.arch.replace("_", "-")))
     vm.destroy()
 
 
