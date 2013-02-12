@@ -82,7 +82,7 @@ class TestEvents(Event):
       parentid = 'all',
       ptr = ptr,
       properties = CLASS_META,
-      comes_before = [ 'publish-events' ],
+      comes_after = [ 'os-events' ],
       suppress_run_message = True
     )
 
