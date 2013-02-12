@@ -536,6 +536,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     qstr = '/*/main/%s/text()'
   
     di['name']              = self.name 
+    di['os']                = self.os
     di['version']           = self.version
     di['arch']              = self.arch
     di['type']              = self.type
