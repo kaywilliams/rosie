@@ -118,16 +118,17 @@ def log_summary(options, summaryfile):
   logger = make_logger(logfile, options.testloglevel)
 
   # formats, etc
-  fmtstr   = '%-15s%8s%8s%8s%10s'
+  fmtstr   = '%-15s%8s%8s%8s%10s  %-19s'
   efmtstr = '\033[1m%s\033[0;0m' % fmtstr
-  tabwidth = 15+8+8+8+10 # sum of column widths, above
+  tabwidth = 15+8+8+8+10+21 # sum of column widths, above
   width    = 70 # all other widths
 
   # modlist is a list of (ntests, nfailures, nerrors) tuples
   logger.log(0, '*' * width)
   logger.log(0, '* Test result summary:')
   logger.log(0, '*' * width)
-  logger.log(0, fmtstr % ('module name', '# test', '# fail', '# err', 'time'))
+  logger.log(0, fmtstr % ('module name', '# test', '# fail', '# err', 'time',
+                          'message'))
   logger.log(0, '-' * tabwidth)
 
   ntests = nfails = nerrs = 0
@@ -140,15 +141,15 @@ def log_summary(options, summaryfile):
 
     # choose fmtstr based on whether there were errors/failures or not
     fmt = fmtstr
-    if int(mod[2]) > 0 or int(mod[3]) > 0:
+    if int(mod[2]) > 0 or int(mod[3]) > 0 or mod[5]:
       fmt = efmtstr
 
     logger.log(0, fmt % (mod[0], mod[1], mod[2], mod[3],
-        datetime.timedelta(seconds=int(round(float(mod[4]))))))
+        datetime.timedelta(seconds=int(round(float(mod[4])))),mod[5]))
 
   logger.log(0, '-' * tabwidth)
   logger.log(0, fmtstr % ('', ntests, nfails, nerrs,
-                          datetime.timedelta(seconds=int(round(ttime)))))
+                          datetime.timedelta(seconds=int(round(ttime))),''))
   logger.log(0, '*' * width)
 
   # make sure we close our handles on logfile

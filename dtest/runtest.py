@@ -125,6 +125,7 @@ def main():
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
+  summaryfile = pps.path(cwd) / pps.path('%s.summary' % options.testlogfile)
 
   fp = None
   try:
@@ -134,6 +135,11 @@ def main():
                                  version=options.version,
                                  arch=options.arch,
                                  ))
+  except:
+    summaryfile.write_lines(['%s,%s,%s,%s,%s,%s'
+      % (modname, "0", "0", "0", "0", "Module load failed")],
+      append=True)
+    raise
   finally:
     fp and fp.close()
 
@@ -147,13 +153,13 @@ def main():
   os.chdir(cwd) # make sure we're back where we started
 
   # write results to summaryfile
-  summaryfile = pps.path('%s.summary' % options.testlogfile)
-  summaryfile.write_lines(['%s,%s,%s,%s,%s'
+  summaryfile.write_lines(['%s,%s,%s,%s,%s,%s'
     % (modname,
        result.testsRun,
        len(result.failures),
        len(result.errors),
-       result.duration )],
+       result.duration,
+       "")],
     append=True)
 
   if not result: # some sort of exception in the testing logic (can't currently happen)
