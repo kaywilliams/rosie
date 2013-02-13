@@ -23,7 +23,7 @@ from deploy.util     import repo
 from deploy.util     import rxml
 from deploy.util.pps.constants import TYPE_NOT_DIR
 
-from dtest          import (BUILD_ROOT, TestBuild, EventTestCase, 
+from dtest          import (TestBuild, EventTestCase, 
                             ModuleTestSuite)
 from dtest.core     import make_core_suite
 from dtest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,

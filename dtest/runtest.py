@@ -119,6 +119,7 @@ def main():
   import dtest
 
   dtest.BUILD_ROOT = pps.path(options.buildroot)
+  dtest.BUILD_ROOT.mkdirs()
   dtest.EventTestCase.options = options
 
   runner = dtest.EventTestRunner(options.testlogfile, options.testloglevel)
