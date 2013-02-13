@@ -217,15 +217,19 @@ class Test_Shutdown(TestSrpmTestCase):
 def make_suite(distro, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
+
+  suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
+  suite.addTest(Test_Config(distro, version, arch))
+  suite.addTest(Test_FromFolder(distro, version, arch))
+  suite.addTest(Test_FromRepo(distro, version, arch))
+  suite.addTest(Test_FromScript(distro, version, arch))
+
   if check_vm_config():
     suite.addTest(make_core_suite(TestSrpmTestCase, distro, version, arch))
-    suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
-    suite.addTest(Test_Config(distro, version, arch))
-    suite.addTest(Test_FromFolder(distro, version, arch))
-    suite.addTest(Test_FromRepo(distro, version, arch))
-    suite.addTest(Test_FromScript(distro, version, arch))
     suite.addTest(Test_UpdatesDefinition(distro, version, arch))
     suite.addTest(Test_InvalidRpm(distro, version, arch))
     suite.addTest(Test_Apply(distro, version, arch))
     suite.addTest(Test_Shutdown(distro, version, arch))
-    return suite
+
+  return suite
+
