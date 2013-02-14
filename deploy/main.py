@@ -163,15 +163,33 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if callback: callback.set_debug(self.debug)
 
     # set up initial variables
-    for elem in ['name', 'os', 'version', 'arch']:
+    qstr = '/*/main/%s/text()'
+
+    # note- evaluate 'os' last below to allow using other vars in error text
+    for elem in ['name', 'version', 'arch', 'os']:
       try:
         exec ("self.%s = self.definition.getxpath('/*/main/%s/text()')" 
               % (elem, elem))
       except rxml.errors.XmlPathError, e:
-        raise DeployError("Validation of %s failed. Missing 'main/%s' element."
-                          " %s" % (self.definition.getroot().file, elem,
-                                   VALIDATE_DATA[elem]['error']))
-    qstr = '/*/main/%s/text()'
+        msg = ("ERROR: Validation of %s failed. Missing 'main/%s' element. %s"
+                % (self.definition.getroot().file, elem,
+                   VALIDATE_DATA[elem]['error']))
+        if elem == "os" and not self.definition.getxpath(qstr % 'id', None):
+          raise DeployError("%s \n\n"
+          "Caution: Adding an 'os' element will change the repository "
+          "ID. If the repository exists and is in use, you should add two "
+          "elements to the 'main' section of the definition:\n"
+          "\n"
+          "1. an 'os' element as described above, e.g. '<os>centos</os>'\n"
+          "2. an 'id' element with an explicit value, e.g. "
+          "'<id>%s-%s-%s</id>'\n"
+          "\n"
+          "See the Repository Definition File Reference for more information "
+          "on these elements." % (msg, self.name, self.version, self.arch))
+
+        else:
+          raise DeployError(msg)
+
     self.type   = self.definition.getxpath(qstr % 'type', 'system')
     self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
                                (self.name, self.os, self.version, self.arch))
