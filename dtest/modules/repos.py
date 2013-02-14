@@ -66,11 +66,11 @@ class Test_RepoDefaults(ReposEventTestCase):
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repos')
 
-  suite.addTest(make_core_suite(ReposEventTestCase, distro, version, arch))
-  suite.addTest(Test_NoBase(distro, version, arch))
-  suite.addTest(Test_RepoDefaults(distro, version, arch))
+  suite.addTest(make_core_suite(ReposEventTestCase, os, version, arch))
+  suite.addTest(Test_NoBase(os, version, arch))
+  suite.addTest(Test_RepoDefaults(os, version, arch))
 
   return suite

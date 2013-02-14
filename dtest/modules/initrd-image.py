@@ -33,9 +33,9 @@ class InitrdImageEventTestCase(EventTestCase):
 
 class _InitrdImageEventTestCase(ImageModifyMixinTestCase,
                                 InitrdImageEventTestCase):
-  def __init__(self, distro, version, arch, conf=None):
+  def __init__(self, os, version, arch, conf=None):
     ImageModifyMixinTestCase.__init__(self)
-    InitrdImageEventTestCase.__init__(self, distro, version, arch, conf)
+    InitrdImageEventTestCase.__init__(self, os, version, arch, conf)
 
   def setUp(self):
     InitrdImageEventTestCase.setUp(self)
@@ -66,11 +66,11 @@ class Test_Kickstart(_InitrdImageEventTestCase):
     self.ksfile.remove()
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('initrd-image')
 
-  suite.addTest(make_core_suite(InitrdImageEventTestCase, distro, version, arch))
-  suite.addTest(imm_make_suite(_InitrdImageEventTestCase, distro, version, arch, xpath='files'))
-  suite.addTest(Test_Kickstart(distro, version, arch))
+  suite.addTest(make_core_suite(InitrdImageEventTestCase, os, version, arch))
+  suite.addTest(imm_make_suite(_InitrdImageEventTestCase, os, version, arch, xpath='files'))
+  suite.addTest(Test_Kickstart(os, version, arch))
 
   return suite

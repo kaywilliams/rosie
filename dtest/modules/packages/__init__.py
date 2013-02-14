@@ -35,8 +35,8 @@ class CompsEventTestCase(EventTestCase):
   eventid  = 'comps'
   _conf = "<packages><package>kernel</package></packages>"
 
-  def __init__(self, distro, version, arch, conf=None):
-    EventTestCase.__init__(self, distro, version, arch, conf)
+  def __init__(self, os, version, arch, conf=None):
+    EventTestCase.__init__(self, os, version, arch, conf)
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
@@ -97,8 +97,8 @@ class Test_IncludePackages(CompsEventTestCase):
 
 class Test_IncludeGroupsAndPackages(CompsEventTestCase):
   "groupfile generated, groups and packages included"
-  def __init__(self, distro, version, arch, conf=None):
-    CompsEventTestCase.__init__(self, distro, version, arch, conf=conf)
+  def __init__(self, os, version, arch, conf=None):
+    CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
     self._add_config({ 
     '5': \
     """<packages>
@@ -138,8 +138,8 @@ class Test_ExcludePackages(CompsEventTestCase):
 
 class Test_GroupsByRepo(CompsEventTestCase):
   "groupfile generated, group included from specific repo"
-  def __init__(self, distro, version, arch, conf=None):
-    CompsEventTestCase.__init__(self, distro, version, arch, conf=conf)
+  def __init__(self, os, version, arch, conf=None):
+    CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
     self._add_config({ 
     '5':
     """<packages>
@@ -178,14 +178,14 @@ class Test_MultipleGroupfiles(CompsEventTestCase):
     # both 'base' and 'livna' groupfiles in 'base-x' group #!
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('packages')
 
-  suite.addTest(make_core_suite(PackagesEventTestCase, distro, version, arch))
-  suite.addTest(Test_IncludePackages(distro, version, arch))
-  suite.addTest(Test_IncludeGroupsAndPackages(distro, version, arch))
-  suite.addTest(Test_ExcludePackages(distro, version, arch))
-  suite.addTest(Test_GroupsByRepo(distro, version, arch))
-  ##suite.addTest(Test_MultipleGroupfiles(distro, version, arch))
+  suite.addTest(make_core_suite(PackagesEventTestCase, os, version, arch))
+  suite.addTest(Test_IncludePackages(os, version, arch))
+  suite.addTest(Test_IncludeGroupsAndPackages(os, version, arch))
+  suite.addTest(Test_ExcludePackages(os, version, arch))
+  suite.addTest(Test_GroupsByRepo(os, version, arch))
+  ##suite.addTest(Test_MultipleGroupfiles(os, version, arch))
 
   return suite

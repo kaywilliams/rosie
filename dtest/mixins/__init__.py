@@ -43,9 +43,9 @@ def FDMTest_Files(self):
 
   return self
 
-def fdm_make_suite(TestCase, distro, version, arch, conf=None):
+def fdm_make_suite(TestCase, os, version, arch, conf=None):
   suite = CoreTestSuite()
-  suite.addTest(FDMTest_Files(TestCase(distro, version, arch, conf)))
+  suite.addTest(FDMTest_Files(TestCase(os, version, arch, conf)))
   return suite
 
 
@@ -117,10 +117,10 @@ def IMMTest_ConfigPaths(self, path_xpath):
 
   return self
 
-def imm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
+def imm_make_suite(TestCase, os, version, arch, conf=None, xpath=None):
   suite = CoreTestSuite()
-  suite.addTest(IMMTest_Content(TestCase(distro, version, arch, conf)))
-  suite.addTest(IMMTest_ConfigPaths(TestCase(distro, version, arch, conf), xpath))
+  suite.addTest(IMMTest_Content(TestCase(os, version, arch, conf)))
+  suite.addTest(IMMTest_ConfigPaths(TestCase(os, version, arch, conf), xpath))
   return suite
 
 

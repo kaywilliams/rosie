@@ -54,8 +54,8 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   </test-install>
   """]
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    PublishSetupEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
+  def __init__(self, os, version, arch, *args, **kwargs):
+    PublishSetupEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
 
   def setUp(self):
     PublishSetupEventTestCase.setUp(self)
@@ -164,8 +164,8 @@ class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
   </config-rpms>
   """]
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    ReinstallTestInstallEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
+  def __init__(self, os, version, arch, *args, **kwargs):
+    ReinstallTestInstallEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
 
   def runTest(self):
     self.execute_predecessors(self.event)
@@ -227,27 +227,27 @@ class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase
     script.text = 'echo "hello"'
     self.failUnlessRaises(DeployError, self.event)
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')
 
   # setup
-  suite.addTest(make_extension_suite(PublishSetupEventTestCase, distro, version, arch))
-  suite.addTest(psm_make_suite(PublishSetupEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(PublishSetupEventTestCase, os, version, arch))
+  suite.addTest(psm_make_suite(PublishSetupEventTestCase, os, version, arch))
 
   # deploy
   if check_vm_config():
-    suite.addTest(make_extension_suite(TestInstallEventTestCase, distro, version, arch))
-    suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
-    suite.addTest(Test_ErrorOnSshDisabled(distro, version, arch))
-    suite.addTest(Test_ComesBeforeComesAfter(distro, version, arch))
-    suite.addTest(Test_ReinstallOnReleaseRpmChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnConfigRpmChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnKickstartChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnTreeinfoChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnInstallScriptChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnPostInstallScriptChange(distro, version, arch))
-    suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(distro, version, arch))
+    suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version, arch))
+    suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
+    suite.addTest(Test_ErrorOnSshDisabled(os, version, arch))
+    suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))
+    suite.addTest(Test_ReinstallOnReleaseRpmChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnConfigRpmChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnKickstartChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnTreeinfoChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnInstallScriptChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnPostInstallScriptChange(os, version, arch))
+    suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(os, version, arch))
     # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(TestInstallEventTestCase, distro, version, arch, ))
+    suite.addTest(dm_make_suite(TestInstallEventTestCase, os, version, arch, ))
 
   return suite

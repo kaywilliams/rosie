@@ -16,37 +16,37 @@ TYPE_SOURCE    = 'source'
 
 TYPE_ALL = [TYPE_PACKAGES, TYPE_SOURCE, TYPE_INSTALLER]
 
-def getDefaultRepos(type, distro, version, **kwargs):
-  return _makeRepos(distro, version, type, **kwargs)
-def getDefaultPackageRepos(distro, version, **kwargs):
-  return _makeRepos(distro, version, TYPE_PACKAGES, **kwargs)
-def getDefaultSourceRepos(distro, version, **kwargs):
-  return _makeRepos(distro, version, TYPE_SOURCE, **kwargs)
-def getDefaultInstallerRepos(distro, version, **kwargs):
-  return _makeRepos(distro, version, TYPE_INSTALLER, **kwargs)
-def getDefaultRepoById(id, distro, version, **kwargs):
+def getDefaultRepos(type, os, version, **kwargs):
+  return _makeRepos(os, version, type, **kwargs)
+def getDefaultPackageRepos(os, version, **kwargs):
+  return _makeRepos(os, version, TYPE_PACKAGES, **kwargs)
+def getDefaultSourceRepos(os, version, **kwargs):
+  return _makeRepos(os, version, TYPE_SOURCE, **kwargs)
+def getDefaultInstallerRepos(os, version, **kwargs):
+  return _makeRepos(os, version, TYPE_INSTALLER, **kwargs)
+def getDefaultRepoById(id, os, version, **kwargs):
   # this is kind of a kludgy way to do it...
   for type in TYPE_ALL:
-    repos = getDefaultRepos(type, distro, version, **kwargs)
+    repos = getDefaultRepos(type, os, version, **kwargs)
     if repos and id in repos:
       return repos[id]
   raise NoSuchRepoError("No such repo id '%s'" % id)
 
 from deploy.util.repo.repo import BaseRepo, YumRepo # avoid circular ref
 
-def _makeRepos(distro, version, type,
+def _makeRepos(os, version, type,
                cls=YumRepo, arch=None, include_baseurl=False,
                baseurl=None, mirrorlist=None):
 
   # set up replacement vars for repo input string
-  baseurl    = baseurl    or DEFAULTS[distro]['baseurl']
-  mirrorlist = mirrorlist or DEFAULTS[distro]['mirrorlist']
+  baseurl    = baseurl    or DEFAULTS[os]['baseurl']
+  mirrorlist = mirrorlist or DEFAULTS[os]['mirrorlist']
 
-  gpgkey = _getitem_(GPGKEYS[distro] or '', version) % dict(baseurl=baseurl)
+  gpgkey = _getitem_(GPGKEYS[os] or '', version) % dict(baseurl=baseurl)
 
   map = dict(baseurl=baseurl, mirrorlist=mirrorlist, gpgkey=gpgkey)
 
-  src = _getitem_(REPO_DATA[type][distro], version)
+  src = _getitem_(REPO_DATA[type][os], version)
 
   if src:
     repos = ReposFromString(src % map, cls=cls)

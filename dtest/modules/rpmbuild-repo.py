@@ -63,11 +63,11 @@ class Test_Obsoletes(RpmbuildRepoTestCase):
     self.failIf('test-package' in self.event.cvars['comps-object'].all_packages)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild-repo')
 
-  suite.addTest(make_core_suite(RpmbuildRepoTestCase, distro, version, arch))
-  suite.addTest(Test_NoDefaults(distro, version, arch))
-  suite.addTest(Test_Obsoletes(distro, version, arch))
+  suite.addTest(make_core_suite(RpmbuildRepoTestCase, os, version, arch))
+  suite.addTest(Test_NoDefaults(os, version, arch))
+  suite.addTest(Test_Obsoletes(os, version, arch))
 
   return suite

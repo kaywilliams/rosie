@@ -119,17 +119,17 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
     AutocleanEventTestCase.tearDown(self)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('autoclean')
 
   # autoclean
-  suite.addTest(make_core_suite(AutocleanEventTestCase, distro, version, arch))
-  suite.addTest(Test_NonMeta(distro, version, arch))
-  suite.addTest(Test_NonMetaVersion(distro, version, arch))
-  suite.addTest(Test_NonMetaNoVersion(distro, version, arch))
-  suite.addTest(Test_Meta(distro, version, arch))
-  suite.addTest(Test_MetaVersion(distro, version, arch))
-  suite.addTest(Test_MetaNoVersion(distro, version, arch))
-  suite.addTest(Test_RemoveDisabled(distro, version, arch))
+  suite.addTest(make_core_suite(AutocleanEventTestCase, os, version, arch))
+  suite.addTest(Test_NonMeta(os, version, arch))
+  suite.addTest(Test_NonMetaVersion(os, version, arch))
+  suite.addTest(Test_NonMetaNoVersion(os, version, arch))
+  suite.addTest(Test_Meta(os, version, arch))
+  suite.addTest(Test_MetaVersion(os, version, arch))
+  suite.addTest(Test_MetaNoVersion(os, version, arch))
+  suite.addTest(Test_RemoveDisabled(os, version, arch))
 
   return suite

@@ -32,7 +32,7 @@ START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
 
 opt_defaults = dict(
-  distro   = 'centos',
+  os   = 'centos',
   version  = '5',
   arch = 'i386',
   buildroot   = '/tmp/dtest',
@@ -47,7 +47,7 @@ def reconstruct_cmd(options):
   # stupid method to reconstruct cmdline arguments from opts instance
   cmd = ['python', 'runtest.py']
   # always include these values because they're interesting to see in cmdline
-  cmd += ['-d', options.distro]
+  cmd += ['-o', options.os]
   cmd += ['-f', options.version]
   cmd += ['-a', options.arch]
   # only include these values if they arent the defaults
@@ -60,8 +60,6 @@ def reconstruct_cmd(options):
   # the rest of these all imply their own defaults, so they don't need testing
   if not options.clear_test_cache:
     cmd += ['--no-clear-cache']
-  if options.mainconfigpath:
-    cmd += ['--distro-conf', options.mainconfigpath]
   for path in options.libpath:
     cmd += ['--lib-path', '%s' % path]
   for path in options.sharepath:
@@ -88,7 +86,7 @@ def log_header(options):
   START = time.time()
   logger.log(0, '#' * 70)
   logger.log(0, '# Beginning test suite run for %s-%s-%s' \
-                  % (options.distro, options.version, options.arch))
+                  % (options.os, options.version, options.arch))
   logger.log(0, '# at %s' % time.strftime(TIMEFMT, time.localtime(START)))
   logger.log(0, '#' * 70)
 
@@ -103,7 +101,7 @@ def log_footer(options):
   end = time.time()
   logger.log(0, '=' * 70)
   logger.log(0, '= Test suite run for %s-%s-%s' \
-                  % (options.distro, options.version, options.arch))
+                  % (options.os, options.version, options.arch))
   logger.log(0, '= complete at %s (elapsed %s)' \
                   % (time.strftime(TIMEFMT, time.localtime(end)),
                      datetime.timedelta(seconds=int(round(end-START)))))

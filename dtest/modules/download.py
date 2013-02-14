@@ -121,15 +121,15 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
     self.failUnless(len(pkglist) == len(downloaded))
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('download')
 
-  suite.addTest(make_core_suite(DownloadEventTestCase, distro, version, arch))
-  suite.addTest(Test_PackagesDownloaded(distro, version, arch))
-  suite.addTest(Test_AddedPackageDownloaded(distro, version, arch))
-  suite.addTest(Test_RemovedPackageDeleted(distro, version, arch))
-  suite.addTest(Test_MultipleReposWithSamePackage(distro, version, arch))
+  suite.addTest(make_core_suite(DownloadEventTestCase, os, version, arch))
+  suite.addTest(Test_PackagesDownloaded(os, version, arch))
+  suite.addTest(Test_AddedPackageDownloaded(os, version, arch))
+  suite.addTest(Test_RemovedPackageDeleted(os, version, arch))
+  suite.addTest(Test_MultipleReposWithSamePackage(os, version, arch))
 
   return suite

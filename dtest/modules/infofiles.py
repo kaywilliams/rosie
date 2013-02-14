@@ -45,16 +45,16 @@ class TreeinfoEventTestCase(EventTestCase):
     "<config-rpm enabled='false'/>",
   ]
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('infofiles')
 
   # buildstamp
-  suite.addTest(make_core_suite(BuildstampEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(BuildstampEventTestCase, os, version, arch))
 
   # discinfo
-  suite.addTest(make_core_suite(DiscinfoEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(DiscinfoEventTestCase, os, version, arch))
 
   # treeinfo
-  suite.addTest(make_core_suite(TreeinfoEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(TreeinfoEventTestCase, os, version, arch))
 
   return suite

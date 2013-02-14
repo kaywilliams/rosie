@@ -57,8 +57,8 @@ class TestBuild(Build):
     self.definitiontree = lxml.etree.ElementTree(self.conf)
 
 class EventTestCase(unittest.TestCase):
-  def __init__(self, distro, version, arch='i386', conf=None):
-    self.distro = distro
+  def __init__(self, os, version, arch='i386', conf=None):
+    self.os = os 
     self.version = version
     self.arch = arch
     self.conf = conf or self._make_default_config()
@@ -109,6 +109,7 @@ class EventTestCase(unittest.TestCase):
 
     config.Element('fullname', text='%s event test' % self.moduleid, parent=main)
     config.Element('name',     text='test-%s' % self.moduleid, parent=main)
+    config.Element('os',       text=self.os, parent=main)
     config.Element('version',  text=self.version, parent=main)
     config.Element('arch',     text=self.arch, parent=main)
     config.Element('type',     text=getattr(self, '_type', 'system'), 
@@ -119,11 +120,11 @@ class EventTestCase(unittest.TestCase):
   def _make_repos_config(self):
     repos = config.Element('repos')
 
-    base = repo.getDefaultRepoById('base', distro=self.distro,
+    base = repo.getDefaultRepoById('base', os=self.os,
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.distro)
+                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml())
@@ -353,7 +354,7 @@ def make_logger(logfile, threshold):
   logfile = logger.Logger(threshold=2, file_object=logfile) #! write eventhing to file
   return EventTestLogContainer([console, logfile])
 
-def make_suite(distro, version, arch='i386', *args, **kwargs):
+def make_suite(os, version, arch='i386', *args, **kwargs):
   suite = unittest.TestSuite()
 
   for module in pps.path('modules').findpaths(mindepth=1, maxdepth=1):
@@ -373,7 +374,7 @@ def make_suite(distro, version, arch='i386', *args, **kwargs):
     finally:
       fp and fp.close()
 
-    suite.addTest(mod.make_suite(distro, version, arch))
+    suite.addTest(mod.make_suite(os, version, arch))
 
   return suite
 

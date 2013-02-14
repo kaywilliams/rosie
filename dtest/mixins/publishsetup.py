@@ -276,15 +276,15 @@ def saved(self, xpath):
   return self.event.parse_datfile().getxpath(
                                     '/*/%s/%s' % (self.moduleid, xpath), '')
 
-def psm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
+def psm_make_suite(TestCase, os, version, arch, conf=None, xpath=None):
   suite = CoreTestSuite()
-  suite.addTest(PublishSetupMixinTest_Config(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_LongHostname(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_LongHostnameSegment(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_HostnameLeadingHyphen(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_HostnameTrailingHyphen(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_HostnameInvalidCharacters(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_NoPassword(TestCase(distro, version, arch, conf)))
-  suite.addTest(PublishSetupMixinTest_Password(TestCase(distro, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_Config(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_LongHostname(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_LongHostnameSegment(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameLeadingHyphen(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameTrailingHyphen(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_HostnameInvalidCharacters(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_NoPassword(TestCase(os, version, arch, conf)))
+  suite.addTest(PublishSetupMixinTest_Password(TestCase(os, version, arch, conf)))
   return suite
 

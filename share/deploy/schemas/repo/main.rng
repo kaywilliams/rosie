@@ -5,14 +5,7 @@
       <element name="main">
         <interleave>
           <element name="name"><text/></element>
-          <optional>
-            <element name="os">
-              <choice>
-                <value type="string">centos</value>
-                <value type="string">rhel</value>
-              </choice>
-             </element>
-          </optional>
+          <element name="os"><text/></element>
           <element name="version"><text/></element>
           <element name="arch"><text/></element>
           <optional>

@@ -75,11 +75,11 @@ class DepsolveEventTestCase(EventTestCase):
 
     for repoid in ['base', 'updates', 'everything']:
       if repoid in self.repos:
-        r = repo.getDefaultRepoById(repoid, distro=self.distro,
+        r = repo.getDefaultRepoById(repoid, os=self.os,
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://www.deployproject.org/mirrors/%s' % self.distro)
+                                            baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None, 
                   'name': None,})
         if repoid == 'updates' and 'systemid' in r:
@@ -196,25 +196,25 @@ class Test_ConflictingPackages(DepsolveEventTestCase):
     self.failUnlessRaises(DeployError, self.event)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname)
 
   suite = ModuleTestSuite('depsolve')
 
   # core tests
-  suite.addTest(make_core_suite(DummyDepsolveEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(DummyDepsolveEventTestCase, os, version, arch))
 
   # package added, obsoleted, and removed
-  suite.addTest(Test_PackageAdded(distro, version, arch))
-  suite.addTest(Test_ObsoletedPackage(distro, version, arch))
-  suite.addTest(Test_RemovedPackage(distro, version, arch))
+  suite.addTest(Test_PackageAdded(os, version, arch))
+  suite.addTest(Test_ObsoletedPackage(os, version, arch))
+  suite.addTest(Test_RemovedPackage(os, version, arch))
 
   # add package that requires a package nothing else requires,
   # then remove it.
-  suite.addTest(Test_ExclusivePackage_1(distro, version, arch))
-  suite.addTest(Test_ExclusivePackage_2(distro, version, arch))
+  suite.addTest(Test_ExclusivePackage_1(os, version, arch))
+  suite.addTest(Test_ExclusivePackage_2(os, version, arch))
 
   # conflicting packages
-  suite.addTest(Test_ConflictingPackages(distro, version, arch))
+  suite.addTest(Test_ConflictingPackages(os, version, arch))
 
   return suite

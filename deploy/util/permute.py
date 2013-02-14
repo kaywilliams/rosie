@@ -38,26 +38,26 @@ item.  This is perhaps best demonstrated by an example:
 
 Example - a 2-level nested table
 
-distros  = ['fedora', 'redhat', 'centos']
+oss  = ['fedora', 'rhel', 'centos']
 versions = ['5', '6', '7']
 archs    = ['i386', 'x86_64']
 
->>> D = dict(d=distros, v=versions, a=archs)
+>>> D = dict(o=oss, v=versions, a=archs)
 
->>> for i in permute(D, 'd=fedora v=5,6,7'): print i
+>>> for i in permute(D, 'o=fedora v=5,6,7'): print i
 ('fedora', '5')
 ('fedora', '6')
 ('fedora', '7')
->>> for i in permute(D, 'd=fedora v=*; d=redhat v=6'): print i
+>>> for i in permute(D, 'o=fedora v=*; o=rhel v=6'): print i
 ('fedora', '5')
 ('fedora', '6')
 ('fedora', '7')
-('redhat', '6')
->>> for i in permute(D, 'd=fedora v=5; d=redhat v=6; d=centos v=7'): print i
+('rhel', '6')
+>>> for i in permute(D, 'o=fedora v=5; o=rhel v=6; o=centos v=7'): print i
 ('fedora', '5')
-('redhat', '6')
+('rhel', '6')
 ('centos', '7')
->>> for i in permute(D, 'd=fedora v=*,-6; d=centos v=6'): print i
+>>> for i in permute(D, 'o=fedora v=*,-6; o=centos v=6'): print i
 ('fedora', '5')
 ('fedora', '7')
 ('centos', '6')
@@ -68,12 +68,12 @@ per token group; for example, if the above table were crossed with
 arch = ['i386', 'x86_64'], filters on the resulting nested
 table could have an additional token referring to the arch:
 
->>> E = dict(d=distros, v=versions, a=archs)
+>>> E = dict(o=oss, v=versions, a=archs)
 
->>> for i in permute(E, 'd=fedora v=*,-6 a=i386'): print i
+>>> for i in permute(E, 'o=fedora v=*,-6 a=i386'): print i
 ('fedora', '5', 'i386')
 ('fedora', '7', 'i386')
->>> for i in permute(E, 'd=fedora v=* a=*'): print i
+>>> for i in permute(E, 'o=fedora v=* a=*'): print i
 ('fedora', '5', 'i386')
 ('fedora', '5', 'x86_64')
 ('fedora', '6', 'i386')
@@ -83,7 +83,7 @@ table could have an additional token referring to the arch:
 
 Note that the identifier preceding the '=' in a token corresponds directly
 to the identiefier used in creating the Matrix object.  In the above example,
-the 'd' identifier refers to items in the distros list, the 'v' to the
+the 'd' identifier refers to items in the oss list, the 'v' to the
 versions list, and the 'a' to the archs list.
 
 The modifiers '+' and '-' interact with the default filter set in the
@@ -98,16 +98,16 @@ list is discarded entirely and the identifier itself is used.
 
 For example:
 
->>> F = dict(d=distros)
+>>> F = dict(o=oss)
 
->>> for i in permute(F, 'd=-centos'): print i
+>>> for i in permute(F, 'o=-centos'): print i
 ('fedora',)
-('redhat',)
->>> for i in permute(F, 'd=centos'): print i
+('rhel',)
+>>> for i in permute(F, 'o=centos'): print i
 ('centos',)
->>> for i in permute(F, 'd=+suse,-centos'): print i
+>>> for i in permute(F, 'o=+suse,-centos'): print i
 ('fedora',)
-('redhat',)
+('rhel',)
 ('suse',)
 
 If any index in the identifier doesn't contain a modifier, the entire default
@@ -118,8 +118,8 @@ that modified indexes affect.
 Notes
 
 The order of tokens in a tokenset effects the order of the values in the
-final returned tuple(s).  Thus, while a permute of 'd=centos v=5,6' and
-'v=5,6 d=centos' are similar in that they both cover all permutations of
+final returned tuple(s).  Thus, while a permute of 'o=centos v=5,6' and
+'v=5,6 o=centos' are similar in that they both cover all permutations of
 'centos' and '5' and '6', they do so in a different order (the first would
 return ('centos','5'),('centos','6'), while the second ('5','centos'),
 ('6','centos').
@@ -287,8 +287,8 @@ def _flatten(l, r):
       r.append(i)
   return r
 
-distros  = ['fedora','redhat','centos']
+oss      = ['fedora','rhel','centos']
 versions = ['5','6','7']
 archs    = ['i386','x86_64']
 
-D = dict(d=distros,v=versions,a=archs)
+D = dict(o=oss,v=versions,a=archs)

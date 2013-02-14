@@ -39,11 +39,11 @@ class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
 
-    base = repo.getDefaultRepoById('base', distro=self.distro,
+    base = repo.getDefaultRepoById('base', os=self.os,
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.distro)
+                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
@@ -122,8 +122,8 @@ class DeployReleaseRpmEventTestCase(DeployMixinTestCase,
     </config-rpms>
     """]
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
+  def __init__(self, os, version, arch, *args, **kwargs):
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
 
 class Test_TestMachineSetup(DeployReleaseRpmEventTestCase):
   "setting up an initial test machine"
@@ -164,21 +164,21 @@ installed: $installed" >&2
     post.append(post_script)
     self.tb.dispatch.execute(until='deploy')
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('release-rpm')
 
-  suite.addTest(make_core_suite(ReleaseRpmEventTestCase, distro, version, arch))
-  suite.addTest(Test_ReleaseRpmBuild(distro, version, arch))
-  suite.addTest(Test_ReleaseRpmCvars1(distro, version, arch))
-  suite.addTest(Test_ReleaseRpmCvars2(distro, version, arch))
-  suite.addTest(Test_OutputsGpgkeys(distro, version, arch))
-  suite.addTest(Test_RemovesGpgkeys(distro, version, arch))
+  suite.addTest(make_core_suite(ReleaseRpmEventTestCase, os, version, arch))
+  suite.addTest(Test_ReleaseRpmBuild(os, version, arch))
+  suite.addTest(Test_ReleaseRpmCvars1(os, version, arch))
+  suite.addTest(Test_ReleaseRpmCvars2(os, version, arch))
+  suite.addTest(Test_OutputsGpgkeys(os, version, arch))
+  suite.addTest(Test_RemovesGpgkeys(os, version, arch))
 
   if check_vm_config():
-    suite.addTest(Test_TestMachineSetup(distro, version, arch))
-    suite.addTest(Test_GpgkeysInstalled(distro, version, arch))
+    suite.addTest(Test_TestMachineSetup(os, version, arch))
+    suite.addTest(Test_GpgkeysInstalled(os, version, arch))
     # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(DeployReleaseRpmEventTestCase, distro, version, arch, ))
+    suite.addTest(dm_make_suite(DeployReleaseRpmEventTestCase, os, version, arch, ))
 
 
   return suite

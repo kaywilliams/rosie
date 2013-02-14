@@ -24,9 +24,9 @@ from deploy.errors import DeployError
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
   separator2 = '-' * 70
-  def __init__(self, eventid, distro, version, arch):
+  def __init__(self, eventid, os, version, arch):
     self.eventid = eventid
-    self.distro  = distro
+    self.os  = os
     self.version = version
     self.arch    = arch
     EventTestCaseDummy.__init__(self)
@@ -35,7 +35,7 @@ class EventTestCaseHeader(EventTestCaseDummy):
     return '\n'.join(['',
                       self.separator1,
                       "testing event '%s' (%s-%s-%s)"
-                        % (self.eventid, self.distro, self.version, self.arch),
+                        % (self.eventid, self.os, self.version, self.arch),
                       self.separator2])
 
 class CoreTestSuite(unittest.TestSuite):
@@ -55,24 +55,24 @@ class CoreTestSuite(unittest.TestSuite):
     return result
 
 
-def make_core_suite(TestCase, distro, version, arch, conf=None):
+def make_core_suite(TestCase, os, version, arch, conf=None):
   suite = CoreTestSuite()
 
   # hack-ish solution to get a pretty header
-  suite.addTest(EventTestCaseHeader(TestCase.eventid, distro, version, arch))
+  suite.addTest(EventTestCaseHeader(TestCase.eventid, os, version, arch))
 
-  suite.addTest(CoreEventTestCase01(TestCase(distro, version, arch, conf)))
-  suite.addTest(CoreEventTestCase02(TestCase(distro, version, arch, conf)))
-  suite.addTest(CoreEventTestCase03(TestCase(distro, version, arch, conf)))
-  suite.addTest(CoreEventTestCase04(TestCase(distro, version, arch, conf)))
-  suite.addTest(CoreEventTestCase05(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase01(TestCase(os, version, arch, conf)))
+  suite.addTest(CoreEventTestCase02(TestCase(os, version, arch, conf)))
+  suite.addTest(CoreEventTestCase03(TestCase(os, version, arch, conf)))
+  suite.addTest(CoreEventTestCase04(TestCase(os, version, arch, conf)))
+  suite.addTest(CoreEventTestCase05(TestCase(os, version, arch, conf)))
   return suite
 
-def make_extension_suite(TestCase, distro, version, arch, conf=None):
+def make_extension_suite(TestCase, os, version, arch, conf=None):
   suite = CoreTestSuite()
-  suite.addTest(make_core_suite(TestCase, distro, version, arch, conf))
-  suite.addTest(ExtensionEventTestCase00(TestCase(distro, version, arch, conf)))
-  suite.addTest(ExtensionEventTestCase01(TestCase(distro, version, arch, conf)))
+  suite.addTest(make_core_suite(TestCase, os, version, arch, conf))
+  suite.addTest(ExtensionEventTestCase00(TestCase(os, version, arch, conf)))
+  suite.addTest(ExtensionEventTestCase01(TestCase(os, version, arch, conf)))
   return suite
 
 

@@ -53,10 +53,10 @@ def parse_cmd_args(defaults=None):
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
 
-  parser.add_option('-d', '--distro', metavar='DISTRO',
-    dest='distro',
+  parser.add_option('-o', '--os', metavar='OS',
+    dest='os',
     default='centos',
-    help='select the distribution to test')
+    help='select the base operating system to test')
   parser.add_option('-f', '--version', metavar='VERSION',
     dest='version',
     default='5',
@@ -64,7 +64,7 @@ def parse_cmd_args(defaults=None):
   parser.add_option('-a', '--arch', metavar='ARCH',
     dest='arch',
     default='i386',
-    help='select the arch of the distribution to test')
+    help='select the arch of the base operating system to test')
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
@@ -132,7 +132,7 @@ def main():
   try:
     fp,p,d = imp.find_module(modpath.basename, [modpath.dirname])
     mod = imp.load_module('test-%s' % modname, fp, p, d)
-    suite.addTest(mod.make_suite(distro=options.distro,
+    suite.addTest(mod.make_suite(os=options.os,
                                  version=options.version,
                                  arch=options.arch,
                                  ))

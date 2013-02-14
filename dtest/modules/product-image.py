@@ -32,8 +32,8 @@ class ProductImageEventTestCase(EventTestCase):
 
 class _ProductImageEventTestCase(ImageModifyMixinTestCase,
                                  ProductImageEventTestCase):
-  def __init__(self, distro, version, arch, conf=None):
-    ProductImageEventTestCase.__init__(self, distro, version, arch, conf)
+  def __init__(self, os, version, arch, conf=None):
+    ProductImageEventTestCase.__init__(self, os, version, arch, conf)
     ImageModifyMixinTestCase.__init__(self)
 
   def setUp(self):
@@ -58,11 +58,11 @@ class Test_Installclasses(_ProductImageEventTestCase):
 ## TODO - need a test case to check that installclass has the correct
 ## groups selected - specifically, when comps is enabled
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('product-image')
 
-  suite.addTest(make_core_suite(ProductImageEventTestCase, distro, version, arch))
-  suite.addTest(imm_make_suite(_ProductImageEventTestCase, distro, version, arch, xpath='files'))
-  suite.addTest(Test_Installclasses(distro, version, arch))
+  suite.addTest(make_core_suite(ProductImageEventTestCase, os, version, arch))
+  suite.addTest(imm_make_suite(_ProductImageEventTestCase, os, version, arch, xpath='files'))
+  suite.addTest(Test_Installclasses(os, version, arch))
 
   return suite

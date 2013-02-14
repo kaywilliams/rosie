@@ -32,9 +32,9 @@ __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 class DeployMixinTestCase:
   _type = 'system'
   
-  def __init__(self, distro, version, arch, module=None):
+  def __init__(self, os, version, arch, module=None):
     self.mod = module or self.moduleid
-    EventTestCase.__init__(self, distro, version, arch)
+    EventTestCase.__init__(self, os, version, arch)
 
     # get default deploy config
     deploy = rxml.config.parse(
@@ -108,7 +108,7 @@ def DeployMixinTest_Teardown(self):
   
   return self
 
-def dm_make_suite(TestCase, distro, version, arch):
+def dm_make_suite(TestCase, os, version, arch):
   suite = CoreTestSuite()
-  suite.addTest(DeployMixinTest_Teardown(TestCase(distro, version, arch)))
+  suite.addTest(DeployMixinTest_Teardown(TestCase(os, version, arch)))
   return suite

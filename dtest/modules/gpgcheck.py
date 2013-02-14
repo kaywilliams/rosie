@@ -63,9 +63,9 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
-    base = repo.getDefaultRepoById('base', distro=self.distro,
+    base = repo.getDefaultRepoById('base', os=self.os,
            version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://www.deployproject.org/mirrors/%s' % self.distro)
+           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
     # set gpgkeys to none
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,
                  'name': None,})
@@ -81,13 +81,13 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     self.failUnlessRaises(DeployError, self.event)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('gpgcheck')
 
-  suite.addTest(make_core_suite(GpgcheckEventTestCase, distro, version, arch))
-  suite.addTest(Test_FailsOnUnsignedPackages(distro, version, arch))
-  suite.addTest(Test_FailsIfKeyNotProvided(distro, version, arch))
+  suite.addTest(make_core_suite(GpgcheckEventTestCase, os, version, arch))
+  suite.addTest(Test_FailsOnUnsignedPackages(os, version, arch))
+  suite.addTest(Test_FailsIfKeyNotProvided(os, version, arch))
 
   return suite

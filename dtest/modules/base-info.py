@@ -24,9 +24,9 @@ class BaseInfoEventTestCase(EventTestCase):
   _type = 'system'
   _conf = "<packages><package>kernel</package></packages>"
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('base-info')
 
-  suite.addTest(make_core_suite(BaseInfoEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(BaseInfoEventTestCase, os, version, arch))
 
   return suite

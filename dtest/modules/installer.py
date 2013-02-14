@@ -30,10 +30,10 @@ class InstallerEventTestCase(EventTestCase):
     ]
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('installer')
 
   # installer
-  suite.addTest(make_core_suite(InstallerEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(InstallerEventTestCase, os, version, arch))
 
   return suite

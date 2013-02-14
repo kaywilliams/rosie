@@ -37,16 +37,16 @@ class OSEventTestCase(EventTestCase):
   _type = 'package'
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('init')
 
   # init
-  suite.addTest(make_core_suite(InitEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(InitEventTestCase, os, version, arch))
 
   # setup
-  suite.addTest(make_core_suite(SetupEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(SetupEventTestCase, os, version, arch))
 
   # os
-  suite.addTest(make_core_suite(OSEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(OSEventTestCase, os, version, arch))
 
   return suite

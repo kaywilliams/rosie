@@ -93,19 +93,19 @@ class PublishEventTestCase(EventTestCase):
     EventTestCase.tearDown(self)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('publish')
 
   # publish-setup
-  suite.addTest(make_core_suite(PublishSetupEventTestCase, distro, version, arch))
-  suite.addTest(psm_make_suite(PublishSetupEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(PublishSetupEventTestCase, os, version, arch))
+  suite.addTest(psm_make_suite(PublishSetupEventTestCase, os, version, arch))
 
   # kickstart
-  suite.addTest(make_core_suite(KickstartEventTestCase, distro, version, arch))
-  suite.addTest(Test_KickstartIncludesAdditions(distro, version, arch))
-  suite.addTest(Test_KickstartFailsOnInvalidInput(distro, version, arch))
+  suite.addTest(make_core_suite(KickstartEventTestCase, os, version, arch))
+  suite.addTest(Test_KickstartIncludesAdditions(os, version, arch))
+  suite.addTest(Test_KickstartFailsOnInvalidInput(os, version, arch))
 
   # publish
-  suite.addTest(make_core_suite(PublishEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(PublishEventTestCase, os, version, arch))
 
   return suite

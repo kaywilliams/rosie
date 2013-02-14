@@ -23,9 +23,9 @@ class FilesTestCase(EventTestCase):
   eventid  = 'files'
   _type = 'package'
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('files')
 
-  suite.addTest(make_extension_suite(FilesTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(FilesTestCase, os, version, arch))
 
   return suite

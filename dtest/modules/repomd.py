@@ -37,12 +37,12 @@ class Test_CompsFile(RepomdEventTestCase):
                           self.event.cvars['groupfile'].basename)
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('repomd')
 
-  suite.addTest(make_core_suite(RepomdEventTestCase, distro, version, arch))
-  suite.addTest(Test_CompsFile(distro, version, arch))
+  suite.addTest(make_core_suite(RepomdEventTestCase, os, version, arch))
+  suite.addTest(Test_CompsFile(os, version, arch))
 
   return suite

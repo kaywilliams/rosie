@@ -45,8 +45,8 @@ class TestUpdateEventTestCase(PublishSetupEventTestCase):
   moduleid = 'test-update'
   eventid  = 'test-update'
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    PublishSetupEventTestCase.__init__(self, distro, version, arch, *args, **kwargs)
+  def __init__(self, os, version, arch, *args, **kwargs):
+    PublishSetupEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
 
   def setUp(self):
     PublishSetupEventTestCase.setUp(self)
@@ -66,14 +66,14 @@ class TestUpdateEventTestCase(PublishSetupEventTestCase):
     EventTestCase.tearDown(self) 
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-update')
 
   # setup
-  suite.addTest(make_extension_suite(PublishSetupEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(PublishSetupEventTestCase, os, version, arch))
 
   # deploy
   if check_vm_config():
-    suite.addTest(make_extension_suite(TestUpdateEventTestCase, distro, version, arch))
+    suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, arch))
 
   return suite

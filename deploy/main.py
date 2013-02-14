@@ -76,13 +76,17 @@ DEFAULT_LIB_DIR = pps.path('/var/lib/deploy')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
 
+# supported base distribution versions
+OS_LIST = ['centos', 'rhel']
+OS_ERROR = "Accepted values are '%s'." % "', '".join(OS_LIST)
+
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
-ARCH_ERROR = "Accepted values for 'arch' are '%s'." % "', '".join(ARCH_MAP)
+ARCH_ERROR = "Accepted values are '%s'." % "', '".join(ARCH_MAP)
 
 # supported base distribution versions
 VERSIONS = ['5', '6']
-VERSIONS_ERROR = ("Accepted values for 'version' are '%s'." % 
+VERSIONS_ERROR = ("Accepted values are '%s'." % 
                   "', '".join(VERSIONS))
 
 # the following chars are allowed in filenames...
@@ -92,6 +96,8 @@ FILENAME_ERROR = "Accepted characters are a-z, A-Z, 0-9, _, and -."
 VALIDATE_DATA = {
     'name':    { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
                  'error':      FILENAME_ERROR},
+    'os':      { 'validatefn': lambda x: x in OS_LIST,
+                 'error':      OS_ERROR},
     'version': { 'validatefn': lambda x: x in VERSIONS,
                  'error':      VERSIONS_ERROR},
     'arch':    { 'validatefn': lambda x: x in ARCH_MAP,
@@ -157,43 +163,33 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if callback: callback.set_debug(self.debug)
 
     # set up initial variables
+    for elem in ['name', 'os', 'version', 'arch']:
+      try:
+        exec ("self.%s = self.definition.getxpath('/*/main/%s/text()')" 
+              % (elem, elem))
+      except rxml.errors.XmlPathError, e:
+        raise DeployError("Validation of %s failed. Missing 'main/%s' element."
+                          " %s" % (self.definition.getroot().file, elem,
+                                   VALIDATE_DATA[elem]['error']))
     qstr = '/*/main/%s/text()'
-    try:
-      self.name     = self.definition.getxpath(qstr % 'name')
-      self.version  = self.definition.getxpath(qstr % 'version')
-      self.arch     = self.definition.getxpath(qstr % 'arch')
-      self.type     = self.definition.getxpath(qstr % 'type', 'system')
-    except rxml.errors.XmlPathError, e:
-      # fix me - XmlPathError is not user friendly. Fortunately, at least
-      # for now this message will never appear since missing name, version
-      # and arch elements are caught during schema validation
-      raise DeployError("Validation of %s failed. %s" % 
-                            (self.definition.getroot().file, e))
-
-    if self.definition.getxpath(qstr % 'os', None):
-      self.os = self.definition.getxpath(qstr % 'os')
-      self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
-                                 (self.name, self.os, self.version, self.arch))
-    else:
-      self.os = 'centos'
-      # to avoid breaking repositories created by Deploy < 1.8, if the os
-      # is not provided, do not add it to the repoid
-      self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s' % 
-                                          (self.name, self.version, self.arch))
+    self.type   = self.definition.getxpath(qstr % 'type', 'system')
+    self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
+                               (self.name, self.os, self.version, self.arch))
 
     # validate initial variables
-    for name in VALIDATE_DATA:
-      if name == 'id':
+    for elem in VALIDATE_DATA:
+      if elem == 'id':
         value = self.repoid
       else: 
-        value = eval('self.%s' % name)
-      if not VALIDATE_DATA[name]['validatefn'](value):
-        raise InvalidConfigError(self.definition.file, name, value, 
-                                 VALIDATE_DATA[name]['error'])
+        value = eval('self.%s' % elem)
+      if not VALIDATE_DATA[elem]['validatefn'](value):
+        raise InvalidConfigError(self.definition.file, elem, value, 
+                                 VALIDATE_DATA[elem]['error'])
 
     # resolve global macros - do this early so that global macros
     # can be used in event ids for config-rpms and srpmbuild events
     macros = {'%{name}':          self.name,
+             '%{os}':             self.os,
              '%{version}':        self.version,
              '%{arch}':           self.arch,
              '%{id}':             self.repoid,
@@ -308,7 +304,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                                    "form 'id:value'.")
         macros['%%{%s}' % id] = value
 
-      # validate version and arch values, if provided
+      # validate os, version and arch values, if provided
       for name in VALIDATE_DATA:
         key = '%%{%s}' % name
         if key in macros:

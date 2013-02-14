@@ -57,8 +57,8 @@ class IsoEventTestCase(EventTestCase):
 
 
 class IsoEventBootOptionsTestCase(BootOptionsMixinTestCase, IsoEventTestCase):
-  def __init__(self, distro, version, arch, conf=None):
-    IsoEventTestCase.__init__(self, distro, version, arch, conf)
+  def __init__(self, os, version, arch, conf=None):
+    IsoEventTestCase.__init__(self, os, version, arch, conf)
     self.image = None
     self.do_defaults = True
     self.default_args = []
@@ -173,9 +173,9 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   """<packages><group>core</group></packages>""",
   ]
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    IsoEventTestCase.__init__(self, distro, version, arch)
-    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
+  def __init__(self, os, version, arch, *args, **kwargs):
+    IsoEventTestCase.__init__(self, os, version, arch)
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
     install_script = self.conf.getxpath(
                      '/*/publish/script[@id="virt-install"]')
     install_script.text = """
@@ -192,22 +192,22 @@ virt-install --name %{fqdn} --ram 1000 \
     self.tb.dispatch.execute(until='deploy')
 
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('iso')
 
   # pkgorder
-  suite.addTest(make_extension_suite(PkgorderEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(PkgorderEventTestCase, os, version, arch))
 
   # iso
-  suite.addTest(make_extension_suite(IsoEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(IsoEventTestCase, os, version, arch))
   suite.addTest(Test_SizeParser())
-  suite.addTest(Test_IsoContent(distro, version, arch))
-  suite.addTest(Test_SetsChanged(distro, version, arch))
-  suite.addTest(Test_BootOptionsDefault(distro, version, arch))
+  suite.addTest(Test_IsoContent(os, version, arch))
+  suite.addTest(Test_SetsChanged(os, version, arch))
+  suite.addTest(Test_BootOptionsDefault(os, version, arch))
   # see note above at the class definition for Test_InstallFromIso
   if check_vm_config() and version > '5':
-    suite.addTest(Test_InstallFromIso(distro, version, arch))
+    suite.addTest(Test_InstallFromIso(os, version, arch))
     # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(Test_InstallFromIso, distro, version, arch, ))
+    suite.addTest(dm_make_suite(Test_InstallFromIso, os, version, arch, ))
 
   return suite

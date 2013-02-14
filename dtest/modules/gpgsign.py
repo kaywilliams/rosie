@@ -185,15 +185,15 @@ class Test_SigningKeysBadPassphrase(GpgsignTestCase):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(DeployError, self.event)
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')
 
-  suite.addTest(make_core_suite(GpgsignTestCase, distro, version, arch))
-  suite.addTest(Test_SigningKeysValid(distro, version, arch))
-  suite.addTest(Test_GeneratesSigningKeys(distro, version, arch))
-  suite.addTest(Test_ReadsKeysFromDatfile(distro, version, arch))
-  suite.addTest(Test_KeysRemovedFromDatfile(distro, version, arch))
-  suite.addTest(Test_SigningKeysGoodPassphrase(distro, version, arch))
-  suite.addTest(Test_SigningKeysBadPassphrase(distro, version, arch))
+  suite.addTest(make_core_suite(GpgsignTestCase, os, version, arch))
+  suite.addTest(Test_SigningKeysValid(os, version, arch))
+  suite.addTest(Test_GeneratesSigningKeys(os, version, arch))
+  suite.addTest(Test_ReadsKeysFromDatfile(os, version, arch))
+  suite.addTest(Test_KeysRemovedFromDatfile(os, version, arch))
+  suite.addTest(Test_SigningKeysGoodPassphrase(os, version, arch))
+  suite.addTest(Test_SigningKeysBadPassphrase(os, version, arch))
 
   return suite

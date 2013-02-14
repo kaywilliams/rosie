@@ -26,7 +26,7 @@ class RpmbuildTestCase(EventTestCase):
   eventid  = 'rpmbuild'
   _type = 'package'
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('rpmbuild')
-  suite.addTest(make_core_suite(RpmbuildTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(RpmbuildTestCase, os, version, arch))
   return suite

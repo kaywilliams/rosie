@@ -27,10 +27,10 @@ class Stage2ImagesEventTestCase(EventTestCase):
     "<rpmbulid enabled='false'/>",
   ]
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('stage2-images')
 
-  suite.addTest(make_core_suite(Stage2ImagesEventTestCase, distro, version, arch))
-  suite.addTest(fdm_make_suite(Stage2ImagesEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(Stage2ImagesEventTestCase, os, version, arch))
+  suite.addTest(fdm_make_suite(Stage2ImagesEventTestCase, os, version, arch))
 
   return suite

@@ -49,11 +49,11 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
 
-    base = repo.getDefaultRepoById('base', distro=self.distro,
+    base = repo.getDefaultRepoById('base', os=self.os,
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.distro)
+                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
@@ -129,8 +129,8 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   </config-rpms>
   """ % { 'working-dir': BUILD_ROOT }]
 
-  def __init__(self, distro, version, arch, conf=None):
-    ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
+  def __init__(self, os, version, arch, conf=None):
+    ConfigRpmEventTestCase.__init__(self, os, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
@@ -228,9 +228,9 @@ class DeployConfigRpmEventTestCase(DeployMixinTestCase,
   """]
   _conf.extend(ConfigRpmInputsEventTestCase._conf)
 
-  def __init__(self, distro, version, arch, *args, **kwargs):
-    ConfigRpmInputsEventTestCase.__init__(self, distro, version, arch)
-    DeployMixinTestCase.__init__(self, distro, version, arch, module='publish')
+  def __init__(self, os, version, arch, *args, **kwargs):
+    ConfigRpmInputsEventTestCase.__init__(self, os, version, arch)
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
 
 class Test_FilesInstalled(DeployConfigRpmEventTestCase):
   "files installed on client machine"
@@ -241,25 +241,25 @@ class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
     self.event.test_lib_dir = pps.path('/root/deploy')
     DeployMixinTestCase.runTest(self)    
 
-def make_suite(distro, version, arch, *args, **kwargs):
+def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('config-rpms')
 
-  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, distro, 
+  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, os, 
                                      version, arch))
-  suite.addTest(Test_ErrorOnDuplicateIds(distro, version, arch))
-  suite.addTest(Test_ConfigRpmRepos(distro, version, arch))
-  suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
-  suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
-  suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
-  suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
-  suite.addTest(Test_ValidateDestnames(distro, version, arch))
+  suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
+  suite.addTest(Test_ConfigRpmRepos(os, version, arch))
+  suite.addTest(Test_ConfigRpmInputs(os, version, arch))
+  suite.addTest(Test_ConfigRpmBuild(os, version, arch))
+  suite.addTest(Test_ConfigRpmCvars1(os, version, arch))
+  suite.addTest(Test_ConfigRpmCvars2(os, version, arch))
+  suite.addTest(Test_ValidateDestnames(os, version, arch))
 
   if check_vm_config():
-    suite.addTest(Test_FilesInstalled(distro, version, arch))
-    suite.addTest(Test_FilesPersistOnLibDirChanges(distro, version, arch))
+    suite.addTest(Test_FilesInstalled(os, version, arch))
+    suite.addTest(Test_FilesPersistOnLibDirChanges(os, version, arch))
     # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, distro, version, arch, ))
+    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, os, version, arch, ))
 
   return suite
