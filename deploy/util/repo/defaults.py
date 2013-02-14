@@ -7,7 +7,7 @@ __all__ = ['getDefaultRepos', 'getDefaultPackageRepos',
            'getDefaultRepoById', 'NoSuchRepoError']
 
 DISTRO_FEDORA = 'fedora'
-DISTRO_REDHAT = 'redhat'
+DISTRO_REDHAT = 'rhel'
 DISTRO_CENTOS = 'centos'
 
 TYPE_INSTALLER = 'installer'
