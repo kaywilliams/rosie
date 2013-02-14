@@ -165,8 +165,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set up initial variables
     qstr = '/*/main/%s/text()'
 
-    # note- evaluate 'os' last below to allow using other vars in error text
-    for elem in ['name', 'version', 'arch', 'os']:
+    for elem in ['name', 'os', 'version', 'arch']:
       try:
         exec ("self.%s = self.definition.getxpath('/*/main/%s/text()')" 
               % (elem, elem))
@@ -182,10 +181,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
           "\n"
           "1. an 'os' element as described above, e.g. '<os>centos</os>'\n"
           "2. an 'id' element with an explicit value, e.g. "
-          "'<id>%s-%s-%s</id>'\n"
+          "'<id>%%{name}-%%{version}-%%{arch}</id>'\n"
           "\n"
           "See the Repository Definition File Reference for more information "
-          "on these elements." % (msg, self.name, self.version, self.arch))
+          "on these elements." % msg)
 
         else:
           raise DeployError(msg)
