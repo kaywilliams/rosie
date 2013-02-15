@@ -39,7 +39,7 @@
 
   </section>
 
-  <section id="test-install-examples" xreflabel="Test-Install Examples">
+  <section id="test-install-examples">
     <title>
     Examples
     </title>
@@ -109,9 +109,8 @@
     <para>
     The virt-deploy.xml template, shown below, provides the configuration
     necessary to deploy and maintain a local virtual machine. Virt-deploy.xml
-    in turn makes use of many additional templates. See the <xref
-    linkend='templates'/> section of this document for information on locating
-    and using templates.
+    in turn makes use of many additional templates. See <xref
+    linkend='templates'/> for information on locating and using templates.
     </para>
 
     <programlisting><xi:include href='../../../../../share/deploy/templates/virt-deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>

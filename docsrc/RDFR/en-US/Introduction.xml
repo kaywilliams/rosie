@@ -23,10 +23,10 @@
   are a series of top-level elements that equate to modules, or steps, within
   the Deploy build process. These elements, in turn, contain their own
   attributes and elements. The only required top-level element is <emphasis
-  role="strong"><xref linkend="main" /></emphasis>; all other top-level
-  elements are optional or conditional, based on the type of repository being
-  defined. Top-level elements can appear in the repository definition in any
-  order. Indentation is for readability purposes only.
+  role="strong">main</emphasis>; all other top-level elements are optional or
+  conditional, based on the type of repository being defined. Top-level
+  elements can appear in the repository definition in any order. Indentation is
+  for readability purposes only.
   </para>
 
   <para>
@@ -66,7 +66,7 @@
     </informalexample>
   </section>
 
-  <section id='datfile' xreflabel='repository data file'>
+  <section id='datfile'>
     <title>
     Repository Data File 
     </title>
@@ -74,11 +74,11 @@
     <para>
     Deploy creates a file, referred to as the <emphasis>repository data
     file</emphasis> or <emphasis>datfile</emphasis>, to track and maintain
-    Deploy-generated repository input data. Examples of data in this
-    file include release numbers for generated RPMs, generated GPG signing
-    keys, and generated passwords and crypt passwords. See the chapters on
-    <xref linkend='rpm-elements'/> and <xref linkend='deployment-elements'/>
-    for more information on these topics.
+    Deploy-generated repository input data. Examples of data in this file
+    include release numbers for generated RPMs, generated GPG signing keys, and
+    generated passwords and crypt passwords. See <xref linkend='rpm-elements'/>
+    and <xref linkend='deployment-elements'/> for more information on these
+    topics.
     </para>
    
     <para>

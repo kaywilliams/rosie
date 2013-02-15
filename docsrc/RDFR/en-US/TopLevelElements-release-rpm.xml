@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="release-rpm"
-         xreflabel="release-rpm">
+        >
   <title>
   Release-rpm
   </title>
@@ -37,9 +37,9 @@
 
     <para>
     The file name of the release-rpm is in the following format, where %{name}
-    and %{version} are global run-time macros, RELEASE is taken from the <xref
-    linkend="datfile" />, and DIST is an identifier for the base
-    %operating system distribution.
+    and %{version} are global run-time macros, RELEASE is taken from the
+    Repository Data File (see <xref linkend="datfile" />), and DIST is an
+    identifier for the base %operating system distribution.
     </para>
 
     <para><synopsis>
@@ -104,7 +104,7 @@
     <variablelist>
 
     <varlistentry id="release-rpm-updates"
-                  xreflabel="release-rpm/updates">
+                 >
       <term>
       updates
       </term>
@@ -122,7 +122,7 @@
       </para>
 
       <para>
-      <emphasis>@sync</emphasis>: <xref linkend='content-boolean'/> value indicating
+      <emphasis>@sync</emphasis>: BOOLEAN value indicating
       whether to include the <application
       class="software">Deploy</application>-provided <application
       class="software">YUM</application> sync plugin in the config RPM. The
@@ -138,12 +138,16 @@
       </para>
 
       <para>
-      <emphasis>@gpgcheck</emphasis>: <xref linkend='content-boolean'/> value
+      <emphasis>@gpgcheck</emphasis>: BOOLEAN value
       indicating whether packages should be checked for valid GPG signatures.
       This value controls whether Deploy performs gpgcheck when
       creating the repository. It also controls whether YUM checks
       packages from the repository prior to performing client machine 
       updates. The default value is <constant>TRUE</constant>.
+      </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
       </para>
 
       </listitem>

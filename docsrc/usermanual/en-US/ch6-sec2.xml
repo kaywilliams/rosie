@@ -235,7 +235,7 @@ rsync -a --delete -e ssh \
   (<filename>boot.iso</filename>) to create an installation CD or DVD.  The
   image can be found in the <filename>images</filename> folder for the
   repository, e.g. <filename
-  class="directory">/var/www/html/repos/system/web-server-6-x86_64/images/</filename>.
+  class="directory">/var/www/html/repos/system/web-server-centos-6-x86_64/images/</filename>.
   </para>
 
   <para>
@@ -286,7 +286,7 @@ rsync -a --delete -e ssh \
   After running Deploy again, the iso image (or images) will be
   available from the <filename>iso</filename> folder of the repository, e.g.
   <filename
-  class="directory">/var/www/html/repos/system/web-server-6-x86_64/iso/</filename>.
+  class="directory">/var/www/html/repos/system/web-server-centos-6-x86_64/iso/</filename>.
   Burn the resulting image(s) to media, and use them to boot client
   machines as described under <xref linkend='cd-dvd-network-installation'/>
   above.

@@ -10,11 +10,13 @@ all: html pdf
 
 html:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	$(PUBLICAN) build --formats html-single --langs en-US
+	cd ./tmp/en-US; rm -rf html-single xml xml_tmp; cd -
+	$(PUBLICAN) build --formats html-single --langs en-US --quiet
 
 pdf:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	$(PUBLICAN) build --formats pdf --langs en-US
+	cd ./tmp/en-US; rm -rf pdf xml xml_tmp; cd -
+	$(PUBLICAN) build --formats pdf --langs en-US --quiet
 
 publish:
 	# publish user manual to drupal

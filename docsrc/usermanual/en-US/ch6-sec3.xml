@@ -162,7 +162,7 @@ rsync -a --delete -e ssh \
 
   <informalexample>
   <programlisting>kernel /path/to/vmlinuz/on/pxeboot/server
-append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/repos/system/web-server-6-x86_64/ks.cfg ...</programlisting>
+append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/repos/system/web-server-centos-6-x86_64/ks.cfg ...</programlisting>
   </informalexample>
 
   <para>

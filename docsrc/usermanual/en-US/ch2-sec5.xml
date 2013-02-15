@@ -89,13 +89,13 @@
           repository definition, with a filename consisting of the <xref
           linkend='repository-id'/> with the <filename>.dat</filename> file
           extension. For example, given the repository ID
-          "web-server-6-x86_64", Deploy will create a repository
+          "web-server-centos-6-x86_64", Deploy will create a repository
           definition file as follows:
           </para>
 
           <informalexample>
           <para>
-          <filename>web-server-6-x86_64.dat</filename>
+          <filename>web-server-centos-6-x86_64.dat</filename>
           </para>
           </informalexample>
 
@@ -147,10 +147,15 @@
           
           <para>
           The default value is
-          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
+          <varname>%{name}</varname>-<varname>%{os}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
           where these values correspond to the <emphasis>name</emphasis>,
-          <emphasis>version</emphasis> and <emphasis>arch</emphasis> for the
-          repository.
+          <emphasis>os</emphasis>, <emphasis>version</emphasis> and
+          <emphasis>arch</emphasis> for the repository.
+          </para>
+
+          <para>
+          In Deploy versions 1.68 and prior the default value was 
+          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
           </para>
         </listitem>
       </varlistentry>
@@ -177,13 +182,13 @@
           For example, if the IP Address for the build machine is
           <filename>192.168.1.5</filename> and the repository type is
           <emphasis>system</emphasis> with an id of
-          <emphasis>web-server-5-i386</emphasis> the repository URL is as
+          <emphasis>web-server-centos-6-x86_64</emphasis> the repository URL is as
           follows:
           </para>
 
           <informalexample>
           <para>
-          <filename>http://192.168.1.5/repos/system/web-server-5-i386</filename>
+          <filename>http://192.168.1.5/repos/system/web-server-deploy-6-x86_64</filename>
           </para>
           </informalexample>
 
@@ -210,14 +215,10 @@
 
   <important>
   <para>
-  Do not modify files in the
-  <filename>/usr/share/deploy/templates</filename> folder. Changes to
-  these files will be overwritten when updated versions of the Deploy
-  RPM are installed.
-  </para>
-
-  <para>
-  Instead, copy files to a new location before editing.
+  Do not modify files in the <filename>/usr/share/deploy/templates</filename>
+  folder. Changes to these files will be overwritten when updated versions of
+  the Deploy RPM are installed.  Instead, copy files to a new location before
+  editing.
   </para>
   </important>
         </listitem>

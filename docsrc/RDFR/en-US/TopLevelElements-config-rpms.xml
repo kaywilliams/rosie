@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="config-rpms"
-         xreflabel="config-rpms">
+        >
   <title>
   Config-rpms
   </title>
@@ -60,9 +60,8 @@
     <varname>RPMID</varname> is taken from the <emphasis>@id</emphasis>
     attribute, %{version} is a global run-time macro, RELEASE is computed at
     run time, and DIST is an identifier for the base operating system
-    distribution (e.g. 'el6'). See the introduction to the <xref
-    linkend='release-rpm'/> element for additional information on release
-    numbers and the <xref linkend='datfile'/>. 
+    distribution (e.g. 'el6'). See the introduction at <xref
+    linkend='release-rpm'/> for additional information on release numbers. 
     </para>
 
     <informalexample>
@@ -116,7 +115,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
 &lt;/config-rpms&gt;]</programlisting>
   </section>
 
-  <section id='configrpm-macros' xreflabel='config-rpm macros'>
+  <section id='configrpm-macros'>
   <title>Macros</title>
 
   <para>
@@ -141,14 +140,13 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
   </para>
 
   <para>
-  The <filename>ssh-config.xml</filename> file located within the <xref
-  linkend="templates"/> folder shows an example of using the
-  <emphasis>%{installdir}</emphasis> macro.
+  The <filename>ssh-config.xml</filename> file located within the templates
+  folder shows an example of using the <emphasis>%{installdir}</emphasis>
+  macro. See <xref linkend="templates"/> for information on templates.
   </para>
 
   <para>
-  See the <xref linkend='macros'/> section for more information on macros
-  generally.
+  See <xref linkend='macros'/> for more information on macros generally.
   </para>
   </section>
 
@@ -158,7 +156,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
     </title>
 
     <variablelist>
-    <varlistentry id="config-rpm" xreflabel="config-rpm">
+    <varlistentry id="config-rpm">
       <term>
       config-rpm 
       </term>
@@ -174,14 +172,14 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
       </para>
 
       <variablelist>
-      <varlistentry id="rpmid" xreflabel="id">
+      <varlistentry id="rpmid">
       <term>@id</term>
 
       <listitem>
       <para>
-      <xref linkend='content-text'/> identifier for the config-rpm. Also serves
-      as the name for the config-rpm. For clarity, often specified by appending
-      the term "config", as shown in the following example.
+      TEXT value providing an identifier for the config-rpm. Also serves as the
+      name for the config-rpm. For clarity, often specified by appending the
+      term "config", as shown in the following example.
       </para>
       </listitem>
       </varlistentry>
@@ -206,8 +204,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
         <term>summary</term>
         <listitem>
         <para>
-        <xref linkend='content-text'/> value providing a summary of the
-        config-rpm.
+        TEXT value providing a summary of the config-rpm.
         </para>
         
         <para>
@@ -222,7 +219,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
         <term>description</term>
         <listitem>
         <para>
-        <xref linkend='content-text'/> value providing a description of the config-rpm.
+        TEXT value providing a description of the config-rpm.
         </para>
 
         <para>
@@ -244,8 +241,7 @@ FULLNAME repository.
         <term>license</term>
         <listitem>
         <para>
-        <xref linkend='content-text'/> value providing the name of the license
-        for the RPM.
+        TEXT value providing the name of the license for the RPM.
         </para>
 
         <para>
@@ -256,8 +252,7 @@ FULLNAME repository.
         </listitem>
       </varlistentry>
 
-      <varlistentry id="config-rpm-repo" 
-                    xreflabel="repo">
+      <varlistentry id="config-rpm-repo">
         <term>
         repo
         </term>
@@ -277,24 +272,28 @@ FULLNAME repository.
         </listitem>
       </varlistentry>
 
-      <varlistentry id="config-rpms-requires" 
-                    xreflabel="requires">
+      <varlistentry id="config-rpms-requires">
         <term>
         requires
         </term>
 
         <listitem>
         <para>
-        <xref linkend='content-capability'/> that must be available on client
-        machines prior to installation of the config-rpm. Capabilities are
-        provided by RPM packages. They can be specified as the name of a
-        package, or as a file or virtual capability provided by one or more
-        packages. See the chapter on <xref linkend="common-components"/> for
-        more information on specifying capabilities.
+        CAPABILITY that must be
+        available on client machines prior to installation of the config-rpm.
+        Capabilities are provided by RPM packages. They can be specified as the
+        name of a package, or as a file or virtual capability provided by one
+        or more packages. See <xref linkend="common-components"/> for more
+        information on specifying capabilities.
         </para>
 
         <para>
         The <emphasis>requires</emphasis> element can occur zero or more times
+        </para>
+
+        <para>
+        See <xref linkend='content-capability'/> for information on CAPABILITY
+        values.
         </para>
 
         <para><emphasis role='strong'>Example</emphasis></para>
@@ -312,32 +311,34 @@ FULLNAME repository.
         </listitem>
       </varlistentry>
 
-      <varlistentry id="config-rpms-obsoletes" 
-                    xreflabel="obsoletes">
+      <varlistentry id="config-rpms-obsoletes" >
         <term>
         obsoletes
         </term>
 
         <listitem>
         <para>
-        <xref linkend='content-capability'/>, typically the name of an RPM
-        package, that must be removed from the client machines prior to
-        installation of the config-rpm. Useful for removing conflicting or
-        undesirable software from client machines, particularly for machines
-        without the YUM sync plugin.  See also the <xref
-        linkend="release-rpm-updates"/> element for information on the YUM sync
-        plugin.
+        CAPABILITY, typically the name of an RPM package, that must be removed
+        from client machines prior to installation of the config-rpm.
+        Useful for removing conflicting or undesirable software from client
+        machines, particularly for machines without the YUM sync plugin.  See
+        also the <xref linkend="release-rpm-updates"/> element for information
+        on the YUM sync plugin.
         </para>
 
         <para>
         Can occur zero or more times.
         </para>
 
+        <para>
+        See <xref linkend="content-capability"/> for more information on
+        CAPABILITY values.
+        </para>
+
         </listitem>
       </varlistentry>
 
-      <varlistentry id="config-rpms-files"
-                    xreflabel="files">
+      <varlistentry id="config-rpms-files">
         <term>
         files
         </term>
@@ -373,22 +374,21 @@ FULLNAME repository.
         </para>
 
         <para>
-        <emphasis>@destdir</emphasis>: See the path-like attribute
-        <emphasis><xref linkend="destdir"/></emphasis>. Controls the
-        location to which this file or folder should be installed on client
-        machines. The default value is
-        <filename>%{installdir}/files</filename>.
+        <emphasis>@destdir</emphasis>: Controls the location to which this file
+        or folder should be installed on client machines. The default value is
+        <filename>%{installdir}/files</filename>. See <xref
+        linkend="destdir"/> for more information on the destdir attribute.
         </para>
 
         <para>
-        <emphasis>@destname</emphasis>: See the path-like attribute
-        <emphasis><xref linkend="destname" /></emphasis>. If
-        <emphasis>@content</emphasis> is "text", this attribute is required.
+        <emphasis>@destname</emphasis>:  If <emphasis>@content</emphasis> is
+        "text", this attribute is required. See <xref linkend="destname"/> for
+        more information on the destname attribute.
         </para>
 
         <para>
-        <emphasis>@mode</emphasis>: See the path-like attribute
-        <emphasis><xref linkend="mode" /></emphasis>.
+        <emphasis>@mode</emphasis>: See <xref linkend="mode" /> for information
+        on the mode attribute.
         </para>
 
         <para>
@@ -419,7 +419,7 @@ FULLNAME repository.
       </varlistentry>
 
       <varlistentry id="config-rpms-script"
-                    xreflabel="script">
+                   >
         <term>
         script
         </term>
@@ -540,7 +540,7 @@ chkconfig smb on
       </varlistentry>
 
       <varlistentry id="config-rpms-trigger"
-                    xreflabel="trigger">
+                   >
         <term>
         trigger
         </term>
@@ -585,15 +585,17 @@ chkconfig smb on
         </para>
 
         <para>
-        <emphasis>@interpreter</emphasis>: <xref linkend='content-path'/> to
-        the executable language interpreter to use when running the trigger
-        script. The default value is <filename>/bin/sh</filename>.
+        <emphasis>@interpreter</emphasis>: PATH to the executable language
+        interpreter to use when running the trigger script. The default value
+        is <filename>/bin/sh</filename>. See <xref linkend='content-path'/> for
+        additional information on PATH values.
         </para>
 
         <para>
-        <emphasis>@trigger</emphasis>: <xref linkend='content-capability'/> this
-        script triggers on.  This attribute is required. See also the
-        <emphasis>@type</emphasis> attribute.
+        <emphasis>@trigger</emphasis>: CAPABILITY this script triggers on.
+        This attribute is required. See <xref linkend='content-capability'/>
+        for additional information on CAPABILITY values. See also the
+        <emphasis>@type</emphasis> attribute. 
         </para>
 
         <para>

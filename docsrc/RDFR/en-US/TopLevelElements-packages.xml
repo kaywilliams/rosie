@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="packages" xreflabel="packages">
+<section id="packages">
   <title>
   Packages
   </title>
@@ -44,7 +44,7 @@
 
     <variablelist>
     <varlistentry id="packages-exclude"
-                  xreflabel="packages/exclude">
+                 >
       <term>
       exclude
       </term>
@@ -62,7 +62,7 @@
     </varlistentry>
 
     <varlistentry id="packages-group"
-                  xreflabel="packages/group">
+                 >
       <term>
       group
       </term>
@@ -97,7 +97,7 @@
     </varlistentry>
 
     <varlistentry id="packages-package"
-                  xreflabel="packages/package">
+                 >
       <term>
       package
       </term>

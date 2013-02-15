@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="main" xreflabel="main">
+<section id="main">
   <title>
   Main
   </title>
@@ -23,9 +23,10 @@
     <programlisting>
 &lt;main&gt;
   &lt;name&gt;TEXT&lt;/name&gt;
+  &lt;os&gt;("centos"|"rhel")&lt;/os&gt;
   &lt;version&gt;("5"|"6")&lt;/version&gt;
   &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
-  &lt;type&gt;("package"|"system")&lt;/type&gt;
+ [&lt;type&gt;("package"|"system")&lt;/type&gt;]
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;bug-url&gt;URL&lt;/bug-url&gt;]
@@ -39,16 +40,14 @@
     </title>
 
     <variablelist>
-    <varlistentry id="main-name"
-                  xreflabel="main/name">
+    <varlistentry id="main-name">
       <term>
       name
       </term>
 
       <listitem>
       <para>
-      <xref linkend="content-text"/> value specifying the name of the
-      repository.
+      TEXT value specifying the name of the repository.
       </para>
 
       <para>
@@ -60,11 +59,47 @@
       <para>
       This element is required.
       </para>
+
+      <para>
+      See <xref linkend="content-text"/> for more information on TEXT values.
+      </para>
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-version"
-                  xreflabel="main/version">
+    <varlistentry id="main-os">
+      <term>
+      os
+      </term>
+
+      <listitem>
+      <para>
+      TEXT value specifying the name of the base
+      operating system for the repository. Accepts either "centos" or "rhel".
+      </para>
+
+      <para>
+      The value of this element can be accessed within other elements 
+      and attributes of the definition using the run-time macro 
+      <varname>%{os}</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+
+      <para>
+      See <xref linkend="content-text"/> for more information on TEXT values.
+      </para>
+
+      <para>
+      The <emphasis>os</emphasis> element was added in Deploy version 1.69. See
+      <xref linkend='main-id'/> for related changes to the
+      <emphasis>id</emphasis> element.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-version">
       <term>
       version
       </term>
@@ -87,8 +122,7 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-arch"
-                  xreflabel="main/arch">
+    <varlistentry id="main-arch">
       <term>
       arch
       </term>
@@ -110,8 +144,7 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-type"
-                  xreflabel="main/type">
+    <varlistentry id="main-type">
       <term>
       type
       </term>
@@ -137,32 +170,34 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-fullname" xreflabel="main/fullname">
+    <varlistentry id="main-fullname">
       <term>
       fullname
       </term>
 
       <listitem>
       <para>
-      <xref linkend="content-text"/> content specifying a human-friendly name
+      TEXT content specifying a human-friendly name
       for the repository. Displays during client machine installation.
       </para>
 
       <para>
       This element is optional. The default value is <varname>%{name}</varname>.
       </para>
+      <para>
+      See <xref linkend="content-text"/> for more information on TEXT content.
+      </para>
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-id"
-                  xreflabel="main/id">
+    <varlistentry id="main-id">
       <term>
       id
       </term>
 
       <listitem>
       <para>
-      <xref linkend="content-text"/> value specifying a unique id for the
+      TEXT value specifying a unique id for the
       repository. Used as the directory name for the repository in the Deploy
       publish and cache folders (by default
       <emphasis>/var/www/html/repos/</emphasis> and
@@ -171,7 +206,7 @@
 
       <para>
       This element is optional. The default value is
-      <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>.
+      <varname>%{name}</varname>-<varname>%{os}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>.
       </para>
 
       <para>
@@ -180,6 +215,15 @@
       <varname>%{id}</varname>.
       </para>
 
+      <para>
+      See <xref linkend="content-text"/> for more information on TEXT content.
+      </para>
+
+      <para>
+      Deploy 1.68 and prior versions used
+      <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>
+      as the default value.
+      </para>
       </listitem>
     </varlistentry>
 
@@ -190,7 +234,7 @@
 
       <listitem>
       <para>
-      <xref linkend="content-url"/> to a location where users should report
+      URL to a location where users should report
       installation issues.  This value of this element is displayed
       when an error occurs during system installation.
       </para>
@@ -198,6 +242,10 @@
       <para>
       This element is optional. The default value is
       <filename>https://bugzilla.redhat.com/bugzilla/</filename>.
+      </para>
+
+      <para>
+      See <xref linkend="content-url"/> for more information on URL values.
       </para>
       </listitem>
     </varlistentry>
@@ -209,14 +257,17 @@
 
       <listitem>
       <para>
-      <xref linkend="content-path"/> to a file where Deploy should
-      write the repository’s log information. The file is created if it does
-      not exist.
+      PATH to a file where Deploy should write the repository’s log
+      information. The file is created if it does not exist.
       </para>
 
       <para>
       This element is optional. The default value is
       <filename>/var/log/deploy.log</filename>.
+      </para>
+
+      <para>
+      See <xref linkend="content-path"/> for more information on PATH values
       </para>
       </listitem>
     </varlistentry>
@@ -233,6 +284,7 @@
     <programlisting>
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;os&gt;centos&lt;/os&gt;
   &lt;version&gt;5&lt;/version&gt;
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;

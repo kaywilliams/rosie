@@ -6,29 +6,6 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>October 2012</pubdate>
-
-    <copyright id="copyright">
-      <year>2012</year>
-
-      <holder>Deploy Foundation</holder>
-    </copyright>
-
-    <legalnotice id="legal-notice">
-      <para>All Rights Reserved.</para>
-    </legalnotice>
-
-    <author id="author">
-      <affiliation>
-        <orgname>Deploy Foundation</orgname>
-      </affiliation>
-
-      <authorblurb>
-        <para><email>deploy@deployproject.org</email></para>
-        <para><email>deploy@deployproject.org</email></para>
-      </authorblurb>
-    </author>
-
     <keywordset id="keywordset">
       <keyword>CentOS</keyword>
 

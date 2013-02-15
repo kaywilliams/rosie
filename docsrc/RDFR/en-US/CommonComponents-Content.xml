@@ -32,7 +32,7 @@
   </section>
 
   <section id="content-boolean"
-           xreflabel="BOOLEAN">
+          >
     <title>
     Content: <varname>BOOLEAN</varname>
     </title>
@@ -62,7 +62,7 @@ TRUE:  ("yes"|"true"|"on"|"1")</programlisting>
   </section>
 
   <section id="content-capability"
-           xreflabel="CAPABILITY">
+          >
     <title>
     Content: <varname>CAPABILITY</varname>
     </title>
@@ -207,7 +207,7 @@ rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm</programlisting>
   </section>
 
   <section id="content-mode"  
-           xreflabel="MODE">
+          >
     <title>
     Content: <varname>MODE</varname>
     </title>
@@ -256,7 +256,7 @@ rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm</programlisting>
   </section>
 
   <section id="content-package"
-           xreflabel="PACKAGE">
+          >
     <title>
     Content: <varname>PACKAGE</varname>
     </title>
@@ -315,7 +315,7 @@ kernel-0:2.4.1-10.i686
   </section>
 
   <section id="content-path"
-           xreflabel="PATH">
+          >
     <title>
     Content: <varname>PATH</varname>
     </title>
@@ -434,7 +434,7 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file</programlist
   </section>
 
   <section id="content-text"
-           xreflabel="TEXT">
+          >
     <title>
     Content: <varname>TEXT</varname>
     </title>
@@ -460,7 +460,7 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file</programlist
   </section>
 
   <section id="content-url"
-           xreflabel="URL">
+          >
     <title>
     Content: <varname>URL</varname>
     </title>

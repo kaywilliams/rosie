@@ -109,8 +109,9 @@
 
 &lt;main>
 &lt;name>application&lt;/name>
-&lt;arch>x86_64&lt;/arch>
+&lt;os>centos&lt;/os>
 &lt;version>6&lt;/version>
+&lt;arch>x86_64&lt;/arch>
 &lt;type>package&lt;/type>
 &lt;/main>
 

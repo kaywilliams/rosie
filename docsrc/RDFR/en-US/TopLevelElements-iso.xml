@@ -41,7 +41,7 @@
 
       <listitem>
       <para>
-      <xref linkend="content-text"/> value specifying the size per ISO, in
+      TEXT value specifying the size per ISO, in
       bytes, of a set of ISO images to create.  May include SI-style suffix
       ("MB", "GB", etc.).  The reserved values "CD" and "DVD" correspond to
       "640MB" and "4.7GB", respectively.

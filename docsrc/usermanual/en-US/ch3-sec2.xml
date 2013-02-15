@@ -55,11 +55,11 @@
     </para>
 
     <para>
-    Likewise, the "xmlns:xi..." attribute is not required on the 
-    repository element. It allows the use of XIncludes within the
-    document. XIncludes, a convenient mechanism for reusing content across 
-    multiple definitions, are discussed in the Repository Definition File
-    Reference (RDFR).
+    Likewise, the "xmlns:xi..." attribute is not required on the "&lt;repo>"
+    element. It is strongly recommended, however, as it allows the use of
+    XIncludes within the document. XIncludes, a convenient mechanism for
+    reusing content across multiple definitions, are discussed in the
+    Repository Definition File Reference (RDFR).
     </para>   
   </section>
 
@@ -95,12 +95,12 @@
 
     <para>
     The first required element of the definition, <emphasis>main</emphasis>,
-    includes the name of the repository, the repository architecture and the
-    version. By default, these three items make up the default repository id
-    (<varname>%{id}</varname>), which Deploy uses to create folders for
-    storing the completed repository (under <filename
-    class="directory">/var/www/html/repos</filename>, by default) and for
-    caching repository content (under <filename
+    includes the name of the repository, the base operating system, the
+    OS version and the OS architecture.  By default, these four
+    items make up the default repository id (<varname>%{id}</varname>), which
+    Deploy uses to create folders for storing the completed repository (under
+    <filename class="directory">/var/www/html/repos</filename>, by default) and
+    for caching repository content (under <filename
     class="directory">/var/cache/deploy</filename>, by default).
     </para>
 
@@ -109,14 +109,19 @@
         </para>
       </note></para>
 
-    <para>In the example below, the repository version will be 6, the repository
-    architecture will be x86_64, and the <varname>%{id}</varname> will
-    be <filename>web-server-6-x86_64</filename>. </para>
+    <para>
+    In the example below, the base operating system is 'centos', the OS version
+    is '6', and the OS architecture is x86_64. Because no
+    <emphasis>id</emphasis> element has been added, the
+    <varname>%{id}</varname> will be automatically calculated as
+    <filename>web-server-centos-6-x86_64</filename>. 
+    </para>
 
     <para><informalexample>
       <programlisting>&lt;main&gt;
   &lt;fullname&gt;Example Web Server&lt;/fullname&gt;
   &lt;name&gt;web-server&lt;/name&gt;
+  &lt;os&gt;centos&lt;/os&gt;
   &lt;version&gt;6&lt;/version&gt;
   &lt;arch&gt;x86_64&lt;/arch&gt;
 &lt;/main&gt;</programlisting>
@@ -127,28 +132,31 @@
     <emphasis>main</emphasis> element.</para>
 
     <para>
-    The example above shows creating a definition for a specific version
-    (<emphasis>6</emphasis>) and architecture (<emphasis>x86_64</emphasis>) of
-    CentOS. Typically you will want to make your definitions more flexible,
-    however, so that they can encompass multiple Operating System versions and
-    architectures. You can do this using macros.
+    The example above shows creating a definition for a specific operating
+    system (<emphasis>centos</emphasis>), version (<emphasis>6</emphasis>) and
+    architecture (<emphasis>x86_64</emphasis>). Typically you will want to make
+    your definitions more flexible, however, so that they can encompass
+    multiple operating systems, versions and architectures. You can do this
+    using macros.
     </para>
 
     <para>
     To make use of macros, change the repository definition as shown below.
     This example, like the one above, defaults to creating a repository based
     on CentOS 6 for the x86_64 architecture.  In addition, it enables providing
-    an alternative OS version or archicture using command-line macros. Command
+    an alternative OS, version or archicture using command-line macros. Command
     line macros will be discussed in more detail in <xref
     linkend='building-repositories'/>.
     </para>
 
     <para><informalexample>
-      <programlisting>&lt;macro id='version'>6&lt;macro>
+      <programlisting>&lt;macro id='os'>centos&lt;macro>
+&lt;macro id='version'>6&lt;macro>
 &lt;macro id='arch'>x86_64&lt;macro>
 
 &lt;main&gt;
   &lt;name&gt;web-server&lt;/name&gt;
+  &lt;os&gt;%{os}&lt;/os&gt;
   &lt;version&gt;%{version}&lt;/version&gt;
   &lt;arch&gt;%{arch}&lt;/arch&gt;
 &lt;/main&gt;</programlisting>
@@ -157,15 +165,16 @@
     <note>
     <para>
     Each time you change a repository's id, either implicitly by changing the
-    <emphasis>name</emphasis>, <emphasis>version</emphasis> or
-    <emphasis>arch</emphasis> elements, or explicitly by changing the
-    <emphasis>id</emphasis> element, Deploy creates new folders in the
-    publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
+    <emphasis>name</emphasis>, <emphasis>os</emphasis>,
+    <emphasis>version</emphasis> or <emphasis>arch</emphasis> elements, or
+    explicitly by changing the <emphasis>id</emphasis> element, Deploy creates
+    new folders in the publish and cache folders
+    (<emphasis>/var/www/html/repos</emphasis> and
     <emphasis>/var/cache/deploy</emphasis>, by default, respectively). To
     preserve hard drive space, you may wish to review the publish and cache
     folders on occasion. Folders for obsolete repository ids can be deleted
-    using standard file system methods, as shown below: 
-    <synopsis>rm -rf <emphasis>obsolete_folder</emphasis></synopsis>
+    using standard file system methods, as shown below: <synopsis>rm -rf
+    <emphasis>obsolete_folder</emphasis></synopsis>
     </para>
     </note>
 

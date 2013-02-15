@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="test-update"
-         xreflabel="test-update">
+        >
   <title>
   Test-update
   </title>
@@ -50,7 +50,7 @@
     <para>
     Similar to the examples shown under <xref
     linkend="test-install-examples"/>, this example makes use of two files: the
-    main definition, and the <xref linkend="virt-deploy.xml"/> template. The
+    main definition, and the <filename>virt-deploy.xml</filename> template. The
     test-update element of the main definition is shown below. The
     virt-deploy.xml template is described under <xref
     linkend="test-install-examples"/>.

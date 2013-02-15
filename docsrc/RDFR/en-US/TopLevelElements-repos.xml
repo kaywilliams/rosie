@@ -128,7 +128,7 @@
       By default, all packages in all repositories are available for 
       Deploy to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
-      element. See the section on <xref linkend="packages" /> for information.
+      element. See <xref linkend="packages" /> for information.
       </para>
 
       <para>
@@ -249,8 +249,7 @@
       </para>
 
       <variablelist>
-      <varlistentry id="repo-id"
-                    xreflabel="repo/@id">
+      <varlistentry id="repo-id">
         <term>id</term>
 
         <listitem>
@@ -271,31 +270,34 @@
       </para>
 
       <variablelist>
-      <varlistentry id="baseurl"
-                    xreflabel="repo/baseurl">
+      <varlistentry id="baseurl" >
         <term>
         baseurl
         </term>
 
         <listitem>
         <para>
-        <xref linkend="content-url"/> to a valid repository.
+        URL to a valid repository.
         </para>
 
         <para>
         This element is required. 
         </para>
+
+        <para>
+        See <xref linkend="content-url"/> for information on URL values.
+        </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="download" xreflabel="repo/download">
+      <varlistentry id="download">
         <term>
         download
         </term>
 
         <listitem>
         <para>
-        <xref linkend="content-boolean"/> value indicating whether packages
+        BOOLEAN value indicating whether packages
         from this repository should be downloaded when <xref
         linkend='main-type'/> is set to <varname>package</varname>. If
         <varname>TYPE</varname> is not set to <varname>package</varname>, this
@@ -309,18 +311,21 @@
         <constant>TRUE</constant>.  For all other repositories, the default
         value is <constant>FALSE</constant>.
         </para>
+
+        <para>
+        See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+        </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="exclude" xreflabel="repo/exclude">
+      <varlistentry id="exclude">
         <term>
         exclude
         </term>
 
         <listitem>
         <para>
-        <xref linkend="content-package"/> pattern to exclude from the
-        repository.
+        PACKAGE pattern to exclude from the repository.
         </para>
 
         <para>
@@ -328,21 +333,23 @@
         </para>
 
         <para>
+        See <xref linkend="content-package"/> for information on PACKAGE values.
+        </para>
+        <para>
         See Also <emphasis>
         <xref linkend="repo-including-excluding-repository-content" /></emphasis>.
         </para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="gpgkey"
-                    xreflabel="repo/gpgkey">
+      <varlistentry id="gpgkey">
         <term>
         gpgkey
         </term>
 
         <listitem>
         <para>
-        <xref linkend="content-path"/> to a GPG key.
+        PATH to a GPG key.
         </para>
 
         <para>
@@ -355,6 +362,10 @@
         </para>
 
         <para>
+        See <xref linkend="content-path"/> for information on PATH values.
+        </para>
+
+        <para>
         See Also the <emphasis><xref linkend="release-rpm" /></emphasis>
         element.
         </para>
@@ -363,22 +374,26 @@
       </varlistentry>
 
       <varlistentry id="include-package"
-                    xreflabel="repo/include">
+                   >
         <term>
         include
         </term>
 
         <listitem>
           <para>
-          <xref linkend="content-package"/> pattern to include from the
-          repository. If one or more
-          <emphasis>repo/include</emphasis> patterns are defined,
-          the repository will include only packages that match these
-          patterns and nothing else.
+          Package pattern to include from the repository. If one or more
+          <emphasis>repo/include</emphasis> patterns are defined, the
+          repository will include only packages that match these patterns and
+          nothing else.
           </para>
 
           <para>
           This element can occur zero or more times.
+          </para>
+
+          <para>
+          See <xref linkend="content-package"/> for information on PACKAGE
+          values.
           </para>
 
           <para>
@@ -389,19 +404,22 @@
         </varlistentry>
 
         <varlistentry id="systemid"
-                      xreflabel="repo/systemid">
+                     >
           <term>
           systemid
           </term>
 
           <listitem>
           <para>
-          <xref linkend='content-path'/> to a systemid file to use when
-          contacting the Red Hat Network.
+          PATH to a systemid file to use when contacting the Red Hat Network.
           </para>
 
           <para>
           This element is required when using RHN baseurls.
+          </para>
+
+          <para>
+          See <xref linkend='content-path'/> for informaiton on PATH values.
           </para>
 
           </listitem>
@@ -503,11 +521,10 @@
     </title>
 
     <para>
-
     <xref linkend="content-boolean" />,
     <xref linkend="content-package" />,
     <xref linkend="content-path" />,
-    <xref linkend="content-text" />,
+    <xref linkend="content-text" />
     </para>
   </section>
 </section>

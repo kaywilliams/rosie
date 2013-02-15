@@ -90,15 +90,15 @@
   </para>
   
   <para>
-  <filename>/var/www/html/repos/system/test-install/web-server-6-x86_64</filename>.
+  <filename>/var/www/html/repos/system/test-install/web-server-centos-6-x86_64</filename>.
   </para>
   </listitem>
 
   <listitem>
   <para>
   Creates a new virtual machine with the hostname
-  <emphasis>web-server-6-x86-64-test-install.local</emphasis> and the root
-  password <emphasis>secret</emphasis>. You can view the virtual machine
+  <emphasis>web-server-centos-6-x86-64-test-install.local</emphasis> and the
+  root password <emphasis>secret</emphasis>. You can view the virtual machine
   using the <command>virt-viewer</command> command line utility.
   </para>
   <note>
@@ -136,7 +136,7 @@
   </para>
 
   <para>
-  <filename>/var/www/html/repos/system/web-server-6-x86_64</filename>.
+  <filename>/var/www/html/repos/system/web-server-centos-6-x86_64</filename>.
   </para>
 
   <para>
@@ -189,11 +189,11 @@
   </para>
   
   <para> 
-  <filename>/var/www/html/repos/system/test-updates/web-server-6-x86_64</filename>
+  <filename>/var/www/html/repos/system/test-updates/web-server-centos-6-x86_64</filename>
   </para>
 
   <para>
-  and the machine name is <emphasis>web-server-6-x86-64-test-update.local</emphasis>.
+  and the machine name is <emphasis>web-server-centos-6-x86-64-test-update.local</emphasis>.
   </para>
 
   <para>

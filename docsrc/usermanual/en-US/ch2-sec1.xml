@@ -6,12 +6,13 @@
   </title>
 
   <para>
-  Deploy is a free, open source application and framework to create RPM
-  package repositories for use with CentOS and Red Hat Enterprise Linux.
+  Deploy is a free, open source application and framework for managing
+  system and application deployment. The current version works with 
+  CentOS and Red Hat Enterprise Linux.
   </para>
   
   <para>
-  Deploy allows creating two types of repositories - system and package.
+  Deploy allows creating two types of repositories: system and package.
   </para>
   
   <para>
@@ -30,7 +31,7 @@
   </para>
   
   <para>
-  Deploy automates common repository creation tasks:
+  Deploy automates common system and application deployment tasks:
   </para>
   
   <itemizedlist>
@@ -42,26 +43,33 @@
   
   <listitem>
   <para>
-  Downloads packages from existing package repositories.
+  Creates package repositories.
   </para>
   </listitem>
   
   <listitem>
   <para>
-  Signs created packages.
+  Creates system installation images (for system repositories).
   </para>
   </listitem>
   
   <listitem>
   <para>
-  Creates repository metadata.
+  Tests packages, repositories and installation images.
   </para>
   </listitem>
   
   <listitem>
   <para>
-  Tests system installation and updates.
+  Deploys systems and applications.
   </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Updates systems and applications.
+  </para>
+
   </listitem>
   </itemizedlist>
 

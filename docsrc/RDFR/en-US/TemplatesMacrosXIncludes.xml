@@ -72,8 +72,8 @@
     options use the following syntax: <emphasis>--macro id:value</emphasis>.
     Macros specified on the command line are the first to be resolved during
     Deploy processing, and their values override values provided by
-    any other macro element or run-time macro. <xref
-    linkend="macro-command-line-example"/> shows a common usage scenario.
+    any other macro element or run-time macro. See <xref
+    linkend="macro-command-line-example"/> for a common usage scenario.
     </para>
 
     <para>
@@ -125,6 +125,7 @@
     
     <simplelist type='horiz'>
     <member><varname>%{name}</varname></member>
+    <member><varname>%{os}</varname></member>
     <member><varname>%{version}</varname></member>
     <member><varname>%{arch}</varname></member>
     <member><varname>%{id}</varname></member>
@@ -133,7 +134,7 @@
     </para>
     
     <para>
-    The values of the first four macros correspond to elements
+    The values of the first five macros correspond to elements
     in the <varname>/main</varname> element, unless they are
     overridden by command-line or in-document macros. See <xref
     linkend="main"/> for more information on these macros.
@@ -151,8 +152,9 @@
     These modules include <emphasis>config-rpms</emphasis>,
     <emphasis>srpmbuild</emphasis>, <emphasis>test-install</emphasis>,
     <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. See the
-    chapters on <xref linkend="config-rpms"/>, <xref linkend="srpmbuild"/> and
-    <xref linkend="deployment-elements"/> for more information on these macros.
+    following for more informaiton on these macros: <xref
+    linkend="config-rpms"/>, <xref linkend="srpmbuild"/> and <xref
+    linkend="deployment-elements"/>.
     </para>
     
     <section>
@@ -165,14 +167,14 @@
       Example 1 - Using Command-Line Macros
       </title>
       <para>
-      In this example the macro placeholders <varname>%{version}</varname> and
-      <varname>%{arch}</varname> will be replaced with the values "6" and
-      "i386", respectively, when Deploy is executed using the following
-      command line:
+      In this example the macro placeholders <varname>%{os}</varname>,
+      <varname>%{version}</varname> and <varname>%{arch}</varname> will be
+      replaced with the values "centos", "6" and "i386", respectively, when
+      Deploy is executed using the following command line:
       </para>
 
       <programlisting>
-deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
+deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
 
       <para>
       This allows a single definition to be used across multiple version and
@@ -186,6 +188,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 
 &lt;main&gt;
 &lt;name&gt;example&lt;name&gt;
+&lt;os&gt;%{os}&lt;os&gt;
 &lt;version&gt;%{version}&lt;version&gt;
 &lt;arch&gt;%{arch}&lt;arch&gt;
 &lt;/main&gt;
@@ -201,13 +204,13 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       </title>
       <para>
       This example is similar to Example 1, with the addition of global
-      in-document macros for <emphasis>version</emphasis> and
-      <emphasis>arch</emphasis>. When Deploy is executed with the
-      command line from Example 1, the results will be the same as in that
-      example (since command-line macros are resolved first). However, when
-      Deploy is executed with no macros specified on the command line,
-      the values for version and macro will be "5" and "x86_64" respectively,
-      as defined below.
+      in-document macros for <emphasis>os</emphasis>,
+      <emphasis>version</emphasis> and <emphasis>arch</emphasis>. When Deploy
+      is executed with the command line from Example 1, the results will be the
+      same as in that example (since command-line macros are resolved first).
+      However, when Deploy is executed with no macros specified on the command
+      line, the values for os, version and macro will be "centos", "5" and
+      "x86_64" respectively, as defined below.
       </para>
 
       <informalexample>
@@ -215,11 +218,13 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
+&lt;macro id="os"&gt;centos&lt;macro&gt;
 &lt;macro id="version"&gt;5&lt;macro&gt;
 &lt;macro id="arch"&gt;x86_64&lt;macro&gt;
 
 &lt;main&gt;
 &lt;name&gt;example&lt;name&gt;
+&lt;os&gt;%{os}&lt;os&gt;
 &lt;version&gt;%{version}&lt;version&gt;
 &lt;arch&gt;%{arch}&lt;arch&gt;
 &lt;/main&gt;
@@ -234,21 +239,22 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       Example 3 - Using Builtin Macros
       </title>
       <para>
-      In this example the variables <varname>%{version}</varname> and
-      <varname>%{arch}</varname>, used within the <varname>repos</varname> 
-      element, will be substituted with the values "5" and "i386" respectively.
+      In this example the variables <varname>%{os}</varname>,
+      <varname>%{version}</varname> and <varname>%{arch}</varname>, used within
+      the <varname>repos</varname> element, will be substituted with the values
+      "centos", "5" and "i386" respectively.
       </para>
 
       <para>
-      If Deploy is executed with the command line shown in Example 1,
-      however, the placeholders in the <varname>repos</varname> element will be
-      substituted with the values '6' and 'i386' respectively. This is
-      undesirable and will lead to errors and inconsistent behavior since,
+      If Deploy is executed with the command line shown in Example 1, however,
+      the placeholders in the <varname>repos</varname> element will be
+      substituted with the values 'centos', '6' and 'i386' respectively. This
+      is undesirable and will lead to errors and inconsistent behavior since,
       internally, Deploy will believe it is trying to build a repository
-      compatible with a version 5, i386 architecture operating system. If you
-      plan to use command-line macros, you should use the definition syntax
-      shown in Examples 1 or 2 above.  That is the syntax we will show through
-      the remainder of this document.
+      compatible with a centos, version 5, i386 architecture operating system.
+      If you plan to use command-line macros, you should use the definition
+      syntax shown in Examples 1 or 2 above.  That is the syntax we will show
+      through the remainder of this document.
       </para>
 
       <informalexample>
@@ -258,6 +264,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 
 &lt;main&gt;
 &lt;name&gt;example&lt;/name&gt;
+&lt;os&gt;centos&lt;/os&gt;
 &lt;version&gt;5&lt;/version&gt;
 &lt;arch&gt;i386&lt;/arch&gt;
 &lt;/main&gt;
@@ -277,7 +284,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
   
   </section>
   
-  <section id="xincludes" xreflabel="XIncludes">
+  <section id="xincludes">
     <title>
     XIncludes and XML elements 
     </title>
@@ -320,9 +327,10 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
 
     </itemizedlist>
 
-    <para id="xinclude-namespace-declaration" 
-          xreflabel="XInclude Namespace Declaration">
-    <emphasis role="strong">XInclude Namespace Declaration.</emphasis>
+    <section id="xinclude-namespace-declaration">
+    <title>XInclude Namespace Declaration</title>
+
+    <para>
     XIncludes require the use of an XML namespace declaration in the containing
     document. This is commonly accomplished by adding an xmlns attribute within
     the repo element as follows: 
@@ -356,14 +364,16 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
     document. The examples below do illustrate, however, several common
     scenarios for using XIncludes in repository definitions.
     </para>
+    </section>
 
-    <para id="xml-elements" xreflabel="XML Elements">
-    <emphasis role="strong">XML Elements.</emphasis> XML elements can be used
-    along with macros and XIncludes to support conditional content inclusion.
-    Conditional content inclusion is a powerful and practical tool. It
-    allows a single repository definition, or XIncluded file, to be used across
-    multiple operating system versions and architectures, even when repository
-    requirements vary.
+    <section>
+    <title>XML Elements</title>
+    <para>
+    XML elements can be used along with macros and XIncludes to support
+    conditional content inclusion.  Conditional content inclusion is a powerful
+    and practical tool. It allows a single repository definition, or XIncluded
+    file, to be used across multiple operating system versions and
+    architectures, even when repository requirements vary.
     </para>
 
     <para>
@@ -390,6 +400,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
     role is to support conditional content inclusion.  See <xref
     linkend="conditional-xinclude-example"/> for a complete example.
     </para>
+    </section>
 
     <section>
     <title>Examples</title>
@@ -403,7 +414,7 @@ deploy --macro "version:6" --macro "arch:i386" path/to/definition </programlisti
       The example below uses XInclude to include content from the text
       file named <filename>ks.cfg</filename> within the kickstart element. The
       name of the XInclude element is <varname>xi:include</varname>.
-      Technically <emphasis>xi:</emphasis> is the prefix, as established in the
+      Technically <emphasis>xi:</emphasis> is the prefix, as established in 
       <xref linkend="xinclude-namespace-declaration"/>, to the element named
       <emphasis>include</emphasis>. For simplicity throughout the remainder of
       this document, however, we will refer to it as the

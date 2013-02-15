@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="deployment-elements-common-model"
-         xreflabel="common model">
+<section id="deployment-elements-common-model">
   <title>
   Common Model 
   </title>
@@ -13,17 +12,15 @@
     </title>
 
     <para>
-    Deployment elements, <xref linkend="test-install"/>,
-    <xref linkend="test-update"/> and <xref linkend="publish"/>, provide
+    Deployment elements - <emphasis>test-install</emphasis>,
+    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis> - provide
     settings to complete the following tasks:
     </para>
 
     <itemizedlist>
     <listitem>
     <para>
-    Publish a <emphasis>test-install</emphasis>,
-    <emphasis>test-update</emphasis> or <emphasis>publish</emphasis> repository
-    to a file system location on the build machine.
+    Publish a repository to a file system location on the build machine.
     </para>
     </listitem>
 
@@ -81,15 +78,14 @@
 &lt;ELEMENT/&gt;]</programlisting>
   </section>
 
-  <section id="deployment-macros" xreflabel="macros">
+  <section id="deployment-macros">
     <title>
     Macros
     </title>
 
     <para>
     Deployment elements provide the following <emphasis>module
-    macros</emphasis>. See the <xref linkend='macros'/> section for more
-    information on macros generally.
+    macros</emphasis>. 
     </para>
 
     <para>
@@ -103,7 +99,7 @@
     <colspec colwidth='1.5in'/>
     <tbody valign='top'>
     <row>
-    <entry id='build-host-macro' xreflabel='build-host'>
+    <entry id='build-host-macro'>
     %{build-host}
     </entry>
 
@@ -114,13 +110,13 @@
     </row>
 
     <row>
-    <entry id='url-macro' xreflabel='url'>
+    <entry id='url-macro'>
     %{url}
     </entry>
 
     <entry>
-    A full <xref linkend='content-url'/> to the repository on the repository
-    download server. Described under the <xref linkend='remote-url'/> element.
+    A full URL to the repository on the repository download server. Described
+    under the <xref linkend='remote-url'/> element.
     </entry>
     </row>
 
@@ -171,7 +167,7 @@
     </row>
 
     <row>
-    <entry id='password-macro' xreflabel='password'>
+    <entry id='password-macro'>
     %{password}
     </entry>
 
@@ -182,7 +178,7 @@
     </row>
 
     <row>
-    <entry id='crypt-password-macro' xreflabel='crypt-password'>
+    <entry id='crypt-password-macro'>
     %{crypt-password}
     </entry>
 
@@ -193,7 +189,7 @@
     </row>
 
     <row>
-    <entry id='boot-options-macro' xreflabel='boot-options'>
+    <entry id='boot-options-macro'>
     %{boot-options}
     </entry>
 
@@ -222,7 +218,7 @@
     </entry>
 
     <entry>
-    <xref linkend='content-path'/> to a file on client machines where trigger
+    PATH to a file on client machines where trigger
     values are stored.
     </entry>
     </row>
@@ -241,12 +237,13 @@
 
     <row>
     <entry>%{release_rpm}</entry>
-    <entry>MD5 hash of current <xref linkend='release-rpm'/>.</entry>
+    <entry>MD5 hash of current release-rpm. See <xref linkend='release-rpm'/>
+    for information on the release-rpm.</entry>
     </row>
 
     <row>
     <entry>%{config_rpms}</entry>
-    <entry>MD5 hash of all current <xref linkend='config-rpms'/>.</entry>
+    <entry>MD5 hash of all current config-rpms. See <xref linkend='config-rpms'/> for information on config-rpms.</entry>
     </row>
 
     <row>
@@ -275,6 +272,10 @@
     </tbody>
     </tgroup>
     </informaltable>
+
+    <para>
+    See <xref linkend='macros'/> for more information on macros.
+    </para>
   </section>
 
   <section>
@@ -290,7 +291,7 @@
 
       <listitem>
       <para>
-      <xref linkend='content-path'/> to a folder where Deploy will
+      PATH to a folder where Deploy will
       publish this repository. For repositories to be accessible on the web,
       the directory must be in the build machine’s local webroot, e.g. the
       Apache <varname>DocumentRoot</varname>.
@@ -304,6 +305,10 @@
 
       <para>
       This element is optional. The default values are as follows:
+      </para>
+
+      <para>
+      See  <xref linkend='content-path'/> for information on the PATH element.
       </para>
 
       <informaltable>
@@ -355,7 +360,7 @@
 
       <listitem>
       <para>
-      <xref linkend='content-url'/> to a directory from which client
+      URL to a directory from which client
       machines can access this repository.
       </para>
 
@@ -365,6 +370,10 @@
       values of the <emphasis>@interface</emphasis> and
       <emphasis>@fqdn</emphasis> attributes, and TYPE is the value of <xref
       linkend='main-type'/>. 
+      </para>
+
+      <para>
+      See <xref linkend='content-url'/> for information on URL values.
       </para>
 
       <informaltable>
@@ -434,10 +443,10 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      <emphasis>@interface</emphasis>: <xref linkend='content-text'/> value
-      specifying the network interface name, e.g. "eth1", from which to obtain
-      the <varname>%{build-host}</varname> of the repository.  This attribute
-      only has an effect if <emphasis>remote-url/@fqdn</emphasis> is
+      <emphasis>@interface</emphasis>: TEXT value specifying the network
+      interface name, e.g. "eth1", from which to obtain the
+      <varname>%{build-host}</varname> of the repository.  This attribute only
+      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
       <constant>FALSE</constant>.
       </para>
       
@@ -447,13 +456,18 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      <emphasis>@fqdn</emphasis>: <xref linkend='content-boolean'/> value
-      that determines whether <application class="software">Deploy</application> uses the build machine's fully qualified domain name
-      or IP address in the automatically-computed remote-url.
+      <emphasis>@fqdn</emphasis>: BOOLEAN value that determines whether
+      <application class="software">Deploy</application> uses the build
+      machine's fully qualified domain name or IP address in the
+      automatically-computed remote-url.
       </para>
       
       <para>This attribute is optional. The default value is
       <constant>FALSE</constant>.
+      </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
       </para>
 
       <para>
@@ -617,7 +631,7 @@ $remote-url/%{id}</programlisting>
 
     <listitem>
     <para>
-    <xref linkend='content-text'/> value providing the name of a host, e.g.
+    TEXT value providing the name of a host, e.g.
     <emphasis>samba-server</emphasis>. Valid characters in hostnames include
     a-z, A-Z, 0-9 and '-'. This value is provided as the module macro <link
     linkend='deployment-macros'>%{hostname}</link>.
@@ -657,12 +671,12 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='domain' xreflabel='domain'>
+    <varlistentry id='domain'>
     <term>domain</term>
 
     <listitem>
     <para>
-    <xref linkend='content-text'/> value providing the domain for a client
+    TEXT value providing the domain for a client
     machine, e.g. <emphasis>local</emphasis> or
     <emphasis>company.com</emphasis>.  This value is provided as the module
     macro <link linkend='deployment-macros'>%{domain}</link>.
@@ -677,21 +691,21 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='password' xreflabel='password'>
+    <varlistentry id='password'>
     <term>password</term>
 
     <listitem>
     <para>
-    <xref linkend='content-text'/> value to be as the root user password for
-    the client machine identified by the <link
-    linkend='deployment-macros'>fqdn</link> macro. This value is provided as a
-    module macro <link linkend='deployment-macros'>%{password}</link>.
+    TEXT value to be used as the root user password for the client machine.
+    This value is provided as a module macro <link
+    linkend='deployment-macros'>%{password}</link>.
     </para>
     
     <para>
     This element is optional. If not provided, a random password is
-    automatically generated and stored in the <xref
-    linkend="datfile"/>. 
+    automatically generated. The generated password is stored in the repository
+    data file. See <xref linkend="datfile"/> for information on the repository
+    data file. 
     </para>
 
     <para>
@@ -706,16 +720,17 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='ssh' xreflabel='ssh'>
+    <varlistentry id='ssh'>
     <term>ssh</term>
 
     <listitem>
     <para>
-    <xref linkend='content-boolean'/> value controlling whether Deploy
-    will attempt to execute <emphasis>scripts</emphasis> directly on the 
+    BOOLEAN value controlling whether Deploy
+    will attempt to execute <emphasis>scripts</emphasis> directly on the
     <emphasis>client machine</emphasis> identified by the <link
     linkend='deployment-macros'>%{fqdn}</link> module macro using SSH. Scripts
-    are defined using the <xref linkend='deployment-script'/> element.
+    are defined using the <xref linkend='deployment-script'/> element. See
+    <xref linkend="content-boolean"/> for more information on BOOLEAN values.
     </para>
 
     <para>
@@ -765,13 +780,16 @@ $remote-url/%{id}</programlisting>
     <para>
     As a final step, users must also configure client machines to allow SSH
     access from the build machine. This can be accomplished using a <xref
-    linkend="config-rpm"/>. Deploy includes an example template to
-    complete this task. On a system with Deploy installed, the file can
-    be found as <filename>ssh-config.xml</filename> in the <xref
-    linkend='templates'/> folder at
-    <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>. See the
-    <xref linkend='deploy-config-rpm'/> element below for an example of using
-    this template.
+    linkend="config-rpm"/>. Deploy includes an example template to complete
+    this task. On a system with Deploy installed, the file can be found as
+    <filename>ssh-config.xml</filename> in the templates folder at
+    <filename>/usr/share/deploy/templates/deploy</filename>.
+    </para>
+
+    <para>
+    See the <xref linkend='deploy-config-rpm'/> element below for an example of
+    using this template. See <xref linkend='templates'/> for more information
+    on templates.
     </para>
     </note>
 
@@ -783,12 +801,12 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='ssh-passphrase' xreflabel='ssh-passphrase'>
+    <varlistentry id='ssh-passphrase'>
     <term>ssh-passphrase</term>
 
     <listitem>
     <para>
-    <xref linkend='content-text'/> value specifying the SSH passphrase, if any,
+    TEXT value specifying the SSH passphrase, if any,
     for the root user on the build machine.
     </para>
 
@@ -807,7 +825,7 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      <xref linkend="content-text"/> value specifying install boot environment
+      TEXT value specifying install boot environment
       variables, also known as kernel boot arguments, for use during client
       machine installation. Ignored if the <xref linkend="main-type"/> element
       is set to <constant>package</constant>.
@@ -837,7 +855,8 @@ $remote-url/%{id}</programlisting>
 
       <para>
       Also used by Deploy during the creation of installation images including
-      boot.iso and images created by the <xref linkend="iso"/> module.
+      boot.iso and images created by the ISO module. See <xref linkend="iso"/>
+      for more information on the ISO module.
       </para>
 
       <para>
@@ -860,7 +879,7 @@ $remote-url/%{id}</programlisting>
   
     <listitem>
     <para>
-    Specifies the <xref linkend='content-text'/> of a kickstart file. Ignored
+    Specifies the TEXT of a kickstart file. Ignored
     if the <xref linkend="main-type"/> element is set to
     <constant>package</constant>.
     </para>
@@ -912,9 +931,9 @@ $remote-url/%{id}</programlisting>
     <para>
     Where possible, avoid using the '<emphasis>firewall</emphasis>' and
     '<emphasis>%post</emphasis>' kickstart options, as they are applied only
-    during client installation. Instead, use <xref linkend='config-rpms'/> to
-    apply client configuration. This ensures uniform results whether the client
-    is installed from scratch, or merely updated. See the
+    during client installation. Instead, use config-rpms to apply client
+    configuration. This ensures uniform results whether the client is installed
+    from scratch, or merely updated.  See the
     <filename>httpd-config.xml</filename> <link
     linkend='templates'>template</link> for an example of firewall
     configuration using a config-rpm.
@@ -930,9 +949,10 @@ $remote-url/%{id}</programlisting>
     the text of a kickstart file providing all information required to fully
     automate a client machine installation. It uses <varname>%{fqdn}</varname>
     and <varname>%{crypt-password}</varname> <link
-    linkend='deployment-macros'>module macros</link>. On a system with Deploy installed, the text of the kickstart shown below can be found as a
-    file named <filename>ks.cfg</filename> in the <xref linkend='templates'/>
-    folder at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
+    linkend='deployment-macros'>module macros</link>. On a system with Deploy
+    installed, the text of the kickstart shown below can be found as a file
+    named <filename>ks.cfg</filename> in the templates folder at
+    <filename>/usr/share/deploy/templates/deploy</filename>.
     </para>
 
     <informalexample>
@@ -956,15 +976,16 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='deploy-config-rpm' xreflabel='config-rpm'>
+    <varlistentry id='deploy-config-rpm'>
     <term>config-rpm</term>
 
     <listitem>
     <para>
-    <xref linkend='config-rpm'/> element as described in the <xref
-    linkend="config-rpms"/> section of this document.  The config-rpm element
-    is supported within deployment elements to facilitate creation and
-    distribution of deployment <xref linkend="templates"/>.
+    <xref linkend='config-rpm'/> element as described in <xref
+    linkend="config-rpms"/>. The config-rpm element is supported within
+    deployment elements to facilitate creation and distribution of deployment
+    templates. See <xref linkend="templates"/> for more information on
+    templates.
     </para>
 
     <para>
@@ -987,7 +1008,7 @@ $remote-url/%{id}</programlisting>
     <para>
     On a system with Deploy installed, this config-rpm template can be
     found as a file named <filename>ssh-config.xml</filename> in the examples
-    folder at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
+    folder at <filename>/usr/share/deploy/templates/deploy</filename>.
     </para>
 
     <informalexample>
@@ -1009,12 +1030,12 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
-    <varlistentry id='triggers' xreflabel='triggers'>
+    <varlistentry id='triggers'>
     <term>triggers</term>
 
     <listitem>
       <para>
-      <xref linkend='content-text'/> value providing a space-separated list of
+      TEXT value providing a space-separated list of
       trigger names.  The value of this element is made available to <xref
       linkend='test-triggers'/>-type scripts via the <link
       linkend="deployment-macros">%{triggers}</link> module macro.
@@ -1048,8 +1069,8 @@ $remote-url/%{id}</programlisting>
       <para>
       A <xref linkend='test-triggers'/>-type script fails returns a non-zero
       exit status. Test-triggers-type scripts make use of the macros described
-      under <emphasis>Trigger Macros</emphasis> in the <xref
-      linkend='deployment-macros'/> section. See <xref
+      under <emphasis>Trigger Macros</emphasis> in <xref
+      linkend='deployment-macros'/>. See <xref
       linkend='test-triggers'/> for an example.
       </para>
       </listitem>
@@ -1065,34 +1086,46 @@ $remote-url/%{id}</programlisting>
       <para>
       This element is optional.
       </para>
-      
+     
       <para>
-      For the <xref linkend='publish'/> modules, the default value is an empty
-      string, "".
+      The default value varies based on the parent element:
       </para>
-      
+
+      <itemizedlist>
+      <listitem>
       <para>
-      For the <xref linkend='test-update'/>, the default value is
+      For <emphasis>publish</emphasis>, the default value is an
+      empty string, "".
+      </para>
+      </listitem>
+      
+      <listitem>
+      <para>
+      For <emphasis>test-update</emphasis>, the default value is
       "<constant>kickstart install_scripts post_install_scripts</constant>".
       These triggers correspond to module macros of the same name.
       </para>
+      </listitem>
 
+      <listitem>
       <para>
-      For the <xref linkend="test-install"/> module, the default value is "
+      For <emphasis>test-install</emphasis>, the default value is "
       <constant>release_rpm config_rpms kickstart treeinfo install_scripts
       post_install_scripts</constant>".
       </para>
+      </listitem>
+      </itemizedlist>
 
       <para>
       <emphasis role='strong'>Attributes</emphasis>
       </para>
 
       <variablelist>
-      <varlistentry id='trigger-activate' xreflabel='@activate'>
+      <varlistentry id='trigger-activate'>
       <term>@activate</term>
       <listitem>
       <para>
-      <xref linkend="content-boolean"/> value indicating whether Deploy
+      BOOLEAN value indicating whether Deploy
       should execute install-related scripts if an <xref
       linkend='activate'/>-type script returns a non-zero exit status.
       </para>
@@ -1101,14 +1134,19 @@ $remote-url/%{id}</programlisting>
       This is an optional attribute. The default value is
       <constant>TRUE</constant>.
       </para>
+      
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
+
       </listitem>
       </varlistentry>
 
-      <varlistentry id='trigger-connect' xreflabel='@connect'>
+      <varlistentry id='trigger-connect'>
       <term>@connect</term>
       <listitem>
       <para>
-      <xref linkend="content-boolean"/> value indicating whether Deploy
+      BOOLEAN value indicating whether Deploy
       should execute install-related scripts if the <xref linkend='ssh'/>
       element is <constant>TRUE</constant> and an SSH connection to the client
       machine identified by <link linkend='deployment-macros'>%{fqdn}</link>
@@ -1119,6 +1157,11 @@ $remote-url/%{id}</programlisting>
       This is an optional attribute. The default value is
       <constant>TRUE</constant>.
       </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
+
       </listitem>
       </varlistentry>
       </variablelist>
@@ -1134,7 +1177,7 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      <xref linkend='content-text'/> of a script used to perform installation
+      TEXT of a script used to perform installation
       and maintenance tasks on a client machine.
       </para>
 
@@ -1155,11 +1198,11 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <variablelist>
-      <varlistentry id="script-id" xreflabel="@id">
+      <varlistentry id="script-id">
       <term>@id</term>
       <listitem>
       <para>
-      <xref linkend='content-text'/> identifier for the script.
+      TEXT value serving as an identifier for the script.
       </para>
 
       <para>
@@ -1168,7 +1211,7 @@ $remote-url/%{id}</programlisting>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-type" xreflabel="@type">
+      <varlistentry id="script-type">
       <term>@type</term>
       <listitem>
       <para>
@@ -1190,8 +1233,9 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>virt-activate.xml</filename> which is included in the
-      <xref linkend='templates'/> folder 
-      at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
+      template folder at
+      <filename>/usr/share/deploy/templates/deploy</filename>. Sees <xref
+      linkend='templates'/> for more information on templates.
       </para>
       
       <para>
@@ -1232,7 +1276,7 @@ $remote-url/%{id}</programlisting>
       <para>
       Deploy makes a number of macros available to assist with
       <emphasis> test-trigger</emphasis> script operation. These are listed in
-      the <xref linkend='deployment-macros'/> section of this chapter, under
+      <xref linkend='deployment-macros'/>, under
       the label <emphasis>Trigger Macros</emphasis>. The example below shows
       how they can be used in a <emphasis>test-triggers</emphasis> script.
       </para>
@@ -1240,8 +1284,9 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
-      <xref linkend='templates'/> folder 
-      at <filename>/usr/share/deploy/../../share/deploy/templates/deploy</filename>.
+      templates folder at
+      <filename>/usr/share/deploy/templates/deploy</filename>. See <xref
+      linkend='templates'/> for more information on templates.
       </para>
      
       <para>
@@ -1420,8 +1465,22 @@ $remote-url/%{id}</programlisting>
       exit status if trigger save unsuccessful.
       </para>
       <para>
-      TODO - add example
+      <emphasis>Example</emphasis> - This example shows the
+      <filename>save-triggers.xml</filename> file which is included in the
+      templates folder at <filename>/usr/share/deploy/templates/deploy</filename>. See
+      <xref linkend="templates"/> for more information on templates.
       </para>
+      
+      <para>
+      The script in this template saves trigger values to a file specified by
+      the %{trigger-file} macro. The %{trigger-file} macro, along with other macros used by this script are defined in <xref linkend="deployment-macros"/>.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='../../../../../share/deploy/templates/deploy/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
+      </informalexample>
+
       </listitem>
     </varlistentry>
 
@@ -1518,7 +1577,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-ssh" xreflabel="@ssh">
+      <varlistentry id="script-ssh">
       <term>@ssh</term>
       <listitem>
 
@@ -1565,11 +1624,11 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-verbose" xreflabel="@verbose">
+      <varlistentry id="script-verbose">
       <term>@verbose</term>
       <listitem>
       <para>
-      <xref linkend='content-boolean'/> value indicating whether the Standard
+      BOOLEAN value indicating whether the Standard
       Output from the script should be displayed as output from Deploy.
       </para>
 
@@ -1577,25 +1636,29 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       This attribute is optional. The default value is
       <constant>FALSE</constant>
       </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-comes-before" xreflabel="@comes-before">
+      <varlistentry id="script-comes-before">
       <term>@comes-before</term>
       <listitem>
       <para>
-      <xref linkend="content-text"/> value providing a space or comma-separated
+      TEXT value providing a space or comma-separated
       list of scripts, identified by their <xref linkend='script-id'/> values,
       that should execute following this script.
       </para>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-comes-after" xreflabel="@comes-after">
+      <varlistentry id="script-comes-after">
       <term>@comes-after</term>
       <listitem>
       <para>
-      <xref linkend="content-text"/> value providing a space or comma-separated
+      TEXT value providing a space or comma-separated
       list of scripts, identified by their <xref linkend='script-id'/> values,
       that should execute following preceding this script.
       </para>
@@ -1610,7 +1673,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
     <listitem>
     <para>
-    <xref linkend='content-text'/> content of a script used for determining
+    TEXT content of a script used for determining
     whether the deployment event should run during the current Deploy
     session. Deploy executes the script on the local machine as the root
     user.

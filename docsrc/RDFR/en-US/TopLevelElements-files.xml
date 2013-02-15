@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="files"
-         xreflabel="files">
+        >
   <title>
   Files 
   </title>
@@ -43,7 +43,7 @@
     <variablelist>
 
     <varlistentry id="files-files"
-                  xreflabel="files/files">
+                 >
       <term>
       files
       </term>
@@ -73,21 +73,20 @@
       </para>
 
       <para>
-      <emphasis>@destdir</emphasis>: See the path-like attribute
-      <emphasis><xref linkend="destdir"/></emphasis>. Controls the location to
-      which this file or folder should be copied within the repository tree.
-      The default value is the root of the tree, '<filename>/</filename>'.
+      <emphasis>@destdir</emphasis>:  Controls the location to which this file
+      or folder should be copied within the repository tree.  The default value
+      is the root of the tree, '<filename>/</filename>'. See <xref
+      linkend="destdir"/> for additional information.
       </para>
 
       <para>
-      <emphasis>@destname</emphasis>: See the path-like attribute
-      <emphasis><xref linkend="destname" /></emphasis>. If
-      <emphasis>@content</emphasis> is "text", this attribute is required.
+      <emphasis>@destname</emphasis>: Name to be used for the file. If
+      <emphasis>@content</emphasis> is "text", this attribute is required. See
+      <xref linkend="destname" /> for additional information.
       </para>
 
       <para>
-      <emphasis>@mode</emphasis>: See the path-like attribute
-      <emphasis><xref linkend="mode" /></emphasis>.
+      <emphasis>@mode</emphasis>: Mode to be used for the file or files. See the      <xref linkend="mode" /> for additional information.
       </para>
 
       <para>

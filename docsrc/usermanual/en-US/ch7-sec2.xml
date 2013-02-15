@@ -68,8 +68,9 @@
 
 &lt;main>
 &lt;name>config-repo&lt;/name>
-&lt;arch>x86_64&lt;/arch>
+&lt;os>centos&lt;/os>
 &lt;version>6&lt;/version>
+&lt;arch>x86_64&lt;/arch>
 &lt;type>package&lt;/type>
 &lt;/main>
 
@@ -107,8 +108,9 @@
 
 &lt;main>
 &lt;name>patch-repo&lt;/name>
-&lt;arch>x86_64&lt;/arch>
+&lt;os>centos&lt;/os>
 &lt;version>6&lt;/version>
+&lt;arch>x86_64&lt;/arch>
 &lt;type>package&lt;/type>
 &lt;/main>
 
@@ -147,8 +149,9 @@
 
 &lt;main>
 &lt;name>aggregation-repo&lt;/name>
-&lt;arch>x86_64&lt;/arch>
+&lt;os>centos&lt;/os>
 &lt;version>6&lt;/version>
+&lt;arch>x86_64&lt;/arch>
 &lt;type>package&lt;/type>
 &lt;/main>
 
@@ -192,8 +195,9 @@
 
 &lt;main>
 &lt;name>application-repo&lt;/name>
-&lt;arch>x86_64&lt;/arch>
+&lt;os>centos&lt;/os>
 &lt;version>6&lt;/version>
+&lt;arch>x86_64&lt;/arch>
 &lt;type>package&lt;/type>
 &lt;/main>
 
