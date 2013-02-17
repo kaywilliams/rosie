@@ -2,28 +2,6 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <book>
-  <bookinfo>
-    <title>Deploy User Manual</title>
-
-    <author>
-      <affiliation>
-        <orgname>Deploy Foundation</orgname>
-      </affiliation>
-    </author>
-
-    <pubdate>October 2012</pubdate>
-
-    <copyright>
-      <year>2012 </year>
-
-      <holder>Deploy Foundation </holder>
-    </copyright>
-
-    <legalnotice>
-      <para>All Rights Reserved.</para>
-    </legalnotice>
-  </bookinfo>
-
   <xi:include href="preface.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 

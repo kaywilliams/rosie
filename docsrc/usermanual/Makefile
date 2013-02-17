@@ -56,8 +56,10 @@ publish:
 	cp -a ./tmp/en-US/html-single/Common_Content $(THEMESDIR)
 	restorecon -R $(THEMESDIR)/Common_Content
 	$(DRUSH) cache-clear css-js
-	
-	
+
+	# copy templates to tmpldir
+	../common.sh
+
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \
 		echo "ERROR: $(BINARY) not found. $(INSTRUCTIONS)"; \

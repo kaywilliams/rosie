@@ -3,7 +3,6 @@ DRUSH = /usr/bin/drush
 PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/RDFR
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
 
-
 .PHONY: all html pdf publish checkpkg clean
 
 all: html pdf
@@ -57,6 +56,8 @@ publish:
 	restorecon -R $(THEMESDIR)/Common_Content
 	$(DRUSH) cache-clear css-js
 	
+	# copy templates to tmpldir
+	../common.sh
 	
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \
