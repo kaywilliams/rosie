@@ -38,6 +38,7 @@ Requires: syslinux
 Requires: yum
 Requires: xz
 Requires: /sbin/rngd
+Requires: /usr/bin/sudo
 
 %description
 Deploy is an open source, community based platform for managing system and
