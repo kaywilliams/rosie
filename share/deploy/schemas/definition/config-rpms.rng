@@ -2,20 +2,16 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
-    <element name="repo">
+    <element name="definition">
       <optional>
-      <element name="gpgsign">
+      <element name="config-rpms">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <optional>
-        <interleave>
-        <element name="public"><text/></element>
-        <element name="secret"><text/></element>
-        <optional><element name="passphrase"><text/></element></optional>
-        </interleave>
-        </optional>
+        <zeroOrMore>
+        <ref name="element-config-rpm"/>
+        </zeroOrMore>
 
       </element>
       </optional>

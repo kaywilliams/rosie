@@ -77,23 +77,17 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
 class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
   "raises an error if multiple scripts provide the same id"
 
-  def setUp(self): pass
-
   def runTest(self):
-    parent = self.conf.getxpath('test-install')
-    script = rxml.config.Element('script', parent=parent, 
+    parent = self.event.config.getxpath('.')
+    script = rxml.config.Element('script', parent=parent, text='echo test', 
                                  attrs={'id':   'test',
-                                        'type': 'post-script'})
-    script.text = 'echo "hello"'
-    script = rxml.config.Element('script', parent=parent, 
+                                        'type': 'post'})
+    script = rxml.config.Element('script', parent=parent, text='echo test',
                                  attrs={'id':   'test',
-                                        'type': 'post-script'})
-    script.text = 'echo "hello"'
-    unittest.TestCase.failUnlessRaises(self, DeployError,
-      TestBuild, self.conf, self.options, [])
+                                        'type': 'post'})
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(DeployError, self.event)
 
-  def tearDown(self):
-    del self.conf
 
 class Test_ErrorOnSshDisabled(TestInstallEventTestCase):
   "raises an error if SSH disabled and required by scripts"

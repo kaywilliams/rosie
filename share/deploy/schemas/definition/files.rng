@@ -1,19 +1,23 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="repo">
 
+    <element name="definition">
       <optional>
-      <element name="publish">
+      <element name="files">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <ref name="content-deploy-elements"/>
+
+        <zeroOrMore>
+        <ref name="element-files"/>
+        </zeroOrMore>
+
       </element>
       </optional>
-
     </element>
   </start>
 
   <include href="lib.rng"/>
+
 </grammar>

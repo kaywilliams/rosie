@@ -2,22 +2,19 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
-    <element name="repo">
+    <element name="definition">
       <optional>
-      <element name="release-rpm">
+      <element name="gpgsign">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <optional>
-        <element name="updates">
-          <optional>
-          <attribute name="sync"><ref name="value-boolean"/></attribute>
-          </optional>
-          <optional>
-          <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
-          </optional>
-        </element>
+        <interleave>
+        <element name="public"><text/></element>
+        <element name="secret"><text/></element>
+        <optional><element name="passphrase"><text/></element></optional>
+        </interleave>
         </optional>
 
       </element>

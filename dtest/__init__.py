@@ -84,7 +84,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('repo', attrs={'schema-version': '1.0'})
+    top = config.Element('definition', attrs={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)

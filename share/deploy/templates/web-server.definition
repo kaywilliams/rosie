@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repo xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <macro id='os'>centos</macro>
 <macro id='version'>6</macro>
@@ -27,4 +27,4 @@
 <xi:include href='httpd-config.xml'/>
 </config-rpms>
 
-</repo>
+</definition>

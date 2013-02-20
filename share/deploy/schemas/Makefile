@@ -1,4 +1,4 @@
-SUBDIRS = repo 
+SUBDIRS = definition 
 
 .PHONY: all clean install
 

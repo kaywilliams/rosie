@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repo xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!--
 See "Testing Package Repositories" in the Deploy user manual for
@@ -59,4 +59,4 @@ sed -i "s|^baseurl.*|baseurl = %{baseurl}|" /etc/yum.repos.d/%{repo}.repo
   <xi:include xpointer="xpointer(/*/test-install/*)"/>
 </test-update>
 
-</repo>
+</definition>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <macro id="name">srpmbuild</macro>
 <macro id="fullname">RPM Build Virtual Machine</macro>
@@ -131,4 +131,4 @@ finally:
             xpointer="xpointer(/*/*[name()!='kickstart'])"/>
 </publish>
 
-</repo>
+</definition>
