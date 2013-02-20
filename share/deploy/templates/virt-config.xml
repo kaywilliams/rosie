@@ -151,24 +151,4 @@ if [[ $1 = 0 ]]; then
   sed -i "/nameserver $ipaddr/d" /etc/resolv.conf
 fi
 </script>
-
-<!-- sudo configuration-->
-<script type='post'>
-useradd --system --create-home deployvirt
-
-text="deployvirt\tMACHINE=~/deployvirt"
-file="/etc/sudoers"
-if ! `grep "$text" $file`; then
-  echo -e $text >> $file 
-fi
-</script>
-
-<script type='postun'>
-userdel -r deployvirt
-
-if [[ $1 = 0 ]]; then
-  sed -i "|^deployvirt\tMACHINE=~/deployvirt|d" /etc/sudoers
-fi
-</script>
-
 </config-rpm>
