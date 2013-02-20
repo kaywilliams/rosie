@@ -714,7 +714,7 @@ $remote-url/%{id}</programlisting>
     linkend='deployment-macros'>%{crypt-password}</link>. The encrypted
     password is recommended for use in the <emphasis>kickstart</emphasis>
     element. See the <xref linkend='kickstart'/> element below for an example.
-    The encrypted password is also stored in the repository data file.
+    The encrypted password is also stored in the data file.
     </para>
 
     </listitem>

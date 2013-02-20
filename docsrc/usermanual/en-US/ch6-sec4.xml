@@ -22,7 +22,7 @@
 
   <para>
   To use Deploy for creating virtual machine images, you start with a
-  repository definition as shown in the <xref linkend='smb'/>
+  definition as shown in the <xref linkend='smb'/>
   scenario. To this definition you provide an additional
   <emphasis>update</emphasis>-type script to create the virtual machine image.
   Deploy will execute the script each time the repository is updated,

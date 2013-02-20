@@ -7,7 +7,7 @@
   <para>
   To keep your repository current, you will need to run Deploy on a
   regular basis. Each time Deploy runs, it checks for changes in the
-  repository definition or in input data - such as new packages available from
+  definition or in input data - such as new packages available from
   an input repository - and refreshes the repository as necessary.
   </para>
 

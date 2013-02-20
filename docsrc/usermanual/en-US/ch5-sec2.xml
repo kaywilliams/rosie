@@ -18,7 +18,7 @@
   two cases were introduced previously in <xref
   linkend='using-virtual-machines'/>. The <emphasis>publish</emphasis> case
   will be introduced later under <xref linkend="deployment-scenarios"/>. Each
-  case is represented by an element of the corresponding name in the repository
+  case is represented by an element of the corresponding name in the 
   definition.
   </para>
 
@@ -27,7 +27,7 @@
   sub-elements are consistent across deployment elements, although the default
   behavior varies slightly between them in some instances. The sub-elements are
   described in detail in the chapter on <emphasis>Deployment
-  Elements</emphasis> in the <xref linkend='rdfr'/>.
+  Elements</emphasis> in the <xref linkend='ddfr'/>.
   </para>
   
   <para>
@@ -67,11 +67,11 @@
   </itemizedlist>
 
   <para>
-  Many of these sub-elements can be reused across repository definitions, making
+  Many of these sub-elements can be reused across definitions, making
   them ideal candidates to be created as templates.  In fact, because many of
   the sub-elements can be used in a mix-and-match fashion, a common practice is
   to save single sub-elements as individual templates. These individual
-  templates can then be included directly in repository definitions, or
+  templates can then be included directly in definitions, or
   nested within composite templates.
   </para>
 
@@ -204,7 +204,7 @@
   </informalexample>
 
   <para>
-  The default <filename>ks.cfg</filename> file uses macros (see the RDFR for
+  The default <filename>ks.cfg</filename> file uses macros (see the DDFR for
   information on deployment macros) to allow the hostname and root password to
   be filled in at Deploy runtime. Often, however, you will want to
   customize additional kickstart options such as timezone, or drive
@@ -248,7 +248,7 @@ reboot
   </informalexample>
 
   <para>
-  See the RDFR for more information on the <emphasis>kickstart</emphasis>
+  See the DDFR for more information on the <emphasis>kickstart</emphasis>
   element, including notes on several kickstart options to avoid when using
   kickstart in combination with Deploy.
   </para>
@@ -314,7 +314,7 @@ virt-install --name %{fqdn} --ram 2000 \
   </informalexample>
 
   <para>
-  See the RDFR for complete information on deployment scripts, including the
+  See the DDFR for complete information on deployment scripts, including the
   comes-before and comes-after attributes which allow ordering of script
   execution.
   </para>
@@ -393,11 +393,11 @@ virt-install --name %{fqdn} --ram 2000 \
   on your management solution. If the custom script should execute on the
   Deploy build machine rather than on the installed client, be sure to
   set the update script's <emphasis>@ssh</emphasis> attribute to false. See the
-  RDFR for more information on script attributes.
+  DDFR for more information on script attributes.
   </para>
 
   <para>
-  To deploy and update multiple clients based on the same repository
+  To deploy and update multiple clients based on the same 
   definition, again you will create a new composite template. In this template,
   you will do the following: 
   </para>

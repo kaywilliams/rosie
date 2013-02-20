@@ -57,12 +57,12 @@
     </para>
 
     <para>
-    The release number "1" will be written to the repository data file.
+    The release number "1" will be written to the data file.
     When configuration changes in the future, e.g. when the sync is
     enabled or disabled, Deploy will increment the release number
     by 1, create a new release-rpm (in this case
     "samba-server-release-5-2.noarch.rpm"), and store the new release
-    number ("2") in the repository data file. The incremented version
+    number ("2") in the data file. The incremented version
     number allows installed client machines to determine that a new
     release-rpm is available for download and installation.
     </para>

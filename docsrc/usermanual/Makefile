@@ -10,12 +10,12 @@ all: html pdf
 
 html: 
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	cd ./tmp/en-US; rm -rf html-single xml xml_tmp; cd -
+	../common.sh --clean-tmpdir html-single
 	$(PUBLICAN) build --formats html-single --langs en-US --quiet
 
 pdf: 
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	cd ./tmp/en-US; rm -rf pdf xml xml_tmp; cd -
+	../common.sh --clean-tmpdir pdf
 	$(PUBLICAN) build --formats pdf --langs en-US --quiet
 
 publish:
@@ -58,7 +58,7 @@ publish:
 	$(DRUSH) cache-clear css-js
 
 	# copy templates to tmpldir
-	../common.sh
+	../common.sh --copy-templates
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

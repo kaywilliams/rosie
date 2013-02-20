@@ -269,7 +269,7 @@ rsync -a --delete -e ssh \
 
   <para>
   To direct Deploy to create complete CD/DVD installation images, add an
-  <emphasis>iso</emphasis> element to the repository definition, as follows:
+  <emphasis>iso</emphasis> element to the definition, as follows:
   </para>
 
   <informalexample>
@@ -279,7 +279,7 @@ rsync -a --delete -e ssh \
   </informalexample>
 
   <para>
-  See the <xref linkend='rdfr'/> for the complete syntax of the iso element. 
+  See the <xref linkend='ddfr'/> for the complete syntax of the iso element. 
   </para>
 
   <para>

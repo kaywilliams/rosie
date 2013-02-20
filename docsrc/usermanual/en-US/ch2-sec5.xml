@@ -40,9 +40,65 @@
           For more information on config-rpms, see the <xref
           linkend="building-rpms"/> chapter in this document. See
           also the section on <emphasis>config-rpms</emphasis> in the
-          <xref linkend='rdfr'/>.
+          <xref linkend='ddfr'/>.
           </para>
 
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="data-file">
+        <term>data file</term>
+
+        <listitem>
+	  <para>
+          A file maintained by Deploy to track Deploy-generated
+          input data. The file is created in the same folder as the
+          definition, with a filename consisting of the <xref
+          linkend='repository-id'/> with the <filename>.dat</filename> file
+          extension. For example, given the repository ID
+          "web-server-centos-6-x86_64", Deploy will create a 
+          data file as follows:
+          </para>
+
+          <informalexample>
+          <para>
+          <filename>web-server-centos-6-x86_64.dat</filename>
+          </para>
+          </informalexample>
+
+          <warning>
+          <para>
+          Care must be taken not to delete the data file. Doing so
+          will cause Deploy to regenerate missing information. As a
+          result, installed client machines may fail to download updated RPMs
+          or may report errors when performing RPM GPG key checking. 
+          </para>
+          </warning>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="definition">
+        <term>definition</term>
+
+        <listitem>
+          <para>A file that defines actions Deploy should take during the build
+          process. By convention the file uses the <filename
+          class="extension">.definition</filename> extension. The file is in
+          XML format as defined in the <xref linkend="ddfr"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="ddfr">
+        <term>Deploy Definition File Reference (DDFR)</term>
+
+        <listitem>
+	  <para>
+          The rules of syntax for the definition file. See the separate
+          document at <ulink
+          url="http://www.deployproject.org/docs/">
+          http://www.deployproject.org/docs/ </ulink>.
+          </para>
         </listitem>
       </varlistentry>
 
@@ -60,7 +116,7 @@
           For more information on the release-rpm and how to customize its
           content, see the <xref linkend="building-rpms"/> chapter
           in this document. See also the section on
-          <emphasis>release-rpm</emphasis> in the <xref linkend='rdfr'/>.
+          <emphasis>release-rpm</emphasis> in the <xref linkend='ddfr'/>.
           </para>
 
         </listitem>
@@ -79,69 +135,13 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="repository-data-file">
-        <term>repository data file</term>
-
-        <listitem>
-	  <para>
-          A file maintained by Deploy to track Deploy-generated
-          repository input data. The file is created in the same folder as the
-          repository definition, with a filename consisting of the <xref
-          linkend='repository-id'/> with the <filename>.dat</filename> file
-          extension. For example, given the repository ID
-          "web-server-centos-6-x86_64", Deploy will create a repository
-          definition file as follows:
-          </para>
-
-          <informalexample>
-          <para>
-          <filename>web-server-centos-6-x86_64.dat</filename>
-          </para>
-          </informalexample>
-
-          <warning>
-          <para>
-          Care must be taken not to delete the repository data file. Doing so
-          will cause Deploy to regenerate missing information. As a
-          result, installed client machines may fail to download updated RPMs
-          or may report errors when performing RPM GPG key checking. 
-          </para>
-          </warning>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="repository-definition">
-        <term>repository definition</term>
-
-        <listitem>
-          <para>A file that defines how Deploy should build, configure
-          and store a repository. By convention the file uses the <filename
-          class="extension">.definition</filename> extension. The file is in
-          XML format as defined in the <xref linkend="rdfr"/>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="rdfr">
-        <term>Repository Definition File Reference (RDFR)</term>
-
-        <listitem>
-	  <para>
-          The rules of syntax for the repository definition. See the separate
-          document at <ulink
-          url="http://www.deployproject.org/docs/">
-          http://www.deployproject.org/docs/ </ulink>.
-          </para>
-        </listitem>
-      </varlistentry>
-
       <varlistentry id="repository-id">
         <term>repository ID</term>
 
         <listitem>
           <para>
           The id for a repository. Corresponds to the global run-time macro
-          %{id}. See the Macros section of the <xref linkend='rdfr'/> for more
+          %{id}. See the Macros section of the <xref linkend='ddfr'/> for more
           information on macros.
           </para>
           
@@ -196,7 +196,7 @@
           The repository URL is configurable using the
           <emphasis>remote-url</emphasis> element described in the
           <emphasis>Deployment Elements</emphasis> chapter of the <xref
-          linkend='rdfr'/>.
+          linkend='ddfr'/>.
           </para>
         </listitem>
       </varlistentry>
@@ -234,9 +234,8 @@
           A standard method of reusing content within and across XML documents,
           sponsored by the World Wide Web Consortium (W3C). See <ulink
           url="http://www.w3.org/TR/xinclude/"/> for complete information on
-          the W3C standard. See also the <xref linkend='rdfr'/> for general
-          information on using XML Inclusions (XIncludes) within repository
-          definitions.
+          the W3C standard. See also the <xref linkend='ddfr'/> for general
+          information on using XML Inclusions (XIncludes) within definitions.
           </para>
         </listitem>
       </varlistentry>

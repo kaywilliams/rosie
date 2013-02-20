@@ -47,7 +47,7 @@
           <row>
             <entry>/usr/share/deploy/schemas/</entry>
 
-            <entry>Relax NG schemas for repository definition validation.
+            <entry>Relax NG schemas for definition validation.
             </entry>
           </row>
           <row>
@@ -89,8 +89,7 @@
             Deploy publishes completed repositories to
             <filename>system</filename> and <filename>package</filename>
             subfolders of this folder by default. An alternative location can
-            be specified on a per-repository basis within a repository
-            definition.
+            be specified on a per-repository basis within a definition.
             </entry>
           </row>
         </tbody>

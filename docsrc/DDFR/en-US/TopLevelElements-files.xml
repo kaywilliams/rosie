@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="files"
-        >
+<section id="files">
   <title>
   Files 
   </title>
@@ -107,7 +106,7 @@
     This example copies two items to the repository tree. The first is a file
     named <filename>README</filename> which is created by Deploy using
     text provided within the element. The second is a folder named
-    <filename>templates</filename> located in the same folder as the repository
+    <filename>templates</filename> located in the same folder as the 
     definition on the build machine. Both will be copied to the root of the
     repository.
     </para>

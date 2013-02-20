@@ -17,7 +17,7 @@
   Examples in this chapter show a variety of uses for the
   <emphasis>publish</emphasis> element. Complete information on the publish
   element is available from the chapter on <emphasis>Deployment
-  Elements</emphasis> in the <xref linkend='rdfr'/>.
+  Elements</emphasis> in the <xref linkend='ddfr'/>.
   </para>
 
   <xi:include href="ch6-sec1.xml" xpointer="element(/1)"

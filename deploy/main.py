@@ -183,7 +183,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
           "2. an 'id' element with an explicit value, e.g. "
           "'<id>%%{name}-%%{version}-%%{arch}</id>'\n"
           "\n"
-          "See the Repository Definition File Reference for more information "
+          "See the Definition File Reference for more information "
           "on these elements." % msg)
 
         else:

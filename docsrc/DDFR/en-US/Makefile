@@ -4,19 +4,19 @@ XSLTPROC = /usr/bin/xsltproc
 
 HTML_STYLESHEET = /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl
 
-.PHONY: all RDFR.html RDFR.pdf checkpkg clean install
+.PHONY: all DDFR.html DDFR.pdf checkpkg clean install
 
-all: RDFR.html
+all: DDFR.html
 
 install:
 
-RDFR.html:
+DDFR.html:
 	@make checkpkg BINARY=$(XMLLINT)  INSTRUCTIONS="Install the libxml2 package."
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(HTML_STYLESHEET) INSTRUCTIONS="Install the docbook-style-xsl package."
 	$(XMLLINT) --output Index_tmp.xml --xinclude Index.xml
 	sed -i 's|\\\$$|\$$|g' Index_tmp.xml
-	$(XSLTPROC) --output RDFR.html \
+	$(XSLTPROC) --output DDFR.html \
 	            --stringparam generate.toc "book toc,title" \
                     --stringparam toc.max.depth 2 \
                     --stringparam admon.graphics 1 \
@@ -29,9 +29,9 @@ RDFR.html:
                     $(HTML_STYLESHEET) Index_tmp.xml
 	rm -f Index_tmp.xml
 
-RDFR.pdf:
+DDFR.pdf:
 	@make checkpkg BINARY=$(DBLATEX) INSTRUCTIONS="Install the dblatex package."
-	$(DBLATEX) -o RDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/deploydocs.specs --pdf Index.xml
+	$(DBLATEX) -o DDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/deploydocs.specs --pdf Index.xml
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \
@@ -40,5 +40,5 @@ checkpkg:
 	fi
 
 clean:
-	rm -f RDFR.html
-	rm -f RDFR.pdf
+	rm -f DDFR.html
+	rm -f DDFR.pdf

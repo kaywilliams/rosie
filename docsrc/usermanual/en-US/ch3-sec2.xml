@@ -2,8 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 
-<section id="creating-a-repository-definition">
-  <title>Creating a Repository Definition</title>
+<section id="creating-a-definition">
+  <title>Creating a Definition</title>
 
   <para>
   For the purpose of this user guide, examples, processes and illustrations
@@ -15,25 +15,24 @@
 
   <para>
   In this chapter, the examples assume the Apache web server will be installed
-  via the network directly from the build machine. The <xref linkend='rdfr'/>
+  via the network directly from the build machine. The <xref linkend='ddfr'/>
   provides the syntax for all parent and child elements and their attributes.
   </para>
 
   <para>
   Creating the web server repository entails several steps. After configuring
-  the <application class="software">Deploy</application> build machine,
-  as described in the previous chapter, you need to create a repository
-  definition (<filename class="extension">web-server.definition</filename>).
-  Then you run <command>deploy</command> to validate the file and
-  build the repository.
+  the <application class="software">Deploy</application> build machine, as
+  described in the previous chapter, you need to create a definition file
+  (<filename class="extension">web-server.definition</filename>).  Then you run
+  <command>deploy</command> to validate the file and build the repository.
   </para>
 
   <para>The next section will explain how to define the repository.</para>
 
  <section>
-    <title>Creating a repository definition</title>
+    <title>Creating a definition</title>
 
-    <para>A repository definition is a text file in XML format. It can
+    <para>A definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
     a dedicated XML editor, if you prefer. The tags &lt;repo&gt; and 
     &lt;/repo&gt; encapsulate all additional elements and attributes.
@@ -59,15 +58,15 @@
     element. It is strongly recommended, however, as it allows the use of
     XIncludes within the document. XIncludes, a convenient mechanism for
     reusing content across multiple definitions, are discussed in the
-    Repository Definition File Reference (RDFR).
+    Deploy Definition File Reference (DDFR).
     </para>   
   </section>
 
   <section>
-    <title>Saving a repository definition</title>
+    <title>Saving a definition</title>
     
     <para>
-    Repository definitions are commonly saved with the name of the repository
+    Definitions are commonly saved with the name of the repository
     and the file extension "<filename>.definition</filename>", e.g.
     <filename>web-server.definition</filename>. Templates (discussed later in
     this chapter) are commonly saved with the extension
@@ -83,9 +82,9 @@
     <warning>
     <para>
     Definitions and templates, as well as Deploy-generated repository data
-    files (see <xref linkend='repository-data-file'/>), contain sensitive data
+    files (see <xref linkend='data-file'/>), contain sensitive data
     including system root passwords, and GPG private keys. Take care to save
-    your definitions and templates in a secure location.
+    your definitions, data files and templates in a secure location.
     </para>
     </warning>
   </section>
@@ -105,7 +104,7 @@
     </para>
 
     <para><note>
-        <para>The elements can be in any order within a repository definition.
+        <para>The elements can be in any order within a definition.
         </para>
       </note></para>
 
@@ -128,7 +127,7 @@
     </informalexample></para>
 
     <para>You can override the default repository id using an
-    <emphasis>id</emphasis> element. See the RDFR for more details about the
+    <emphasis>id</emphasis> element. See the DDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
     <para>
@@ -141,7 +140,7 @@
     </para>
 
     <para>
-    To make use of macros, change the repository definition as shown below.
+    To make use of macros, change the definition as shown below.
     This example, like the one above, defaults to creating a repository based
     on CentOS 6 for the x86_64 architecture.  In addition, it enables providing
     an alternative OS, version or archicture using command-line macros. Command
@@ -255,7 +254,7 @@
     <important>
     <para>
     If you are building a <emphasis>system</emphasis> repository, you must
-    include a repository definition for the Operating System Base Repository.
+    include a definition for the Operating System Base Repository.
     This repository must contain <filename
     class="directory">isolinux</filename> and <filename
     class="directory">images</filename> folders. Typically, you will also want
@@ -299,7 +298,7 @@
   <para>
   See the following sections for examples of specifying input repository
   <emphasis>ids</emphasis>. See also the chapter on <emphasis>Repos</emphasis>
-  in the <xref linkend='rdfr'/> for more information on the
+  in the <xref linkend='ddfr'/> for more information on the
   <emphasis>download</emphasis> element. 
   </para>
 
@@ -432,7 +431,7 @@
     </section>
 
     <section>
-    <title>Reusing repository definitions</title>
+    <title>Reusing definitions</title>
 
     <para>
     Often you will want to reuse the same input repositories across multiple
@@ -474,7 +473,7 @@
     </informalexample>
 
     <para>
-    See the <xref linkend='rdfr'/> for complete information on the
+    See the <xref linkend='ddfr'/> for complete information on the
     <emphasis>repos</emphasis> element and its subelements, as well as for more
     information <emphasis>XML Inclusions (XIncludes)</emphasis>.
     </para>
@@ -525,7 +524,7 @@
     groups often vary across operation system versions. The example below
     shows using Macros, XIncludes and XML elements to create a flexible
     definition that includes appropriate groups for installing a GUI on each
-    operating system version. See the <xref linkend='rdfr'/> for more
+    operating system version. See the <xref linkend='ddfr'/> for more
     information on Macros, XIncludes and XML elements.
     </para>
 

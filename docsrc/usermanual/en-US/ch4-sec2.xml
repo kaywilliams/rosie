@@ -12,7 +12,7 @@
   packages manually can be cumbersome and time consuming. <application
   class="software">Deploy</application> reduces overhead by creating
   RPMs automatically during the build process, based on information you provide
-  in the repository definition, and by providing a framework for you to test
+  in the definition, and by providing a framework for you to test
   RPMs.
   </para>
 
@@ -29,7 +29,7 @@
 
     <para>
     Config-rpm elements can be used within four top-level, or
-    <emphasis>parent</emphasis>, elements of the repository definition. Those
+    <emphasis>parent</emphasis>, elements of the definition. Those
     elements include the following:
     </para>
 
@@ -56,7 +56,7 @@
     </itemizedlist>
 
     <para>
-    See also the <xref linkend='rdfr'/> for more information on the
+    See also the <xref linkend='ddfr'/> for more information on the
     above-mentioned parent elements. 
     </para>
   </section>
@@ -131,7 +131,7 @@
   You can provide additional information about the config-rpm using
   <emphasis>summary</emphasis>, <emphasis>description</emphasis> and
   <emphasis>license</emphasis> elements. See the section on
-  <emphasis>config-rpms</emphasis> in the <xref linkend='rdfr'/> for complete
+  <emphasis>config-rpms</emphasis> in the <xref linkend='ddfr'/> for complete
   information.
   </para>
   </section>
@@ -146,7 +146,7 @@
   </para>
   
   <para>
-  See the <emphasis>config-rpm</emphasis> section in the <xref linkend="rdfr"/>
+  See the <emphasis>config-rpm</emphasis> section in the <xref linkend="ddfr"/>
   for more information on <emphasis>requires</emphasis> and
   <emphasis>repo</emphasis> elements and on
   <emphasis>capabilities</emphasis>.
@@ -202,7 +202,7 @@
   </itemizedlist>
 
   <para>
-  The <emphasis>config-rpm/repo</emphasis> element, discussed in the RDFR,
+  The <emphasis>config-rpm/repo</emphasis> element, discussed in the DDFR,
   allows you to identify additional input repositories. These elements have the
   same syntax as <emphasis>repos/repo</emphasis> elements, and operationally
   Deploy treats them the same. Specifying input repositories within the
@@ -270,9 +270,8 @@ esac
     <para>
     The attribute value <emphasis>content="text"</emphasis> provides a
     convenient method to include files in the repository without needing to
-    create and manage files on disk. See the Repository Definition File
-    Reference (RDFR) for more information on the
-    <emphasis>config-rpm/files</emphasis> element.
+    create and manage files on disk. See the Deploy Definition File Reference (DDFR)
+    for more information on the <emphasis>config-rpm/files</emphasis> element.
     </para>
     </note>
   
@@ -445,7 +444,7 @@ fi
   <itemizedlist>
   <listitem>
   <para>
-  Repository Definition File Reference (RDFR)</para></listitem>
+  Deploy Definition File Reference (DDFR)</para></listitem>
 
   <listitem>
   <para>
@@ -481,7 +480,7 @@ fi
     Triggers allow config-rpms that depend on other packages to properly
     configure themselves when those other packages are installed or removed.
     See the Fedora Project's documentation website for general information
-    on triggers. See also the <xref linkend='rdfr'/> chapter on
+    on triggers. See also the <xref linkend='ddfr'/> chapter on
     <emphasis>config-rpms</emphasis> for complete information on the
     <emphasis>trigger</emphasis> element, including an example.
     </para>
@@ -493,10 +492,10 @@ fi
 
     <para>
     Often you will want to reuse a config-rpm definition across multiple
-    repository definitions. This can be accomplished by saving the config-rpm
+    definitions. This can be accomplished by saving the config-rpm
     definition to a separate file, referred to as a
     <emphasis>template</emphasis>, and inserting the template within a
-    repository definition using <xref linkend='xinclude'/>.
+    definition using <xref linkend='xinclude'/>.
     </para>
 
     <para>
@@ -512,7 +511,7 @@ fi
     </informalexample>
 
     <para>
-    This file can be inserted within a repository definition using XInclude
+    This file can be inserted within a definition using XInclude
     as shown below:
     </para>
 
@@ -523,7 +522,7 @@ fi
     </informalexample>
 
     <para>
-    See the <xref linkend='rdfr'/> for more information and examples regarding
+    See the <xref linkend='ddfr'/> for more information and examples regarding
     <emphasis>XIncludes</emphasis>.
     </para>
   </section>

@@ -26,8 +26,8 @@
     This manual complements several <application
     class="software">Deploy</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing Deploy.  The "Repository Definition File
-    Reference" (RDFR) contains the syntax for repository definition elements
+    obtaining and installing Deploy.  The "Deploy Definition File
+    Reference" (DDFR) contains the syntax for definition elements
     and attributes. Finally, Deploy has a set of <emphasis role="strong">man
     pages</emphasis> explaining the <command>deploy</command> command, its
     options and the Deploy configuration file,
@@ -83,7 +83,7 @@
           equivalents. The active node is always considered to be the root,
           repo; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the RDFR and their child elements
+          children. Top-level elements in the DDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>repo</emphasis>. For
@@ -135,7 +135,7 @@
 
         <listitem>
           <para>
-          Within repository definition examples, the traditional XML comment
+          Within definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="examples" />.
           </para>
@@ -146,8 +146,7 @@
 
           <note>
           <para>
-          The top-level elements can be in any order in the repository
-          definition.
+          The top-level elements can be in any order in the definition.
           </para>
           </note>
         </listitem>

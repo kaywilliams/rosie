@@ -129,7 +129,7 @@
 
   <para>
   For more information, see the <emphasis>Repos</emphasis> section in the <xref
-  linkend='rdfr'/>
+  linkend='ddfr'/>
   </para>
   </section>
 
@@ -147,7 +147,7 @@
 
   <para>
   See <xref linkend="providing-signing-keys"/> for complete information on
-  creating keys and using them within your repository definitions.
+  creating keys and using them within your definitions.
   </para>
   </section>
 

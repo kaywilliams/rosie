@@ -21,7 +21,7 @@
   <para>
   In the default cause, Deploy automatically generates a key pair, one per
   repository, and stores key data in the <xref
-  linkend="repository-data-file"/>.  If the <xref linkend='yum-sync-plugin'/>
+  linkend="data-file"/>.  If the <xref linkend='yum-sync-plugin'/>
   is enabled for the repository, this approach is typically sufficient as 
   public keys are automatically distributed and installed on client
   systems by the plugin, and end users do not need to recognize and explicitly
@@ -127,12 +127,12 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   <section>
   <title>Creating the gpgsign element</title>
   <para>
-  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the repository definition (see the <emphasis>gpgsign</emphasis> section in the Repository Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
+  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the definition (see the <emphasis>gpgsign</emphasis> section in the Deploy Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
   </para>
 
   <para>
   To use XInclude, first copy the public and secret key files to a location
-  relative to the repository definition, e.g. to the same folder. Then add 
+  relative to the definition, e.g. to the same folder. Then add 
   a <emphasis>gpgsign</emphasis> element as follows:
   </para>
 

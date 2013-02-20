@@ -48,7 +48,7 @@
     role="bold">plain text</emphasis> for <emphasis
     role="bold">placeholders</emphasis> within a definition. Macro definitions
     specify a macro id and associated replacement text. Macro placeholders
-    specify the location within the repository definition where the text is to
+    specify the location within the definition where the text is to
     be substituted.
     </para>
     
@@ -78,7 +78,7 @@
 
     <para>
     <emphasis role="strong">In-Document Macros</emphasis> are specified using
-    macro elements within the repository definition. Macro elements take a
+    macro elements within the definition. Macro elements take a
     single attribute, "id", which identifies the name of the macro. The text of
     the macro element identifies text to substitute in place of the macro. For
     example:
@@ -292,12 +292,12 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <para>
     XML Inclusions (XIncludes) are an industry standard sponsored by the World
     Wide Web Consortium (W3C). This section provides a brief overview and an
-    example of using XIncludes in repository definitions. More information on
+    example of using XIncludes in definitions. More information on
     XInclude is available from <ulink url="http://www.w3.org/TR/xinclude/"/>
     </para>
     
     <para>
-    Similar to macros, XIncludes allow content reuse in repository definitions.
+    Similar to macros, XIncludes allow content reuse in definitions.
     There are several important differences between the two mechanisms,
     however:
     </para>
@@ -362,7 +362,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <para>
     XIncludes offer a number of features, more than we will cover in this
     document. The examples below do illustrate, however, several common
-    scenarios for using XIncludes in repository definitions.
+    scenarios for using XIncludes in definitions.
     </para>
     </section>
 
@@ -371,7 +371,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <para>
     XML elements can be used along with macros and XIncludes to support
     conditional content inclusion.  Conditional content inclusion is a powerful
-    and practical tool. It allows a single repository definition, or XIncluded
+    and practical tool. It allows a single definition, or XIncluded
     file, to be used across multiple operating system versions and
     architectures, even when repository requirements vary.
     </para>

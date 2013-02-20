@@ -157,7 +157,7 @@
       The example below shows specifying an SRPM by providing the full path to
       the desired file. Line breaks have been added to the
       <emphasis>path</emphasis> element for improved readability. In a real
-      repository definition, line breaks are not allowed within
+      definition, line breaks are not allowed within
       <varname>PATH</varname> content.
       </para>
 
@@ -361,7 +361,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
       </para>
       
       <para>
-      The template is a complete repository definition specifying input
+      The template is a complete definition specifying input
       repositories, packages, config-rpms and deployment scripts needed to
       create the SRPM build machine and build RPMs.
       </para>

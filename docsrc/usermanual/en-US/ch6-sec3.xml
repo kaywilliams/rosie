@@ -132,7 +132,7 @@
   <para>
   You may need to copy the kernel and initrd image files from the production
   web server to the PXE boot server. This can be accomplished using additional
-  elements in the repository definition as shown below. These additions will
+  elements in the definition as shown below. These additions will
   cause the kernel and initrd images to be copied to the PXE server each time
   Deploy updates production images.
   </para>

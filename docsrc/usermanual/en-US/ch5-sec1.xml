@@ -106,7 +106,7 @@
   Creates a new virtual machine with the hostname
   If a password is not provided using the <emphasis>password</emphasis>
   element, Deploy will generate one. You can locate
-  generated passwords in the <xref linkend='repository-data-file'/>.
+  generated passwords in the <xref linkend='data-file'/>.
   </para>
   </note>
   </listitem>
@@ -218,7 +218,7 @@
   sub-elements. These can be used to specify an alternate repository location
   or hostname, to customize installation settings, or to specify deployment
   configuration or scripts. We will discuss many of these sub-elements in the
-  next section. See the <xref linkend='rdfr'/> chapter on <emphasis>Deployment
+  next section. See the <xref linkend='ddfr'/> chapter on <emphasis>Deployment
   Elements</emphasis>, however, for complete information.
   </para>
 

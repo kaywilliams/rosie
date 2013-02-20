@@ -7,7 +7,7 @@
   <para>
   Now that you have defined your repository, you use the
   <command>deploy</command> command to build it. Running Deploy
-  validates the repository definition syntax, creates the repository, and logs
+  validates the definition syntax, creates the repository, and logs
   process results. The default level of screen output includes errors, build
   status and file download and creation status. Deploy also sends this
   output to the log file, by default
@@ -47,9 +47,9 @@
   
   <para>
   You will also notice that Deploy has created a new <xref
-  linkend='repository-data-file'/>,
+  linkend='data-file'/>,
   <filename>web-server-5-i386.dat</filename>, in the same location as you
-  repository definition. Take care not to delete this file as it contains
+  definition. Take care not to delete this file as it contains
   important information for your repository.
   </para>
 

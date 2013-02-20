@@ -72,7 +72,7 @@ DEFINITION.</para>
 <refsect1 id="deploy.1-usage"><title>USAGE</title>
 <para><command>deploy</command> [OPTIONS] DEFINITION</para> <para>OPTIONS
 refers to the command-line options described below.  DEFINITION refers to a
-repository definition file, see the Repository Definition File Reference at
+definition file, see the Deploy Definition File Reference at
  <ulink url="http://www.deployproject.org/docs"/> for more information.</para>
 </refsect1>
 

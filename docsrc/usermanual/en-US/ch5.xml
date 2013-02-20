@@ -99,7 +99,7 @@
   <para>
   <emphasis role='strong'>Deployment templates</emphasis>.  Deployment
   templates, like other templates discussed earlier in this document, are
-  subsets of repository definitions which have been saved in separate
+  subsets of definitions which have been saved in separate
   documents. These documents can then be included in the body of the main
   definition using <xref linkend='xinclude'/>.
   </para>

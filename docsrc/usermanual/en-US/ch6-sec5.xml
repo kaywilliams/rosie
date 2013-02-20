@@ -15,7 +15,7 @@
 
   <para>
   Deploy supports this scenario in the same manner as the <xref
-  linkend='virtual'/> scenario. In particular, you will start with a repository
+  linkend='virtual'/> scenario. In particular, you will start with a 
   definition similar to that shown in the <xref linkend='smb'/> scenario. To
   that definition you will add a <emphasis>publish/script</emphasis> element
   with a <emphasis>@type</emphasis> attribute of 'install' and a

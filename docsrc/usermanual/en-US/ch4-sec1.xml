@@ -47,7 +47,7 @@
   <para>
   The <emphasis>release-rpm</emphasis> element allows you to disable
   installation of the Yum Sync Plugin, as well as to control GPG key checking
-  for downloaded RPM packages. See the <xref linkend='rdfr'/> for complete
+  for downloaded RPM packages. See the <xref linkend='ddfr'/> for complete
   information on the <emphasis>release-rpm</emphasis> element.
   </para>
 
@@ -117,7 +117,7 @@
   </informalexample>
 
   <para>
-  See the <xref linkend='rdfr'/> for more information on the
+  See the <xref linkend='ddfr'/> for more information on the
   <emphasis>release-rpm</emphasis> element.
   </para>
   

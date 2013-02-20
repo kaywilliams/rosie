@@ -42,7 +42,7 @@
   <para>
   <emphasis role="strong">Additional Package Repositories.</emphasis> Deploy
   uses RPM package repositories to locate and download additional software
-  components for the repository. A typical repository definition will specify
+  components for the repository. A typical definition will specify
   multiple additional input repositories, including a operating system update
   repository, and repositories made available from other internal and external
   providers. See <xref linkend="specifying-input-repositories" /> for more
@@ -67,7 +67,7 @@
 
   <para>
   <application class="software">Deploy</application> uses information
-  from the <xref linkend="repository-definition"/> to gather repository
+  from the <xref linkend="definition"/> to gather repository
   content. It uses this information to complete three primary steps.
   </para>
 
@@ -79,24 +79,23 @@
   linkend="release-rpm"/> and optional <xref linkend="config-rpms"/>. The
   release-rpm contains Deploy-generated YUM update configuration.
   Config-rpm packages contain user-provided files and scripts specified in the
-  repository definition. Both are discussed under <xref
+  definition. Both are discussed under <xref
   linkend="building-rpms" />.
   </para>
 
   <para>
   During this step, Deploy also creates a <xref
-  linkend="repository-data-file"/>, if one does not exist, in the same folder
-  as the repository definition. The file has a .dat extension. This file is
+  linkend="data-file"/>, if one does not exist, in the same folder
+  as the definition. The file has a .dat extension. This file is
   used to store Deploy generated input data, such as release numbers for
-  generated RPMs, that should be maintained along with the repository
-  definition.
+  generated RPMs, that should be maintained along with the definition.
   </para>
   </listitem>
 
   <listitem>
   <para>
   <emphasis role="strong">Assemble a package repository.</emphasis> Using the
-  repository definition, Deploy compiles a list of required packages. It
+  definition, Deploy compiles a list of required packages. It
   then resolves package dependencies, downloads packages, and creates a
   complete, consistent package repository. The package repository is used
   during network installations to client machines. It is also used during
@@ -130,7 +129,7 @@
   <title>Output</title>
 
   <para>
-  Deploy outputs a complete repository, a repository data file and a log
+  Deploy outputs a complete repository, a data file and a log
   file.
   </para>
 
@@ -151,7 +150,7 @@
   <listitem>
   <para>
   <emphasis role="strong">Repository Data File.</emphasis> As mentioned above,
-  Deploy creates a <xref linkend="repository-data-file"/> during the
+  Deploy creates a <xref linkend="data-file"/> during the
   build process. This file is used to track Deploy generated input
   information. 
   </para>

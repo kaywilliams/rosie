@@ -1,6 +1,6 @@
 PUBLICAN = /usr/bin/publican
 DRUSH = /usr/bin/drush
-PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/RDFR
+PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/DDFR
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
 
 .PHONY: all html pdf publish checkpkg clean
@@ -9,12 +9,12 @@ all: html pdf
 
 html:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	cd ./tmp/en-US; rm -rf html-single xml xml_tmp; cd -
+	../common.sh --clean-tmpdir html-single
 	$(PUBLICAN) build --formats html-single --langs en-US --quiet
 
 pdf:
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	cd ./tmp/en-US; rm -rf pdf xml xml_tmp; cd -
+	../common.sh --clean-tmpdir pdf 
 	$(PUBLICAN) build --formats pdf --langs en-US --quiet
 
 publish:
@@ -35,10 +35,10 @@ publish:
 	done
 
 	# modify src attributes in html file
-	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/RDFR/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's|src="\.|src="../../sites/deployproject.org/files/docs/DDFR/en-US/html-single|g' $(PUBDIR)/en-US/html-single/index.html
 
         # add metadata providing the desired path alias
-	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/RDFR"/g' $(PUBDIR)/en-US/html-single/index.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/DDFR"/g' $(PUBDIR)/en-US/html-single/index.html
 
         # set permissions
 	chown -R apache:apache $(PUBDIR)/en-US/$d
@@ -57,7 +57,7 @@ publish:
 	$(DRUSH) cache-clear css-js
 	
 	# copy templates to tmpldir
-	../common.sh
+	../common.sh --copy-templates
 	
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \
