@@ -91,17 +91,17 @@ TRUE:  ("yes"|"true"|"on"|"1")</programlisting>
 capability [ comparison_operator  version ]</programlisting></para>
 
       <para>
-      Comparison operators can be one of the following. Note that the 
-      "&lt;" character must be escaped as shown below, as this character
-      has special meaning in XML documents.
+      Comparison operators can be one of the following. Note that the "&lt;"
+      character must be escaped as shown below (<![CDATA["&amp;lt;"]]>), as
+      this character has special meaning in XML documents.
       <simplelist type='horiz' columns='2'>
       <member><emphasis role='strong'>Operator</emphasis></member>
       <member><emphasis role='strong'>Meaning</emphasis></member>
       <member>></member><member>greater than</member>
-      <member>&amp;lt;</member><member>less than</member>
+      <member><![CDATA[&amp;lt;]]></member><member>less than</member>
       <member>=</member><member>equal</member>
       <member>>=</member><member>greater than or equal</member>
-      <member>&amp;lt;=</member><member>less than or equal</member>
+      <member><![CDATA[&amp;lt;=]]></member><member>less than or equal</member>
       </simplelist>
       </para>
 
@@ -123,9 +123,9 @@ capability [ comparison_operator  version ]</programlisting></para>
 
         <informalexample>
         <programlisting>
-centos-release &amp;lt; 5
-bash &gt;= 2.5.1
-samba</programlisting>
+<![CDATA[centos-release &amp;lt; 5
+bash &amp;lt;= 2.5.1
+samba]]></programlisting>
         </informalexample>
       </section>
 
