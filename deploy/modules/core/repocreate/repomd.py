@@ -61,7 +61,7 @@ class RepomdEvent(RepomdMixin, Event):
     self.io.process_files(link=True, text=None) 
 
     # run createrepo
-    self.createrepo(self.OUTPUT_DIR
+    self.createrepo(self.OUTPUT_DIR,
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
 
