@@ -40,7 +40,7 @@ class BootisoEvent(Event, BootOptionsMixin):
       provides = ['treeinfo-checksums', 'os-content'],
     )
 
-    self.bootiso = self.REPO_STORE/'images/boot.iso'
+    self.bootiso = self.OUTPUT_DIR/'images/boot.iso'
 
     self.DATA = {
       'config':    ['.'],
@@ -57,7 +57,7 @@ class BootisoEvent(Event, BootOptionsMixin):
     self.bootoptions.setup(include_method=True, include_ks='web')
 
   def run(self):
-    isodir = self.REPO_STORE/'images/isopath'
+    isodir = self.OUTPUT_DIR/'images/isopath'
     isolinuxdir = isodir/'isolinux'
 
     isolinuxdir.mkdirs()
@@ -84,7 +84,7 @@ class BootisoEvent(Event, BootOptionsMixin):
 
   def apply(self):
     self.cvars.setdefault('treeinfo-checksums', set()).add(
-      (self.REPO_STORE, 'images/boot.iso'))
+      (self.OUTPUT_DIR, 'images/boot.iso'))
 
   def verify_bootiso_exists(self):
     "boot.iso exists"

@@ -38,7 +38,7 @@ class KickstartEventMixin:
                                                 (h['version'], h['release']))
 
   def setup(self):
-    self.ksfile = self.REPO_STORE/self.ksname
+    self.ksfile = self.OUTPUT_DIR/self.ksname
 
     # read the text or file specified in the kickstart element
     self.kstext = self.config.getxpath('%s/text()' % self.ksxpath, '')

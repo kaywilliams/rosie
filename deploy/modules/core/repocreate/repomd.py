@@ -49,7 +49,7 @@ class RepomdEvent(RepomdMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.io.add_fpath(self.cvars['rpmsdir'], self.REPO_STORE)
+    self.io.add_fpath(self.cvars['rpmsdir'], self.OUTPUT_DIR)
 
     if self.cvars['groupfile']:
       self.DATA['input'].append(self.cvars['groupfile'])
@@ -57,11 +57,11 @@ class RepomdEvent(RepomdMixin, Event):
     self.DATA['variables'].extend(['repomdfile']) # provided by repomd mixin
 
   def run(self):
-    (self.REPO_STORE / self.cvars['rpmsdir'].basename).rm(force=True)
+    (self.OUTPUT_DIR / self.cvars['rpmsdir'].basename).rm(force=True)
     self.io.process_files(link=True, text=None) 
 
     # run createrepo
-    self.createrepo(self.REPO_STORE, 
+    self.createrepo(self.OUTPUT_DIR
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
 

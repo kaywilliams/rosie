@@ -58,8 +58,8 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     # semi hack so that bootiso can contain stage2.img in anaconda >= 11.4.0.40
     self.cvars.setdefault('stage2-images', {})
     for k,v in self.file_locals.items():
-      self.cvars['stage2-images'][k] = self.REPO_STORE/v['path']
+      self.cvars['stage2-images'][k] = self.OUTPUT_DIR/v['path']
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
-    for f in self.REPO_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      cvar.add((self.REPO_STORE, f.relpathfrom(self.REPO_STORE)))
+    for f in self.OUTPUT_DIR.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.OUTPUT_DIR, f.relpathfrom(self.OUTPUT_DIR)))
 

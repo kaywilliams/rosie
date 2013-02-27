@@ -42,7 +42,7 @@ class RepomdMixin:
     else:
       self.crcb = None
 
-    self.repomdfile = self.REPO_STORE / 'repodata/repomd.xml'
+    self.repomdfile = self.OUTPUT_DIR / 'repodata/repomd.xml'
 
     self.DATA['variables'].append('repomd_mixin_version')
 
@@ -92,8 +92,8 @@ class RepomdMixin:
 
     # add data files to output
     repo = IORepo()
-    repo._url = self.REPO_STORE
+    repo._url = self.OUTPUT_DIR
     repo.read_repomd()
     for f in repo.iterdatafiles(all='true'):
-      self.DATA['output'].append(self.REPO_STORE/f.href)
+      self.DATA['output'].append(self.OUTPUT_DIR/f.href)
     self.DATA['output'].append(self.repomdfile)

@@ -66,8 +66,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:
       dirname =  '/'.join(p.split('/')
-                 [len(self.REPO_STORE.split('/')):])
-      self.io.add_item(p, self.REPO_STORE/dirname, id='os-dir')
+                 [len(self.OUTPUT_DIR.split('/')):])
+      self.io.add_item(p, self.OUTPUT_DIR/dirname, id='os-dir')
 
     # release-rpm
     try:
@@ -97,34 +97,34 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       self.localpath.rm(recursive=True, force=True)
 
     # sync files from compose (os-dir) folder
-    self.REPO_STORE.rm(force=True)
+    self.OUTPUT_DIR.rm(force=True)
     self.io.process_files(link=True, text="preparing %s repository" 
                           % self.moduleid, what='os-dir')
 
     # modify release-rpm
-    (self.REPO_STORE/'repo.conf').rm(force=True) # remove link
+    (self.OUTPUT_DIR/'repo.conf').rm(force=True) # remove link
     ReleaseRpmEventMixin.run(self)
-    self.rpm.rpm_path.cp(self.REPO_STORE/'Packages')
-    self.DATA['output'].append(self.REPO_STORE/'Packages'/
+    self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages')
+    self.DATA['output'].append(self.OUTPUT_DIR/'Packages'/
                                self.rpm.rpm_path.basename)
 
     # update repodata
-    self.copy(self.repodata_files, self.REPO_STORE, 
+    self.copy(self.repodata_files, self.OUTPUT_DIR, 
               callback=self.link_callback) # start with existing repodata
-    self.createrepo(self.REPO_STORE, 
+    self.createrepo(self.OUTPUT_DIR, 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
-    self.repomdfile = self.REPO_STORE/'repodata/repomd.xml'
+    self.repomdfile = self.OUTPUT_DIR/'repodata/repomd.xml'
 
     # update kickstart
     if self.config.getxpath('kickstart', None) is not None:
-      (self.REPO_STORE/'ks.cfg').rm(force=True)
+      (self.OUTPUT_DIR/'ks.cfg').rm(force=True)
       KickstartEventMixin.run(self) 
 
     # publish to test folder
     self.log(2, L1('publishing to %s' % self.localpath))
     self.localpath.rm(force=True)
-    self.link(self.REPO_STORE, self.localpath) 
+    self.link(self.OUTPUT_DIR, self.localpath) 
     self.io.chcon(self.localpath)
 
   def apply(self):

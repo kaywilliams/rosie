@@ -59,7 +59,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.keydir = 'gpgkeys'
     self.keylist = 'gpgkey.list'
 
-    self.local_keydir = self.REPO_STORE / self.keydir
+    self.local_keydir = self.OUTPUT_DIR / self.keydir
     self.remote_keydir = self.webpath / self.keydir
 
     self.files_cb = files_cb
@@ -165,7 +165,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       repofile.write_lines(lines)
 
       # include repofile at root of repository
-      pubfile = self.REPO_STORE / 'repo.conf'
+      pubfile = self.OUTPUT_DIR / 'repo.conf'
       repofile.cp(pubfile)
 
       self.DATA['output'].extend([repofile, pubfile])

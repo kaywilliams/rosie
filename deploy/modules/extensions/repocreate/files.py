@@ -46,7 +46,7 @@ class FilesEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.add_xpath('files', self.REPO_STORE)
+    self.io.add_xpath('files', self.OUTPUT_DIR)
 
   def run(self):
     self.io.process_files()
