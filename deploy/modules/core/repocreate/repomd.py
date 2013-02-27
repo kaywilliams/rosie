@@ -61,10 +61,9 @@ class RepomdEvent(RepomdMixin, Event):
     self.io.process_files(link=True, text=None) 
 
     # run createrepo
-    repo_files = self.createrepo(self.REPO_STORE, 
-                                 groupfile=self.cvars['groupfile'],
-                                 checksum=self.locals.L_CHECKSUM['type'])
-    self.DATA['output'].extend(repo_files)
+    self.createrepo(self.REPO_STORE, 
+                    groupfile=self.cvars['groupfile'],
+                    checksum=self.locals.L_CHECKSUM['type'])
 
   def apply(self):
     self.cvars['repomd-file'] = self.repomdfile

@@ -27,15 +27,6 @@ class RepomdEventTestCase(EventTestCase):
   eventid  = 'repomd'
   _type = 'package'
 
-class Test_CompsFile(RepomdEventTestCase):
-  "comps file included in repodata"
-  _type = 'system'
-  _conf = '<packages><package>kernel</package></packages>'
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.id)
-    self.failUnlessExists(self.event.cvars['repomd-file'].dirname /
-                          self.event.cvars['groupfile'].basename)
-
 
 def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
@@ -43,6 +34,5 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repomd')
 
   suite.addTest(make_core_suite(RepomdEventTestCase, os, version, arch))
-  suite.addTest(Test_CompsFile(os, version, arch))
 
   return suite

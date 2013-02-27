@@ -58,9 +58,11 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     self.release_rpmdata = (self.cvars['rpmbuild-data']
                             [self.cvars['release-rpm']])
 
-    # sync compose output, excluding release-rpm
+    # sync compose output, excluding release-rpm and repodata files
     release_rpm = (self.release_rpmdata['rpm-path'].split('/')[-1])
+    self.repodata_files = self.cvars['os-dir'] / 'repodata'
     paths=self.cvars['os-dir'].findpaths(nglob=release_rpm, 
+                                         nregex='%s/.*' % self.repodata_files,
                                          type=pps.constants.TYPE_NOT_DIR)
     for p in paths:
       dirname =  '/'.join(p.split('/')
@@ -107,6 +109,8 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                                self.rpm.rpm_path.basename)
 
     # update repodata
+    self.copy(self.repodata_files, self.REPO_STORE, 
+              callback=self.link_callback) # start with existing repodata
     self.createrepo(self.REPO_STORE, 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])

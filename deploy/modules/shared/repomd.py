@@ -21,6 +21,7 @@ import sys
 
 from deploy.util import shlib
 
+from deploy.util.repo import IORepo
 from deploy.util.versort import Version
 
 from deploy.callback import TimerCallback
@@ -50,10 +51,6 @@ class RepomdMixin:
     "Run createrepo on the path specified."
     if self.crcb: self.crcb.start("running createrepo")
 
-    repo_files = []
-    for file in self.locals.L_CREATEREPO['xml-files'].keys():
-      repo_files.append(path / file)
-
     args = ['/usr/bin/createrepo']
     #note: using createrepo help to determine update capability since 
     #createrepo reported version number was incorrect (0.4.9) for version
@@ -65,16 +62,11 @@ class RepomdMixin:
       args.append('--quiet')
     if groupfile:
       args.extend(['--groupfile', groupfile])
-      repo_files.append(path / 'repodata'/ groupfile.basename)
-      if self.locals.L_CREATEREPO['capabilities']['gzipped_groupfile']:
-        repo_files.append(path / 'repodata/%s.gz' % groupfile.basename)
     if pretty:
       args.append('--pretty')
     if (database and 
        self.locals.L_CREATEREPO['capabilities']['database']):
       args.append('--database')
-      for file in self.locals.L_CREATEREPO['sqlite-files'].keys():
-        repo_files.append(path / file)
     if (checksum and 
        'checksum' in self.locals.L_CREATEREPO['capabilities']):
       args.append('--checksum %s' % checksum)
@@ -97,5 +89,11 @@ class RepomdMixin:
 
     os.chdir(cwd)
     if self.crcb: self.crcb.end()
-    return repo_files
 
+    # add data files to output
+    repo = IORepo()
+    repo._url = self.REPO_STORE
+    repo.read_repomd()
+    for f in repo.iterdatafiles(all='true'):
+      self.DATA['output'].append(self.REPO_STORE/f.href)
+    self.DATA['output'].append(self.repomdfile)

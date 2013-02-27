@@ -37,13 +37,6 @@ def get_module_info(ptr, *args, **kwargs):
     group       = 'repocreate',
   )
 
-NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
-                        '-'
-                        '(?P<version>.+)' # rpm version
-                        '-'
-                        '(?P<release>.+)' # rpm release
-                        '\.'
-                        '(?P<arch>.+)')   # rpm architecture
 
 class DepsolveEvent(DepsolverMixin, ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
