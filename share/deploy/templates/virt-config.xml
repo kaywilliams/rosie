@@ -2,6 +2,10 @@
 <config-rpm id='virt-config'>
 <!--configure libvirt default network for local dns resolution-->
 <requires>NetworkManager</requires>
+<!--el6.4 fixed a security issue that breaks us, requiring an update to
+     dnsmasq. see
+     http://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2013q1/006761.html--> 
+<requires>dnsmasq >= 2.66.13</requires>
 <requires>libvirt</requires>
 <requires>python-virtinst</requires>
 <requires>qemu-kvm</requires>
