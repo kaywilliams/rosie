@@ -251,11 +251,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
       self.module_map       = loader.module_map
+      self.module_info      = loader.module_info
 
       # add module mappings for pseudo events
       for modid, module in loader.modules.items():
         self.module_map.setdefault('all', []).extend(self.module_map[modid])
-        grp = loader.module_info[modid].get('group', '')
+        grp = self.module_info[modid].get('group', '')
         if grp:
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 

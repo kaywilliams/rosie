@@ -75,16 +75,24 @@ class DeployValidationHandler:
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
+    deprecated_elements = {} # dict of deprecated elements with their alternatives
     for event in self.dispatch:
       moduleid = event.__module__.split('.')[-1]
-      if moduleid in tle_elements: continue # don't re-validate
-      v.validate(moduleid, schema_file='%s.rng' % moduleid)
-      if self.definition.pathexists(moduleid):
-        tle_elements.add(moduleid)
+      if moduleid in self.module_info:
+        tle = self.module_info[moduleid].get('tle', moduleid)
+        for dep, value in (self.module_info[moduleid].get(
+                           'deprecated_tle', {}).iteritems()):
+          deprecated_elements[dep] = value
+      else:
+        tle = moduleid
+      if tle in tle_elements: continue # don't re-validate
+      v.validate(tle, schema_file='%s.rng' % tle)
+      if self.definition.pathexists(tle):
+        tle_elements.add(tle)
 
     expected_elements = tle_elements.union(self.disabled_modules)
     expected_elements.add('all')
-    self._verify_tle_elements(expected_elements)
+    self._verify_tle_elements(expected_elements, deprecated_elements)
 
     # allow events to validate other things not covered in schemas
     for event in self.dispatch:
@@ -94,10 +102,14 @@ class DeployValidationHandler:
         except DeployEventError, e:
           self._handle_Exception(e, event.id) 
 
-  def _verify_tle_elements(self, expected_elements):
+  def _verify_tle_elements(self, expected_elements, deprecated_elements):
     processed = set()
     for child in self.definition.getroot().iterchildren():
       if child.tag is etree.Comment: continue
+      if child.tag in deprecated_elements:
+        raise InvalidConfigError(self.definition.getroot().file,
+          "Deprecated top-level element '%s' found: rename the element to '%s'."
+          % (child.tag, deprecated_elements[child.tag]))
       if child.tag not in expected_elements:
         raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
