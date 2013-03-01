@@ -43,7 +43,7 @@
 </xml>
 <xml id="packages-6"><group>buildsys-build</group></xml>
 
-<publish>
+<deploy>
 <password>srpmbuild</password>
 <local-dir>/var/www/html/repos/.srpmbuild</local-dir>
 <remote-url interface='virbrdpl'>http://%{build-host}/repos/.srpmbuild</remote-url>
@@ -129,6 +129,6 @@ finally:
 <macro id='file-size'>10</macro>
 <xi:include href="virt-deploy.xml" 
             xpointer="xpointer(/*/*[name()!='kickstart'])"/>
-</publish>
+</deploy>
 
 </definition>
