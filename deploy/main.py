@@ -592,6 +592,7 @@ class AllEvent(Event):
   "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
   moduleid = None
+  modinfo = {}
   def __init__(self, ptr):
     Event.__init__(self,
       id = 'all',

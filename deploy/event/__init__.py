@@ -57,7 +57,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     self.event_version = version
     self.suppress_run_message = suppress_run_message
     self.parentid = parentid
-    self.config_base = config_base or '/*/%s' % self.moduleid
+    self.config_base = config_base or '/*/%s' % (
+                       self.modinfo.get('tle', None) or self.moduleid)
     self._status = None
 
     ptr.get_event_attrs(self) # get shared attributes from main.py
