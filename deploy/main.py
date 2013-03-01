@@ -251,12 +251,11 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
       self.module_map       = loader.module_map
-      self.module_info      = loader.module_info
 
       # add module mappings for pseudo events
       for modid, module in loader.modules.items():
         self.module_map.setdefault('all', []).extend(self.module_map[modid])
-        grp = self.module_info[modid].get('group', '')
+        grp = loader.module_info[modid].get('group', '')
         if grp:
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
@@ -592,7 +591,6 @@ class AllEvent(Event):
   "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
   moduleid = None
-  modinfo = {}
   def __init__(self, ptr):
     Event.__init__(self,
       id = 'all',

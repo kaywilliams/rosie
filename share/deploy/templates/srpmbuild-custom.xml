@@ -5,9 +5,9 @@
 <macro id="fullname">Custom RPM Build Virtual Machine</macro>
 
 <xi:include href="srpmbuild.xml"
-            xpointer="xpointer(/*/*[name()!='deploy'])"/>
+            xpointer="xpointer(/*/*[name()!='publish'])"/>
 
-<deploy>
+<publish>
 <script id='update' type='post' ssh='true' comes-before='check-kernel'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty post scripts; ignore errors on install 
@@ -26,8 +26,8 @@ if rpm -q docbook-style-xsl; then
 fi
 </script>
 <xi:include href="srpmbuild.xml"
-            xpointer="xpointer(/*/deploy/*[name()!='script'])"/>
+            xpointer="xpointer(/*/publish/*[name()!='script'])"/>
 <xi:include href="srpmbuild.xml"
-            xpointer="xpointer(/*/deploy/script[@id!='update'])"/>
-</deploy>
+            xpointer="xpointer(/*/publish/script[@id!='update'])"/>
+</publish>
 </definition>

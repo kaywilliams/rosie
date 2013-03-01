@@ -253,7 +253,6 @@ class Loader:
     mod_events = modinfo.get('events', [])
     for event in mod_events:
       getattr(mod, event).moduleid = modname
-      getattr(mod, event).modinfo = modinfo
       e = getattr(mod, event)(ptr, *args, **kwargs)
       if e.enabled:
         self.events.append(e)

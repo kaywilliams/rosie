@@ -41,8 +41,6 @@ def get_module_info(ptr, *args, **kwargs):
     events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent',
                    'DeployEvent'],
     description = 'publishes repository to a web accessible location',
-    tle         = 'deploy',
-    deprecated_tle = {'publish':'deploy'}
   )
   modname = __name__.split('.')[-1]
   new_rpm_events = config.make_config_rpm_events(ptr, modname, 'config-rpm', 

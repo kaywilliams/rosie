@@ -1,4 +1,4 @@
-<deploy>
+<publish>
   <remote-url>https://repos.company.com/</remote-url>
   <script id="sync-to-production-server" type="post" ssh="false">
   #!/bin/bash
@@ -9,4 +9,4 @@
   "/var/www/html/repos/system/%{id}/" \
   "user@repos.company.com:/var/www/html/%{id}" 
   </script>
-</deploy>
+</publish>

@@ -4,7 +4,7 @@
     <element name="definition">
 
       <optional>
-      <element name="deploy">
+      <element name="publish">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
