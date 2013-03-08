@@ -68,16 +68,18 @@ class DiffTuple:
 
   attrs = [('size', int), ('mtime', int), ('mode', int)]
 
-  def __init__(self, path=None):
+  def __init__(self, path=None, abspath=None):
     self.path = pps.path(path)
+    if abspath: abspath = pps.path(abspath)
+    else: abspath = self.path
 
     self.size  = None
     self.mtime = None
     self.mode  = None
 
-    if self.path:
+    if abspath:
       try:
-        st = self.path.stat()
+        st = abspath.stat()
         self.size  = st.st_size
         self.mtime = st.st_mtime
         self.mode  = st.st_mode
@@ -116,8 +118,8 @@ class DiffTuple:
       else: rxml.config.Element(k, parent=e)
     return e
 
-  def fromxml(self, xml):
-    self.path = xml.getxpath('@path')
+  def fromxml(self, xml, path=None):
+    self.path = path or xml.getxpath('@path')
     for key,fn in self.attrs:
       if xml.pathexists('%s/text()' % key):
         setattr(self, key, fn(xml.getxpath('%s/text()' % key)))

@@ -99,7 +99,7 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if isinstance(f, pps.Path.mirror.MirrorPath):
         f = f.touri()        
-      if f.islink() and not (f.dirname/f.readlink()).exists():
+      if f.exists() and f.islink() and not (f.dirname/f.readlink()).exists():
         raise BrokenLinkError(file=f, target=f.dirname/f.readlink())
       if xpath is not None:
         if allow_text and e.errno == errno.ENOENT: # file not found
@@ -275,7 +275,7 @@ class IOObject(object):
         self.ptr.diff.output.clear()
 
         root = rxml.tree.parse(self.ptr.mdfile).getroot()
-        self.ptr.diff.output.mdread(root)
+        self.ptr.diff.output.mdread(root, self.ptr.mddir)
 
         expected = set(self.ptr.diff.output.oldoutput.keys())
         expected.add(self.ptr.mdfile)

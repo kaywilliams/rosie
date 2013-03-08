@@ -32,14 +32,19 @@ running status's Status.changed() function whether or not it needs to
 regenerate its own output.
 
 Handlers must implement the following interface:
-  mdread(metadata): accepts a xmltree.XmlElement instance; responsible
-    for setting up internal variables representing whatever was written
-    out the last time mdwrite() was called.  If the handler doesn't need
-    to read in metadata, this method can pass safely
-  mdwrite(root): accepts a xmltree.XmlElement instance; responsible for
-    encoding internal variables into xmltree.XmlElements that will be
-    written to the mdfile.  If the handler doesn't need to write out
-    metadata, this method can pass safely.
+  mdread(metadata, mddir): accepts a xmltree.XmlElement instance; responsible
+    for setting up internal variables representing whatever was written out the
+    last time mdwrite() was called. The mddir is provided so that the handler
+    may resolve relative file paths, if desired. See the comments on mdwrite
+    for additional information. If the handler doesn't need to read in
+    metadata, this method can pass safely
+  mdwrite(root, mddir): accepts a xmltree.XmlElement instance; responsible for
+    encoding internal variables into xmltree.XmlElements that will be written
+    to the mdfile. The mddir is provided so that the handler may write relative
+    paths for files stored in them mddir. This is useful for allowing the mddir
+    to be relocated in the file system without causing differences to be
+    reported. If the handler doesn't need to write out metadata, this method
+    can pass safely.
   diff(): responsible for computing whether or not a change has taken
     place between the initial execution and the current one.  Returning
     an object with len >= 1 will signify that a change has taken place,
@@ -76,6 +81,7 @@ class DiffTest:
   def __init__(self, mdfile):
     "mdfile is the location to use as the metadata file for storage between executions"
     self.mdfile = mdfile # the location of the file to store information
+    self.mddir = self.mdfile.dirname # used for calculating relative paths
     self.handlers = [] # a list of registered handlers
     self.debug = False # enable to see very verbose printout of diffs
     self.metadata = None
@@ -111,7 +117,7 @@ class DiffTest:
         handlers = [handlers]
 
       for handler in handlers:
-        handler.mdread(self.metadata)
+        handler.mdread(self.metadata, self.mddir)
 
   def write_metadata(self):
     """
@@ -122,7 +128,7 @@ class DiffTest:
     """
     root = rxml.config.Element('metadata')
     for handler in self.handlers:
-      handler.mdwrite(root)
+      handler.mdwrite(root, self.mddir)
     self.mdfile.dirname.mkdirs()
     root.write(self.mdfile)
     self.mdfile.chmod(0644)
