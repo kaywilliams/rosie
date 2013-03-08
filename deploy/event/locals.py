@@ -58,8 +58,8 @@ class LocalsObject:
 
   def kickstart_get(self):
     adds = L_KICKSTART_ADDS[self.anaconda_ver]
-    adds['version']['text'] = adds['version']['text'].replace(
-                              '%s', self.base_ver.split('.')[0])
+    adds['version']['text'] = adds['version']['text'].replace('%s', 
+                                                              self.ptr.version)
     return adds
 
   L_KICKSTART_ADDS    = property(kickstart_get)
