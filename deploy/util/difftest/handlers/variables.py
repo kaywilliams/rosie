@@ -44,7 +44,7 @@ class VariablesHandler(DiffHandler):
   def clear(self):
     self.vars.clear()
 
-  def mdread(self, metadata):
+  def mdread(self, metadata, *args, **kwargs):
     for node in metadata.xpath('/metadata/variables/value', []):
       item = node.getxpath('@variable')
       if len(node.getchildren()) == 0:
@@ -52,7 +52,7 @@ class VariablesHandler(DiffHandler):
       else:
         self.vars[item] = rxml.serialize.unserialize(node[0])
 
-  def mdwrite(self, root):
+  def mdwrite(self, root, *args, **kwargs):
     vars = rxml.config.Element('variables', parent=root)
     for var in self.vdata:
       parent = rxml.config.Element('value', parent=vars, attrs={'variable': var})

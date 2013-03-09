@@ -42,11 +42,11 @@ class InputHandler(DiffHandler):
   def clear(self):
     self.oldinput.clear()
 
-  def mdread(self, metadata):
+  def mdread(self, metadata, *args, **kwargs):
     for f in metadata.xpath('/metadata/input/file', []):
       self.oldinput[pps.path(f.getxpath('@path'))] = self.tupcls().fromxml(f)
 
-  def mdwrite(self, root):
+  def mdwrite(self, root, *args, **kwargs):
     parent = rxml.config.Element('input', parent=root)
     for datum in self.idata:
       for ifile in pps.path(datum).findpaths(type=pps.constants.TYPE_NOT_DIR):

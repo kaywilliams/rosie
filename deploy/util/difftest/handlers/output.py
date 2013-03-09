@@ -43,11 +43,12 @@ class OutputHandler(DiffHandler):
   def clear(self):
     self.oldoutput.clear()
 
-  def mdread(self, metadata):
+  def mdread(self, metadata, mddir, *args, **kwargs):
     for f in metadata.xpath('/metadata/output/file', []):
-      self.oldoutput[pps.path(f.getxpath('@path'))] = self.tupcls().fromxml(f)
+      abspath = mddir / pps.path(f.getxpath('@path'))
+      self.oldoutput[abspath] = self.tupcls().fromxml(f, path=abspath)
 
-  def mdwrite(self, root):
+  def mdwrite(self, root, mddir, *args, **kwargs):
     parent = rxml.config.uElement('output', parent=root)
     # write to metadata file
     paths = set()
@@ -57,8 +58,11 @@ class OutputHandler(DiffHandler):
       for f in file.findpaths(type=pps.constants.TYPE_NOT_DIR):
         paths.add(f)
     for file in paths:
-      file = file.normpath()
-      parent.append(self.tupcls(file).toxml())
+      abspath = file.normpath()
+      if abspath.startswith(mddir):
+        relpath = abspath[len(mddir + '/'):]
+      else: relpath = abspath 
+      parent.append(self.tupcls(relpath, abspath).toxml())
 
   def diff(self):
     newitems = {}

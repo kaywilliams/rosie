@@ -42,13 +42,13 @@ class ConfigHandler(DiffHandler):
   def clear(self):
     self.cfg.clear()
 
-  def mdread(self, metadata):
+  def mdread(self, metadata, *args, **kwargs):
     for node in metadata.xpath('/metadata/config/value', []):
       path = node.getxpath('@path')
       self.cfg[path] = node.xpath('elements/*', None) or \
                        node.xpath('text/text()', NoneEntry(path))
 
-  def mdwrite(self, root):
+  def mdwrite(self, root, *args, **kwargs):
     config = rxml.config.Element('config', parent=root)
     for path in self.cdata:
       value = rxml.config.Element('value', parent=config, attrs={'path': path})
