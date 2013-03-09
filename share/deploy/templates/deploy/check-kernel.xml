@@ -46,10 +46,10 @@ if running_kernel != latest_kernel:
   result = p.returncode
 
   if result != 0:
-    sys.exit("ERROR: check-kernel was unable to determine the default boot kernel. Check your boot configuration manually to ensure the latest kernel '%s' is the default, and restart the machine." % ('-'.join([n,v,r]) + '.' + a))
+    sys.exit("ERROR: check-kernel was unable to determine the default boot kernel. Check your boot configuration manually to ensure the latest kernel '%s' is the default, and restart the machine." % ('-'.join([v,r])))
 
-  elif ('-'.join([v, r]) + '.' + a)  not in default_kernel:
-    sys.exit("ERROR: check-kernel has determined that the latest kernel '%s' is not the default boot kernel. Uninstall earlier kernel versions manually, and restart the machine." % ('-'.join([n,v,r]) + '.' + a))
+  elif ('-'.join([v,r]))  not in default_kernel:
+    sys.exit("ERROR: check-kernel has determined that the latest kernel '%s' is not the default boot kernel. Uninstall earlier kernel versions manually, and restart the machine." % ('-'.join([v,r])))
 
   else:
     print "Running kernel differs from installed - restarting machine"
