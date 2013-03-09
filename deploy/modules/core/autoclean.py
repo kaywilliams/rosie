@@ -36,7 +36,7 @@ class AutocleanEvent(Event):
       parentid = 'all',
       ptr = ptr,
       comes_after  = ['init'],
-      comes_before = ['setup-events'],
+      conditionally_comes_before = ['setup-events'],
     )
 
     self.DATA = {'events': {}}
@@ -86,11 +86,11 @@ class EventHandler(DiffHandler):
     self.events.clear()
     self.diffdict.clear()
 
-  def mdread(self, metadata):
+  def mdread(self, metadata, *args, **kwargs):
     for event in metadata.xpath('/metadata/events/event'):
       self.events[event.getxpath('@id')] = event.getxpath('version/text()')
 
-  def mdwrite(self, root):
+  def mdwrite(self, root, *args, **kwargs):
     parent = rxml.tree.uElement('events', parent=root)
 
     for k,v in self.data.items():
