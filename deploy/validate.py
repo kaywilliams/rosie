@@ -78,7 +78,7 @@ class DeployValidationHandler:
     for event in self.dispatch:
       moduleid = event.__module__.split('.')[-1]
       if moduleid in tle_elements: continue # don't re-validate
-      v.validate(moduleid, schema_file='%s.rng' % moduleid)
+      v.validate(moduleid, schema_file='%s.rng' % moduleid, required=False)
       if self.definition.pathexists(moduleid):
         tle_elements.add(moduleid)
 
@@ -116,7 +116,8 @@ class BaseConfigValidator:
 
     self.curr_schema = None
 
-  def validate(self, xpath_query, schema_file=None, schema_contents=None):
+  def validate(self, xpath_query, required=True, schema_file=None, 
+               schema_contents=None):
     if schema_file and schema_contents:
       raise AttributeError("'schema_file' and 'schema_contents' "
                            "are mutually exclusive.")
@@ -126,9 +127,9 @@ class BaseConfigValidator:
     element = xpath_query.lstrip('/')
     tree = self._scrub_tree(self.config.getxpath(xpath_query, None))
     if schema_contents:
-      self.validate_with_string(schema_contents, tree, element)
+      self.validate_with_string(schema_contents, tree, element, required)
     else:
-      self.validate_with_file(schema_file, tree, element)
+      self.validate_with_file(schema_file, tree, element, required)
 
   def _scrub_tree(self, tree):
     if tree is None: return
@@ -146,15 +147,15 @@ class BaseConfigValidator:
       remove_xmlbase(c)
     return tree
 
-  def validate_with_string(self, schema_contents, tree, tag):
+  def validate_with_string(self, schema_contents, tree, tag, required):
     schema = etree.fromstring(schema_contents, base_url=self.config.file.dirname)
     if tree is None:
-      self.check_required(schema, tag)
+      self.check_required(schema, tag, required)
       return
     schema_tree = self.massage_schema(schema, tag)
     self.relaxng(schema_tree, tree)
 
-  def validate_with_file(self, schema_file, tree, tag):
+  def validate_with_file(self, schema_file, tree, tag, required):
     self.curr_schema = None
     file = None
     for path in self.schema_paths:
@@ -163,12 +164,15 @@ class BaseConfigValidator:
         break
       else:
         file = None
-    if not file:
-      return # no schema file
+    if not file and required:
+      raise MissingSchemaFileError(schema_file, 
+                                   [str(p) for p in self.schema_paths])
+    if not file and not required:
+      return 
     self.curr_schema = file
     schema = self._read_schema()
     if tree is None:
-      self.check_required(schema, tag)
+      self.check_required(schema, tag, required)
       return
     schema_tree = self.massage_schema(schema, tag)
     try:
@@ -202,13 +206,10 @@ class BaseConfigValidator:
   def massage_schema(self, schema, tag):
     return schema
 
-  def check_required(self, schema, tag):
-    defn = schema.getxpath('//rng:element[@name="definition"]', namespaces=NSMAP)
-    if defn is not None:
-      optional = defn.getxpath('rng:optional', namespaces=NSMAP)
-      if optional is None:
-        raise InvalidConfigError(self.config.getroot().file,
-                                 "Missing required element: '%s'" % tag)
+  def check_required(self, schema, tag, required):
+    if required:
+      raise InvalidConfigError(self.config.getroot().file,
+                               "Missing required element '%s'." % tag)
 
 
 class MainConfigValidator(BaseConfigValidator):
@@ -234,6 +235,13 @@ class DefinitionValidator(BaseConfigValidator):
       start_elem.remove(opt_elem)
     return schema
 
+  def check_required(self, schema, tag, *args, **kwargs):
+    defn = schema.getxpath('//rng:element[@name="definition"]', namespaces=NSMAP)
+    if defn is not None:
+      optional = defn.getxpath('rng:optional', namespaces=NSMAP)
+      if optional is None:
+        raise InvalidConfigError(self.config.getroot().file,
+                                 "Missing required element: '%s'" % tag)
  
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
@@ -256,6 +264,14 @@ class InvalidConfigError(InvalidXmlError):
     else:
       return 'Validation of "%s" failed: \n' % self.args[0] + \
              InvalidXmlError.__str__(self)
+
+class MissingSchemaFileError(InvalidConfigError):
+  def __init__(self, file, paths):
+    self.file = file
+    self.paths = paths
+  def __str__(self):
+    return ("Unable to locate the schema file '%s' in any of the schema "
+            "paths: %s" % (self.file, self.paths)) 
 
 class InvalidSchemaError(InvalidXmlError):
   def __str__(self):
