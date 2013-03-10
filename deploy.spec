@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.71
+Version: 1.72
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
@@ -72,44 +72,51 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Wed Feb 27 2013 Kay Williams <kay@deployproject.org> - 1.71.1
+* Sun Mar 10 2013 Kay Williams <kay@deployproject.org> -1.72-1
+- fixed schema folder name that should have been changed in 1.70-1
+- improved schema validation for deploy.conf generally
+- allow metadata cache folders to move without causing difference events
+  Note: this will cause events to run once to update metadata cache schema
+- check-kernel.xml template ignores arch when checking latest vs boot kernel
+
+* Wed Feb 27 2013 Kay Williams <kay@deployproject.org> - 1.71-1
 - updates to address createrepo datafile naming changes in el6.4
 - introducing dnsmasq 2.66.13 to address libvirt changes in el6.4
 - minor code variable naming cleanup
 - misc documentation updates
 
-* Wed Feb 20 2013 Kay Williams <kay@deployproject.org> - 1.70.1
+* Wed Feb 20 2013 Kay Williams <kay@deployproject.org> - 1.70-1
 - using the more general term 'definition' as definition top level element
 - updated templates and documentation
 
-* Fri Feb 15 2013 Kay Williams <kay@deployproject.org> - 1.69.1
+* Fri Feb 15 2013 Kay Williams <kay@deployproject.org> - 1.69-1
 - added 'main/os' element as a first step toward multi-platform support
 - updated templates and documentation
 
-* Mon Dec 17 2012 Kay Williams <kay@deployproject.org> - 1.68.1
+* Mon Dec 17 2012 Kay Williams <kay@deployproject.org> - 1.68-1
 - product naming and documentation updates
 - fixed bug that was causing config postun scripts to erroneously remove files
 - fixed bug that was causing updated deploy scripts to be ignored
 
-* Sat Dec 1 2012 Kay Williams <kay@deployproject.org> - 1.0.61.1
+* Sat Dec 1 2012 Kay Williams <kay@deployproject.org> - 1.0.61-1
 - fix iso install boot arguments for el6; add iso install test case
 - add keyboard to ks.cfg (kickstart) template
 
-* Sat Oct 27 2012 Kay Williams <kay@deployproject.org> - 1.0.60.1
+* Sat Oct 27 2012 Kay Williams <kay@deployproject.org> - 1.0.60-1
 - virt-config/virt-install improvements
 - product naming and documentation updates
 
-* Mon Oct 15 2012 Kay Williams <kay@deployproject.org> - 1.0.59.1
+* Mon Oct 15 2012 Kay Williams <kay@deployproject.org> - 1.0.59-1
 - product naming and documentation updates
 
-* Wed Sep 26 2012 Kay Williams <kay@deployproject.org> - 1.0.58.1
+* Wed Sep 26 2012 Kay Williams <kay@deployproject.org> - 1.0.58-1
 - documentation updates
 - fixed a bug in difference testing for config-rpms that caused rpms to be
   rebuilt in some cases if their relative location in the definition file
   changed
 - improved error and uninstall handling for the virt-config.xml template 
 
-* Wed Sep 12 2012 Kay Williams <kay@deployproject.org> - 1.0.57.1
+* Wed Sep 12 2012 Kay Williams <kay@deployproject.org> - 1.0.57-1
 - product naming and documentation updates
 - virt-config template flexibility and resilience updates
 
