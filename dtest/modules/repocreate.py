@@ -21,7 +21,7 @@ from dtest.core import make_core_suite
 class RepocreateEventTestCase(EventTestCase):
   moduleid = 'repocreate'
   eventid  = 'repocreate'
-  _type = 'package'
+  _mode = 'package'
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('repocreate')

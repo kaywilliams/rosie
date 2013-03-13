@@ -265,8 +265,8 @@ class RepoEventMixin(Event):
     self.repos = RepoContainer()
 
   def validate(self):
-    # if type == system, repos config must contain at least one repo or repofile
-    if self.type == "system" and (not self.config.xpath('repo', []) and 
+    # if mode == system, repos config must contain at least one repo or repofile
+    if self.mode == "system" and (not self.config.xpath('repo', []) and 
                                   not self.config.xpath('repofile', [])):
       raise InvalidConfigError(self._config.file,
         "The <%s> element must contain at least one <repo> or <repofile> " 
@@ -310,7 +310,7 @@ class RepoEventMixin(Event):
                               for x in lines])
 
     # make sure we got at least one repo out of that mess
-    if type == "system" and not len(self.repos) > 0:
+    if self.mode == "system" and not len(self.repos) > 0:
       raise NoReposEnabledError(self.id)
 
     # warn if multiple repos use the same mirrorlist and different baseurls

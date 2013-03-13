@@ -64,7 +64,7 @@ class DownloadEvent(ShelveMixin, Event):
 
     # setup for downloads
     for repo in self.cvars['repos'].values():
-      if self.type != 'system' and repo.download is False:
+      if self.mode != 'system' and repo.download is False:
         continue
       for subrepo in repo.subrepos.values():
         now = time.time()

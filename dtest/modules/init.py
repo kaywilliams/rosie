@@ -22,19 +22,19 @@ from dtest.core import make_core_suite
 class InitEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'init'
-  _type = 'package'
+  _mode = 'package'
 
 #------ setup ------#
 class SetupEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'setup-events'
-  _type = 'package'
+  _mode = 'package'
 
 #------ os ------#
 class OSEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'os-events'
-  _type = 'package'
+  _mode = 'package'
 
 
 def make_suite(os, version, arch, *args, **kwargs):

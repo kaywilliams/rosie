@@ -38,7 +38,7 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   """
   moduleid = 'config-rpms'
   eventid  = 'config-rpm'
-  _type = 'package'
+  _mode = 'package'
   _conf = ["""<config-rpms>
   <config-rpm id='config'>
     <requires>yum</requires>
@@ -213,7 +213,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
 
 class DeployConfigRpmEventTestCase(DeployMixinTestCase, 
                                    ConfigRpmInputsEventTestCase):
-  _type = 'system'
+  _mode = 'system'
   _conf = ["""
   <publish>
   <script id='config-rpm' type='post' ssh='true'>

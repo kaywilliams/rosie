@@ -116,7 +116,7 @@ class ReposEvent(RepoEventMixin, Event):
           # set anaconda version
           self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
       
-    if self.type == "system" and not self.cvars['installer-repo']:
+    if self.mode == "system" and not self.cvars['installer-repo']:
       raise InstallerRepoNotFoundError()
 
     # set up cvars
@@ -134,7 +134,7 @@ class ReposEvent(RepoEventMixin, Event):
   def verify_cvars(self):
     "verify cvars are set"
     self.verifier.failUnlessSet('repos')
-    if self.type == "system":
+    if self.mode == "system":
       self.verifier.failUnlessSet('anaconda-version')
       self.verifier.failUnlessSet('installer-repo')
 

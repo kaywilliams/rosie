@@ -39,7 +39,7 @@ class TestSrpmTestCase(EventTestCase):
   """
   moduleid = 'srpmbuild'
   eventid  = 'package1-srpm'
-  _type = 'package'
+  _mode = 'package'
 
   _run_make(REPODIR)
   _conf = ["""

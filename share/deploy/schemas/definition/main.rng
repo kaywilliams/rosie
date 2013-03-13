@@ -9,7 +9,7 @@
           <element name="version"><text/></element>
           <element name="arch"><text/></element>
           <optional>
-          <element name="type">
+          <element name="mode">
             <choice>
               <value type="string">build</value>
               <value type="string">package</value>

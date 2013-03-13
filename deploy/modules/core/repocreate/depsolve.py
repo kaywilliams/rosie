@@ -117,7 +117,7 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
 
-    if not self.type == 'system': return
+    if not self.mode == 'system': return
 
     matched = False
     pkgs = []

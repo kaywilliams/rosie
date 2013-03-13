@@ -26,7 +26,7 @@ from dtest.mixins import (psm_make_suite, check_vm_config)
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish-setup'
-  _type = 'package'
+  _mode = 'package'
 
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
@@ -84,7 +84,7 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
 class PublishEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish'
-  _type = 'package'
+  _mode = 'package'
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion

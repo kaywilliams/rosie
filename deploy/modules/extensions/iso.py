@@ -115,7 +115,7 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
                   'boot-config-file', 'treeinfo-text'],
       conditionally_requires = ['srpms-dir'],
     )
-    if not self.type == 'system':
+    if not self.mode == 'system':
       self.enabled = False
 
     ListCompareMixin.__init__(self)
