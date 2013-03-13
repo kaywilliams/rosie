@@ -40,9 +40,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
-    self.requires.update(['%s-setup-options' % self.moduleid, 'ksname']),
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
-                                        'config-rpms'])
+                                        'config-rpms', 'ksname'])
 
   def setup(self): 
     InputEventMixin.setup(self)
@@ -204,24 +203,22 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       return self._get_csum('')
 
   def _get_kickstart_csum(self):
-    # use build ksfile, if exists, else system ksfile
-    build_ksfile = self.build_url / self.cvars['ksname']
-    system_ksfile = self.build_url / self.cvars['ksname']
-    if build_ksfile.exists():
-      kstext = build_ksfile.read_text()
-    elif system_ksfile.exists():
-      kstext = system_ksfile.read_text()
+    if self.cvars['ksname'] and (self.build_url/self.cvars['ksname']).exists():
+      kstext = (self.build_url/self.cvars['ksname']).read_text()
     else:
       kstext = ''
     return self._get_csum(kstext)
 
   def _get_treeinfo_csum(self):
-    tifile = self.system_url / '.treeinfo' 
-    try:
-      self.io.validate_input_file(tifile)
-    except(InputFileError):
-      raise InvalidDistroError(self.system_url, tifile)
-    return self._get_csum(tifile.read_text())
+    tifile = self.system_url / '.treeinfo'
+    if not self.type == 'package':
+      try:
+        self.io.validate_input_file(tifile)
+      except(InputFileError):
+        raise InvalidDistroError(self.system_url, tifile)
+      return self._get_csum(tifile.read_text())
+    else:
+      return self._get_csum('')
 
   def _get_script_csum(self, xpath):
     text = ''
