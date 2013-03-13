@@ -41,13 +41,16 @@ them:
  comes-after
     a comes-after relationship means that the Consumer must come after all
     instances of Producers that provide the given requirement
+ conditional
+    a conditional relationship means that the Producer will be enabled only
+    if a Consumer exists for one or more of it's requirements
 
-All three above relationships also support a prefix 'conditionally-'; for
-example, 'conditionally-comes-before'.  This prefix modifies the behavior
-of the relationship slightly; essentially, the listed requirements are
-optional; if they exists some Producer that provides the requirement, the
-normal relationship is observed; if no such Producer exists, the requirement
-is ignored.
+The first three above relationships also support a prefix 'conditionally-'; for
+example, 'conditionally-comes-before'.  This prefix modifies the behavior of
+the relationship slightly; essentially, the listed requirements are optional;
+if they exists some Producer that provides the requirement, the normal
+relationship is observed; if no such Producer exists, the requirement is
+ignored.
 
 As mentioned, this is a somewhat simplistic dependency resolver.  It is not
 capable of resolving dependency loops (A->B->C->A), although it can detect
