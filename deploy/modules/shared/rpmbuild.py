@@ -43,7 +43,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   Mixin for working with Deploy-created rpms including both from-srpm
   (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
   """
-  rpmbuild_mixin_version = "1.02"
+  rpmbuild_mixin_version = "1.03"
 
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
@@ -72,6 +72,10 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     for key in rpmbuild_data:
       self.cvars['rpmbuild-data'][key] = rpmbuild_data[key]
 
+      #restore absolute path to rpm
+      path = self.METADATA_DIR / rpmbuild_data[key]['rpm-path']
+      self.cvars['rpmbuild-data'][key]['rpm-path'] = path
+
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
       self.verifier.failUnlessExists(rpm_path)
@@ -80,7 +84,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
                          packagereq_type='mandatory', 
                          packagereq_default=None, 
                          packagereq_requires=None):
- 
+
       data = {}
       data['rpm-path']  = pps.path(rpmpath)
   
@@ -92,10 +96,10 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       # set convenience variables for nvra
       info = rpmUtils.miscutils.splitFilename(rpmpath.basename)
   
-      data['rpm-name']      = info[0] 
-      data['rpm-version']   = info[1]
-      data['rpm-release']   = info[2]
-      data['rpm-arch']      = info[4]
+      data['rpm-name']      = str(info[0])
+      data['rpm-version']   = str(info[1])
+      data['rpm-release']   = str(info[2])
+      data['rpm-arch']      = str(info[4])
   
       # get obsoletes - rpmbuild-repo uses these to remove pkgs from comps
       ts = rpmUtils.transaction.initReadOnlyTransaction()
@@ -160,8 +164,12 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   def _cache_rpmdata(self):
     if self.rpms:
       rpmbuild_data = {}
-      for item in self.rpms:
+      for item in copy.deepcopy(self.rpms):
          rpmbuild_data[item['rpm-name']] = item
+
+         # store relative path to rpm
+         path=item['rpm-path'].relpathfrom(self.METADATA_DIR)
+         rpmbuild_data[item['rpm-name']]['rpm-path'] = path
     self.shelve('rpmbuild_data', rpmbuild_data)
 
 
