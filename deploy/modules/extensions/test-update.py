@@ -51,10 +51,8 @@ class TestUpdateSetupEvent(TestPublishEventMixin, Event):
       ptr = ptr,
       version = 1.0,
       requires = ['os-dir'],
-      conditionally_requires = [ 'kickstart-file'],
       # don't run if test-install event fails
       conditionally_comes_after = [ 'test-install' ],
-      provides = ['test-update-repomdfile', 'test-update-kstext'],
     )
 
     TestPublishEventMixin.__init__(self)
@@ -65,7 +63,6 @@ class TestUpdateEvent(DeployEventMixin, Event):
       id = 'test-update',
       parentid = 'test-events',
       ptr = ptr,
-      requires = ['test-update-repomdfile', 'test-update-kstext'], 
     )
 
     self.DATA =  {
@@ -79,9 +76,6 @@ class TestUpdateEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.kstext = self.cvars['test-update-kstext']
-    self.repomdfile = self.cvars['test-update-repomdfile']
-    self.DATA['variables'].append('repomdfile')
     self.default_install_triggers = [ 'kickstart', 'install_scripts',
                                       'post_install_scripts' ]
     DeployEventMixin.setup(self)

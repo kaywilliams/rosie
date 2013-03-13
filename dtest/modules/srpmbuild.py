@@ -24,7 +24,7 @@ from deploy.modules.core.rpmbuild.gpgsign import InvalidKeyError
 
 from dtest        import (EventTestCase, ModuleTestSuite, _run_make,
                            TestBuild)
-from dtest.core   import make_core_suite
+from dtest.core   import make_core_suite, make_basic_suite
 from dtest.mixins import check_vm_config
 
 from dtest.mixins.rpmbuild import PUBKEY, SECKEY
@@ -217,6 +217,10 @@ class Test_Shutdown(TestSrpmTestCase):
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
+  if check_vm_config():
+    suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch))
+  else:
+    suite.addTest(make_basic_suite(TestSrpmTestCase, os, version, arch))
 
   suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
   suite.addTest(Test_Config(os, version, arch))
@@ -225,7 +229,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_FromScript(os, version, arch))
 
   if check_vm_config():
-    suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch))
     suite.addTest(Test_UpdatesDefinition(os, version, arch))
     suite.addTest(Test_InvalidRpm(os, version, arch))
     suite.addTest(Test_Apply(os, version, arch))

@@ -24,12 +24,20 @@ class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
-    self.requires.add('base-info')
+    if not hasattr(self, 'DATA'): self.DATA = {'config': [],
+                                               'variables': [],
+                                               'output': []}
     self.DATA['config'].append('kickstart')
     self.DATA['variables'].append('kickstart_mixin_version')
 
-    self.ksxpath = '.'
-    self.ksname = 'ks.cfg'
+    self.provides.update([ 
+      'ksname', 
+          # global default basename (i.e. ks.cfg). Used by modules that
+          # look for a kickstart # on a remote web server (e.g. deploy), or
+          # within an image (e.g. initrd-image), etc.
+      '%s-ksfile' % self.moduleid, 
+          # path to created file in event cache or None
+      ])
 
     # set pykickstart_version (used by locals mixin and dtest)
     ts = rpm.TransactionSet()
@@ -37,24 +45,29 @@ class KickstartEventMixin:
     self.cvars['pykickstart-version'] = Version("%s-%s" % 
                                                 (h['version'], h['release']))
 
-  def setup(self):
-    self.ksfile = self.OUTPUT_DIR/self.ksname
+  def setup(self, default=''):
+    self.diff.setup(self.DATA)
 
     # read the text or file specified in the kickstart element
-    self.kstext = self.config.getxpath('%s/text()' % self.ksxpath, '')
-    if len(self.kstext) == 0: 
+    self.kstext = self.config.getxpath('kickstart/text()', default)
+    if len(self.kstext) == 0:
+      self.ksfile = None
       return
+
+    self.ksname = 'ks.cfg'
+    self.ksfile = self.OUTPUT_DIR / self.ksname
+    self.DATA['variables'].extend(['ksname'])
 
     self.ks_source = '' # track source for use in error messages
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
-                    ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
+                    ('\n  ').join([ l.strip() 
+                    for l in self.kstext.split('\n')]))
 
-    self.DATA['variables'].extend(['ksfile', 'kstext'])
 
   def run(self):
-    if len(self.kstext) == 0:
-      return
-    ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]
+    if not self.ksfile: return
+
+    ksver = 'rhel%s' %  self.version
 
     # test for missing ks parameters
     adds = self.locals.L_KICKSTART_ADDS
@@ -79,15 +92,14 @@ class KickstartEventMixin:
     self.DATA['output'].append(self.ksfile)
 
   def apply(self):
-    if len(self.kstext) == 0: 
-      return
-    self.cvars['%s-kstext' % self.moduleid] = self.ksfile.read_text()
+    self.cvars['ksname'] = self.ksname #default kickstart filename (ks.cfg) 
+    self.cvars['%s-ksfile' % self.moduleid ] = self.ksfile #path to file in 
+                                                           #event cache or None
 
-  def verify_kickstart_cvars(self):
-    "verify kickstart cvars exist"
-    if len(self.kstext) == 0: 
-      return
-    self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
+  def verify_kickstart_file(self):
+    "kickstart file exists"
+    if self.ksfile:
+      self.verifier.failUnlessExists(self.cvars['%s-ksfile' % self.moduleid])
 
 class KickstartValidationError(DeployEventError):
   message = ( "%(message)s" ) 

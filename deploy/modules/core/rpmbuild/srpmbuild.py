@@ -168,7 +168,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       raise BuildMachineCreationError(
                     template='based on \'%s\'' % self.template, 
                     error=e, idstr="--> build machine id: %s\n" %
-                    self.builder.repoid, sep = MSG_MAXWIDTH * '=')
+                    self.builder.build_id, sep = MSG_MAXWIDTH * '=')
 
     self.logger.log(3, L0("%s" % '=' * MSG_MAXWIDTH))
     self.logger.log(3, L0(''))

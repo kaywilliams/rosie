@@ -32,7 +32,7 @@ def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
     events      = ['PackagesEvent', 'CompsEvent'],
-    description = 'defines the required packages and groups for the system',
+    description = 'defines required packages and groups for the repository',
     group       = 'repocreate',
   )
 
@@ -63,7 +63,7 @@ class PackagesEvent(ShelveMixin):
   def validate(self):
     if (self.type == "system" and 
         len(self.config.xpath(['package', 'group'], [])) == 0):
-      message = ("The definition specifies a system type repository but no "
+      message = ("The definition specifies a system repository but no "
                  "packages or groups have been listed in the packages "
                  "element. Please specify groups and/or packages and try "
                  "again.")

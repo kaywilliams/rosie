@@ -53,7 +53,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     if not hasattr(self, 'webpath'): self.webpath = webpath
 
     self.masterrepo = '%s-%s' % (self.name, 
-                      hashlib.md5(self.repoid).hexdigest()[-6:])
+                      hashlib.md5(self.build_id).hexdigest()[-6:])
 
     # if you change the values below, also change yum_plugin locals
     self.keydir = 'gpgkeys'

@@ -83,39 +83,14 @@ class KickstartEvent(KickstartEventMixin, Event):
       parentid = 'installer',
       ptr = ptr,
       version = 1.02,
-      provides = ['kickstart-file', 'ks-path', 'initrd-image-content', 
-                  'os-content'],
+      provides = ['initrd-image-content', 'os-content'],
     )
 
     if self.config.getxpath('kickstart', False) is False: 
       self.disable()
       return
 
-    self.DATA = {
-      'config':    [],
-      'variables': [],
-      'output':    [],
-    }
-
     KickstartEventMixin.__init__(self)
-
-  def setup(self):
-    self.diff.setup(self.DATA)
-
-    self.ksxpath = 'kickstart'
-    KickstartEventMixin.setup(self)
- 
-  def run(self):
-    KickstartEventMixin.run(self)
-
-  def apply(self):
-    self.cvars['kickstart-file'] = self.ksfile
-    self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
-    KickstartEventMixin.apply(self)
-
-  def verify_cvars(self):
-    "kickstart file exists"
-    self.verifier.failUnlessExists(self.cvars['kickstart-file'])
 
 
 class PublishEvent(Event):
@@ -154,21 +129,6 @@ class PublishEvent(Event):
                        callback=self.link_callback)
     self.io.chcon(self.cvars['publish-setup-options']['localpath'])
 
-  def clean_eventcache(self):
-    self.io.clean_eventcache()
-    expected = set(self.diff.output.oldoutput.keys())
-    existing = set(self.cvars['publish-setup-options']['localpath'].findpaths(
-                 mindepth=1, type=TYPE_NOT_DIR))
-    # delete files in publish path no longer needed
-    for path in existing.difference(expected):
-      path.rm()
-    # delete empty directories in publish path
-    for dir in [ d for d in
-                 self.cvars['publish-setup-options']['localpath'].findpaths(
-                 mindepth=1, type=TYPE_DIR)
-                 if not d.listdir(all=True) ]:
-      dir.removedirs()
-
 
 class DeployEvent(DeployEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
@@ -176,8 +136,8 @@ class DeployEvent(DeployEventMixin, Event):
       id = 'deploy',
       parentid = 'publish-events',
       ptr = ptr,
-      conditionally_requires = ['repomd-file'],
-      requires = ['published-repository'],
+      requires = ['publish-setup-options'],
+      conditionally_requires = ['published-repository'],
     )
 
     self.DATA =  {
@@ -192,18 +152,4 @@ class DeployEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-
-    self.webpath = self.cvars['publish-setup-options']['webpath'] 
-    self.kstext = self.cvars['publish-kstext']
-    # allowing deploy event to run when the repocreate is disabled for 
-    # improved testing performance
-    if 'repomd-file' in self.cvars:
-      self.repomdfile = self.cvars['repomd-file']
-    else:
-      self.repomdfile = ''
-
-    self.DATA['variables'].extend(['webpath', 'repomdfile'])
     DeployEventMixin.setup(self)
-
-  def run(self):
-    DeployEventMixin.run(self)

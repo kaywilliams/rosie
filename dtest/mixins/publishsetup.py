@@ -35,7 +35,8 @@ def PublishSetupMixinTest_Config(self):
     'domain':         '.test-domain',
     'fqdn':           'test-hostname.test-domain',
     'localpath':      '/test/local/path',
-    'webpath':        'http://test/web/path',
+    'build_url':      'http://test/web/path',
+    'system_url':     'http://test/web/path',
     'boot_options':   'test boot options',
     'ssh':            True,
     'ssh_passphrase': 'test ssh passphrase',
@@ -50,7 +51,7 @@ def PublishSetupMixinTest_Config(self):
     config.Element('domain', text=self.values['domain'], parent=mod)
     config.Element('password', text=self.values['password'], parent=mod)
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
-    config.Element('remote-url', text=self.values['webpath'], parent=mod)
+    config.Element('remote-url', text=self.values['build_url'], parent=mod)
     config.Element('boot-options', text=self.values['boot_options'], parent=mod)
     config.Element('ssh', text=str(self.values['ssh']), parent=mod)
     config.Element('ssh-passphrase', text=self.values['ssh_passphrase'], 
@@ -65,7 +66,7 @@ def PublishSetupMixinTest_Config(self):
 
     # check attributes
     for k in self.values:
-      if k in ['webpath', 'localpath']:
+      if k in ['build_url', 'system_url', 'localpath']:
         test = eval('self.event.%s' % k).startswith(self.values[k])
       else:
         test = eval('self.event.%s' % k) == self.values[k] 
@@ -77,8 +78,9 @@ def PublishSetupMixinTest_Config(self):
     for k in self.values:
       if k == 'localpath':
         continue
-      elif k == 'webpath':
-        test = self.event.macros['%{url}'].startswith(self.values[k])
+      elif k in [ 'build_url', 'system_url']:
+        test = eval('self.event.macros["%%{%s}"]' % 
+                     k.replace('_', '-')).startswith(self.values[k])
       elif k in ['ssh', 'ssh_passphrase']:
         pass
       else:
@@ -91,9 +93,9 @@ def PublishSetupMixinTest_Config(self):
 
     #check cvars
     for k in self.values:
-      if k in ['webpath', 'localpath']:
+      if k in ['build_url', 'system_url', 'localpath']:
         test = (eval('self.event.cvars["%s-setup-options"]["%s"]' % 
-               (self.moduleid, k)).startswith(self.values[k]))
+               (self.moduleid, k.replace('_', '-'))).startswith(self.values[k]))
       else:
         test = (eval('self.event.cvars["%s-setup-options"]["%s"]' % 
                (self.moduleid, k.replace('_', '-'))) == self.values[k])

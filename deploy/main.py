@@ -190,13 +190,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
           raise DeployError(msg)
 
     self.type   = self.definition.getxpath(qstr % 'type', 'system')
-    self.repoid = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
+    self.build_id = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
                                (self.name, self.os, self.version, self.arch))
 
     # validate initial variables
     for elem in VALIDATE_DATA:
       if elem == 'id':
-        value = self.repoid
+        value = self.build_id
       else: 
         value = eval('self.%s' % elem)
       if not VALIDATE_DATA[elem]['validatefn'](value):
@@ -209,7 +209,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
              '%{os}':             self.os,
              '%{version}':        self.version,
              '%{arch}':           self.arch,
-             '%{id}':             self.repoid,
+             '%{id}':             self.build_id,
              '%{definition-dir}': self.definition.file.dirname,
              }
 
@@ -289,7 +289,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock( 'deploy-%s.pid' % self.repoid )
+    self._lock = lock.Lock( 'deploy-%s.pid' % self.build_id )
 
   def main(self):
     "Build a repository"
@@ -306,7 +306,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     else:
       raise DeployError("\nAnother instance of deploy (pid %d) is "
                               "already modifying '%s'" % 
-                              (self._lock._readlock()[0], self.repoid ))
+                              (self._lock._readlock()[0], self.build_id ))
 
   def _get_initial_macros(self, options):
     # setup initial macro replacements using values from options, if available
@@ -476,7 +476,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.CACHE_DIR    = self.mainconfig.getpath(
                         '/deploy/cache/path/text()',
                         DEFAULT_CACHE_DIR).expand().abspath()
-    self.METADATA_DIR = self.CACHE_DIR  / self.repoid
+    self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -493,7 +493,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     # setup datfile name
-    self.datfn = '%s.dat' % self.repoid
+    self.datfn = '%s.dat' % self.build_id
 
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
@@ -525,7 +525,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
   def _log_header(self):
     self.logger.logfile.write(0, "\n\n\n")
-    self.logger.log(1, "Starting build of '%s' at %s" % (self.repoid, time.strftime('%Y-%m-%d %X')))
+    self.logger.log(1, "Starting build of '%s' at %s" % (self.build_id, time.strftime('%Y-%m-%d %X')))
     self.logger.log(4, "Loaded modules: %s" % self.cvars['loaded-modules'])
     self.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
@@ -553,7 +553,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     di['version']           = self.version
     di['arch']              = self.arch
     di['type']              = self.type
-    di['repoid']            = self.repoid
+    di['build_id']          = self.build_id
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
     di['packagepath']       = 'Packages'

@@ -45,12 +45,15 @@
 
 <publish>
 <password>srpmbuild</password>
-<local-dir>/var/www/html/repos/.srpmbuild</local-dir>
-<remote-url interface='virbrdpl'>http://%{build-host}/repos/.srpmbuild</remote-url>
+<remote-url interface='virbrdpl'/>
 
 <kickstart>
 <xi:include href="deploy/ks.cfg" parse="text"/>
 skipx
+<xi:include href='deploy/ks-ssh.cfg' parse='text'/>
+<xi:include xpointer="xpointer(//xml[@id='scriptend-%{version}']/node())"/>
+<xml id="scriptend-5"> </xml>
+<xml id="scriptend-6">%end</xml>
 </kickstart>
 
 <triggers>

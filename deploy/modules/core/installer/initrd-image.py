@@ -36,8 +36,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       version = '1.01',
       provides = ['isolinux-files', 'os-content'],
       requires = ['anaconda-version', 'buildstamp-file'],
-      conditionally_requires = ['initrd-image-content', 'kickstart-file',
-                                'ks-path'],
+      conditionally_requires = ['initrd-image-content', 'publish-ksfile'],
       comes_after = ['isolinux'],
     )
 
@@ -60,8 +59,13 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-    if self.cvars['kickstart-file']:
-      self.DATA['input'].append(self.cvars['kickstart-file'])
+
+    # add kickstart file as input if one is provided
+    if self.cvars['publish-ksfile']:
+      self.ksfile = self.cvars['publish-ksfile']
+      self.DATA['input'].append(self.ksfile)
+    else:
+      self.ksfile = None
 
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['isolinux']['initrd.img']
@@ -80,5 +84,5 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
 
     # copy kickstart file
-    if self.cvars['kickstart-file'] and self.cvars['ks-path']:
-      self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
+    if self.ksfile:
+      self.image.write(self.ksfile, '/')

@@ -81,8 +81,8 @@ class PkgorderEvent(Event):
 
     # create yum config needed by pkgorder
     cfg = self.mddir/'yum.conf'
-    repoid = self.repoid
-    cfg.write_lines([ YUMCONF % (self.repoid, self.repoid, self.cvars['os-dir']) ])
+    repoid = self.build_id
+    cfg.write_lines([ YUMCONF % (repoid, repoid, self.cvars['os-dir']) ])
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,
@@ -113,7 +113,7 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
                   'boot-config-file', 'treeinfo-text'],
-      conditionally_requires = ['srpms-dir', 'ks-path', 'boot-options'],
+      conditionally_requires = ['srpms-dir'],
     )
     if not self.type == 'system':
       self.enabled = False

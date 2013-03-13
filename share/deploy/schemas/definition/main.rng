@@ -11,6 +11,7 @@
           <optional>
           <element name="type">
             <choice>
+              <value type="string">build</value>
               <value type="string">package</value>
               <value type="string">system</value>
             </choice>

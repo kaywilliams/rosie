@@ -25,9 +25,11 @@ from deploy.errors import (DeployError, DeployEventError,
 from deploy.util import pps
 from deploy.util import resolve 
 
+from deploy.event.fileio import InputFileError
+
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
-                                         ScriptFailedError,
-                                         SSHFailedError, SSHScriptFailedError)
+                                   ScriptFailedError,
+                                   SSHFailedError, SSHScriptFailedError)
 # InputEventMixin loads ExecuteEventMixin
 
 from deploy.util.graph import DirectedNodeMixin
@@ -38,28 +40,21 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
-    self.requires.add('%s-setup-options' % self.moduleid,)
+    self.requires.update(['%s-setup-options' % self.moduleid, 'ksname']),
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
                                         'config-rpms'])
 
   def setup(self): 
     InputEventMixin.setup(self)
+    self.DATA['variables'].extend(['deploy_mixin_version'])
 
-    # needs to be called after self.repomdfile and self.kstext are set
     self.cvar_root = '%s-setup-options' % self.moduleid
 
-    # strip trailing whitespace from kstext so that diff testing works
-    # as expected. using shelve for metadata storage (someday) will 
-    # eliminate this issue
-    try:
-      self.kstext = self.kstext.rstrip()
-    except:
-      self.kstext = ''
+    self.build_url = self.cvars[self.cvar_root]['build-url']
+    self.system_url = self.cvars[self.cvar_root]['system-url']
 
-    self.webpath = self.cvars[self.cvar_root]['webpath']
-
-    self.DATA['variables'].extend(['webpath', 'kstext', 'deploy_mixin_version'])
-    self.DATA['input'].append(self.repomdfile)
+    # add repomd as input file
+    self._track_repomdfile()
 
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')
@@ -124,8 +119,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.trigger_data = { 
       'release_rpm':          self._get_rpm_csum('release-rpm'),
       'config_rpms':          self._get_rpm_csum('config-rpms'),
-      'kickstart':            self._get_csum(self.kstext),
-      'treeinfo':             self._get_csum(self.cvars['base-treeinfo-text']),
+      'kickstart':            self._get_kickstart_csum(),
+      'treeinfo':             self._get_treeinfo_csum(),
       'install_scripts':      self._get_script_csum('script[@type="install"]'),
       'post_install_scripts': self._get_script_csum('script[ '
                                                     '@type="post-install" or '
@@ -179,6 +174,15 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
  
  
   #------ Helper Functions ------#
+  def _track_repomdfile(self):
+    mdfile = 'repodata/repomd.xml'
+    self.repomdfile = self.system_url / mdfile
+    try:
+      self.io.validate_input_file(self.repomdfile)
+    except(InputFileError):
+      raise InvalidDistroError(self.system_url, mdfile)
+    self.DATA['input'].append(self.repomdfile)
+
   def _get_csum(self, text):
     return hashlib.md5(text).hexdigest()
 
@@ -198,6 +202,26 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                                                # changed
     else:
       return self._get_csum('')
+
+  def _get_kickstart_csum(self):
+    # use build ksfile, if exists, else system ksfile
+    build_ksfile = self.build_url / self.cvars['ksname']
+    system_ksfile = self.build_url / self.cvars['ksname']
+    if build_ksfile.exists():
+      kstext = build_ksfile.read_text()
+    elif system_ksfile.exists():
+      kstext = system_ksfile.read_text()
+    else:
+      kstext = ''
+    return self._get_csum(kstext)
+
+  def _get_treeinfo_csum(self):
+    tifile = self.system_url / '.treeinfo' 
+    try:
+      self.io.validate_input_file(tifile)
+    except(InputFileError):
+      raise InvalidDistroError(self.system_url, tifile)
+    return self._get_csum(tifile.read_text())
 
   def _get_script_csum(self, xpath):
     text = ''
@@ -337,6 +361,11 @@ class SSHParameters(DictMixin):
 
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
+
+
+class InvalidDistroError(DeployEventError):
+  message = ("The system repository at '%(system)s' does not appear to be "
+             "valid. The following file could not be found: '%(missing)s'")
 
 class InvalidTriggerNameError(DeployEventError):
   message = ("Invalid character in trigger name '%(trigger)s'. Valid "

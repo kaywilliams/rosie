@@ -21,7 +21,7 @@ from deploy.dlogging import L1
 def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
-    events      = ['InitEvent', 'SetupEvents', 'OSEvents', 
+    events      = ['InitEvent', 'SetupEvents', 'OSEvents',
                    'TestEvents', 'PublishEvents'],
     description = 'creates temporary and cache folders',
   )
@@ -64,6 +64,9 @@ class SetupEvents(Event):
       suppress_run_message = True
     )
 
+    if self.type == 'build':
+      self.enabled = False
+
 class OSEvents(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -74,6 +77,9 @@ class OSEvents(Event):
       comes_after = ['setup-events'],
       suppress_run_message = True
     )
+
+    if self.type == 'build':
+      self.enabled = False
 
 class TestEvents(Event):
   def __init__(self, ptr, *args, **kwargs):
@@ -86,6 +92,9 @@ class TestEvents(Event):
       suppress_run_message = True
     )
 
+    if self.type == 'build':
+      self.enabled = False
+
 class PublishEvents(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -93,6 +102,9 @@ class PublishEvents(Event):
       parentid = 'all',
       ptr = ptr,
       properties = CLASS_META,
-      comes_after = [ 'os-events', 'test-events' ],
+      conditionally_comes_after = [ 'os-events', 'test-events' ],
       suppress_run_message = True
     )
+
+    if self.type == 'build':
+      self.enabled = False

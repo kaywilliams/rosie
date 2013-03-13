@@ -47,7 +47,9 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
 
-    self.conditionally_requires.update(['release-rpm', 'rpmbuild-data'])
+    self.conditionally_requires.update(['release-rpm', 
+                                        'rpmbuild-data',
+                                        'publish-ksfile'])
     self.provides.remove('rpmbuild-data') # these release rpms should not
                                           # be included in the core repository
 
@@ -72,7 +74,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     # release-rpm
     try:
       self.release = self.release_rpmdata['rpm-release'].replace(self.dist, '')
-      ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
+      ReleaseRpmEventMixin.setup(self, webpath=self.build_url, 
                          force_release=self.release,
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2(
@@ -82,14 +84,12 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       # release-rpm event disabled
       pass
 
-    # kickstart 
-    self.ksxpath = 'kickstart'
-    if self.config.getxpath('kickstart', None) is not None: # test ks provided
-      KickstartEventMixin.setup(self)
-    elif 'ks-path' in self.cvars:
-      self.kstext = self.cvars['kickstart-file'].read_text() # production ks provided
+    # kickstart
+    if self.cvars['publish-ksfile']:
+      default = self.cvars['publish-ksfile'].read_text()
     else:
-      self.kstext = ''
+      default = ''
+    KickstartEventMixin.setup(self, default)
 
   def run(self): 
     #clean publish path if event was forced
@@ -114,11 +114,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     self.createrepo(self.OUTPUT_DIR, 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
-    self.repomdfile = self.OUTPUT_DIR/'repodata/repomd.xml'
 
     # update kickstart
     if self.config.getxpath('kickstart', None) is not None:
-      (self.OUTPUT_DIR/'ks.cfg').rm(force=True)
+      (self.OUTPUT_DIR/self.ksname).rm(force=True)
       KickstartEventMixin.run(self) 
 
     # publish to test folder
@@ -128,17 +127,5 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     self.io.chcon(self.localpath)
 
   def apply(self):
-    self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin
-    if self.config.getxpath('kickstart', None) is not None:
-      KickstartEventMixin.apply(self)
-    else:
-      self.cvars['%s-kstext' % self.moduleid] = self.kstext
-
-  def verify_repomdfile(self):
-    "verify repomd file exists"
-    self.verifier.failUnlessExists(self.repomdfile)
-
-  def verify_cvars(self):
-    "verify cvars exist"
-    self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
-    self.verifier.failUnlessSet('%s-repomdfile' % self.moduleid)
+    ReleaseRpmEventMixin.apply(self)
+    KickstartEventMixin.apply(self)

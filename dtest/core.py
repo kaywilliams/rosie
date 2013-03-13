@@ -54,13 +54,16 @@ class CoreTestSuite(unittest.TestSuite):
         pass
     return result
 
-
-def make_core_suite(TestCase, os, version, arch, conf=None):
+def make_basic_suite(TestCase, os, version, arch, conf=None):
   suite = CoreTestSuite()
 
   # hack-ish solution to get a pretty header
   suite.addTest(EventTestCaseHeader(TestCase.eventid, os, version, arch))
+  return suite
 
+def make_core_suite(TestCase, os, version, arch, conf=None):
+  suite = CoreTestSuite()
+  suite.addTest(make_basic_suite(TestCase, os, version, arch, conf))
   suite.addTest(CoreEventTestCase01(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase02(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase03(TestCase(os, version, arch, conf)))

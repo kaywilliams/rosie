@@ -24,7 +24,8 @@ from deploy.util      import pps
 
 from deploy.modules.shared import config
 from deploy.modules.shared import DeployEventMixin
-from deploy.modules.shared import TestPublishEventMixin
+from deploy.modules.shared import KickstartEventMixin
+from deploy.modules.shared import PublishSetupEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin
 
 P = pps.path
@@ -32,36 +33,72 @@ P = pps.path
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['TestInstallSetupEvent', 'TestInstallEvent'],
-    description = 'performs test installations on client systems',
+    events      = ['BuildEvents', 'BuildSetupEvent', 'BuildKickstartEvent',
+                   'BuildEvent'],
+    description = 'creates remote machines',
   )
-  modname = __name__.split('.')[-1]
-  new_rpm_events = config.make_config_rpm_events(ptr, modname, 'config-rpm', 
-                                                 globals=globals())
-  module_info['events'].extend(new_rpm_events)
 
   return module_info
 
-
-class TestInstallSetupEvent(TestPublishEventMixin, Event):
+class BuildEvents(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
-      id = 'test-install-setup',
-      parentid = 'test-events',
+      id = 'build-events',
+      parentid = 'all',
+      ptr = ptr,
+      properties = CLASS_META,
+      comes_after = ['autoclean'],
+      suppress_run_message = True,
+      )
+
+class BuildSetupEvent(PublishSetupEventMixin, Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'build-setup',
+      parentid = 'build-events',
       ptr = ptr,
       version = 1.0,
-      requires = ['os-dir'],
+      requires = [],
+      provides = ['build-setup'],
+      suppress_run_message = True,
     ) 
 
-    TestPublishEventMixin.__init__(self)
+    PublishSetupEventMixin.__init__(self)
 
-class TestInstallEvent(DeployEventMixin, Event):
+
+class BuildKickstartEvent(KickstartEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
-      id = 'test-install',
-      parentid = 'test-events',
+      id = 'build-kickstart',
+      parentid = 'build-events',
       ptr = ptr,
-      conditionally_requires = [ 'rpmbuild-data'],
+      version = 1.0,
+      requires = ['build-setup'],
+      provides = ['build-kickstart'],
+      suppress_run_message = True,
+    ) 
+
+    KickstartEventMixin.__init__(self)
+
+  def run(self):
+    KickstartEventMixin.run(self)
+
+    # publish kickstart file - note we are assuming the kickstart is the only
+    # file in the pubdir
+    pubdir = self.cvars['build-setup-options']['localpath']
+    pubdir.rm(recursive=True, force=True)
+    pubdir.mkdirs()
+    self.copy(self.ksfile, pubdir, callback=self.link_callback)
+
+
+class BuildEvent(DeployEventMixin, Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'build',
+      parentid = 'build-events',
+      ptr = ptr,
+      requires = ['build-kickstart'], 
+      conditionally_requires = [],
     )
 
     self.DATA =  {
@@ -79,7 +116,3 @@ class TestInstallEvent(DeployEventMixin, Event):
                                       'treeinfo', 'install_scripts',
                                       'post_install_scripts' ]
     DeployEventMixin.setup(self)
-
-  def run(self):
-    DeployEventMixin.run(self)
-

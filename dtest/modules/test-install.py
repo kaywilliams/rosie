@@ -171,7 +171,7 @@ class Test_ReinstallOnKickstartChange(ReinstallTestInstallEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.event.cvars['test-install-kstext'] = ''
+    self.event.cvars['test-install-ksfile'] = None
     self.failUnlessRaises(DeployError, self.event)
 
 

@@ -39,7 +39,10 @@ class DeployMixinTestCase:
     # get default deploy config
     deploy = rxml.config.parse(
       '%s/../../share/deploy/templates/virt-deploy.xml' %  
-      pps.path(__file__).dirname.abspath()).getroot()
+      pps.path(__file__).dirname.abspath(), 
+      macro_xpaths=['.'],
+      macro_map={'%{version}': self.version}
+      ).getroot()
 
     # update default virt-install image size
     install = deploy.getxpath("/*/script[@id='virt-install']")

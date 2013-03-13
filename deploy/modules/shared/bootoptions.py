@@ -19,7 +19,8 @@ from deploy.util import pps
 
 class BootOptionsMixin(object):
   def __init__(self, *args, **kwargs):
-    self.conditionally_requires.add('publish-setup-options')
+    self.conditionally_requires.update(['publish-setup-options', 
+                                        'publish-ksfile', 'ksname'])
     self.bootoptions = BootOptionsDummy(self)
     self.DATA['variables'].append('bootoptions.boot_args')
 
@@ -34,7 +35,7 @@ class BootOptionsDummy(object):
   def setup(self, defaults=None, include_method=False, include_ks=False):
     self.boot_args = \
       self.ptr.cvars['publish-setup-options']['boot-options'].split()
-    self.ptr.webpath = self.ptr.cvars['publish-setup-options']['webpath']
+    self.ptr.webpath = self.ptr.cvars['publish-setup-options']['build-url']
 
     args = defaults or []
 
@@ -74,12 +75,13 @@ class BootOptionsDummy(object):
                                 self.ptr.webpath))
 
   def _process_ks(self, include_ks, args):
-    self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
-    if self.ptr.cvars['ks-path'] is not None:
+    self.ptr.DATA['variables'].append('cvars[\'ksname\']')
+    ksname = self.ptr.cvars['ksname']
+    if self.ptr.cvars['publish-ksfile']:
       if include_ks == 'local':
-        args.append('%s=file:%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
-                                    self.ptr.cvars['ks-path']))
+        args.append('%s=file:/%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+                                     ksname))
       if include_ks == 'web':
         self.ptr.DATA['variables'].append('webpath')
-        args.append('%s=%s%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
-                                    self.ptr.webpath, self.ptr.cvars['ks-path']))
+        args.append('%s=%s/%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+                                  self.ptr.webpath, ksname))

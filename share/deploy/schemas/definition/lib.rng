@@ -222,6 +222,10 @@
 
     <interleave>
     <optional>
+      <element name="local-dir"><text/></element>
+    </optional>
+
+    <optional>
     <element name="remote-url">
       <optional>
         <attribute name="fqdn">
@@ -234,7 +238,7 @@
     </optional>
 
     <optional>
-      <element name="local-dir"><text/></element>
+      <element name="system-url"><text/></element>
     </optional>
 
     <optional>

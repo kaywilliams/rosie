@@ -35,6 +35,9 @@ from deploy.util       import shlib
 
 from deploy.util.rxml  import datfile
 
+DEFAULT_LOCALROOT = '/var/www/html/deploy'
+DEFAULT_WEBROOT = 'http://%{build-host}/deploy'
+
 # Include this mixin in any event that requires hostname and password 
 class PublishSetupEventMixin:
   publish_mixin_version = "1.01"
@@ -42,7 +45,9 @@ class PublishSetupEventMixin:
   def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
-      
+
+    if not hasattr(self, 'DATA'):
+      self.DATA = {}
     for key in ['input', 'config', 'variables', 'output']:
       self.DATA.setdefault(key, [])
     self.DATA['variables'].append('publish_mixin_version')
@@ -50,13 +55,14 @@ class PublishSetupEventMixin:
   def setup(self):
     self.datfile = self.parse_datfile()
 
-    # set build host 
+    # set build-host 
     self.build_host = self.get_build_host()
     self.config.resolve_macros('.', {'%{build-host}': self.build_host})
 
     # set additional attributes
     self.localpath = self.get_local()
-    self.webpath = self.get_webpath(self.build_host)
+    self.build_url = self.get_build_url(self.build_host)
+    self.system_url = self.get_system_url(self.build_url)
     self.domain = self.get_domain() # get_hostname() uses this for validation
     self.hostname = self.get_hostname()
     self.fqdn = self.hostname + self.domain 
@@ -65,31 +71,6 @@ class PublishSetupEventMixin:
     self.ssh = self.config.getbool('ssh/text()', True)
     self.ssh_passphrase = self.config.getxpath('ssh-passphrase/text()', '')
     self.boot_options = self.get_bootoptions()
-
-    # resolve module macros
-    map = {'%{url}':            {'conf':  'remote-url\' element',
-                                 'value':  str(self.webpath)},
-           '%{hostname}':       {'conf':  'hostname\' element',
-                                 'value':  self.hostname},
-           '%{domain}':         {'conf':  'domain\' element',
-                                 'value':  self.domain},
-           '%{fqdn}':           {'value':  self.fqdn},
-           '%{password}':       {'conf':  'password\' element',
-                                 'value':  self.password},
-           '%{crypt-password}': {'value':  self.crypt_password},
-           '%{boot-options}':   {'conf':  'boot-options\' element',
-                                 'value':  self.boot_options},
-           }
-    for key in ['%{url}', '%{hostname}', '%{domain}', '%{fqdn}', '%{password}',
-                '%{boot-options}']:
-      if key in map[key]['value']:
-        raise SimpleDeployEventError(
-          "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
-          (key, self.moduleid, map[key]['conf']))
-    self.macros = {} # making this an instance attr so dtest can access
-    for key in map:
-      self.macros[key] = map[key]['value']
-    self.config.resolve_macros('.', self.macros)
 
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')
@@ -105,12 +86,42 @@ class PublishSetupEventMixin:
                      "If the error persists, you can generate keys manually "
                      "using the command\n '%s'" % (e, cmd))
           raise SSHFailedError(message=message)
+      
+      self.config.resolve_macros('.', {'%{build-host-pubkey}': 
+                                       (keyfile + '.pub').read_text()})
+
+    # resolve module macros
+    map = {'%{system-url}':     {'conf':  'system-url\' element',
+                                 'value':  str(self.system_url)},
+           '%{build-url}':    {'conf':  'remote-url\' element',
+                                 'value':  str(self.build_url)},
+           '%{hostname}':       {'conf':  'hostname\' element',
+                                 'value':  self.hostname},
+           '%{domain}':         {'conf':  'domain\' element',
+                                 'value':  self.domain},
+           '%{fqdn}':           {'value':  self.fqdn},
+           '%{password}':       {'conf':  'password\' element',
+                                 'value':  self.password},
+           '%{crypt-password}': {'value':  self.crypt_password},
+           '%{boot-options}':   {'conf':  'boot-options\' element',
+                                 'value':  self.boot_options},
+           }
+    for key in ['%{build-url}', '%{system-url}', '%{hostname}', '%{domain}',
+                '%{fqdn}', '%{password}', '%{boot-options}']:
+      if key in map[key]['value']:
+        raise SimpleDeployEventError(
+          "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
+          (key, self.moduleid, map[key]['conf']))
+    self.macros = {} # making this an instance attr so dtest can access
+    for key in map:
+      self.macros[key] = map[key]['value']
+    self.config.resolve_macros('.', self.macros)
 
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'webpath', 'localpath', 
+                      'ssh_passphrase', 'localpath', 'build_url', 'system_url', 
                       'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -129,13 +140,13 @@ class PublishSetupEventMixin:
 
   #------ Helper Methods ------#
   def get_local(self):
-    if self.moduleid == 'publish':
-      default = '/var/www/html/repos/%s' % self.type
+    if self.moduleid in ['publish', 'build']:
+      default = '%s/%ss' % (DEFAULT_LOCALROOT, self.type)
     else:
-      default = '/var/www/html/repos/%s/%s' % (self.type, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.type, self.moduleid)
 
-    local = self.config.getpath('local-dir/text()', default)
-    return local / self.repoid
+    local = pps.path(self.config.getpath('local-dir/text()', default))
+    return local / self.build_id
   
   def get_build_host(self):
     ifname = self.config.getxpath('remote-url/@interface', None)
@@ -162,22 +173,34 @@ class PublishSetupEventMixin:
 
     return build_host
     
-  def get_webpath(self, build_host):
-    if self.moduleid == 'publish':
-      default = 'repos/%s' % self.type
+  def get_build_url(self, build_host): # build-url
+    if self.moduleid in ['publish', 'build']:
+      default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
     else:
-      default = 'repos/%s/%s' % (self.type, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.moduleid)
 
-    remote = pps.path(self.config.getxpath('remote-url/text()', 
-                      'http://'+build_host+'/'+default))
-                        
-    return remote / self.repoid
+    default = default.replace('%{build-host}', build_host)
+
+    remote = pps.path(self.config.getxpath('remote-url/text()', default)
+    )
+    return remote / self.build_id
+
+  def get_system_url(self, build_url):
+    system_url = pps.path(self.config.getxpath('system-url/text()', None))
+
+    if system_url:
+      self.io.validate_input_file(system_url)
+      return system_url
+    else:                     
+      return build_url
 
   def get_hostname(self):
-    if self.moduleid == 'publish':
-      default = self.repoid
-    else:
-      default = '%s-%s' % (self.repoid, self.moduleid)
+    # using last segment of build_url as default hostname
+    default = self.build_url.split('/')[-1]
+
+    # append moduleid to default hostname for test modules
+    if self.moduleid.startswith('test'):
+      default = '%s-%s' % (default, self.moduleid)
 
     hostname = self.config.getxpath('hostname/text()', default)
     hostname = hostname.replace('_', '-') # dns doesn't allow '_' in hostnames
@@ -215,10 +238,11 @@ class PublishSetupEventMixin:
     return domain
 
   def get_bootoptions(self):
-    if self.moduleid == 'publish':
-      default = 'lang=en_US keymap=us'
-    else:
+    if ('publish-setup-options' in self.cvars and
+        'boot-options' in self.cvars['publish-setup-options']):
       default = self.cvars['publish-setup-options']['boot-options']
+    else:
+      default = 'lang=en_US keymap=us'
 
     return self.config.getxpath('boot-options/text()', default)
 
@@ -257,7 +281,6 @@ class PublishSetupEventMixin:
     return crypt(password, salt)
 
   def write_datfile(self):
-  
     root = self.parse_datfile()
     uElement = datfile.uElement
 
