@@ -54,11 +54,11 @@ class Test_Kickstart(_InitrdImageEventTestCase):
     self.ksfile = self.event.config.getroot().file.abspath().dirname/'ks.cfg'
     self.ksfile.touch()
     self.event.cvars['publish-ksfile'] = self.ksfile
-    self.event.cvars['ksname'] = 'ks.cfg'
+    self.event.cvars['publish-ksname'] = 'ks.cfg'
 
   def runTest(self):
     self.tb.dispatch.execute(until='initrd-image')
-    self.check_file_in_image(self.event.cvars['ksname'])
+    self.check_file_in_image(self.event.cvars['publish-ksname'])
 
   def tearDown(self):
     _InitrdImageEventTestCase.tearDown(self)

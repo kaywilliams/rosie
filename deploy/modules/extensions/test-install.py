@@ -61,7 +61,6 @@ class TestInstallEvent(DeployEventMixin, Event):
       id = 'test-install',
       parentid = 'test-events',
       ptr = ptr,
-      conditionally_requires = [ 'rpmbuild-data'],
     )
 
     self.DATA =  {

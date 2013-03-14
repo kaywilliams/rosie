@@ -31,10 +31,12 @@ class KickstartEventMixin:
     self.DATA['variables'].append('kickstart_mixin_version')
 
     self.provides.update([ 
-      'ksname', 
-          # global default basename (i.e. ks.cfg). Used by modules that
-          # look for a kickstart # on a remote web server (e.g. deploy), or
-          # within an image (e.g. initrd-image), etc.
+      '%s-ksname' % self.moduleid, 
+          # default basename (i.e. ks.cfg). Used by modules that
+          # look for a kickstart on a remote web server (e.g. deploy), or
+          # within an image (e.g. initrd-image), etc. Moduleid prepended
+          # to assist with module dependency resolution (i.e. test-install 
+          # comes before test-update).
       '%s-ksfile' % self.moduleid, 
           # path to created file in event cache or None
       ])
@@ -92,9 +94,8 @@ class KickstartEventMixin:
     self.DATA['output'].append(self.ksfile)
 
   def apply(self):
-    self.cvars['ksname'] = self.ksname #default kickstart filename (ks.cfg) 
-    self.cvars['%s-ksfile' % self.moduleid ] = self.ksfile #path to file in 
-                                                           #event cache or None
+    self.cvars['%s-ksname' % self.moduleid] = self.ksname 
+    self.cvars['%s-ksfile' % self.moduleid] = self.ksfile
 
   def verify_kickstart_file(self):
     "kickstart file exists"

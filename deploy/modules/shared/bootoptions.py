@@ -20,7 +20,7 @@ from deploy.util import pps
 class BootOptionsMixin(object):
   def __init__(self, *args, **kwargs):
     self.conditionally_requires.update(['publish-setup-options', 
-                                        'publish-ksfile', 'ksname'])
+                                        'publish-ksfile', 'publish-ksname'])
     self.bootoptions = BootOptionsDummy(self)
     self.DATA['variables'].append('bootoptions.boot_args')
 
@@ -75,8 +75,8 @@ class BootOptionsDummy(object):
                                 self.ptr.webpath))
 
   def _process_ks(self, include_ks, args):
-    self.ptr.DATA['variables'].append('cvars[\'ksname\']')
-    ksname = self.ptr.cvars['ksname']
+    self.ptr.DATA['variables'].append('cvars[\'publish-ksname\']')
+    ksname = self.ptr.cvars['publish-ksname']
     if self.ptr.cvars['publish-ksfile']:
       if include_ks == 'local':
         args.append('%s=file:/%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],

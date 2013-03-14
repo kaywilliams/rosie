@@ -40,8 +40,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
+    self.requires.update(['%s-setup-options' % self.moduleid],)
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
-                                        'config-rpms', 'ksname'])
+                                        'config-rpms', 
+                                        '%s-ksname' % self.moduleid,
+                                        '%s-ksfile' % self.moduleid])
 
   def setup(self): 
     InputEventMixin.setup(self)
@@ -203,8 +206,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       return self._get_csum('')
 
   def _get_kickstart_csum(self):
-    if self.cvars['ksname'] and (self.build_url/self.cvars['ksname']).exists():
-      kstext = (self.build_url/self.cvars['ksname']).read_text()
+    ksname = self.cvars['%s-ksname' % self.moduleid]
+    if ksname and (self.build_url/ksname).exists():
+      kstext = (self.build_url/ksname).read_text()
     else:
       kstext = ''
     return self._get_csum(kstext)
