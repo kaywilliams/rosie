@@ -9,10 +9,10 @@ set -e
 
 # install machine
 /usr/sbin/virt-install \
-  --name %{fqdn} \
+  --name %{hostname} \
   --arch %{arch} \
   --ram 1000 \
-  --disk path=/var/lib/libvirt/images/%{fqdn}.img,size=%{file-size} \
+  --disk path=/var/lib/libvirt/images/%{hostname}.img,size=%{file-size} \
   --graphics vnc \
   --network network=deploy \
   --location %{system-url} \
@@ -20,7 +20,7 @@ set -e
   --noreboot
 
 # wait for install to complete and machine to shutdown
-while [[ `/usr/bin/virsh domstate %{fqdn}` = "running" ]]; do
+while [[ `/usr/bin/virsh domstate %{hostname}` = "running" ]]; do
   sleep 2 
 done
 </script>

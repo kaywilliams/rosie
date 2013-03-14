@@ -17,14 +17,7 @@
 <files destdir="/etc/NetworkManager/dispatcher.d" destname="99-deploy-virt-config" mode="755" content="text">
 #!/bin/bash
 #Create/update deploy virtual network
-
-# Assign domain name as a subdomain of host domain. This allows dns lookups
-# of host.subdomain.domain. It also allows the the host mailer to send admin
-# email from root@host.subdomain.domain, which is both an understandable 
-# address and a "valid" internet email address. The latter is important, 
-# else smart email hosts will reject email as being sent from an
-# invalid sender domain.
-domain=`hostname -d 2>/dev/null || echo ''`
+domain=deploy
 
 # Assign IP address for virtual network
 xml=`virsh net-dumpxml deploy 2>/dev/null`
@@ -81,19 +74,30 @@ if ! ([ -e $working/deploy.last ] &amp;&amp; \
 fi
 /bin/mv -f $working/deploy.xml $working/deploy.last
 
-# add dnsmasq as resolver for libvirt virtual network
-[[ `grep "$ipaddr" /etc/resolv.conf` ]] || sed -i "1,/^nameserver/ {/^nameserver/i\
+# make dnssmasq the first nameserver in resolv.conf
+[[ `grep "$ipaddr" /etc/resolv.conf` ]] || \
+sed -i "1,/^nameserver/ {/^nameserver/i\
 nameserver $ipaddr
 }" /etc/resolv.conf
 
+# add search statement to resolv.conf if it doesn't exist
+[[ `grep "^search" /etc/resolv.conf` ]] || \
+sed -i "1,/^nameserver $ipaddr/ {/^nameserver/i\
+search $domain
+}" /etc/resolv.conf
+
+# add virtual network to search statement if it doesn't exist
+[[ `grep -P "^search .* $domain( |$)" /etc/resolv.conf` ]] || \
+sed -i "/search /s/$/ $domain/" /etc/resolv.conf
+
 # save ipaddr for use during uninstall
-echo "$ipaddr" > %{installdir}/virt-ipaddr
+echo -e "ipaddr=$ipaddr\ndomain=$domain" > %{installdir}/uninstall.info
 </files>
 
 <files destdir="%{installdir}" destname="deploy.tmpl" content="text">
 &lt;network>
   &lt;name>deploy&lt;/name>
-  &lt;domain name="local.%domain"/>
+  &lt;domain name="%domain"/>
   &lt;bridge name="virbrdpl" />
   &lt;forward/>
   &lt;ip address="%ipaddr" netmask="255.255.255.0">
@@ -150,9 +154,10 @@ if [[ $1 = 0 ]]; then
     virsh net-undefine deploy >/dev/null
   fi
 
-  # remove ipaddr from resolv.conf
-  ipaddr=`cat %{installdir}/virt-ipaddr`
+  # resolv.conf cleanup
+  source %{installdir}/uninstall.info #provides $ipaddr and $domain
   sed -i "/nameserver $ipaddr/d" /etc/resolv.conf
+  sed -i "s/\(^search .*\) $domain/\1/g" /etc/resolv.conf
 fi
 </script>
 </config-rpm>
