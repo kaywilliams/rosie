@@ -142,8 +142,8 @@ class ReposEvent(RepoEventMixin, Event):
 #------ ERRORS ------#
 class InstallerRepoNotFoundError(DeployEventError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
-              "given repository. When building a system repository, at "
-              "least one operating system repository must be specified.")
+              "given repository. In system mode, at least one operating "
+              "system repository must be specified.")
 
 class TreeinfoNotFoundError(DeployEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
