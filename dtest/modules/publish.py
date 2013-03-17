@@ -48,22 +48,6 @@ class KickstartEventTestCase(EventTestCase):
   def tearDown(self):
     EventTestCase.tearDown(self)
 
-class Test_KickstartIncludesAdditions(KickstartEventTestCase):
-  "kickstart includes additional items"
-
-  def setUp(self):
-    EventTestCase.setUp(self)
-    self.clean_event_md()
-
-  def runTest(self):
-   self.tb.dispatch.execute(until=self.event)
-   for item in self.event.locals.L_KICKSTART_ADDS:
-     self.failUnless(self.event.locals.L_KICKSTART_ADDS[item]['text'] in 
-                     self.event.ksfile.read_text())
-
-  def tearDown(self):
-    EventTestCase.tearDown(self)
-
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
@@ -102,7 +86,6 @@ def make_suite(os, version, arch, *args, **kwargs):
 
   # kickstart
   suite.addTest(make_core_suite(KickstartEventTestCase, os, version, arch))
-  suite.addTest(Test_KickstartIncludesAdditions(os, version, arch))
   suite.addTest(Test_KickstartFailsOnInvalidInput(os, version, arch))
 
   # publish

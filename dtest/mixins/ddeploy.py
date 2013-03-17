@@ -101,7 +101,7 @@ def DeployMixinTest_Teardown(self):
 
     # shutdown vm
     conn = libvirt.open("qemu:///system")
-    vm = conn.lookupByName(self.hostname + self.domain)
+    vm = conn.lookupByName(self.hostname)
     vm.destroy()
 
   self.setUp = setUp

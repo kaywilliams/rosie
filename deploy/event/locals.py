@@ -55,12 +55,4 @@ class LocalsObject:
 
   # pykickstart version based
   pykickstart_ver = property(lambda self: 'pykickstart-%s' % self.ptr.cvars['pykickstart-version'])
-
-  def kickstart_get(self):
-    adds = L_KICKSTART_ADDS[self.anaconda_ver]
-    adds['version']['text'] = adds['version']['text'].replace('%s', 
-                                                              self.ptr.version)
-    return adds
-
-  L_KICKSTART_ADDS    = property(kickstart_get)
   L_PYKICKSTART       = property(lambda self: L_PYKICKSTART[self.pykickstart_ver])

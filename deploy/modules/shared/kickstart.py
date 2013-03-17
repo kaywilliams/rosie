@@ -71,21 +71,9 @@ class KickstartEventMixin:
 
     ksver = 'rhel%s' %  self.version
 
-    # test for missing ks parameters
-    adds = self.locals.L_KICKSTART_ADDS
-    for line in self.kstext.split('\n'):
-      for item in adds:
-        if adds[item]['test']: adds[item]['exists'] = True
-
-    # add missing parameters
-    kstext = self.kstext[:] # self.kstext used for diff test, leave it alone
-    for item in adds:
-      if not 'exists' in item: #add to end for correct line no's in validation
-        kstext = kstext + adds[item]['text']
-
     # write kickstart
     self.ksfile.dirname.mkdirs()
-    self.ksfile.write_text(kstext + '\n')
+    self.ksfile.write_text(self.kstext + '\n')
 
     #validate kickstart
     map = { 'ksver': ksver, 'ksfile': self.ksfile }

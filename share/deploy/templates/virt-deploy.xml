@@ -7,6 +7,7 @@
 <domain>deploy</domain>
 <kickstart>
 <xi:include href='deploy/ks.cfg' parse='text'/>
+<xi:include xpointer="xpointer(//xml[@id='scriptend-%{version}']/node())"/>
 <xi:include href='deploy/ks-ssh.cfg' parse='text'/>
 <xi:include xpointer="xpointer(//xml[@id='scriptend-%{version}']/node())"/>
 <xml id="scriptend-5"> </xml>
