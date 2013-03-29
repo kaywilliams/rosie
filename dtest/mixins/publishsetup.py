@@ -18,7 +18,7 @@
 import unittest
 
 from deploy.errors    import DeployError
-from deploy.util.rxml import config, datfile
+from deploy.util.rxml import config
 
 from dtest      import EventTestCase, decorate
 from dtest.core import CoreTestSuite

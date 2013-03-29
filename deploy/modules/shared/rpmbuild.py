@@ -31,7 +31,7 @@ from deploy.errors    import DeployEventError
 from deploy.event     import Event
 from deploy.dlogging import L1
 
-from deploy.util.rxml import datfile
+from deploy.util.rxml import config
 
 from deploy.modules.shared import ShelveMixin
 
@@ -266,7 +266,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def _save_release(self, release):
     root = self.parse_datfile()
-    uElement = datfile.uElement
+    uElement = config.uElement
     parent   = uElement(self.id, parent=root)
     child    = uElement('release', parent=parent, text=release)
     self.write_datfile(root)

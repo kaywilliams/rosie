@@ -23,7 +23,7 @@ from deploy.util import magic
 from deploy.util import pps 
 from deploy.util import shlib 
 
-from deploy.util.rxml import datfile 
+from deploy.util.rxml import config 
 from deploy.util.rxml.errors import XmlPathError
 
 from deploy.dlogging    import L1
@@ -165,7 +165,7 @@ EOF""" % (name, pubring, secring)
 
     # write to datfile
     root = self.parse_datfile()
-    uElement = datfile.uElement
+    uElement = config.uElement
 
     gpgsign  = uElement(self.id, parent=root)
     pubkey   = uElement('pubkey', parent=gpgsign, text=self.pubkey.read_text())

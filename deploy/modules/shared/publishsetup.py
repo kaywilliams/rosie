@@ -34,7 +34,7 @@ from deploy.dlogging  import L1
 from deploy.util       import pps
 from deploy.util       import shlib
 
-from deploy.util.rxml  import datfile
+from deploy.util.rxml  import config 
 
 DEFAULT_LOCALROOT = '/var/www/html/deploy'
 DEFAULT_WEBROOT = 'http://%{build-host}/deploy'
@@ -284,7 +284,7 @@ class PublishSetupEventMixin:
 
   def write_datfile(self):
     root = self.parse_datfile()
-    uElement = datfile.uElement
+    uElement = config.uElement
 
     parent   = uElement(self.moduleid, parent=root)
 

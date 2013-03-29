@@ -21,7 +21,7 @@ from deploy.errors import DeployError
 from deploy.util   import pps 
 from deploy.util   import rxml 
 
-from deploy.util.rxml import datfile
+from deploy.util.rxml import config 
 
 from dtest      import EventTestCase, ModuleTestSuite, TestBuild
 from dtest.core import make_extension_suite
@@ -58,8 +58,8 @@ class TestUpdateEventTestCase(PublishSetupEventTestCase):
     root = self.event.parse_datfile()
     mod = root.getxpath('%s' % self.moduleid, '')
     if len(mod) == 0:
-      mod = datfile.uElement('%s' % self.moduleid, parent=root)
-    datfile.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
+      mod = config.uElement('%s' % self.moduleid, parent=root)
+    config.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
     self.event.write_datfile(root)
 
   def tearDown(self):
