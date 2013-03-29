@@ -128,6 +128,23 @@ class PublishEvent(Event):
                           self.cvars['publish-setup-options']['localpath'],
                        callback=self.link_callback)
     self.io.chcon(self.cvars['publish-setup-options']['localpath'])
+ 
+  def clean_eventcache(self):
+    # custom clean_eventcache method to deal with files outside the metadata
+    # folder
+    self.io.clean_eventcache()
+    expected = set(self.diff.output.oldoutput.keys())
+    existing = set(self.cvars['publish-setup-options']['localpath'].findpaths(
+                 mindepth=1, type=TYPE_NOT_DIR))
+    # delete files in publish path no longer needed
+    for path in existing.difference(expected):
+      path.rm()
+    # delete empty directories in publish path
+    for dir in [ d for d in
+                 self.cvars['publish-setup-options']['localpath'].findpaths(
+                 mindepth=1, type=TYPE_DIR)
+                 if not d.listdir(all=True) ]:
+      dir.removedirs()
 
 
 class DeployEvent(DeployEventMixin, Event):
