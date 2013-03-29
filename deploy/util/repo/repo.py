@@ -127,7 +127,7 @@ class BaseRepo(dict):
     return pps.path(p).touri().replace('file://localhost/', 'file:///')
 
   def toxml(self, fn=rxml.tree.Element):
-    repo = fn('repo', attrs={'id': self.id})
+    repo = fn('repo', attrib={'id': self.id})
     for k,v in self.items():
       if k in self.keyfilter: continue
       # make sure we split up multiple items into individual elements
@@ -504,16 +504,16 @@ class PrimaryXmlContentHandler(ContentHandler):
     self._pkgdata = {}  # list of current package data
     self._inpkg = False # are we in a <package> element?
 
-  def startElement(self, name, attrs):
+  def startElement(self, name, attrib):
     if name == 'package':
       self._inpkg = True
     elif self._inpkg:
       if name == 'location':
-        self._pkgdata['file']  = pps.path(str(attrs.get('href')))
+        self._pkgdata['file']  = pps.path(str(attrib.get('href')))
       elif name == 'size':
-        self._pkgdata['size']  = int(attrs.get('package'))
+        self._pkgdata['size']  = int(attrib.get('package'))
       elif name == 'time':
-        self._pkgdata['mtime'] = int(attrs.get('file'))
+        self._pkgdata['mtime'] = int(attrib.get('file'))
 
   def endElement(self, name):
     if name == 'package':

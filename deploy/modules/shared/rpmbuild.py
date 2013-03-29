@@ -269,7 +269,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     uElement = datfile.uElement
     parent   = uElement(self.id, parent=root)
     child    = uElement('release', parent=parent, text=release)
-    root.write()
+    self.write_datfile(root)
 
   #----------- OPTIONAL METHODS --------#
   def generate(self):

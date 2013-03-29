@@ -21,20 +21,9 @@ import lxml
 from deploy.util import pps
 from deploy.util.rxml import config, tree
 
-class DatfileElement(config.ConfigElement):
-  "An element in a Datfile XML tree."
-
-  def write(self):
-    datfn = self.file
-
-    config.ConfigElement.write(self, datfn)
-
-    base = pps.path(self.base)
-    if base and base.exists():
-      # set the mode and ownership of .dat file to match basefile.
-      st = base.stat()
-      datfn.chown(st.st_uid, st.st_gid)
-      datfn.chmod(st.st_mode)
+# TODO - eliminate this module and move remaining custom logic into deploy
+# event/__init__ module.
+class DatfileElement(config.ConfigElement): pass
 
 class DatfileTreeSaxHandler(config.ConfigTreeSaxHandler):
   def __init__(self, makeelement=None):
@@ -46,35 +35,33 @@ PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(
                              element=DatfileElement, 
                              comment=tree.XmlTreeComment))
 
-def Element(name, parent=None, text=None, attrs=None, parser=PARSER, **kwargs):
-  t = tree.Element(name, parent=parent, text=text, attrs=attrs,
+def Element(name, parent=None, text=None, attrib=None, parser=PARSER, **kwargs):
+  t = config.Element(name, parent=parent, text=text, attrib=attrib,
                          parser=parser, **kwargs)
   if text is None: t.text = None
   return t
 
-def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
-  t = tree.uElement(name, parent=parent, text=text, attrs=attrs,
+def uElement(name, parent, text=None, attrib=None, parser=PARSER, **kwargs):
+  t = config.uElement(name, parent=parent, text=text, attrib=attrib,
                            parser=parser, **kwargs)
   if text is None: t.text = None
   return t
 
-def parse(datfn, basefn, handler=None, parser=PARSER):
-  """Accepts a base filename and parses a corresponding '.dat' file, creating
-the datfile if necessary"""
+def parse(file, handler=None, parser=PARSER):
+  """Accepts a filename and parses the file, creating it if necessary"""
 
-  datfn = pps.path(datfn)
-  datfn.dirname.mkdirs()
+  file = pps.path(file)
+  file.dirname.mkdirs()
 
-  if datfn.exists():
-    datfile = tree.parse(datfn,
-                       handler or DatfileTreeSaxHandler(parser.makeelement),
-                       parser=parser).getroot()
+  if file.exists():
+    datfile = config.parse(file, 
+                     handler or DatfileTreeSaxHandler(parser.makeelement),
+                     parser=parser).getroot()
 
   else:
     datfile = Element('data')
 
-  datfile.file = datfn
-  datfile.base = basefn
+  datfile.file = file
 
   return datfile
 

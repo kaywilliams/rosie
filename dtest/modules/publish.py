@@ -35,11 +35,8 @@ class KickstartEventTestCase(EventTestCase):
   """<packages><package>kernel</package></packages>""",
   """<base-info enabled='true'/>""",
   """<publish>
-  <kickstart>
   <include xmlns='http://www.w3.org/2001/XInclude'
-           href='%s/../../share/deploy/templates/deploy/ks.cfg'
-           parse='text'/>
-  </kickstart>
+           href='%s/../../share/deploy/templates/deploy/ks.xml'/>
   </publish>""" % pps.path(__file__).dirname.abspath()]
 
   def setUp(self):

@@ -19,6 +19,7 @@ import datetime
 import imp
 import lxml
 import os
+import re 
 import sys
 import time
 import unittest
@@ -46,13 +47,14 @@ class TestBuild(Build):
     if mcf.exists():
       self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.parse(StringIO('<deploy/>')).getroot()
+      self.mainconfig = config.parse(StringIO('<deploy/>').getroot())
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
   def _get_definition(self, options, arguments):
+    self.conf.resolve_macros(['/*', '/*/main'], self.initial_macros)
     self.definition = self.conf
     self.definitiontree = lxml.etree.ElementTree(self.conf)
 
@@ -84,7 +86,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('definition', attrs={'schema-version': '1.0'})
+    top = config.Element('definition', attrib={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)
@@ -93,6 +95,11 @@ class EventTestCase(unittest.TestCase):
     if repos is not None: top.append(repos)
 
     self.conf = top
+
+    if hasattr(self, '_global_macros'):
+      for macro in re.findall("<macro.*</macro>", self._global_macros):
+        self.conf.append(config.parse(StringIO(macro)).getroot())
+      
     if hasattr(self, '_conf'): # string or list of strings
       if isinstance(self._conf, basestring):
         self._conf = [self._conf]
@@ -106,12 +113,17 @@ class EventTestCase(unittest.TestCase):
 
   def _make_main_config(self):
     main = config.Element('main')
+    config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
+    config.Element('macro',     attrib={'id':'version'}, text=self.version,
+                                parent=main)
+    config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
+                                parent=main)
 
     config.Element('fullname', text='%s event test' % self.moduleid, parent=main)
     config.Element('name',     text='test-%s' % self.moduleid, parent=main)
-    config.Element('os',       text=self.os, parent=main)
-    config.Element('version',  text=self.version, parent=main)
-    config.Element('arch',     text=self.arch, parent=main)
+    config.Element('os',       text='%{os}', parent=main)
+    config.Element('version',  text='%{version}', parent=main)
+    config.Element('arch',     text='%{arch}', parent=main)
     config.Element('mode',     text=getattr(self, '_mode', 'system'), 
                                parent=main)
 
@@ -132,7 +144,7 @@ class EventTestCase(unittest.TestCase):
     return repos
 
   def _add_config(self, section):
-    sect = config.parse(StringIO(section)).getroot()
+    sect = config.parse(StringIO(section), resolve_macros=False).getroot()
     for old in self.conf.xpath(sect.tag, []):
       self.conf.remove(old)
     self.conf.append(sect)

@@ -49,7 +49,6 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
     <script id='test' type='post'>
     <!--comment-->
     echo "test to ensure comments work inside script elements"
-    echo "ps. this is dumb, we should really fix comments during parsing"
     </script>
   </test-install>
   """]
@@ -69,7 +68,7 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
     if len(mod) == 0:
       mod = datfile.uElement('%s' % self.moduleid, parent=root)
     datfile.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
-    root.write()
+    self.event.write_datfile(root)
 
   def tearDown(self):
     EventTestCase.tearDown(self) 
@@ -80,10 +79,10 @@ class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
   def runTest(self):
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, text='echo test', 
-                                 attrs={'id':   'test',
+                                 attrib={'id':   'test',
                                         'type': 'post'})
     script = rxml.config.Element('script', parent=parent, text='echo test',
-                                 attrs={'id':   'test',
+                                 attrib={'id':   'test',
                                         'type': 'post'})
     self.execute_predecessors(self.event)
     self.failUnlessRaises(DeployError, self.event)
@@ -107,13 +106,13 @@ class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
   def runTest(self):
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, text='echo test', 
-                                 attrs={'id':   'id3',
+                                 attrib={'id':   'id3',
                                         'type': 'post',})
     script = rxml.config.Element('script', parent=parent, text='echo test',
-                                 attrs={'id':   'id4',
+                                 attrib={'id':   'id4',
                                         'type': 'post',})
     script = rxml.config.Element('script', parent=parent, text='echo test',
-                                 attrs={'id':   'test-comes',
+                                 attrib={'id':   'test-comes',
                                         'type': 'post',
                                         'comes-after': 'id1, id2 id3',
                                         'comes-before': 'id4 id5',
@@ -191,7 +190,7 @@ class Test_ReinstallOnInstallScriptChange(ReinstallTestInstallEventTestCase):
     self.execute_predecessors(self.event)
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, 
-                                 attrs={'id':   'install-test',
+                                 attrib={'id':   'install-test',
                                         'type': 'install'})
     script.text = 'echo "Hello"'
     self.failUnlessRaises(DeployError, self.event)
@@ -204,7 +203,7 @@ class Test_ReinstallOnPostInstallScriptChange(ReinstallTestInstallEventTestCase)
     self.execute_predecessors(self.event)
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, 
-                                 attrs={'id':   'post-install-test',
+                                 attrib={'id':   'post-install-test',
                                         'type': 'post-install'})
     script.text = 'echo "hello"'
     self.failUnlessRaises(DeployError, self.event)
@@ -216,7 +215,7 @@ class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase
     self.execute_predecessors(self.event)
     parent = self.event.config.getxpath('.')
     script = rxml.config.Element('script', parent=parent, 
-                                 attrs={'id':   'save-triggers-test',
+                                 attrib={'id':   'save-triggers-test',
                                         'type': 'save-triggers'})
     script.text = 'echo "hello"'
     self.failUnlessRaises(DeployError, self.event)

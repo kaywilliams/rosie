@@ -432,7 +432,7 @@ class RepoEventMixin(Event):
                                           expected=datafile.checksum)
 
 class ReposDiffTuple(DiffTuple):
-  attrs = DiffTuple.attrs + [('csum', str)]
+  attrib = DiffTuple.attrib + [('csum', str)]
 
   def __init__(self, path=None):
     DiffTuple.__init__(self, path)

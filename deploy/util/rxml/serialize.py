@@ -54,7 +54,7 @@ class XmlSerializer:
   # if the disctinction is important (as is the case with bool and int)
   SUPPORTED_TYPES = []
 
-  def serialize(self, obj, parent=None, attrs=None):
+  def serialize(self, obj, parent=None, attrib=None):
     """
     serialized_obj = XmlSerializer.serialize(obj)
 
@@ -65,7 +65,7 @@ class XmlSerializer:
     """
     for (t, id) in self.SUPPORTED_TYPES:
       if isinstance(obj, t):
-        return eval('self._serialize_%s(obj, parent, attrs=attrs)' % id)
+        return eval('self._serialize_%s(obj, parent, attrib=attrib)' % id)
     raise TypeError("Unsupported serialization type %s" % type(obj))
 
   def unserialize(self, tree):
@@ -89,11 +89,11 @@ class IntegerXmlSerializer(XmlSerializer):
     (types.IntType,     'int'),
   ]
 
-  def _serialize_bool(self, bool, parent=None, attrs=None):
-    return tree.Element('bool', text=str(bool), parent=parent, attrs=attrs or {})
+  def _serialize_bool(self, bool, parent=None, attrib=None):
+    return tree.Element('bool', text=str(bool), parent=parent, attrib=attrib or {})
 
-  def _serialize_int(self, int, parent=None, attrs=None):
-    return tree.Element('int', text=str(int), parent=parent, attrs=attrs or {})
+  def _serialize_int(self, int, parent=None, attrib=None):
+    return tree.Element('int', text=str(int), parent=parent, attrib=attrib or {})
 
   def _unserialize_bool(self, elem):
     return elem.text == 'True'
@@ -107,11 +107,11 @@ class StringXmlSerializer(XmlSerializer):
     (types.UnicodeType, 'unicode'),
   ]
 
-  def _serialize_string(self, string, parent=None, attrs=None):
-    return tree.Element('string', text=string, parent=parent, attrs=attrs or {})
+  def _serialize_string(self, string, parent=None, attrib=None):
+    return tree.Element('string', text=string, parent=parent, attrib=attrib or {})
 
-  def _serialize_unicode(self, uni, parent=None, attrs=None):
-    return tree.Element('unicode', text=unicode(uni), parent=parent, attrs=attrs or {})
+  def _serialize_unicode(self, uni, parent=None, attrib=None):
+    return tree.Element('unicode', text=unicode(uni), parent=parent, attrib=attrib or {})
 
   def _unserialize_string(self, elem):
     return elem.text or '' # in case '' => None in the Element class
@@ -126,20 +126,20 @@ class CollectionXmlSerializer(XmlSerializer):
     (set,             'set'), # no SetType in types
   ]
 
-  def _serialize_tuple(self, t, parent=None, attrs=None):
-    top = tree.Element('tuple', parent=parent, attrs=attrs or {})
+  def _serialize_tuple(self, t, parent=None, attrib=None):
+    top = tree.Element('tuple', parent=parent, attrib=attrib or {})
     for obj in t:
       serialize(obj, parent=top)
     return top
 
-  def _serialize_list(self, l, parent=None, attrs=None):
-    top = tree.Element('list', parent=parent, attrs=attrs or {})
+  def _serialize_list(self, l, parent=None, attrib=None):
+    top = tree.Element('list', parent=parent, attrib=attrib or {})
     for obj in l:
       serialize(obj, parent=top)
     return top
 
-  def _serialize_set(self, s, parent=None, attrs=None):
-    top = tree.Element('set', parent=parent, attrs=attrs or {})
+  def _serialize_set(self, s, parent=None, attrib=None):
+    top = tree.Element('set', parent=parent, attrib=attrib or {})
     for obj in s:
       serialize(obj, parent=top)
     return top
@@ -158,8 +158,8 @@ class MapXmlSerializer(XmlSerializer):
     (types.DictType, 'dict'),
   ]
 
-  def _serialize_dict(self, d, parent=None, attrs=None):
-    top = tree.Element('dict', parent=parent, attrs=attrs or {})
+  def _serialize_dict(self, d, parent=None, attrib=None):
+    top = tree.Element('dict', parent=parent, attrib=attrib or {})
     for key, obj in d.items():
       entry   = tree.Element('entry', parent=top)
       serialize(key, parent=tree.Element('key',   parent=entry))
@@ -178,8 +178,8 @@ class NoneXmlSerializer(XmlSerializer):
     (types.NoneType, 'none')
   ]
 
-  def _serialize_none(self, none, parent=None, attrs=None):
-    return tree.Element('none', parent=parent, attrs=attrs or {})
+  def _serialize_none(self, none, parent=None, attrib=None):
+    return tree.Element('none', parent=parent, attrib=attrib or {})
 
   def _unserialize_none(self, elem):
     return None
@@ -195,11 +195,11 @@ SERIALIZERS = [
   XmlSerializer(),
 ] # add additional serializers here
 
-def serialize(obj, parent=None, attrs=None):
+def serialize(obj, parent=None, attrib=None):
   for serializer in SERIALIZERS:
     for (T,_) in serializer.SUPPORTED_TYPES:
       if isinstance(obj, T):
-        return serializer.serialize(obj, parent=parent, attrs=attrs)
+        return serializer.serialize(obj, parent=parent, attrib=attrib)
   raise TypeError("Unsupported serialization type %s" % type(obj))
 
 def unserialize(tree):

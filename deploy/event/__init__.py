@@ -170,7 +170,16 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
 
   def parse_datfile(self):
-    return rxml.datfile.parse(self.datfn, self._config.file)
+    return rxml.datfile.parse(self.datfn)
+
+  def write_datfile(self, root=None):
+    rxml.datfile.DatfileElement.write(root, self.datfn)
+    definition = pps.path(self._config.file)
+    if definition and definition.exists():
+      # set the mode and ownership of .dat file to match basefile.
+      st = definition.stat()
+      self.datfn.chown(st.st_uid, st.st_gid)
+      self.datfn.chmod(st.st_mode)
 
   @property
   def mddir(self):

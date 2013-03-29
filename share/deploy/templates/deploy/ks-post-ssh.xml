@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi='http://www.w3.org/2001/XInclude'>
 %post
-# allow build machine to access client via ssh
 
+# allow build machine to access client via ssh
 # set some convenience variables
 sshdir=/root/.ssh
 authkeys=$sshdir/authorized_keys
@@ -18,4 +20,9 @@ pubkey="%{build-host-pubkey}"
 # set permissions
 chmod 700 $sshdir
 chmod 600 $authkeys
-[[ -f /sbin/restorecon ]] && /sbin/restorecon -r $sshdir
+[[ -f /sbin/restorecon ]] &amp;&amp; /sbin/restorecon -r $sshdir
+%{end-%{version}}
+<macro id='end-5'></macro>
+<macro id='end-6'>%end</macro>
+</xml>
+

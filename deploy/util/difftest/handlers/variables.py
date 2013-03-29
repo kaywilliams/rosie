@@ -55,7 +55,7 @@ class VariablesHandler(DiffHandler):
   def mdwrite(self, root, *args, **kwargs):
     vars = rxml.config.Element('variables', parent=root)
     for var in self.vdata:
-      parent = rxml.config.Element('value', parent=vars, attrs={'variable': var})
+      parent = rxml.config.Element('value', parent=vars, attrib={'variable': var})
       val = eval('self.obj.%s' % var)
       parent.append(rxml.serialize.serialize(val))
 

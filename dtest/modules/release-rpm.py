@@ -148,7 +148,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # doesn't blast the rpm qf string (%{version})
     publish = self.event._config.getxpath('/*/publish')
     post = publish.getxpath('post', rxml.config.Element('post', parent=publish))
-    post_script = rxml.config.Element('script', attrs={'id':'release-rpm'})
+    post_script = rxml.config.Element('script', attrib={'id':'release-rpm'})
     post_script.text = """ 
       #!/bin/bash
       set -e

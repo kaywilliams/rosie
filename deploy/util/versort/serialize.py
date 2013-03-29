@@ -9,9 +9,9 @@ class VersionXmlSerializer(serialize.XmlSerializer):
     (Token,      'Version'),
   ]
 
-  def _serialize_Version(self, version, parent=None, attrs=None):
+  def _serialize_Version(self, version, parent=None, attrib=None):
     return tree.Element('Version', text=str(version),
-                        parent=parent, attrs=attrs)
+                        parent=parent, attrib=attrib)
 
   def _unserialize_Version(self, elem):
     return _deformat(elem.text, delims=['-','.'])

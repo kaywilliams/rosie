@@ -70,7 +70,7 @@ class DeployValidationHandler:
     unresolved = [event for event in self.dispatch]
     while unresolved:
       event = unresolved.pop()
-      self.definition.resolve_macros(xpaths=[event.config_base],
+      self.definition.resolve_macros(xpaths=[event.config_base + '/'] ,
                                      map=getattr(event, 'macros', {}))
 
     # validate all top-level sections

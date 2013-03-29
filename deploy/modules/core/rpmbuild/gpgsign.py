@@ -109,14 +109,14 @@ class GpgSignSetupEvent(Event):
       if elem is not None:
         elem.getparent().remove(elem)
 
-    df.write()
+    self.write_datfile(df)
 
   def get_keys_from_datfile(self):
     df = self.parse_datfile()
-    try:
-      pubtext = df.getxpath('/*/%s/pubkey/text()' % self.id,)
-      sectext = df.getxpath('/*/%s/seckey/text()' % self.id,)
-    except XmlPathError:
+    pubtext = df.getxpath('/*/%s/pubkey/text()' % self.id, '')
+    sectext = df.getxpath('/*/%s/seckey/text()' % self.id, '')
+
+    if not (pubtext and sectext):
       return False # no keys in datfile
    
     self.write_keys(pubtext, sectext)
@@ -171,7 +171,7 @@ EOF""" % (name, pubring, secring)
     pubkey   = uElement('pubkey', parent=gpgsign, text=self.pubkey.read_text())
     seckey   = uElement('seckey', parent=gpgsign, text=self.seckey.read_text())
 
-    root.write()
+    self.write_datfile(root)
 
   def write_keys(self, pubtext, sectext):
     if not self.pubkey.exists() or not pubtext == self.pubkey.read_text():

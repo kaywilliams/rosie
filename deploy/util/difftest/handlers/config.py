@@ -51,7 +51,7 @@ class ConfigHandler(DiffHandler):
   def mdwrite(self, root, *args, **kwargs):
     config = rxml.config.Element('config', parent=root)
     for path in self.cdata:
-      value = rxml.config.Element('value', parent=config, attrs={'path': path})
+      value = rxml.config.Element('value', parent=config, attrib={'path': path})
       for val in self.config.xpath(path, []):
         if isinstance(val, str): # a string
           rxml.config.Element('text', parent=value, text=val)

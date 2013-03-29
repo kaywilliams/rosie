@@ -85,7 +85,7 @@ class ConfigElement(tree.XmlTreeElement):
     return self._tostring(0, nodes, highlight)
 
   def _tostring(self, level=0, nodes=None, highlight=None):
-    tag = ''; text = ''; data = ''; attr = ''
+    tag = ''; text = ''; tail = ''; data = ''; attr = ''
 
     enable_hl = self in (nodes or [])
     do_node_hl = enable_hl and highlight & HIGHLIGHT_NODES
@@ -105,16 +105,19 @@ class ConfigElement(tree.XmlTreeElement):
     tag = self._ns_clean(self.tag)
 
     # text
-    # using getxpath('text()') below rather than self.text, as the latter returns
-    # both text and tail. This matters, for example if the text contains 
-    # a free floating element, e.g. a <!--comment-->.
-    if self.getxpath('text()', None) is not None: text = escape(self.getxpath('text()'))
+    if self.text is not None:
+      text = escape(self.text.strip())
     if do_text_hl: text = ANSI_HIGHLIGHT % text
+
+    # tail
+    if self.tail is not None:
+      tail = escape(self.tail.strip())
+    if do_text_hl: text = ANSI_HIGHLIGHT % tail
 
     # attributes
     for k,v in self.attrib.items():
       attrtxt = ' %s="%s"' % (self._ns_clean(k), escape(v))
-      ##if do_attr_hl and k in highlight_xpath_attrs or []:
+      ##if do_attr_hl and k in highlight_xpath_attrib or []:
       if do_attr_hl: #!
         attr += ANSI_HIGHLIGHT % attrtxt
       else:
@@ -125,11 +128,11 @@ class ConfigElement(tree.XmlTreeElement):
       data += i._tostring(level+1, nodes, highlight)
 
     if len(data) > 0:
-      return unicode('%s<%s%s>%s\n%s%s</%s>%s' % \
-                     (sep, tag, attr, text, data, sep, tag, nl))
-    elif len(text) > 0:
-      return unicode('%s<%s%s>%s</%s>%s' % \
-                     (sep, tag, attr, text, tag, nl))
+      return unicode('%s<%s%s>%s\n%s%s</%s>%s%s' % \
+                     (sep, tag, attr, text, data, sep, tag, tail, nl))
+    elif len(text) > 0 or len(tail) > 0:
+      return unicode('%s<%s%s>%s</%s>%s%s' % \
+                     (sep, tag, attr, text, tag, tail, nl))
     else:
       return unicode('%s<%s%s/>%s' % (sep, tag, attr, nl))
 
@@ -173,7 +176,7 @@ class ConfigElement(tree.XmlTreeElement):
       else:
         raise
 
-  def xpath(self, paths, fallback=tree.NoneObject()):
+  def xpath(self, paths, fallback=tree.NoneObject(), namespaces=None):
     """
     Gets multiple values out of the configuration element
 
@@ -190,7 +193,7 @@ class ConfigElement(tree.XmlTreeElement):
       # returning
       if '/text()' in p:
         base = p.replace('/text()', '')
-        elems = tree.XmlTreeElement.xpath(self, base)
+        elems = tree.XmlTreeElement.xpath(self, base, [], namespaces)
         if elems: 
           for elem in elems:
             subresult = elem.xpath('text()')
@@ -198,12 +201,12 @@ class ConfigElement(tree.XmlTreeElement):
               result.append(' '.join(subresult))
           if result: break
       elif 'text()' in p:
-        result = tree.XmlTreeElement.xpath(self, p)
+        result = tree.XmlTreeElement.xpath(self, p, [], namespaces)
         if len(result) > 0:
           result = [ ' '.join(result) ]
         if result: break
       else:
-        result = tree.XmlTreeElement.xpath(self, p)
+        result = tree.XmlTreeElement.xpath(self, p, [], namespaces)
         if result: break
 
     if len(result) == 0:
@@ -249,22 +252,25 @@ class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
       raise lxml.sax.SaxError("Unexpected element closed: {%s}%s" % ns_name)
 
     # convert whitespace into None
-    if element.getxpath('text()', None) is not None:
-      element.text = element.getxpath('text()').strip() or None
+    if element.text is not None:
+      element.text = element.text.strip() or None
+
+    if element.tail is not None:
+      element.tail = element.tail.strip() or None
 
 #--------FACTORY FUNCTIONS--------#
-PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=True)
+PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=False)
 PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(element=ConfigElement,
                                                                   comment=tree.XmlTreeComment))
 
-def Element(name, parent=None, text=None, attrs=None, parser=PARSER, **kwargs):
-  t = tree.Element(name, parent=parent, text=text, attrs=attrs,
+def Element(name, parent=None, text=None, attrib=None, parser=PARSER, **kwargs):
+  t = tree.Element(name, parent=parent, text=text, attrib=attrib,
                          parser=parser, **kwargs)
   if text is None: t.text = None
   return t
 
-def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
-  t =  tree.uElement(name, parent=parent, text=text, attrs=attrs,
+def uElement(name, parent, text=None, attrib=None, parser=PARSER, **kwargs):
+  t =  tree.uElement(name, parent=parent, text=text, attrib=attrib,
                            parser=parser, **kwargs)
   if text is None: t.text = None
   return t
@@ -274,6 +280,11 @@ def parse(file, handler=None, parser=PARSER, **kwargs):
                      handler or ConfigTreeSaxHandler(parser.makeelement),
                      parser=parser,
                      **kwargs)
+
+  # remove comments, preserving tail text
+  for comment in config.xpath('//comment()'):
+    comment.getparent().remove(comment)
+
   return config
 
 def fromstring(string, handler=None, parser=PARSER, **kwargs):

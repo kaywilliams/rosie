@@ -64,9 +64,9 @@ class ImageModifyMixinTestCase:
     a = {'destdir': '/infiles'}
     Element('files', text='/tmp/outfile', parent=self.event.config)
     Element('files', text='%s/infile' % self.buildroot,  
-                     parent=self.event.config, attrs=a)
+                     parent=self.event.config, attrib=a)
     Element('files', text='%s/infile2' % self.buildroot,
-                     parent=self.event.config, attrs=a)
+                     parent=self.event.config, attrib=a)
 
   def tearDown(self):
     remove_input_files(self.buildroot)

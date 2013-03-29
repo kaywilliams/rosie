@@ -94,7 +94,7 @@ class EventHandler(DiffHandler):
     parent = rxml.tree.uElement('events', parent=root)
 
     for k,v in self.data.items():
-      e = rxml.tree.Element('event', parent=parent, attrs={'id': k})
+      e = rxml.tree.Element('event', parent=parent, attrib={'id': k})
       rxml.tree.Element('version', parent=e, text=str(v))
 
   def diff(self):

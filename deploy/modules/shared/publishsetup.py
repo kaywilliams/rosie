@@ -27,6 +27,7 @@ from crypt import crypt
 from random import choice
 
 from deploy.callback   import LinkCallback
+from deploy.event      import Event
 from deploy.errors     import DeployEventError
 from deploy.errors     import SimpleDeployEventError
 from deploy.dlogging  import L1
@@ -135,7 +136,8 @@ class PublishSetupEventMixin:
     self.DATA['variables'].append('fqdn')
     self.DATA['config'].append('boot-options')
 
-    self.write_datfile()
+    # call the method directly to avoid module resolution order issues
+    PublishSetupEventMixin.write_datfile(self)
 
 
   #------ Helper Methods ------#
@@ -304,7 +306,7 @@ class PublishSetupEventMixin:
     for elem in [ userpw, genpw, cryppw ]:
       if elem.text == None: elem.getparent().remove(elem)
     if len(parent) == 0: parent.getparent().remove(parent)
-    root.write()
+    Event.write_datfile(self, root=root)
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like

@@ -60,7 +60,7 @@ class TestUpdateEventTestCase(PublishSetupEventTestCase):
     if len(mod) == 0:
       mod = datfile.uElement('%s' % self.moduleid, parent=root)
     datfile.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
-    root.write()
+    self.event.write_datfile(root)
 
   def tearDown(self):
     EventTestCase.tearDown(self) 

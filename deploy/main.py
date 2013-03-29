@@ -213,7 +213,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
              '%{definition-dir}': self.definition.file.dirname,
              }
 
-    self.definition.resolve_macros(xpaths=['.'], map=macros)
+    self.definition.resolve_macros(map=macros)
 
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
@@ -493,7 +493,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     # setup datfile name
-    self.datfn = '%s.dat' % self.build_id
+    self.datfn =  self.definition.file.dirname / '%s.dat' % self.build_id
 
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
@@ -546,7 +546,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
   
     # set up base variables
     di = ptr.cvars['distribution-info'] = {}
-    qstr = '/*/main/%s/text()'
   
     di['name']              = self.name 
     di['os']                = self.os

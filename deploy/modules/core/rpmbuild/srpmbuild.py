@@ -25,7 +25,7 @@ import yum
 
 from deploy.dlogging     import MSG_MAXWIDTH, L0, L1, L2
 from deploy.errors       import (DeployError, DeployEventError, 
-                                 DuplicateIdsError)
+                                 DuplicateIdsError, MissingIdError)
 from deploy.event        import Event, CLASS_META
 from deploy.main         import Build
 from deploy.util         import magic 
@@ -321,15 +321,17 @@ class SrpmBuild(Build):
     root = rxml.config.parse(self.ptr.template, 
                              macro_xpaths=['/*', '/*/main'],
                              macro_map=self.initial_macros).getroot()
- 
+
     # provide meaningful filename since it is used for the .dat file
+    # in the future, it would be cleaner to provide a command line option 
+    # for datfile dir and pass this to the Build object at instantiation.
     root.file = self.ptr.datdir / self.ptr.template.basename
 
     # add config-rpm for srpm requires
     config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
     rpm = rxml.config.Element('config-rpm', parent=config, 
-                              attrs={'id': '%s-%s-config' % (self.ptr.moduleid, 
-                                                             self.ptr.srpmid)})
+                              attrib={'id': '%s-%s-config' %
+                              (self.ptr.moduleid, self.ptr.srpmid)})
     child = rxml.config.Element('files', parent=rpm)
     child.set('destdir', self.ptr.originals_dir)
     child.text = self.ptr.srpmfile
@@ -406,7 +408,7 @@ def get_module_info(ptr, *args, **kwargs):
     # convert user provided id to a valid class name
     id = config.getxpath('@id', None)
     if id == None:
-      raise MissingIdError(element='srpmbuild')
+      raise MissingIdError(element='srpm')
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 

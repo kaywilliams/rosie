@@ -66,7 +66,7 @@ def diff(oldstats, newstats):
 
 class DiffTuple:
 
-  attrs = [('size', int), ('mtime', int), ('mode', int)]
+  attrib = [('size', int), ('mtime', int), ('mode', int)]
 
   def __init__(self, path=None, abspath=None):
     self.path = pps.path(path)
@@ -109,10 +109,10 @@ class DiffTuple:
     return [ v for k,v in self.items() ]
 
   def items(self):
-    return [ (k[0], getattr(self, k[0], None)) for k in self.attrs ]
+    return [ (k[0], getattr(self, k[0], None)) for k in self.attrib ]
 
   def toxml(self):
-    e = rxml.config.Element('file', attrs={'path': self.path})
+    e = rxml.config.Element('file', attrib={'path': self.path})
     for k,v in self.items():
       if v is not None: rxml.config.Element(k, parent=e, text=str(v))
       else: rxml.config.Element(k, parent=e)
@@ -120,7 +120,7 @@ class DiffTuple:
 
   def fromxml(self, xml, path=None):
     self.path = path or xml.getxpath('@path')
-    for key,fn in self.attrs:
+    for key,fn in self.attrib:
       if xml.pathexists('%s/text()' % key):
         setattr(self, key, fn(xml.getxpath('%s/text()' % key)))
       else:
