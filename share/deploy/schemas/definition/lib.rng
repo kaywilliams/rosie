@@ -80,7 +80,7 @@
   <!-- a repo element -->
   <define name="element-repo">
     <element name="repo">
-      <ref name="attribute-id"/>
+      <attribute name="id"/>
 
       <interleave>
       <element name="baseurl"><text/></element>

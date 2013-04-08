@@ -132,7 +132,7 @@ class MissingIdError(DeployEventError):
 
 class DuplicateIdsError(DeployEventError):
   message = ("Validation Error: Duplicate ids found while validating "
-             "'%(element)s' elements. The duplicate id is '%(id)s'")
+             "'%(element)s' elements. The duplicate id is '%(id)s'.")
 
 class DeployEventErrorHandler:
   def _handle_Exception(self, e, event=''):

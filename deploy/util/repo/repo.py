@@ -5,7 +5,8 @@ import re
 from deploy.util import pps
 from deploy.util import rxml
 
-__all__ = ['BaseRepo', 'IORepo', 'YumRepo', 'RepoContainer', 'RPM_PNVRA_REGEX']
+__all__ = ['BaseRepo', 'IORepo', 'YumRepo', 'RepoContainer', 'RPM_PNVRA_REGEX',
+           'RepoDuplicateIdsError']
 
 RPM_PNVRA_REGEX = re.compile('(?P<path>.*/)?'  # all chars up to the last '/'
                              '(?P<name>.+)'    # rpm name
@@ -335,7 +336,7 @@ class RepoContainer(dict):
     if not self.has_key(repo.id):
       self[repo.id] = repo
     else:
-      self[repo.id].update(**repo)
+      raise RepoDuplicateIdsError(id=repo.id)
     self[repo.id].update(**kwargs)
 
   def add_repos(self, repocontainer, **kwargs):
@@ -531,3 +532,12 @@ def pkgtup(pkgpath):
     return (None, None, None, None, None)
 
 class InvalidFileError(RuntimeError): pass
+
+class RepoDuplicateIdsError(StandardError):
+  def __init__(self, id):
+    self.id = id
+    self.message = "Duplicate ids found: '%s'" % self.id
+
+  def __str__(self):
+    return self.message
+  

@@ -18,10 +18,13 @@
 import re
 import ConfigParser
 
-from deploy.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
+from deploy.util.repo    import (ReposFromXml, ReposFromFile, RepoContainer,
+                                RepoFileParseError, RepoDuplicateIdsError)
+
 from deploy.util.versort import Version
 
-from deploy.errors   import assert_file_has_content, assert_file_readable, DeployEventError
+from deploy.errors   import (assert_file_has_content, assert_file_readable,
+                             DeployEventError, DuplicateIdsError)
 from deploy.event    import Event
 from deploy.dlogging  import L1, L2
 from deploy.validate import InvalidConfigError
@@ -64,7 +67,11 @@ class ReposEvent(RepoEventMixin, Event):
 
     updates  = self.cvars.get('repos', RepoContainer())
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.getxpath('.'), cls=DeployRepoGroup))
+      try:
+        updates.add_repos(ReposFromXml(self.config.getxpath('.'), cls=DeployRepoGroup))
+      except RepoDuplicateIdsError, e:
+        raise DuplicateIdsError(element='repo', id=e.id)
+
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
@@ -72,6 +79,8 @@ class ReposEvent(RepoEventMixin, Event):
         updates.add_repos(ReposFromFile(fn, cls=DeployRepoGroup))
       except RepoFileParseError, e:
         raise DeployRepoFileParseError(e.args[0])
+      except RepoDuplicateIdsError, e:
+        raise DuplicateIdsError(element='repo', id=e.id)
 
     self.setup_repos(updates)
     self.read_repodata()
