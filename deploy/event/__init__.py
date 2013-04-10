@@ -178,13 +178,13 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
 
     else:
       datfile = rxml.config.Element('data')
-      datfile.file = file
+      datfile.base = file
 
     return datfile
 
   def write_datfile(self, root=None):
     rxml.config.ConfigElement.write(root, self.datfn)
-    definition = pps.path(self._config.file)
+    definition = pps.path(self._config.base)
     if definition and definition.exists():
       # set the mode and ownership of .dat file to match basefile.
       st = definition.stat()
