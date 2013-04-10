@@ -86,6 +86,10 @@ class BuildCli:
       default=False,
       action='store_true',
       help="validate config/definition files and exit")
+    config_group.add_option('--dat-path', metavar='PATH',
+      dest='datpath',
+      default=None,
+      help="specify directory to write definition data file")
     parser.add_option_group(config_group)
 
     log_group = OptionGroup(parser, "logging options")

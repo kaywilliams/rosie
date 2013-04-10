@@ -48,6 +48,9 @@
 <option>--log-file <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
+<option>--dat-path <replaceable class='parameter'>PATH</replaceable></option>
+</arg>
+<arg choice="opt">
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
@@ -91,6 +94,17 @@ definition file, see the Deploy Definition File Reference at
     <filename> deploy.conf(5)</filename> man page for Deploy
     configuration options.</para>
 
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--dat-path <replaceable class="parameter">PATH</replaceable></option></term>
+  <listitem>
+    <para>
+    Specifies the directory <replaceable class="parameter">PATH</replaceable>
+    where Deploy should write the definition data file. The default path is the
+    definition directory.
+    </para>
   </listitem>
 </varlistentry>
 
