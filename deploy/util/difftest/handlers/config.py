@@ -22,7 +22,8 @@ __date__    = 'June 12th, 2007'
 import copy
 import difflib
 
-from deploy.util import rxml
+from deploy.util           import rxml
+from deploy.util.rxml.tree import XML_NS
 
 from deploy.util.difftest          import expand, NoneEntry, NewEntry
 from deploy.util.difftest.handlers import DiffHandler
@@ -52,31 +53,46 @@ class ConfigHandler(DiffHandler):
     config = rxml.config.Element('config', parent=root)
     for path in self.cdata:
       value = rxml.config.Element('value', parent=config, attrib={'path': path})
-      for val in self.config.xpath(path, []):
+      for val in self._get_values(path, []):
         if isinstance(val, str): # a string
           rxml.config.Element('text', parent=value, text=val)
         else: # elements
           elements = rxml.config.Element('elements', parent=value)
-          elements.append(copy.copy(val)) # append() is destructive
+          elements.append(val)
 
   def diff(self):
     self.diffdict = ConfigDiffDict()
     for path in self.cdata:
       if self.cfg.has_key(path):
-        try:
-          cfgval = self.config.xpath(path)
-        except rxml.errors.XmlPathError:
-          cfgval = NoneEntry(path)
+        cfgval = self._get_values(path)
         if self.cfg[path] != cfgval:
           self.diffdict[path] = (self.cfg[path], cfgval)
       else:
-        try:
-          cfgval = self.config.xpath(path)
-        except rxml.errors.XmlPathError:
-          cfgval = NoneEntry(path)
+        cfgval = self._get_values(path)
         self.diffdict[path] = (NewEntry(), cfgval)
     if self.diffdict: self.dprint('config: %s' % self.diffdict)
     return self.diffdict
+
+  def _get_values(self, path, fallback=None):
+    if not fallback:
+      try:
+        values = self.config.xpath(path)
+      except rxml.errors.XmlPathError:
+        values = NoneEntry(path)
+        return values
+    else:
+      values = self.config.xpath(path, fallback)
+
+    # ignore xml:base for diff testing
+    for i, val in enumerate(values):
+      if not isinstance(val, basestring):
+        val = copy.deepcopy(val)
+        for elem in val.iter():
+          if '{%s}base' % XML_NS in elem.attrib:
+            del elem.attrib['{%s}base' % XML_NS]
+        values[i] = val
+
+    return values
 
 class ConfigDiffDict(dict):
   def __str__(self): return self.__repr__()
