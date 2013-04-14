@@ -47,30 +47,34 @@ class TestBuild(Build):
     if mcf.exists():
       self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.parse(StringIO('<deploy/>').getroot())
+      self.mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
   def _get_definition(self, options, arguments):
-    self.conf.resolve_macros(['/*', '/*/main'], self.initial_macros)
     self.definition = self.conf
-    self.definitiontree = lxml.etree.ElementTree(self.conf)
+    self.definition.xinclude(macros=self._get_opt_macros(options=options))
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, os, version, arch='i386', conf=None):
     self.os = os 
     self.version = version
     self.arch = arch
-    self.conf = conf or self._make_default_config()
+
+    if conf is not None:
+      self.conf = conf
+    else:
+      self.conf = self._make_default_config()
+    # pretend we read from a config file in the modules directory
+    self.conf.base = pps.path(__file__).dirname/'modules/%s' % self.moduleid
+
     self.buildroot = BUILD_ROOT
 
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):
       self._add_config('<%s enabled="true"/>' % self.moduleid)
-    # pretend we read from a config file in the modules directory
-    self.conf.file = pps.path(__file__).dirname/'modules/%s' % self.moduleid
 
     self.event = None
     unittest.TestCase.__init__(self)
@@ -96,10 +100,6 @@ class EventTestCase(unittest.TestCase):
 
     self.conf = top
 
-    if hasattr(self, '_global_macros'):
-      for macro in re.findall("<macro.*</macro>", self._global_macros):
-        self.conf.append(config.parse(StringIO(macro)).getroot())
-      
     if hasattr(self, '_conf'): # string or list of strings
       if isinstance(self._conf, basestring):
         self._conf = [self._conf]
@@ -112,18 +112,25 @@ class EventTestCase(unittest.TestCase):
   # return config.ConfigElement object or None
 
   def _make_main_config(self):
+    name = 'test-%s' % self.moduleid
+
     main = config.Element('main')
+    config.Element('macro',     attrib={'id': 'name'}, text=name, parent=main)
     config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
     config.Element('macro',     attrib={'id':'version'}, text=self.version,
                                 parent=main)
     config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
                                 parent=main)
+    config.Element('macro',     attrib={'id':'id'}, 
+                                text='%{name}-%{os}-%{version}-%{arch}', 
+                                parent=main)
 
-    config.Element('fullname', text='%s event test' % self.moduleid, parent=main)
-    config.Element('name',     text='test-%s' % self.moduleid, parent=main)
+    config.Element('fullname', text='%{name} event test', parent=main)
+    config.Element('name',     text='%{name}', parent=main)
     config.Element('os',       text='%{os}', parent=main)
     config.Element('version',  text='%{version}', parent=main)
     config.Element('arch',     text='%{arch}', parent=main)
+    config.Element('id',       text='%{id}', parent=main) 
     config.Element('mode',     text=getattr(self, '_mode', 'system'), 
                                parent=main)
 
@@ -144,7 +151,7 @@ class EventTestCase(unittest.TestCase):
     return repos
 
   def _add_config(self, section):
-    sect = config.parse(StringIO(section), resolve_macros=False).getroot()
+    sect = config.parse(StringIO(section)).getroot()
     for old in self.conf.xpath(sect.tag, []):
       self.conf.remove(old)
     self.conf.append(sect)

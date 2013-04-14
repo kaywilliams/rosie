@@ -140,22 +140,9 @@
 
         <listitem>
           <para>
-          The id for a repository. Corresponds to the global run-time macro
-          %{id}. See the Macros section of the <xref linkend='ddfr'/> for more
-          information on macros.
-          </para>
-          
-          <para>
-          The default value is
-          <varname>%{name}</varname>-<varname>%{os}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
-          where these values correspond to the <emphasis>name</emphasis>,
-          <emphasis>os</emphasis>, <emphasis>version</emphasis> and
-          <emphasis>arch</emphasis> for the repository.
-          </para>
-
-          <para>
-          In Deploy versions 1.68 and prior the default value was 
-          <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>,
+          A unique id for a repository. Specified in the definition. Typically
+          the definition should contain the name, os, version and architecture
+          of the repository, e.g. 'web-server-centos-6-x86_64'.
           </para>
         </listitem>
       </varlistentry>

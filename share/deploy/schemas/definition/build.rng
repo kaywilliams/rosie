@@ -5,6 +5,7 @@
 
       <optional>
       <element name="build">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>

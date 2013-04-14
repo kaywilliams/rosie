@@ -5,6 +5,7 @@
 
       <optional>
       <element name="iso">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -12,7 +13,10 @@
         <interleave>
 
         <oneOrMore>
-        <element name="set"><text/></element>
+        <element name="set">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
         </oneOrMore>
 
         </interleave>

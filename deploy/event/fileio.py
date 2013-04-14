@@ -57,7 +57,7 @@ class IOObject(object):
 
   def abspath(self, f):
     "Transform a path, f, to an absolute path"
-    return self.ptr._config.file.dirname / f
+    return self.ptr._config.getbase().dirname / f
 
   def chcon(self, path):
     if self.ptr.cvars['selinux-enabled']:
@@ -86,9 +86,10 @@ class IOObject(object):
     # expects a list of path-like elements
     for path in xpaths: #allow python to raise an error of no paths provided
       if path.getxpath('@content', None) and not path.getxpath('@destname', None):
-        raise InvalidConfigError(self.ptr._config.file,
+        raise InvalidConfigError(self.ptr._config.getbase(),
           "[%s] missing 'destname' attribute at '%s':"
-          "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(path), path))
+          "\n %s" % (self.ptr.id, self.ptr._config.getroottree().getpath(path),
+                     path))
 
   def validate_input_file(self, f, allow_text=False, xpath=None):
     # method called by add_item() to ensure the source is a valid file
@@ -167,16 +168,17 @@ class IOObject(object):
     for item in self.ptr.config.xpath(xpath, []):
       # ensure item has text content
       if item.getxpath('text()', None) is None: 
-        raise InvalidConfigError(self.ptr._config.file,
+        raise InvalidConfigError(self.ptr._config.getbase(),
           "[%s] no %s provided for '%s':"
-          "\n %s" % (self.ptr.id, content, self.ptr._configtree.getpath(item),
+          "\n %s" % (self.ptr.id, content, 
+                     self.ptr._config.getroottree().getpath(item),
                      item))
 
       # if item has content...
       s,d,f,m,c = self._process_path_xml(item, destname=destname,
                                          mode=mode, content=content,
                                          destdir_fallback=destdir_fallback)
-      item_xpath = self.ptr._configtree.getpath(item)
+      item_xpath = self.ptr._config.getroottree().getpath(item)
       self.add_item(s, dst//d/f, id=id, mode=m or mode, content=c, 
                     allow_text=allow_text, xpath=item_xpath )
 
@@ -329,7 +331,7 @@ class IOObject(object):
     c = item.getxpath('@content', content)
     if c == "file":
       s = self.ptr.config.getpath('%s/text()' % 
-                                   self.ptr._configtree.getpath(item))
+                                  self.ptr._config.getroottree().getpath(item))
     else:
       s = item.getxpath('text()')
     d = pps.path(item.getxpath('@destdir', destdir_fallback))

@@ -31,6 +31,7 @@ opt_defaults = dict(
   logfile = None,
   libpath   = [],
   sharepath = [],
+  datpath = None,
   force_modules = [],
   skip_modules  = [],
   force_events  = [],

@@ -19,6 +19,7 @@ import unittest
 
 from deploy.errors   import DeployError
 from deploy.util     import pps 
+from deploy.util     import rxml 
 
 from deploy.modules.core.rpmbuild.gpgsign import InvalidKeyError
 
@@ -174,6 +175,7 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     secret = definition.getxpath('/*/gpgsign/secret/text()', '')
     parent_repo = self.conf.getxpath('/*/repos/repo[@id="base"]')
     child_repo = definition.getxpath('/*/repos/repo[@id="base"]')
+    del child_repo.attrib['{%s}base' % rxml.tree.XML_NS]
 
     self.failUnless(len(public) == len(PUBKEY) and
                     len(secret) == len(SECKEY) and
@@ -218,6 +220,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
   if check_vm_config():
+    suite.addTest(make_basic_suite(TestSrpmTestCase, os, version, arch))
     suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch))
   else:
     suite.addTest(make_basic_suite(TestSrpmTestCase, os, version, arch))

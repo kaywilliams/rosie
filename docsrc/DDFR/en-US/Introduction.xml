@@ -81,17 +81,26 @@
     </para>
    
     <para>
-    The data file is created in the same folder as the 
-    definition with a filename consisting of the repository ID followed by the
-    <filename>.dat</filename> file extension. For example, given a repository
-    with the ID "samba-server-6-x86_64", the data file will have the following
-    name:
+    The data file is created with a a filename consisting of the repository ID
+    followed by the <filename>.dat</filename> file extension. For example,
+    given a definition with the <emphasis>main/id</emphasis> element specified
+    as "samba-server-6-x86_64", Deploy will create a data file with the
+    following name:
     </para>
   
-    <para>Deploy will create the data file as follows:</para>
-  
     <para><informalexample><programlisting>
-    <filename>samba-server-6-x86_64.dat</filename>
+<filename>samba-server-6-x86_64.dat</filename>
+    </programlisting></informalexample>
+    </para>
+
+    <para>
+    By default, the file will be created in the same directory as the 
+    definition. An alternative directory location can be specified on the
+    deploy command line using the '--dat-path' parameter, for example:
+    </para>
+
+    <para><informalexample><programlisting>
+deploy samba.definition --dat-path /my/dat/path    
     </programlisting></informalexample>
     </para>
 

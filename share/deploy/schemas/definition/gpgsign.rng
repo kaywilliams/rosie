@@ -5,15 +5,25 @@
     <element name="definition">
       <optional>
       <element name="gpgsign">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <optional>
         <interleave>
-        <element name="public"><text/></element>
-        <element name="secret"><text/></element>
-        <optional><element name="passphrase"><text/></element></optional>
+        <element name="public">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
+        <element name="secret">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
+        <optional><element name="passphrase">
+          <ref name="xml-base"/>
+          <text/>
+        </element></optional>
         </interleave>
         </optional>
 

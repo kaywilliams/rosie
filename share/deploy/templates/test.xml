@@ -22,6 +22,7 @@ baseurl - full url to package repository on build machine, must be accessible fr
   <os>%{os}</os>
   <version>%{version}</version>
   <arch>%{arch}</arch>
+  <id>%{id}</id>
 </main>
 
 <packages>

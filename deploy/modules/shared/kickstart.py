@@ -60,7 +60,7 @@ class KickstartEventMixin:
     self.ksfile = self.OUTPUT_DIR / self.ksname
     self.DATA['variables'].extend(['ksname'])
 
-    self.ks_source = '' # track source for use in error messages
+    # track source for use in error messages
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
                     ('\n  ').join([ l.strip() 
                     for l in self.kstext.split('\n')]))

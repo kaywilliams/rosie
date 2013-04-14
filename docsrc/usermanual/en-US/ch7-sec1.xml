@@ -201,7 +201,7 @@ templates/
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 &lt;main>
 &lt;name>application&lt;/name>
 &lt;arch>x86_64&lt;/arch>
@@ -224,7 +224,7 @@ templates/
 &lt;files>
 &lt;files>templates&lt;/files>
 &lt;/files>
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
 
   <para>

@@ -26,9 +26,9 @@
   &lt;os&gt;("centos"|"rhel")&lt;/os&gt;
   &lt;version&gt;("5"|"6")&lt;/version&gt;
   &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
+  &lt;id&gt;TEXT&lt;/id&gt;
  [&lt;type&gt;("package"|"system")&lt;/type&gt;]
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
- [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;bug-url&gt;URL&lt;/bug-url&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
 &lt;/main&gt;</programlisting>
@@ -47,13 +47,9 @@
 
       <listitem>
       <para>
-      TEXT value specifying the name of the repository.
-      </para>
-
-      <para>
-      The value of this element can be accessed within other elements 
-      and attributes of the definition using the run-time macro 
-      <varname>%{name}</varname>.
+      TEXT value providing the name of the repository. Typically specified
+      using a macro. See <xref linkend='in-document-macros'/> for more
+      information. 
       </para>
 
       <para>
@@ -73,14 +69,9 @@
 
       <listitem>
       <para>
-      TEXT value specifying the name of the base
-      operating system for the repository. Accepts either "centos" or "rhel".
-      </para>
-
-      <para>
-      The value of this element can be accessed within other elements 
-      and attributes of the definition using the run-time macro 
-      <varname>%{os}</varname>.
+      TEXT value providing the name of the base operating system for the
+      repository. Accepts either "centos" or "rhel". Typically specified using
+      a macro. See <xref linkend='in-document-macros'/> for more information. 
       </para>
 
       <para>
@@ -91,11 +82,6 @@
       See <xref linkend="content-text"/> for more information on TEXT values.
       </para>
 
-      <para>
-      The <emphasis>os</emphasis> element was added in Deploy version 1.69. See
-      <xref linkend='main-id'/> for related changes to the
-      <emphasis>id</emphasis> element.
-      </para>
       </listitem>
     </varlistentry>
 
@@ -107,13 +93,8 @@
       <listitem>
       <para>
       The version of the base operating system for the repository. Valid values
-      are "5" and "6". 
-      </para>
-
-      <para>
-      The value of this element can be accessed within other elements 
-      and attributes of the definition using the run-time macro 
-      <varname>%{version}</varname>.
+      are "5" and "6". Typically specified using a macro. See <xref
+      linkend='in-document-macros'/> for more information. 
       </para>
 
       <para>
@@ -130,17 +111,45 @@
       <listitem>
       <para>
       The architecture of the base operating system for the repository.
-      Accepts either "i386" or "x86_64".</para>
-
-      <para>
-      The value of this element can be accessed within other elements 
-      and attributes of the definition using the run-time macro 
-      <varname>%{arch}</varname>.
+      Accepts either "i386" or "x86_64". Typically specified using a macro.
+      See <xref linkend='in-document-macros'/> for more information. 
       </para>
 
       <para>
       This element is required.
       </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-id">
+      <term>
+      id
+      </term>
+
+      <listitem>
+      <para>
+      TEXT value providing a unique id for the repository.
+      </para>
+
+      <para>
+      Used as the default name for deployment local-dir folders. See <xref
+      linkend='local-dir'/> for more information.
+      </para>
+      
+      <para>
+      Typically specified using a macro
+      consisting of name, os, version and arch macros.  See <xref
+      linkend='in-document-macros'/> for more information and an example.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+
+      <para>
+      See <xref linkend="content-text"/> for more information on TEXT content.
+      </para>
+
       </listitem>
     </varlistentry>
 
@@ -186,43 +195,6 @@
       </para>
       <para>
       See <xref linkend="content-text"/> for more information on TEXT content.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="main-id">
-      <term>
-      id
-      </term>
-
-      <listitem>
-      <para>
-      TEXT value specifying a unique id for the
-      repository. Used as the directory name for the repository in the Deploy
-      publish and cache folders (by default
-      <emphasis>/var/www/html/repos/</emphasis> and
-      <emphasis>/var/cache/deploy</emphasis>, respectively).
-      </para>
-
-      <para>
-      This element is optional. The default value is
-      <varname>%{name}</varname>-<varname>%{os}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>.
-      </para>
-
-      <para>
-      The value of this element can be accessed within other elements and
-      attributes of the definition using the run-time macro 
-      <varname>%{id}</varname>.
-      </para>
-
-      <para>
-      See <xref linkend="content-text"/> for more information on TEXT content.
-      </para>
-
-      <para>
-      Deploy 1.68 and prior versions used
-      <varname>%{name}</varname>-<varname>%{version}</varname>-<varname>%{arch}</varname>
-      as the default value.
       </para>
       </listitem>
     </varlistentry>

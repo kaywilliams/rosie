@@ -3,13 +3,27 @@
   <start>
     <element name="definition">
       <element name="main">
+        <ref name="xml-base"/>
         <interleave>
-          <element name="name"><text/></element>
-          <element name="os"><text/></element>
-          <element name="version"><text/></element>
-          <element name="arch"><text/></element>
+          <element name="name">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          <element name="os">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          <element name="version">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          <element name="arch">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           <optional>
           <element name="mode">
+            <ref name="xml-base"/>
             <choice>
               <value type="string">build</value>
               <value type="string">package</value>
@@ -18,16 +32,28 @@
           </element>
           </optional>
           <optional>
-          <element name="id"><text/></element>
+          <element name="id">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           </optional>
           <optional>
-          <element name="fullname"><text/></element>
+          <element name="fullname">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           </optional>
           <optional>
-          <element name="bug-url"><text/></element>
+          <element name="bug-url">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           </optional>
           <optional>
-          <element name="log-file"><text/></element>
+          <element name="log-file">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           </optional>
         </interleave>
       </element>

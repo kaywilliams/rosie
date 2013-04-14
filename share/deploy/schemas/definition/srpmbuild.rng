@@ -5,28 +5,45 @@
     <element name="definition">
       <optional>
       <element name="srpmbuild">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <optional><element name="template"><text/></element></optional>
+        <optional><element name="template">
+          <ref name="xml-base"/>
+          <text/>
+        </element></optional>
 
         <interleave>
 
         <oneOrMore>
         <element name="srpm">
+          <ref name="xml-base"/>
 
           <attribute name="id"/>
 
           <interleave>
 
           <choice>
-          <element name="repo"><text/></element>
-          <element name="path"><text/></element>
-          <element name="script"><text/></element>
+          <element name="repo">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          <element name="path">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          <element name="script">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
           </choice>
 
-          <optional><element name="template"><text/></element></optional>
+          <optional><element name="template">
+            <ref name="xml-base"/>
+            <text/>
+          </element></optional>
 
           </interleave>
 

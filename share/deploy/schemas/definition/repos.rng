@@ -5,6 +5,7 @@
 
       <optional>
       <element name="repos">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -12,7 +13,10 @@
         <interleave>
 
         <optional>
-        <element name="releasever"><text/></element>
+        <element name="releasever">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
         </optional>
 
         <oneOrMore>
@@ -22,7 +26,10 @@
         <!-- undocumented, used only for dtest, remove eventually -->
         <optional>
         <oneOrMore>
-        <element name="repofile"><text/></element>
+        <element name="repofile">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
         </oneOrMore>
         </optional>
 

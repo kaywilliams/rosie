@@ -64,7 +64,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>config-repo&lt;/name>
@@ -82,7 +82,7 @@
 &lt;!-- config-rpm definitions -->
 &lt;/config-rpms>
 
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
   </section>
 
@@ -104,7 +104,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>patch-repo&lt;/name>
@@ -122,7 +122,7 @@
 &lt;!-- srpm definitions -->
 &lt;/srpmbuild>
 
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
   </section>
 
@@ -145,7 +145,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>aggregation-repo&lt;/name>
@@ -163,7 +163,7 @@
 &lt;!-- package and group listings -->
 &lt;/packages>
 
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
   </section>
 
@@ -191,7 +191,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>
 &lt;name>application-repo&lt;/name>
@@ -224,7 +224,7 @@
 &lt;files>
 &lt;!-- file inclusion definitions -->
 &lt;/files>
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
   </section>
 

@@ -34,17 +34,14 @@
 
     <para>A definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;repo&gt; and 
-    &lt;/repo&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;definition&gt; and 
+    &lt;/definition&gt; encapsulate all additional elements and attributes. A
+    typical system defintion looks as follows:
     </para>
 
     <para><informalexample>
-      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
-&lt;!-- Additional elements and attributes --&gt;
-
-&lt;/repo&gt;</programlisting>
+      <programlisting>
+<xi:include href="../../../../../share/deploy/templates/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample></para>
 
     <para>
@@ -54,11 +51,11 @@
     </para>
 
     <para>
-    Likewise, the "xmlns:xi..." attribute is not required on the "&lt;repo>"
-    element. It is strongly recommended, however, as it allows the use of
-    XIncludes within the document. XIncludes, a convenient mechanism for
-    reusing content across multiple definitions, are discussed in the
-    Deploy Definition File Reference (DDFR).
+    Likewise, the "xmlns:xi..." attribute is not required on the
+    "&lt;definition>" element. It is strongly recommended, however, as it
+    allows the use of XIncludes within the document. XIncludes, a convenient
+    mechanism for reusing content across multiple definitions, are discussed in
+    the Deploy Definition File Reference (DDFR).
     </para>   
   </section>
 
@@ -68,23 +65,14 @@
     <para>
     Definitions are commonly saved with the name of the repository
     and the file extension "<filename>.definition</filename>", e.g.
-    <filename>web-server.definition</filename>. Templates (discussed later in
-    this chapter) are commonly saved with the extension
-    "<filename>.xml</filename>". 
-    </para>
-
-    <para>
-    These naming strategies are only guidelines, however. You can name your
-    files and templates as you like and Deploy will happily process
-    them.
+    <filename>web-server.definition</filename>.
     </para>
 
     <warning>
     <para>
-    Definitions and templates, as well as Deploy-generated repository data
-    files (see <xref linkend='data-file'/>), contain sensitive data
-    including system root passwords, and GPG private keys. Take care to save
-    your definitions, data files and templates in a secure location.
+    Definitions contain sensitive data including system root passwords, and GPG
+    private keys. Take care to save your definitions, and related files
+    including data files and templates, in a secure location.
     </para>
     </warning>
   </section>
@@ -95,9 +83,8 @@
     <para>
     The first required element of the definition, <emphasis>main</emphasis>,
     includes the name of the repository, the base operating system, the
-    OS version and the OS architecture.  By default, these four
-    items make up the default repository id (<varname>%{id}</varname>), which
-    Deploy uses to create folders for storing the completed repository (under
+    OS version and architecture, and a repository id. Deploy uses the
+    repository id to create folders for storing the completed repository (under
     <filename class="directory">/var/www/html/repos</filename>, by default) and
     for caching repository content (under <filename
     class="directory">/var/cache/deploy</filename>, by default).
@@ -110,10 +97,8 @@
 
     <para>
     In the example below, the base operating system is 'centos', the OS version
-    is '6', and the OS architecture is x86_64. Because no
-    <emphasis>id</emphasis> element has been added, the
-    <varname>%{id}</varname> will be automatically calculated as
-    <filename>web-server-centos-6-x86_64</filename>. 
+    is '6', the OS architecture is 'x86_64', and the id is
+    'web-server-centos-6-x86_64'.
     </para>
 
     <para><informalexample>
@@ -123,19 +108,17 @@
   &lt;os&gt;centos&lt;/os&gt;
   &lt;version&gt;6&lt;/version&gt;
   &lt;arch&gt;x86_64&lt;/arch&gt;
+  &lt;id&gt;web-server-centos-6-x86_64&lt;/arch&gt;
 &lt;/main&gt;</programlisting>
     </informalexample></para>
-
-    <para>You can override the default repository id using an
-    <emphasis>id</emphasis> element. See the DDFR for more details about the
-    <emphasis>main</emphasis> element.</para>
 
     <para>
     The example above shows creating a definition for a specific operating
     system (<emphasis>centos</emphasis>), version (<emphasis>6</emphasis>) and
     architecture (<emphasis>x86_64</emphasis>). Typically you will want to make
     your definitions more flexible, however, so that they can encompass
-    multiple operating systems, versions and architectures. You can do this
+    multiple operating systems, versions and architectures, and also so that
+    you can reuse common content throughout the definition. You can do this
     using macros.
     </para>
 
@@ -149,30 +132,29 @@
     </para>
 
     <para><informalexample>
-      <programlisting>&lt;macro id='os'>centos&lt;macro>
+      <programlisting>&lt;macro id='name'>web-server&lt;macro>
+&lt;macro id='os'>centos&lt;macro>
 &lt;macro id='version'>6&lt;macro>
 &lt;macro id='arch'>x86_64&lt;macro>
+&lt;macro id='id'>%{name}-%{os}-%{version}-%{arch}&lt;macro>
 
 &lt;main&gt;
   &lt;name&gt;web-server&lt;/name&gt;
   &lt;os&gt;%{os}&lt;/os&gt;
   &lt;version&gt;%{version}&lt;/version&gt;
   &lt;arch&gt;%{arch}&lt;/arch&gt;
+  &lt;id&gt;%{id}&lt;/id&gt;
 &lt;/main&gt;</programlisting>
     </informalexample></para>
 
     <note>
     <para>
-    Each time you change a repository's id, either implicitly by changing the
-    <emphasis>name</emphasis>, <emphasis>os</emphasis>,
-    <emphasis>version</emphasis> or <emphasis>arch</emphasis> elements, or
-    explicitly by changing the <emphasis>id</emphasis> element, Deploy creates
-    new folders in the publish and cache folders
-    (<emphasis>/var/www/html/repos</emphasis> and
-    <emphasis>/var/cache/deploy</emphasis>, by default, respectively). To
-    preserve hard drive space, you may wish to review the publish and cache
-    folders on occasion. Folders for obsolete repository ids can be deleted
-    using standard file system methods, as shown below: <synopsis>rm -rf
+    Each time you change a repository's id, Deploy creates new folders in the
+    publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
+    <emphasis>/var/cache/deploy</emphasis>, by default). To preserve hard drive
+    space, you may wish to review the publish and cache folders on occasion.
+    Folders for obsolete repository ids can be deleted using standard file
+    system methods, as shown below: <synopsis>rm -rf
     <emphasis>obsolete_folder</emphasis></synopsis>
     </para>
     </note>
@@ -190,13 +172,9 @@
   </para>
 
     <para><informalexample>
-      <programlisting>&lt;macro id='version'>6&lt;macro>
-&lt;macro id='arch'>x86_64&lt;macro>
-
+      <programlisting>
 &lt;main&gt;
-  &lt;name&gt;web-server&lt;/name&gt;
-  &lt;version&gt;%{version}&lt;/version&gt;
-  &lt;arch&gt;%{arch}&lt;/arch&gt;
+  ...
   &lt;type&gt;package&lt;/type&gt;
 &lt;/main&gt;</programlisting>
     </informalexample></para>
@@ -460,7 +438,7 @@
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?>
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude">
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
 ...
 
@@ -469,7 +447,7 @@
 &lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
 &lt;/repos>
 
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
     </informalexample>
 
     <para>

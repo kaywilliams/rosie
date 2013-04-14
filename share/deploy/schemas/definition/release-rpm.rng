@@ -5,12 +5,14 @@
     <element name="definition">
       <optional>
       <element name="release-rpm">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <optional>
         <element name="updates">
+          <ref name="xml-base"/>
           <optional>
           <attribute name="sync"><ref name="value-boolean"/></attribute>
           </optional>

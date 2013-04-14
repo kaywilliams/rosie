@@ -44,20 +44,18 @@
     </title>
   
     <para>
-    Macros provide a compact syntax for substituting <emphasis
-    role="bold">plain text</emphasis> for <emphasis
-    role="bold">placeholders</emphasis> within a definition. Macro definitions
-    specify a macro id and associated replacement text. Macro placeholders
-    specify the location within the definition where the text is to
-    be substituted.
+    Macros provide a compact syntax for substituting
+    <emphasis>content</emphasis> for <emphasis>placeholders</emphasis> within a
+    definition. Macro definitions specify a macro id and associated replacement
+    content. Content can include text, element, or mixed text and elements.
+    Macro placeholders specify the location within the definition where the
+    text is to be substituted.
     </para>
     
     <para>
     The syntax for macro placeholders is a percent sign preceding a
     macro id enclosed in braces: <emphasis>%{ID}</emphasis>. Placeholders can
-    be used anywhere within the definition, with one limitation related to
-    XInclude elements. This limitation is described below under
-    <emphasis>Limitations</emphasis>.
+    be used anywhere within the definition.
     </para>
 
     <para>
@@ -66,40 +64,75 @@
     <emphasis>run-time macros</emphasis>. 
     </para>
 
+    <section id='command-line-macros'>
+
+    <title>
+    Command-Line Macros
+    </title>
+
     <para>
-    <emphasis role="strong">Command-Line Macros</emphasis> are specified using
-    one or more macro options on the deploy command line. Macro
-    options use the following syntax: <emphasis>--macro id:value</emphasis>.
-    Macros specified on the command line are the first to be resolved during
-    Deploy processing, and their values override values provided by
-    any other macro element or run-time macro. See <xref
-    linkend="macro-command-line-example"/> for a common usage scenario.
+    Command-line macros are specified using one or more macro options on the
+    deploy command line. Macro options use the following syntax:
+    <emphasis>--macro id:value</emphasis>.  Macros specified on the command
+    line are the first to be resolved during Deploy processing, and their
+    values override values provided by any other macro element or run-time
+    macro. The example below shows a common usage scenario.
     </para>
 
     <para>
-    <emphasis role="strong">In-Document Macros</emphasis> are specified using
-    macro elements within the definition. Macro elements take a
-    single attribute, "id", which identifies the name of the macro. The text of
-    the macro element identifies text to substitute in place of the macro. For
+    <emphasis role='bold'>Example -</emphasis> In this example the macro
+    placeholders <varname>%{os}</varname>, <varname>%{version}</varname> and
+    <varname>%{arch}</varname> will be replaced with the values "centos", "6"
+    and "i386", respectively, when Deploy is executed using the following
+    command line:
+    </para>
+
+    <programlisting>
+deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
+
+    <para>
+    This allows a single definition to be used across multiple os, version and
+    arch operating system combinations. The definition is shown below:
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main&gt;
+&lt;name&gt;example&lt;name&gt;
+&lt;os&gt;%{os}&lt;os&gt;
+&lt;version&gt;%{version}&lt;version&gt;
+&lt;arch&gt;%{arch}&lt;arch&gt;
+&lt;id>example-%{os}-%{version}-%{arch}&lt;/id>
+&lt;/main&gt;
+...
+
+&lt;/definition&gt;</programlisting>
+    </informalexample>
+    </section>
+
+    <section id='in-document-macros'>
+    <title>In-Document Macros</title>
+    <para>
+    In-Document Macros are specified using
+    macro elements within the definition. Macro elements take a single
+    attribute, "id", which identifies the name of the macro. The text of the
+    macro element identifies content to substitute in place of the macro. For
     example:
     </para>
     
     <informalexample>
     <programlisting>
-&lt;macro id="mymacro"&gt;my text&lt;/macro&gt;
+&lt;macro id="version"&gt;6&lt;/macro&gt;
     </programlisting>
     </informalexample>
     
     <para>
-    In-document macros fall into two categories: <emphasis>global</emphasis>
-    and <emphasis>module</emphasis>.  <emphasis>Global</emphasis> macros
-    are defined at the top level of the document, parallel to the other
-    top-level elements, or within the <xref linkend="main"/> top level element.
+    In-document macros can be defined anywhere within the document.
     They are resolved following command-line macros, and they override
-    module macros with the same id.  Conversely,
-    <emphasis>module</emphasis> macros are defined within top-level
-    elements other than the <emphasis>main</emphasis> element. Their values are
-    applied only within the top-level element in which they are defined.
+    run-time macros, described in the next section, with the same id.
     </para>
 
     <para>
@@ -109,184 +142,115 @@
     </para>
 
     <para>
-    See <xref linkend="macro-in-document-example"/> for examples of global
-    and module macros.
+    <emphasis role='bold'>Example 1 - Global Macros.</emphasis> This example is
+    similar to that in the previous section, with the addition of global
+    in-document macros for <emphasis>name</emphasis>, <emphasis>os</emphasis>,
+    <emphasis>version</emphasis>, <emphasis>arch</emphasis>, and
+    <emphasis>id</emphasis>. When Deploy is executed with the command line from
+    Example 1, the results will be the same as in that example (since
+    command-line macros are resolved first).  However, when Deploy is executed
+    with no macros specified on the command line, the values for os, version
+    and macro will be "centos", "5" and "x86_64" respectively. In addition,
+    because "name" and "id" are defined as macros, they will be available for
+    use in other locations within the definition.
     </para>
 
     <para>
-    <emphasis role="strong">Run-Time Macros</emphasis> are macros that are
-    defined by Deploy during the build process rather than defined by
-    users. Run-time macros are the last to be resolved. Like in-document
-    macros, run-time macros fall into two categories: global and module.
-    </para>
-    
-    <para>
-    Global run-time macros include the following:
-    
-    <simplelist type='horiz'>
-    <member><varname>%{name}</varname></member>
-    <member><varname>%{os}</varname></member>
-    <member><varname>%{version}</varname></member>
-    <member><varname>%{arch}</varname></member>
-    <member><varname>%{id}</varname></member>
-    <member><varname>%{definition-dir}</varname></member>
-    </simplelist>
-    </para>
-    
-    <para>
-    The values of the first five macros correspond to elements
-    in the <varname>/main</varname> element, unless they are
-    overridden by command-line or in-document macros. See <xref
-    linkend="main"/> for more information on these macros.
+    In fact, because the configuration shown below is so flexible over time in
+    facilitating migration across operating systems, versions and architecture,
+    we use it in all of our examples, and we highly recommend it as a starting
+    point for every definition.
     </para>
 
-    <para>
-    The value of the final macro, <varname>%{definition-dir}</varname>
-    corresponds to the folder location of the definition. This macro is
-    commonly used within scripts for locating files and folders relative to the
-    definition file.
-    </para>
-    
-    <para>
-    Certain modules also provide <emphasis>module</emphasis> run-time macros.
-    These modules include <emphasis>config-rpms</emphasis>,
-    <emphasis>srpmbuild</emphasis>, <emphasis>test-install</emphasis>,
-    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. See the
-    following for more informaiton on these macros: <xref
-    linkend="config-rpms"/>, <xref linkend="srpmbuild"/> and <xref
-    linkend="deployment-elements"/>.
-    </para>
-    
-    <section>
-      <title>
-      Examples
-      </title>
- 
-      <section id="macro-command-line-example"> 
-      <title>
-      Example 1 - Using Command-Line Macros
-      </title>
-      <para>
-      In this example the macro placeholders <varname>%{os}</varname>,
-      <varname>%{version}</varname> and <varname>%{arch}</varname> will be
-      replaced with the values "centos", "6" and "i386", respectively, when
-      Deploy is executed using the following command line:
-      </para>
-
-      <programlisting>
-deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/definition </programlisting>
-
-      <para>
-      This allows a single definition to be used across multiple version and
-      arch operating system combinations. The definition is shown below:
-      </para>
-
-      <informalexample>
-      <programlisting>
+    <informalexample>
+    <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
-&lt;main&gt;
-&lt;name&gt;example&lt;name&gt;
-&lt;os&gt;%{os}&lt;os&gt;
-&lt;version&gt;%{version}&lt;version&gt;
-&lt;arch&gt;%{arch}&lt;arch&gt;
-&lt;/main&gt;
-...
-
-&lt;/repo&gt;</programlisting>
-      </informalexample>
-      </section>
-
-      <section id="macro-in-document-example"> 
-      <title>
-      Example 2 - Using In-Document Macros
-      </title>
-      <para>
-      This example is similar to Example 1, with the addition of global
-      in-document macros for <emphasis>os</emphasis>,
-      <emphasis>version</emphasis> and <emphasis>arch</emphasis>. When Deploy
-      is executed with the command line from Example 1, the results will be the
-      same as in that example (since command-line macros are resolved first).
-      However, when Deploy is executed with no macros specified on the command
-      line, the values for os, version and macro will be "centos", "5" and
-      "x86_64" respectively, as defined below.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
+&lt;macro id="name"&gt;example&lt;macro&gt;
 &lt;macro id="os"&gt;centos&lt;macro&gt;
 &lt;macro id="version"&gt;5&lt;macro&gt;
 &lt;macro id="arch"&gt;x86_64&lt;macro&gt;
+&lt;macro id="id"&gt;%{name}-%{os}-%{version}-%{arch}&lt;macro&gt;
 
-&lt;main&gt;
-&lt;name&gt;example&lt;name&gt;
-&lt;os&gt;%{os}&lt;os&gt;
-&lt;version&gt;%{version}&lt;version&gt;
-&lt;arch&gt;%{arch}&lt;arch&gt;
-&lt;/main&gt;
+&lt;main>
+&lt;name>%{name}&lt;name>
+&lt;os>%{os}&lt;os>
+&lt;version>%{version}&lt;version>
+&lt;arch>%{arch}&lt;arch>
+&lt;id>%{id}&lt;id>
+&lt;/main>
 ...
 
-&lt;/repo&gt;</programlisting>
-      </informalexample>
-      </section>
+&lt;/definition&gt;</programlisting>
+    </informalexample>
 
-      <section>
-      <title>
-      Example 3 - Using Builtin Macros
-      </title>
-      <para>
-      In this example the variables <varname>%{os}</varname>,
-      <varname>%{version}</varname> and <varname>%{arch}</varname>, used within
-      the <varname>repos</varname> element, will be substituted with the values
-      "centos", "5" and "i386" respectively.
-      </para>
+    <para>
+    <emphasis role='bold'>Example 2 - Nested Macros</emphasis>. Macros can 
+    be nested to support conditional content inclusion. Nested macros are a
+    powerful and practical tool. They allow a single file to be used across
+    multiple operating systems, versions and architectures, even when
+    requirements vary. This is especially useful during system migrations.
+    </para>
 
-      <para>
-      If Deploy is executed with the command line shown in Example 1, however,
-      the placeholders in the <varname>repos</varname> element will be
-      substituted with the values 'centos', '6' and 'i386' respectively. This
-      is undesirable and will lead to errors and inconsistent behavior since,
-      internally, Deploy will believe it is trying to build a repository
-      compatible with a centos, version 5, i386 architecture operating system.
-      If you plan to use command-line macros, you should use the definition
-      syntax shown in Examples 1 or 2 above.  That is the syntax we will show
-      through the remainder of this document.
-      </para>
+    <para>
+    The example below shows a <emphasis>packages</emphasis> element containing
+    two groups (core and base), and a nested <emphasis>macro</emphasis>
+    placeholder. The nested placeholder selects additional content based on the
+    value provided for the <emphasis>version</emphasis> macro. In the default
+    case (version=5), the list of groups for the repository will be "core, base
+    and smb-server".  If the version macro is set to "6", however, either
+    manually or using a command-line macro, the list of groups will be "core,
+    base and cifs-file-server".
+    </para>
 
-      <informalexample>
-      <programlisting>
+    <informalexample>
+    <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
-&lt;main&gt;
-&lt;name&gt;example&lt;/name&gt;
-&lt;os&gt;centos&lt;/os&gt;
-&lt;version&gt;5&lt;/version&gt;
-&lt;arch&gt;i386&lt;/arch&gt;
-&lt;/main&gt;
+&lt;macro id="version"&gt;5&lt;macro&gt;
+&lt;macro id="arch"&gt;i386&lt;macro&gt;
 
-&lt;repos&gt;
-&lt;repo id="base-%{version}"&gt;
-&lt;name&gt;CentOS-%{version}-%{arch}&lt;/name&gt;
-&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-&lt;/repo&gt;
-&lt;/repos&gt;
+&lt;packages&gt;
+&lt;group&gt;core&lt;group&gt;
+&lt;group&gt;base&lt;group&gt;
+%{packages-%{version}}
+&lt;/packages&gt;
+
+&lt;macro id="packages-5">
+&lt;group>smb-server&lt;/group>
+&lt;/macro>
+
+&lt;macro id="packages-6">
+&lt;group>cifs-file-server&lt;/group>
+&lt;/macro>
 ...
-&lt;/repo&gt;</programlisting>
-      </informalexample>
-      </section>
-    </section> 
-  
+&lt;/definition&gt;</programlisting>
+    </informalexample>
+    </section>
+
+    <section>
+    <title>Run-Time Macros</title>
+    <para>
+    Run-Time Macros are macros that are
+    defined by Deploy during the build process rather than defined by users.
+    Modules that provide run-time macros include
+    <emphasis>config-rpms</emphasis>, <emphasis>srpmbuild</emphasis>,
+    <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
+    <emphasis>publish</emphasis>. See these modules for more information.
+    </para>
+
+    <para>
+    Run-time macros are the last to be resolved.
+    </para>
+    </section>
+
   </section>
   
   <section id="xincludes">
     <title>
-    XIncludes and XML elements 
+    XIncludes
     </title>
   
     <para>
@@ -298,18 +262,11 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     
     <para>
     Similar to macros, XIncludes allow content reuse in definitions.
-    There are several important differences between the two mechanisms,
+    There are two important differences between the two mechanisms,
     however:
     </para>
 
     <itemizedlist>
-
-      <listitem>
-      <para>
-      XIncludes support both text and XML content. Macros
-      only support text content.
-      </para>
-      </listitem>
 
       <listitem>
       <para>
@@ -338,14 +295,14 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     
     <informalexample>
     <programlisting>
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
     </programlisting>
     </informalexample> 
     
     <para>
-    As a matter of practice, you may wish to include this namespace declaration
-    in every XML file you create for use with CentOS studio. This will allow
-    the addition of XIncludes at any time, without causing potentially confusing
+    As a matter of practice, we recommend including this namespace declaration
+    in every XML file you create for use with Deploy. This will allow the
+    addition of XIncludes at any time, without causing potentially confusing
     errors in definition processing.
     </para>
 
@@ -367,42 +324,6 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     </section>
 
     <section>
-    <title>XML Elements</title>
-    <para>
-    XML elements can be used along with macros and XIncludes to support
-    conditional content inclusion.  Conditional content inclusion is a powerful
-    and practical tool. It allows a single definition, or XIncluded
-    file, to be used across multiple operating system versions and
-    architectures, even when repository requirements vary.
-    </para>
-
-    <para>
-    XML elements are named, appropriately enough, <emphasis>xml</emphasis>.
-    They can occur at any level of the document, carry any attributes and
-    contain any content. Typically, however, they carry a single attribute
-    <varname>id</varname>, which allows them to be selected easily using
-    XInclude. Also, typically, they contain either valid definition content
-    (i.e. elements, attributes or text described in this document), or a single
-    blank space (to indicate no content). For example:
-    </para>
-    
-    <informalexample>
-    <programlisting>
-&lt;xml id="extra-packages-5">
-&lt;package>package&lt;/package>
-&lt;/xml>
-
-&lt;xml id="extra-packages-6"> &lt;/xml></programlisting>
-    </informalexample>
-
-    <para>
-    For processing purposes, Deploy ignores these elements. Their only
-    role is to support conditional content inclusion.  See <xref
-    linkend="conditional-xinclude-example"/> for a complete example.
-    </para>
-    </section>
-
-    <section>
     <title>Examples</title>
 
     <section id="xinclude-text-document-example"> 
@@ -411,8 +332,8 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       document.
       </title>
       <para>
-      The example below uses XInclude to include content from the text
-      file named <filename>ks.cfg</filename> within the kickstart element. The
+      The example below uses XInclude to include content from a text
+      file named <filename>file.txt</filename>. The
       name of the XInclude element is <varname>xi:include</varname>.
       Technically <emphasis>xi:</emphasis> is the prefix, as established in 
       <xref linkend="xinclude-namespace-declaration"/>, to the element named
@@ -420,7 +341,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       this document, however, we will refer to it as the
       <varname>xi:include</varname> element. The <varname>href</varname>
       attribute identifies the path of the file for inclusion, in this case a
-      file named ks.cfg in the same folder as the definition. The
+      file named file.txt in the same folder as the definition. The
       <varname>parse</varname> attribute indicates that the file to be included
       is in <emphasis>text</emphasis> format, rather than XML (the default).
       </para>
@@ -428,13 +349,11 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
        <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
-&lt;kickstart&gt;
-&lt;xi:include href="ks.cfg" parse="text" /&gt;
-&lt;/kickstart&gt;
+&lt;xi:include href="file.txt" parse="text" /&gt;
 ...
-&lt;/repo&gt;</programlisting>
+&lt;/definition&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -453,11 +372,11 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;xi:include href="repos.xml"/&gt;
 ...
-&lt;/repo&gt;</programlisting>
+&lt;/definition&gt;</programlisting>
       </informalexample>
     </section>
 
@@ -496,67 +415,16 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;repos&gt;
 &lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/&gt;
 &lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/&gt;
 &lt;/repos&gt;
 
-&lt;/repo&gt;</programlisting>
-      </informalexample>
-    </section>
-
-    <section id="conditional-xinclude-example"> 
-      <title>
-      Example 4 - Conditionally including XML segments using Macros, XIncludes and XML elements.
-      </title>
-      <para>
-      Often it is convenient to reuse a single definition across multiple
-      operating system versions and architectures, even when content
-      requirements differ. This can be done using a combination of macros,
-      XIncludes and XML elements.
-      </para>
-
-      <para>
-      The example below shows a <emphasis>packages</emphasis> element
-      containing two groups (core and base), and an
-      <emphasis>xi:include</emphasis> element. The
-      <emphasis>xi:include</emphasis> selects additional content based on the
-      value provided for the <emphasis>version</emphasis> macro. In the default
-      case (version=5), the list of groups for the repository will be "core,
-      base and smb-server".  If the version macro is set to "6", however,
-      either manually or using a command-line macro, the list of groups will be
-      "core, base and cifs-file-server".
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
-&lt;macro id="version"&gt;5&lt;macro&gt;
-&lt;macro id="arch"&gt;i386&lt;macro&gt;
-
-&lt;packages&gt;
-&lt;group&gt;core&lt;group&gt;
-&lt;group&gt;base&lt;group&gt;
-&lt;xi:include xpointer="xpointer(/*/xml[@id='packages-%{version}']/node())/&gt;
-&lt;/packages&gt;
-
-&lt;xml id="packages-5">
-&lt;group>smb-server&lt;/group>
-&lt;/xml>
-
-&lt;xml id="packages-6">
-&lt;group>cifs-file-server&lt;/group>
-&lt;/xml>
-...
-&lt;/repo&gt;</programlisting>
+&lt;/definition&gt;</programlisting>
       </informalexample>
     </section>
     </section>
- 
   </section>
-
 </chapter>

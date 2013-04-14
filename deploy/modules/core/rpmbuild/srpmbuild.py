@@ -113,7 +113,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
               '%{srpmdir}': self.srpmdir,
               '%{srpmlast}': srpmlast,
              }
-    self.config.resolve_macros('.', macros)
+    self.config.resolve_macros(map=macros)
   
     # get srpm
     path = pps.path(self.config.getxpath('path/text()', ''))
@@ -290,6 +290,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       logfile   = self.options.logfile,
       libpath   = self.options.libpath,
       sharepath = self.options.sharepath,
+      datpath = self.datdir,
       force_modules = [],
       skip_modules  = [],
       force_events  = ['deploy'],
@@ -318,17 +319,14 @@ class SrpmBuild(Build):
   def _get_definition(self, options, arguments):
     name, spec, requires = self._get_srpm_info(self.ptr.srpmfile)
 
-    root = rxml.config.parse(self.ptr.template, 
-                             macro_xpaths=['/*', '/*/main'],
-                             macro_map=self.initial_macros).getroot()
-
-    # provide meaningful filename since it is used for the .dat file
-    # in the future, it would be cleaner to provide a command line option 
-    # for datfile dir and pass this to the Build object at instantiation.
-    root.file = self.ptr.datdir / self.ptr.template.basename
+    self.definition = rxml.config.parse(self.ptr.template,
+                                        xinclude=True,
+                                        macros = self._get_opt_macros(options), 
+                                        ).getroot()
 
     # add config-rpm for srpm requires
-    config = root.getxpath('/*/config-rpms', rxml.config.Element('config-rpms'))
+    config = self.definition.getxpath('/*/config-rpms',
+                                      rxml.config.Element('config-rpms'))
     rpm = rxml.config.Element('config-rpm', parent=config, 
                               attrib={'id': '%s-%s-config' %
                               (self.ptr.moduleid, self.ptr.srpmid)})
@@ -340,37 +338,39 @@ class SrpmBuild(Build):
       child = rxml.config.Element('requires', parent=rpm)
       child.text = req
 
-    if root.find('config') is None:
-      root.append(config)
+    if self.definition.find('config') is None:
+      self.definition.append(config)
 
     # use gpgsign from parent definition, if provided
     parent_gpgsign = copy.deepcopy(self.ptr.config.getxpath('/*/gpgsign', None))
-    child_gpgsign = root.getxpath('/*/gpgsign', None)
+    child_gpgsign = self.definition.getxpath('/*/gpgsign', None)
     if parent_gpgsign is not None and child_gpgsign is None:
-      root.append(parent_gpgsign)
+      self.definition.append(parent_gpgsign)
      
     # append repos from parent definition, if provided
-    parent_repos = copy.deepcopy(self.ptr.config.getxpath('/*/repos', None))
-    child_repos = root.getxpath('/*/repos', None)
-    if parent_repos is not None and child_repos is None:
-      root.append(parent_repos)
-    if parent_repos is not None and child_repos is not None:
-      for repo in parent_repos.xpath('repo'):
-        child_repo = child_repos.getxpath("repo[@id='%s']" % 
-                     repo.attrib['id'], None)
-        if child_repo is not None: child_repos.remove(child_repo)
-        child_repos.append(repo)
+    parent_repos = {}
+    for repo in self.ptr.config.getxpath('/*/repos'):
+      parent_repos[repo.get('id')] = repo
+
+    child_repos = {}
+    for repo in self.definition.getxpath('/*/repos'):
+      child_repos[repo.get('id')] = repo
+
+    for id, elem in parent_repos.items():
+      if elem not in child_repos.values():
+        if id in child_repos:
+          self.definition.getxpath('/*/repos').replace(child_repos[id],
+                                                       elem.copy())
+        else:
+          self.definition.getxpath('/*/repos').append(elem.copy())
 
     #resolve macros
-    root.resolve_macros('.', {
+    self.definition.resolve_macros(map={
       '%{build-dir}':   self.ptr.build_dir,
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
       '%{rpms-dir}':    self.ptr.rpmsdir,
       })
-
-    self.definition = root
-    self.definitiontree = lxml.etree.ElementTree(self.definition)
 
   def _get_srpm_info(self, srpm):
     ts = rpmUtils.transaction.initReadOnlyTransaction()

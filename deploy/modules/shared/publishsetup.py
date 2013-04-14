@@ -58,7 +58,9 @@ class PublishSetupEventMixin:
 
     # set build-host 
     self.build_host = self.get_build_host()
-    self.config.resolve_macros('.', {'%{build-host}': self.build_host})
+    self.config.resolve_macros(map={
+      '%{build-host}': self.build_host,
+      '%{definition-dir}': self._config.getbase().dirname})
 
     # set additional attributes
     self.localpath = self.get_local()
@@ -88,8 +90,8 @@ class PublishSetupEventMixin:
                      "using the command\n '%s'" % (e, cmd))
           raise SSHFailedError(message=message)
       
-      self.config.resolve_macros('.', {'%{build-host-pubkey}': 
-                                       (keyfile + '.pub').read_text()})
+      self.config.resolve_macros(map={'%{build-host-pubkey}': 
+                                     (keyfile + '.pub').read_text()})
 
     # resolve module macros
     map = {'%{system-url}':     {'conf':  'system-url\' element',
@@ -116,7 +118,7 @@ class PublishSetupEventMixin:
     self.macros = {} # making this an instance attr so dtest can access
     for key in map:
       self.macros[key] = map[key]['value']
-    self.config.resolve_macros('.', self.macros)
+    self.config.resolve_macros(map=self.macros)
 
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid

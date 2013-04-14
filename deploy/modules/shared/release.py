@@ -44,7 +44,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
             force_release=None):
     self.DATA['variables'].append('release_mixin_version')
     try:
-      self.DATA['config'].append(self._configtree.getpath(self.rpmconf))
+      self.DATA['config'].append(self._config.getroottree(
+                                 ).getpath(self.rpmconf))
     except TypeError:
       pass # Dummy Config
 

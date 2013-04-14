@@ -5,6 +5,7 @@
 
       <optional>
       <element name="packages">
+        <ref name="xml-base"/>
 
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
@@ -27,11 +28,17 @@
         </zeroOrMore>
 
         <zeroOrMore>
-        <element name="package"><text/></element>
+        <element name="package">
+          <ref name='xml-base'/>
+          <text/>
+        </element>
         </zeroOrMore>
 
         <zeroOrMore>
-        <element name="exclude"><text/></element>
+        <element name="exclude">
+          <ref name='xml-base'/>
+          <text/>
+        </element>
         </zeroOrMore>
 
         </interleave>
@@ -45,6 +52,7 @@
 
   <define name="element-group">
     <element name="group">
+      <ref name='xml-base'/>
 
       <optional>
       <attribute name="repoid"/>

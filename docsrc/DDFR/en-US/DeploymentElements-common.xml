@@ -110,6 +110,18 @@
     </row>
 
     <row>
+    <entry id='definition-dir-macro'>
+    %{definition-dir}
+    </entry>
+
+    <entry>
+    The folder location of the definition. Typically used within non-SSH
+    scripts for locating files and folders relative to the definition. See the
+    <xref linkend="ssh"/> element for additional information.
+    </entry>
+    </row>
+    
+    <row>
     <entry id='url-macro'>
     %{url}
     </entry>
@@ -646,7 +658,7 @@ $remote-url/%{id}</programlisting>
     
     <informaltable>
     <tgroup cols='2'>
-    <colspec colwidth='1in'/>
+    <colspec colwidth='10%'/>
     <tbody valign='top'>
     <row>
     <entry><emphasis role='strong'>Module</emphasis></entry>
@@ -738,7 +750,8 @@ $remote-url/%{id}</programlisting>
     <constant>TRUE</constant>, Deploy will use SSH for an individual
     script based on the value of the script's <emphasis>ssh</emphasis>
     attribute. See the script element for additional information on the <xref
-    linkend='script-ssh'/>  attribute.
+    linkend='script-ssh'/>  attribute, as well as for details on script
+    execution.
     </para>
    
     <para>
@@ -749,10 +762,11 @@ $remote-url/%{id}</programlisting>
     </para>
     
     <para>
-    Setting the value to <constant>FALSE</constant> allows
-    users to provide custom support for remote script execution, on one
-    <emphasis>or multiple</emphasis> client machines, using any method desired.
-    This custom support must be embedded within user-provided scripts.
+    Setting the value to <constant>FALSE</constant> allows users to provide
+    custom support for remote script execution, on one <emphasis>or
+    multiple</emphasis> client machines, using any method desired.  In this
+    case, Deploy relies on the script to perform all steps to connect,
+    authenticate, and execute actions on client machines.
     </para>
 
     <para>
@@ -885,10 +899,10 @@ $remote-url/%{id}</programlisting>
     </para>
     
     <para>
-    A kickstart file allows automating Anaconda system installation by 
-    providing answers to install-time questions such as selection of language,
-    network configuration, keyboard, file system configuration, mouse,
-    timezone and root password.
+    A kickstart file allows automating system installation by providing answers
+    to install-time questions such as selection of language, network
+    configuration, keyboard, file system configuration, mouse, timezone and
+    root password.
     </para>
 
     <para>
@@ -900,77 +914,100 @@ $remote-url/%{id}</programlisting>
     </para>
   
     <para>
-    The kickstart file is used by <application
-    class="software">Anaconda</application>, the CentOS system installer, for
-    obtaining options, such as language, timezone, network and machine
-    configuration, during automated installation.
-     </para>
-
-    <para>
-    For information on creating kickstart files, see the chapter
-    on <emphasis>Kickstart Installations</emphasis> in the <emphasis>Red Hat
-    Enterprise Linux Installation Guide</emphasis>, available from the Red Hat
-    website.
+    Complete information on creating kickstart files is available from the
+    <emphasis>Red Hat Enterprise Linux Installation Guide</emphasis>, available
+    from the Red Hat website. See the chapter on <emphasis>Kickstart
+    Installations</emphasis>.  Several items of relevance when using kickstart
+    files with Deploy are noted below.
     </para>
 
     <para>
-    Kickstart is an optional element. If not provided, users will be prompted
-    for information at the time of client machine installation.
+    <emphasis role='bold'>%packages section -</emphasis> For Deploy-created
+    repositories, all packages belong to a single group named
+    <emphasis>core</emphasis>. This group can be specified using a packages
+    section as follows:
     </para>
 
-    <note>
     <para>
-    It is not necessary to specify a '%packages' section in the kickstart
-    file. Deploy automatically configures the installer to install all
-    packages in the repository. If a '%packages' section is
-    provided, it is ignored.
+    CentOS and RHEL version 5
     </para>
-    </note>
-  
-    <note>
+    <informalexample>
+    <programlisting>
+%packages --nobase
+@core
+    </programlisting>
+    </informalexample>
+
     <para>
-    Where possible, avoid using the '<emphasis>firewall</emphasis>' and
-    '<emphasis>%post</emphasis>' kickstart options, as they are applied only
-    during client installation. Instead, use config-rpms to apply client
-    configuration. This ensures uniform results whether the client is installed
-    from scratch, or merely updated.  See the
-    <filename>httpd-config.xml</filename> <link
+    CentOS and RHEL version 6
+    </para>
+    <informalexample>
+    <programlisting>
+%packages --nobase
+@core
+%end
+    </programlisting>
+    </informalexample>
+
+    <para>
+    <emphasis role='bold'>firewall option and %post sections - </emphasis>
+    Where possible, avoid using the <emphasis>firewall</emphasis> and
+    <emphasis>%post</emphasis> kickstart options. They provide configuration
+    that is applied <emphasis>only</emphasis> during client installation.
+    Instead, use config-rpms to apply client configuration. This ensures
+    uniform results whether the client is installed from scratch, or merely
+    updated.  See the <filename>httpd-config.xml</filename> <link
     linkend='templates'>template</link> for an example of firewall
     configuration using a config-rpm.
     </para>
-    </note>
 
     <para>
-    <emphasis role='bold'>Examples</emphasis>
-    </para>
-  
-    <para>
-    <emphasis role='bold'>Example 1</emphasis> - The following example shows
-    the text of a kickstart file providing all information required to fully
-    automate a client machine installation. It uses <varname>%{fqdn}</varname>
-    and <varname>%{crypt-password}</varname> <link
-    linkend='deployment-macros'>module macros</link>. On a system with Deploy
-    installed, the text of the kickstart shown below can be found as a file
-    named <filename>ks.cfg</filename> in the templates folder at
-    <filename>/usr/share/deploy/templates/deploy</filename>.
+    <emphasis role='bold'><emphasis>%end</emphasis> delimiters - </emphasis>
+    For CentOS and RHEL version 6, an "%end" delimiter is required after
+    <emphasis>%packages</emphasis> and <emphasis>%post</emphasis> sections. In
+    version 5, however, the <emphasis>%end</emphasis> delimiter is not
+    supported and will cause an error.  To create kickstart elements that are
+    compatible with either version, you can use macros as shown in the example
+    below: 
     </para>
 
     <informalexample>
     <programlisting>
-&lt;kickstart&gt;
-<xi:include href='../../../../../share/deploy/templates/deploy/ks.cfg' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
-&lt;/kickstart&gt;</programlisting>
+%packages --nobase
+@core
+%{end-%{version}}
+&lt;macro id='end-5'>&lt;/macro>
+&lt;macro id='end-6'>%end&lt;/macro>
+    </programlisting>
     </informalexample>
-  
+ 
     <para>
-    <emphasis role='bold'>Example 2</emphasis> - The example below shows
-    including text from an external kickstart file using XInclude.
+    Kickstart is an optional element. If not provided, users will be propted
+    for information at the time of client installation.
+    </para>
+
+    <para>
+    <emphasis role='bold'>Example</emphasis> - The following example shows a
+    file named ks.xml which is included in the <link
+    linkend='templates'>templates</link> folder. The template provides a
+    kickstart file with all the information required to fully automate a client
+    machine installation. It uses <varname>%{fqdn}</varname> and
+    <varname>%{crypt-password}</varname> <link
+    linkend='deployment-macros'>module macros</link>.
+    </para>
+
+    <informalexample>
+    <programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/deploy/ks.xml' parse='text'/></programlisting>
+    </informalexample>
+
+    <para>
+    The template can be included in a definition using an <link linkend='xincludes'>XInclude</link> such as the following:
     </para>
     <informalexample>
     <programlisting>
-&lt;kickstart&gt;
-&lt;xi:include href="ks.cfg" parse="text"/&gt;
-&lt;/kickstart&gt;</programlisting>
+&lt;xi:include href="/path/to/deploy/ks.xml"/&gt;
+    </programlisting>
     </informalexample>
 
     </listitem>
@@ -1402,7 +1439,7 @@ $remote-url/%{id}</programlisting>
 &lt;hostname>samba-live&lt;/hostname>
 &lt;password>secret&lt;/password>
 
-&lt;kickstart&gt;&lt;xi:include href="ks.cfg" parse="text"/&gt;&lt;/kickstart&gt;
+&lt;kickstart>&lt;xi:include href="ks.xml">&lt;/kickstart>
 
 <xi:include href='../../../../../share/deploy/templates/deploy/virt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
@@ -1582,14 +1619,40 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <listitem>
 
       <para>
-      <varname>BOOLEAN</varname> value that determines whether Deploy
-      should attempt to execute the script via SSH.
-      Default values are shown in the table below. 
+      <varname>BOOLEAN</varname> value that determines whether Deploy should
+      attempt to execute the script via SSH.
+      </para>
+
+
+      <para>
+      If the ssh attribute is <constant>TRUE</constant>, Deploy attempts
+      to copy the script to the client machine identified by the <link
+      linkend='deployment-macros'>%{fqdn}</link> macro and execute it from the
+      <filename>/var/lib/deploy/</filename> folder with root privileges.
+      The file will be given the same name as the <xref linkend='script-id'/>
+      attribute.
+      </para>
+
+      <para>
+      If the ssh attribute is <constant>FALSE</constant>, Deploy creates and
+      executes the script from the Deploy cache folder on the build machine.
+      Scripts that need to access content relative to the definition file can
+      make use of the %{definition-dir} macro.
+      </para>
+
+      <para>
+      If the value of the <xref linkend='ssh'/> element is set to False, the 
+      @ssh attribute has no effect. See the ssh element for additional
+      information.
+      </para>
+
+      <para>
+      This attribute it optional. Default values are shown in the table below. 
       </para>
 
       <informaltable>
       <tgroup cols='2'>
-      <colspec colwidth='3in'/>
+      <colspec colwidth='35%'/>
       <tbody valign='top'>
       <row>
       <entry><emphasis role='strong'>Script Type</emphasis></entry>
@@ -1606,21 +1669,6 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </tbody>
       </tgroup>
       </informaltable>
-
-      <para>
-      If the ssh attribute is <constant>TRUE</constant>, Deploy attempts
-      to copy the script to the client machine identified by the <link
-      linkend='deployment-macros'>%{fqdn}</link> macro and execute it from the
-      <filename>/var/lib/deploy/</filename> folder with root privileges.
-      The file will be given the same name as the <xref linkend='script-id'/>
-      attribute.
-      </para>
-
-      <para>
-      If the ssh attribute is <constant>FALSE</constant>, Deploy relies
-      on the script to perform all steps to connect, authenticate, and execute
-      on one or more client machines.
-      </para>
       </listitem>
       </varlistentry>
 

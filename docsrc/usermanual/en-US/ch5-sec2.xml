@@ -190,21 +190,39 @@
   </para>
 
   <para>
-  Virt-deploy.xml uses a default kickstart file named
-  <filename>ks.cfg</filename> from the deploy folder. Contents of the file are
-  shown below.
+  Virt-deploy.xml uses kickstart templates from the deploy folder. The two templates are <filename>ks.xml</filename> and <filename>ks-post-ssh.xml</filename>. The first provides basic kickstart options. The second configures the client for ssh access. Contents of these templates are shown below.
   </para>
 
   <para>
-  <emphasis role='strong'><filename>ks.cfg</filename></emphasis>
+  <emphasis role='strong'><filename>ks.xml</filename></emphasis>
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks.cfg" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
-  The default <filename>ks.cfg</filename> file uses macros (see the DDFR for
+  <emphasis role='strong'><filename>ks-post-ssh.xml</filename></emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  </informalexample>
+
+  <para>
+  The two files can be combined within a single kickstart element as follows:
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;kickstart>
+&lt;xi:include href="/path/to/ks.xml" xpointer="xpointer(/*/node())"/>
+&lt;xi:include href="/path/to/ks-post-ssh.xml" xpointer="xpointer(/*/node())/>
+&lt;kickstart></programlisting>
+  </informalexample>
+
+  <para>
+  The default <filename>ks.xml</filename> file uses macros (see the DDFR for
   information on deployment macros) to allow the hostname and root password to
   be filled in at Deploy runtime. Often, however, you will want to
   customize additional kickstart options such as timezone, or drive
@@ -220,8 +238,10 @@
   varies from ones you have used previously, however, in that it contains an
   xpointer attribute.  Xpointer is used to include all elements from the file,
   <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
-  Finally, you add a kickstart element containing the text content of the
-  modified kickstart, in this case, only the timezone has been changed.
+  Next, you add a kickstart element. This element contains kickstart
+  content to suit your needs; in the example below only the timezone has been
+  changed. Finally, to the kickstart element you also include content from the
+  <filename>ks-post-ssh.xml</filename> template. 
   </para>
 
   <informalexample>
@@ -243,6 +263,13 @@ timezone America/Denver  #change timezone to Denver
 auth --enablemd5 --enableshadow --enablecache
 selinux --enforcing
 reboot
+
+%packages --nobase
+@core
+%{end-%{version}}
+&lt;macro id='end-5'>&lt;/macro>
+&lt;macro id='end-6'>%end&lt;/macro>
+&lt;xi:include href="/path/to/ks-ssh-post.xml" xpointer="xpointer(/*/node())"/>
 &lt;/kickstart>
 &lt;/test-install></programlisting>
   </informalexample>
@@ -354,14 +381,17 @@ virt-install --name %{fqdn} --ram 2000 \
 &lt;xml xmlns:xi="http://www.w3.org/2001/XInclude">
 &lt;!-- install and update an Amazon Machine Image (AMI) -->
 &lt;domain>mydomain.com&lt;/domain>
-&lt;kickstart>&lt;xi:include href=’deploy/ks.cfg’ parse=’text’/>&lt;/kickstart>
-&lt;xi:include href=’deploy/ssh-config.xml’/>
-&lt;xi:include href=’deploy/test-triggers.xml’/>
-&lt;xi:include href=’ami-activate.xml’/>
-&lt;xi:include href=’ami-delete.xml’/>
-&lt;xi:include href=’ami-install.xml’/>
-&lt;xi:include href=’deploy/verify-install.xml’/>
-&lt;xi:include href=’deploy/save-triggers.xml’/>
+&lt;kickstart>
+&lt;xi:include href='deploy/ks.xml' xpointer='xpointer(/*/node())'/>
+&lt;xi:include href='deploy/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
+&lt;/kickstart>
+&lt;xi:include href='deploy/ssh-config.xml'/>
+&lt;xi:include href='deploy/test-triggers.xml'/>
+&lt;xi:include href='ami-activate.xml'/>
+&lt;xi:include href='ami-delete.xml'/>
+&lt;xi:include href='ami-install.xml'/>
+&lt;xi:include href='deploy/verify-install.xml'/>
+&lt;xi:include href='deploy/save-triggers.xml'/>
 &lt;xi:include href=’deploy/update.xml’/>
 &lt;xi:include href=’deploy/check-kernel.xml’/>
 &lt;/xml></programlisting>

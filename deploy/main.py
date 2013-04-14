@@ -147,15 +147,15 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self.debug = options.debug
     if callback: callback.set_debug(self.debug)
 
-    # set up initial macros
-    self._get_initial_macros(options=options)
-
     # set up configs
     try:
       self._get_config(options, arguments)
       self._get_definition(options, arguments)
     except rxml.errors.XmlError, e:
-      raise DeployError(e)
+      if self.debug: 
+        raise
+      else:
+        raise DeployError(e)
 
     # now that we have mainconfig, use it to set debug mode, if specified
     if self.mainconfig.pathexists('/deploy/debug'):
@@ -165,29 +165,14 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set up initial variables
     qstr = '/*/main/%s/text()'
 
-    for elem in ['name', 'os', 'version', 'arch']:
+    for elem in ['name', 'os', 'version', 'arch', 'id']:
       try:
         exec ("self.%s = self.definition.getxpath('/*/main/%s/text()')" 
               % (elem, elem))
       except rxml.errors.XmlPathError, e:
-        msg = ("ERROR: Validation of %s failed. Missing 'main/%s' element. %s"
-                % (self.definition.getroot().file, elem,
-                   VALIDATE_DATA[elem]['error']))
-        if elem == "os" and not self.definition.getxpath(qstr % 'id', None):
-          raise DeployError("%s \n\n"
-          "Caution: Adding an 'os' element will change the repository "
-          "ID. If the repository exists and is in use, you should add two "
-          "elements to the 'main' section of the definition:\n"
-          "\n"
-          "1. an 'os' element as described above, e.g. '<os>centos</os>'\n"
-          "2. an 'id' element with an explicit value, e.g. "
-          "'<id>%%{name}-%%{version}-%%{arch}</id>'\n"
-          "\n"
-          "See the Definition File Reference for more information "
-          "on these elements." % msg)
-
-        else:
-          raise DeployError(msg)
+        msg = ("ERROR: Validation of %s failed. Missing required 'main/%s' "
+               "element." % (self.definition.getroot().getbase(), elem))
+        raise DeployError(msg)
 
     self.mode   = self.definition.getxpath(qstr % 'mode', 'system')
     self.build_id = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
@@ -200,20 +185,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       else: 
         value = eval('self.%s' % elem)
       if not VALIDATE_DATA[elem]['validatefn'](value):
-        raise InvalidConfigError(self.definition.file, elem, value, 
+        raise InvalidConfigError(self.definition.getbase(), elem, value, 
                                  VALIDATE_DATA[elem]['error'])
-
-    # resolve global macros - do this early so that global macros
-    # can be used in event ids for config-rpms and srpmbuild events
-    macros = {'%{name}':          self.name,
-             '%{os}':             self.os,
-             '%{version}':        self.version,
-             '%{arch}':           self.arch,
-             '%{id}':             self.build_id,
-             '%{definition-dir}': self.definition.file.dirname,
-             }
-
-    self.definition.resolve_macros(map=macros)
 
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
@@ -232,7 +205,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self._compute_event_attrs(options)
 
     # change working dir to config dir so relative paths expand properly
-    os.chdir(self.definition.file.dirname)
+    os.chdir(self.definition.getbase().dirname)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -308,9 +281,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.build_id ))
 
-  def _get_initial_macros(self, options):
-    # setup initial macro replacements using values from options, if available
-    macros = {}
+  def _get_opt_macros(self, options):
+    # setup global macros using values from options, if provided 
+    map = {}
 
     if options.macros:
       for pair in options.macros:
@@ -319,18 +292,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         if not id or not value:
           raise InvalidOptionError(pair, 'macro', "Macro options must take the "
                                    "form 'id:value'.")
-        macros['%%{%s}' % id] = value
 
-      # validate os, version and arch values, if provided
-      for name in VALIDATE_DATA:
-        key = '%%{%s}' % name
-        if key in macros:
-          value = macros[key]
-          if not VALIDATE_DATA[name]['validatefn'](value):
-            raise InvalidOptionError('%s:%s' % (name, value), 'macro', 
-                                     VALIDATE_DATA[name]['error'])
+        map['%%{%s}' % id] = value
 
-    self.initial_macros = macros
+    return map
 
   def _get_config(self, options, arguments):
     """
@@ -359,9 +324,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if not dp.exists():
       raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    dt = rxml.config.parse(dp, macro_xpaths=['/*', '/*/main'],
-                           macro_map=self.initial_macros)
-    self.definitiontree = dt
+    dt = rxml.config.parse(dp, xinclude=True, 
+                           macros=self._get_opt_macros(options))
     self.definition = dt.getroot()
 
   def _compute_events(self, modules=None, events=None):
@@ -493,7 +457,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     # setup datfile name
-    self.datfn =  self.definition.file.dirname / '%s.dat' % self.build_id
+    self.datfn = ((pps.path(options.datpath) or 
+                  self.definition.getbase().dirname) /
+                  '%s.dat' % self.build_id)
 
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
@@ -542,7 +508,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     ptr.logger = self.logger
     ptr.mainconfig  = self.mainconfig
     ptr._config     = self.definition
-    ptr._configtree = self.definitiontree
   
     # set up base variables
     di = ptr.cvars['distribution-info'] = {}
@@ -589,7 +554,7 @@ class CvarsDict(dict):
 class AllEvent(Event):
   "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
-  moduleid = None
+  moduleid = 'all' 
   def __init__(self, ptr):
     Event.__init__(self,
       id = 'all',

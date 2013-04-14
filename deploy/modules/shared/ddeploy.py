@@ -131,7 +131,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.DATA['variables'].append('trigger_data')
 
     for key in self.trigger_data:
-      self.config.resolve_macros('.' , {'%%{%s}' % key: self.trigger_data[key]})
+      self.config.resolve_macros(map={'%%{%s}' % key: self.trigger_data[key]})
 
     triggers = self.config.getxpath('triggers/text()',
                ' '.join(getattr(self, 'default_install_triggers', '')))
@@ -139,11 +139,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       if not re.match('^[a-zA-Z0-9_]+$', trigger):
         raise InvalidTriggerNameError(trigger)
 
-    self.config.resolve_macros('.', {'%{triggers}': triggers})
+    self.config.resolve_macros(map={'%{triggers}': triggers})
 
     self.deploydir = self.LIB_DIR / 'deploy'
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
-    self.config.resolve_macros('.', {'%{trigger-file}': self.triggerfile})
+    self.config.resolve_macros(map={'%{trigger-file}': self.triggerfile})
 
     # setup to create type files - do this after macro resolution
     for scripts in self.types.values():

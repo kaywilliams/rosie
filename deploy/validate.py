@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from lxml import etree
+from StringIO import StringIO
 
 import copy
 import os
@@ -52,8 +53,8 @@ class DeployValidationHandler:
   def _validate_configs(self):
     "Validate deploy config and definition"
 
-    if self.mainconfig.file is not None:
-      self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
+    if self.mainconfig.base is not None:
+      self.logger.log(4, L0("Validating '%s'" % self.mainconfig.base))
     else:
       self.logger.log(4, L0("Validating main config with default settings"))
 
@@ -62,7 +63,7 @@ class DeployValidationHandler:
     v.validate('/deploy', schema_file='deploy.rng')
 
     # validate individual sections of the definition
-    self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
+    self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.base)))
     v = DefinitionValidator([ x/'schemas/definition' for x in self.sharedirs ],
                            self.definition)
 
@@ -70,8 +71,8 @@ class DeployValidationHandler:
     unresolved = [event for event in self.dispatch]
     while unresolved:
       event = unresolved.pop()
-      self.definition.resolve_macros(xpaths=[event.config_base + '/'] ,
-                                     map=getattr(event, 'macros', {}))
+      if getattr(event, 'macros', None):
+        self.definition.resolve_macros(map=getattr(event, 'macros', {}))
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
@@ -96,14 +97,13 @@ class DeployValidationHandler:
 
   def _verify_tle_elements(self, expected_elements):
     processed = set()
-    for child in self.definition.getroot().iterchildren():
+    for child in self.definition.iterchildren():
       if child.tag is etree.Comment: continue
       if child.tag not in expected_elements:
-        raise InvalidConfigError(self.definition.getroot().file,
-          " unknown element '%s' found:\n%s"
-            % (child.tag, XmlTreeElement.tostring(child, lineno=True)))
+        raise InvalidConfigError(self.definition.base,
+          " unknown element '%s' found:\n%s" % (child.tag, child))
       if child.tag in processed:
-        raise InvalidConfigError(self.definition.getroot().file,
+        raise InvalidConfigError(self.definition.base,
                                  " multiple instances of the '%s' element "
                                  "found " % child.tag)
       processed.add(child.tag)
@@ -134,21 +134,16 @@ class BaseConfigValidator:
   def _scrub_tree(self, tree):
     if tree is None: return
 
-    xmlbase = '{http://www.w3.org/XML/1998/namespace}base'
+    # reparse the tree to get sequential sourcelines
+    tree = rxml.tree.parse(StringIO(tree)).getroot()
 
-    def remove_xmlbase(t):
-      if t.attrib.has_key(xmlbase):
-        del t.attrib[xmlbase]
+    # # remove unused namespaces (i.e. Xinclude) 
+    # etree.cleanup_namespaces(tree)
 
-    # copy and remove xml:base attributes from tree
-    tree = copy.deepcopy(tree)
-    remove_xmlbase(tree)
-    for c in tree.iterdescendants():
-      remove_xmlbase(c)
     return tree
 
   def validate_with_string(self, schema_contents, tree, tag, required):
-    schema = etree.fromstring(schema_contents, base_url=self.config.file.dirname)
+    schema = etree.fromstring(schema_contents)
     if tree is None:
       self.check_required(schema, tag, required)
       return
@@ -189,7 +184,7 @@ class BaseConfigValidator:
       raise InvalidSchemaError(self.curr_schema or '<string>', e.error_log)
     else:
       if not relaxng.validate(tree):
-        raise InvalidConfigError(self.config.getroot().file,
+        raise InvalidConfigError(self.config.base,
                                  relaxng.error_log,
                                  self.curr_schema or '<string>',
                                  XmlTreeElement.tostring(tree, lineno=True))
@@ -208,7 +203,7 @@ class BaseConfigValidator:
 
   def check_required(self, schema, tag, required):
     if required:
-      raise InvalidConfigError(self.config.getroot().file,
+      raise InvalidConfigError(self.config.base,
                                "Missing required element '%s'." % tag)
 
 
@@ -233,6 +228,7 @@ class DefinitionValidator(BaseConfigValidator):
         start_elem.append(child)
         child.parent = start_elem
       start_elem.remove(opt_elem)
+
     return schema
 
   def check_required(self, schema, tag, *args, **kwargs):
@@ -240,7 +236,7 @@ class DefinitionValidator(BaseConfigValidator):
     if defn is not None:
       optional = defn.getxpath('rng:optional', namespaces=NSMAP)
       if optional is None:
-        raise InvalidConfigError(self.config.getroot().file,
+        raise InvalidConfigError(self.config.base,
                                  "Missing required element: '%s'" % tag)
  
 #------ ERRORS ------#
@@ -256,8 +252,9 @@ class InvalidXmlError(StandardError):
 class InvalidConfigError(InvalidXmlError):
   def __str__(self):
     if len(self.args) == 4:
-      return 'Validation of "%s" against "%s" failed. The invalid section is:\n%s\n' % \
-        (self.args[0], self.args[2], self.args[3]) + InvalidXmlError.__str__(self)
+      return ('Validation of "%s" failed. The invalid section '
+              'is:\n\n%s\n' % (self.args[0], self.args[3])
+              + InvalidXmlError.__str__(self))
     if len(self.args) == 3:
       return 'Validation of "%s" against "%s" failed:\n' % \
         (self.args[0], self.args[2]) + InvalidXmlError.__str__(self)

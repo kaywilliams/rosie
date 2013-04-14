@@ -51,7 +51,7 @@ class Test_Kickstart(_InitrdImageEventTestCase):
   "kickstart file included"
   def setUp(self):
     _InitrdImageEventTestCase.setUp(self)
-    self.ksfile = self.event.config.getroot().file.abspath().dirname/'ks.cfg'
+    self.ksfile = self.event.config.getroot().getbase().dirname/'ks.cfg'
     self.ksfile.touch()
     self.event.cvars['publish-ksfile'] = self.ksfile
     self.event.cvars['publish-ksname'] = 'ks.cfg'

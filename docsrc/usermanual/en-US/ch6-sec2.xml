@@ -164,7 +164,7 @@
   </para>
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;repo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main>...&lt;/main>
 
@@ -198,7 +198,7 @@
 &lt;password>production-password&lt;password>
 
 &lt;kickstart>
-<xi:include href="../../../../../share/deploy/templates/deploy/ks.cfg"
+<xi:include href="../../../../../share/deploy/templates/deploy/ks.xml"
             parse='text' 
             xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/kickstart>
@@ -211,7 +211,7 @@ rsync -a --delete -e ssh \
 &lt;/script>
 &lt;/publish>
 
-&lt;/repo></programlisting>
+&lt;/definition></programlisting>
   </informalexample>
 
   <section>

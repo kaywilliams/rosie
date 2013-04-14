@@ -16,11 +16,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import codecs
-import lxml.etree
-import lxml.sax
 import re
 
+from copy import deepcopy
 from StringIO import StringIO
+
+from lxml import etree, sax
 
 from deploy.util import pps
 
@@ -28,6 +29,7 @@ from deploy.util.rxml import errors
 
 XI_NS = "http://www.w3.org/2001/XInclude"
 XML_NS = "http://www.w3.org/XML/1998/namespace"
+RE_NS = "http://exslt.org/regular-expressions"
 MACRO_REGEX = '%{(?:(?!%{).)*?}' # match inner macros (e.g. '%{version}' in 
                                  # '%{packages-%{version}}'
 
@@ -40,8 +42,8 @@ class XmlTreeObject(object):
   def unicode(self):
     return unicode(self.tostring())
 
-  def tostring(self, lineno=False):
-    s = self._tostring()
+  def tostring(self, lineno=False, **kwargs):
+    s = XmlTreeObject._tostring(self, **kwargs)
     if lineno:
       srcline = self.sourceline or 0
       pad = len(str(getattr(self.getroot(), 'maxlineno', 0)))
@@ -53,19 +55,24 @@ class XmlTreeObject(object):
     else:
       return s
 
-  def _tostring(self):
-    string = lxml.etree.tostring(self)
+  def _tostring(self, **kwargs):
+    string = etree.tostring(self, **kwargs)
     for k,v in self.nsmap.items():
-      string = string.replace('%s:' % k, '').replace(':%s' % k, '')
+      if v == XML_NS: # use consistent 'xml' prefix for xml namespace
+        string = string.replace('xmlns:%s' % k, 'xmlns:xml')
+      elif v == XI_NS: # strip xinclude namespace
+        string = string.replace('xmlns:%s="%s" ' % (k, v), '')
+      else: # used for repomd files - todo handle using custom elem class  
+        string = string.replace('%s:' % k, '').replace(':%s' % k, '')
     return string
 
   def getroot(self):
     return self.getroottree().getroot()
 
-class XmlTreeComment(lxml.etree.CommentBase, XmlTreeObject):
+class XmlTreeComment(etree.CommentBase, XmlTreeObject):
   pass
 
-class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
+class XmlTreeElement(etree.ElementBase, XmlTreeObject):
   """
   XmlTreeElements are data structures designed to represent XML
   elements in memory in a DOM (Document-Object Model) style.  As such,
@@ -108,6 +115,44 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
   def __ne__(self, other):
     return not self.__eq__(other)
 
+  def addprevious(self, elem):
+    "preserve base during element move"
+    base = elem.base
+    etree.ElementBase.addprevious(self, elem)
+    if base != self.base:
+      elem.base = base  
+
+  def copy(self):
+    "return a copy of the element, preserving the base"
+    new = deepcopy(self)
+    if self.base:
+      new.base = self.base
+
+    return new
+
+  def getbase(self):
+    return pps.path(self.base)
+
+  def updatebase(self, parent, child):
+    """
+    Updates the base attribute of a child element. The new base is calculated
+    relative to the parent.
+    """
+    oldbase = pps.path(child.getbase())
+    newbase = oldbase.relpathfrom(parent.getbase())
+
+    if not newbase:
+      return
+
+    if newbase == '.':
+      if '{%s}base' % XML_NS in child.attrib:
+        del child.attrib['{%s}base' % XML_NS]
+      else:
+        return
+
+    else:
+      child.attrib['{%s}base' % XML_NS] = newbase
+    
   def getxpath(self, path, fallback=NoneObject(), namespaces=None, extensions=None):
     """
     Get one or more nodes out of the XML tree.
@@ -129,7 +174,7 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
     if not namespaces:     namespaces = self.getroot().nsmap
     if None in namespaces: namespaces.pop(None) # None in namespaces raises an exception
     try:
-      result = lxml.etree.ElementBase.xpath(self, path,
+      result = etree.ElementBase.xpath(self, path,
                                             namespaces=namespaces,
                                             extensions=extensions)
       if len(result) == 0 and not isinstance(fallback, NoneObject):
@@ -139,20 +184,14 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
         #  result = result
         rtn = []
         for item in result:
-          if isinstance(item, str):
+          if isinstance(item, basestring):
             if not (item.is_tail and item.getparent() != self):
               rtn.append(item.strip())
           else:
             rtn.append(item)
         return rtn
-    except lxml.etree.XPathSyntaxError:
+    except etree.XPathSyntaxError:
       raise errors.XmlPathError("syntax error in path expression '%s'" % path)
-
-  def getchildren(self, elemonly=True):
-    children = lxml.etree.ElementBase.getchildren(self)
-    if elemonly:
-      children = [ x for x in children if isinstance(x, XmlTreeElement) ]
-    return children
 
   def pathexists(self, path):
     return self.getxpath(path) is not None
@@ -172,70 +211,73 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
     return len(self.xpath(child, [])) > 0
 
   def remove(self, elem):
-    # preserve tail text
-    previous = elem.getprevious()
-    if elem.tail:
+    if not elem.tail or not elem.tail.strip():
+      etree.ElementBase.remove(self, elem)
+
+    else:
+      previous = elem.getprevious()
+
       # add tail to previous elem tail
       if previous is not None:
-        if previous.tail:
-          previous.tail = previous.tail + elem.tail
-        else:
-          previous.tail = elem.tail
+        previous.tail = (previous.tail or '') + elem.tail
+        etree.ElementBase.remove(self, elem)
 
       # add tail to self text
       else:
-        if self.text:
-          self.text = self.text + elem.tail
-        else:
-          self.text = elem.tail
+        self.text = (self.text or '') + elem.tail
+        etree.ElementBase.remove(self, elem)
 
-    lxml.etree.ElementBase.remove(self, elem)
+  def replace(self, child, value):
+    """
+    Replace child element with value. Value accepts text, an element, or a list
+    of text and elements
+    """
+    if isinstance(value, basestring) or isinstance(value, etree._Element):
+      value = [value]
 
-  def replace(self, map):
-    "performs string replacement across all attributes and text elements"
-    for key in map:
-      for elem in self.iter():
-        for attr in elem.attrib.keys():
-          if key in elem.attrib[attr]:
-            elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
-        if elem.text is not None:
-          if key in elem.text:
-            elem.text = elem.text.replace(key, map[key])
-        if elem.tail is not None:
-          if key in elem.tail:
-            elem.tail = elem.tail.replace(key, map[key])
+    for v in value:
+      if isinstance(v, basestring):
+        if not v.strip(): 
+          continue # ignore whitespace only items
+        if (isinstance(v, etree._ElementStringResult) and 
+            v.is_tail and v.getparent() in value):
+          continue # ignore tails
+        self.text = (self.text or '') + v
+      else:
+        if isinstance(v, etree.ElementBase):
+          child.addprevious(v)
 
-  def resolve_macros(self, xpaths=None, map=None):
+    self.remove(child)
+
+  def resolve_macros(self, find=False, map={}):
     """
     Processes macro definitions and resolves macro variables.  Macro
     definitions take the format '<macro id='name'>value</macro>'. They can
     exist at any level of the element. Macro variables use the syntax
     '%{macroid}'. Macro variables can occur in element nodes and attributes.
 
-    Keyword arguments: 
-    xpath -- an xpath query used for locating macro definitions. The query must
-    return element nodes. The default value is '/*', meaning that
-    resolve_macros will search for macro definitions only at the top level of
-    the element. To search for macros at any level, provide a dot character in
-    the xpath string, e.g. ['.']
+    Keyword arguments:
+    find -- a boolean value indicating whether macro definitions should be
+    discovered  and removed from the element and its descendants.  The default
+    value is False.
     
     map -- a dictionary containing existing macro definitions to use in
-    addition to any discovered macros, e.g.
+    addition to any found macros, e.g.
 
         map = {'%{name1}: 'value1'
                 %{name2}: 'value2'}
 
+    Provided macros take precedence over found macros.
+
+    Returns a dictionary of provided and found macros.
+
     """
-    xpaths = xpaths or ['/*']
     map = map or {}
 
     # locate and remove macro definitions
-    for item in xpaths:
-      if item == '.':
-        item = '/'
-
+    if find:
       while True:
-        elems = self.xpath('%s/macro' % item, [])
+        elems = self.xpath('//macro', [])
         if not elems: break
 
         for elem in elems:
@@ -246,27 +288,31 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
           # validate element
           if not 'id' in elem.attrib:
             message = "Missing required 'id' attribute."
-            raise errors.MacroError(self.getroot().file, message, elem)
-
+            raise errors.MacroError(self.getroot().base, message, elem)
+  
           if re.findall(MACRO_REGEX, elem.attrib['id']):
             message = "Macros not allowed in macro ids."
-            raise errors.MacroError(self.getroot().file, message, elem)
-
-          # add elem contents to map
+            raise errors.MacroError(self.getroot().base, message, elem)
+  
+          # add elem content to map
           name = '%%{%s}' % elem.attrib['id']
           if name not in map: # higher level macros trump lower ones
-            if elem.text or len(elem) > 0:
-              map[name] = re.sub(r'<macro.*>((.|\n)*)</macro>(.|\n)*$', r'\1',
-                               str(elem).strip())
+            if len(elem) > 0:
+              value = elem # add the element as the value
+            elif elem.text:
+              value = elem.text
             else:
-              map[name] = ''
-          
-          # check for circular references
-          if name in map[name]:
-            message = ("Macro value contains a circular reference to "
-                       "the macro id.")
-            raise errors.MacroError(self.getroot().file, message, elem)
+              value = ''
 
+            # check for circular references
+            if name in value:
+              message = ("Macro value contains a circular reference to "
+                         "the macro id.")
+              raise errors.MacroError(self.getroot().base, message, elem)
+  
+            # add elem value to macros
+            map[name] = value 
+ 
           elem.getparent().remove(elem)
 
     if not map: # no macros to resolve
@@ -275,22 +321,65 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
     # resolve macros
     unknown = set() # macro references with no corresponding definition
     while True:
-      remaining = set( re.findall(MACRO_REGEX, str(self))).difference(unknown)
-      if not remaining: break
-
-      newtext = str(self)
+      remaining = set( re.findall(MACRO_REGEX, etree.tostring(self))
+                                  ).difference(unknown)
+      if not remaining:
+        break
 
       for macro in remaining:
-        if macro in map:
-          newtext = newtext.replace(macro, map[macro])
-        else:
+        # ignore unknown
+        if not macro in map:
           unknown.add(macro)
+          continue
 
-      newroot = parse(StringIO(newtext), parser=self.getroottree().parser,
-                resolve_macros=False).getroot()
-      
-      for child in self.iterchildren(): self.remove(child)
-      self.extend( newroot.getchildren()) 
+        # text and tails
+        strings = etree.ElementBase.xpath(self,
+                  "//text()[re:test(., '.*%s.*', 'g')]" % macro,
+                  namespaces={'re':RE_NS})
+
+        for string in strings:
+          parent = string.getparent()
+
+          if isinstance(map[macro], basestring): # macro is string
+            if string.is_text:
+              parent.text = string.replace(macro, map[macro])
+            if string.is_tail:
+              parent.tail = string.replace(macro, map[macro])
+
+          else: # macro is macro element
+            text, tail = string.split(macro, 1)
+            elems = [ x.copy() for x in map[macro] ]
+            elems.reverse()
+
+            if string.is_text:
+              parent.text = text + (map[macro].text or '')
+              for elem in elems:
+                parent.insert(0, elem)
+              elems[0].tail = (elems[0].tail or '') + tail 
+
+            if string.is_tail:
+              grandparent = parent.getparent()
+              parent.tail = text + (map[macro].text or '')
+              for elem in elems:
+                grandparent.insert(grandparent.index(parent) + 1, elem)
+              elems[0].tail = (elems[0].tail or '') + tail
+
+        # attributes
+        attribs = [ x for x in etree.ElementBase.xpath(self, '//*/@*') 
+                    if macro in x ]
+        for attrib in attribs:
+          if not isinstance(map[macro], basestring):
+            message = ("Element content not allowed in attribute values.\n\n"
+                       "The macro is defined as:\n" 
+                       "%s\n\n" % map[macro].tostring(lineno=True,
+                       with_tail=False))
+            raise errors.MacroError(self.getroot().base, message,
+                                    attrib.getparent())
+          parent = attrib.getparent()
+          for key, value in parent.attrib.items():
+            parent.attrib[key] = value.replace(macro, map[macro])
+
+    return map
 
   def write(self, file):
     file = pps.path(file)
@@ -299,114 +388,122 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
     f = codecs.open(file, encoding='utf-8', mode='w')
     f.write(self.unicode())
  
-#-----------SAX-----------#
-class XmlTreeSaxHandler(lxml.sax.ElementTreeContentHandler):
-  def __init__(self, makeelement=None):
-    lxml.sax.ElementTreeContentHandler.__init__(self, makeelement=makeelement)
+  def xinclude(self, macros={}):
+    """
+    XInclude processor with integrated support for macro resolution
+    """
 
-    self._ns_mapping = {'xml': [ XML_NS ] }
-    self.lineno = 1
+    hrefs = {} # cache of previously included files
 
-  def startElementNS(self, *args, **kwargs):
-    lxml.sax.ElementTreeContentHandler.startElementNS(self, *args, **kwargs)
-    self._element_stack[-1].sourceline = self.lineno
+    # resolve macros
+    macros = self.resolve_macros(find=True, map=macros)
 
-  def characters(self, data):
-    lxml.sax.ElementTreeContentHandler.characters(self, data)
-    self.lineno += data.count('\n')
+    while True:
+      elems = self.xpath('//xi:include', [], namespaces=({'xi': XI_NS}))
 
-  def comment(self, data):
-    c = lxml.etree.Comment(data)
-    if self._root is None:
-      self._root_siblings.append(c)
-    else:
-      self._element_stack[-1].append(c)
-    c.sourceline = self.lineno
+      if not elems: 
+        break
 
-class XmlTreeProducer(lxml.sax.ElementTreeProducer):
-  def __init__(self, eot, handler):
-    lxml.sax.ElementTreeProducer.__init__(self, eot, handler)
-    handler.lineno = self._element.sourceline
+      # process xincludes
+      for elem in elems:
+        if elem.getparent() is None: parent = self
+        else: parent = elem.getparent()
+        if elem.tag == "{%s}include" % XI_NS:
 
-  def _recursive_saxify(self, element, prefixes):
-    content_handler = self._content_handler
-    tag = element.tag
-    if tag is lxml.etree.Comment or tag is lxml.etree.ProcessingInstruction:
-      if tag is lxml.etree.ProcessingInstruction:
-        content_handler.processingInstruction(
-          element.target, element.text
-        )
-      if tag is lxml.etree.Comment:
-        content_handler.comment(element.text)
-      if element.tail:
-        content_handler.characters(element.tail)
-      return
+          # validate
+          if not 'href' in elem.attrib and not 'xpointer' in elem.attrib:
+            raise errors.XIncludeError(message='Element must include at least '
+                                       'one href or xpointer attribute',
+                                       elem=elem)
 
-    new_prefixes = []
-    build_qname = self._build_qname
-    element_prefix = element.prefix
+          for key in elem.attrib:
+            if key not in ['href', 'xpointer', 'parse', '{%s}base' % XML_NS ]:
+              raise errors.XIncludeError(message="Unknown or unsupported "
+                                         "attribute '%s'" % key, elem=elem)
 
-    attribs = element.items()
-    if attribs:
-      attr_values = {}
-      attr_qnames = {}
-      for attr_ns_name, value in attribs:
-        attr_ns_tuple = lxml.sax._getNsTag(attr_ns_name)
-        attr_values[attr_ns_tuple] = value
-        attr_qnames[attr_ns_tuple] = build_qname(
-          attr_ns_tuple[0], attr_ns_tuple[1], prefixes, new_prefixes, element_prefix)
-      sax_attributes = self._attr_class(attr_values, attr_qnames)
-    else:
-      sax_attributes = self._empty_attributes
 
-    ns_uri, local_name = lxml.sax._getNsTag(tag)
+          # process local includes
+          if 'xpointer' in elem.attrib and not 'href' in elem.attrib:
+            self._process_xpointer(source=self, parent=parent, target=elem)
+            continue
 
-    qname = build_qname(ns_uri, local_name, prefixes, new_prefixes, element_prefix)
+          # process remote includes
+          if 'href' in elem.attrib:
+           # get absolute href
+            base = pps.path(elem.base or '.')
+            href = (base.dirname / elem.attrib['href']).normpath()
 
-    for prefix, uri in new_prefixes:
-      content_handler.startPrefixMapping(prefix, uri)
+            # text
+            if 'parse' in elem.attrib and elem.attrib['parse'] == 'text':
+              if href in hrefs: # use cached text if available
+                text = hrefs[href]
+              else:
+                try:
+                  text = href.read_text()
+                except (pps.Path.error.PathError), e:
+                  raise errors.XIncludeError(e, elem)
+              hrefs[href] = text # cache for future use
 
-    content_handler.startElementNS((ns_uri, local_name),
-                     qname, sax_attributes)
-    if element.text is not None:
-      content_handler.characters(element.text)
-    for child in element:
-      self._recursive_saxify(child, prefixes)
-    content_handler.endElementNS((ns_uri, local_name), qname)
-    for prefix, uri in new_prefixes:
-      content_handler.endPrefixMapping(prefix)
-    if element.tail:
-      content_handler.characters(element.tail)
+              parent.replace(elem, text)
 
-  def _build_qname(self, ns_uri, local_name, prefixes, new_prefixes, element_prefix):
-    if ns_uri is None:
-      return local_name
+            # xml
+            else:
+              if href in hrefs: # use cached document if available
+                root = hrefs[href]
+              else:
+                try:
+                  root = parse(href, parser=elem.getroottree().parser,
+                               xinclude=True,
+                               macros = macros,
+                               base_url=href).getroot()
+                except (IOError), e:
+                  raise errors.XIncludeError(e, elem)
+              hrefs[href] = root # cache for future use
+
+              if 'xpointer' in elem.attrib:
+                self._process_xpointer(source=root, parent=parent, target=elem)
+              else: # insert entire xml document
+                elem.addprevious(root.copy())
+
+                parent.remove(elem)
+ 
+  def _process_xpointer(self, source, parent, target):
+    source = source.copy()
+    xpath = re.sub(r'xpointer\((.*)\)$', r'\1', target.attrib['xpointer'])
     try:
-      prefix = prefixes[ns_uri]
-    except KeyError:
-      prefix = prefixes[ns_uri] = element_prefix or 'ns%02d' % len(new_prefixes)
-      new_prefixes.append( (prefix, ns_uri) )
-    return prefix + ':' + local_name
+      list = [ x for x in etree.ElementBase.xpath(source, xpath)
+               if isinstance(x, etree._Element) or
+                 (isinstance(x, basestring) and x.strip()) ]
+    except etree.XPathError, e:
+      raise errors.XIncludeXpathError(message=e, elem=target)
+
+    if not list:
+      raise errors.XIncludeError(message='No results found', elem=target)
+    else:
+      parent.replace(target, list)
+
 
 #-----------FACTORY FUNCTIONS-----------#
-PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=False)
-PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(element=XmlTreeElement,
-                                                                  comment=XmlTreeComment))
+PARSER = etree.XMLParser(remove_blank_text=False, remove_comments=False, ns_clean=True)
+PARSER.set_element_class_lookup(etree.ElementDefaultClassLookup(
+                                element=XmlTreeElement,
+                                comment=XmlTreeComment))
 
-def saxify(tree, handler):
-  return XmlTreeProducer(tree, handler).saxify()
-
-# TODO - perhaps have Element accept *args, **kwargs instead
-def Element(name, parent=None, text=None, attrib=None, nsmap=None, parser=PARSER):
-  if nsmap is None and hasattr(parent, 'nsmap'):
+def Element(name, attrib=None, nsmap=None, parent=None, text=None, 
+            parser=PARSER):
+  nsmap = nsmap or {}
+  if not nsmap and hasattr(parent, 'nsmap'):
     nsmap = parent.nsmap
+  nsmap.update({ 'xml' : XML_NS,
+                 'xi'  : XI_NS })
+
   elem = parser.makeelement(name, attrib=attrib or {}, nsmap=nsmap)
   elem.text = text or ''
   if parent is not None:
     parent.append(elem)
   return elem
 
-def uElement(name, parent, attrib=None, text=None, **kwargs):
+def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
   # the below is more elegant, but won't work because Elements subclass
   # list, and lists evaluate to false when empty
   #
@@ -425,45 +522,27 @@ def uElement(name, parent, attrib=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def parse(file, handler=None, parser=PARSER, base_url=None, macro_xpaths=None,
-          macro_map=None, resolve_macros=True):
-  handler = handler or XmlTreeSaxHandler(parser.makeelement)
+def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={}):
   try:
-    roottree = lxml.etree.parse(file, parser, base_url=base_url)
-  except lxml.etree.XMLSyntaxError, e:
+    roottree = etree.parse(file, parser, base_url=base_url)
+  except etree.XMLSyntaxError, e:
     raise errors.XmlSyntaxError(file, e)
 
-  file = base_url or file
-  roottree.getroot().file = file # set this now so the filename can
-                                 # be used in macro error text
+  #remove comments - do this early to avoid macro resolution in comments
+  for elem in roottree.getroot().iterdescendants():
+    if isinstance(elem, etree.CommentBase):
+      elem.getparent().remove(elem)
+ 
+  # process xincludes
+  if xinclude:
+    roottree.getroot().xinclude(macros=macros)
 
-  try:
-    roottree.xinclude()
-  except lxml.etree.XIncludeError, e:
-    # check for macros in attributes
-    elems_with_macros = [ x for x in roottree.getroot().xpath('//xi:include',
-                          namespaces={'xi':XI_NS}) if re.findall(
-                          MACRO_REGEX, ' '.join(x.attrib.values())) ]
-                          
-    if elems_with_macros:
-      msg = ('Macros not allowed in XInclude elements. See the '
-             'Deploy Definition File Reference section on Macros and XIncludes '
-             'for alternative solutions.')
-      invalid = '\n'.join([ str(elem).strip() for elem in elems_with_macros ])
-      raise errors.XIncludeSyntaxError(file, e, submessage=msg, 
-                                       invalid=invalid)
-    else:
-      raise errors.XIncludeSyntaxError(file, e)
+  # remove unused namespaces (i.e. XInclude)
+  etree.cleanup_namespaces(roottree)
 
-  if resolve_macros:
-    roottree.getroot().resolve_macros(macro_xpaths, macro_map)
-
-  saxify(roottree, handler)
-  handler._root.file = file
-  handler._root.maxlineno = handler.lineno
-  return handler.etree
+  return roottree
 
 def fromstring(s, **kwargs):
   root = parse(StringIO(s), **kwargs).getroot()
-  root.file = None
+  root.base = None
   return root

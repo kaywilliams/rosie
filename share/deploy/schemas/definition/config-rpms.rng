@@ -5,6 +5,7 @@
     <element name="definition">
       <optional>
       <element name="config-rpms">
+        <ref name="xml-base"/>
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>

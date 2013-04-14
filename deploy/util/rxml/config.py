@@ -62,7 +62,10 @@ HIGHLIGHT_TEXT  = 0100
 class ConfigElement(tree.XmlTreeElement):
   "An element in the XML tree."
 
-  def tostring(self, xpath=None):
+  def tostring(self, xpath=None, lineno=False, **kwargs):
+    if lineno: # drop to XmlTreeObject serialization
+      return tree.XmlTreeObject.tostring(self, lineno=True, **kwargs)
+
     nodes = []
     highlight = 0000
     if xpath:
@@ -81,8 +84,7 @@ class ConfigElement(tree.XmlTreeElement):
       else: # normal nodes
         highlight = HIGHLIGHT_NODES
         nodes = self.getroot().xpath(xpath, [])
-
-    return self._tostring(0, nodes, highlight)
+    return ConfigElement._tostring(self, 0, nodes, highlight)
 
   def _tostring(self, level=0, nodes=None, highlight=None):
     tag = ''; text = ''; tail = ''; data = ''; attr = ''
@@ -102,30 +104,44 @@ class ConfigElement(tree.XmlTreeElement):
     if do_node_hl: nl = nl + ANSI_HIGHLIGHT_END
 
     # tag
-    tag = self._ns_clean(self.tag)
+    tag, xmlns = self._ns_clean(self.tag)
+    if xmlns:
+      if do_attr_hl: #!
+        attr += ANSI_HIGHLIGHT % xmlns
+      else:
+        attr += xmlns
 
     # text
-    if self.text is not None:
-      text = escape(self.text.strip())
+    if self.text is not None and self.text.strip():
+      text = escape(self.text)
     if do_text_hl: text = ANSI_HIGHLIGHT % text
 
     # tail
-    if self.tail is not None:
-      tail = escape(self.tail.strip())
+    if self.tail is not None and self.tail.strip():
+      tail = escape(self.tail)
     if do_text_hl: text = ANSI_HIGHLIGHT % tail
 
     # attributes
     for k,v in self.attrib.items():
-      attrtxt = ' %s="%s"' % (self._ns_clean(k), escape(v))
+      attrs = []
+      k, xmlns = self._ns_clean(k)
+      attrs.append(' %s="%s"' % (k, escape(v)))
+      if xmlns: 
+        attrs.append(xmlns)
+
       ##if do_attr_hl and k in highlight_xpath_attrib or []:
-      if do_attr_hl: #!
-        attr += ANSI_HIGHLIGHT % attrtxt
-      else:
-        attr += attrtxt
+      for attrtxt in attrs:
+        if do_attr_hl: #!
+          attr += ANSI_HIGHLIGHT % attrtxt
+        else:
+          attr += attrtxt
 
     # children
     for i in self.getchildren():
-      data += i._tostring(level+1, nodes, highlight)
+      if isinstance(i, ConfigElement):
+        data += ConfigElement._tostring(i, level+1, nodes, highlight)
+      else:
+        data += lxml.etree.tostring(i)
 
     if len(data) > 0:
       return unicode('%s<%s%s>%s\n%s%s</%s>%s%s' % \
@@ -137,17 +153,22 @@ class ConfigElement(tree.XmlTreeElement):
       return unicode('%s<%s%s/>%s' % (sep, tag, attr, nl))
 
   def _ns_clean(self, text):
+    """
+    accepts a text value and returns a tuple containing prefixed text plus
+    corresponding xmlns element. Specifically, turns '{namespace}name' into
+    'prefix:name' + 'xmlns:prefix='namespace'
+    """
+    xmlns = None
     uri, name = lxml.sax._getNsTag(text)
     if uri:
-      # lxml deletes xml definition from the nsmap
-      if uri == 'http://www.w3.org/XML/1998/namespace':
-        return 'xml:%s' % name
+      if uri == tree.XML_NS:
+        return ('xml:%s' % name, None) # xmlns not required for xml namespace 
       else:
         for k,v in self.nsmap.items():
           if v == uri:
-            return '%s:%s' % (k, name)
+            return ('%s:%s' % (k, name), ' xmlns:%s="%s"' % (k, escape(v)))
       raise ValueError("No matching prefix found for namespace '%s'" % uri)
-    return name
+    return (name, xmlns)
 
   def getxpath(self, paths, fallback=tree.NoneObject()):
     """
@@ -228,11 +249,11 @@ class ConfigElement(tree.XmlTreeElement):
   def getbool(self, path, fallback=tree.NoneObject()):
     return _make_boolean(self.getxpath(path, fallback))
 
-  def getpath(self, path, fallback=tree.NoneObject(), relative=False):
-    return _make_path(self, path, fallback, relative=relative, multiple=False)
+  def getpath(self, path, fallback=tree.NoneObject()):
+    return _make_path(self, path, fallback, multiple=False)
 
-  def getpaths(self, path, fallback=tree.NoneObject(), relative=False):
-    return _make_path(self, path, fallback, relative=relative, multiple=True)
+  def getpaths(self, path, fallback=tree.NoneObject()):
+    return _make_path(self, path, fallback, multiple=True)
 
   def pathexists(self, path):
     try:
@@ -241,57 +262,41 @@ class ConfigElement(tree.XmlTreeElement):
       return False
 
 
-class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
-  "SAX Content Handler."
-  def __init__(self, makeelement=None):
-    tree.XmlTreeSaxHandler.__init__(self, makeelement=makeelement)
+#--------FACTORY FUNCTIONS--------#
+PARSER = lxml.etree.XMLParser(ns_clean=True)
+PARSER.set_element_class_lookup(lxml.etree.ElementDefaultClassLookup(
+                                element=ConfigElement,
+                                comment=tree.XmlTreeComment))
 
-  def endElementNS(self, ns_name, qname):
-    element = self._element_stack.pop()
-    if ns_name != lxml.sax._getNsTag(element.tag):
-      raise lxml.sax.SaxError("Unexpected element closed: {%s}%s" % ns_name)
+def Element(name, attrib=None, nsmap=None, parent=None, text=None,
+            parser=PARSER, **kwargs):
+  t = tree.Element(name, attrib=attrib, nsmap=nsmap, parent=parent, text=text,
+                   parser=parser, **kwargs)
+  if text is None: t.text = None
+  return t
 
-    # convert whitespace into None
+def uElement(name, attrib=None, nsmap=None, text=None, parent=None, 
+             parser=PARSER, **kwargs):
+  t =  tree.uElement(name, attrib=attrib, nsmap=nsmap, parent=parent, text=text,
+                     parser=parser, **kwargs)
+  if text is None: t.text = None
+  return t
+
+def parse(file, parser=PARSER, **kwargs):
+  config = tree.parse(file, parser=parser, **kwargs)
+
+  # convert whitespace into None
+  for element in config.getroot().iter():
     if element.text is not None:
       element.text = element.text.strip() or None
 
     if element.tail is not None:
       element.tail = element.tail.strip() or None
 
-#--------FACTORY FUNCTIONS--------#
-PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=False)
-PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(element=ConfigElement,
-                                                                  comment=tree.XmlTreeComment))
-
-def Element(name, parent=None, text=None, attrib=None, parser=PARSER, **kwargs):
-  t = tree.Element(name, parent=parent, text=text, attrib=attrib,
-                         parser=parser, **kwargs)
-  if text is None: t.text = None
-  return t
-
-def uElement(name, parent, text=None, attrib=None, parser=PARSER, **kwargs):
-  t =  tree.uElement(name, parent=parent, text=text, attrib=attrib,
-                           parser=parser, **kwargs)
-  if text is None: t.text = None
-  return t
-
-def parse(file, handler=None, parser=PARSER, **kwargs):
-  config = tree.parse(file,
-                     handler or ConfigTreeSaxHandler(parser.makeelement),
-                     parser=parser,
-                     **kwargs)
-
-  # remove comments, preserving tail text
-  for comment in config.xpath('//comment()'):
-    comment.getparent().remove(comment)
-
   return config
 
-def fromstring(string, handler=None, parser=PARSER, **kwargs):
-  return tree.fromstring(string,
-                         handler=handler or ConfigTreeSaxHandler(parser.makeelement),
-                         parser=parser,
-                         **kwargs)
+def fromstring(string, parser=PARSER, **kwargs):
+  return tree.fromstring(string, parser=parser, **kwargs)
 
 def _make_boolean(string):
   if isinstance(string, tree.XmlTreeElement):
@@ -306,7 +311,7 @@ def _make_boolean(string):
   except KeyError:
     raise ValueError("'%s' is not a valid boolean" % string)
 
-def _make_path(element, path, fallback=None, relative=False, multiple=True):
+def _make_path(element, path, fallback=None, multiple=True):
   roottree = element.getroottree()
 
   # does the path query returns results?
@@ -334,19 +339,8 @@ def _make_path(element, path, fallback=None, relative=False, multiple=True):
                        type(strings[i]))
 
     # get the base for resolving relative paths
-    ancestors = list(strings[i].getparent().iterancestors())
-    ancestors.reverse()
-    ancestors.append(strings[i].getparent())
-    if isinstance(roottree.getroot().file, basestring) and not relative:
-      base = pps.path(roottree.getroot().file).dirname
-    else: # e.g. roottree could be a stringIO object rather than a file
-      base = pps.path('.')
-    for ancestor in ancestors:
-      try:
-        base = base / pps.path(ancestor.xpath("@xml:base")[0]).dirname
-      except errors.XmlPathError:
-        pass
-    strings[i] = (base / strings[i]).normpath()
+    base = strings[i].getparent().getbase() or pps.path('.')
+    strings[i] = (base.dirname / strings[i]).normpath()
 
   if multiple: return strings
   else: return strings[0]

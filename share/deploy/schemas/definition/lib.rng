@@ -1,21 +1,40 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
+  <!-- xml:base attribute -->
+  <define name="xml-base">
+    <optional>
+      <attribute xmlns:xml='http://www.w3.org/XML/1998/namespace'
+                 name='xml:base'>
+        <text/>
+      </attribute>
+    </optional>
+  </define>
 
   <!-- a config-rpm element -->
   <define name="element-config-rpm">
     <element name="config-rpm">
+    <ref name="xml-base"/>
     <attribute name="id"/>
 
     <interleave>
     <optional>
-    <element name="summary"><text/></element>
+    <element name="summary">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
     </optional>
     <optional>
-    <element name="description"><text/></element>
+    <element name="description">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
     </optional>
     <optional>
-    <element name="license"><text/></element>
+    <element name="license">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
     </optional>
 
     <ref name="element-requires"/>
@@ -31,6 +50,7 @@
 
     <zeroOrMore>
     <element name="script">
+      <ref name="xml-base"/>
       <attribute name="type"><ref name="value-script-types"/></attribute>
       <text/>
     </element>
@@ -38,6 +58,7 @@
 
     <zeroOrMore>
     <element name="trigger">
+      <ref name="xml-base"/>
       <attribute name="type"><ref name="value-trigger-types"/></attribute>
       <attribute name="trigger"/>
       <optional><attribute name="interpreter"/></optional>
@@ -51,6 +72,7 @@
 
   <define name="element-files">
     <element name="files">
+      <ref name="xml-base"/>
       <ref name="attribute-destdir"/>
       <ref name="attribute-destname"/>
       <ref name="attribute-mode"/>
@@ -80,21 +102,34 @@
   <!-- a repo element -->
   <define name="element-repo">
     <element name="repo">
+      <ref name="xml-base"/>
       <attribute name="id"/>
 
       <interleave>
-      <element name="baseurl"><text/></element>
+      <element name="baseurl">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
 
       <optional>
-      <element name="download"><ref name='value-boolean'/></element>
+      <element name="download">
+        <ref name="xml-base"/>
+        <ref name='value-boolean'/>
+      </element>
       </optional>
 
       <optional>
-      <element name="systemid"><text/></element>
+      <element name="systemid">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
       </optional>
 
       <zeroOrMore>
-      <element name="include"><text/></element>
+      <element name="include">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
       </zeroOrMore>
 
       <zeroOrMore>
@@ -102,7 +137,10 @@
       </zeroOrMore>
 
       <zeroOrMore>
-      <element name="gpgkey"><text/></element>
+      <element name="gpgkey">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
       </zeroOrMore>
 
       </interleave>
@@ -111,26 +149,36 @@
 
   <define name="element-obsoletes">
     <zeroOrMore>
-      <element name="obsoletes"><text/></element>
+      <element name="obsoletes">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
     </zeroOrMore>
   </define>
 
   <define name="element-requires">
     <zeroOrMore>
-      <element name="requires"><text/></element>
+      <element name="requires">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
     </zeroOrMore>
   </define>
 
   <!-- exclude element-->
   <define name="element-exclude">
     <element name="exclude">
+      <ref name="xml-base"/>
       <text/>
     </element>
   </define>
 
   <!-- a repofile element -->
   <define name="element-repofile">
-    <element name="repofile"><text/></element>
+    <element name="repofile">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
   </define>
 
   <!-- boolean values -->
@@ -209,6 +257,7 @@
   <define name='element-input-script'>
     <zeroOrMore>
       <element name='input-script'>
+        <ref name="xml-base"/>
         <optional>
           <attribute name='verbose'><ref name="value-boolean"/></attribute>
         </optional>
@@ -222,11 +271,15 @@
 
     <interleave>
     <optional>
-      <element name="local-dir"><text/></element>
+      <element name="local-dir">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
     </optional>
 
     <optional>
     <element name="remote-url">
+      <ref name="xml-base"/>
       <optional>
         <attribute name="fqdn">
           <ref name="value-boolean"/>
@@ -238,23 +291,45 @@
     </optional>
 
     <optional>
-      <element name="system-url"><text/></element>
+      <element name="system-url">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
     </optional>
 
     <optional>
-      <element name="boot-options"><text/></element>
+      <element name="boot-options">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
     </optional>
 
-    <optional><element name="hostname"><text/></element></optional>
-    <optional><element name="domain"><text/></element></optional>
-    <optional><element name="password"><text/></element></optional>
+    <optional><element name="hostname">
+      <ref name="xml-base"/>
+      <text/>
+    </element></optional>
+    <optional><element name="domain">
+      <ref name="xml-base"/>
+      <text/>
+    </element></optional>
+    <optional><element name="password">
+      <ref name="xml-base"/>
+      <text/>
+    </element></optional>
     <optional>
-    <element name="ssh"><ref name="value-boolean"/></element>
+    <element name="ssh">
+      <ref name="xml-base"/>
+      <ref name="value-boolean"/>
+    </element>
     </optional>
-    <optional><element name="ssh-passphrase"><text/></element></optional>
+    <optional><element name="ssh-passphrase">
+      <ref name="xml-base"/>
+      <text/>
+    </element></optional>
 
     <optional>
     <element name="kickstart">
+      <ref name="xml-base"/>
       <text/>
     </element>
     </optional>
@@ -265,6 +340,7 @@
 
     <optional>
       <element name="triggers">
+      <ref name="xml-base"/>
       <optional>
       <attribute name="activate"><ref name="value-boolean"/></attribute>
       </optional>
@@ -277,6 +353,7 @@
 
     <zeroOrMore>
       <element name="script">
+      <ref name="xml-base"/>
       <attribute name='id'/>
 
       <attribute name='type'>

@@ -6,6 +6,7 @@
 <macro id="os">centos</macro>
 <macro id="version">6</macro>
 <macro id="arch">x86_64</macro>
+<macro id="id">%{name}-%{os}-%{version}-%{arch}</macro>
 
 <main>
 <name>%{name}</name>
@@ -13,6 +14,7 @@
 <os>%{os}</os>
 <version>%{version}</version>
 <arch>%{arch}</arch>
+<id>%{id}</id>
 </main>
 
 <repos>
