@@ -365,7 +365,7 @@ class SrpmBuild(Build):
           self.definition.getxpath('/*/repos').append(elem.copy())
 
     #resolve macros
-    self.resolve_macros(map={
+    self.definition.resolve_macros(map={
       '%{build-dir}':   self.ptr.build_dir,
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
