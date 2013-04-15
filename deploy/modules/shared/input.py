@@ -33,7 +33,7 @@ class InputEventMixin(ExecuteEventMixin, Event):
     self.DATA.setdefault('config', []).append('input-script')
 
     # resolve macros
-    self.config.resolve_macros(map={'%{input-dir}': self.input_dir})
+    self.resolve_macros(map={'%{input-dir}': self.input_dir})
 
 
     input_scripts = self.config.xpath('input-script', [])

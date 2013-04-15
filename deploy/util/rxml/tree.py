@@ -249,7 +249,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     self.remove(child)
 
-  def resolve_macros(self, find=False, map={}):
+  def resolve_macros(self, find=False, map={}, placeholder_xpath='.'):
     """
     Processes macro definitions and resolves macro variables.  Macro
     definitions take the format '<macro id='name'>value</macro>'. They can
@@ -269,9 +269,23 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     Provided macros take precedence over found macros.
 
+    placeholder_xpath -- query providing path to the root element to
+    be searched for macro placeholders. If not provided, the current
+    element will be searched. If the xpath does not return an element,
+    resolve macros will return silently.
+
+    Macro definitions are always searched from the root of the 
+    current element.
+
     Returns a dictionary of provided and found macros.
 
     """
+    search_elem = etree.ElementBase.xpath(self, placeholder_xpath)
+    if len(search_elem) == 0:
+      return
+    else:
+      search_elem = search_elem[0]
+
     map = map or {}
 
     # locate and remove macro definitions
@@ -320,9 +334,11 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # resolve macros
     unknown = set() # macro references with no corresponding definition
+
     while True:
-      remaining = set( re.findall(MACRO_REGEX, etree.tostring(self))
-                                  ).difference(unknown)
+      remaining = set(re.findall(MACRO_REGEX,
+                  etree.tostring(search_elem))).difference(unknown)
+
       if not remaining:
         break
 
@@ -333,8 +349,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           continue
 
         # text and tails
-        strings = etree.ElementBase.xpath(self,
-                  "//text()[re:test(., '.*%s.*', 'g')]" % macro,
+        strings = etree.ElementBase.xpath(search_elem,
+                  ".//text()[re:test(., '.*%s.*', 'g')]" % macro,
                   namespaces={'re':RE_NS})
 
         for string in strings:
@@ -365,8 +381,9 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               elems[0].tail = (elems[0].tail or '') + tail
 
         # attributes
-        attribs = [ x for x in etree.ElementBase.xpath(self, '//*/@*') 
+        attribs = [ x for x in etree.ElementBase.xpath(search_elem, './/@*') 
                     if macro in x ]
+
         for attrib in attribs:
           if not isinstance(map[macro], basestring):
             message = ("Element content not allowed in attribute values.\n\n"

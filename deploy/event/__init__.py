@@ -214,6 +214,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 
+  def resolve_macros(self, map):
+    self._config.resolve_macros(map=map, placeholder_xpath=self.config_base)
 
 class DummyConfig(object):
   "Dummy config class that matches no xpath queries"
@@ -264,6 +266,3 @@ class DummyConfig(object):
       return pps.path(fallback) 
     else:
       return fallback 
-
-  def resolve_macros(self, xpaths=None, map=None):
-    pass

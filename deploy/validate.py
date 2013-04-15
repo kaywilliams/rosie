@@ -71,14 +71,15 @@ class DeployValidationHandler:
     unresolved = [event for event in self.dispatch]
     while unresolved:
       event = unresolved.pop()
-      if getattr(event, 'macros', None):
-        self.definition.resolve_macros(map=getattr(event, 'macros', {}))
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
     for event in self.dispatch:
       moduleid = event.__module__.split('.')[-1]
       if moduleid in tle_elements: continue # don't re-validate
+      if getattr(event, 'macros', None):
+        self.definition.resolve_macros(map=getattr(event, 'macros', {}),
+                                       placeholder_xpath='/*/%s' % moduleid)
       v.validate(moduleid, schema_file='%s.rng' % moduleid, required=False)
       if self.definition.pathexists(moduleid):
         tle_elements.add(moduleid)
@@ -136,9 +137,6 @@ class BaseConfigValidator:
 
     # reparse the tree to get sequential sourcelines
     tree = rxml.tree.parse(StringIO(tree)).getroot()
-
-    # # remove unused namespaces (i.e. Xinclude) 
-    # etree.cleanup_namespaces(tree)
 
     return tree
 

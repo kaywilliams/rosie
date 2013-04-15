@@ -113,7 +113,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
               '%{srpmdir}': self.srpmdir,
               '%{srpmlast}': srpmlast,
              }
-    self.config.resolve_macros(map=macros)
+    self.resolve_macros(map=macros)
   
     # get srpm
     path = pps.path(self.config.getxpath('path/text()', ''))
@@ -365,7 +365,7 @@ class SrpmBuild(Build):
           self.definition.getxpath('/*/repos').append(elem.copy())
 
     #resolve macros
-    self.definition.resolve_macros(map={
+    self.resolve_macros(map={
       '%{build-dir}':   self.ptr.build_dir,
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,

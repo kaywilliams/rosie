@@ -153,7 +153,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     self.md5file     = self.installdir/'md5sums'
 
     # resolve module macros
-    self.config.resolve_macros(map={'%{rpmid}': name,
+    self.resolve_macros(map={'%{rpmid}': name,
                                     '%{installdir}': self.installdir})
 
     # add files for synchronization to the build folder
