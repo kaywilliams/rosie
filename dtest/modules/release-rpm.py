@@ -34,7 +34,7 @@ from dtest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
 class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   moduleid = 'release-rpm'
   eventid  = 'release-rpm'
-  _mode = 'package' 
+  _type = 'package' 
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')

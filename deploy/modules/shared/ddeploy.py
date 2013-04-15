@@ -215,7 +215,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
   def _get_treeinfo_csum(self):
     tifile = self.system_url / '.treeinfo'
-    if not self.mode == 'package':
+    if not self.type == 'package':
       try:
         self.io.validate_input_file(tifile)
       except(InputFileError):

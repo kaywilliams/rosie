@@ -80,7 +80,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
     # setup yum plugin (unless disabled or non-system repo)
     if (self.rpmconf.getbool('updates/@sync', True) and
-        self.mode == 'system'):
+        self.type == 'system'):
       self.plugin_lines = self.locals.L_YUM_PLUGIN['plugin']
       self.plugin_hash = hashlib.sha224('/n'.join(
                          self.plugin_lines)).hexdigest()
@@ -143,7 +143,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     # generate repofile
     self._generate_repofile()
     if (self.rpmconf.getbool('updates/@sync', True) and
-        self.mode == "system"):
+        self.type == "system"):
       self.rpm.requires.append('yum')
       self._include_sync_plugin()
 

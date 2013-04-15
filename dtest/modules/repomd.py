@@ -25,7 +25,7 @@ from dtest.core import make_core_suite
 class RepomdEventTestCase(EventTestCase):
   moduleid = 'repomd'
   eventid  = 'repomd'
-  _mode = 'package'
+  _type = 'package'
 
 
 def make_suite(os, version, arch, *args, **kwargs):

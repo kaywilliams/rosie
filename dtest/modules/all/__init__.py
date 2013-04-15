@@ -34,7 +34,7 @@ class AllEventTestCase(EventTestCase):
   """
   moduleid = 'all'
   eventid  = 'all'
-  _mode = 'package'
+  _type = 'package'
 
 # start the abuse...
 class Test_XIncludeResolution(AllEventTestCase):

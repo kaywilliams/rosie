@@ -25,7 +25,7 @@ from deploy.errors import DeployError
 class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
   eventid  = 'repos'
-  _mode = 'package'
+  _type = 'package'
 
 class Test_NoBase(ReposEventTestCase):
   "without base-info and repos sections, raises RuntimeError"

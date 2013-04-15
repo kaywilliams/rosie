@@ -26,7 +26,7 @@ from deploy.constants import KERNELS
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'
   eventid  = 'packages'
-  _mode = 'package'
+  _type = 'package'
 
   _conf = "<packages><package>kernel</package></packages>"
 

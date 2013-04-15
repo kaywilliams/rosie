@@ -31,12 +31,12 @@ from dtest.core import make_core_suite
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'
-  _mode = 'package'
+  _type = 'package'
 
 class DepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'
-  _mode = 'package'
+  _type = 'package'
 
   caseid = None
   clean  = False

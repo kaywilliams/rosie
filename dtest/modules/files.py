@@ -21,7 +21,7 @@ from dtest.core import make_extension_suite
 class FilesTestCase(EventTestCase):
   moduleid = 'files'
   eventid  = 'files'
-  _mode = 'package'
+  _type = 'package'
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('files')

@@ -30,7 +30,7 @@ from dtest.mixins import check_vm_config
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
 class DeployMixinTestCase:
-  _mode = 'system'
+  _type = 'system'
   
   def __init__(self, os, version, arch, module=None):
     self.mod = module or self.moduleid

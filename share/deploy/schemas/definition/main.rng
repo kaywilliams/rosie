@@ -22,7 +22,7 @@
             <text/>
           </element>
           <optional>
-          <element name="mode">
+          <element name="type">
             <ref name="xml-base"/>
             <choice>
               <value type="string">build</value>

@@ -21,7 +21,7 @@ from dtest.core import make_core_suite
 class RpmbuildRepoTestCase(EventTestCase):
   moduleid = 'rpmbuild-repo'
   eventid  = 'rpmbuild-repo'
-  _mode = 'package'
+  _type = 'package'
 
 class Test_NoDefaults(RpmbuildRepoTestCase):
   "defaults are not added to rpmbuild repo list"

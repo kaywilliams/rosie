@@ -21,7 +21,7 @@ from dtest.core import make_core_suite
 class ComposeTestCase(EventTestCase):
   moduleid = 'compose'
   eventid  = 'compose'
-  _mode = 'package'
+  _type = 'package'
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('compose')

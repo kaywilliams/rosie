@@ -174,7 +174,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                "element." % (self.definition.getroot().getbase(), elem))
         raise DeployError(msg)
 
-    self.mode   = self.definition.getxpath(qstr % 'mode', 'system')
+    self.type   = self.definition.getxpath(qstr % 'type', 'system')
     self.build_id = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
                                (self.name, self.os, self.version, self.arch))
 
@@ -440,7 +440,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.CACHE_DIR    = self.mainconfig.getpath(
                         '/deploy/cache/path/text()',
                         DEFAULT_CACHE_DIR).expand().abspath()
-    self.METADATA_DIR = self.CACHE_DIR  / (self.mode + 's') / self.build_id
+    self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -516,7 +516,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     di['os']                = self.os
     di['version']           = self.version
     di['arch']              = self.arch
-    di['mode']              = self.mode
+    di['type']              = self.type
     di['build_id']          = self.build_id
     di['anaconda-version']  = None
     di['fullname']          = self.fullname

@@ -145,9 +145,9 @@ class PublishSetupEventMixin:
   #------ Helper Methods ------#
   def get_local(self):
     if self.moduleid in ['publish', 'build']:
-      default = '%s/%ss' % (DEFAULT_LOCALROOT, self.mode)
+      default = '%s/%ss' % (DEFAULT_LOCALROOT, self.type)
     else:
-      default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.mode, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.type, self.moduleid)
 
     local = pps.path(self.config.getpath('local-dir/text()', default))
     return local / self.build_id
@@ -179,9 +179,9 @@ class PublishSetupEventMixin:
     
   def get_build_url(self, build_host): # build-url
     if self.moduleid in ['publish', 'build']:
-      default = '%s/%ss' % (DEFAULT_WEBROOT, self.mode)
+      default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
     else:
-      default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.mode, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.moduleid)
 
     default = default.replace('%{build-host}', build_host)
 

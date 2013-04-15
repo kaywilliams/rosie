@@ -21,7 +21,7 @@ from dtest.core import make_core_suite
 class BaseInfoEventTestCase(EventTestCase):
   moduleid = 'base-info'
   eventid  = 'base-info'
-  _mode = 'system'
+  _type = 'system'
   _conf = "<packages><package>kernel</package></packages>"
 
 def make_suite(os, version, arch, *args, **kwargs):

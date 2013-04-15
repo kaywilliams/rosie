@@ -64,7 +64,7 @@ class SetupEvents(Event):
       suppress_run_message = True
     )
 
-    if self.mode == 'build':
+    if self.type == 'build':
       self.enabled = False
 
 class OSEvents(Event):
@@ -78,7 +78,7 @@ class OSEvents(Event):
       suppress_run_message = True
     )
 
-    if self.mode == 'build':
+    if self.type == 'build':
       self.enabled = False
 
 class TestEvents(Event):
@@ -92,7 +92,7 @@ class TestEvents(Event):
       suppress_run_message = True
     )
 
-    if self.mode == 'build':
+    if self.type == 'build':
       self.enabled = False
 
 class PublishEvents(Event):
@@ -106,5 +106,5 @@ class PublishEvents(Event):
       suppress_run_message = True
     )
 
-    if self.mode == 'build':
+    if self.type == 'build':
       self.enabled = False

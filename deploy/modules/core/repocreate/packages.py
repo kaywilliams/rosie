@@ -61,7 +61,7 @@ class PackagesEvent(ShelveMixin):
     ShelveMixin.__init__(self)
 
   def validate(self):
-    if (self.mode == "system" and 
+    if (self.type == "system" and 
         len(self.config.xpath(['package', 'group'], [])) == 0):
       message = ("The definition specifies a system repository but no "
                  "packages or groups have been listed in the packages "
@@ -187,7 +187,7 @@ class PackagesEvent(ShelveMixin):
       core_group.mandatory_packages[package.text] = 1
 
     # make sure a kernel package or equivalent exists for system repos
-    if self.mode == 'system':
+    if self.type == 'system':
       kfound = False
       for group in self.comps.groups:
         if set(group.packages).intersection(KERNELS):
@@ -235,7 +235,7 @@ class CompsEvent(Event):
       version = '1.00'
     )
 
-    if not self.mode == 'system':
+    if not self.type == 'system':
       self.enabled = False
       return
 

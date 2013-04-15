@@ -88,7 +88,7 @@ PASSBAD = "bad"
 class GpgsignTestCase(EventTestCase):
   moduleid = 'gpgsign'
   eventid  = 'gpgsign'
-  _mode = 'package'
+  _type = 'package'
   conf = """<gpgsign enabled="true">
       <public>%s</public>
       <secret>%s</secret>
