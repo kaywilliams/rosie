@@ -31,7 +31,7 @@
   <para>
   <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Create/update a separate repository in the test-install folder,
-  <filename>/var/www/html/repos/system/test-install</filename> by default. 
+  <filename>/var/www/html/deploy/systems/test-install</filename> by default. 
   </para>
   </listitem>
 
@@ -69,7 +69,7 @@
   <emphasis role='strong'>Test-install</emphasis>. Deploy enables
   Create a new repository for use in performing test updates. This
   repository is located in the test-update folder,
-  <filename>/var/www/html/repos/system/test-update</filename> by default. 
+  <filename>/var/www/html/deploy/systems/test-update</filename> by default. 
   </para>
   </listitem>
 

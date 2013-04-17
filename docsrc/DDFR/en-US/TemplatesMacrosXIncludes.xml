@@ -270,8 +270,8 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 
       <listitem>
       <para>
-      XIncludes allow including content from external files. Macros
-      do not.
+      XIncludes can be used to include content from external files. Macros
+      cannot.
       </para>
       </listitem>
 
@@ -284,7 +284,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 
     </itemizedlist>
 
-    <section id="xinclude-namespace-declaration">
+    <formalpara  id="xinclude-namespace-declaration">
     <title>XInclude Namespace Declaration</title>
 
     <para>
@@ -292,6 +292,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     document. This is commonly accomplished by adding an xmlns attribute within
     the repo element as follows: 
     </para>
+    </formalpara>
     
     <informalexample>
     <programlisting>
@@ -316,20 +317,37 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     definition. 
     </para>
 
+    <formalpara>
+    <title>XInclude Limitations</title>
     <para>
-    XIncludes offer a number of features, more than we will cover in this
-    document. The examples below do illustrate, however, several common
-    scenarios for using XIncludes in definitions.
+    Deploy supports a limited implementation of the XInclude specification. In particular:
     </para>
-    </section>
+    </formalpara>
+    
+    <orderedlist>
+    <listitem>
+    <para>
+    It does not support <emphasis>fallbacks</emphasis>.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    It supports only the <emphasis>xpointer()</emphasis> scheme.
+    </para>
+    </listitem>
+    </orderedlist>
 
     <section>
     <title>Examples</title>
+    <para>
+    XInclude offers a number of features, more than we will cover in this
+    document. The examples below do illustrate, however, several common
+    scenarios for using XIncludes in definitions.
+    </para>
 
-    <section id="xinclude-text-document-example"> 
+    <formalpara id="xinclude-text-document-example"> 
       <title>
-      Example 1 - Including an entire external <emphasis>text</emphasis>
-      document.
+      Example 1 - Including an external <emphasis>text</emphasis> document.
       </title>
       <para>
       The example below uses XInclude to include content from a text
@@ -345,8 +363,9 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       <varname>parse</varname> attribute indicates that the file to be included
       is in <emphasis>text</emphasis> format, rather than XML (the default).
       </para>
+      </formalpara>
 
-       <informalexample>
+      <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
@@ -355,12 +374,10 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 ...
 &lt;/definition&gt;</programlisting>
       </informalexample>
-    </section>
 
-    <section id="xinclude-xml-document-example"> 
+    <formalpara id="xinclude-xml-document-example"> 
       <title>
-      Example 2 - Including an entire external <emphasis>XML</emphasis>
-      document.
+      Example 2 - Including an external <emphasis>XML</emphasis> document.
       </title>
       <para>
       In this example, an entire xml document, <filename>update.xml</filename>
@@ -368,6 +385,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       above, except that the <emphasis>parse</emphasis> attribute is not 
       required since the included file is in the default XML format.
       </para>
+      </formalpara>
 
       <informalexample>
       <programlisting>
@@ -378,11 +396,10 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 ...
 &lt;/definition&gt;</programlisting>
       </informalexample>
-    </section>
 
-    <section id="xinclude-xml-segment-example">
+    <formalpara id="xinclude-xml-segment-example">
       <title>
-      Example 3 - Including XML segments.
+      Example 3 - Including segments of <emphasis>XML</emphasis> documents.
       </title>
       <para>
       This example shows two documents, <filename>repos.xml</filename> and
@@ -394,6 +411,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       attributes of the <varname>xi:include</varname> elements identify the
       segments for inclusion.
       </para>
+      </formalpara>
 
       <note>
       <para>
@@ -424,7 +442,6 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 
 &lt;/definition&gt;</programlisting>
       </informalexample>
-    </section>
     </section>
   </section>
 </chapter>

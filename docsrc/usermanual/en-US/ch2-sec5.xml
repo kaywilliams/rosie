@@ -154,14 +154,14 @@
 	  <para>
           The web location (URL) for downloading repository content. By default
           the repository URL is as follows, where $IP_ADDRESS is the address of
-          the build machine, <constant>TYPE</constant> is the type of the
+          the build machine, %{type} is the type of the
           repository (system or package), and %{id} is the <xref
           linkend='repository-id'/>
           </para>
 
           <informalexample>
           <para>
-	  <filename>http://$IP_ADDRESS/repos/TYPE/%{id}</filename>
+	  <filename>http://$IP_ADDRESS/deploy/%{type}s/%{id}</filename>
           </para>
           </informalexample>
 
@@ -175,7 +175,7 @@
 
           <informalexample>
           <para>
-          <filename>http://192.168.1.5/repos/system/web-server-deploy-6-x86_64</filename>
+          <filename>http://192.168.1.5/deploy/systems/web-server-deploy-6-x86_64</filename>
           </para>
           </informalexample>
 

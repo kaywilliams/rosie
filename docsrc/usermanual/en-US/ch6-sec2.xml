@@ -94,7 +94,7 @@
   can access system installation images for creating CD/DVD discs. It is also
   the location where client machines will access updates. In the example below,
   the remote-url is specified as
-  <filename>http://www.company.com/repos/system/</filename>.
+  <filename>http://www.company.com/deploy/systems/</filename>.
   </para>
   </listitem>
 
@@ -193,7 +193,7 @@
 &lt;/test-update>
 
 &lt;publish>
-&lt;web-url>http://remote.company.com/repos/system/&lt;web-url>
+&lt;web-url>http://remote.company.com/deploy/systems/&lt;web-url>
 
 &lt;password>production-password&lt;password>
 
@@ -206,8 +206,8 @@
 &lt;script id='sync-to-production-server' type='update' ssh='false'>
 #!/bin/sh
 rsync -a --delete -e ssh \
-"/var/www/html/repos/system/%{id}/" \
-"user@www.company.com:/var/www/html/repos/system/%{id}"
+"/var/www/html/deploy/systems/%{id}/" \
+"user@www.company.com:/var/www/html/deploy/systems/%{id}"
 &lt;/script>
 &lt;/publish>
 
@@ -235,7 +235,7 @@ rsync -a --delete -e ssh \
   (<filename>boot.iso</filename>) to create an installation CD or DVD.  The
   image can be found in the <filename>images</filename> folder for the
   repository, e.g. <filename
-  class="directory">/var/www/html/repos/system/web-server-centos-6-x86_64/images/</filename>.
+  class="directory">/var/www/html/deploy/systems/web-server-centos-6-x86_64/images/</filename>.
   </para>
 
   <para>
@@ -286,7 +286,7 @@ rsync -a --delete -e ssh \
   After running Deploy again, the iso image (or images) will be
   available from the <filename>iso</filename> folder of the repository, e.g.
   <filename
-  class="directory">/var/www/html/repos/system/web-server-centos-6-x86_64/iso/</filename>.
+  class="directory">/var/www/html/deploy/systems/web-server-centos-6-x86_64/iso/</filename>.
   Burn the resulting image(s) to media, and use them to boot client
   machines as described under <xref linkend='cd-dvd-network-installation'/>
   above.

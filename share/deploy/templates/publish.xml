@@ -6,7 +6,7 @@
 
   echo -e "\nsyncing %{id} repository to production server"
   rsync -a --delete -e ssh \
-  "/var/www/html/repos/system/%{id}/" \
+  "/var/www/html/deploy/systems/%{id}/" \
   "user@repos.company.com:/var/www/html/%{id}" 
   </script>
 </publish>

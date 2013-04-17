@@ -265,7 +265,8 @@
 
     <row>
     <entry>%{treeinfo}</entry>
-    <entry>MD5 hash of current treeinfo file.</entry>
+    <entry>MD5 hash of the treeinfo file for the base operating system
+    repository.</entry>
     </row>
 
     <row>
@@ -303,10 +304,9 @@
 
       <listitem>
       <para>
-      PATH to a folder where Deploy will
-      publish this repository. For repositories to be accessible on the web,
-      the directory must be in the build machine’s local webroot, e.g. the
-      Apache <varname>DocumentRoot</varname>.
+      PATH to a folder where Deploy will publish content. For content to be
+      accessible on the web, the directory must be in the build machine’s local
+      webroot, e.g. the Apache <varname>DocumentRoot</varname>.
       </para>
 
       <para>
@@ -316,11 +316,9 @@
       </para>
 
       <para>
-      This element is optional. The default values are as follows:
-      </para>
-
-      <para>
-      See  <xref linkend='content-path'/> for information on the PATH element.
+      This element is optional. The default values are as follows, where
+      %{type} is the value of the <xref linkend='main-type'/> element and %{id}
+      is the value of the <xref linkend='main-id'/> element:
       </para>
 
       <informaltable>
@@ -334,19 +332,19 @@
       <row>
       <entry>publish</entry>
       <entry>
-      <filename>/var/www/html/repos/system/<varname>%{id}</varname></filename>
+      <filename>/var/www/html/deploy/%{type}s/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-install</entry>
       <entry>
-      <filename>/var/www/html/repos/system/test-install/<varname>%{id}</varname></filename>
+      <filename>/var/www/html/deploy/%{type}s/test-install/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-update</entry>
       <entry>
-      <filename>/var/www/html/repos/system/test-update/<varname>%{id}</varname></filename>
+      <filename>/var/www/html/deploy/%{type}s/test-update/<varname>%{id}</varname></filename>
       </entry>
       </row>
       </tbody>
@@ -354,12 +352,16 @@
       </informaltable>
 
       <para>
+      See <xref linkend='content-path'/> for information on the PATH element.
+      </para>
+
+      <para>
       <emphasis role='bold'>Example</emphasis>
       </para>
 
       <informalexample>
       <programlisting>
-&lt;local-dir&gt;/my/web/root/repos/system/&lt;/local-dir&gt;</programlisting>
+&lt;local-dir&gt;/my/web/root/deploy/systems/&lt;/local-dir&gt;</programlisting>
       </informalexample>
 
       </listitem>
@@ -380,7 +382,7 @@
       This element is optional. The default values are listed in the following
       table, where <varname>%{build-host}</varname> is computed using the
       values of the <emphasis>@interface</emphasis> and
-      <emphasis>@fqdn</emphasis> attributes, and TYPE is the value of <xref
+      <emphasis>@fqdn</emphasis> attributes, and %{type} is the value of <xref
       linkend='main-type'/>. 
       </para>
 
@@ -399,19 +401,19 @@
       <row>
       <entry>publish</entry>
       <entry>
-      <filename>http://%{build-host}/repos/TYPE/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/deploy/%{type}s/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-install</entry>
       <entry>
-      <filename>http://%{build-host}/repos/TYPE/test-install/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/deploy/%{type}s/test-install/<varname>%{id}</varname></filename>
       </entry>
       </row>
       <row>
       <entry>test-update</entry>
       <entry>
-      <filename>http://%{build-host}/repos/TYPE/test-update/<varname>%{id}</varname></filename>
+      <filename>http://%{build-host}/deploy/%{type}s/test-update/<varname>%{id}</varname></filename>
       </entry>
       </row>
       </tbody>
@@ -506,7 +508,7 @@ $remote-url/%{id}</programlisting>
       </member>
 
       <member>
-      <filename>http://10.10.1.105/repos/system</filename>
+      <filename>http://10.10.1.105/deploy/systems</filename>
       </member>
 
       <member>
@@ -514,7 +516,7 @@ $remote-url/%{id}</programlisting>
       </member>
     
       <member>
-      <filename>http://10.10.1.105/repos/system/samba-server-5-i386</filename>
+      <filename>http://10.10.1.105/deploy/systems/samba-server-5-i386</filename>
       </member>
       </simplelist>
 
@@ -539,7 +541,7 @@ $remote-url/%{id}</programlisting>
       </member>
 
       <member>
-      <filename>http://buildserver.company.com/repos/system</filename>
+      <filename>http://buildserver.company.com/deploy/systems</filename>
       </member>
 
       <member>
@@ -547,7 +549,7 @@ $remote-url/%{id}</programlisting>
       </member>
     
       <member>
-      <filename>http://buildserver.company.com/repos/system/samba-server-5-i386</filename>
+      <filename>http://buildserver.company.com/deploy/systems/samba-server-5-i386</filename>
       </member>
       </simplelist>
 
@@ -573,7 +575,7 @@ $remote-url/%{id}</programlisting>
       </member>
 
       <member>
-      <filename>http://192.168.0.10/repos/system</filename>
+      <filename>http://192.168.0.10/deploy/systems</filename>
       </member>
 
       <member>
@@ -581,7 +583,7 @@ $remote-url/%{id}</programlisting>
       </member>
     
       <member>
-      <filename>http://192.168.0.10/repos/system/samba-server-5-i386</filename>
+      <filename>http://192.168.0.10/deploy/systems/samba-server-5-i386</filename>
       </member>
       </simplelist>
 
@@ -628,7 +630,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-&lt;remote-url fqdn="true"&gt;https://%{build-host}/repos/system/&lt;/remote-url&gt;</programlisting>
+&lt;remote-url fqdn="true"&gt;https://%{build-host}/deploy/systems/&lt;/remote-url&gt;</programlisting>
       </informalexample>
 
       <para>
@@ -907,9 +909,8 @@ $remote-url/%{id}</programlisting>
 
     <para>
     Deploy makes the kickstart available as a file
-    named <filename>ks.cfg</filename> included in the root folder of the
-    repository, e.g.
-    <filename>http://server.company.com/repos/system/samba-server-5-i386/ks.cfg</filename>.
+    named <filename>ks.cfg</filename> in the repository publish folder, e.g.
+    <filename>http://server.company.com/deploy/systems/samba-server-5-i386/ks.cfg</filename>.
     It also includes the kickstart in all ISO images including boot.iso. 
     </para>
   

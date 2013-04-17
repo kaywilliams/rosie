@@ -61,7 +61,7 @@
 
   <para>
   After using Deploy to build the repository, you can locate it in the
-  package repositories folder, <filename>/var/www/html/repos/package</filename>
+  package repositories folder, <filename>/var/www/html/deploy/packages</filename>
   by default.
   </para>
   </section>
@@ -245,7 +245,7 @@ templates/
 
   <para>
   After using Deploy to create your repository, you can locate it at
-  <filename>/var/www/html/repos/package/application-6-x86_64</filename>. The
+  <filename>/var/www/html/deploy/packages/application-6-x86_64</filename>. The
   tree structure of the repository will look as follows:
   </para>
 

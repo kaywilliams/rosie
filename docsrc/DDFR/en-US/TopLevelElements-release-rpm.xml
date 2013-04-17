@@ -71,9 +71,9 @@
     <listitem>
     <para>
     The release-rpm event also makes a YUM repository configuration file, named
-    <filename>repo.conf</filename>, available from the root of the repository,
-    e.g.
-    <filename>http://server.company.com/repos/system/samba-server-5-i386/repo.conf</filename>.
+    <filename>repo.conf</filename>, available from the repository publish
+    folder, e.g.
+    <filename>http://server.company.com/deploy/systems/samba-server-5-i386/repo.conf</filename>.
     This file can be used by automated processes in situations where it is
     undesirable to install the release-rpm. This is most common when using YUM
     to install repository packages in a <command>chroot</command> environment,

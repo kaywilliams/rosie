@@ -132,7 +132,7 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
   <para>
   The <emphasis role='strong'>%{installdir}</emphasis> macro specifies the
   location where variable data for the config-rpm is installed, specifically
-  <filename>/var/cache/deploy/config/%{rpmid}</filename>.  This can be
+  <filename>/var/lib/deploy/config/%{rpmid}</filename>.  This can be
   useful for scripts specified within <xref linkend='config-rpms-files'/>,
   <xref linkend='config-rpms-script'/> and <xref
   linkend='config-rpms-trigger'/> elements, as it provides these scripts with a

@@ -128,17 +128,10 @@
 
       <listitem>
       <para>
-      TEXT value providing a unique id for the repository.
-      </para>
-
-      <para>
-      Used as the default name for deployment local-dir folders. See <xref
-      linkend='local-dir'/> for more information.
-      </para>
-      
-      <para>
-      Typically specified using a macro
-      consisting of name, os, version and arch macros.  See <xref
+      TEXT value providing a unique id for the repository.  Used as the default
+      name for deployment local-dir folders. See <xref linkend='local-dir'/>
+      for more information.  Typically specified using a macro consisting of
+      name, os, version and arch macros.  See <xref
       linkend='in-document-macros'/> for more information and an example.
       </para>
 

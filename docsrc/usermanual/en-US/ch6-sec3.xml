@@ -144,7 +144,7 @@
 &lt;script id='sync-to-pxe-server' type='install'/>
 #!/bin/sh
 rsync -a --delete -e ssh \
-"/var/www/html/repos/system/%{id}/images/pxeboot" \
+"/var/www/html/deploy/systems/%{id}/images/pxeboot" \
 "user@pxe.company.com:/pxe/file/location/%{id}"
 &lt;/script>
 &lt;publish></programlisting>
@@ -162,7 +162,7 @@ rsync -a --delete -e ssh \
 
   <informalexample>
   <programlisting>kernel /path/to/vmlinuz/on/pxeboot/server
-append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/repos/system/web-server-centos-6-x86_64/ks.cfg ...</programlisting>
+append initrd=/path/to/initrd.img/on/pxeboot/server ks=http:/www.company.com/deploy/systems/web-server-centos-6-x86_64/ks.cfg ...</programlisting>
   </informalexample>
 
   <para>

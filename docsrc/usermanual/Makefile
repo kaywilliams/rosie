@@ -10,12 +10,12 @@ all: html pdf
 
 html: 
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	../common.sh --clean-tmpdir html-single
+	../common.sh --clean-tmpdir usermanual html-single
 	$(PUBLICAN) build --formats html-single --langs en-US --quiet
 
 pdf: 
 	@make checkpkg BINARY=$(PUBLICAN)  INSTRUCTIONS="Install the publican package."
-	../common.sh --clean-tmpdir pdf
+	../common.sh --clean-tmpdir usermanual pdf
 	$(PUBLICAN) build --formats pdf --langs en-US --quiet
 
 publish:

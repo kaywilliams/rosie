@@ -40,9 +40,9 @@
 
   <para>
   When the process is complete, you can locate your new repository at
-  <filename>/var/www/html/repos/system/web-server-5-i386</filename>.
+  <filename>/var/www/html/deploy/systems/web-server-5-i386</filename>.
   Package-type repositories will be located in the  
-  <filename>/var/www/html/repos/packages</filename> folder.
+  <filename>/var/www/html/deploy/packages</filename> folder.
   </para>
   
   <para>

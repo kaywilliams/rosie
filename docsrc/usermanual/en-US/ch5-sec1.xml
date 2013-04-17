@@ -90,7 +90,7 @@
   </para>
   
   <para>
-  <filename>/var/www/html/repos/system/test-install/web-server-centos-6-x86_64</filename>.
+  <filename>/var/www/html/deploy/systems/test-install/web-server-centos-6-x86_64</filename>.
   </para>
   </listitem>
 
@@ -136,7 +136,7 @@
   </para>
 
   <para>
-  <filename>/var/www/html/repos/system/web-server-centos-6-x86_64</filename>.
+  <filename>/var/www/html/deploy/systems/web-server-centos-6-x86_64</filename>.
   </para>
 
   <para>
@@ -189,7 +189,7 @@
   </para>
   
   <para> 
-  <filename>/var/www/html/repos/system/test-updates/web-server-centos-6-x86_64</filename>
+  <filename>/var/www/html/deploy/systems/test-updates/web-server-centos-6-x86_64</filename>
   </para>
 
   <para>
