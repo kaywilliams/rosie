@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.73
+Version: 1.74
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
@@ -72,7 +72,7 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Wed Apr 17 2013 Kay Williams <kay@deployproject.org> - 1.73-1
+* Wed Apr 17 2013 Kay Williams <kay@deployproject.org> - 1.74-1
 - macro and xinclude feature and stability enhancements
 - main/id now a required element - avoids unexpected results
 - reorganize cache and publish folders to help prevent accidental id clashes
