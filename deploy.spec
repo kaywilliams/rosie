@@ -1,12 +1,12 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.72
+Version: 1.73
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
 License:   GPL
-Group:     Applications/Repo
+Group:     Applications
 URL:       http://www.deployproject.org
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -72,7 +72,13 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Sun Mar 10 2013 Kay Williams <kay@deployproject.org> -1.72-1
+* Wed Apr 17 2013 Kay Williams <kay@deployproject.org> - 1.73-1
+- macro and xinclude feature and stability enhancements
+- main/id now a required element - avoids unexpected results
+- reorganize cache and publish folders to help prevent accidental id clashes
+- template and documentation updates
+
+* Sun Mar 10 2013 Kay Williams <kay@deployproject.org> - 1.72-1
 - fixed schema folder name that should have been changed in 1.70-1
 - improved schema validation for deploy.conf generally
 - allow metadata cache folders to move without causing difference events
