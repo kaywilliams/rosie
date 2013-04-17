@@ -35,7 +35,7 @@ class BootOptionsDummy(object):
   def setup(self, defaults=None, include_method=False, include_ks=False):
     self.boot_args = \
       self.ptr.cvars['publish-setup-options']['boot-options'].split()
-    self.ptr.webpath = self.ptr.cvars['publish-setup-options']['build-url']
+    self.ptr.webpath = self.ptr.cvars['publish-setup-options']['webpath']
 
     args = defaults or []
 

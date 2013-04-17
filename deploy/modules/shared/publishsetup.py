@@ -64,8 +64,7 @@ class PublishSetupEventMixin:
 
     # set additional attributes
     self.localpath = self.get_local()
-    self.build_url = self.get_build_url(self.build_host)
-    self.system_url = self.get_system_url(self.build_url)
+    self.webpath = self.get_webpath(self.build_host)
     self.domain = self.get_domain() # get_hostname() uses this for validation
     self.hostname = self.get_hostname()
     self.fqdn = self.hostname + self.domain 
@@ -94,10 +93,7 @@ class PublishSetupEventMixin:
                                      (keyfile + '.pub').read_text()})
 
     # resolve module macros
-    map = {'%{system-url}':     {'conf':  'system-url\' element',
-                                 'value':  str(self.system_url)},
-           '%{build-url}':    {'conf':  'remote-url\' element',
-                                 'value':  str(self.build_url)},
+    map = {'%{url}':            {'value':   self.webpath},
            '%{hostname}':       {'conf':  'hostname\' element',
                                  'value':  self.hostname},
            '%{domain}':         {'conf':  'domain\' element',
@@ -109,7 +105,7 @@ class PublishSetupEventMixin:
            '%{boot-options}':   {'conf':  'boot-options\' element',
                                  'value':  self.boot_options},
            }
-    for key in ['%{build-url}', '%{system-url}', '%{hostname}', '%{domain}',
+    for key in ['%{url}', '%{hostname}', '%{domain}',
                 '%{fqdn}', '%{password}', '%{boot-options}']:
       if key in map[key]['value']:
         raise SimpleDeployEventError(
@@ -124,7 +120,7 @@ class PublishSetupEventMixin:
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'localpath', 'build_url', 'system_url', 
+                      'ssh_passphrase', 'localpath', 'webpath', 
                       'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -177,7 +173,7 @@ class PublishSetupEventMixin:
 
     return build_host
     
-  def get_build_url(self, build_host): # build-url
+  def get_webpath(self, build_host): 
     if self.moduleid in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
     else:
@@ -189,18 +185,9 @@ class PublishSetupEventMixin:
     )
     return remote / self.build_id
 
-  def get_system_url(self, build_url):
-    system_url = pps.path(self.config.getxpath('system-url/text()', None))
-
-    if system_url:
-      self.io.validate_input_file(system_url)
-      return system_url
-    else:                     
-      return build_url
-
   def get_hostname(self):
-    # using last segment of build_url as default hostname
-    default = self.build_url.split('/')[-1]
+    # using last segment of webpath as default hostname
+    default = self.webpath.split('/')[-1]
 
     # append moduleid to default hostname for test modules
     if self.moduleid.startswith('test'):

@@ -131,9 +131,10 @@ class IOObject(object):
     if content == 'text':
       # add file content to diff tracking
       if not hasattr(self.ptr, 'file_content'): self.ptr.file_content = {}
-      self.ptr.file_content[dst] = src
+      self.ptr.file_content[dst.relpathfrom(self.ptr.mddir)] = src
       if 'file_content[\'%s\']' % dst not in self.ptr.diff.variables.vdata:
-        self.ptr.diff.variables.vdata.append('file_content[\'%s\']' % dst)
+        self.ptr.diff.variables.vdata.append('file_content[\'%s\']' %
+                                              dst.relpathfrom(self.ptr.mddir))
 
     else: # content == 'file'
       # absolute paths will not be affected by this join
@@ -232,7 +233,8 @@ class IOObject(object):
     # basename if exists, or output basename.
     tx = sorted([ t for t in self._filter_data(what=what) if
                   (t.xpath and self.ptr.diff.variables.difference(
-                               'file_content[\'%s\']' % t.dst)) or
+                               'file_content[\'%s\']' % t.dst.relpathfrom(
+                                                        self.ptr.mddir))) or
                   self.ptr.diff.input.difference(t.src) or
                   self.ptr.diff.output.difference(t.dst) or
                   not t.dst.exists() or

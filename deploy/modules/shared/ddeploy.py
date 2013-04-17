@@ -52,8 +52,15 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     self.cvar_root = '%s-setup-options' % self.moduleid
 
-    self.build_url = self.cvars[self.cvar_root]['build-url']
-    self.system_url = self.cvars[self.cvar_root]['system-url']
+    self.webpath = self.cvars[self.cvar_root]['webpath']
+
+    # get os_url - same as webpath unless user specified in the definition
+    self.os_url = pps.path(self.config.getxpath('os-url/text()', None))
+    if self.os_url:
+      self.io.validate_input_file(self.os_url)
+    else:                     
+      self.os_url = self.webpath
+    self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
     self._track_repomdfile()
@@ -178,11 +185,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   #------ Helper Functions ------#
   def _track_repomdfile(self):
     mdfile = 'repodata/repomd.xml'
-    self.repomdfile = self.system_url / mdfile
+    self.repomdfile = self.os_url / mdfile
     try:
       self.io.validate_input_file(self.repomdfile)
     except(InputFileError):
-      raise InvalidDistroError(self.system_url, mdfile)
+      raise InvalidDistroError(self.os_url, mdfile)
     self.DATA['input'].append(self.repomdfile)
 
   def _get_csum(self, text):
@@ -207,19 +214,19 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
   def _get_kickstart_csum(self):
     ksname = self.cvars['%s-ksname' % self.moduleid]
-    if ksname and (self.build_url/ksname).exists():
-      kstext = (self.build_url/ksname).read_text()
+    if ksname and (self.webpath/ksname).exists():
+      kstext = (self.webpath/ksname).read_text()
     else:
       kstext = ''
     return self._get_csum(kstext)
 
   def _get_treeinfo_csum(self):
-    tifile = self.system_url / '.treeinfo'
+    tifile = self.os_url / '.treeinfo'
     if not self.type == 'package':
       try:
         self.io.validate_input_file(tifile)
       except(InputFileError):
-        raise InvalidDistroError(self.system_url, tifile)
+        raise InvalidDistroError(self.os_url, tifile)
       return self._get_csum(tifile.read_text())
     else:
       return self._get_csum('')

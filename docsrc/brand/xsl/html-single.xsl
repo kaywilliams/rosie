@@ -10,7 +10,7 @@
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl"/>
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/xhtml/titlepage.xsl"/>
 <xsl:include href="../../../xsl/defaults.xsl"/>
-<xsl:include href="xhtml-common.xsl"/><-- fixes anchor in varlistentries-->
+<xsl:include href="xhtml-common.xsl"/><!-- fixes anchor in varlistentries-->
 
 <xsl:output method="xml" encoding="UTF-8" indent="no" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" omit-xml-declaration="no" />
 

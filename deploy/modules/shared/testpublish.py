@@ -74,7 +74,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     # release-rpm
     try:
       self.release = self.release_rpmdata['rpm-release'].replace(self.dist, '')
-      ReleaseRpmEventMixin.setup(self, webpath=self.build_url, 
+      ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
                          force_release=self.release,
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2(

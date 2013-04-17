@@ -52,7 +52,7 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
 
   def setup(self):
     ReleaseRpmEventMixin.setup(self, 
-      webpath=self.cvars['publish-setup-options']['build-url'])
+      webpath=self.cvars['publish-setup-options']['webpath'])
 
   def run(self):
     ReleaseRpmEventMixin.run(self)
