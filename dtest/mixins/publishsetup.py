@@ -18,6 +18,7 @@
 import unittest
 
 from deploy.errors    import DeployError
+from deploy.util      import pps
 from deploy.util.rxml import config
 
 from dtest      import EventTestCase, decorate
@@ -63,23 +64,23 @@ def PublishSetupMixinTest_Config(self):
   def check_results():
     errors = [] 
 
-    # check attributes
+    # check elements
     for k in self.values:
       if k in ['webpath', 'localpath']:
         test = eval('self.event.%s' % k).startswith(self.values[k])
       else:
         test = eval('self.event.%s' % k) == self.values[k] 
       if not test: 
-        errors.append("%s attribute does not match: %s, %s" % 
+        errors.append("%s element does not match: %s, %s" % 
                      (k, eval('self.event.%s' % k), self.values[k])) 
 
     # check macros
     for k in self.values:
-      if k == 'localpath':
+      if k in ['localpath']:
         continue
       elif k in [ 'webpath']:
-        test = eval('self.event.macros["%%{%s}"]' % 
-                     k.replace('_', '-')).startswith(self.values[k])
+        test = ( self.event.macros["%{url}"] == pps.path(self.values[k]) / 
+                                                self.event.build_id )
       elif k in ['ssh', 'ssh_passphrase']:
         pass
       else:

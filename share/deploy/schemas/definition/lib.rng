@@ -291,7 +291,7 @@
     </optional>
 
     <optional>
-      <element name="system-url">
+      <element name="os-url">
         <ref name="xml-base"/>
         <text/>
       </element>
