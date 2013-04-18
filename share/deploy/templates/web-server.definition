@@ -17,8 +17,8 @@
 </main>
 
 <repos>
-<xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/>
-<xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
+<xi:include href='repos.xml' xpointer="xpointer(./repo[@id='base'])"/>
+<xi:include href='repos.xml' xpointer="xpointer(./repo[@id='updates'])"/>
 </repos>
 
 <packages>
@@ -29,5 +29,17 @@
 <config-rpms>
 <xi:include href='httpd-config.xml'/>
 </config-rpms>
+
+<!--
+<test-install>
+  <password>test</password>
+  <xi:include href="virt-deploy.xml" xpointer="xpointer(./*)"/>
+</test-install>
+
+<test-update>
+  <password>test</password>
+  <xi:include href="virt-deploy.xml" xpointer="xpointer(./*)"/>
+</test-update>
+-->
 
 </definition>

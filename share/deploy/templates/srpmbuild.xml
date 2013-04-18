@@ -21,15 +21,15 @@
 <!-- epel repo provides rpmlint package-->
 <!-- epel repo defines the buildsys-build group for el6-->
 <xi:include href="repos.xml"
-            xpointer="xpointer(/*/repo[@id='base'] | 
-                               /*/repo[@id='updates'] |
-                               /*/repo[@id='epel'] )"/>
+            xpointer="xpointer(./repo[@id='base'] | 
+                               ./repo[@id='updates'] |
+                               ./repo[@id='epel'] )"/>
 %{repos-%{version}}
 </repos>
 <macro id="repos-5">
 <!--centos-buildsys-5 repo provides buildsys-build package-->
 <xi:include href="repos.xml"
-            xpointer="xpointer(/*/repo[@id='centos-buildsys-5'])"/>
+            xpointer="xpointer(./repo[@id='centos-buildsys-5'])"/>
 </macro>
 <macro id="repos-6"/>
 
@@ -51,8 +51,8 @@
 
 <kickstart>
 skipx
-<xi:include href='deploy/ks.xml' xpointer="xpointer(/*/node())"/>
-<xi:include href='deploy/ks-post-ssh.xml' xpointer="xpointer(/*/node())"/>
+<xi:include href='deploy/ks.xml' xpointer="xpointer(./node())"/>
+<xi:include href='deploy/ks-post-ssh.xml' xpointer="xpointer(./node())"/>
 </kickstart>
 
 <triggers>
@@ -130,7 +130,7 @@ finally:
 
 <macro id='file-size'>10</macro>
 <xi:include href="virt-deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='kickstart'])"/>
+            xpointer="xpointer(./*[name()!='kickstart'])"/>
 </publish>
 
 </definition>
