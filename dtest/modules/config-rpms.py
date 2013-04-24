@@ -53,7 +53,7 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
+                                           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
     base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults

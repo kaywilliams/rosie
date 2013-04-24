@@ -65,7 +65,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     repos = rxml.config.Element('repos')
     base = repo.getDefaultRepoById('base', os=self.os,
            version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
+           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
     # set gpgkeys to none
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,
                  'name': None,})

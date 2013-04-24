@@ -79,7 +79,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://www.deployproject.org/mirrors/%s' % self.os)
+                                            baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None, 
                   'name': None,})
         if repoid == 'updates' and 'systemid' in r:
