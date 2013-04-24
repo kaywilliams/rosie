@@ -5,7 +5,6 @@ all:
 install:
 	find ./ ! \( -name execlib.py -o \
                      -name i18n.py -o \
-                     -name permute.py -o \
                      -name rpmbind.py -o \
                      -name seqlib.py -o \
                      -name textfmt.py -o \
