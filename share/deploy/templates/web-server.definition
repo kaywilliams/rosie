@@ -34,11 +34,13 @@
 <test-install>
   <password>test</password>
   <xi:include href="virt-deploy.xml" xpointer="xpointer(./*)"/>
+  <xi:include href="test/test-web-server-running.xml"/>
 </test-install>
 
 <test-update>
   <password>test</password>
   <xi:include href="virt-deploy.xml" xpointer="xpointer(./*)"/>
+  <xi:include href="test/test-web-server-running.xml"/>
 </test-update>
 -->
 
