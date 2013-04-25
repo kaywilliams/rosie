@@ -180,6 +180,10 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
       badfile.write_text('')
 
     rpmfiles = self.rpmsdir.findpaths(mindepth=1)
+    if not rpmfiles:
+      message = ("The SRPM file '%s' did not create any RPMs." % 
+                 self.srpmfile.basename)
+      raise SrpmBuildEventError(message=message)
     for file in rpmfiles:
       if magic.match(file) != magic.FILE_TYPE_RPM:
         message = ("The file at '%s' does not appear to be an rpm." % file)
