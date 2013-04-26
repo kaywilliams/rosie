@@ -45,9 +45,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                                         'config-rpms', 
                                         '%s-ksname' % self.moduleid,
                                         '%s-ksfile' % self.moduleid])
+    ExecuteEventMixin.__init__(self)
 
   def setup(self): 
     InputEventMixin.setup(self)
+    ExecuteEventMixin.setup(self)
     self.DATA['variables'].extend(['deploy_mixin_version'])
 
     self.cvar_root = '%s-setup-options' % self.moduleid

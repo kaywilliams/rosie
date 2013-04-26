@@ -39,6 +39,13 @@ __all__ = ['ExecuteEventMixin', 'ScriptFailedError', 'SSHFailedError',
 class ExecuteEventMixin:
   execute_mixin_version = "1.00"
 
+  def __init__(self):
+    self.macros = getattr(self, 'macros', {})
+    self.macros['%{definition-dir}'] = self._config.getbase().dirname
+
+  def setup(self, **kwargs):
+    self.DATA['variables'].append('execute_mixin_version')
+
   def _ssh_connect(self, params, log_format='L2'):
     try:
       try:

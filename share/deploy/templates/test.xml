@@ -10,6 +10,7 @@ definitions or on the Deploy command line:
 
 repo - name of the package repository to test
 scenario - name of the scenario to test
+name - name of the test system repository
 os - os to test, e.g. 'centos' or 'rhel'
 version - default os version, e.g. '5' or '6'
 arch - default os arch, e.g. 'i386' or 'x86_64'
@@ -19,7 +20,7 @@ baseurl - full url to package repository on build machine, must be accessible fr
 -->
 
 <main>
-  <name>%{repo}-%{scenario}</name>
+  <name>%{name}</name>
   <os>%{os}</os>
   <version>%{version}</version>
   <arch>%{arch}</arch>

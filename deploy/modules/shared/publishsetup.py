@@ -58,9 +58,7 @@ class PublishSetupEventMixin:
 
     # set build-host 
     self.build_host = self.get_build_host()
-    self.resolve_macros(map={
-      '%{build-host}': self.build_host,
-      '%{definition-dir}': self._config.getbase().dirname})
+    self.resolve_macros(map={ '%{build-host}': self.build_host})
 
     # set additional attributes
     self.localpath = self.get_local()

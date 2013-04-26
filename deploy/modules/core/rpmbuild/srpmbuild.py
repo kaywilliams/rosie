@@ -35,7 +35,7 @@ from deploy.util         import rxml
 from deploy.util.pps.constants import TYPE_NOT_DIR
 
 
-from deploy.modules.shared import (DeployEventMixin, ShelveMixin, 
+from deploy.modules.shared import (ExecuteEventMixin, ShelveMixin, 
                                          RpmBuildMixin) 
 
 from fnmatch import fnmatch
@@ -66,7 +66,7 @@ class SrpmBuildEvent(Event):
       suppress_run_message = True
     )
 
-class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
+class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-srpm' % self.srpmid, 
@@ -102,6 +102,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, DeployEventMixin, ShelveMixin, Event):
 
     ShelveMixin.__init__(self)
     RpmBuildMixin.__init__(self)
+    ExecuteEventMixin.__init__(self)
   
   def setup(self):
     self.diff.setup(self.DATA)

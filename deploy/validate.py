@@ -75,11 +75,11 @@ class DeployValidationHandler:
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
     for event in self.dispatch:
-      moduleid = event.__module__.split('.')[-1]
-      if moduleid in tle_elements: continue # don't re-validate
       if getattr(event, 'macros', None):
         self.definition.resolve_macros(map=getattr(event, 'macros', {}),
                                        placeholder_xpath='/*/%s' % moduleid)
+      moduleid = event.__module__.split('.')[-1]
+      if moduleid in tle_elements: continue # don't re-validate
       v.validate(moduleid, schema_file='%s.rng' % moduleid, required=False)
       if self.definition.pathexists(moduleid):
         tle_elements.add(moduleid)
