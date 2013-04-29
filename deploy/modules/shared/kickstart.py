@@ -49,6 +49,7 @@ class KickstartEventMixin:
 
   def setup(self, default=''):
     self.diff.setup(self.DATA)
+    self.ksname = 'ks.cfg'
 
     # read the text or file specified in the kickstart element
     self.kstext = self.config.getxpath('kickstart/text()', default)
@@ -56,7 +57,6 @@ class KickstartEventMixin:
       self.ksfile = None
       return
 
-    self.ksname = 'ks.cfg'
     self.ksfile = self.OUTPUT_DIR / self.ksname
     self.DATA['variables'].extend(['ksname'])
 
