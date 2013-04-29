@@ -226,9 +226,9 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      Provides three run-time macros:
-      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis> and
-      <emphasis>srpmlast</emphasis>.
+      Provides four run-time macros:
+      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis>,
+      <emphasis>srpmlast</emphasis> and <emphasis>definition-dir</emphasis>.
       </para>
 
       <para>
@@ -249,6 +249,12 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       including version and revision, of the last SRPM provided by the script.
       The script may wish to use this value as a performance optimization to
       determine whether a new SRPM must be created and provided.
+      </para>
+
+      <para>
+      <emphasis role='strong'>%{definition-dir}:</emphasis> The folder location
+      of the definition. Allows scripts to access files relative to the
+      definition.
       </para>
 
       <para>
