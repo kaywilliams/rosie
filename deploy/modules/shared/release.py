@@ -21,9 +21,8 @@ import yum
 
 from deploy.errors         import DeployEventError
 from deploy.event          import Event
-from deploy.util.repo      import YumRepo
 from deploy.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
-                                         Trigger, TriggerContainer)
+                                   Trigger, TriggerContainer, DeployRepo)
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
   release_mixin_version = "1.24"
@@ -104,13 +103,19 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     if 'gpg-signing-keys' in self.cvars: 
       repos = (repos +
               # using a dummy repo since rpmbuild repo not yet created
-               [YumRepo(id='dummy', gpgkey=self.cvars['gpg-signing-keys']
+               [DeployRepo(id='dummy', gpgkey=self.cvars['gpg-signing-keys']
                                                      ['pubkey'])])
 
     self.gpgkeys = {}
     for repo in repos:
       for url in repo.gpgkey:
-        self.gpgkeys[url.read_text().strip()] = url # using key content as id 
+        if self.type == 'system' or repo.download:
+          try:
+            self.io.validate_input_file(url)
+          except InputFileError, e:
+            raise GpgkeyError(e)
+            
+          self.gpgkeys[url.read_text().strip()] = url # using key content as id 
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
     self.DATA['variables'].extend(['keydir', 'cvars[\'gpgkey-ids\']'])

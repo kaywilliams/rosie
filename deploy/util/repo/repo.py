@@ -319,7 +319,7 @@ class YumRepo(IORepo):
 
   # hack to allow updating gpgkeys
   def extend_gpgkey(self, list):
-    self['gpgkey'] = self.get('gpgkey','') + ' '.join(list)
+    self['gpgkey'] = self.get('gpgkey','') + ' ' + ' '.join(list)
 
 class RepoContainer(dict):
   "A container for other repos (a yum.conf file, for example)"
