@@ -219,10 +219,11 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 
       <listitem>
       <para>
-      TEXT value providing a script to be executed on
-      the local machine that performs desired actions, and ultimately copies an
-      SRPM to the %{srpmdir} location. Deploy executes the script with
-      root user permissions.
+      TEXT value providing a script to be executed on the local machine that
+      performs desired actions, and ultimately copies an SRPM to the %{srpmdir}
+      location. Deploy saves the provided script in the cache folder and
+      executes it with root user permissions. See the Deploy User Manual or the
+      deploy.conf man page for information on the cache folder.
       </para>
 
       <para>
@@ -245,16 +246,18 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpmlast}:</emphasis> The full filename,
-      including version and revision, of the last SRPM provided by the script.
-      The script may wish to use this value as a performance optimization to
-      determine whether a new SRPM must be created and provided.
+      <emphasis role='strong'>%{srpmlast}:</emphasis> The full filename of the
+      last SRPM provided by the script, e.g.
+      <filename>example.1-1.el6.x86_64.rpm</filename>. Allows scripts to
+      optimize performance by determining whether a new SRPM must be 
+      provided.
       </para>
 
       <para>
       <emphasis role='strong'>%{definition-dir}:</emphasis> The folder location
-      of the definition. Allows scripts to access files relative to the
-      definition.
+      of the definition. This macro allows the script, which is saved and
+      executed from the cache folder, to access external content from a 
+      relative location.
       </para>
 
       <para>

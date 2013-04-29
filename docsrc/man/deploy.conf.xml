@@ -110,7 +110,7 @@ cache element allows specifying cache-related options.</para>
   <term><option>path</option></term>
   <listitem>
 <para>The <literal>path</literal> child element specifies where Deploy
-stores both shared and per-solution cache data.  The default is
+stores both shared and per-definition cache data.  The default is
 <filename>/var/cache/deploy</filename>.
 </para>
 <programlisting>
@@ -162,7 +162,7 @@ used basis.</para>
   <term>CACHEDIR</term>
   <listitem>
     <para>CACHEDIR is the directory location where Deploy stores shared
-    and per-solution cache data.</para>
+    and per-directory cache data.</para>
   </listitem>
 </varlistentry>
 

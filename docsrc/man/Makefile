@@ -8,7 +8,7 @@ PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/man
 
 .PHONY: all checkpkg clean install deploy.1.gz deploy.conf.5.gz html publish 
 
-all: deploy.1.gz deploy.conf.5.gz
+all: deploy.1.gz deploy.conf.5.gz html
 
 deploy.1.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
