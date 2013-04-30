@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.75
+Version: 1.76
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
@@ -72,6 +72,12 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Tue Apr 30 2013 Kay Williams <kay@deployproject.org> - 1.76-1
+- gpgkey download and error handling improvements
+- add definition-dir macro to srpmbuild/script and update documentation
+- add test templates folder and test-web-server-running template
+- additional minor error handling improvements
+
 * Thu Apr 18 2013 Kay Williams <kay@deployproject.org> - 1.75-1
 - macro and xinclude feature and stability enhancements
 - main/id now a required element - avoids unexpected results
