@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import traceback 
 
 from deploy.util     import shlib
 from deploy.util     import pps
@@ -137,8 +138,13 @@ class DuplicateIdsError(DeployEventError):
 class DeployEventErrorHandler:
   def _handle_Exception(self, e, event=''):
     event = event or self.dispatch.currevent.id
-    e = '\n[%s] %s' % (event, handle_Exception(e))
-    raise DeployError(e)
+    msg = '\n[%s] %s' % (event, handle_Exception(e))
+    tb = traceback.format_exc()
+    if self.debug:
+      msg = tb
+    else:
+      self.logger.logfile.file_object.write(tb)
+    raise DeployError(msg)
 
 
 def handle_Exception(e):
