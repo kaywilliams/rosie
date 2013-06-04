@@ -46,6 +46,7 @@ opt_defaults = dict(
   no_validate = False,
   validate_only = False,
   clear_cache = False,
+  offline = False,
   debug = True,
 )
 

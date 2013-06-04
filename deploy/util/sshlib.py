@@ -30,7 +30,8 @@ import time
 from decimal import Decimal
 
 def get_client(retries=24, sleep=5, callback=None, **kwargs):
-  """Create an ssh client object and establish a connection to the remote
+  """
+  Create an ssh client object and establish a connection to the remote
   machine, waiting for a timeout period in case the system is starting. Accepts
   paramiko connection parameters as a dictionary (params). "Retries" specifies
   the number of time to retry the connection, and "sleep" specifies the time in 
@@ -62,11 +63,13 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
       break
     except (paramiko.AuthenticationException, 
             paramiko.BadAuthenticationType), e:
-      raise ConnectionFailedError(str(e), params)
+      raise TemporaryConnectionFailedError(str(e), params)
     except (socket.error, paramiko.SSHException), e:
       if "No existing session" in str(e): 
         # connection closed, e.g. after being refused
         raise ConnectionFailedError(str(e), params)
+      if e.errno == socket.EAI_AGAIN: # Temporary failure in name resolution
+        raise TemporaryConnectionFailedError(str(e), params)
       if i == 0:
         max = Decimal(retries) * sleep / 60
         if callback is not None:
@@ -85,6 +88,7 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
 
   return client
 
+
 class ConnectionFailedError(Exception):
   def  __init__(self, message, params):
     self.hostname = params['hostname']
@@ -97,3 +101,6 @@ class ConnectionFailedError(Exception):
             "Error Message: %s\n"
             "SSH Parameters: %s" 
             % (self.hostname, self.message, self.params))
+
+
+class TemporaryConnectionFailedError(ConnectionFailedError): pass

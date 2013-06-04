@@ -51,6 +51,9 @@ mgcache = {} # cache of mirror groups
 class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
                  MirrorPath_Walk, RemotePath):
 
+  def __init__(self, value, **kwargs):
+    RemotePath.__init__(self, value, **kwargs)
+
   _pypath = posixpath # treat like posix paths
 
   def _splitmirror(self):
@@ -83,19 +86,19 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
     if protocol and root:
       return UriTuple(('mirror',
                        _path(root),
-                       self.__class__(relpath),
+                       self._new(relpath),
                        p, q, f))
     else:
       return UriTuple(('', '', rp, p, q, f))
 
   def normcase(self):
     if self.root:
-      return self.__class__('%s:%s::%s' %
+      return self._new('%s:%s::%s' %
         (self.protocol.lower(),
          self.realm.normcase(),
          self.path or self._pypath.sep))
     else:
-      return self.__class__(self._pypath.normcase(self.path))
+      return self._new(self._pypath.normcase(self.path))
 
   def normpath(self):
     if self.root:
@@ -104,16 +107,16 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
       else:
         return self.root
     else:
-      return self.__class__(self._pypath.normpath(self.path))
+      return self._new(self._pypath.normpath(self.path))
 
   def splitroot(self):
     if ( self._urlparse().path.startswith(self._pypath.sep) and
          (self.protocol and self.realm) ):
-        root = self.__class__('%s:%s::/' % (self.protocol, self.realm))
-        path = self.__class__(self._urlparse().path.lstrip(self._pypath.sep))
+        root = self._new('%s:%s::/' % (self.protocol, self.realm))
+        path = self._new(self._urlparse().path.lstrip(self._pypath.sep))
         return root, path
     else:
-      return self.__class__(''), self.__class__(self._urlparse().path)
+      return self._new(''), self._new(self._urlparse().path)
 
   @property
   @cached()
@@ -121,7 +124,8 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
     key = self.root
     if not mgcache.has_key(key):
       try:
-        mg = MirrorGroup(validate_mirrorlist(self.realm.read_lines()))
+        mg = MirrorGroup(validate_mirrorlist(self.realm.read_lines()),
+                         self.cache_handler)
       except PathError:
         raise PathError(errno.EHOSTUNREACH, self.realm,
                         'Mirrorlist unreachable')
@@ -132,9 +136,9 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
 
   def touri(self):
     if len(self.mirrorgroup) == 1:
-      return self.__class__(self.realm) / self.__class__(self.basename)
+      return self._new(self.realm) / self._new(self.basename)
     else:
-      return self.__class__(self)
+      return self._new(self)
       #raise ValueError("MirrorPaths cannot be converted into a valid URI")
 
 class MirrorlistEmptyError(ValueError):
@@ -143,7 +147,7 @@ class MirrorlistEmptyError(ValueError):
     self.strerror = 'Mirrorlist exists, but empty or invalid'
     self.filename = filename
 
-def path(string):
-  return MirrorPath(string)
+def path(string, **kwargs):
+  return MirrorPath(string, **kwargs)
 
 register_scheme('mirror', path)

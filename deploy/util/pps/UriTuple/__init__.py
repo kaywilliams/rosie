@@ -37,7 +37,7 @@ class UriTuple(tuple):
   def geturi(self):
     "Like geturl except this returns a valid uri"
     return urlunparse((self.scheme and self.scheme or 'file',
-                       self.netloc and self.netloc or 'localhost',
+                       self.netloc and self.netloc or '',
                        self.path.replace('\\', '/'), # fix up NT names
                        self.params,
                        self.query,

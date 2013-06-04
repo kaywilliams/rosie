@@ -18,16 +18,20 @@
 
 from deploy.util.pps.UriTuple import urlunparse
 
-from deploy.util.pps.Path import BasePath
+from deploy.util.pps.Path.cached import _CachedPath as CachedPath
+from deploy.util.pps.Path.cached.path_io import CachedPath_IO as RemotePath_IO
+from deploy.util.pps.Path.cached.path_stat import CachedPath_Stat as RemotePath_Stat
 
-from path_stat import RemotePath_Stat
-
-from deploy.util.pps.Path import Path_IO     as RemotePath_IO
 from deploy.util.pps.Path import Path_Printf as RemotePath_Printf
 from deploy.util.pps.Path import Path_Walk   as RemotePath_Walk
 
-class _RemotePath(BasePath):
-  "String representation of HTTP file paths"
+class _RemotePath(CachedPath):
+  """
+  String representation of remote file paths.
+  """
+  def __new__(cls, value, **kwargs):
+    return CachedPath.__new__(cls, value)
+
   # The following operations are redefinitions of those specified in
   # BasePath because of the protocol and realm portions of the URI.  In
   # most cases, they are simply the result of joining protocol, realm, and
@@ -42,12 +46,22 @@ class _RemotePath(BasePath):
       realm = '%s@%s' % (self.username, self.hostname)
     if self.port:
       realm = '%s:%s' % (realm, self.port)
-    return self.__class__(urlunparse((self.protocol.lower(),
+    return self._new(urlunparse((self.protocol.lower(),
                                       realm,
                                       self.path or self._pypath.sep,
                                       self.params,
                                       self.query,
                                       self.fragment)))
+
+  def _new(self, string):
+    newobj = self.__class__(string)
+    self._copy_attrs(newobj)
+
+    return newobj
+
+  def _copy_attrs(self, newobj):
+    newobj.cache_handler = self.cache_handler
+    return newobj
 
 class RemotePath(RemotePath_IO, RemotePath_Printf, RemotePath_Stat,
                  RemotePath_Walk, _RemotePath):

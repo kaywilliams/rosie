@@ -40,7 +40,7 @@ class Path_IO(object):
     dst = path(dst)
     if time:  dst.utime((st.st_atime, st.st_mtime))
     if mode:  dst.chmod(stat.S_IMODE(st.st_mode))
-    if owner: dst.chown(st.st_uid, st.st_gid)
+    if owner and st.st_uid: dst.chown(st.st_uid, st.st_gid)
 
   # file/directory creation/modification
   def rename(self, new):      raise NotImplementedError
@@ -101,24 +101,36 @@ class Path_IO(object):
         raise PathError(errno.ENOENT, "cannot remove '%s'" % self)
 
   # links
-  def link(self, new):    raise NotImplementedError
-  def symlink(self, new): raise NotImplementedError
-  def readlink(self):     raise NotImplementedError
+  def link(self, new):     return self._link(new)    #see cached/path_io.py
+  def _link(self, new):    raise NotImplementedError
+  def symlink(self, new):  return self._symlink(new)
+  def _symlink(self, new): raise NotImplementedError
+  def readlink(self):      raise NotImplementedError
 
   # file reading, copying, writing
-  def open(self): raise NotImplementedError
-  def copyfile(self, dst):
+  def open(self, *args, **kwargs): return self._open(*args, **kwargs) # cached
+  def _open(self, *args, **kwargs): raise NotImplementedError
+
+  def copyfile(self, dst, callback=None, preserve=False, **kwargs):
+    dst = path(dst)
+
     fsrc = None
     fdst = None
+
     try:
-      fsrc = self.open('rb')
-      fdst = path(dst).open('wb')
-      copyfileobj(fsrc, fdst)
+      fsrc = self._open('rb')
+      fdst = dst._open('wb')
+      read = copyfileobj(fsrc, fdst, callback=callback, **kwargs)
     finally:
       if fsrc: fsrc.close()
       if fdst: fdst.close()
-  def cp(self, dst, recursive=False, preserve=False, follow=False,
-                    **kwargs):
+
+    if preserve: self.copystat(dst)
+
+    return read
+
+  def cp(self, dst, recursive=False, preserve=False, mirror=False, 
+                    follow=False, strict=True, callback=None, **kwargs):
     """
     Algorithm method
 
@@ -130,6 +142,13 @@ class Path_IO(object):
     file links, force removes the destination before copying, and update
     only copies if the source is newer than the destination.
     """
+    if mirror: preserve=True  # mirroring relies on preserved timestamps
+
+    # add back to kwargs for passing to _copy method
+    kwargs['mirror'] = mirror
+    kwargs['preserve'] = preserve
+    kwargs['callback'] = callback 
+
     dst = path(dst)
     if self.isdir():
       if not recursive:
@@ -137,33 +156,48 @@ class Path_IO(object):
       d = dst / self.basename
       if not d.exists():
         d.mkdirs()
-        if preserve and not d.islink(): self.copystat(d)
+        if not d.islink():
+          if preserve: self.copystat(d)
       for dirs, files, level in self.walk(follow=follow):
         for dir in dirs:
           d = dst/self.basename/dir.splitall()[-level:]
           if not d.exists(): d.mkdir()
-          if preserve and not d.islink(): dir.copystat(d)
+          if not d.islink():
+            if preserve: dir.copystat(d)
         for file in files:
           d = dst/self.basename/file.splitall()[-level:]
+          if callback and hasattr(callback, '_start'):
+            callback._start(self.stat().st_size, self.basename)
           file._copy(d, **kwargs)
-          if preserve and not d.islink(): file.copystat(d)
+          if callback and hasattr(callback, '_end'):
+            callback._end()
     elif self.isfile() or self.islink():
       if dst.isdir():
         d = dst / self.basename
       else:
         d = dst
+      if callback and hasattr(callback, '_start'):
+        callback._start(self.stat().st_size, self.basename)
       self._copy(d, **kwargs)
-      if preserve and not d.islink(): self.copystat(d)
-  def _copy(self, dst, force=False, link=False, update=False):
+      if callback and hasattr(callback, '_end'):
+        callback._end()
+
+  def _copy(self, dst, link=False, update=False, mirror=False, force=False,
+                       callback=None, **kwargs):
     "copy() helper function"
+    size = self.stat().st_size
+    if callback: callback._cp_start(size, self.basename)
+
+    kwargs['callback'] = callback
     dst = path(dst)
-    if force:
-      dst.rm(force=True)
-    if update:
-      if dst.exists() and (self.stat().st_mtime > dst.stat().st_mtime):
-        dst.remove()
-      if link: self.link(dst)
-      else:    self.copyfile(dst)
+    if force or update or mirror:
+      if force: 
+        dst.rm(force=True)
+      if update and self._updatefn(dst): dst.remove()
+      if mirror and self._mirrorfn(dst): dst.remove()
+      if not dst.exists():
+        if link: self._link(dst)
+        else:    self.copyfile(dst, **kwargs)
     else:
       if self.islink():
         if dst.exists():
@@ -172,9 +206,21 @@ class Path_IO(object):
       elif link:
         if dst.exists():
           raise PathError(errno.EEXIST, "cannot create link '%s'" % dst)
-        self.link(dst)
+        self._link(dst)
       else:
-        self.copyfile(dst)
+        if dst.exists():
+          raise PathError(errno.EEXIST, "cannot copy to '%s'" % dst)
+        self.copyfile(dst, **kwargs)
+    if callback: callback._cp_end(size)
+  def _updatefn(self, dst):
+    'return true if dst exists this file is newer than dst'
+    if dst.exists() and (self.stat().st_mtime > dst.stat().st_mtime):
+      return True
+  def _mirrorfn(self, dst):
+    'return true if dst exists and this file differs from dst'
+    if dst.exists() and (self.stat(populate=True).st_mtime !=
+                         dst.stat(populate=True).st_mtime):
+      return True
 
   def read_text(self, size=-1, **kwargs):
     fo = self.open('r', **kwargs)
@@ -196,8 +242,8 @@ class Path_IO(object):
     self.write_lines([bytes], append=append, linesep='')
 
   def write_lines(self, lines, append=False, linesep='\n'):
-    if append: fo = self.open('ab')
-    else:      fo = self.open('wb')
+    if append: fo = self._open('ab')
+    else:      fo = self._open('wb')
     try:
       for line in lines:
         fo.write(line.rstrip(linesep)+linesep)
@@ -214,9 +260,12 @@ class Path_IO(object):
     if hex: return csum.hexdigest()
     else:   return csum.digest()
 
-def copyfileobj(fsrc, fdst, buflen=16*1024):
+def copyfileobj(fsrc, fdst, callback=None, buflen=16*1024, **kwargs):
   "Copy from open file object fsrc to open file object fdst"
+  read = 0.0
   while True:
     buf = fsrc.read(buflen)
     if not buf: break
     fdst.write(buf)
+    read += len(buf)
+    if callback: callback._cp_update(read)

@@ -74,6 +74,7 @@ def make_suite(os, version, arch, *args, **kwargs):
 
   # deploy
   if check_vm_config():
-    suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, arch))
+    suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, 
+                  arch, offline=False))
 
   return suite

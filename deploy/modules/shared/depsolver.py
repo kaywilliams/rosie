@@ -20,7 +20,6 @@ import rpmUtils
 import yum
 
 from deploy.util import difftest
-from deploy.util import pps
 
 from deploy.util.depsolver import Depsolver
 from deploy.util.depsolver.depsolver import DepsolveError

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import errno 
 import hashlib
 import paramiko
 import re
@@ -22,10 +23,10 @@ import re
 from deploy.dlogging import L0, L1
 from deploy.errors import (DeployError, DeployEventError,
                                  DuplicateIdsError)
-from deploy.util import pps
+from deploy.util import pps 
 from deploy.util import resolve 
 
-from deploy.event.fileio import InputFileError
+from deploy.util.pps.Path.error import PathError
 
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
                                    ScriptFailedError,
@@ -189,9 +190,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     mdfile = 'repodata/repomd.xml'
     self.repomdfile = self.os_url / mdfile
     try:
-      self.io.validate_input_file(self.repomdfile)
-    except(InputFileError):
-      raise InvalidDistroError(self.os_url, mdfile)
+      self.link(self.repomdfile, self.mddir) # cache for offline support
+    except PathError, e:
+      if e.errno == errno.ENOENT:
+        raise InvalidDistroError(self.os_url, mdfile)
+      else: raise
     self.DATA['input'].append(self.repomdfile)
 
   def _get_csum(self, text):
@@ -226,10 +229,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     tifile = self.os_url / '.treeinfo'
     if not self.type == 'package':
       try:
-        self.io.validate_input_file(tifile)
-      except(InputFileError):
-        raise InvalidDistroError(self.os_url, tifile)
-      return self._get_csum(tifile.read_text())
+        return self._get_csum(tifile.read_text())
+      except PathError, e:
+        if e.errno == errno.ENOENT:
+          raise InvalidDistroError(self.os_url, tifile)
+        else: raise
     else:
       return self._get_csum('')
 
@@ -374,7 +378,7 @@ class SSHParameters(DictMixin):
 
 
 class InvalidDistroError(DeployEventError):
-  message = ("The system repository at '%(system)s' does not appear to be "
+  message = ("The repository at '%(system)s' does not appear to be "
              "valid. The following file could not be found: '%(missing)s'")
 
 class InvalidTriggerNameError(DeployEventError):

@@ -44,7 +44,7 @@ def PublishSetupMixinTest_Config(self):
 
   def pre_setUp():
     mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    for item in ['hostname', 'password', 'domain']:
+    for item in ['hostname', 'password', 'domain', 'remote-url']:
       elem = self.conf.getxpath('/*/%s/%s' % (self.moduleid, item), None)
       if elem is not None: mod.remove(elem)
     config.Element('hostname', text=self.values['hostname'], parent=mod)

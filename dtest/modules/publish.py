@@ -86,6 +86,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_KickstartFailsOnInvalidInput(os, version, arch))
 
   # publish
-  suite.addTest(make_core_suite(PublishEventTestCase, os, version, arch))
+  suite.addTest(make_core_suite(PublishEventTestCase, os, version, arch, 
+                offline=False))
 
   return suite

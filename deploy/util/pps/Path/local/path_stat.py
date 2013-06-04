@@ -24,8 +24,9 @@ from error import error_transform
 class LocalPath_Stat(Path_Stat):
 
   # stat() calls
-  def stat(self):  return self._mkstat(populate=True)
-  def lstat(self): return self._mkstat(populate=True, link=True)
+  # force populate=True for local paths
+  def stat(self, populate=None):  return self._mkstat(populate=True) 
+  def lstat(self, populate=None): return self._mkstat(populate=True, link=True)
 
   # file properties
   def exists(self): return self._pypath.exists(self.normpath())

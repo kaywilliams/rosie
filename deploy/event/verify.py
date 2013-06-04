@@ -19,10 +19,9 @@ import sys
 import time
 import unittest
 
-from deploy.util import pps
-
 from deploy.dlogging import L1, L2
-from deploy.verify  import BuildTestResult
+from deploy.util     import pps
+from deploy.verify   import BuildTestResult
 
 class VerifyMixin:
   def __init__(self):

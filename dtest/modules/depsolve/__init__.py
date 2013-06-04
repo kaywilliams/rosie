@@ -33,6 +33,9 @@ class DummyDepsolveEventTestCase(EventTestCase):
   eventid  = 'depsolve'
   _type = 'package'
 
+  def setUp(self):
+    EventTestCase.setUp(self)
+
 class DepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'

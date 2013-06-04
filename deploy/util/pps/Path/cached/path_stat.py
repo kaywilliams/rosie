@@ -15,15 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import errno
+
 from deploy.util.pps.lib import cached
 
 from deploy.util.pps.PathStat import PathStat
 
 from deploy.util.pps.Path import path_stat
 
-class RemotePath_Stat(path_stat.Path_Stat):
+from deploy.util.pps.Path.error import PathError, OfflinePathError
+
+class CachedPath_Stat(path_stat.Path_Stat):
   """
-  RemotePath objects save a cache of stat calls made to them due to the
+  CachedPath objects save a cache of stat calls made to them due to the
   somewhat pricey cost of making stat calls.  There are two levels of
   caching: one on the Path object itself and one associated with this
   python module.  The goals for such a caching system are as follows:
@@ -41,6 +45,12 @@ class RemotePath_Stat(path_stat.Path_Stat):
   have a truly excessive number of stat results cached, you can clear it
   by calling path_stat.view.clear().
   """
+  def exists(self):
+    try:
+      self.stat()
+    except (PathError, OfflinePathError):
+      return False
+    return True
 
   def getatime(self): return self.stat().st_atime
   def getmtime(self): return self.stat().st_mtime
@@ -59,7 +69,7 @@ class RemotePath_Stat(path_stat.Path_Stat):
   @cached()
   @cached(globally=True)
   def _get_stat(self, populate=True):
-    return self._mkstat(populate=populate)
+    return self.mkstat(populate=populate)
 
   @cached(name='_get_stat', set=True)
   @cached(name='_get_stat', set=True, globally=True)
@@ -68,9 +78,17 @@ class RemotePath_Stat(path_stat.Path_Stat):
     estat.update(*stat._stat)
     return estat
 
-  def _mkstat(self, populate=False):
-    stat = PathStat(self)
-    if populate: stat.stat()
-    return stat
+  def mkstat(self, populate=False):
+    "return stats from cached file if available"
+    if self.cache_handler and self.cache_handler.offline:
+        csh = self.cache_handler.cshfile(self)
+        if csh.exists():
+          return csh._mkstat(populate=populate)
+        else:
+          raise OfflinePathError(self, 
+                          strerror="operating in offline mode and "
+                                   "file could not be found in the cache")
+    else:
+      return self._mkstat(populate=populate)
 
   _protect = ['_get_stat']

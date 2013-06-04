@@ -29,15 +29,18 @@ from deploy.util import listfmt
 from deploy.util import pps
 from deploy.util import rxml
 
+from deploy.util.pps.cache import gen_hash
+
 from deploy.util.difftest.filesdiff import DiffTuple
 
-from deploy.util.pps.constants import TYPE_DIR
+from deploy.util.pps.constants  import TYPE_DIR
+from deploy.util.pps.Path.error import PathError
 
-from deploy.errors    import (DeployEventError,
+from deploy.errors       import (DeployEventError,
                                     DeployIOError, RhnSupportError,
                                     assert_file_readable, 
                                     assert_file_has_content)
-from deploy.dlogging    import L1, L2
+from deploy.dlogging     import L1, L2
 from deploy.constants    import BOOLEANS_TRUE, BOOLEANS_FALSE
 from deploy.errors       import DuplicateIdsError
 from deploy.event.fileio import InputFileError
@@ -58,7 +61,7 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
 
 class DeployRepo(YumRepo):
   keyfilter = ['id', 'systemid']
-  treeinfofile = pps.path('.treeinfo')
+  treeinfofile = '.treeinfo'
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
@@ -126,6 +129,9 @@ class RhnDeployRepo(DeployRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
+  def __init__(self, **kwargs):
+    DeployRepo.__init__(self, **kwargs)
+
   EMPTY_FILE_CSUM = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
   MAX_TRIES = 10 # number of times to try redownloading repomd
 
@@ -143,10 +149,11 @@ class RhnDeployRepo(DeployRepo):
 
 
 class DeployRepoGroup(DeployRepo):
-  def __init__(self, **kwargs):
+  def __init__(self, locals=None, **kwargs):
     DeployRepo.__init__(self, **kwargs)
 
     self._repos = None
+    self.locals = locals
     self.has_installer_files = False
 
   def _populate_repos(self):
@@ -176,7 +183,7 @@ class DeployRepoGroup(DeployRepo):
     except pps.Path.error.PathError, e:
       if e.errno != errno.ENOENT: # report errors other than "does not exist"
         raise InputFileError(errno=e.errno, message=e.strerror, 
-                             file=self.url.realm/self.repomdfile) 
+                             file=self.url.touri()/self.repomdfile) 
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
@@ -197,34 +204,39 @@ class DeployRepoGroup(DeployRepo):
     else:
       for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
                                   nglob=NOT_REPO_GLOB):
-        if (d/self.repomdfile).exists():
-          updates = {}
-          for k,v in self.items():
-            if k not in ['id', 'mirrorlist', 'baseurl']:
-              updates[k] = v
-          # it doesn't make sense for a subrepo to have a mirrorlist; however,
-          # we can fake it by converting all the mirror items into a baseurl
-          # list!
+
+        if not (d/self.repomdfile).exists(): continue 
+          
+        updates = {}
+        for k,v in self.items():
+          if k not in ['id', 'mirrorlist', 'baseurl']:
+            updates[k] = v
+        if hasattr(self.url, 'mirrorgroup'):
+        # it doesn't make sense for a subrepo to have a mirrorlist; however,
+        # we can fake it by converting all the mirror items into a baseurl
+        # list!
           updates['baseurl'] = \
             '\n'.join([ x/d.basename for x,e in self.url.mirrorgroup if e ])
-          R = cls(id='%s-%s' % (self.id, d.basename), **updates)
-          R._relpath = d.basename
-          try:
-            self._repos.add_repo(R)
-          except RepoDuplicateIdsError, e:
-            raise DuplicateIdsError('repo', e.id)
+        else:
+          updates['baseurl'] = self.url / d.basename
+        R = cls(id='%s-%s' % (self.id, d.basename), **updates)
+        R._relpath = d.basename
+        try:
+          self._repos.add_repo(R)
+        except RepoDuplicateIdsError, e:
+          raise DuplicateIdsError('repo', e.id)
 
     if len(self._repos) == 0:
-      raise RepodataNotFoundError(self.id, self.url.realm)
+      raise RepodataNotFoundError(self.id, self.url.touri())
 
     # set up $yumvar replacement for all subrepos
     for R in self._repos.values():
       R.vars = self.vars
 
     # classify this repo - does it have installer files?
-    if (self.url/'images').exists() and (self.url/'isolinux').exists():
+    if (self.url/
+        self.locals.L_FILES['isolinux']['initrd.img']['path']).exists():
       self.has_installer_files = True
-
 
   def __str__(self):
     return self.tostring(pretty=True)
@@ -244,7 +256,11 @@ class DeployRepoGroup(DeployRepo):
 
   def read_repomd(self):
     for subrepo in self.subrepos.values():
-      subrepo.read_repomd()
+      try:
+        subrepo.read_repomd()
+      except PathError, e:
+        raise RepomdFileReadError("An error occurred reading repository "
+                                  "metadata. %s" % e)
       for k,v in subrepo.datafiles.items():
         new = copy.copy(v)
         new.href = subrepo._relpath/v.href
@@ -255,6 +271,7 @@ class DeployRepoGroup(DeployRepo):
     if not self._repos:
       self._populate_repos()
     return self._repos
+
 
 class RepoSetupEventMixin(Event):
   """Uses ReposFromXml to add repos to the repos cvar. Creates repos cvar if
@@ -267,7 +284,8 @@ class RepoSetupEventMixin(Event):
       try:
         (self.cvars.setdefault('repos', RepoContainer()).
                                add_repos(ReposFromXml(self.config.getxpath('.'),
-                               cls=DeployRepoGroup)))
+                               cls=DeployRepoGroup,
+                               locals=self.locals)))
       except RepoDuplicateIdsError, e:
         raise DuplicateIdsError('repo', e.id)
 
@@ -317,13 +335,12 @@ class RepoEventMixin(Event):
       repo.vars['$basearch']   = self.arch
       
       # extend gpgkey to include keys from gpgkey.list
-      listfile = repo.url.realm / 'gpgkeys/gpgkey.list'
+      listfile = repo.url / 'gpgkeys/gpgkey.list'
       if listfile.exists():
         lines = listfile.read_lines()
         if lines[0].startswith("RPM-GPG-KEY"):
-          repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url.realm, x) 
+          repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url, x) 
                               for x in lines])
-
     # make sure we got at least one repo out of that mess
     if self.type == "system" and not len(self.repos) > 0:
       raise NoReposEnabledError(self.id)
@@ -387,8 +404,7 @@ class RepoEventMixin(Event):
 
         for datafile in subrepo.iterdatafiles():
           src = subrepo.url/datafile.href
-          csh = (self.cache_handler.cache_dir /
-                 self.cache_handler._gen_hash(src))
+          csh = (self.cache_handler.cache_dir / gen_hash(src))
           dst = self.mddir/repo.id/subrepo._relpath/datafile.href
 
           existing = None
@@ -400,10 +416,14 @@ class RepoEventMixin(Event):
           if existing and datafile.checksum == existing.checksum(
             type=datafile.checksum_type):
             mtime = existing.stat().st_mtime
-          else:
-            mtime = float(datafile.timestamp)
+            src.stat().update(st_mtime=existing.stat().st_mtime)
 
-          src.stat().update(st_mtime=mtime)
+          # if source doesn't have an mtime (i.e. rhn) use the datfile time
+          elif src.stat().st_mtime == -1:
+            src.stat().update(st_mtime=float(datafile.timestamp))
+
+          # otherwise, leave the src mtime as it is
+          else: pass
 
           self.io.add_fpath(src, dst.dirname, id='%s-repodata' % repo.id)
 
@@ -425,12 +445,12 @@ class RepoEventMixin(Event):
         src = subrepo.url/subrepo.repomdfile
         dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
         (dst.dirname).mkdirs()
-        src.cp(dst.dirname)
+        src.cp(dst.dirname, force=True, preserve=True)
         self.DATA['output'].append(dst)
 
       # sync repo datafiles and treeinfo
       self.io.process_files(what='%s-repodata' % repo.id, cache=True,
-                         text="downloading repodata - '%s'" % repo.id)
+                            text="downloading repodata - '%s'" % repo.id)
 
     # verify synced data via checksums
     self.logger.log(3, L1("verifying repodata file checksums"))
@@ -441,6 +461,8 @@ class RepoEventMixin(Event):
           f.uncache('checksum') # uncache previously-cached shasum
           got = f.checksum(type=datafile.checksum_type)
           if datafile.checksum != got:
+            self.cache_handler.cshfile(subrepo.url / datafile.href).rm(
+              force=True)
             raise RepomdCsumMismatchError(datafile.href.basename,
                                           repoid=repo.id,
                                           got=got,
@@ -463,7 +485,10 @@ class NoReposEnabledError(DeployEventError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
 class RepodataNotFoundError(DeployEventError, RuntimeError):
-  message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
+  message = "Unable to find repodata folder for repo '%(repoid)s' at %(url)s"
+
+class RepomdFileReadError(DeployEventError, RuntimeError):
+  message = "%(message)s"
 
 class InvalidRepomdFileError(DeployEventError, RuntimeError):
   message = "%(message)s"

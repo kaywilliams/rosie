@@ -45,36 +45,17 @@ class SyncOperation:
    * callback:     an object supporting callback functions at various points
                    during the sync process.  See callback.py for more
                    information
-   * copy_handler: a handler that defines what exactly sync does when syncing
-                   two files.  This handler is passed an open file-like object
-                   for both the source and destination; in the simplest case,
-                   the source is merely copied directly into the destination.
-                   However, by setting the copy_handler to some other class
-                   that implements the same interface, additional/alternate
-                   behavior can be defined.
-   * updatefn:     a function accepting two arguments, a src and dst file.
-                   This function should return an integer, r, which has the
-                   following meanings:
-                     r >  0 : resume a partially completed download starting
-                              from byte r
-                     r == 0 : start a new download from the beginning
-                     r <  0 : do not download anything
-   * default_mode: the default mode to use when a given source file does not
-                   appear to have one (00000), such as is the case with most
-                   remote pps paths.  If you really do want to preserve an
-                   empty mode list, set this to 0.
   """
-  def __init__(self, strict=False, callback=None, copy_handler=None,
-                     updatefn=None, default_mode=0644):
+  def __init__(self, strict=False, callback=None,  link=False, force=False,
+               **kwargs):
     "Instantiate a SyncOperation object"
     self.strict = strict
     self.callback = callback or SyncCallback()
-    self.copy_handler = copy_handler or CopyHandler()
-    self.updatefn = updatefn or sync_updatefn
-    self.default_mode = default_mode
+    self.link = link
+    self.force = force
 
-  def sync(self, src, dst=None, force=False, mode=None,
-                      username=None, password=None):
+  def sync(self, src, dst=None, mode=None, username=None, password=None, 
+                      **kwargs):
     """
     Synchronize one or more items from src to dst.  src can be a single URI, or
     a list of URIs; dest must (currently) be a single URI.
@@ -116,15 +97,15 @@ class SyncOperation:
     srclist = self._srclist(src)
     dstlist = [ self._compute_dst(s.relpathfrom(src.dirname), dst)
                 for s in srclist ]
-
     assert len(srclist) == len(dstlist)
 
     for srcfile, dstfile in zip(srclist, dstlist):
       if dstfile.exists():
-        self._update_existing(srcfile, dstfile, force=force)
+        self._update_existing(srcfile, dstfile, **kwargs)
       else:
         self._copy_new(srcfile, dstfile)
-      self._chmod_file(srcfile, dstfile, mode=mode)
+      if mode:
+        dstfile.chmod(mode)
 
     if self.strict:
       self._delete_old(src, dst, srclist)
@@ -136,6 +117,7 @@ class SyncOperation:
     Compute the list of files to be copied from src.  Subclassing this method
     will allow greater control over what files to be synced.
     """
+    src.stat() # trick to raise pps path error if path does not exist
     return src.findpaths()
 
   def _compute_dst(self, src, dst):
@@ -156,13 +138,12 @@ class SyncOperation:
     else:
       raise SyncError("cannot sync '%s' into '%s'; destination does not exist" % (src, dst))
 
-  def _update_existing(self, srcfile, dstfile, force=False):
+  def _update_existing(self, srcfile, dstfile, **kwargs):
     """
-    srcfile, dstfile both exist; update dstfile any of the following are true:
+    srcfile, dstfile both exist; update dstfile if any of the following are
+    true:
 
-     * srcfile is newer than dstfile (srcfile.st_mtime >  dstfile.st_mtime)
-     * srcfile is an incomplete download of dstfile (srcfile.st_mtime ==
-       dstfile.st_mtime and srcfile.st_size < dst.st_size)
+     * srcfile differs from dstfile (srcfile.st_mtime != dstfile.st_mtime)
      * force is True
 
     Errors if srcfile and dstfile type doesn't match (file/directory) and
@@ -184,22 +165,8 @@ class SyncOperation:
         else:
           raise SyncError("cannot sync file '%s' over '%s': is a directory" % (srcfile, dstfile))
 
-      if force: seek = 0
-      else:     seek = self.updatefn(srcfile, dstfile)
-
-      # interpret the result of self.updatefn()
-      if seek < 0:
-        # we're done
-        return
-      elif seek == 0:
-        # download new files from the beginning
-        dstfile.rm()
-        self.callback.update(srcfile, dstfile)
-        self._copy_file(srcfile, dstfile)
-      else:
-        # resume partially-completed download
-        self.callback.cp(srcfile, dstfile)
-        self._copy_file(srcfile, dstfile, seek=seek)
+      self.callback.update(srcfile, dstfile)
+      self._copy_file(srcfile, dstfile, **kwargs)
 
   def _copy_new(self, srcfile, dstfile):
     """
@@ -227,104 +194,17 @@ class SyncOperation:
       self.callback.rm(f)
       f.rm(recursive=True, force=True)
 
-  def _copy_file(self, srcfile, dstfile, seek=None):
-    """
-    Copy srcfile to dstfile.  If seek is not None, start copying from seek in
-    srcfile instead of from 0.
-    """
-    try:
-      self.copy_handler.copy(srcfile, dstfile, callback=self.callback, seek=seek)
-    finally:
-      # update mtime
-      if dstfile.exists():
-        src_st = srcfile.stat()
-        dstfile.utime((src_st.st_atime, src_st.st_mtime))
+  def _copy_file(self, srcfile, dstfile, force=False, link=False, **kwargs):
+    "Copy srcfile to dstfile."
+    srcfile.cp(dstfile, callback=self.callback, 
+                        link=(link or self.link),
+                        force=(force or self.force),
+                        mirror=True,
+                        **kwargs)
 
-  def _chmod_file(self, srcfile, dstfile, mode=None):
-    """
-    Update the mode on the dstfile to match the mode of the srcfile or the mode
-    argument, if given.
-    """
-    if mode is None:
-      mode = (srcfile.stat().st_mode or self.default_mode) & 07777
-    dstfile.chmod(mode)
-
-
-#------ COPY HANDLER ------#
-class CopyHandler:
-  """
-  Default copy handler; merely copies from fsrc to fdst
-
-  This class can be subclassed in order to modify the default sync behavior.
-  For examples of this, see CachedSyncHandler in cache.py or LinkHandler in
-  link.py.
-  """
-
-  def copy(self, srcfile, dstfile, callback=None, size=16*1024, seek=0.0):
-    """
-    Copy from fsrc to fdst.  copy() accepts the following parameters:
-     * srcfile: the full filename of the source file
-     * dstfile: the full filename of the destination file
-     * callback: a callback object that supports _cp_start(size, filename),
-                _cp_update(amount_read), and _cp_end() methods to indicate
-                copy progress; defaults to None
-     * size:    the size of the copy buffer to use; defaults to 16KB
-     * seek:    the position from where to start copying; defaults to 0.0
-    """
-    # callback start
-    if callback: callback._cp_start(srcfile.stat().st_size,
-                                    srcfile.basename,
-                                    seek=seek or 0.0)
-
-    fsrc = None
-    fdst = None
-
-    try:
-      fsrc = srcfile.open('rb', seek=seek)
-      fdst = dstfile.open('ab')
-
-      # perform copying
-      read = seek or 0.0
-      while True:
-        buf = fsrc.read(size)
-        if not buf: break
-        fdst.write(buf)
-        read += len(buf)
-
-        # callback update
-        if callback: callback._cp_update(read)
-
-    finally:
-      if fsrc: fsrc.close()
-      if fdst: fdst.close()
-
-    # callback end
-    if callback: callback._cp_end(read)
-
-
-def sync_updatefn(src, dst):
-  "Default sync behavior - update dst unless its mtime is greater than src"
-  s = src.stat(); d = dst.stat()
-  if s.st_mtime > d.st_mtime:
-    return 0
-  elif s.st_mtime == d.st_mtime and s.st_size > d.st_size:
-    return d.st_size
-  else:
-    return -1
-
-def mirror_updatefn(src, dst):
-  "Make src and dst exactly equal copies of one another"
-  s = src.stat(); d = dst.stat()
-  if s.st_mtime != d.st_mtime or s.st_size < d.st_size:
-    return 0
-  elif s.st_mtime == d.st_mtime and s.st_size > d.st_size:
-    return d.st_size
-  else:
-    return -1
 
 # convenience function
-def sync(src, dst, strict=False, callback=None, copy_handler=None,
-                   updatefn=None, **kwargs):
+def sync(src, dst, strict=False, callback=None, **kwargs):
   """
   Convenience function for setting up a SyncOperation and performing a sync
   in one call.
@@ -332,8 +212,7 @@ def sync(src, dst, strict=False, callback=None, copy_handler=None,
   It is slightly more efficient to use SyncOperation.sync() instead of sync()
   when performing several sync operations in a row.
   """
-  so = SyncOperation(strict=strict, callback=callback, updatefn=updatefn,
-                     copy_handler=copy_handler)
+  so = SyncOperation(strict=strict, callback=callback, **kwargs)
   so.sync(src, dst, **kwargs)
 
 

@@ -27,7 +27,7 @@ from deploy.util import pkgorder
 from deploy.util import rxml
 from deploy.util import si
 
-from deploy.util.sync import link
+from deploy.util import sync
 
 from deploy.util.pps.Path.error import PathError
 
@@ -137,10 +137,10 @@ class Timber:
         for file in self.u_tree.findpaths(
             nregex='.*/(\.discinfo|.+\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product_path,
             mindepth=1, maxdepth=1):
-          link.sync(file, discpath, allow_xdev=True)
+          sync.sync(file, discpath, link=True)
       else:
         for file in self.common_files:
-          link.sync(file, discpath, allow_xdev=True)
+          sync.sync(file, discpath, link=True)
       self.create_discinfo(i)
 
     if self.dosrc:
@@ -148,7 +148,7 @@ class Timber:
         discpath = self.s_tree/'%s-disc%d' % (self.name, i)
         (discpath/'SRPMS').mkdirs()
         for file in self.common_files:
-          link.sync(file, discpath, allow_xdev=True)
+          sync.sync(file, discpath, link=True)
         self.create_discinfo(i)
 
   def split_rpms(self):
@@ -185,7 +185,7 @@ class Timber:
             discpath = self.s_tree/'%s-disc%d' % (self.name, disc)
             (discpath/self.product_path).mkdirs()
             used = discpath.du(bytes=True)
-            link.sync(file, discpath/self.product_path, allow_xdev=True)
+            sync.sync(file, discpath/self.product_path, link=True)
             newsize = used + file.getsize()
           except (IndexError, ValueError):
             disc = disc - 1
@@ -193,7 +193,7 @@ class Timber:
             print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
             raise
         else:
-          link.sync(file, discpath/self.product_path, allow_xdev=True)
+          sync.sync(file, discpath/self.product_path, link=True)
       used = newsize
 
   def split_srpms(self):
@@ -216,7 +216,8 @@ class Timber:
 
     # add srpm to the smallest source tree
     for srpm in srpms:
-      link.sync(srpm, self.s_tree/'%s-disc%d/SRPMS' % (self.name, sizes[0][1]))
+      sync.sync(srpm, self.s_tree/'%s-disc%d/SRPMS' % (self.name, sizes[0][1]),
+                link=True)
       sizes[0][0] += srpm.getsize()
       sizes.sort()
 

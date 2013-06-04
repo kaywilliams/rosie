@@ -27,9 +27,10 @@ from deploy.util.pps.Path.remote import RemotePath_Printf as FtpPath_Printf
 class FtpPath(FtpPath_IO, FtpPath_Printf, FtpPath_Stat,
               FtpPath_Walk, RemotePath):
   "String representation of FTP file paths"
-  pass
+  def __init__(self, value, **kwargs):
+    RemotePath.__init__(self, value, **kwargs)
 
 def path(string):
-  return FtpPath(string)
+  return FtpPath(string, **kwargs)
 
 register_scheme('ftp', path)

@@ -26,7 +26,7 @@ display this data in a compact, easy-to-read format.
 """
 
 from deploy.util.progressbar   import ProgressBar
-from deploy.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
+from deploy.util.pps.cache     import CachedCopyCallback  as _CachedCopyCallback
 from deploy.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
 from deploy.dlogging import L1, L2
@@ -135,17 +135,17 @@ class SyncCallback(LinkCallback):
                        "and '%s'; copying instead" % (src, dst))
 
 
-class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
+class CachedCopyCallback(_CachedCopyCallback, SyncCallback):
   """
-  Callback class for all cached sync operations (Event.cache()).  To maintain
-  visual consistency, this class should be passed as the 'callback' argument
-  to any sync.cache.sync() calls made (though it is suggested that Event.cache()
+  Callback class for cached copy and open operations (Event.cache()).  To
+  maintain visual consistency, this class should be passed as the 'callback'
+  argument to any .sync() calls made (though it is suggested that Event.cache()
   be used instead).
 
   As this class extends SyncCallback, above, it differs from the standard
-  CachedSyncCallback in the same ways, as described above.
+  CachedCopyCallback in the same ways, as described above.
 
-  See sync/cache.py for documentation on the callback methods themselves.
+  See pps/cache.py for documentation on the callback methods themselves.
   """
   def __init__(self, logger, relpath):
     """
@@ -153,18 +153,19 @@ class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
     relpath : the relative path from which file display should begin; in most
               casess, this should be set to the event's metadata directory
     """
-    _CachedSyncCallback.__init__(self)
+    _CachedCopyCallback.__init__(self)
     SyncCallback.__init__(self, logger, relpath)
 
-  def _cache_start(self, size, text):
-    _CachedSyncCallback._cache_start(self, size, L2(text))
+  def _start(self, size, text):
+    _CachedCopyCallback._start(self, size, L2(text))
 
-  def _cache_end(self):
+  def _end(self):
     self.bar.update(self.bar.status.size)
     self.bar.finish()
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
+    del self.bar
 
 
 class SyncCallbackCompressed(SyncCallback):

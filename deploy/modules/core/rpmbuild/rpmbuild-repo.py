@@ -82,9 +82,11 @@ class RpmbuildRepoEvent(Event):
 
       rpmbuild_rpms  = DeployRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
-                              gpgkey='file://%s' % self.pubkey,)
+                              gpgkey='file://%s' % self.pubkey,
+                              locals=self.locals)
       #rpmbuild_srpms = DeployRepoGroup(id=self.csid, name=self.csid,
-      #                             baseurl=self.RPMBUILD_SRPMS)
+      #                                 baseurl=self.RPMBUILD_SRPMS,
+      #                                 locals=self.locals)
 
       self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms})
       #                                         self.csid: rpmbuild_srpms})

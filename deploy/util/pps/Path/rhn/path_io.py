@@ -22,13 +22,13 @@ from error import error_transform
 
 class RhnPath_IO(HttpPath_IO):
 
-  def open(self, *args, **kwargs):
+  def _open(self, *args, **kwargs):
     # convert self to the 'real' path and return that
-    return self.touri().open(*args, **kwargs)
+    return self.touri()._open(*args, **kwargs)
 
   _protect = ['utime', 'chmod', 'chown', 'rename', 'mkdir', 'rmdir', 'mknod',
-              'touch', 'remove', 'unlink', 'link', 'symlink', 'readlink',
-              'open']
+              'touch', 'remove', 'unlink', '_link', '_symlink', 'readlink',
+              '_open']
 
 
 for fn in RhnPath_IO._protect:

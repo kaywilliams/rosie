@@ -61,7 +61,7 @@ def path(string, *args, **kwargs):
   else:
     scheme = None # for local paths
 
-  if scheme not in registered_schemes.keys():
+  if scheme not in registered_schemes:
     scheme = None # assume its a local path
 
   fn, fargs, fkwargs = registered_schemes[scheme]

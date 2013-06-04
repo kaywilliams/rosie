@@ -77,8 +77,8 @@ def trymirrors(meth):
 class MirrorGroup(list):
   def __init__(self, iterable):
     # create list, filtering out unsupported items
-    list.__init__(self, [ [path(x), True] for x in
-                          filter(self._filter, iterable) ])
+    list.__init__(self, [ [path(x), True] for x in 
+                           filter(self._filter, iterable) ])
 
     # hack - reduce the timeout on remote mirrorlist items and only try once
     for mi in self: #!

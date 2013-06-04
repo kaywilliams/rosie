@@ -27,7 +27,7 @@ import traceback
 
 from deploy.dlogging import L2, MSG_MAXWIDTH
 from deploy.errors import DeployEventError
-from deploy.util import pps
+from deploy.util import pps 
 from deploy.util import sshlib 
 
 SSH_RETRIES = 24
@@ -60,6 +60,9 @@ class ExecuteEventMixin:
         # server after the SSH session is terminated. It takes a few seconds for
         # the client to notice and cancel the process. 
         client.get_transport().set_keepalive(1)
+
+      except sshlib.TemporaryConnectionFailedError, e:
+        raise TemporarySSHFailedError(message=e) 
 
       except sshlib.ConnectionFailedError, e:
         raise SSHFailedError(message=e) 
@@ -165,6 +168,9 @@ class ExecuteEventMixin:
 
 
 #------ Errors ------#
+class TemporarySSHFailedError(DeployEventError):
+  message = "%(message)s"
+
 class ScriptFailedError(DeployEventError):
   message = "Error occured running '%(cmd)s'. See script output below:\n %(errtxt)s"
 

@@ -36,8 +36,9 @@ class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion
-    self.output.append(
-        self.event.cvars['%s-setup-options' % self.moduleid]['localpath'])
+    if '%s-setup-options' % self.moduleid in self.event.cvars:
+      self.output.append(
+          self.event.cvars['%s-setup-options' % self.moduleid]['localpath'])
     EventTestCase.tearDown(self)
 
 
@@ -229,7 +230,8 @@ def make_suite(os, version, arch, *args, **kwargs):
 
   # deploy
   if check_vm_config():
-    suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version, arch))
+    suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,
+                  arch, offline=False))
     suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
     suite.addTest(Test_ErrorOnSshDisabled(os, version, arch))
     suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))

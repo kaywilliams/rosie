@@ -220,8 +220,8 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
   if check_vm_config():
-    suite.addTest(make_basic_suite(TestSrpmTestCase, os, version, arch))
-    suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch))
+    suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch, 
+                  offline=False))
   else:
     suite.addTest(make_basic_suite(TestSrpmTestCase, os, version, arch))
 

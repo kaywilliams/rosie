@@ -26,6 +26,8 @@ from deploy.util.pps.lib.http import HttpFileObject
 
 from __init__ import PathStat
 
+MODE = stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH #0644
+
 class HttpPathStat(PathStat):
   """
   HttpPathStat fully implements the PathStat interface.  However, some of
@@ -34,6 +36,18 @@ class HttpPathStat(PathStat):
   st_dev, st_gid, st_ino, st_nlink, and st_uid; they are represented by -1
   in the resulting tuple.
   """
+  def __getitem__(self, key):
+    """
+    modifies PathStat method to call stat() only when the field in question 
+    is None *and* one of the fields that is relevant to http
+    """
+    item = self._stat[key]
+    if item is None and item in ['st_atime', 'st_mtime', 'st_mode', 'st_size']:
+      self.stat()
+    else:
+      return item
+    return self._stat[key]
+
   def stat(self, fo=None):
     """
     HttpPathStat's stat() call allows passing a file object in the fo
@@ -50,9 +64,9 @@ class HttpPathStat(PathStat):
     self._hdr = stat_fo.hdr
 
     if self.uri.endswith('/') or (hasattr(stat_fo, 'isdir') and stat_fo.isdir):
-      mode = stat.S_IFDIR
+      mode = stat.S_IFDIR | MODE
     else:
-      mode = stat.S_IFREG
+      mode = stat.S_IFREG | MODE
 
     # if we weren't passed a file object, close the one we created
     if not fo: stat_fo.close()

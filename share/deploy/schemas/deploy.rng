@@ -19,6 +19,13 @@
         </element>
         </optional>
 
+        <optional>
+        <element name="offline">
+          <ref name="xml-base"/>
+          <ref name="value-boolean"/>
+        </element>
+        </optional>
+
         <zeroOrMore>
         <element name="share-path">
           <ref name="xml-base"/>

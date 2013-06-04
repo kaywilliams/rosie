@@ -17,10 +17,10 @@
 #
 
 from deploy.event import Event
+from deploy.util  import pps
 
 from deploy.modules.shared import ExecuteEventMixin
 
-from deploy.util import pps
 
 class InputEventMixin(ExecuteEventMixin, Event):
   input_mixin_version = "1.00"

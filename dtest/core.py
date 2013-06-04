@@ -15,11 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import inspect
+import socket
 import unittest
 
 from dtest import EventTestCase, EventTestCaseDummy, decorate
 
 from deploy.errors import DeployError
+
+from functools import wraps
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
@@ -61,19 +65,21 @@ def make_basic_suite(TestCase, os, version, arch, conf=None):
   suite.addTest(EventTestCaseHeader(TestCase.eventid, os, version, arch))
   return suite
 
-def make_core_suite(TestCase, os, version, arch, conf=None):
+def make_core_suite(TestCase, os, version, arch, conf=None, offline=True):
   suite = CoreTestSuite()
   suite.addTest(make_basic_suite(TestCase, os, version, arch, conf))
   suite.addTest(CoreEventTestCase01(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase02(TestCase(os, version, arch, conf)))
-  suite.addTest(CoreEventTestCase03(TestCase(os, version, arch, conf)))
+  if offline:
+    suite.addTest(CoreEventTestCase03(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase04(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase05(TestCase(os, version, arch, conf)))
+  suite.addTest(CoreEventTestCase06(TestCase(os, version, arch, conf)))
   return suite
 
-def make_extension_suite(TestCase, os, version, arch, conf=None):
+def make_extension_suite(TestCase, os, version, arch, conf=None, offline=True):
   suite = CoreTestSuite()
-  suite.addTest(make_core_suite(TestCase, os, version, arch, conf))
+  suite.addTest(make_core_suite(TestCase, os, version, arch, conf, offline))
   suite.addTest(ExtensionEventTestCase00(TestCase(os, version, arch, conf)))
   suite.addTest(ExtensionEventTestCase01(TestCase(os, version, arch, conf)))
   return suite
@@ -113,6 +119,38 @@ def CoreEventTestCase02(self):
   return self
 
 def CoreEventTestCase03(self):
+  self._testMethodDoc = "Socket methods not called in offline mode"
+  self.socket_orig = {} # dict for saving/restoring socket methods
+
+  # wrap calls to socket raising a Runtime Error if they are called
+  def socket_wrapper(fn):
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+      raise RuntimeError("call to socket")
+    return wrapped
+
+  def post_setup():
+    self.event.status = None
+    self.clean_event_md()
+    self.event.cache_handler.offline = True 
+    for n, v in inspect.getmembers(socket, inspect.isroutine) + \
+                inspect.getmembers(socket, inspect.isclass):
+      self.socket_orig[n] = v
+      setattr(socket, n, socket_wrapper(v))
+
+  def runTest():
+    self.tb.dispatch.execute(until=self.eventid)
+
+  def pre_teardown():
+    for n, v in inspect.getmembers(socket, inspect.isroutine):
+      setattr(socket, n, self.socket_orig[n])
+
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  decorate(self, 'tearDown', prefn=pre_teardown)
+  return self
+
+def CoreEventTestCase04(self):
   self._testMethodDoc = "Event.run() executes with --force"
 
   def post_setup():
@@ -128,7 +166,7 @@ def CoreEventTestCase03(self):
   self.runTest = runTest
   return self
 
-def CoreEventTestCase04(self):
+def CoreEventTestCase05(self):
   self._testMethodDoc = "Event.run() does not execute with --skip"
 
   def post_setup():
@@ -144,7 +182,7 @@ def CoreEventTestCase04(self):
   self.runTest = runTest
   return self
 
-def CoreEventTestCase05(self):
+def CoreEventTestCase06(self):
   self._testMethodDoc = "Event.verify_*() methods are successful"
 
   def runTest():

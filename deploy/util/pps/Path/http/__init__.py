@@ -29,10 +29,14 @@ from deploy.util.pps.Path.remote import RemotePath_Printf as HttpPath_Printf
 class HttpPath(HttpPath_IO, HttpPath_Printf, HttpPath_Stat,
                HttpPath_Walk, RemotePath):
   "String representation of HTTP file paths"
-  pass
+  def __init__(self, value, **kwargs):
+    RemotePath.__init__(self, value, **kwargs)
+    HttpPath_IO.__init__(self, value, **kwargs)
 
 class HttpsPath(HttpPath):
   "String representation of HTTPS file paths"
+  def __init__(self, value, **kwargs):
+    HttpPath.__init__(self, value, **kwargs)
 
   def set_auth(self, username, password):
     "Provides the default grabber object with a username, password pair to use"
@@ -40,8 +44,8 @@ class HttpsPath(HttpPath):
     ##self.username, self.password = username, password #!
     auth_handler.add_password(None, self.realm, username, password)
 
-def path(string, cls=HttpPath, stat=None):
-  p = cls(string)
+def path(string, cls=HttpPath, stat=None, **kwargs):
+  p = cls(string, **kwargs)
   if stat: p._set_stat(stat)
   return p
 

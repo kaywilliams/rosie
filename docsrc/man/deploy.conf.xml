@@ -43,8 +43,8 @@ Deploy installation does not include a deploy.conf file.</para>
     path to locate Deploy modules. The lib-path element allows
     specifying additional directory <replaceable
     class="parameter">PATHs</replaceable> in which one or more Deploy
-    modules can be found. Multiple path elements are allowed.  This element
-    corresponds to the <command>--lib-path</command> command-line
+    modules can be found. Multiple path elements are allowed. 
+    Corresponds to the <command>--lib-path</command> command-line
     option.</para>
 <programlisting>
 &lt;lib-path&gt;PATH&lt;/lib-path&gt;
@@ -55,11 +55,10 @@ Deploy installation does not include a deploy.conf file.</para>
 <varlistentry>
   <term><option>log-file</option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable
+    <para>Directory and filename <replaceable
     class="parameter">PATH</replaceable> to which Deploy writes logging
-    information.  The default path is
-    <filename>/var/log/deploy.log</filename>.   Deploy creates the
-    log file if none exists. This element corresponds to the
+    information. The default path is <filename>/var/log/deploy.log</filename>.
+    Deploy creates the log file if none exists. Corresponds to the
     <command>--log-file</command> command-line option.</para>
 <programlisting>
 &lt;log-file&gt;PATH&lt;/log-file&gt;
@@ -71,13 +70,13 @@ Deploy installation does not include a deploy.conf file.</para>
 <varlistentry>
   <term><option>share-path</option></term>
   <listitem>
-    <para>Specifies a directory <replaceable
-    class="parameter">PATH</replaceable> in which one or more of Deploy's
-    shared files can be found; the directory contains a hierarchy enabling
-    Deploy to extract files for schemas, <filename>*.rng</filename>, and
-    example files.  The default path is <filename>/usr/share/deploy</filename>.
-    Multiple path elements are allowed.  This element corresponds to the
-    <option>--share-path</option> command-line option .</para>
+    <para>Directory <replaceable class="parameter">PATH</replaceable> in which
+    one or more of Deploy's shared files can be found; the directory contains a
+    hierarchy enabling Deploy to extract files for schemas,
+    <filename>*.rng</filename>, and example files.  The default path is
+    <filename>/usr/share/deploy</filename>.  Multiple path elements are
+    allowed.  Corresponds to the <option>--share-path</option>
+    command-line option.</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
 </programlisting>
@@ -87,16 +86,29 @@ Deploy installation does not include a deploy.conf file.</para>
 <varlistentry>
   <term><option>debug</option></term>
   <listitem>
-    <para>Specifies a boolean value which enables or disables debug mode in
-    Deploy.  Enabling debug mode causes exception tracebacks, which are
-    normally visible only in the log file, to be additionally displayed on the
-    command line.</para>
+    <para>Boolean value which enables or disables debug mode in Deploy.
+    Enabling debug mode causes exception tracebacks, which are normally visible
+    only in the log file, to be additionally displayed on the command line.
+    Corresponds to the <option>--debug</option> command-line option. The
+    default value is 'False'.</para>
 <programlisting>
 &lt;debug&gt;BOOLEAN&lt;/debug&gt;
 </programlisting>
   </listitem>
 </varlistentry>
 
+<varlistentry>
+  <term><option>offline</option></term>
+  <listitem>
+    <para>Boolean value instructing Deploy to retrieve files from the cache,
+    if available. Corresponds to the
+    <option>--offline</option> command line option. The default value is
+    'False'.</para>
+<programlisting>
+&lt;offline&gt;BOOLEAN&lt;/offline&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
 </variablelist>
 </refsect1>
 

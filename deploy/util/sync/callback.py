@@ -79,7 +79,7 @@ class SyncCallback:
 
   def _cp_start(self, size, text, seek=0.0):
     """
-    Called by CopyHandler.copy() before the copy process actually begins
+    Called before the copy process actually begins
      * size:     the size of the file to be copied
      * text:     the text used to describe the file; usually the file name
      * seek:     the position in the file to start at; defaults to 0.0
@@ -87,14 +87,14 @@ class SyncCallback:
     pass
   def _cp_update(self, amount_read):
     """
-    Called by CopyHandler.copy() after copying a chunk of data from the
+    Called after copying a chunk of data from the
     source to the destionation
      * amount_read: the total amount of the source file that has been read
     """
     pass
   def _cp_end(self, amount_read):
     """
-    Called by CopyHandler.copy() after completing the copy process
+    Called after completing the copy process
      * amount_read: the total amount of the source file that has been read; in
                     most cases, this should be equal to the size of the source
                     file

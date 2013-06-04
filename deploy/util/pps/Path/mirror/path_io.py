@@ -56,15 +56,15 @@ class MirrorPath_IO(RemotePath_IO):
   @trymirrors
   def rm(self, f, *a,**kw):       return f.rm(*a,**kw)
   @trymirrors
-  def link(self, f, *a,**kw):     return f.link(*a,**kw)
+  def _link(self, f, *a,**kw):     return f.link(*a,**kw)
   @trymirrors
-  def symlink(self, f, *a,**kw):  return f.symlink(*a,**kw)
+  def _symlink(self, f, *a,**kw):  return f.symlink(*a,**kw)
   @trymirrors
   def readlink(self, f, *a,**kw): return f.readlink(*a,**kw)
 
   # file reading, copying, writing
   @trymirrors
-  def open(self, f, *a,**kw):        return f.open(*a,**kw)
+  def _open(self, f, *a,**kw):        return f.open(*a,**kw)
   @trymirrors
   def copyfile(self, f, *a,**kw):    return f.copyfile(*a,**kw)
   @trymirrors

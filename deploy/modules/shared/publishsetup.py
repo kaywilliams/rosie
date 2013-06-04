@@ -23,6 +23,8 @@ import socket
 import string
 import struct
 
+import cPickle as pickle
+
 from crypt import crypt
 from random import choice
 
@@ -30,17 +32,17 @@ from deploy.callback   import LinkCallback
 from deploy.event      import Event
 from deploy.errors     import DeployEventError
 from deploy.errors     import SimpleDeployEventError
-from deploy.dlogging  import L1
+from deploy.dlogging   import L1
 from deploy.util       import pps
 from deploy.util       import shlib
 
-from deploy.util.rxml  import config 
+from deploy.util.rxml  import config
 
 DEFAULT_LOCALROOT = '/var/www/html/deploy'
 DEFAULT_WEBROOT = 'http://%{build-host}/deploy'
 
 # Include this mixin in any event that requires hostname and password 
-class PublishSetupEventMixin:
+class PublishSetupEventMixin(Event):
   publish_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
@@ -55,6 +57,10 @@ class PublishSetupEventMixin:
 
   def setup(self):
     self.datfile = self.parse_datfile()
+
+    pklkey = self.build_id + self.moduleid
+    self.pkldata = self.cache_handler.pkl_load(pklkey) or {} 
+    self.offline = self.cache_handler.offline
 
     # set build-host 
     self.build_host = self.get_build_host()
@@ -132,8 +138,8 @@ class PublishSetupEventMixin:
     self.DATA['variables'].append('fqdn')
     self.DATA['config'].append('boot-options')
 
-    # call the method directly to avoid module resolution order issues
-    PublishSetupEventMixin.write_datfile(self)
+    self.__write_datfile()
+    self.cache_handler.pkl_dump(self.pkldata, pklkey)
 
 
   #------ Helper Methods ------#
@@ -147,30 +153,65 @@ class PublishSetupEventMixin:
     return local / self.build_id
   
   def get_build_host(self):
+    ifname = self._get_ifname()
+    build_host = self._get_ipaddr(ifname)
+
+    if self.config.getbool('remote-url/@fqdn', 'False'):
+      build_host = self._get_fqdn(build_host, ifname)
+
+    return build_host
+
+  def _get_ifname(self):
     ifname = self.config.getxpath('remote-url/@interface', None)
+    cached_ifcfg = self.pkldata.get('ifcfg')
+    cached_ifname = self.pkldata.get('ifname')
+
+    if self.offline and cached_ifname and ifname == cached_ifcfg:
+      return cached_ifname
+
+    self.pkldata['ifcfg'] = ifname
+
     if not ifname:
       ifname,_ = get_first_active_interface()
+
+    self.pkldata['ifname'] = ifname
+
+    return ifname
+
+  def _get_ipaddr(self, ifname):
+    cached_ipaddr = self.pkldata.get('ipaddr')
+    if self.offline and cached_ipaddr and ifname == self.pkldata.get('ifname'):
+      return cached_ipaddr
+
     try:
-      build_host = get_ipaddr(ifname)
+      ipaddr = get_ipaddr(ifname)
     except IOError, e:
       raise InterfaceIOError(ifname, str(e))
 
-    if self.config.getbool('remote-url/@fqdn', 'False'):
-      try:
-        hostname, aliases, _ = socket.gethostbyaddr(build_host)
-      except socket.herror:
-        raise UnknownHostnameError(build_host, ifname) 
-      names = [hostname]
-      names.extend(aliases)
-      for name in names:
-        if '.' in name: # name is fqdn
-          build_host = name
-          break
-      else:
-        raise FQDNNotFoundError(build_host, ifname, names)
+    self.pkldata['ipaddr'] = ipaddr
+    return ipaddr
 
-    return build_host
-    
+  def _get_fqdn(self, ipaddr, ifname):
+    cached_fqdn = self.pkldata.get('fqdn')
+    if self.offline and cached_fqdn and ipaddr == self.pkldata.get('ipaddr'):
+      return cached_fqdn
+
+    try:
+      hostname, aliases, _ = socket.gethostbyaddr(ipaddr)
+    except socket.herror:
+      raise UnknownHostnameError(ipaddr, ifname) 
+    names = [hostname]
+    names.extend(aliases)
+    for name in names:
+      if '.' in name: # name is fqdn
+        fqdn = name
+        break
+    else:
+      raise FQDNNotFoundError(ipaddr, ifname, names)
+
+    self.pkldata['fqdn'] = fqdn
+    return fqdn
+
   def get_webpath(self, build_host): 
     if self.moduleid in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
@@ -269,7 +310,7 @@ class PublishSetupEventMixin:
       salt = '$6$' + salt
     return crypt(password, salt)
 
-  def write_datfile(self):
+  def __write_datfile(self):
     root = self.parse_datfile()
     uElement = config.uElement
 
@@ -293,7 +334,7 @@ class PublishSetupEventMixin:
     for elem in [ userpw, genpw, cryppw ]:
       if elem.text == None: elem.getparent().remove(elem)
     if len(parent) == 0: parent.getparent().remove(parent)
-    Event.write_datfile(self, root=root)
+    self.write_datfile(root=root)
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like

@@ -34,9 +34,9 @@ from deploy.util         import rxml
 
 from deploy.util.pps.constants import TYPE_NOT_DIR
 
-
 from deploy.modules.shared import (ExecuteEventMixin, ShelveMixin, 
-                                         RpmBuildMixin) 
+                                   RpmBuildMixin) 
+from deploy.modules.shared.repos import DeployRepo
 
 from fnmatch import fnmatch
 
@@ -72,7 +72,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       id = '%s-srpm' % self.srpmid, 
       parentid = 'srpmbuild',
       ptr = ptr,
-      version = 1.10,
+      version = 1.11,
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
     )
   
@@ -217,14 +217,25 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
       self.io.add_fpath(paths[0], self.srpmdir, id='srpm')
 
-  def _get_srpm_from_repo(self, repo):
-    yumdir = self.mddir / 'yum'
-    yumdir.mkdirs()
-    yumconf = yumdir / 'yum.conf'
-    yumconf.write_text(YUMCONF % (self.id, repo))
+  def _get_srpm_from_repo(self, baseurl):
+    # cache repodata to mddir and have yum read it from there
+    repo = DeployRepo(baseurl=baseurl)
+    repo.read_repomd()
+
+    repodata_dir = self.mddir / 'repodata'
+    repodata_dir.mkdirs()
+    
+    # download repomd and primary files for use in offline mode
+    self.link(repo.url/repo.repomdfile, repodata_dir)
+    self.link(repo.url/repo.getdatafile('primary').href, repodata_dir)
+
+    localurl = 'file://' + self.mddir
+    yumconf = self.mddir / 'yum.conf'
+    yumconf.write_text(YUMCONF % (self.id, localurl))
+
     yb = yum.YumBase()
-    yb.preconf.fn = fn=str(yumconf)
-    yb.preconf.root = str(yumdir)
+    yb.preconf.fn = str(yumconf)
+    yb.preconf.root = str(self.mddir)
     yb.preconf.init_plugins = False
     yb.preconf.errorlevel = 0
     yb.doRpmDBSetup()
@@ -242,7 +253,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     except yum.Errors.PackageSackError:
       raise SrpmNotFoundError(name=self.srpmid, path=repo)
       
-    self.io.add_fpath(srpm.remote_url, self.srpmdir, id='srpm')
+    self.io.add_fpath(srpm.remote_url.replace(localurl, baseurl), 
+                      self.srpmdir, id='srpm')
     del yb; yb = None
 
   def _get_srpm_from_script(self, script):
@@ -308,6 +320,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       macros = ['version:%s' % self.version, 'arch:%s' % self.arch],
       no_validate = False,
       validate_only = False,
+      offline = self.options.offline,
       clear_cache = False,
       debug = self.options.debug,))
 

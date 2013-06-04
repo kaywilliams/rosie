@@ -31,11 +31,11 @@ from deploy.util.pps.Path import Path_Printf as LocalPath_Printf
 
 class _LocalPath(BasePath):
   "String representation of local file paths"
-  def abspath(self):    return self.__class__(self._pypath.abspath(self))
-  def normcase(self):   return self.__class__(self._pypath.normcase(self))
-  def realpath(self):   return self.__class__(self._pypath.realpath(self))
-  def expanduser(self): return self.__class__(self._pypath.expanduser(self))
-  def expandvars(self): return self.__class__(self._pypath.expandvars(self))
+  def abspath(self):    return self._new(self._pypath.abspath(self))
+  def normcase(self):   return self._new(self._pypath.normcase(self))
+  def realpath(self):   return self._new(self._pypath.realpath(self))
+  def expanduser(self): return self._new(self._pypath.expanduser(self))
+  def expandvars(self): return self._new(self._pypath.expandvars(self))
 
   def expand(self):
     return self.expandvars().expanduser().normpath()
@@ -64,7 +64,7 @@ class _LocalPath(BasePath):
   def normpath(self):
     pt = self._urlparse()
 
-    return self.__class__(
+    return self._new(
       urlunparse((pt.scheme != 'file' and pt.scheme or '',
                   pt.netloc != 'localhost' and pt.netloc or '',
                   self._pypath.normpath(pt.path),
@@ -78,11 +78,11 @@ class _LocalPath(BasePath):
 
   def splitext(self):
     filename,ext = self._pypath.splitext(self)
-    return self.__class__(filename), ext.__str__()
+    return self._new(filename), ext.__str__()
 
   def splitdrive(self):
     drive, rel = self._pypath.splitdrive(self)
-    return drive, self.__class__(rel)
+    return drive, self._new(rel)
 
   ext   = property(lambda self: self.splitext()[1])
   drive = property(lambda self: self.splitdrive()[0])
@@ -100,7 +100,7 @@ class LocalPath(LocalPath_IO, LocalPath_Printf, LocalPath_Stat,
   pass
 
 
-def path(string):
+def path(string, **kwargs):
   return PLATFORM_MAP[os.name](string)
 
 from deploy.util.pps.Path.nt    import NTPath

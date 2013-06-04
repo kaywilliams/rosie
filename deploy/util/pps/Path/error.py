@@ -39,3 +39,15 @@ class PathError(Exception):
       return '[Errno %d]: %s: %s' % (self.errno, self.filename, self.strerror)
     else:
       return '[Errno %d]: %s' % (self.errno, self.strerror)
+
+class OfflinePathError(Exception):
+  """
+  Error raised when path is offline and a cached file is not available. Not
+  based on PathError to allow easier differentiation.
+  """
+  def __init__(self, filename, strerror):
+    self.filename = filename
+    self.strerror = strerror
+
+  def __str__(self):
+    return '%s: %s' % (self.strerror, self.filename)

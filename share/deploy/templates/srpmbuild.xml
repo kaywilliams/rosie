@@ -47,7 +47,6 @@
 
 <publish>
 <password>srpmbuild</password>
-<remote-url interface='virbrdpl'/>
 
 <kickstart>
 skipx

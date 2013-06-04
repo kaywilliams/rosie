@@ -15,16 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import array
-import fcntl
-import platform
-import socket
-import struct
-
 from deploy.util import pps
 
 from deploy.event     import Event
-from deploy.dlogging   import L1
+from deploy.dlogging  import L1
 
 from deploy.modules.shared import config
 from deploy.modules.shared import DeployEventMixin

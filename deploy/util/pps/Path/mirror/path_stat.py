@@ -36,8 +36,9 @@ class MirrorPath_Stat(RemotePath_Stat):
     try:
       self.stat()
       return True
-    except PathError, e:
-      if e.errno in HOSTUNAVAIL:
+    except (PathError, OfflinePathError), e:
+      if (isinstance(e, Patherror) and e.errno in HOSTUNAVAIL) or \
+          isinstance(e, OfflinePathError):
         # host isn't up or is otherwise unreachable
         raise ContinueIteration(err=True)
       else:

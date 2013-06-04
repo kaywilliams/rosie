@@ -51,10 +51,23 @@ class BuildCli:
   def __init__(self):
     parser = OptionParser("usage: %prog [OPTIONS] DEFINITION",
                           formatter=CleanHelpFormatter(),
-                          description="builds, tests, deploys and maintains "
-                                      "repository specified in DEFINITION"
+                          description="runs deploy program to complete actions "
+                                      "specified in DEFINITION"
                           )
-  
+ 
+    parser.add_option('--macro', metavar='TEXT',
+      dest='macros',
+      default=[],
+      action='append',
+      help='id:value pair (--macro "id:value") for replacing macros in '
+           'DEFINITION')
+    parser.add_option('--offline',
+      dest='offline',
+      action='store_true',
+      default=False,
+      help=('do not attempt to download remote files; access from cache '
+            'if available'))
+
     parser.add_option('--debug',
       dest='debug',
       action='store_true',
@@ -70,12 +83,6 @@ class BuildCli:
       default='/etc/deploy/deploy.conf',
       dest='mainconfigpath',
       help="specify path to the deploy config file")
-    config_group.add_option('--macro', metavar='TEXT',
-      dest='macros',
-      default=[],
-      action='append',
-      help='id:value pair (--macro "id:value") for replacing macros in '
-           'DEFINITION')
     config_group.add_option('--no-validate',
       dest='no_validate',
       action='store_true',
@@ -180,14 +187,9 @@ class BuildCli:
       sys.exit(msg)
     except DeployError, e:
       cb.logger.write(0, '\n') # start on a new line
-      if cb.debug:
-        msg = traceback.format_exc()
-        cb.logger.logfile.file_object.write(msg)
-        sys.exit(msg)
-      else:
-        msg = str(e) + '\n'
-        cb.logger.logfile.file_object.write(msg)
-        sys.exit(msg)
+      msg = str(e) + '\n'
+      cb.logger.logfile.file_object.write(msg)
+      sys.exit(msg)
     except Exception, e:
       tb = traceback.format_exc()
       cb.logger.logfile.file_object.write(tb)

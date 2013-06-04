@@ -38,17 +38,17 @@ import time
 from deploy.util import dispatch
 from deploy.util import listfmt
 from deploy.util import lock
-from deploy.util import pps
 from deploy.util import rxml
 from deploy.util import shlib
 from deploy.util import si
 
-from deploy.util import sync
-from deploy.util.sync import cache
-from deploy.util.sync import link
+from deploy.util import pps
+from deploy.util.pps.Path.error import OfflinePathError
 
-from deploy.callback  import (SyncCallback, CachedSyncCallback,
-                                    LinkCallback, SyncCallbackCompressed)
+from deploy.util import sync
+
+from deploy.callback  import (SyncCallback, CachedCopyCallback,
+                              LinkCallback, SyncCallbackCompressed)
 from deploy.constants import *
 from deploy.errors    import (DeployEventErrorHandler, 
                                     DeployEventError,
@@ -271,7 +271,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except DeployEventError, e:
+        except (DeployEventError, OfflinePathError), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()
@@ -461,19 +461,21 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                   self.definition.getbase().dirname) /
                   '%s.dat' % self.build_id)
 
+    # set up cache options
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
     self.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
-    self.cache_handler = cache.CachedSyncHandler(
-                         cache_dir = self.CACHE_DIR / '.cache',
-                         cache_max_size = self.CACHE_MAX_SIZE)
-    self.copy_handler = sync.CopyHandler()
-    self.link_handler = link.LinkHandler(allow_xdev=True)
 
+    self.cache_handler = pps.cache.CacheHandler(
+                         cache_dir = self.CACHE_DIR / '.cache',
+                         cache_max_size = self.CACHE_MAX_SIZE,
+                         offline = self.mainconfig.getxpath(
+                                   '/deploy/offline/text()', 
+                                    options.offline))
     self.copy_callback  = SyncCallback(self.logger, self.METADATA_DIR)
-    self.cache_callback = CachedSyncCallback(self.logger, self.METADATA_DIR)
+    self.cache_callback = CachedCopyCallback(self.logger, self.METADATA_DIR)
     self.link_callback  = LinkCallback(self.logger, self.METADATA_DIR)
     self.copy_callback_compressed = SyncCallbackCompressed(
                                      self.logger, self.METADATA_DIR)
@@ -533,11 +535,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     ptr.SHARE_DIRS   = self.sharedirs
     ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
   
-    ptr.datfn = self.datfn
-
+    ptr.datfn = self.datfn # dat filename
     ptr.cache_handler = self.cache_handler
-    ptr.copy_handler = self.copy_handler
-    ptr.link_handler = self.link_handler
 
     ptr.copy_callback  = self.copy_callback
     ptr.cache_callback = self.cache_callback

@@ -21,11 +21,12 @@ import yum
 
 from deploy.errors         import DeployEventError
 from deploy.event          import Event
+from deploy.event.fileio   import InputFileError
 from deploy.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
                                    Trigger, TriggerContainer, DeployRepo)
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
-  release_mixin_version = "1.24"
+  release_mixin_version = "1.26"
 
   def __init__(self, rpmconf=None): # call after creating self.DATA
     if rpmconf is not None:
@@ -103,8 +104,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     if 'gpg-signing-keys' in self.cvars: 
       repos = (repos +
               # using a dummy repo since rpmbuild repo not yet created
-               [DeployRepo(id='dummy', gpgkey=self.cvars['gpg-signing-keys']
-                                                     ['pubkey'])])
+               [DeployRepo(id='dummy', 
+                           gpgkey=self.cvars['gpg-signing-keys']['pubkey'])])
 
     self.gpgkeys = {}
     for repo in repos:
@@ -113,8 +114,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
           try:
             self.io.validate_input_file(url)
           except InputFileError, e:
-            raise GpgkeyError(e)
-            
+            raise GPGKeyError(e)
+
           self.gpgkeys[url.read_text().strip()] = url # using key content as id 
 
     self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
@@ -136,7 +137,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       self.keys = []
       for url in self.gpgkeys.values():
         try:
-          url.cp(self.local_keydir)
+          url.cp(self.local_keydir, mirror=True)
         except Exception, e:
           message = ("An error occurred attempting to retrieve the GPG key "
                      "located at '%s'. The error message is printed below:\n"
@@ -172,7 +173,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
       # include repofile at root of repository
       pubfile = self.OUTPUT_DIR / 'repo.conf'
-      repofile.cp(pubfile)
+      repofile.cp(pubfile, force=True, preserve=True)
 
       self.DATA['output'].extend([repofile, pubfile])
 

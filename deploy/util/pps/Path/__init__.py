@@ -62,6 +62,9 @@ class BasePath(_base):
   """
   _pypath = os.path
 
+  def _new(self, string):
+    return self.__class__(string)
+
   def __str__(self):
     return _base.__str__(self)
   def __repr__(self):
@@ -72,10 +75,10 @@ class BasePath(_base):
     This method allows paths to be joined by the / operator.  For example,
     path('/var/www/html') / 'hi' returns path('/var/www/html/hi')
     """
-    if not other: return self.__class__(self)
+    if not other: return self._new(self)
     other = path(other)
     if other.isabs(): return other
-    return self.__class__(self._pypath.join(self.__str__(), other.__str__()))
+    return self._new(self._pypath.join(self.__str__(), other.__str__()))
   __truediv__ = __div__ # works in either normal or 'true' division mode
   def __floordiv__(self, other):
     """
@@ -83,19 +86,19 @@ class BasePath(_base):
     For example, path('/var') / '/www' returns path('/www'), while
     path('/var/') // '/www' returns path('/var/www')
     """
-    if not other: return self.__class__(self)
+    if not other: return self._new(self)
     other = path(other)
-    return self.__class__(self._pypath.join(self.__str__(), other.path.__str__()))
+    return self._new(self._pypath.join(self.__str__(), other.path.__str__()))
   def __rdiv__(self, other):
     """
     Allows paths to be joined onto strings; for example, 'a/b' /
     path('c/d') = path('a/b/c/d')
     """
-    return self.__class__(other).__div__(self)
+    return self._new(other).__div__(self)
   __rtruediv__ = __rdiv__
   def __rfloordiv__(self, other):
     "Same as __rdiv__, except using the __floordiv__ operator ('//')"
-    return self.__class__(other).__floordiv__(self)
+    return self._new(other).__floordiv__(self)
 
   @property
   def dirname(self):
@@ -103,14 +106,14 @@ class BasePath(_base):
     Returns the first part of the tuple returned by path.splitpath().
     This is accessible in path objects via the .dirname property.
     """
-    return self.__class__(self.splitpath()[0] or self._pypath.curdir)
+    return self._new(self.splitpath()[0] or self._pypath.curdir)
   @property
   def basename(self):
     """
     Returns the second part of the tuple returned by path.splitpath().
     This is accessible in path objects via the .basename property.
     """
-    return self.__class__(self.splitpath()[1])
+    return self._new(self.splitpath()[1])
 
   def splitpath(self):
     """
@@ -135,7 +138,7 @@ class BasePath(_base):
     norm = self.normpath(); root = self.root
     if norm == root: return (root, root)
     dirname, basename = self._pypath.split(norm.__str__())
-    return self.__class__(dirname), self.__class__(basename)
+    return self._new(dirname), self._new(basename)
 
   @cached()
   def splitall(self):
@@ -212,14 +215,14 @@ class BasePath(_base):
     Invariant: root / relpath = path.normpath()
     """
     if self._urlparse().path.startswith(self._pypath.sep):
-      root = self.__class__(urlunparse((self.scheme,
+      root = self._new(urlunparse((self.scheme,
                                         self.netloc,
                                         self._pypath.sep,
                                         '', '', '')))
-      path = self.__class__(self._urlparse().path.lstrip(self._pypath.sep))
+      path = self._new(self._urlparse().path.lstrip(self._pypath.sep))
       return root, path
     else:
-      return self.__class__(''), self.__class__(self._urlparse().path)
+      return self._new(''), self._new(self._urlparse().path)
 
   # path manipulation functions
   def normcase(self):
@@ -228,7 +231,7 @@ class BasePath(_base):
     effect of this operation is highly dependent on the path type (some
     paths are case sensitive while others are not).
     """
-    return self.__class__(self)
+    return self._new(self)
   def normpath(self):
     """
     Returns a normalized version of the path.  Like .normcase(), above,
@@ -245,7 +248,7 @@ class BasePath(_base):
     np = np.replace('//', '/') # replace initial '//' if present
     if np == self._pypath.curdir: np = '' # don't include single curdir
 
-    return self.__class__(
+    return self._new(
       urlunparse((pt.scheme,
                   pt.netloc,
                   np,
@@ -260,13 +263,13 @@ class BasePath(_base):
   def abspath(self):
     "Returns an absolute version of the path."
     if self.isabs():
-      return self.__class__(self)
+      return self._new(self)
     else:
       raise PathError(errno.EINVAL, "Unable to determine absolute path for non-local file '%s'" % self)
 
   def relpath(self):
     "Returns a relative version of the path."
-    return self.__class__(self)
+    return self._new(self)
 
   def relpathto(self, dst):
     """
@@ -277,8 +280,8 @@ class BasePath(_base):
     path and dst are equivalent paths, returns path(self._pypath.curdir)
     ('.' in posix).
     """
-    start = self
-    end   = path(dst)
+    start = self.normpath()
+    end   = path(dst.normpath())
 
     if start.isabs():
       assert end.isabs()
@@ -287,7 +290,7 @@ class BasePath(_base):
       return end
 
     if start.equivpath(end):
-      return self.__class__(self._pypath.curdir)
+      return self._new(self._pypath.curdir)
 
     i = 0
     for s,e in zip(start.splitall(), end.splitall()):
@@ -295,7 +298,7 @@ class BasePath(_base):
         break
       i += 1
 
-    dirs = self.__class__(self._pypath.sep.join(
+    dirs = self._new(self._pypath.sep.join(
                           [self._pypath.pardir] * (len(start.splitall()) - i)))
     dirs = dirs / end.splitall()[i:]
     return dirs
@@ -344,7 +347,7 @@ class BasePath(_base):
   def touri(self):
     """Return a URI representation of the path"""
     if self.isabs():
-      return self.__class__(self._urlparse().geturi())
+      return self._new(self._urlparse().geturi())
     else:
       raise ValueError("Cannot convert relative path '%s' to URI" % self)
 
@@ -356,25 +359,25 @@ class BasePath(_base):
   # unique methods.
 
   def __add__(self, other):
-    return self.__class__(_base.__add__(self, other))
+    return self._new(_base.__add__(self, other))
   def __getitem__(self, index):
-    return self.__class__(_base.__getitem__(self, index))
+    return self._new(_base.__getitem__(self, index))
   def __getslice__(self, low, high):
-    return self.__class__(_base.__getslice__(self, low, high))
+    return self._new(_base.__getslice__(self, low, high))
   def lower(self):
-   return self.__class__(_base.lower(self))
+   return self._new(_base.lower(self))
   def lstrip(self, *args):
-    return self.__class__(_base.lstrip(self, *args))
+    return self._new(_base.lstrip(self, *args))
   def replace(self, *args):
-    return self.__class__(_base.replace(self, *args))
+    return self._new(_base.replace(self, *args))
   def rstrip(self, *args):
-    return self.__class__(_base.rstrip(self, *args))
+    return self._new(_base.rstrip(self, *args))
   def strip(self, *args):
-   return self.__class__(_base.strip(self, *args))
+   return self._new(_base.strip(self, *args))
   def swapcase(self):
-   return self.__class__(_base.swapcase(self))
+   return self._new(_base.swapcase(self))
   def upper(self):
-    return self.__class__(_base.upper(self))
+    return self._new(_base.upper(self))
 
   # caching methods
   def cache(self, key, value, globally=False):

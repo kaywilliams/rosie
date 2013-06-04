@@ -36,6 +36,9 @@
 <option>--macro <replaceable class="parameter">ID:VALUE</replaceable></option>
 </arg>
 <arg choice="opt">
+<option>--offline </option>
+</arg>
+<arg choice="opt">
 <option>--no-validate </option>
 </arg>
 <arg choice="opt">
@@ -207,6 +210,14 @@ and not the log file. Level 5 detail is always written to the log file.
   <term><option>--no-validate</option></term>
   <listitem>
     <para>Disables validation of DEPLOY_CONF and DEFINITION during the build process.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--offline</option></term>
+  <listitem>
+    <para>Instructs Deploy to retrieve files from the cache rather than from
+    remote locations.</para>
   </listitem>
 </varlistentry>
 

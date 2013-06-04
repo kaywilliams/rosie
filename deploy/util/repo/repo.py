@@ -125,7 +125,7 @@ class BaseRepo(dict):
       return fmt1 % dict(key=itemid, value=' '.join(items))
 
   def _xform_uri(self, p):
-    return pps.path(p).touri().replace('file://localhost/', 'file:///')
+    return pps.path(p).touri()
 
   def toxml(self, fn=rxml.tree.Element):
     repo = fn('repo', attrib={'id': self.id})
@@ -183,6 +183,18 @@ class IORepo(BaseRepo):
   def has_gz(self):
     return len(self.gz_group.keys()) > 0
 
+  def getdatafile(self, type):
+    # return datafile of specified type (e.g. primary) in the relevant format
+    # (e.g. sqllite if sqlite suported)
+    if self.has_sqlite:
+      return [v for k,v in self.sqlite_files.items() if k.startswith(type)][0]
+    else:
+      return [v for k,v in self.nonsqlite_files.items() if k.startswith(type)][0] 
+    if self.has_gz:
+      return [v for k,v in self.gz_group.items() if k.startswith(type)][0] 
+    else:
+      return [v for k,v in self.nongz_group.items() if k.startswith(type)][0] 
+
   def iterdatafiles(self, all=False):
     # if all is true, iterate over all datafiles, otherwise only the ones
     # that make sense (sqlite if sqlite supported, else normals)
@@ -207,7 +219,7 @@ class IORepo(BaseRepo):
     except rxml.errors.XmlSyntaxError:
       raise InvalidFileError("The repository metadata file at %s does not "
                              "appear to be valid"
-                             % (self.url.realm//self.repomdfile)) 
+                             % (self.url//self.repomdfile)) 
 
     for data in self.repomd.xpath('repo:data', namespaces=NSMAP):
       self.datafiles[data.getxpath('@type')] = RepoDataFile(data)
@@ -226,7 +238,7 @@ class IORepo(BaseRepo):
     d.mkdirs()
     for fid in what:
       fp = self.url // self.datafiles[fid]
-      fp.cp(d)
+      fp.cp(d, preserve=True)
 
   @property
   def url(self):
@@ -235,29 +247,34 @@ class IORepo(BaseRepo):
       if not self.baseurl and not self.mirrorlist:
         raise ValueError("Repo '%s' does not specify baseurl or mirrorlist" % self.id)
 
-      # construct a MirrorPath
       urls = []
-      if self.baseurl:
-        urls.extend(self.baseurl)
-        if not self.mirrorlist:
-          # first baseurl serves as mirrorlist key if we don't otherwise have one
-          self._url = pps.Path.mirror.MirrorPath('mirror:%s::/' % self.baseurl[0])
-      if self.mirrorlist:
-        self._url = pps.path('mirror:%s::/' % self.mirrorlist)
-        # retry reading mirrorlist 5 times on 502 errors (see retry502, below)
-        ml = pps.lib.mirror.validate_mirrorlist(
-               retry502(5, self.mirrorlist.read_lines))
-        ml = filter(pps.lib.mirror.MirrorGroup._filter, ml)
-        if len(ml) == 0:
-          raise pps.Path.mirror.MirrorlistEmptyError(self._url)
-        urls.extend(ml)
+      if self.baseurl and len(self.baseurl) == 1 and not self.mirrorlist:
+        # single baseurl, don't create a mirror path
+        self._url = self.baseurl[0]
 
-      assert self._url
+      else:
+        # create a MirrorPath
+        if self.baseurl:
+          urls.extend(self.baseurl)
+          if not self.mirrorlist:
+            # first baseurl serves as mirrorlist key if we don't otherwise have one
+            self._url = pps.path('mirror:%s::/' % self.baseurl[0])
+        if self.mirrorlist:
+          self._url = pps.path('mirror:%s::/' % self.mirrorlist)
+          # retry reading mirrorlist 5 times on 502 errors (see retry502, below)
+          ml = pps.lib.mirror.validate_mirrorlist(
+                 retry502(5, self.mirrorlist.read_lines))
+          ml = filter(pps.lib.mirror.MirrorGroup._filter, ml)
+          if len(ml) == 0:
+            raise pps.Path.mirror.MirrorlistEmptyError(self._url)
+          urls.extend(ml)
 
-      # prepopulate the mirrorgroup cache so we don't go trying to read
-      # baseurl[0] like a mirrorlist (and so it reflects the additional
-      # baseurl mirrors we want to add)
-      pps.Path.mirror.mgcache[self._url] = pps.lib.mirror.MirrorGroup(urls)
+        assert self._url
+
+        # prepopulate the mirrorgroup cache so we don't go trying to read
+        # baseurl[0] like a mirrorlist (and so it reflects the additional
+        # baseurl mirrors we want to add)
+        pps.Path.mirror.mgcache[self._url] = pps.lib.mirror.MirrorGroup(urls)
 
     return self._url
 

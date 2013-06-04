@@ -35,7 +35,8 @@ class RhnPath(RhnPath_IO, RhnPath_Printf, RhnPath_Stat,
   default_realm = 'xmlrpc.rhn.redhat.com'
   rpc_prefix    = '/XMLRPC/GET-REQ'
 
-  def __init__(self, string):
+  def __init__(self, string, **kwargs):
+    RemotePath.__init__(self, string, **kwargs)
     RhnPath_Stat.__init__(self, string)
 
   @property
@@ -65,11 +66,13 @@ class RhnPath(RhnPath_IO, RhnPath_Printf, RhnPath_Stat,
 
 class RhnsPath(RhnPath):
   "String representation of rhns file paths"
-  pass
+
+  def __init__(self, string, **kwargs):
+    RhnPath.__init__(self, string, **kwargs)
 
 
-def path(string, cls=RhnPath, systemid=None):
-  p = cls(string)
+def path(string, cls=RhnPath, systemid=None, **kwargs):
+  p = cls(string, **kwargs)
   if systemid:
     p._systemid = _path(systemid)
   return p

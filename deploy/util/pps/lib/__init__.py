@@ -48,7 +48,11 @@ def raw_throttle(throttle=None, bandwidth=None):
 # argument values, if present.
 CACHE = {}
 
+import errno
+
 from deploy.util.decorator import decorator
+
+from deploy.util.pps.Path.error import PathError
 
 def cached(name=None, set=False, globally=False):
   """ 
@@ -69,8 +73,8 @@ def cached(name=None, set=False, globally=False):
 
   Cache methods can be strung together; for example:
 
-    @cache()
-    @cache(globally=True)
+    @cached()
+    @cached(globally=True)
     def fn(...): ...
 
   The order that the caches are checked is the same as the order of the
@@ -82,7 +86,7 @@ def cached(name=None, set=False, globally=False):
     def new(meth, self, *args, **kwargs):
       # store a string, not the Path object itself
       key1 = str(self); key2 = name or meth.__name__
-      if set or not CACHE.has_key(key1) or not CACHE[key1].has_key(key2):
+      if set or not key1 in CACHE or not key2 in CACHE[key1]:
         CACHE.setdefault(key1, {}).setdefault(key2, meth(self, *args, **kwargs))
       return CACHE[key1][key2]
   else:
@@ -92,5 +96,53 @@ def cached(name=None, set=False, globally=False):
       if set or not hasattr(self, key):
         setattr(self, key, meth(self, *args, **kwargs))
       return getattr(self, key)
+
+  return new
+
+def file_cache():
+  @decorator
+  def new(meth, self, *args, **kwargs):
+    """
+    Wraps a provided function with file cache operations, i.e. downloads
+    the file to the cache, executes the function, and applies the cache
+    quota
+    """
+    csh = kwargs['csh']
+    io_obj = kwargs.pop('io_obj')
+
+    # callback
+    try: callback = kwargs['callback']
+    except KeyError: callback = None
+
+    if self.cache_handler.force: csh.rm(force=True)
+    if self._mirrorfn(csh): csh.remove()
+
+    if not csh.exists():
+      csh.dirname.mkdirs()
+      if callback and hasattr(callback, '_notify_cache'):
+        callback._notify_cache()
+        
+      csh_kwargs = kwargs.copy()
+      csh_kwargs['dst'] = csh
+      csh_kwargs['link'] = False
+      csh_kwargs['mirror'] = True
+      csh_kwargs['preserve'] = True
+      try:
+        io_obj._copy(self, **csh_kwargs)
+      except Exception as e:
+        if isinstance(e, PathError):
+          if e.errno == errno.ENOENT: # file not found
+            e = OfflinePathError(self, strerror="unable to copy file in "
+                                                "offline mode")
+        csh.rm(force=True)
+        raise e
+
+    result = meth(self, *args, **kwargs)
+
+    if callback and hasattr(callback, '_cache_quota'):
+      callback.cache_quota()
+    self.cache_handler._enforce_quota(callback=callback)
+
+    return result
 
   return new

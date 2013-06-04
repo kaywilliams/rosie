@@ -104,7 +104,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     # modify release-rpm
     (self.OUTPUT_DIR/'repo.conf').rm(force=True) # remove link
     ReleaseRpmEventMixin.run(self)
-    self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages')
+    self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages', force=True, preserve=True)
     self.DATA['output'].append(self.OUTPUT_DIR/'Packages'/
                                self.rpm.rpm_path.basename)
 

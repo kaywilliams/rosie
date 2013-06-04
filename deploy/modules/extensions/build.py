@@ -20,15 +20,12 @@ import os
 from deploy.callback  import BuildDepsolveCallback
 from deploy.event     import Event, CLASS_META
 from deploy.dlogging import L1, L2, L3
-from deploy.util      import pps
 
 from deploy.modules.shared import config
 from deploy.modules.shared import DeployEventMixin
 from deploy.modules.shared import KickstartEventMixin
 from deploy.modules.shared import PublishSetupEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin
-
-P = pps.path
 
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(

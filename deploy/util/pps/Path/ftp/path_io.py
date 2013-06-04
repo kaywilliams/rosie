@@ -25,7 +25,7 @@ from error import error_transform
 
 class FtpPath_IO(RemotePath_IO):
 
-  def open(self, mode='r', seek=None):
+  def _open(self, mode='r', seek=None, **kwargs):
     if mode.startswith('r'):
       fo = FtpFileObject(self, range=seek)
       # cache stat results, since we're opening the url anyway
@@ -37,8 +37,8 @@ class FtpPath_IO(RemotePath_IO):
       raise FtpPostError
 
   _protect = ['utime', 'chmod', 'chown', 'rename', 'mkdir', 'rmdir', 'mknod',
-              'touch', 'remove', 'unlink', 'link', 'symlink', 'readlink',
-              'open']
+              'touch', 'remove', 'unlink', '_link', '_symlink', 'readlink',
+              '_open']
 
 
 for fn in FtpPath_IO._protect:

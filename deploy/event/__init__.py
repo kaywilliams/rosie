@@ -146,28 +146,21 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def log(self, *args, **kwargs): return self.logger.log(*args, **kwargs)
 
   def cache(self, src, dst, link=False, force=False, **kwargs):
-    self.cache_handler.force = force
-    if link: self.cache_handler.cache_copy_handler = self.link_handler
-    else:    self.cache_handler.cache_copy_handler = self.copy_handler
+    kwargs.setdefault('callback',      self.cache_callback)
 
-    kwargs.setdefault('copy_handler', self.cache_handler)
-    kwargs.setdefault('callback',     self.cache_callback)
+    self.copy(src, dst, link=link, force=force, **kwargs)
 
-    self.copy(src, dst, **kwargs)
-
-  def copy(self, src, dst, link=False, updatefn=None, **kwargs):
-    kwargs.setdefault('copy_handler', self.copy_handler)
+  def copy(self, src, dst, link=False, force=False, **kwargs):
     kwargs.setdefault('callback',     self.copy_callback)
 
     dst.dirname.mkdirs()
-    sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
+    sync.sync(src, dst, link=link, force=force, **kwargs)
 
-  def link(self, src, dst, link=False, updatefn=None, **kwargs):
-    kwargs.setdefault('copy_handler', self.link_handler)
-    kwargs.setdefault('callback',     self.link_callback) # turn off output
+  def link(self, src, dst, link=True, **kwargs):
+    kwargs.setdefault('callback', self.link_callback) # turn off output
 
     dst.dirname.mkdirs()
-    sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
+    sync.sync(src, dst, link=link, **kwargs)
 
   def parse_datfile(self):
     file = pps.path(self.datfn)

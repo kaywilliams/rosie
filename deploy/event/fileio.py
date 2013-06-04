@@ -206,8 +206,7 @@ class IOObject(object):
       self.add_fpath(fpath, *args, **kwargs)
 
   def process_files(self, callback=None, link=False, cache=False, what=None,
-                       text='downloading files', updatefn=None,
-                       **kwargs):
+                       text='downloading files', **kwargs):
     """
     Sync input files to output locations.
 
@@ -216,7 +215,6 @@ class IOObject(object):
     @param cache    : cache files to cache directory before copying
     @param what     : list of ids to be copied (see add_item, above)
     @param text     : text to be passed to callback object as the 'header'
-    @param updatefn : the updatefn to pass to sync for file comparison
     @param kwargs   : extra arguments to be passed to sync
     """
     output = []
@@ -253,9 +251,12 @@ class IOObject(object):
           if start_sync == False:
             cb.sync_start(text=text, count=len(tx))
             start_sync = True
-          syncfn(item.src, item.dst, link=link, mode=item.mode,
-                                     callback=cb, updatefn=updatefn,
-                                     **kwargs)
+          try:
+            syncfn(item.src, item.dst, link=link, mode=item.mode,
+                                       callback=cb, **kwargs)
+          except pps.Path.error.PathError, e:
+            raise InputFileError(errno=e.errno, message=e.strerror, 
+                                 file=item.src)
         output.append(item.dst)
       cb.sync_end()
 

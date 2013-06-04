@@ -34,14 +34,14 @@ class NTPath(NTPath_IO, NTPath_Printf, NTPath_Stat,
 
   def splitunc(self):
     unc, rest = self._pypath.splitunc(self)
-    return unc, self.__class__(rest)
+    return unc, self._new(rest)
 
   uncshare = property(lambda self: self.splitunc()[0])
 
   def splitroot(self):
     # absolute paths
     # drive
-    _path = self.__class__(self._urlparse().path)
+    _path = self._new(self._urlparse().path)
     if _path.startswith(self._pypath.altsep): # uri syntax
       drive, path = _path.lstrip(self._pypath.altsep).splitdrive()
       sep = self._pypath.altsep
@@ -49,7 +49,7 @@ class NTPath(NTPath_IO, NTPath_Printf, NTPath_Stat,
       drive, path = _path.splitdrive()
       sep = self._pypath.sep
     if drive:
-      root = self.__class__(urlunparse((self.scheme,
+      root = self._new(urlunparse((self.scheme,
                                         self.netloc,
                                         drive+sep,
                                         '','','')))
@@ -57,8 +57,8 @@ class NTPath(NTPath_IO, NTPath_Printf, NTPath_Stat,
     # unc share
     unc, path = self.splitunc()
     if unc:
-      return (self.__class__(unc),
+      return (self._new(unc),
               path.lstrip(self._pypath.sep+self._pypath.altsep))
 
     # relative path
-    return self.__class__(''), self.__class__(self._urlparse().path)
+    return self._new(''), self._new(self._urlparse().path)

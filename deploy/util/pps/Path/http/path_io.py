@@ -26,7 +26,7 @@ from deploy.util.pps.PathStat.http import HttpPathStat
 from error import error_transform
 
 class HttpPath_IO(RemotePath_IO):
-  def __init__(self, path):
+  def __init__(self, path, **kwargs):
     # args to pass to open() and related calls; see lib/http.py for values
     self._foargs = {}
     # list of (key, value) header tuples
@@ -49,11 +49,11 @@ class HttpPath_IO(RemotePath_IO):
   def remove(self): raise HttpPostError
   def unlink(self): raise HttpPostError
 
-  def link(self, new):    raise HttpPostError
-  def symlink(self, new): raise HttpPostError
-  def readlink(self): return self.__class__(self)
+  def _link(self, new):    raise HttpPostError
+  def _symlink(self, new): raise HttpPostError
+  def readlink(self): return self._new(self)
 
-  def open(self, mode='r', seek=None, **kwargs):
+  def _open(self, mode='r', seek=None, **kwargs):
     if mode.startswith('r'):
       foargs = copy.copy(self._foargs)
       foargs.update(kwargs)
@@ -68,8 +68,8 @@ class HttpPath_IO(RemotePath_IO):
       raise HttpPostError
 
   _protect = ['utime', 'chmod', 'chown', 'rename', 'mkdir', 'rmdir', 'mknod',
-              'touch', 'remove', 'unlink', 'link', 'symlink', 'readlink',
-              'open']
+              'touch', 'remove', 'unlink', '_link', '_symlink', 'readlink',
+              '_open']
 
 
 for fn in HttpPath_IO._protect:

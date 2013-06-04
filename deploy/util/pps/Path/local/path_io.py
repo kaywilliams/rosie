@@ -41,7 +41,7 @@ class LocalPath_IO(Path_IO):
   def remove(self):           os.remove(self.normpath())
   def unlink(self):           os.unlink(self.normpath())
 
-  def open(self, mode='r', seek=None):
+  def _open(self, mode='r', seek=None, **kwargs):
     if not seek:
       return open(self.normpath(), mode)
     else:
@@ -50,7 +50,7 @@ class LocalPath_IO(Path_IO):
       return fo
 
   _protect = ['utime', 'chmod', 'rename', 'mkdir', 'rmdir', 'mknod',
-              'touch', 'remove', 'unlink', 'open']
+              'touch', 'remove', 'unlink', '_open']
 
 for fn in LocalPath_IO._protect:
   setattr(LocalPath_IO, fn, error_transform(getattr(LocalPath_IO, fn)))
