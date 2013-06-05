@@ -178,12 +178,15 @@ class DeployRepoGroup(DeployRepo):
 
     # first make sure we can access the repomdfile location (e.g. no network or
     # permissions errors)
-    try:
-      (self.url/self.repomdfile).stat()
-    except pps.Path.error.PathError, e:
-      if e.errno != errno.ENOENT: # report errors other than "does not exist"
-        raise InputFileError(errno=e.errno, message=e.strerror, 
-                             file=self.url.touri()/self.repomdfile) 
+    repomd = self.url/self.repomdfile
+    if not hasattr(repomd, 'cache_handler') or \
+       not repomd.cache_handler.offline: # skip this test in offline mode
+      try:
+        repomd.stat()
+      except pps.Path.error.PathError, e:
+        if e.errno != errno.ENOENT: # report errors other than "does not exist"
+          raise InputFileError(errno=e.errno, message=e.strerror, 
+                               file=self.url.touri()/self.repomdfile)
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos

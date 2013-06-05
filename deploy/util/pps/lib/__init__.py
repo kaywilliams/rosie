@@ -16,6 +16,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+from deploy.util.pps.Path.error import OfflinePathError
+
 def raw_throttle(throttle=None, bandwidth=None):
   """
   Returns a float representing the bandwidth at which to throttle downloads.
