@@ -27,14 +27,17 @@ from dtest        import EventTestCase, decorate
 from dtest.core   import CoreTestSuite
 from dtest.mixins import check_vm_config
 
+from publishsetup import PublishSetupMixinTestCase
+
 __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 
-class DeployMixinTestCase:
+class DeployMixinTestCase(PublishSetupMixinTestCase):
   _type = 'system'
   
   def __init__(self, os, version, arch, module=None):
-    self.mod = module or self.moduleid
-    EventTestCase.__init__(self, os, version, arch)
+    self.deploy_module = module or self.moduleid
+    PublishSetupMixinTestCase.__init__(self, os, version, arch,
+                                       deploy_module=self.deploy_module)
 
     # get default deploy config
     deploy = rxml.config.parse(
@@ -63,13 +66,13 @@ class DeployMixinTestCase:
                                         self.arch.replace("_", "-"))
     self.domain = '.local'
 
-    mod = self.conf.getxpath('/*/%s' % self.mod, None)
+    mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
     if mod is None:
-      mod = rxml.config.Element('%s' % self.mod, parent=self.conf)
+      mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
     rxml.config.Element('hostname', parent=mod, text=self.hostname)
     rxml.config.Element('password', parent=mod, text='password')
 
-    if self.mod != 'test-install':
+    if self.deploy_module != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
       triggers.text = 'kickstart install_scripts'
 

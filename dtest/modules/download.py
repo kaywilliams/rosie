@@ -109,7 +109,7 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   </release-rpm>
   """]
   def runTest(self):
-    self.tb.dispatch.execute(until=self.id)
+    self.tb.dispatch.execute(until=self.eventid)
     # if the length of rpms in the pkglist is equal to the length of
     # rpms in list_output, then we know for that we are not downloading 
     # duplicate packages.

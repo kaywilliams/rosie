@@ -34,12 +34,6 @@ class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
   moduleid = 'test-update'
   eventid  = 'test-update-setup'
 
-  def tearDown(self):
-    # 'register' publish_path for deletion upon test completion
-    self.output.append(
-        self.event.cvars['%s-setup-options' % self.moduleid]['localpath'])
-    EventTestCase.tearDown(self)
-
 
 class TestUpdateEventTestCase(PublishSetupEventTestCase):
   moduleid = 'test-update'

@@ -27,19 +27,12 @@ from dtest      import EventTestCase, ModuleTestSuite, TestBuild
 from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
-                           dm_make_suite, check_vm_config)
+                          dm_make_suite, check_vm_config)
 
 
 class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install-setup'
-
-  def tearDown(self):
-    # 'register' publish_path for deletion upon test completion
-    if '%s-setup-options' % self.moduleid in self.event.cvars:
-      self.output.append(
-          self.event.cvars['%s-setup-options' % self.moduleid]['localpath'])
-    EventTestCase.tearDown(self)
 
 
 class TestInstallEventTestCase(PublishSetupEventTestCase):

@@ -21,11 +21,37 @@ from deploy.errors    import DeployError
 from deploy.util      import pps
 from deploy.util.rxml import config
 
-from dtest      import EventTestCase, decorate
-from dtest.core import CoreTestSuite
+from dtest        import EventTestCase, decorate
+from dtest.core   import CoreTestSuite
+from dtest.mixins import check_vm_config
 
-class PublishSetupMixinTestCase:
-  pass
+class PublishSetupMixinTestCase(EventTestCase):
+  def __init__(self, os, version, arch, deploy_module=None, **kwargs):
+    EventTestCase.__init__(self, os, version, arch)
+    self.deploy_module = deploy_module
+    if not self.deploy_module:
+      if self.moduleid in ['test-install', 'test-update']:
+        self.deploy_module = self.moduleid
+      else:
+        self.deploy_module = 'publish'
+    decorate(self, 'setUp', prefn=self.pre_setup)
+    decorate(self, 'tearDown', prefn=self.pre_teardown)
+
+  def pre_setup(self):
+    # if test machine is not vm capable, remove interface attribute from
+    # remote-url, if provided, i.e. eliminate 'interface='virbrdpl'
+    if not check_vm_config(): 
+      remote_url = self.conf.getxpath('/*/%s/remote-url' % self.deploy_module,
+                                      None)
+      if remote_url is not None and 'interface' in remote_url.attrib:
+        del remote_url.attrib['interface']
+    EventTestCase.setUp(self)
+
+  def pre_teardown(self):
+    # 'register' publish_path for deletion upon test completion
+    #if '%s-setup-options' % self.moduleid in self.event.cvars:
+    self.output.append(self.event.cvars['%s-setup-options' % self.deploy_module]
+                                       ['localpath'])
 
 def PublishSetupMixinTest_Config(self):
   self._testMethodDoc = "config values correctly populate macros and cvars"

@@ -21,12 +21,14 @@ from deploy.util   import pps
 from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_core_suite
 
-from dtest.mixins import (psm_make_suite, check_vm_config)
+from dtest.mixins import (psm_make_suite, check_vm_config, 
+                          PublishSetupMixinTestCase)
 
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish-setup'
   _type = 'package'
+
 
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
@@ -62,16 +64,10 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
     EventTestCase.tearDown(self)
 
 
-class PublishEventTestCase(EventTestCase):
+class PublishEventTestCase(PublishSetupMixinTestCase, EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish'
   _type = 'package'
-
-  def tearDown(self):
-    # 'register' publish_path for deletion upon test completion
-    self.output.append(self.event.cvars['%s-setup-options' % self.moduleid]
-                                       ['localpath'])
-    EventTestCase.tearDown(self)
 
 
 def make_suite(os, version, arch, *args, **kwargs):
