@@ -197,12 +197,11 @@ def remove_input_files(dir):
 
 # check vm configuration
 def check_vm_config():
-  try: 
+  try:
     import libvirt
     import virtinst
     return True
   except ImportError:
-    print "unable to import libvirt and/or virtinst, skipping vm tests"
     return False
 
 
