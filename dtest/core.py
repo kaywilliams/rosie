@@ -36,11 +36,16 @@ class EventTestCaseHeader(EventTestCaseDummy):
     EventTestCaseDummy.__init__(self)
 
   def shortDescription(self):
-    return '\n'.join(['',
-                      self.separator1,
-                      "testing event '%s' (%s-%s-%s)"
-                        % (self.eventid, self.os, self.version, self.arch),
-                      self.separator2])
+    test_info = "testing event '%s' (%s-%s-%s)" \
+                 % (self.eventid, self.os, self.version, self.arch)
+
+    from dtest.mixins import check_vm_config
+    note = "NOTE: Unable to import libvirt modules; skipping vm tests"
+
+    if check_vm_config():
+      return '\n'.join(['', self.separator1, test_info, self.separator2])
+    else:
+      return '\n'.join(['', self.separator1, test_info, self.separator2, note])
 
 class CoreTestSuite(unittest.TestSuite):
   def __init__(self, tests=()):

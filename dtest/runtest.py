@@ -146,10 +146,6 @@ def main():
   finally:
     fp and fp.close()
 
-  # print 'skipping vm tests' message once per test run
-  if not dtest.mixins.check_vm_config():
-    print "\nNOTE: Unable to import libvirt modules; skipping vm tests"
-
   result = None
   try:
     result = runner.run(suite)
