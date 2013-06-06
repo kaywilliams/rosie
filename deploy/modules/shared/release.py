@@ -108,6 +108,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
                            gpgkey=self.cvars['gpg-signing-keys']['pubkey'])])
 
     self.gpgkeys = {}
+    repos.sort(key = lambda x: x.id) # sort repos by id to ensure keys obtained
+                                     # in a consistent order
     for repo in repos:
       for url in repo.gpgkey:
         if self.type == 'system' or repo.download:
