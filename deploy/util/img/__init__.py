@@ -49,7 +49,6 @@ def MakeImage(file, format, zipped=False, zip_format='gzip', **kwargs):
   img = NEW_IMAGE_FACTORY[format](file, zipped=zipped, zip_format=zip_format,
                                   **kwargs)
 
-  # not clear why we're zipping a file that doesn't exist
   if not ex and zipped:
     if zip_format == 'gzip':
       shlib.execute('/usr/bin/gzip %s' % file)

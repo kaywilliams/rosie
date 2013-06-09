@@ -19,6 +19,8 @@ from deploy.util import pps
 
 from deploy.event import Event
 
+from deploy.modules.shared import FileDownloadMixin
+
 def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
@@ -27,14 +29,13 @@ def get_module_info(ptr, *args, **kwargs):
     group       = 'installer',
   )
 
-class PxebootImagesEvent(Event):
+class PxebootImagesEvent(Event, FileDownloadMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'pxeboot-images',
       parentid = 'installer',
       ptr = ptr,
       provides = ['pxeboot', 'treeinfo-checksums', 'os-content'],
-      requires = ['isolinux-files'],
     )
 
     self.DATA = {
@@ -42,15 +43,15 @@ class PxebootImagesEvent(Event):
       'output': [],
     }
 
-    self.pxebootdir = self.OUTPUT_DIR/'images/pxeboot'
+    FileDownloadMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.add_fpath(self.cvars['isolinux-files']['vmlinuz'],    self.pxebootdir)
-    self.io.add_fpath(self.cvars['isolinux-files']['initrd.img'], self.pxebootdir)
+    self.file_locals = self.locals.L_FILES['pxeboot']
+    FileDownloadMixin.setup(self)
 
   def run(self):
-    self.io.process_files(cache=True)
+    self._download()
 
   def apply(self):
     cvar = self.cvars.setdefault('treeinfo-checksums', set())

@@ -15,24 +15,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from dtest        import EventTestCase, ModuleTestSuite
-from dtest.core   import make_core_suite
-from dtest.mixins import fdm_make_suite
-
-class IsolinuxTestCase(EventTestCase):
-  moduleid = 'isolinux'
-  eventid  = 'isolinux'
-
-  _conf = [
-    "<bootiso enabled='true'/>",
-    "<repocreate enabled='false'/>",
-    "<config-rpm enabled='false'/>",
-  ]
-
-def make_suite(os, version, arch, *args, **kwargs):
-  suite = ModuleTestSuite('isolinux')
-
-  suite.addTest(make_core_suite(IsolinuxTestCase, os, version, arch))
-  suite.addTest(fdm_make_suite(IsolinuxTestCase, os, version, arch))
-
-  return suite

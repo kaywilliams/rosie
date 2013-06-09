@@ -56,7 +56,7 @@ class PkgorderEvent(Event):
       parentid = 'publish-events',
       ptr = ptr,
       provides = ['pkgorder-file'],
-      requires = ['repomd-file', 'os-dir'],
+      requires = ['isolinux-files', 'repomd-file', 'os-dir'],
     )
 
     self.DATA =  {

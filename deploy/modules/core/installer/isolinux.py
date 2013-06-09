@@ -35,6 +35,8 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       ptr = ptr,
       provides = ['isolinux-files', 'boot-config-file', 'os-content'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
+      conditional = True, # don't run unless provides required by another 
+                          # event, i.e. iso or bootiso
       conditionally_requires = ['installer-splash'],
     )
 

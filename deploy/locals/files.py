@@ -32,6 +32,10 @@ L_FILES = LocalsDict({
       'netstg2.img':  dict(path='%(name)s/base/netstg2.img'),
       'hdstg2.img':   dict(path='%(name)s/base/hdstg2.img'),
     },
+    'pxeboot': { # pxeboot images
+      'initrd.img':   dict(path='images/pxeboot/initrd.img'),
+      'vmlinuz':      dict(path='images/pxeboot/vmlinuz'),
+    },
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {

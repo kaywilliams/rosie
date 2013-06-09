@@ -32,10 +32,12 @@ class ComposeEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'compose',
-      parentid = 'os-events',
+      parentid = 'all',
       ptr = ptr,
       provides = ['os-dir', 'publish-content',],
-      requires = ['os-content'],
+      requires = ['os-events'], # requires 'os-events' rather than 'os-content'
+                                # to avoid pulling in conditional events,
+                                # i.e. isolinux
     )
 
     self.DATA =  {

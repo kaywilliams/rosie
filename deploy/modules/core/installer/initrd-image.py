@@ -35,9 +35,10 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       ptr = ptr,
       version = '1.01',
       provides = ['isolinux-files', 'os-content'],
-      requires = ['anaconda-version', 'buildstamp-file'],
       conditionally_requires = ['initrd-image-content', 'publish-ksfile'],
       comes_after = ['isolinux'],
+      conditional = True, # don't run unless provides required by another
+                          # event, i.e. isolinux
     )
 
     self.DATA = {

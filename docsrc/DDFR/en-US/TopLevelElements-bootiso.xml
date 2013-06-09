@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="bootiso">
+  <title>
+  BootISO
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Creates a minimal ISO image for performing system installation. This image,
+    named <filename>boot.iso</filename>, is located in the
+    <emphasis>images</emphasis> folder of the system repository. It can be used
+    to boot a system from CD or DVD. Remaining installation content is then
+    downloaded over the network from the system repository.
+    </para>
+
+    <para>
+    See the <emphasis>Deployment Guide</emphasis> for Red Hat Enterprise Linux
+    at the <ulink url='http://docs.redhat.com'>Red Hat Documentation
+    website</ulink> for information on using boot.iso images.
+    </para>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;bootiso enabled="BOOLEAN"/&gt;]</programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes 
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      BOOLEAN value specifying whether a boot.iso image should be created. The
+      created file will be located in the "images" folder for the repository.
+      </para>
+
+      <para>
+      The default value is <emphasis>FALSE</emphasis>.
+      </para>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    In the following example, a boot.iso image will be created.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;bootiso enabled='true' /&gt;</programlisting>
+    </informalexample>
+  </section>
+
+</section>

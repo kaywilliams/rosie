@@ -69,6 +69,7 @@ class ReadOnlyImageHandler:
 
 def MakeReadOnlyImage(cls, file, zipped=False, **kwargs):
   file = pps.path(file)
+  # make this better - reports readonly when file does not exist
   if not file.isfile():
     raise ReadOnlyError()
 

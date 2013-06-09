@@ -9,26 +9,10 @@
   <para>
   Deployment elements, <emphasis>test-install</emphasis>,
   <emphasis>test-update</emphasis>, <emphasis>publish</emphasis>,
-  <emphasis>iso</emphasis> and <emphasis>files</emphasis> support repository
-  testing and distribution.
-  </para>
- 
-  <para>
-  The <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
-  <emphasis>publish</emphasis> elements follow a common model. The model is
+  support repository testing, deployment and maintenance.
+  These elements follow a common model. The model is
   described first in <xref linkend="deployment-elements-common-model"/>.
   Differences from the model are described in the section for each element.
-  </para>
-
-  <para>
-  The <emphasis>iso</emphasis> element controls the creation of CD/DVD disk
-  images, typically used in manual system repository installation.
-  </para>
-
-  <para>
-  The <emphasis>files</emphasis> element allows distributing miscellaneous
-  user-provided files and folders, such as readme or licensing files, or
-  configuration templates, along with the repository. 
   </para>
 
   <xi:include href="DeploymentElements-common.xml"
@@ -41,12 +25,6 @@
               xpointer="element(/1)"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
   <xi:include href="TopLevelElements-publish.xml"
-              xpointer="element(/1)"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
-
-  <xi:include href="TopLevelElements-iso.xml"
-              xpointer="element(/1)"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
-
-  <xi:include href="TopLevelElements-files.xml"
               xpointer="element(/1)"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 </chapter>

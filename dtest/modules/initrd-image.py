@@ -26,6 +26,7 @@ class InitrdImageEventTestCase(EventTestCase):
   eventid  = 'initrd-image'
 
   _conf = [
+    "<bootiso enabled='true'/>",
     "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
     "<config-rpm enabled='false'/>",

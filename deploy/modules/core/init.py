@@ -74,6 +74,7 @@ class OSEvents(Event):
       parentid = 'all',
       ptr = ptr,
       properties = CLASS_META,
+      provides = ['os-events'],
       comes_after = ['setup-events'],
       suppress_run_message = True
     )
