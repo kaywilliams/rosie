@@ -325,7 +325,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
     dt = rxml.config.parse(dp, xinclude=True, 
-                           macros=self._get_opt_macros(options))
+                           macros=self._get_opt_macros(options), 
+                           remove_macros=True)
     self.definition = dt.getroot()
 
   def _compute_events(self, modules=None, events=None):

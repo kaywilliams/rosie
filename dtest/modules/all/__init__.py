@@ -223,7 +223,8 @@ text %%{case6} tail
            'version':  version,
            'arch':     arch}
 
-    self.conf = config.parse(StringIO(xml), xinclude=True).getroot()
+    self.conf = config.parse(StringIO(xml), xinclude=True, remove_macros=True
+                            ).getroot()
 
   def setUp(self): pass
 

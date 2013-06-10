@@ -290,45 +290,39 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # locate and remove macro definitions
     if find:
-      while True:
-        elems = self.xpath('//macro', [])
-        if not elems: break
+      for elem in self.xpath('//macro', []): 
+        # ignore parent macro (until later loops)
+        if [ x for x in elem.iterchildren('macro') ]:
+          continue
 
-        for elem in elems:
-          # ignore parent macro (until later loops)
-          if [ x for x in elem.iterchildren('macro') ]:
-            continue
+        # validate element
+        if not 'id' in elem.attrib:
+          message = "Missing required 'id' attribute."
+          raise errors.MacroError(self.getroot().base, message, elem)
+  
+        if re.findall(MACRO_REGEX, elem.attrib['id']):
+          message = "Macros not allowed in macro ids."
+          raise errors.MacroError(self.getroot().base, message, elem)
+  
+        # add elem content to map
+        name = '%%{%s}' % elem.attrib['id']
+        if name not in map: # higher level macros trump lower ones
+          if len(elem) > 0:
+            value = elem # add the element as the value
+          elif elem.text:
+            value = elem.text
+          else:
+            value = ''
 
-          # validate element
-          if not 'id' in elem.attrib:
-            message = "Missing required 'id' attribute."
+          # check for circular references
+          if name in value:
+            message = ("Macro value contains a circular reference to "
+                       "the macro id.")
             raise errors.MacroError(self.getroot().base, message, elem)
   
-          if re.findall(MACRO_REGEX, elem.attrib['id']):
-            message = "Macros not allowed in macro ids."
-            raise errors.MacroError(self.getroot().base, message, elem)
-  
-          # add elem content to map
-          name = '%%{%s}' % elem.attrib['id']
-          if name not in map: # higher level macros trump lower ones
-            if len(elem) > 0:
-              value = elem # add the element as the value
-            elif elem.text:
-              value = elem.text
-            else:
-              value = ''
-
-            # check for circular references
-            if name in value:
-              message = ("Macro value contains a circular reference to "
-                         "the macro id.")
-              raise errors.MacroError(self.getroot().base, message, elem)
-  
-            # add elem value to macros
-            map[name] = value 
+          # add elem value to macros
+          map[name] = value 
  
-          elem.getparent().remove(elem)
-
     if not map: # no macros to resolve
       return
 
@@ -398,6 +392,10 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     return map
 
+  def remove_macros(self):
+    for elem in self.xpath('.//macro', []):
+      elem.getparent().remove(elem)
+
   def write(self, file):
     file = pps.path(file)
     if not file.exists: file.mknod()
@@ -413,7 +411,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     hrefs = {} # cache of previously included files
 
     # resolve macros
-    macros = self.resolve_macros(find=True, map=macros)
+    macros = self.resolve_macros(find=True, map=macros) 
 
     while True:
       elems = self.xpath('//xi:include', [], namespaces=({'xi': XI_NS}))
@@ -483,12 +481,20 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                 elem.addprevious(root.copy())
 
                 parent.remove(elem)
- 
+
   def _process_xpointer(self, source, parent, target):
     source = source.copy()
     xpath = re.sub(r'xpointer\((.*)\)$', r'\1', target.attrib['xpointer'])
     try:
-      list = [ x for x in etree.ElementBase.xpath(source, xpath)
+      results = etree.ElementBase.xpath(source, xpath)
+      if not hasattr(results, '__iter__'): # xpath can return bool and numeric
+                                           # values, e.g
+                                           # xpointer(./repo/@id='epel') returns
+                                           # bool. s/b (./repo[@id='epel']) 
+        raise errors.XIncludeError(message='Xpointer does not return text or '
+                                           'XML content',
+                                   elem=target)
+      list = [ x for x in results
                if isinstance(x, etree._Element) or
                  (isinstance(x, basestring) and x.strip()) ]
     except etree.XPathError, e:
@@ -539,7 +545,8 @@ def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={}):
+def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={}, 
+                remove_macros=False): 
   try:
     roottree = etree.parse(file, parser, base_url=base_url)
   except etree.XMLSyntaxError, e:
@@ -553,6 +560,9 @@ def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={}):
   # process xincludes
   if xinclude:
     roottree.getroot().xinclude(macros=macros)
+
+  if remove_macros:
+    roottree.getroot().remove_macros()
 
   # remove unused namespaces (i.e. XInclude)
   etree.cleanup_namespaces(roottree)

@@ -339,7 +339,8 @@ class SrpmBuild(Build):
 
     self.definition = rxml.config.parse(self.ptr.template,
                                         xinclude=True,
-                                        macros = self._get_opt_macros(options), 
+                                        macros = self._get_opt_macros(options),
+                                        remove_macros = True,
                                         ).getroot()
 
     # add config-rpm for srpm requires

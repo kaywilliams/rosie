@@ -75,9 +75,10 @@ class XmlSyntaxError(StandardError, XmlError):
 
     if lines:
       pad = len(str(len(lines)))
-      msg += "\n\nThe invalid file is:\n\n"
+      extra = '' 
       for i, line in enumerate(lines):
-        msg += '%%s%%%dd:%%s' % pad % (i != 0 and '\n' or '', i+1, line)
+        extra += '%%s%%%dd:%%s' % pad % (i != 0 and '\n' or '', i+1, line)
+      msg = extra + '\n\n' + msg
     return msg
 
 class MacroError(XmlError):
