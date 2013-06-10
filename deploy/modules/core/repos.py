@@ -101,7 +101,7 @@ class ReposEvent(RepoEventMixin, Event):
 
         # .treeinfo exists?
         if not (self.mddir/repo.id/repo.treeinfofile).exists():
-          raise TreeinfoNotFoundError(repoid=repo.id, repourl=repo.url.realm)   
+          raise TreeinfoNotFoundError(repoid=repo.id, repourl=repo.url.touri())   
 
         # read treeinfo
         else:
