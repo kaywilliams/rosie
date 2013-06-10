@@ -33,7 +33,7 @@
     </title>
 
     <programlisting>
-[&lt;bootiso enabled="BOOLEAN"/&gt;]</programlisting>
+[&lt;bootiso [enabled="BOOLEAN"] /&gt;]</programlisting>
   </section>
 
   <section>
@@ -54,7 +54,8 @@
       </para>
 
       <para>
-      The default value is <emphasis>FALSE</emphasis>.
+      The enabled attribute is optional. The default value is
+      <emphasis>TRUE</emphasis>.
       </para>
 
       </listitem>
@@ -73,7 +74,7 @@
 
     <informalexample>
     <programlisting>
-&lt;bootiso enabled='true' /&gt;</programlisting>
+&lt;bootiso/&gt;</programlisting>
     </informalexample>
   </section>
 
