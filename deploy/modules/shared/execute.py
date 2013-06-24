@@ -172,7 +172,7 @@ class TemporarySSHFailedError(DeployEventError):
   message = "%(message)s"
 
 class ScriptFailedError(DeployEventError):
-  message = "Error occured running '%(cmd)s'. See script output below:\n %(errtxt)s"
+  message = "Error occured running '%(cmd)s'. See script output below:\n%(errtxt)s"
 
 class SSHFailedError(ScriptFailedError):
   message = "%(message)s"
