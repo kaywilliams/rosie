@@ -303,7 +303,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           # create libdir
           if not self.LIB_DIR.basename in sftp.listdir(str(
                                           self.LIB_DIR.dirname)):
-            sftp.mkdir(str(self.LIB_DIR))
+            try:
+              sftp.mkdir(str(self.LIB_DIR))
+            except IOError, e:
+              raise RemoteFileCreationError(msg=
+                "An error occurred creating the script directory '%s' "
+                "on the remote system '%s'. %s"
+                % (self.LIB_DIR, params['hostname'], str(e)))
 
           # create deploydir
           if not (self.deploydir.basename in 
@@ -376,6 +382,8 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
+class RemoteFileCreationError(DeployEventError):
+  message = ("%(msg)s")
 
 class InvalidDistroError(DeployEventError):
   message = ("The repository at '%(system)s' does not appear to be "
