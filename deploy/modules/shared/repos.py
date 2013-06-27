@@ -464,8 +464,8 @@ class RepoEventMixin(Event):
           f.uncache('checksum') # uncache previously-cached shasum
           got = f.checksum(type=datafile.checksum_type)
           if datafile.checksum != got:
-            self.cache_handler.cshfile(subrepo.url / datafile.href).rm(
-              force=True)
+            for file in [ subrepo.repomdfile, datafile.href ]:
+              self.cache_handler.cshfile(subrepo.url / file).rm(force=True)
             raise RepomdCsumMismatchError(datafile.href.basename,
                                           repoid=repo.id,
                                           got=got,
