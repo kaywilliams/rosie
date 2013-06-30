@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='drupal-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- include epel repo here or in your containing definition. 
+     see http://mirrors.fedoraproject.org/publiclist/EPEL for a list of 
+     public mirrors
+<repo id='epel'>
+<macro id='epel-mirror'>http://my.epel.mirror/epel</macro>
+<baseurl>%{epel-mirror}/%{version}/%{arch}</baseurl>
+<gpgkey>%{epel-mirror}/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
+</repo>
+
+Containing definition must also specify the %{dbtype} macro:
+<macro id="dbtype">[pgsql|mysql]</macro>
+-->
+<requires>httpd</requires>
+<requires>drupal7</requires>
+<requires>drupal-%{dbtype}-config</requires>
+<requires>drush-config</requires>
+<requires>/usr/sbin/setsebool</requires>
+
+<script type='post'>
+# create drupal site
+cd /usr/share/drupal7/sites
+drush -y -q si standard \
+  --account-pass=%{password} \
+  --db-url=%{dbtype}://%{dbuser}@localhost/%{sitename} \
+  --db-su=%{dbuser} \
+  --site-name=%{sitename}
+
+# allow public access
+sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
+
+# configure selinux
+if [[ `getsebool httpd_can_network_connect | grep off` ]]; then
+  setsebool -P httpd_can_network_connect 1
+fi
+if [[ `getsebool httpd_can_sendmail | grep off` ]]; then
+  setsebool -P httpd_can_sendmail 1
+fi
+
+# restart web server
+service httpd restart > /dev/null
+</script>
+</config-rpm>

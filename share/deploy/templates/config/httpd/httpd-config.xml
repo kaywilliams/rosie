@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='httpd-config'>
+<requires>httpd</requires>
+<requires>iptables</requires>
+<requires>/bin/ps</requires>
+<requires>/sbin/pidof</requires>
+<files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d' 
+       mode='750'>
+#!/bin/sh
+#
+#chkconfig: 2345 07 91
+#description: Iptables configuration for HTTP
+#
+VERSION=%{version}
+FILE=/etc/sysconfig/iptables
+
+case "$1" in
+  "start")
+# Enable http traffic through the firewall
+if [[ ! `fgrep -e "--dport 80 " $FILE` ]]; then
+  if [[ $VERSION == 5 ]]
+    then
+      sed -i '1,/REJECT/ {/REJECT/i\
+-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+}' $FILE
+    else # version 6 and future
+      sed -i '1,/REJECT/ {/REJECT/i\
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+}' $FILE
+  fi
+fi
+     ;;
+  "stop")
+     exit 0
+     ;;
+esac
+</files>
+
+<script type = 'post'>
+# Start web server and configure to start at system boot
+if [[ -z `pidof httpd` ]] ; then
+  service httpd start > /dev/null
+fi
+chkconfig --level 345 httpd on
+
+# Enable http traffic through the firewall
+if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
+  chkconfig --add iptables-httpd
+  # /etc/sysconfig/iptables doesn't exist yet if we're running under anaconda
+  if ! ps aux | grep "[/]usr/bin/anaconda"; then
+    service iptables-httpd start
+    service iptables restart > /dev/null
+  fi
+fi
+</script>
+</config-rpm>

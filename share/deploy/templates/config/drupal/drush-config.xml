@@ -1,0 +1,12 @@
+<config-rpm id='drush-config'>
+<requires>php-pear</requires>
+<script type='post'>
+if ! pear channel-info pear.drush.org > /dev/null; then
+  pear channel-discover pear.drush.org
+  pear install drush/drush
+fi
+</script>
+<files content='text' destdir='/etc/cron.daily' destname='drush_update'>
+pear upgrade drush/drush
+</files>
+</config-rpm>
