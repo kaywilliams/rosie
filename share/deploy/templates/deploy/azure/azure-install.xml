@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='azure-install' type='install'>
+#!/bin/bash
+set -e
+
+# todo - specify password requirements
+/usr/bin/azure vm create \
+  "%{hostname}" \
+  5112500ae3b842c8b9c604889f8753c3__OpenLogic-CentOS-63APR20130415 \
+  "%{user}" \
+  "%{password}" \
+  --location "West US" \
+  --ssh \
+  --ssh-cert "%{datdir}/id_rsa.pem"
+
+%{get_state}
+%{wait}
+
+# configure ssh to root user
+# todo - provide host keys and copy to /etc/openssh
+[ -f /root/.ssh/known_hosts ] &amp;&amp; sed -i '/%{fqdn}/d' /root/.ssh/known_hosts || :
+
+# todo - add quiet to args
+args="-i %{datdir}/id_rsa -o StrictHostKeyChecking=no"
+# scp $args %{datdir}/id_rsa.pub %{user}@%{fqdn}:
+
+ssh $args %{user}@%{fqdn} -t "echo \"%{password}\" | sudo -S /bin/bash -c 'mkdir /root/.ssh; chmod 700 /root/.ssh; echo \"%{build-host-pubkey}\" > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; restorecon -R /root/.ssh; wget -q -O /etc/yum.repos.d/%{hostname}.repo %{os-url}/repo.conf; yum -q -y install %{name}-release'"
+</script>

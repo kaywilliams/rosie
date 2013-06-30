@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<!--containing definition to set the following elements, for example
+<domain>cloudapp.net</domain>
+<remote-url fqdn='true'/>
+<password>AtLeast6CharactersWithUpperLowerDigitsandSymbols!</password>
+-->
+
+<!-- install and update an azure virtual machine -->
+<macro id='user'>deploy</macro>
+<macro id='datdir'>%{definition-dir}/%{id}</macro>
+
+<kickstart>
+<xi:include href='../common/ks.xml' xpointer="xpointer(./node())"/>
+<xi:include href='../common/ks-post-ssh.xml' xpointer="xpointer(./node())"/>
+</kickstart>
+<xi:include href='../common/ssh-config.xml'/>
+<xi:include href='../common/create-ssh-keys.xml'/>
+<xi:include href='azure-vm-config.xml'/>
+<xi:include href='../common/test-triggers.xml'/>
+<xi:include href='azure-activate.xml'/>
+<xi:include href='azure-delete.xml'/>
+<xi:include href='azure-install.xml'/>
+<xi:include href='../common/verify-install.xml'/>
+<xi:include href='../common/save-triggers.xml'/>
+<xi:include href='../common/update.xml'/>
+<xi:include href='azure-update.xml'/>
+<xi:include href='../common/check-kernel.xml'/>
+
+</xml>

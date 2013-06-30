@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='azure-activate' type='activate' verbose='true'>
+<macro id='get_state'>
+function get_state {
+  echo `/usr/bin/azure vm show %{hostname} --json | python -c "import json; import sys; data=json.load(sys.stdin); print data['InstanceStatus']"`
+}
+</macro>
+<macro id='wait'>
+# wait if machine is activating
+timeout=90
+sleep=5
+wait=0
+while [[ $(get_state) == "RoleStateUnknown" ]] ; do
+  if [ "$wait" -lt "$timeout" ] ; then
+    echo "Attempting to activate: RoleStateUnknown, will retry for $timeout seconds"
+    wait=`expr $wait + $sleep`
+    sleep $sleep
+  else 
+    exit 1
+  fi
+done
+</macro>
+
+#!/bin/bash
+set -e
+
+%{get_state}
+
+# vm exists? 
+if ! [[ `/usr/bin/azure vm list` = *\ %{hostname}\ * ]]; then
+  echo "vm does not exist" >&amp;2
+  exit 1
+fi
+
+%{wait}
+
+# raise error if provisioning failed
+if [[ $(get_state) == "ProvisioningFailed" ]] ; then
+  echo "Activation failed with the following error: `/usr/bin/azure vm show %{hostname} --json | python -c \"import json; import sys; data=json.load(sys.stdin); print data['InstanceStateDetails']\"`" >&amp;2
+  exit 1
+fi
+
+# elif state == 3: # vm is paused 
+#   if vm.resume() == 0: 
+#     sys.exit(0) #resume succeded
+#   else:
+#     print "vm is paused and failed to resume"
+#     sys.exit(1)
+# elif vm.create() == 0: # vm is inactive
+#   sys.exit(0)
+# else:
+#   print "vm is inactive and failed to start"
+#   sys.exit(1)
+</script>
