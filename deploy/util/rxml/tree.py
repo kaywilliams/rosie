@@ -365,14 +365,21 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               parent.text = text + (map[macro].text or '')
               for elem in elems:
                 parent.insert(0, elem)
-              elems[0].tail = (elems[0].tail or '') + tail 
+              if elems:
+                elems[0].tail = (elems[0].tail or '') + tail 
+              else:
+                parent.text += tail
+                
 
             if string.is_tail:
               grandparent = parent.getparent()
               parent.tail = text + (map[macro].text or '')
               for elem in elems:
                 grandparent.insert(grandparent.index(parent) + 1, elem)
-              elems[0].tail = (elems[0].tail or '') + tail
+              if elems:
+                elems[0].tail = (elems[0].tail or '') + tail
+              else:
+                parent.tail += tail
 
         # attributes
         attribs = [ x for x in etree.ElementBase.xpath(search_elem, './/@*') 
