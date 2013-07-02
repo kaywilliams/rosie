@@ -133,7 +133,8 @@ def file_cache():
         io_obj._copy(self, **csh_kwargs)
       except Exception as e:
         if isinstance(e, PathError):
-          if e.errno == errno.ENOENT: # file not found
+          if (self.cache_handler.offline and  
+              e.errno == errno.ENOENT): # file not found
             e = OfflinePathError(self, strerror="unable to copy file in "
                                                 "offline mode")
         csh.rm(force=True)
