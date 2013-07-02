@@ -61,7 +61,7 @@ class AutocleanEvent(Event):
           pass
 
     for mdfolder in mdfolders:
-      self.log(4, L2("removing unused event metadata directory '%s'" % mdfolder.basename))
+      self.log(5, L2("removing unused event metadata directory '%s'" % mdfolder.basename))
       mdfolder.rm(recursive=True, force=True)
 
   def run(self):
