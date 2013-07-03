@@ -3,7 +3,8 @@ import StringIO
 
 from deploy.util.repo.repo import *
 
-def ReposFromXml(tree, cls=BaseRepo, original=None, **kwargs):
+def ReposFromXml(tree, cls=BaseRepo, original=None, 
+                 silently_ignore_duplicates=False, **kwargs):
   """Create Repo objects from an XmlTree <repo> elements, or update values
   of existing repos."""
   repos = RepoContainer()
@@ -21,15 +22,18 @@ def ReposFromXml(tree, cls=BaseRepo, original=None, **kwargs):
       else:
         # just join the results of multiple elements with the same name
         kwargs[attr] = ' '.join(repoxml.xpath('%s/text()' % attr, [])).strip()
-    repos.add_repo(cls(**kwargs))
+    repos.add_repo(cls(**kwargs), 
+                   silently_ignore_duplicates=silently_ignore_duplicates)
 
   return repos
 
-def ReposFromString(s, cls=BaseRepo, original=None, **kwargs):
+def ReposFromString(s, cls=BaseRepo, original=None, 
+                    silently_ignore_duplicates=False, **kwargs):
   "Create Repo objects from a string"
   try:
     return _ReposFromFileObject(StringIO.StringIO(s), cls=cls, 
-                                original=original, **kwargs)
+                original=original, 
+                silently_ignore_duplicates=silently_ignore_duplicates, **kwargs)
   except ConfigParser.Error, e:
     raise RepoStringParseError(str(e))
 
@@ -42,7 +46,8 @@ def ReposFromFile(f, cls=BaseRepo, original=None, **kwargs):
   except ConfigParser.Error, e:
     raise RepoFileParseError(str(e), f)
 
-def _ReposFromFileObject(fo, cls=BaseRepo, original=None, **kwargs):
+def _ReposFromFileObject(fo, cls=BaseRepo, original=None, 
+                         silently_ignore_duplicates=False, **kwargs):
   cp = ConfigParser.ConfigParser()
   cp.readfp(fo)
 
@@ -54,7 +59,8 @@ def _ReposFromFileObject(fo, cls=BaseRepo, original=None, **kwargs):
     kwargs['id'] = id
     for option in cp.options(id):
       kwargs[option] = cp.get(id, option).strip()
-    repos.add_repo(cls(**kwargs))
+    repos.add_repo(cls(**kwargs), 
+                   silently_ignore_duplicates=silently_ignore_duplicates)
   return repos
 
 from defaults import * # imported last to avoid circular ref

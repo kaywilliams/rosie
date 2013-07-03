@@ -42,12 +42,11 @@ from deploy.errors       import (DeployEventError,
                                     assert_file_has_content)
 from deploy.dlogging     import L1, L2
 from deploy.constants    import BOOLEANS_TRUE, BOOLEANS_FALSE
-from deploy.errors       import DuplicateIdsError
 from deploy.event.fileio import InputFileError
 from deploy.validate     import InvalidConfigError
 
 from deploy.util.repo          import (ReposFromXml, ReposFromFile, 
-                                       getDefaultRepos, RepoDuplicateIdsError)
+                                       getDefaultRepos)
 from deploy.util.repo.repo     import (YumRepo, RepoContainer, NSMAP, 
                                              InvalidFileError)
 from deploy.util.repo.defaults import TYPE_ALL
@@ -199,10 +198,7 @@ class DeployRepoGroup(DeployRepo):
           updates[k] = v
       R = cls(id=self.id, **updates)
       R._relpath = pps.path('.')
-      try:
-        self._repos.add_repo(R)
-      except RepoDuplicateIdsError, e:
-        raise DuplicateIdsError('repo', e.id)
+      self._repos.add_repo(R, silently_ignore_duplicates=True)
 
     else:
       for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
@@ -224,10 +220,7 @@ class DeployRepoGroup(DeployRepo):
           updates['baseurl'] = self.url / d.basename
         R = cls(id='%s-%s' % (self.id, d.basename), **updates)
         R._relpath = d.basename
-        try:
-          self._repos.add_repo(R)
-        except RepoDuplicateIdsError, e:
-          raise DuplicateIdsError('repo', e.id)
+        self._repos.add_repo(R, silently_ignore_duplicates=True)
 
     if len(self._repos) == 0:
       raise RepodataNotFoundError(self.id, self.url.touri())
@@ -284,14 +277,11 @@ class RepoSetupEventMixin(Event):
 
   def apply(self):
     if self.config.xpath('repo', []):
-      try:
-        (self.cvars.setdefault('repos', RepoContainer()).
-                               add_repos(ReposFromXml(self.config.getxpath('.'),
-                               cls=DeployRepoGroup,
-                               locals=self.locals)))
-      except RepoDuplicateIdsError, e:
-        raise DuplicateIdsError('repo', e.id)
-
+      (self.cvars.setdefault('repos', RepoContainer()).
+                             add_repos(ReposFromXml(self.config.getxpath('.'),
+                             silently_ignore_duplicates=True,
+                             cls=DeployRepoGroup,
+                             locals=self.locals)))
 
 class RepoEventMixin(Event):
   def __init__(self, *args, **kwargs):
@@ -320,10 +310,7 @@ class RepoEventMixin(Event):
     self.log(4, L1("adding repos"))
     for id,R in repos.items():
       self.log(4, L2(id))
-      try:
-        self.repos.add_repo(R)
-      except RepoDuplicateIdsError, e:
-        raise DuplicateIdsError('repo', e.id)
+      self.repos.add_repo(R, silently_ignore_duplicates=True)
 
     for repo in self.repos.values():
       # remove disabled repos
