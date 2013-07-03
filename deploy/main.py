@@ -495,8 +495,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
   def _log_header(self):
     self.logger.logfile.write(0, "\n\n\n")
     self.logger.log(1, "Starting build of '%s' at %s" % (self.build_id, time.strftime('%Y-%m-%d %X')))
-    self.logger.log(4, "Loaded modules: %s" % self.cvars['loaded-modules'])
-    self.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
+    self.logger.log(5, "Loaded modules: %s" % self.cvars['loaded-modules'])
+    self.logger.log(5, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
     self.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 

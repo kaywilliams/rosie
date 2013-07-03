@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='create-ssh-keys' type='activate' verbose='true'>
+#!/bin/bash
+set -e
+
+# create ssh key
+if ! [ -f %{datdir}/id_rsa ]; then
+  [ -d %{datdir} ] || mkdir %{datdir}
+  cd %{datdir}
+
+  # create key
+  ssh-keygen -q -t rsa -b 2048 -f id_rsa -N ""
+
+  #strip user@hostname from public key
+  cat %{datdir}/id_rsa.pub | cut -d' ' -f 1-2 > %{datdir}/id_rsa.pub
+
+  # create pem encoded public key
+  openssl req -x509 -days 365 -new -key id_rsa -out id_rsa.pem -batch
+
+  # secure keys
+  chmod 600 id_rsa id_rsa.pub 
+
+  cd - >/dev/null
+fi
+</script>
