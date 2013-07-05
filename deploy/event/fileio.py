@@ -245,7 +245,7 @@ class IOObject(object):
       for item in tx:
         if item.content == 'text': # create files from text
           item.dst.dirname.mkdirs()
-          item.dst.write_text(item.src + '\n')
+          item.dst.write_text((item.src + '\n').encode('utf8'))
           item.dst.chmod(item.mode)
         else: # sync existing files
           if start_sync == False:

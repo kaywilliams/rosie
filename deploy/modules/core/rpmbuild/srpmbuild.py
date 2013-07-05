@@ -109,7 +109,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     RpmBuildMixin.setup(self)
   
     # resolve macros
-    srpmlast = self.unshelve('srpmlast', 'None')
+    srpmlast = self.unshelve('srpmlast', '')
     macros = {'%{srpmid}': self.srpmid,
               '%{srpmdir}': self.srpmdir,
               '%{srpmlast}': srpmlast,
@@ -260,7 +260,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
   def _get_srpm_from_script(self, script):
     self.srpmdir.mkdirs()
     script_file = self.mddir / 'script'
-    script_file.write_text(self.config.getxpath('script/text()'))
+    script_file.write_text(self.config.getxpath('script/text()').encode('utf8'))
     script_file.chmod(0750)
   
     self._local_execute(script_file)

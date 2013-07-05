@@ -65,6 +65,7 @@ class BootOptionsDummy(object):
         lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(self.boot_args))
 
     dst.rm(force=True)
+    lines = [ x.encode('utf8') for x in lines ]
     dst.write_lines(lines)
 
   def _process_method(self, args):

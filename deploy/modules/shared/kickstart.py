@@ -73,7 +73,7 @@ class KickstartEventMixin:
 
     # write kickstart
     self.ksfile.dirname.mkdirs()
-    self.ksfile.write_text(self.kstext + '\n')
+    self.ksfile.write_text((self.kstext + '\n').encode('utf8'))
 
     #validate kickstart
     map = { 'ksver': ksver, 'ksfile': self.ksfile }

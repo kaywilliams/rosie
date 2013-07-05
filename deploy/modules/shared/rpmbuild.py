@@ -455,6 +455,7 @@ class TriggerContainer(list):
     for trigger in self:
       lines.append(str(trigger))
       lines.append('')
+    lines = [ x.encode('utf8') for x in lines ]
     file.write_lines(lines)
 
   def extend(self, item):

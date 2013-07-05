@@ -175,9 +175,9 @@ EOF""" % (name, pubring, secring)
 
   def write_keys(self, pubtext, sectext):
     if not self.pubkey.exists() or not pubtext == self.pubkey.read_text():
-      self.pubkey.write_text(pubtext.strip() + '\n')
+      self.pubkey.write_text((pubtext.strip() + '\n').encode('utf8'))
     if not self.seckey.exists() or not sectext == self.seckey.read_text():
-      self.seckey.write_text(sectext.strip() + '\n')
+      self.seckey.write_text((sectext.strip() + '\n').encode('utf8'))
 
   def validate_keys(self, map):
     for key in map:

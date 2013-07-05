@@ -461,6 +461,7 @@ fi
       s.insert(0, '#!/bin/bash\n')
       file =  self.debugdir/'%s-script' % script_type
       file.dirname.mkdirs()
+      s = [ x.encode('utf8') for x in s ]
       file.write_lines(s)
       file.chmod(0750)
       self.DATA['output'].append(file)
@@ -481,7 +482,7 @@ fi
                         # any item within it fails
       script = set + script 
       self.scriptdir.mkdirs()
-      (self.scriptdir/id).write_text(script)
+      (self.scriptdir/id).write_text(script.encode('utf8'))
       return self.scriptdir/id
     else:
       return None

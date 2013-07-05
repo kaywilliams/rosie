@@ -39,7 +39,7 @@ class InputEventMixin(ExecuteEventMixin, Event):
     input_scripts = self.config.xpath('input-script', [])
     tmpfile = self.mddir / 'input_script.tmp'
     for s in input_scripts:
-      text = s.getxpath('text()')
+      text = s.getxpath('text()').encode('utf8')
       if text is not None: 
         tmpfile.write_text(text  + '\n')
         tmpfile.chmod(0700)
