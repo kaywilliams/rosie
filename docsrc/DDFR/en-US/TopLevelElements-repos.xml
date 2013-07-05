@@ -261,6 +261,11 @@
         This attribute is required.
         </para>
 
+        <para>
+        If multiple repositories are defined with the same ID, the first
+        repository is used and duplicates are silently ignored.
+        </para>
+
         </listitem>
       </varlistentry>
       </variablelist>
