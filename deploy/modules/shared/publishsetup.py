@@ -18,6 +18,7 @@
 import array
 import fcntl
 import platform
+import random
 import re 
 import socket
 import string
@@ -26,7 +27,6 @@ import struct
 import cPickle as pickle
 
 from crypt import crypt
-from random import choice
 
 from deploy.callback   import LinkCallback
 from deploy.event      import Event
@@ -289,9 +289,18 @@ class PublishSetupEventMixin(Event):
               % self.moduleid, '') or self.gen_password())
 
   def gen_password(self):
-    size = 8 
-    return ''.join([choice(
-                    string.letters + string.digits) for i in range(size)])
+    size = random.randint(8,72)
+
+    upper = random.choice(string.uppercase)
+    lower = random.choice(string.lowercase)
+    digit = random.choice(string.digits)
+    extra = ''.join([random.choice(string.letters + string.digits)
+                     for i in range(size-3)])
+
+    result = upper + lower + digit + extra
+    result = ''.join(random.sample(result, len(result)))
+
+    return result
 
   def get_cryptpw(self, password):
     if password == self.datfile.getxpath('/*/%s/%s-password/text()'
@@ -306,7 +315,7 @@ class PublishSetupEventMixin(Event):
       salt_pop = string.letters + string.digits + '.' + '/'
       salt = ''
       for i in range(8):
-        salt = salt + choice(salt_pop)
+        salt = salt + random.choice(salt_pop)
       salt = '$6$' + salt
     return crypt(password, salt)
 
