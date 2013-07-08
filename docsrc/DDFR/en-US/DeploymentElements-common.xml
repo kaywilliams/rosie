@@ -61,6 +61,10 @@
   [&lt;kickstart&gt;TEXT&lt;/kickstart&gt;]
   [&lt;config-rpm&gt;...&lt;/config-rpm&gt;]*
 
+  [&lt;release-rpm>
+    [&lt;updates [sync=boolean] [gpgcheck=boolean] /&gt;]
+  &lt;/release-rpm&gt;]
+
   [&lt;triggers [activate=BOOLEAN] [connect=BOOLEAN]&gt;[TEXT]&lt;/triggers&gt;]
 
   [&lt;script 
@@ -1093,6 +1097,152 @@ $remote-url/%{id}</programlisting>
 &lt;xi:include href="path/to/ssh-config.xml"/&gt;</programlisting>
     </informalexample>
 
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id="release-rpm">
+    <term>release-rpm</term>
+    
+    <listitem>
+    <para>
+    Creates an RPM used to install and update repository-specific YUM
+    configuration on client machines. Also makes a YUM configuration file
+    available for download directly from the repository publish folder.
+    </para>
+   
+    <para>
+    This element is valid only within the publish element.
+    </para>
+
+    <itemizedlist>
+    <listitem>
+    <para>
+    The RPM created by the <emphasis>release-rpm</emphasis> event is named as
+    follows, where %{name} is a the value of the <xref linkend='main-name'/>
+    element:
+    </para>
+
+    <para>
+    <synopsis>%{name}-release</synopsis>
+    </para>
+
+    <para>
+    See the <xref linkend='main-name'/> element for information on
+    <emphasis>%{name}</emphasis>.
+    </para>
+
+    <para>
+    The file name of the release-rpm is in the following format, where %{name}
+    and %{version} are taken from the corresponding <xref linkend='main-name'/>
+    and <xref linkend="main-version"/> elements, RELEASE is taken from the
+    Repository Data File (see <xref linkend="datfile" />), and DIST is an
+    identifier for the base operating system distribution.
+    </para>
+
+    <para><synopsis>
+    <filename>%{name}-release-%{version}-RELEASE.DIST.noarch.rpm</filename></synopsis>
+    </para>
+
+    <para>
+    For example, given a repository with the name "samba-server" and
+    version "5", the first time Deploy creates the repository, the
+    release-rpm will have the following file name:
+    </para>
+
+    <para><synopsis>
+    <filename>samba-server-release-5-1.el5.noarch.rpm</filename></synopsis>
+    </para>
+
+    <para>
+    The release number "1" will be written to the data file.
+    When configuration changes in the future, e.g. when the sync is
+    enabled or disabled, Deploy will increment the release number
+    by 1, create a new release-rpm (in this case
+    "samba-server-release-5-2.noarch.rpm"), and store the new release
+    number ("2") in the data file. The incremented version
+    number allows installed client machines to determine that a new
+    release-rpm is available for download and installation.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    The release-rpm event also makes a YUM repository configuration file, named
+    <filename>repo.conf</filename>, available from the repository publish
+    folder, e.g.
+    <filename>http://server.company.com/deploy/systems/samba-server-5-i386/repo.conf</filename>.
+    This file can be used by automated processes in situations where it is
+    undesirable to install the release-rpm. This is most common when using YUM
+    to install repository packages in a <command>chroot</command> environment,
+    such as when creating system images.
+    </para>
+    </listitem>
+    </itemizedlist>
+
+    <variablelist>
+    <varlistentry id="release-rpm-updates">
+      <term>
+      updates
+      </term>
+
+      <listitem>
+      <para>
+      Controls inclusion of the <application class="software">YUM</application>
+      sync plugin; also controls whether gpgcheck is performed. 
+      </para>
+
+      <para>
+      Accepts two attributes,
+      <emphasis>@sync</emphasis> and
+      <emphasis>@gpgcheck</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@sync</emphasis>: BOOLEAN value indicating
+      whether to include the <application
+      class="software">Deploy</application>-provided <application
+      class="software">YUM</application> sync plugin in the config RPM. The
+      sync plugin overrides <application class="software">YUM</application>'s
+      default behavior 1) to disable all repositories other than the
+      system repository and 2) to provide a <emphasis>sync</emphasis>
+      argument that allows adding <emphasis>and removing</emphasis> installed
+      packages on client machines in alignment with available packages in
+      the system repository. When the value of <xref linkend="main-type"/>
+      is "system", the default value is <constant>TRUE</constant>. When the
+      value of <xref linkend="main-type"/> is "package", the sync attribute
+      is ignored.
+      </para>
+
+      <para>
+      <emphasis>@gpgcheck</emphasis>: BOOLEAN value
+      indicating whether packages should be checked for valid GPG signatures.
+      This value controls whether Deploy performs gpgcheck when
+      creating the repository. It also controls whether YUM checks
+      packages from the repository prior to performing client machine 
+      updates. The default value is <constant>TRUE</constant>.
+      </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+
+    <para>
+    Examples
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;release-rpm&gt;
+
+  &lt;!-- exclude the yum sync plugin and disable gpgcheck--&gt;
+  &lt;updates sync="false" gpgcheck="false"/&gt;
+
+&lt;/release-rpm&gt;</programlisting>
+    </informalexample>
     </listitem>
     </varlistentry>
 

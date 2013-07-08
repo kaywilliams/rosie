@@ -20,19 +20,21 @@ import hashlib
 import yum
 
 from deploy.errors         import DeployEventError
-from deploy.event          import Event
+from deploy.event          import Event, DummyConfig
 from deploy.event.fileio   import InputFileError
 from deploy.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
                                    Trigger, TriggerContainer, DeployRepo)
+from deploy.util           import rxml
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
   release_mixin_version = "1.26"
 
-  def __init__(self, rpmconf=None): # call after creating self.DATA
-    if rpmconf is not None:
-      self.rpmconf = rpmconf
-    else:
-      self.rpmconf = self.config
+  def __init__(self): # call after creating self.DATA
+    try:
+      self.rpmconf = self.config.getxpath('release-rpm')
+    except rxml.errors.XmlPathError:
+      self.rpmconf = DummyConfig(self._config)
+
     self.conditionally_requires.add('packages')
     self.conditionally_requires.add('gpg-signing-keys')
 

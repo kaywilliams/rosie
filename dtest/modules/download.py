@@ -68,9 +68,11 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
   </packages>
   """,
   """
+  <publish>
   <release-rpm>
     <updates gpgcheck='false'/>
   </release-rpm>
+  </publish>
   """]
 
   def runTest(self):
@@ -104,9 +106,11 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   </packages>
   """,
   """
+  <publish>
   <release-rpm>
     <updates gpgcheck='false'/>
   </release-rpm>
+  </publish>
   """]
   def runTest(self):
     self.tb.dispatch.execute(until=self.eventid)

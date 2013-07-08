@@ -1,4 +1,3 @@
-#
 # Copyright (c) 2013
 # Deploy Foundation. All rights reserved.
 #
@@ -15,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from deploy.event     import Event, DummyConfig
+from deploy.event     import Event
 from deploy.dlogging import L1, L2
 from deploy.util      import pps
-from deploy.util      import rxml 
 
 from deploy.modules.shared import RepomdMixin
 from deploy.modules.shared import PublishSetupEventMixin
@@ -37,12 +35,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       'variables': [],
     }
 
-    try:
-      rpmconf = self.config.getxpath('/*/release-rpm')
-    except rxml.errors.XmlPathError:
-      rpmconf = DummyConfig(self._config) 
-
-    ReleaseRpmEventMixin.__init__(self, rpmconf=rpmconf)
+    ReleaseRpmEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)

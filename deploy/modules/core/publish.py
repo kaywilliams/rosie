@@ -24,6 +24,7 @@ from deploy.modules.shared import config
 from deploy.modules.shared import DeployEventMixin
 from deploy.modules.shared import KickstartEventMixin
 from deploy.modules.shared import PublishSetupEventMixin 
+from deploy.modules.shared import ReleaseRpmEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin 
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -32,8 +33,8 @@ TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent',
-                   'DeployEvent'],
+    events      = ['PublishSetupEvent', 'ReleaseRpmEvent', 'KickstartEvent',
+                   'PublishEvent', 'DeployEvent'],
     description = 'publishes repository to a web accessible location',
   )
   modname = __name__.split('.')[-1]
@@ -68,6 +69,40 @@ class PublishSetupEvent(PublishSetupEventMixin, Event):
 
   def apply(self):
     self.cvars['publish-content'] = set()
+
+
+class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'release-rpm',
+      parentid = 'rpmbuild',
+      ptr = ptr,
+      version = '1.00',
+      provides = ['os-content', 'release-rpm',
+                  'gpgcheck-enabled', 'gpgkeys', 'gpgkey-ids'],
+      requires = ['publish-setup-options'],
+      conditionally_comes_before = ['config-rpms'],
+    )
+
+    self.DATA = {
+      'variables': [],
+      'config':    [], # set by ReleaseRpmEventMixin
+      'input':     [],
+      'output':    [],
+    }
+
+    ReleaseRpmEventMixin.__init__(self) 
+
+  def setup(self):
+    ReleaseRpmEventMixin.setup(self, 
+      webpath=self.cvars['publish-setup-options']['webpath'])
+
+  def run(self):
+    ReleaseRpmEventMixin.run(self)
+
+  def apply(self):
+    ReleaseRpmEventMixin.apply(self)
+    self.cvars['release-rpm'] = self.rpminfo['name']
 
 
 class KickstartEvent(KickstartEventMixin, Event):
