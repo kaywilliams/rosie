@@ -18,7 +18,8 @@
 from deploy.util import listcompare
 
 from deploy.modules.shared.bootoptions  import *
-from deploy.modules.shared.dshelve     import *
+from deploy.modules.shared.comps        import *
+from deploy.modules.shared.dshelve      import *
 from deploy.modules.shared.depsolver    import *
 from deploy.modules.shared.execute      import *
 from deploy.modules.shared.installer    import *
@@ -27,7 +28,7 @@ from deploy.modules.shared.kickstart    import *
 from deploy.modules.shared.publishsetup import *
 from deploy.modules.shared.repomd       import *
 from deploy.modules.shared.repos        import *
-from deploy.modules.shared.ddeploy       import * # requires execute, input
+from deploy.modules.shared.ddeploy      import * # requires execute, input
 from deploy.modules.shared.rpmbuild     import * # requires shelve
 from deploy.modules.shared.config       import * # requires rpmbuild
 from deploy.modules.shared.release      import * # requires rpmbuild

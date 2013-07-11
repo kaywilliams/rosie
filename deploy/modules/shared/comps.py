@@ -13,7 +13,14 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # Copyright 2005 Duke University
 
+import fnmatch
+import hashlib
+import re
 import sys
+
+from deploy.dlogging import L1
+from deploy.errors   import assert_file_has_content
+
 from yum.constants import *
 try:
     from xml.etree import cElementTree
@@ -23,8 +30,52 @@ iterparse = cElementTree.iterparse
 from yum.Errors import CompsException
 #FIXME - compsexception isn't caught ANYWHERE so it's pointless to raise it
 # switch all compsexceptions to grouperrors after api break
-import fnmatch
-import re
+
+class CompsEventMixin:
+  comps_mixin_version = "1.00"
+
+  def __init__(self):
+    self.requires.add('comps-object')
+    if not hasattr(self, 'DATA'): self.DATA = {'variables': [],
+                                               'output': []}
+
+    self.DATA['variables'].append('comps_mixin_version')
+
+  def setup(self):
+    self.compsfile = self.mddir/'comps.xml'
+
+    # track changes to comps file content
+    self.comps_hash = hashlib.sha224(
+                      self.cvars['comps-object'].xml()).hexdigest()
+    self.DATA['variables'].append('comps_hash')
+
+    # track changes to excluded packages
+    if 'excluded-packages' in self.cvars:
+      self.DATA['variables'].append('cvars[\'excluded-packages\']')
+
+  def run(self):
+    # remove excluded packages
+    for pkg in self.cvars.get('excluded-packages', []):
+      self.cvars['comps-object'].remove_package(pkg)
+
+    # write comps.xml
+    self.log(1, L1("writing comps.xml"))
+    self.compsfile.write_text(self.cvars['comps-object'].xml())
+    self.compsfile.chmod(0644)
+    self.DATA['output'].append(self.compsfile)
+
+  def apply(self):
+    # set groupfile cvars
+    self.cvars['groupfile'] = self.compsfile
+    assert_file_has_content(self.cvars['groupfile'])
+
+  def verify_cvar_comps_file(self):
+    "cvars['groupfile'] exists"
+    self.verifier.failUnless(self.cvars['groupfile'].exists(),
+      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
+
+
+#------ COMPS HELPER METHODS ------#
 
 # to_unicode backported from yum.misc
 def to_unicode(obj, encoding='utf-8', errors='replace'):
@@ -266,8 +317,6 @@ class Group(object):
         msg += """  </group>"""
 
         return msg
-
-
 
 
 class Category(object):

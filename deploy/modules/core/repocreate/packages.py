@@ -16,17 +16,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-import hashlib 
-import fnmatch
-
 from deploy.util import magic
 
 from deploy.constants import KERNELS
-from deploy.errors    import assert_file_has_content, DeployEventError
+from deploy.errors    import DeployEventError
 from deploy.event     import Event
-from deploy.dlogging import L1
 
-from deploy.modules.shared import comps, ShelveMixin
+from deploy.modules.shared import comps, ShelveMixin, CompsEventMixin
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -224,14 +220,14 @@ class PackagesEvent(ShelveMixin):
         raise RepoHasNoGroupfileError(gid, rid)
 
 
-class CompsEvent(Event):
+class CompsEvent(CompsEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'comps',
       parentid = 'repocreate',
       ptr = ptr,
       provides = ['groupfile', 'comps-object'],
-      requires = ['comps-object', 'excluded-packages'], 
+      requires = ['excluded-packages'], 
       version = '1.00'
     )
 
@@ -239,43 +235,11 @@ class CompsEvent(Event):
       self.enabled = False
       return
 
-    self.DATA = {
-      'variables': [],
-      'output':    [],
-    }
+    CompsEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.compsfile = self.mddir/'comps.xml'
-
-    # track changes to comps file content
-    self.comps_hash = hashlib.sha224(
-                      self.cvars['comps-object'].xml()).hexdigest()
-    self.DATA['variables'].append('comps_hash')
-
-    # track changes to excluded packages
-    self.DATA['variables'].append('cvars[\'excluded-packages\']')
-
-  def run(self):
-    # remove excluded packages
-    for pkg in self.cvars['excluded-packages']:
-      self.cvars['comps-object'].remove_package(pkg)
-
-    # write comps.xml
-    self.log(1, L1("writing comps.xml"))
-    self.compsfile.write_text(self.cvars['comps-object'].xml())
-    self.compsfile.chmod(0644)
-    self.DATA['output'].append(self.compsfile)
-
-  def apply(self):
-    # set groupfile cvars
-    self.cvars['groupfile'] = self.compsfile
-    assert_file_has_content(self.cvars['groupfile'])
-
-  def verify_cvar_comps_file(self):
-    "cvars['groupfile'] exists"
-    self.verifier.failUnless(self.cvars['groupfile'].exists(),
-      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
+    CompsEventMixin.setup(self)
 
 
 #------ ERRORS ------#
