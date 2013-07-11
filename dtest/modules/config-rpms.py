@@ -102,6 +102,36 @@ class Test_ConfigRpmRepos(ConfigRpmEventTestCase):
     self.failUnless(self.event.cvars['repos']['test'].localurl)
 
 
+class Test_Obsoletes(ConfigRpmEventTestCase):
+  "rpm obsoletes removed from comps object"
+  # add an obsolete to the config rpm
+  _conf="""
+  <config-rpms>
+  <config-rpm id='config'>
+  <obsoletes>test-package</obsoletes>
+  </config-rpm>
+  </config-rpms>
+  """
+
+  def runTest(self):
+    # execute predecessors
+    self.execute_predecessors(self.event)
+    self.event.setup()
+
+    # insert the test package into the comps core group
+    core_group = self.event.cvars['comps-object'].return_group('core')
+    core_group.add_package( package='test-package',
+                            genre='mandatory',
+                            requires=None,
+                            default=None)
+
+    # execute the event
+    self.event.execute()
+
+    # the test package should be removed from comps
+    self.failIf('test-package' in self.event.cvars['comps-object'].all_packages)
+
+
 class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
   _conf = [""" 
   <config-rpms>
@@ -250,6 +280,7 @@ def make_suite(os, version, arch, *args, **kwargs):
                                      version, arch))
   suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
   suite.addTest(Test_ConfigRpmRepos(os, version, arch))
+  suite.addTest(Test_Obsoletes(os, version, arch))
   suite.addTest(Test_ConfigRpmInputs(os, version, arch))
   suite.addTest(Test_ConfigRpmBuild(os, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(os, version, arch))

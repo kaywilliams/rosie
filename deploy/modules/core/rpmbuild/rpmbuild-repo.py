@@ -24,7 +24,6 @@ from deploy.util import repo
 from deploy.event   import Event
 from deploy.dlogging import L1, L2
 
-from deploy.modules.shared import comps
 from deploy.modules.shared import DeployRepoGroup
 
 from deploy.util.repo.repo import RepoContainer
@@ -46,8 +45,8 @@ class RpmbuildRepoEvent(Event):
       version = 1.03,
       suppress_run_message = True,
       requires = ['rpmbuild-data', ],
-      conditionally_requires = ['gpg-signing-keys', 'comps-object'],
-      provides = ['repos', 'source-repos', 'comps-object']
+      conditionally_requires = ['gpg-signing-keys'],
+      provides = ['repos', 'source-repos']
     )
 
     self.cid =  '%s' % self.build_id
@@ -116,11 +115,6 @@ class RpmbuildRepoEvent(Event):
         self.DATA['output'].append(repo.localurl/'repodata')
 
   def apply(self):
-    if not 'comps-object' in self.cvars:
-      self.cvars['comps-object'] = comps.Comps()
-      self.cvars['comps-object'].add_core_group()
-
-    self._populate()
     if self.cvars['rpmbuild-data']:
       self.cvars['repos'].add_repo(self.repos[self.cid])
 
@@ -142,24 +136,6 @@ class RpmbuildRepoEvent(Event):
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(cwd)
-
-  def _populate(self):
-    if not self.cvars.has_key('rpmbuild-data'): return
-
-    core_group = self.cvars['comps-object'].return_group('core')
-    self.cvars.setdefault('user-required-packages', [])
-
-    for v in self.cvars['rpmbuild-data'].values():
-      core_group.add_package( package=v['rpm-name'], 
-                              genre=v['packagereq-type'],
-                              requires=v['packagereq-requires'],
-                              default=v['packagereq-default'])
-      if v['rpm-obsoletes']:
-        for package in v['rpm-obsoletes']:
-          self.cvars['comps-object'].remove_package(package)
-
-      if v['rpm-name'] not in self.cvars['excluded-packages']:
-        self.cvars['user-required-packages'].append(v['rpm-name'])
 
   def _setup_repos(self, type, updates=None):
 

@@ -33,6 +33,7 @@ from deploy.dlogging import L1
 
 from deploy.util.rxml import config
 
+from deploy.modules.shared import comps 
 from deploy.modules.shared import ShelveMixin
 
 __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger', 
@@ -47,7 +48,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
-    self.provides.add('rpmbuild-data')
+    self.provides.update(['rpmbuild-data', 'comps-object'])
     self.rpms = [] # list of rpmbuild dicts (get_rpmbuild_data()) to be 
                    # managed by the mixin
     self.dist = '.el%s' % self.version
@@ -75,6 +76,26 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       #restore absolute path to rpm
       path = self.METADATA_DIR / rpmbuild_data[key]['rpm-path']
       self.cvars['rpmbuild-data'][key]['rpm-path'] = path
+
+    # update comps-object and user required packages
+    if not 'comps-object' in self.cvars:
+      self.cvars['comps-object'] = comps.Comps()
+      self.cvars['comps-object'].add_core_group()
+
+    core_group = self.cvars['comps-object'].return_group('core')
+    self.cvars.setdefault('user-required-packages', [])
+
+    for v in self.cvars['rpmbuild-data'].values():
+      core_group.add_package( package=v['rpm-name'],
+                              genre=v['packagereq-type'],
+                              requires=v['packagereq-requires'],
+                              default=v['packagereq-default'])
+      if v['rpm-obsoletes']:
+        for package in v['rpm-obsoletes']:
+          self.cvars['comps-object'].remove_package(package)
+
+      if v['rpm-name'] not in self.cvars['excluded-packages']:
+        self.cvars['user-required-packages'].append(v['rpm-name'])
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
