@@ -224,6 +224,19 @@
     the value of the <xref linkend='boot-options'/> element.
     </entry>
     </row>
+
+    <row>
+    <entry id='custom-pkgs-macro'>
+    %{custom-pkgs}
+    </entry>
+
+    <entry>
+    A space separated list of names for packages created during the build
+    process using <xref linkend='config-rpm'/> or <xref linkend='srpmbuild'/>
+    elements.  Typically used for performing package testing. See the
+    <filename>test-remove-custom-pkgs.xml</filename> template for an example.
+    </entry>
+    </row>
     </tbody>
     </tgroup>
     </informaltable>
@@ -262,36 +275,38 @@
     </row>
 
     <row>
-    <entry>%{release_rpm}</entry>
-    <entry>MD5 hash of current release-rpm. See <xref linkend='release-rpm'/>
-    for information on the release-rpm.</entry>
+    <entry>%{release_pkg_csum}</entry>
+    <entry>MD5 hash of release number for release-rpm. See <xref
+    linkend='release-rpm'/> for information on the release-rpm.</entry>
     </row>
 
     <row>
-    <entry>%{config_rpms}</entry>
-    <entry>MD5 hash of all current config-rpms. See <xref linkend='config-rpms'/> for information on config-rpms.</entry>
+    <entry>%{custom_pkgs_csum}</entry>
+    <entry>MD5 hash of release numbers for all custom rpms including <xref
+    linkend='config-rpms'/> and <xref linkend='srpmbuild'/> rpms.
+    </entry>
     </row>
 
     <row>
-    <entry>%{kickstart}</entry>
+    <entry>%{kickstart_csum}</entry>
     <entry>MD5 hash of current kickstart file.</entry>
     </row>
 
     <row>
-    <entry>%{treeinfo}</entry>
+    <entry>%{treeinfo_csum}</entry>
     <entry>MD5 hash of the treeinfo file for the base operating system
     repository.</entry>
     </row>
 
     <row>
-    <entry>%{install_scripts}</entry>
+    <entry>%{install_scripts_csum}</entry>
     <entry>
     MD5 hash of all current <constant>install</constant>-type scripts.
     </entry>
     </row>
 
     <row>
-    <entry>%{post_install_scripts}</entry>
+    <entry>%{post_install_scripts_csum}</entry>
     <entry>
     MD5 hash of all current <constant>post-install</constant>-type scripts.
     </entry>
@@ -831,7 +846,7 @@ $remote-url/%{id}</programlisting>
     linkend="config-rpm"/>. Deploy includes an example template to complete
     this task. On a system with Deploy installed, the file can be found as
     <filename>ssh-config.xml</filename> in the templates folder at
-    <filename>/usr/share/deploy/templates/deploy</filename>.
+    <filename>/usr/share/deploy/templates/common</filename>.
     </para>
 
     <para>
@@ -1031,7 +1046,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/deploy/ks.xml' parse='text'/></programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/common/ks.xml' parse='text'/></programlisting>
     </informalexample>
 
     <para>
@@ -1083,7 +1098,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-<xi:include href='../../../../../share/deploy/templates/deploy/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href='../../../../../share/deploy/templates/common/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   
     <para>
@@ -1448,10 +1463,10 @@ $remote-url/%{id}</programlisting>
       </para>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
-      named <filename>virt-activate.xml</filename> which is included in the
+      named <filename>libvirt-activate.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/deploy</filename>. Sees <xref
-      linkend='templates'/> for more information on templates.
+      <filename>/usr/share/deploy/templates/libvirt-deploy</filename>. Sees
+      <xref linkend='templates'/> for more information on templates.
       </para>
       
       <para>
@@ -1465,7 +1480,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/deploy/virt-activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1519,7 +1534,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/deploy/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/common/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1562,7 +1577,7 @@ $remote-url/%{id}</programlisting>
 &lt;hostname>samba-live&lt;/hostname>
 &lt;password>secret&lt;/password>
 
-<xi:include href='../../../../../share/deploy/templates/deploy/virt-delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 &lt;/publish&gt;</programlisting>
       </informalexample>
@@ -1620,7 +1635,7 @@ $remote-url/%{id}</programlisting>
 
 &lt;kickstart>&lt;xi:include href="ks.xml">&lt;/kickstart>
 
-<xi:include href='../../../../../share/deploy/templates/deploy/virt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 &lt;/publish&gt;</programlisting>
       </informalexample>
@@ -1665,7 +1680,7 @@ $remote-url/%{id}</programlisting>
 &lt;hostname>samba-live&lt;/hostname>
 &lt;password>secret&lt;/password>
 
-<xi:include href='../../../../../share/deploy/templates/deploy/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> 
+<xi:include href='../../../../../share/deploy/templates/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> 
 
 &lt;/publish&gt;</programlisting>
       </informalexample>
@@ -1683,7 +1698,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis>Example</emphasis> - This example shows the
       <filename>save-triggers.xml</filename> file which is included in the
-      templates folder at <filename>/usr/share/deploy/templates/deploy</filename>. See
+      templates folder at <filename>/usr/share/deploy/templates/common</filename>. See
       <xref linkend="templates"/> for more information on templates.
       </para>
       
@@ -1694,7 +1709,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/deploy/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
+<xi:include href='../../../../../share/deploy/templates/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
       </informalexample>
 
       </listitem>
@@ -1766,7 +1781,7 @@ $remote-url/%{id}</programlisting>
 &lt;hostname>samba-live&lt;/hostname>
 &lt;password>secret&lt;/password>
 
-<xi:include href='../../../../../share/deploy/templates/deploy/update.xml'
+<xi:include href='../../../../../share/deploy/templates/common/update.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 &lt;/publish&gt;</programlisting>
@@ -1780,7 +1795,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/deploy/poweroff.xml'
+<xi:include href='../../../../../share/deploy/templates/common/poweroff.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
       </listitem>

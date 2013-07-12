@@ -1,0 +1,60 @@
+<data xml:base="/root/workspace/deploy/share/deploy/templates/azure/azure-deploy-centos-6-x86_64.dat">
+  <publish>
+    <user-password>Test1!</user-password>
+    <crypt-password>$6$yif2PhUS$GabRcEdEBdDC3raPBLbz73dqpqaRB5m4jhGyQVgEMIYUAf8uFSlX/HZkOsxv/vUEQP6B7Cs5WCbWrk9iI2BFH0</crypt-password>
+  </publish>
+  <gpgsign>
+    <pubkey>-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+mQGiBFHUkUURBADuMO3ATSh6MuoAw7O7UMw0UCkRqtgjnwqBFqUVw6kKyGE1Fn0R
+p8EqskSdVnk7OHmtoSqlXSW/kPElhDf81wqAj53Cvncu6cOkWXcZQ9I78j/d6Nlz
+f5kqeeGo3+y8/YTOLijFR9Vh62za4zKZjS61VPHH9AaDofqT3Kok8F6pFwCg1zLR
+ljAHdmqaXgf3wIsox9lkdAsEAL35ZFj99OWFxngIBtqR2J/lxSmorYp3EO7TnLuS
+VqErrhqyk9wBU2jn0kabVeArEcSvH+CWYixpuSG0GVQpx6XFJZSRyPIKrIDvENiD
+I20cEAN4Rc6DWRtZ5GopUCWpgepsQdUNq5ZkxLD2dZiNJqkyCvUaau3R7HrInE5t
+GHCRBACm2PRLb5KCQ+apYqlZgOGPIP/YuxHimzbJVvM2zm5Gph2/kSMcY4XhokRD
+x1yxWe2bVDbNUORKoGeZWqWkPBZ/UVOcIObqo5g5qm1vbRfwOMflckmM9/px2gC9
+bsLXe1hsUfOfippKhV3vBVYy3m1iyqnf6leG68Dqq1dGVich7rQoYXp1cmUtZGVw
+bG95LWNlbnRvcy02LXg4Nl82NCBzaWduaW5nIGtleYhiBBMRAgAiBQJR1JFFAhsj
+BgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRDnw/dsOqapjB1sAJ9ee9Ab1tHz
+pVCpRHGmXoqCQOhihwCfW/mzLx+ksi9n3D6sDfABzISRpH25AQ0EUdSRRRAEAIFl
+oOoZ+Eo9nHuqHDQ8P7EbjVTIDqNnNJehQZatSvox4yW2LsmIkxgOeLXHTUxvNoyT
+2mSiymONXyOwFr7eT/nN0oRueijn4vm78nehUBMgiRiQGIMHNJWc17/FmnboZPfn
+3NEGa6UeU7b0F4zfyGxsctuZ7cYW1p11rX2TDAuLAAMFA/4nJAIipGyfufRcowG7
+eIyJDCpA8aWdkcN/KgpBvj82SZrYmGN1y1dRRvYWUXddjKjMHbQOfTX/OLMFFzZE
+UoYO/7aXAlB/NGi4j0cqYteq+vfrKKCilG/GDtHNLHUASemFCNVbh6qx4NxL14Xd
+Sbb6qQBkH1ezYXMYwWQRLrQBJIhJBBgRAgAJBQJR1JFFAhsMAAoJEOfD92w6pqmM
+CIsAn0kxu3fSMGx8+I94cokd5H2VbgrpAJ4hZKGlgzfzJfEil/23Jv+nrBHWLA==
+=Gksv
+-----END PGP PUBLIC KEY BLOCK-----
+</pubkey>
+    <seckey>-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+lQG7BFHUkUURBADuMO3ATSh6MuoAw7O7UMw0UCkRqtgjnwqBFqUVw6kKyGE1Fn0R
+p8EqskSdVnk7OHmtoSqlXSW/kPElhDf81wqAj53Cvncu6cOkWXcZQ9I78j/d6Nlz
+f5kqeeGo3+y8/YTOLijFR9Vh62za4zKZjS61VPHH9AaDofqT3Kok8F6pFwCg1zLR
+ljAHdmqaXgf3wIsox9lkdAsEAL35ZFj99OWFxngIBtqR2J/lxSmorYp3EO7TnLuS
+VqErrhqyk9wBU2jn0kabVeArEcSvH+CWYixpuSG0GVQpx6XFJZSRyPIKrIDvENiD
+I20cEAN4Rc6DWRtZ5GopUCWpgepsQdUNq5ZkxLD2dZiNJqkyCvUaau3R7HrInE5t
+GHCRBACm2PRLb5KCQ+apYqlZgOGPIP/YuxHimzbJVvM2zm5Gph2/kSMcY4XhokRD
+x1yxWe2bVDbNUORKoGeZWqWkPBZ/UVOcIObqo5g5qm1vbRfwOMflckmM9/px2gC9
+bsLXe1hsUfOfippKhV3vBVYy3m1iyqnf6leG68Dqq1dGVich7gAAnj0/Xeliqy61
+7J+qCBg2n0GhcC1ECT20KGF6dXJlLWRlcGxveS1jZW50b3MtNi14ODZfNjQgc2ln
+bmluZyBrZXmIYgQTEQIAIgUCUdSRRQIbIwYLCQgHAwIGFQgCCQoLBBYCAwECHgEC
+F4AACgkQ58P3bDqmqYwdbACfXnvQG9bR86VQqURxpl6KgkDoYocAn1v5sy8fpLIv
+Z9w+rA3wAcyEkaR9nQEyBFHUkUUQBACBZaDqGfhKPZx7qhw0PD+xG41UyA6jZzSX
+oUGWrUr6MeMlti7JiJMYDni1x01MbzaMk9pkospjjV8jsBa+3k/5zdKEbnoo5+L5
+u/J3oVATIIkYkBiDBzSVnNe/xZp26GT359zRBmulHlO29BeM38hsbHLbme3GFtad
+da19kwwLiwADBQP+JyQCIqRsn7n0XKMBu3iMiQwqQPGlnZHDfyoKQb4/Nkma2Jhj
+dctXUUb2FlF3XYyozB20Dn01/zizBRc2RFKGDv+2lwJQfzRouI9HKmLXqvr36yig
+opRvxg7RzSx1AEnphQjVW4eqseDcS9eF3Um2+qkAZB9Xs2FzGMFkES60ASQAAPoD
+rE3B8/njsr6EAegEZMSRlquW9ESoCiDCGOeCcNc1nhJeiEkEGBECAAkFAlHUkUUC
+GwwACgkQ58P3bDqmqYwIiwCg0wFMMcJublu8pnpEXOYGmbp/VroAoJO2djPOBLqO
+ofLYOqopmrdgkTQH
+=AJa+
+-----END PGP PRIVATE KEY BLOCK-----
+</seckey>
+  </gpgsign>
+</data>

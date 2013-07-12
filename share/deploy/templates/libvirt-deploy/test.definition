@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>libvirt-deploy</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='deploy-templates-dir'>../</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<repos>
+<xi:include href='%{deploy-templates-dir}/common/repos.xml' 
+            xpointer="xpointer(./repo[@id='base' or
+                                      @id='updates' or
+                                      @id='deploy'])"/>
+</repos>
+
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
+
+<config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="%{deploy-templates-dir}/libvirt-local-dns/libvirt-local-dns.xml"/>
+<config-rpm id="libvirt-deploy">
+<requires>deploy</requires>
+<requires>libvirt-local-dns</requires>
+<files destdir="%{deploy-templates-dir}">libvirt-activate.xml</files>
+<files destdir="%{deploy-templates-dir}">libvirt-delete.xml</files>
+<files destdir="%{deploy-templates-dir}">libvirt-install.xml</files>
+<files destdir="%{deploy-templates-dir}">deploy.xml</files>
+</config-rpm>
+</config-rpms>
+
+<test-install>
+<xi:include href="%{deploy-templates-dir}/libvirt-deploy/deploy.xml" 
+            xpointer="xpointer(./*)"/>
+</test-install>
+
+<test-update>
+<xi:include href="%{deploy-templates-dir}/libvirt-deploy/deploy.xml" 
+            xpointer="xpointer(./*)"/>
+</test-update>
+
+<publish enabled='false'/>
+
+</definition>

@@ -78,17 +78,14 @@
   <para>
   Deploy includes a number of deployment templates in the <xref
   linkend='templates'/> folder. In the previous section, we discussed one of
-  these templates, a composite template named
-  <filename>virt-deploy.xml</filename>.  In addition to virt-deploy.xml, the
-  templates folder includes a subfolder, <filename>deploy</filename>, which
-  includes templates for individual sub-elements.
+  these templates, the libvirt deployment template located at 
+  <filename>libvirt-deploy/deploy.xml</filename>. 
   </para>
 
   <para>
-  This section will cover <filename>virt-deploy.xml</filename> in greater
-  detail. It will also describe how you can customize virt-deploy.xml and
-  related sub-templates, or create your own, to meet the needs of several 
-  alternative deployment scenarios.
+  This section will cover deployment templates in greater
+  detail. It will also describe how you can customize deployment templates, 
+  or create your own, to meet the needs of individual deployment scenarios.
   </para>
 
   <note>
@@ -100,10 +97,10 @@
   </note>
 
   <section>
-  <title>Exploring virt-deploy.xml</title>
+  <title>Exploring deployment templates</title>
 
   <para>
-  The virt-deploy template provides an example for how Deploy can be
+  The libvirt deployment template provides an example for how Deploy can be
   used to deploy and maintain client systems. This particular template works by
   providing settings and scripts to accomplish the following:
   </para>
@@ -162,21 +159,20 @@
 
   <para>
   The virt-deploy template, shown below, has very little content of its own and
-  is largely composed by including sub-templates from the
-  <filename>deploy</filename> folder.
+  is largely composed by including sub-templates.
   </para>
 
   <para>
-  <emphasis role='strong'>virt-deploy.xml</emphasis>
+  <emphasis role='strong'>libvirt deployment template</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/virt-deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt-deploy/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
-  The sections discuss how you can reuse content from virt-deploy.xml and
-  sub-templates, or provide alternate templates, to accommodate additional
-  deployment scenarios.
+  The sections discuss how you can reuse content from the libvirt deployment
+  template and sub-templates, or provide alternate templates, to accommodate
+  additional deployment scenarios.
   </para>
   </section>
 
@@ -190,7 +186,11 @@
   </para>
 
   <para>
-  Virt-deploy.xml uses kickstart templates from the deploy folder. The two templates are <filename>ks.xml</filename> and <filename>ks-post-ssh.xml</filename>. The first provides basic kickstart options. The second configures the client for ssh access. Contents of these templates are shown below.
+  The libvirt deployment template uses kickstart templates from the common
+  deploy folder, <filename>deploy/common</filename>. The two templates are
+  <filename>ks.xml</filename> and <filename>ks-post-ssh.xml</filename>. The
+  first provides basic kickstart options. The second configures the client for
+  ssh access. Contents of these templates are shown below.
   </para>
 
   <para>
@@ -198,7 +198,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -206,7 +206,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/deploycommon/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -234,20 +234,20 @@
 
   <para>
   In this example, you start with a test-install element, add a password
-  element and XInclude the virt-deploy template. The XInclude statement is
-  varies from ones you have used previously, however, in that it contains an
+  element and XInclude the libvirt deployment template. The XInclude statement
+  is varies from ones you have used previously, however, in that it contains an
   xpointer attribute.  Xpointer is used to include all elements from the file,
   <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
-  Next, you add a kickstart element. This element contains kickstart
-  content to suit your needs; in the example below only the timezone has been
-  changed. Finally, to the kickstart element you also include content from the
+  Next, you add a kickstart element. This element contains kickstart content to
+  suit your needs; in the example below only the timezone has been changed.
+  Finally, to the kickstart element you also include content from the
   <filename>ks-post-ssh.xml</filename> template. 
   </para>
 
   <informalexample>
   <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml" 
+&lt;xi:include href="path/to/libvirt/deploy.xml" 
             xpointer="xpointer(/*/*[name()!='kickstart'])"/>
 &lt;kickstart>
 network --hostname %{fqdn}
@@ -307,15 +307,16 @@ reboot
   </listitem>
   <listitem>
   <para>
-  Providing a custom <emphasis>virt-install</emphasis> script. In this case we
-  are setting the virtual machine RAM at 2GB and the disk image size at 40GB.
+  Providing a custom <emphasis>libvirt-install</emphasis> script. In this case
+  we are setting the virtual machine RAM at 2GB and the disk image size at
+  40GB.
   </para>
   </listitem>
   <listitem>
   <para>
-  Including all elements from the <filename>virt-deploy.xml</filename>
+  Including all elements from the libvirt deployment 
   template, <emphasis>except</emphasis> the <emphasis>check-kernel</emphasis>
-  and <emphasis>virt-install</emphasis> scripts. The check-kernel script is
+  and <emphasis>libvirt-install</emphasis> scripts. The check-kernel script is
   unnecessary since we are powering off the client after each run.
   </para>
   </listitem>
@@ -325,7 +326,7 @@ reboot
   <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="poweroff.xml"/>
-&lt;script id='virt-install' type='install'>
+&lt;script id='libvirt-install' type='install'>
 #!/bin/bash
 virt-install --name %{fqdn} --ram 2000 \
              --file /var/lib/libvirt/images/%{fqdn}.img \
@@ -334,7 +335,7 @@ virt-install --name %{fqdn} --ram 2000 \
              --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
              --noreboot
 &lt;/script>
-&lt;xi:include href="virt-deploy.xml" 
+&lt;xi:include href="path/to/libvirt/deploy.xml" 
             xpointer="xpointer(/*/*[@id!='check-kernel' and
                                     @id!='virt-install'])"/>
 &lt;/test-install></programlisting>
@@ -352,17 +353,17 @@ virt-install --name %{fqdn} --ram 2000 \
   <title>Installing a virtual machine to a remote host</title>
 
   <para>
-  The virt-deploy template makes it easy to create, deploy and maintain virtual
-  machines on the local Deploy build machine running a lib-virt
+  The libvirt deployment template makes it easy to create, deploy and maintain
+  virtual machines on the local Deploy build machine running a lib-virt
   compatible hypervisor (KVM). Your particular deployment scenario, however,
   may require you to work with virtual machines running on remote hosts with
   different hypervisors (e.g. VMware, Hyper-V and Amazon Web Services). To
   support this case, you will need to create a new composite template. This
-  template will be similar to <filename>virt-deploy.xml</filename>. In the new
+  template will be similar to the libvirt deployment template. In the new
   template, you will need to adjust the <emphasis>domain</emphasis> element,
-  and provide custom scripts to replace the <emphasis>virt-activate</emphasis>,
-  <emphasis>virt-delete</emphasis> and <emphasis>virt-install</emphasis>
-  scripts.
+  and provide custom scripts to replace the
+  <emphasis>libvirt-activate</emphasis>, <emphasis>libvirt-delete</emphasis>
+  and <emphasis>libvirt-install</emphasis> scripts.
   </para>
 
   <para>
@@ -374,7 +375,7 @@ virt-install --name %{fqdn} --ram 2000 \
   </para>
 
   <para>
-  <emphasis role='strong'><filename>ami-deploy.xml</filename></emphasis>
+  <emphasis role='strong'><filename>ami/deploy.xml</filename></emphasis>
   </para>
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
@@ -382,18 +383,18 @@ virt-install --name %{fqdn} --ram 2000 \
 &lt;!-- install and update an Amazon Machine Image (AMI) -->
 &lt;domain>mydomain.com&lt;/domain>
 &lt;kickstart>
-&lt;xi:include href='deploy/ks.xml' xpointer='xpointer(/*/node())'/>
-&lt;xi:include href='deploy/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
+&lt;xi:include href='../common/ks.xml' xpointer='xpointer(/*/node())'/>
+&lt;xi:include href='../common/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
 &lt;/kickstart>
-&lt;xi:include href='deploy/ssh-config.xml'/>
-&lt;xi:include href='deploy/test-triggers.xml'/>
+&lt;xi:include href='../common/ssh-config.xml'/>
+&lt;xi:include href='../common/test-triggers.xml'/>
 &lt;xi:include href='ami-activate.xml'/>
 &lt;xi:include href='ami-delete.xml'/>
 &lt;xi:include href='ami-install.xml'/>
-&lt;xi:include href='deploy/verify-install.xml'/>
-&lt;xi:include href='deploy/save-triggers.xml'/>
-&lt;xi:include href=’deploy/update.xml’/>
-&lt;xi:include href=’deploy/check-kernel.xml’/>
+&lt;xi:include href='../common/verify-install.xml'/>
+&lt;xi:include href='../common/save-triggers.xml'/>
+&lt;xi:include href=’../common/update.xml’/>
+&lt;xi:include href=’../common/check-kernel.xml’/>
 &lt;/xml></programlisting>
   </informalexample>
 
@@ -411,7 +412,7 @@ virt-install --name %{fqdn} --ram 2000 \
   <para>
   To deploy a single client using an existing deployment solution, the
   procedure is the same as discussed above under <xref
-  linkend='install-vm-to-remote-host'/>. Specifically, create a new composite
+  linkend='install-vm-to-remote-host'/>. Specifically, create a new deployment
   template with appropriate domain element, and custom activate, delete and
   install scripts.
   </para>

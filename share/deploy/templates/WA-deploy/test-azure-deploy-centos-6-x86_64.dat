@@ -1,0 +1,85 @@
+<data xml:base="/root/workspace/deploy/share/deploy/templates/azure/test-azure-deploy-centos-6-x86_64.dat">
+  <publish>
+    <crypt-password>$6$mNmR1DP2$yh3JxgTjqRohoVjFfzcfGY6qPC/Kmc.Zpj7ycoCMqN4wIiL3cqdYWzPeh6d4LZ72mnkgR3czO6x.C1MDYtVnG0</crypt-password>
+    <generated-password>wE3YpWOd18z9PNceqO1KgLp0PD7ZPXoiUA3pigNLG6mfNe</generated-password>
+  </publish>
+  <gpgsign>
+    <pubkey>-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+mQGiBFHUkWARBAC08CiiA3RmpVQGASBi1Wi28PHkEynZLFjPv1OhgXOWKj9xwx9c
+WciIHqzHS+l0PRAliJeEKuBOmlQ8XJVMYp3ZLC8HhFYFUqA9ZDdUqoODLBqTPVdg
+QSaILrEU5Jo28oXIVbQ3iXpqyRGC47Xn93mGHPtJs2znugaOE2mIJjdwdwCgwrAH
+io9Y5GpP0uvdozDUc/6xZJkD/iFv5WvVWaiJxCkEbqpsZ+s/KKErBFr7mGGqehrR
+Zn3b4Qax/IUKzymlBUvJfxQkmzfhfpYAat3eiGSNBOgWxFIfLCBh6C9sGkKsl0sy
+GV1h85NYOReJaq5mo/IDdIAoR1YCxLfmlvJYNTS8HzQ8jkoKddprJESu2r7ua/wb
+V96qA/4z8nb2Kdg54ysDg4N4uxgnGIb7yVmCt0aIbCQhp0T1ndV90IhRmgSn8tjA
+wYdqdBvgxLcG7HyVVZ1SAmccDeOetiLDcMx2T/Cq8ouVs1qEuXZSqvafZmR8dEFL
+S0fqZywc2NHAddlWhtLc+Hk36ZaiVO+TmvLJUf6vdD78aE0marQtdGVzdC1henVy
+ZS1kZXBsb3ktY2VudG9zLTYteDg2XzY0IHNpZ25pbmcga2V5iGIEExECACIFAlHU
+kWACGyMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEN19DI7ERT4XTkcAniiR
+v+cVsLuWk2tnze4IEeLVQuQ2AJ4q0FOZ6RIO194TmuKY3n0pkwayVrkBDQRR1JFg
+EAQA3y3kmRiVxMbckQoBPfGeXjCUcko6YAexG5lMPfa+YgURY9l5zwahNJjfvUAv
+jpc+iRRQpb3U9iPONdkT4RPlYIYTzseuN9UMzd4cclrOGzQPXV4kEWyaXb4B0pMG
+TG/OZb4GhRzVTo2BbyesOCdYb6w68NKQbKN18ZRy+OLE6ScAAwUEAJRtrfA/6P/S
+Vf9z8ecFCZ1YaYN0QotR9tK0FeBAyFYqGQllNvIo2IRpBaz7MFIGRmMmaAy4eBcx
+V+ufzP5abR93jUJjjITqEgaSd1ek5ZEWWACImWNTARu7f2K0IB2dCKxMHimA4EUt
+tyT1rhwA7YsL9tZMG91lTSCrnHAaUKLciEkEGBECAAkFAlHUkWACGwwACgkQ3X0M
+jsRFPhc5rgCgjd9hw0RweBBhhNHpc78bpfzJ9lsAn1UhaaLg/8cN52Z6mbnzfYHn
+nI5k
+=WIkH
+-----END PGP PUBLIC KEY BLOCK-----</pubkey>
+    <seckey>-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+lQG7BFHUkWARBAC08CiiA3RmpVQGASBi1Wi28PHkEynZLFjPv1OhgXOWKj9xwx9c
+WciIHqzHS+l0PRAliJeEKuBOmlQ8XJVMYp3ZLC8HhFYFUqA9ZDdUqoODLBqTPVdg
+QSaILrEU5Jo28oXIVbQ3iXpqyRGC47Xn93mGHPtJs2znugaOE2mIJjdwdwCgwrAH
+io9Y5GpP0uvdozDUc/6xZJkD/iFv5WvVWaiJxCkEbqpsZ+s/KKErBFr7mGGqehrR
+Zn3b4Qax/IUKzymlBUvJfxQkmzfhfpYAat3eiGSNBOgWxFIfLCBh6C9sGkKsl0sy
+GV1h85NYOReJaq5mo/IDdIAoR1YCxLfmlvJYNTS8HzQ8jkoKddprJESu2r7ua/wb
+V96qA/4z8nb2Kdg54ysDg4N4uxgnGIb7yVmCt0aIbCQhp0T1ndV90IhRmgSn8tjA
+wYdqdBvgxLcG7HyVVZ1SAmccDeOetiLDcMx2T/Cq8ouVs1qEuXZSqvafZmR8dEFL
+S0fqZywc2NHAddlWhtLc+Hk36ZaiVO+TmvLJUf6vdD78aE0magAAoIGw41ju+DNR
+D4XNlRu8LIUfHQrmCiC0LXRlc3QtYXp1cmUtZGVwbG95LWNlbnRvcy02LXg4Nl82
+NCBzaWduaW5nIGtleYhiBBMRAgAiBQJR1JFgAhsjBgsJCAcDAgYVCAIJCgsEFgID
+AQIeAQIXgAAKCRDdfQyOxEU+F05HAJ4okb/nFbC7lpNrZ83uCBHi1ULkNgCeKtBT
+mekSDtfeE5rimN59KZMGsladATIEUdSRYBAEAN8t5JkYlcTG3JEKAT3xnl4wlHJK
+OmAHsRuZTD32vmIFEWPZec8GoTSY371AL46XPokUUKW91PYjzjXZE+ET5WCGE87H
+rjfVDM3eHHJazhs0D11eJBFsml2+AdKTBkxvzmW+BoUc1U6NgW8nrDgnWG+sOvDS
+kGyjdfGUcvjixOknAAMFBACUba3wP+j/0lX/c/HnBQmdWGmDdEKLUfbStBXgQMhW
+KhkJZTbyKNiEaQWs+zBSBkZjJmgMuHgXMVfrn8z+Wm0fd41CY4yE6hIGkndXpOWR
+FlgAiJljUwEbu39itCAdnQisTB4pgOBFLbck9a4cAO2LC/bWTBvdZU0gq5xwGlCi
+3AAA+QH5T/6Km7JYiyYc0j3TyoyfGDN6nvSlsOiVz294y5VyEsSISQQYEQIACQUC
+UdSRYAIbDAAKCRDdfQyOxEU+FzmuAJ9IBk0WtN7jTw6tYYUkw1ZpuBKgQQCffPUs
+KyazvNIA8J6CDlL9dZ72JWU=
+=3QIe
+-----END PGP PRIVATE KEY BLOCK-----</seckey>
+  </gpgsign>
+  <release-rpm>
+    <release>2</release>
+  </release-rpm>
+  <azure-cli-config-rpm>
+    <release>9</release>
+  </azure-cli-config-rpm>
+  <azure-templates-rpm>
+    <release>18</release>
+  </azure-templates-rpm>
+  <deploy-ssh-config-rpm>
+    <release>1</release>
+  </deploy-ssh-config-rpm>
+  <test-install>
+    <crypt-password>$6$rdG18Yo3$vrahNKmIpNuFhgXP3NZWPIdyE7erk7a9G9cs.gJnZX4rkPSOg/F.My1T9a.CljnSgZfBxoWgg4sWcu4rk7s1P/</crypt-password>
+    <generated-password>vdETKuEn5</generated-password>
+  </test-install>
+  <test-install-setup>
+    <release>2</release>
+  </test-install-setup>
+  <test-update>
+    <generated-password>0dR5TRlHWdQpbe7Aweipl60n8V1</generated-password>
+    <crypt-password>$6$VVj3J8Pt$GjXnBTgMf4dRlXX4CPPi3e6mhPKueMApX1ivBQNHpoBWfgS5yKmBxFYCN56PMNh6Y8W1QbfwaWyHDp7grsQ3H1</crypt-password>
+  </test-update>
+  <test-update-setup>
+    <release>2</release>
+  </test-update-setup>
+</data>

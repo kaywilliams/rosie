@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>azure</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+
+<main>
+<fullname>Azure Packages</fullname>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+<type>package</type>
+</main>
+
+<repos>
+<xi:include href='../../repos.xml' xpointer="xpointer(./repo[@id='base'])"/>
+<xi:include href='../../repos.xml' xpointer="xpointer(./repo[@id='updates'])"/>
+</repos>
+
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
+
+<srpmbuild>
+<srpm id="WALinuxAgent">
+<script>
+cd $(dirname "$0")
+mkdir -p SPECS SOURCES
+git clone https://github.com/Windows-Azure/WALinuxAgent.git WALinuxAgent
+
+specfile="WALinuxAgent/rpm/walinuxagent.spec"
+sed -i "s/Thu Jun XX 2013/Mon Jun 24 2013/" $specfile # fix changelog date
+version=$(sed -n "s/Version:\s*//gp" $specfile)
+release=$(sed -n "s/Release:\s*//gp" $specfile)
+tarfile=$(sed -n "s/Source0:\s*//gp" $specfile)
+
+if [[ "%{srpmlast}" != "WALinuxAgent-$version-$release.src.rpm" ]] ; then
+  cp $specfile SPECS
+  mv WALinuxAgent WALinuxAgent-$version
+  tar -czf $tarfile WALinuxAgent-$version
+  cp $tarfile SOURCES
+  
+  rpmbuild -bs SPECS/walinuxagent.spec --define "_topdir ./"
+  
+  rm -rf %{srpmdir}/*
+  cp SRPMS/WALinuxAgent*.src.rpm %{srpmdir}
+fi
+trap "cd -" INT TERM EXIT
+</script>
+</srpm>
+</srpmbuild>
+
+</definition>

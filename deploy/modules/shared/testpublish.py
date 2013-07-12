@@ -18,14 +18,18 @@ from deploy.event     import Event
 from deploy.dlogging import L1, L2
 from deploy.util      import pps
 
+from deploy.modules.shared import CompsEventMixin
 from deploy.modules.shared import RepomdMixin
 from deploy.modules.shared import PublishSetupEventMixin
 from deploy.modules.shared import ReleaseRpmEventMixin
 from deploy.modules.shared import KickstartEventMixin
 
-class TestPublishEventMixin(ReleaseRpmEventMixin, 
+class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin, 
                             RepomdMixin, KickstartEventMixin, 
                             PublishSetupEventMixin):
+
+  testpublish_mixin_version = "1.00"
+
   def __init__(self, *args, **kwargs):
 
     self.DATA =  {
@@ -36,6 +40,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     }
 
     ReleaseRpmEventMixin.__init__(self)
+    CompsEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
@@ -45,16 +50,23 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
                                         'publish-ksfile'])
     self.provides.remove('rpmbuild-data') # these release rpms should not
                                           # be included in the core repository
+    self.DATA['variables'].append('testpublish_mixin_version')
 
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
-    # TODO add support for disabled release-rpm event
-    self.release_rpmdata = (self.cvars['rpmbuild-data']
-                            [self.cvars['release-rpm']])
+    CompsEventMixin.setup(self)
+
+    # get release-rpm filename
+    if self.cvars.get('rpmbuild-data', None) and \
+       self.cvars['rpmbuild-data'].get('release-rpm', None):
+      self.release_rpmdata = (self.cvars['rpmbuild-data']
+                              [self.cvars['release-rpm']])
+      release_rpm = (self.release_rpmdata['rpm-path'].split('/')[-1])
+    else:
+      release_rpm = None
 
     # sync compose output, excluding release-rpm and repodata files
-    release_rpm = (self.release_rpmdata['rpm-path'].split('/')[-1])
     self.repodata_files = self.cvars['os-dir'] / 'repodata'
     paths=self.cvars['os-dir'].findpaths(nglob=release_rpm, 
                                          nregex='%s/.*' % self.repodata_files,
@@ -65,17 +77,16 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
       self.io.add_item(p, self.OUTPUT_DIR/dirname, id='os-dir')
 
     # release-rpm
-    try:
+    if release_rpm:
       self.release = self.release_rpmdata['rpm-release'].replace(self.dist, '')
-      ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
-                         force_release=self.release,
-                         files_cb=self.link_callback, 
-                         files_text=self.log(4, L2(
-                           "gathering release-rpm content")))
-      self.DATA['variables'].append('release')
-    except KeyError:
-      # release-rpm event disabled
-      pass
+    else:
+      self.release = 1
+    ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 
+                       force_release=self.release,
+                       files_cb=self.link_callback, 
+                       files_text=self.log(4, L2(
+                         "gathering release-rpm content")))
+    self.DATA['variables'].append('release')
 
     # kickstart
     if self.cvars['publish-ksfile']:
@@ -97,15 +108,21 @@ class TestPublishEventMixin(ReleaseRpmEventMixin,
     # modify release-rpm
     (self.OUTPUT_DIR/'repo.conf').rm(force=True) # remove link
     ReleaseRpmEventMixin.run(self)
+    ReleaseRpmEventMixin.apply(self)
     self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages', force=True, preserve=True)
     self.DATA['output'].append(self.OUTPUT_DIR/'Packages'/
                                self.rpm.rpm_path.basename)
+    if not "%s-release" % self.name in  self.cvars['comps-object'].all_packages:
+      raise RuntimeError("release pkg not found")
+
+    # update comps
+    CompsEventMixin.run(self)
 
     # update repodata
     self.copy(self.repodata_files, self.OUTPUT_DIR, 
               callback=self.link_callback) # start with existing repodata
     self.createrepo(self.OUTPUT_DIR, 
-                    groupfile=self.cvars['groupfile'],
+                    groupfile=self.compsfile,
                     checksum=self.locals.L_CHECKSUM['type'])
 
     # update kickstart

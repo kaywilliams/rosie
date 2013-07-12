@@ -424,7 +424,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
       <para><emphasis role="strong">repos.xml</emphasis></para>
       <informalexample>
       <programlisting>
-<xi:include href="../../../../../share/deploy/templates/repos.xml"
+<xi:include href="../../../../../share/deploy/templates/common/repos.xml"
             parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>

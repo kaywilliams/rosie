@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>drupal-server</macro>
+<macro id='fullname'>Drupal Server</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}</macro>
+
+<!-- change the values below -->
+<macro id='password'>Test1!</macro>
+<macro id='dbtype'>pgsql</macro>
+<macro id='dbuser'>postgres</macro>
+<macro id='sitename'>drupal</macro>
+
+<main>
+<name>%{name}</name>
+<fullname>%{fullname}</fullname>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<repos>
+<xi:include href='../../repos.xml' xpointer="xpointer(./repo[@id='base'])"/>
+<xi:include href='../../repos.xml' xpointer="xpointer(./repo[@id='updates'])"/>
+<xi:include href='../../repos.xml' xpointer="xpointer(./repo[@id='epel'])"/>
+</repos>
+
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
+
+<config-rpms>
+<!--drupal-->
+<xi:include href='../httpd/httpd-config.xml'/>
+<xi:include href="drupal-config.xml"/>
+<xi:include href="drupal-%{dbtype}-config.xml"/>
+<xi:include href="drush-config.xml"/>
+
+<!--local backup-->
+<xi:include href="../rsnapshot/rsnapshot-config.xml"/>
+<xi:include href="drupal-rsnapshot-config.xml"/>
+</config-rpms>
+
+<!--
+<test-install>
+<password>%{password}</password>
+<xi:include href="../../libvirt-deploy/deploy.xml" xpointer="xpointer(./*)"/>
+</test-install>
+-->
+
+<test-update>
+<password>%{password}</password>
+<xi:include href="../../libvirt-deploy/deploy.xml" xpointer="xpointer(./*)"/>
+</test-update>
+
+</definition>

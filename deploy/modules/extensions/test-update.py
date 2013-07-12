@@ -22,7 +22,9 @@ from deploy.event     import Event, CLASS_META
 from deploy.dlogging import L1, L2, L3
 
 from deploy.modules.shared import config
-from deploy.modules.shared import DeployEventMixin
+from deploy.modules.shared import (DeployEventMixin, KICKSTART_CSUM, 
+                                   INSTALL_SCRIPTS_CSUM, 
+                                   POST_INSTALL_SCRIPTS_CSUM)
 from deploy.modules.shared import TestPublishEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin
 
@@ -73,8 +75,8 @@ class TestUpdateEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.default_install_triggers = [ 'kickstart', 'install_scripts',
-                                      'post_install_scripts' ]
+    self.default_install_triggers = [ KICKSTART_CSUM, INSTALL_SCRIPTS_CSUM,
+                                      POST_INSTALL_SCRIPTS_CSUM ]
     DeployEventMixin.setup(self)
 
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>azure-deploy</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='templates-dir'>../</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<repos>
+<xi:include href='%{templates-dir}/common/repos.xml' xpointer="xpointer(./repo[@id='base'])"/>
+<xi:include href='%{templates-dir}/common/repos.xml' xpointer="xpointer(./repo[@id='updates'])"/>
+</repos>
+
+<packages>
+<group repoid='base'>core</group>
+<group repoid='base'>base</group>
+</packages>
+
+<macro id='password'>Test1!</macro>
+<test-install>
+<xi:include href="%{templates-dir}/deploy/azure/deploy.xml"/>
+</test-install>
+
+<test-update>
+<xi:include href="%{templates-dir}/deploy/azure/deploy.xml"/>
+</test-update>
+
+<publish>
+<xi:include href="%{templates-dir}/deploy/azure/deploy.xml"/>
+</publish>
+
+</definition>

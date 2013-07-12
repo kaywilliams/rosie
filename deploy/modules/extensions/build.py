@@ -109,7 +109,4 @@ class BuildEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.default_install_triggers = [ 'release_rpm', 'config_rpms', 'kickstart',
-                                      'treeinfo', 'install_scripts',
-                                      'post_install_scripts' ]
     DeployEventMixin.setup(self)

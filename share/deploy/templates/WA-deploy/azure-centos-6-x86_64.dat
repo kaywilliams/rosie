@@ -1,0 +1,9 @@
+<data xml:base="/root/workspace/deploy/share/deploy/templates/deploy/azure/azure-centos-6-x86_64.dat">
+  <publish>
+    <generated-password>MZKhvTTv</generated-password>
+    <crypt-password>$6$Vo77hOYw$Gz5nmtMz.eEP4XFi9esMyq3f0wcUgvKmjrBxwQV9RkQRCfYLMH/igy5MS/ahxYTZVwPgqYbzrHd8wHIP7etri1</crypt-password>
+  </publish>
+  <release-rpm>
+    <release>1</release>
+  </release-rpm>
+</data>

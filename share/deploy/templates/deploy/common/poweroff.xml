@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<script id='poweroff' type='post'>
-#!/bin/bash
-poweroff 2>/dev/null || true # if fails, another shutdown is already running
-</script>

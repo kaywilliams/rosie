@@ -41,7 +41,7 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
     # get default deploy config
     deploy = rxml.config.parse(
-      '%s/../../share/deploy/templates/virt-deploy.xml' %  
+      '%s/../../share/deploy/templates/libvirt-deploy/deploy.xml' %  
       pps.path(__file__).dirname.abspath(),
       xinclude = True,
       macros = {'%{version}'  : '%s' % version,
@@ -70,7 +70,8 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     if mod is None:
       mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
     rxml.config.Element('hostname', parent=mod, text=self.hostname)
-    rxml.config.Element('password', parent=mod, text='password')
+    rxml.config.Element('macro', parent=mod, text='password', 
+                                 attrib={'id':'password'})
 
     if self.deploy_module != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)

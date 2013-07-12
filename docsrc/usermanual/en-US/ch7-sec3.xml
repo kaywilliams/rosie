@@ -43,7 +43,7 @@
   Deploy provides a template, <filename>test.xml</filename>, to
   assist with the task of testing package repositories. The
   <filename>test.xml</filename> template makes use of the
-  <filename>virt-deploy.xml</filename> template (described under <xref
+  libvirt deployment template (described under <xref
   linkend='using-virtual-machines'/>) to allow testing package repositories
   using local virtual machines.
   </para>

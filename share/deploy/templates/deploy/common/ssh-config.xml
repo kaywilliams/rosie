@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<config-rpm id='deploy-ssh-config'>
-  <!-- specifying required packages for ssh access from build host machine-->
-  <!-- build host public key is installed by kickstart post script -->
-  <requires>openssh</requires>
-  <requires>openssh-clients</requires>
-  <requires>/usr/sbin/sshd</requires>
-</config-rpm>

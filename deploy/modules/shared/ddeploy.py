@@ -37,15 +37,23 @@ from deploy.util.graph import DirectedNodeMixin
 
 from UserDict import DictMixin
 
+RELEASE_PKG_CSUM = 'release_pkg_csum'
+CUSTOM_PKGS_CSUM = 'custom_pkgs_csum'
+KICKSTART_CSUM = 'kickstart_csum'
+TREEINFO_CSUM = 'treeinfo_csum'
+INSTALL_SCRIPTS_CSUM = 'install_scripts_csum'
+POST_INSTALL_SCRIPTS_CSUM = 'post_install_scripts_csum'
+
 class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, reinstall=False, *args, **kwargs):
     self.requires.update(['%s-setup-options' % self.moduleid],)
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
-                                        'config-rpms', 
+                                        'config-rpms', 'srpmbuild', 
                                         '%s-ksname' % self.moduleid,
                                         '%s-ksfile' % self.moduleid])
+    self.reinstall = reinstall # forces reinstall on event run
     ExecuteEventMixin.__init__(self)
 
   def setup(self): 
@@ -129,14 +137,16 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     # resolve trigger macros
     self.trigger_data = { 
-      'release_rpm':          self._get_rpm_csum('release-rpm'),
-      'config_rpms':          self._get_rpm_csum('config-rpms'),
-      'kickstart':            self._get_kickstart_csum(),
-      'treeinfo':             self._get_treeinfo_csum(),
-      'install_scripts':      self._get_script_csum('script[@type="install"]'),
-      'post_install_scripts': self._get_script_csum('script[ '
+      RELEASE_PKG_CSUM:          self._get_release_pkg_csum(),
+      CUSTOM_PKGS_CSUM:          self._get_custom_pkgs_csum(),
+      KICKSTART_CSUM:            self._get_kickstart_csum(),
+      TREEINFO_CSUM:             self._get_treeinfo_csum(),
+      INSTALL_SCRIPTS_CSUM:      self._get_script_csum('script[ '
+                                                   '@type="install"]'),
+      POST_INSTALL_SCRIPTS_CSUM: self._get_script_csum('script[ '
                                                     '@type="post-install" or '
-                                                    '@type="save-triggers"]'),
+                                                    '@type="save-triggers" or '
+                                                    '@type="post"]'),
       }
     self.DATA['variables'].append('trigger_data')
 
@@ -144,12 +154,17 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self.resolve_macros(map={'%%{%s}' % key: self.trigger_data[key]})
 
     triggers = self.config.getxpath('triggers/text()',
-               ' '.join(getattr(self, 'default_install_triggers', '')))
+               ' '.join(getattr(self, 'default_install_triggers',
+                        [ RELEASE_PKG_CSUM, CUSTOM_PKGS_CSUM, KICKSTART_CSUM,
+                          TREEINFO_CSUM, INSTALL_SCRIPTS_CSUM, 
+                          POST_INSTALL_SCRIPTS_CSUM ])))
+
     for trigger in triggers.split():
       if not re.match('^[a-zA-Z0-9_]+$', trigger):
         raise InvalidTriggerNameError(trigger)
 
-    self.resolve_macros(map={'%{triggers}': triggers})
+    self.resolve_macros(map={'%{triggers}': triggers,
+                             '%{custom-pkgs}': self._get_custom_pkgs()})
 
     self.deploydir = self.LIB_DIR / 'deploy'
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
@@ -200,21 +215,27 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   def _get_csum(self, text):
     return hashlib.md5(text).hexdigest()
 
-  def _get_rpm_csum(self, id):
-    if not 'rpmbuild-data' in self.cvars or not self.cvars[id]:
+  def _get_release_pkg_csum(self):
+    if 'rpmbuild-data' in self.cvars and \
+       '%s-release' % self.name in self.cvars['rpmbuild-data']:
+      return self._get_csum(self.cvars['rpmbuild-data']
+                                      ['%s-release' % self.name]
+                                      ['rpm-release'])
+    else: 
       return self._get_csum('')
-    rpms = self.cvars[id]
-    if isinstance(rpms, basestring):
-      rpms = [ rpms ]
-    releases = []
-    for rpm in rpms:
-      releases.append(self.cvars['rpmbuild-data'][rpm]['rpm-release'])
-    if releases:
-      releases.sort()
-      return self._get_csum(''.join(releases)) # simple way to determine if
-                                               # any release numbers have
-                                               # changed
-    else:
+
+  def _get_custom_pkgs_csum(self):
+    if 'rpmbuild-data' in self.cvars:
+      releases = [] 
+      for rpm, data in self.cvars['rpmbuild-data'].items():
+        if rpm == '%s-release' % self.name: # ignore release rpm
+          pass
+        else:
+          releases.append(data['rpm-release'])
+          releases.sort()
+      return self._get_csum(''.join(releases)) # simple way to determine if any
+                                               # custom packages have changed
+    else: 
       return self._get_csum('')
 
   def _get_kickstart_csum(self):
@@ -243,9 +264,26 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       text = text + script.getxpath('text()', '')
     return self._get_csum(text) 
 
+  def _get_custom_pkgs(self):
+    if 'rpmbuild-data' in self.cvars:
+      pkgs = [] 
+      for rpm in self.cvars['rpmbuild-data']:
+        if rpm == '%s-release' % self.name: # ignore release rpm
+          pass
+        else:
+          pkgs.append(rpm)
+          pkgs.sort()
+      return ' '.join(pkgs)
+    else: 
+      return ''
+
   def _reinstall(self):
     if not self.types['install']:
       return False # don't try to install since we haven't got any scripts
+
+    # is the reinstall property set?
+    if self.reinstall:
+      return True
 
     # can we activate the machine?
     if self.config.getbool('triggers/@activate', True):

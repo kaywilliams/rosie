@@ -6,11 +6,12 @@
 
   
   <para>
-  A convenient method for testing system repositories is to use the virtual
-  machine deployment template, <filename>virt-deploy.xml</filename>, located in
-  the <xref linkend='templates'/> folder. This template allows testing system
-  repositories using virtual machines running on the Deploy build
-  machine.
+  A convenient method for testing system repositories is to use a deployment
+  template.  Deployment templates are located in the <xref
+  linkend='templates'/> folder. In the instructions below we will use the
+  libvirt deployment template, <filename>libvirt-deploy/deploy.xml</filename>.
+  This template allows testing system repositories using virtual machines
+  running on the Deploy build machine.
   </para>
   
   <para>
@@ -35,7 +36,7 @@
   </para>
 
   <para>  
-  Before we continue with the details of using the virt-deploy.xml template,
+  Before we continue with the details of using the deploy.xml template,
   let's take a moment to review the web-server definition we have created so
   far. This definition includes all the needed information to create a basic
   web-server system repository based on the CentOS operating system.  For
@@ -59,15 +60,15 @@
   <title>Adding a test-install element</title>
 
   <para>
-  You can use virt-deploy.xml to test client machine installation by adding a
-  <emphasis>test-install</emphasis> element to
+  You can use the libvirt deployment template to test client machine
+  installation by adding a <emphasis>test-install</emphasis> element to
   <filename>web-server.definition</filename>, specifying a password, and
   including the template as shown below:
   </para>
   <informalexample>
   <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;xi:include href="libvirt/deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install></programlisting>
   </informalexample>
 
@@ -170,13 +171,13 @@
   <para>
   Update testing is similar to install testing, you first add a
   <emphasis>test-update</emphasis> element, and then include the
-  virt-deploy.xml template.
+  libvirt deployment template.
   </para>
 
   <informalexample>
   <programlisting>&lt;test-update>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;xi:include href="libvirt/deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update></programlisting>
   </informalexample>
 
@@ -224,10 +225,10 @@
 
   <para>
   In this section you used the <emphasis>test-install</emphasis> and
-  <emphasis>test-update</emphasis> element along with the
-  <filename>virt-deploy.xml</filename> template to automate system testing. In
-  the next section we will take a look at the contents of virt-deploy.xml and
-  discuss deployment templates in general.
+  <emphasis>test-update</emphasis> element along with the libvirt deployment
+  template to automate system testing. In the next section we will take a look
+  at the contents of the libvirt deployment template and discuss deployment
+  templates in general.
   </para>
   </section>
 

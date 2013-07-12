@@ -35,7 +35,6 @@ class CompsEventMixin:
   comps_mixin_version = "1.00"
 
   def __init__(self):
-    self.requires.add('comps-object')
     if not hasattr(self, 'DATA'): self.DATA = {'variables': [],
                                                'output': []}
 
@@ -43,6 +42,11 @@ class CompsEventMixin:
 
   def setup(self):
     self.compsfile = self.mddir/'comps.xml'
+
+    # create comps-object if it does not exist
+    if not 'comps-object' in self.cvars:
+      self.cvars['comps-object'] = comps.Comps()
+      self.cvars['comps-object'].add_core_group()
 
     # track changes to comps file content
     self.comps_hash = hashlib.sha224(

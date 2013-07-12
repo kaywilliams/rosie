@@ -328,7 +328,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
       default template, shown in the examples section below. On a system with
       Deploy installed, the default template can be found in the templates
       folder at
-      <filename>/usr/share/deploy/../../share/deploy/templates/srpmbuild.xml</filename>.
+      <filename>/usr/share/deploy/../../share/deploy/templates/common/srpmbuild.xml</filename>.
       See <xref linkend='templates'/> for additional information on templates. 
       </para>
 
@@ -486,7 +486,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
     This example shows creating a custom template, using XInclude to reuse
     portions of the default template (shown below).  On a system with Deploy
     installed, this file can be found at
-    <filename>/usr/share/deploy/templates/srpmbuild-custom.xml</filename>.
+    <filename>/usr/share/deploy/templates/common/srpmbuild-custom.xml</filename>.
     </para>
 
     <para>
@@ -498,7 +498,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/common/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 
@@ -508,7 +508,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
     The section below shows the complete default
     <filename>srpmbuild.xml</filename> as a reference. On a system with
     Deploy installed, this file can be found at
-    <filename>/usr/share/deploy/../../share/deploy/templates/srpmbuild.xml</filename>.
+    <filename>/usr/share/deploy/../../share/deploy/templates/common/srpmbuild.xml</filename>.
     </para>
 
     <para>
@@ -516,7 +516,7 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/common/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 

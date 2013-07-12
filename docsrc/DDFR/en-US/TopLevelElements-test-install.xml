@@ -62,8 +62,9 @@
 
     <listitem>
     <para>
-    A template named <filename>virt-deploy.xml</filename> containing deployment
-    scripts. The <filename>virt-deploy.xml</filename> file is also used across
+    A template for deploying systems to local virtual machines. The template
+    file is located in the templates folder as
+    <filename>libvirt-deploy/deploy.xml</filename>.  It will be used across
     <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
     top-level element examples.
     </para>
@@ -87,7 +88,7 @@
 
     <listitem>
     <para>
-    Uses XInclude to include all top-level elements from the virt-deploy.xml
+    Uses XInclude to include all top-level elements from the deployment
     template.
     </para>
     </listitem>
@@ -97,23 +98,23 @@
     <programlisting>
 &lt;test-install>
   &lt;password>mypassword&lt;/password>
-  &lt;xi:include href="path/to/virt-deploy.xml" xpointer="xpointer(/*/*)"/>
+  &lt;xi:include href="path/to/deploy.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install></programlisting>
     </section>
 
-    <section id="virt-deploy.xml">
+    <section id="deploy.xml">
     <title>
-    Example - <filename>virt-deploy.xml</filename> template
+    Example - libvirt deployment template
     </title>
 
     <para>
-    The virt-deploy.xml template, shown below, provides the configuration
-    necessary to deploy and maintain a local virtual machine. Virt-deploy.xml
+    The libvirt deployment template, shown below, provides the configuration
+    necessary to deploy and maintain a local virtual machine. The template
     in turn makes use of many additional templates. See <xref
     linkend='templates'/> for information on locating and using templates.
     </para>
 
-    <programlisting><xi:include href='../../../../../share/deploy/templates/virt-deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt-deploy/deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </section>
 
   </section>

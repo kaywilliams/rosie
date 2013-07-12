@@ -180,7 +180,7 @@ class KickstartEventTestCase(EventTestCase):
   """<base-info enabled='true'/>""",
   """<publish>
   <include xmlns='http://www.w3.org/2001/XInclude'
-           href='%s/../../share/deploy/templates/deploy/ks.xml'/>
+           href='%s/../../share/deploy/templates/common/ks.xml'/>
   </publish>""" % pps.path(__file__).dirname.abspath()]
 
   def setUp(self):

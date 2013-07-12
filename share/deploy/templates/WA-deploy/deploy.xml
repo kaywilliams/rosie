@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<!-- install and update an azure virtual machine -->
+
+<!--containing definition required to set the following macro
+<macro id='password'>6+CharactersWithUpperLowerDigitsandSymbols</macro>
+-->
+
+<!--can also override any of the following macros-->
+<macro id='user'>deploy</macro>
+<macro id='domain'>cloudapp.net</macro>
+<macro id='remote-url'><remote-url fqdn='true'/></macro>
+<macro id='datdir'>%{definition-dir}/%{id}</macro>
+
+<!-- template content below -->
+<domain>%{domain}</domain>
+<!--<password>%{password}</password>-->
+%{remote-url}
+<xi:include href='../common/ssh-config.xml'/>
+<xi:include href='../common/create-ssh-keys.xml'/>
+<xi:include href='azure-vm-config.xml'/>
+<xi:include href='../common/test-triggers.xml'/>
+<xi:include href='azure-activate.xml'/>
+<xi:include href='azure-delete.xml'/>
+<xi:include href='azure-install.xml'/>
+<xi:include href='../common/verify-install.xml'/>
+<xi:include href='../common/save-triggers.xml'/>
+<xi:include href='../common/update.xml'/>
+<xi:include href='azure-configure-endpoints.xml'/>
+<xi:include href='../common/check-kernel.xml'/>
+
+</xml>
