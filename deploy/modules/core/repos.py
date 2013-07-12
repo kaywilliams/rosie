@@ -69,16 +69,18 @@ class ReposEvent(RepoEventMixin, Event):
     if self.config.pathexists('.'):
       updates.add_repos(ReposFromXml(self.config.getxpath('.'),
                                      cls=DeployRepoGroup,
-                                     silently_ignore_duplicates=True,
-                                     locals=self.locals))
+                                     ignore_duplicates=True,
+                                     locals=self.locals),
+                        ignore_duplicates=True)
 
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
       try:
         updates.add_repos(ReposFromFile(fn, cls=DeployRepoGroup,
-                                            silently_ignore_duplicates=True,
-                                            locals=self.locals))
+                                            ignore_duplicates=True,
+                                            locals=self.locals),
+                          ignore_duplicates=True)
       except RepoFileParseError, e:
         raise DeployRepoFileParseError(e.args[0])
 

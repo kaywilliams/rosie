@@ -349,11 +349,12 @@ class RepoContainer(dict):
       s += repo.tostring(*args, **kwargs)+'\n'
     return s
 
-  def add_repo(self, repo, silently_ignore_duplicates = False, **kwargs):
+  # TODO - make ignore_duplicates a class property
+  def add_repo(self, repo, ignore_duplicates=False, **kwargs):
     if not self.has_key(repo.id):
       self[repo.id] = repo
     else:
-      if silently_ignore_duplicates:
+      if ignore_duplicates:
         return
       else:
         raise RepoDuplicateIdsError(id=repo.id)
