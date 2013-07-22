@@ -19,7 +19,6 @@ import re
 import sys
 
 from deploy.dlogging import L1
-from deploy.errors   import assert_file_has_content
 
 from yum.constants import *
 try:
@@ -32,7 +31,7 @@ from yum.Errors import CompsException
 # switch all compsexceptions to grouperrors after api break
 
 class CompsEventMixin:
-  comps_mixin_version = "1.00"
+  comps_mixin_version = "1.01"
 
   def __init__(self):
     if not hasattr(self, 'DATA'): self.DATA = {'variables': [],
@@ -67,16 +66,6 @@ class CompsEventMixin:
     self.compsfile.write_text(self.cvars['comps-object'].xml())
     self.compsfile.chmod(0644)
     self.DATA['output'].append(self.compsfile)
-
-  def apply(self):
-    # set groupfile cvars
-    self.cvars['groupfile'] = self.compsfile
-    assert_file_has_content(self.cvars['groupfile'])
-
-  def verify_cvar_comps_file(self):
-    "cvars['groupfile'] exists"
-    self.verifier.failUnless(self.cvars['groupfile'].exists(),
-      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
 
 #------ COMPS HELPER METHODS ------#

@@ -20,6 +20,7 @@ from deploy.util import magic
 
 from deploy.constants import KERNELS
 from deploy.errors    import DeployEventError
+from deploy.errors    import assert_file_has_content
 from deploy.event     import Event
 
 from deploy.modules.shared import comps, ShelveMixin, CompsEventMixin
@@ -240,6 +241,16 @@ class CompsEvent(CompsEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
     CompsEventMixin.setup(self)
+
+  def apply(self): 
+    # set groupfile cvars 
+    self.cvars['groupfile'] = self.compsfile 
+    assert_file_has_content(self.cvars['groupfile']) 
+ 
+  def verify_cvar_comps_file(self): 
+    "cvars['groupfile'] exists" 
+    self.verifier.failUnless(self.cvars['groupfile'].exists(), 
+      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
 
 #------ ERRORS ------#
