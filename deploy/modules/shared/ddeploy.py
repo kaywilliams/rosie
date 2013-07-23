@@ -67,10 +67,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     # get os_url - same as webpath unless user specified in the definition
     self.os_url = pps.path(self.config.getxpath('os-url/text()', None))
-    if self.os_url:
-      self.io.validate_input_file(self.os_url)
-    else:                     
+    if not self.os_url:
       self.os_url = self.webpath
+    self.io.validate_input_file(self.os_url)
     self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
