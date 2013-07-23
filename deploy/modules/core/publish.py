@@ -193,6 +193,7 @@ class DeployEvent(DeployEventMixin, Event):
       'output':    [],
     }
 
+    self.default_install_triggers = []
     DeployEventMixin.__init__(self)
     if not self.config.xpath('script', []): self.disable()
 
