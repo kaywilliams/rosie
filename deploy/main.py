@@ -289,9 +289,14 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       for pair in options.macros:
         id = pair.split(':')[0].strip()
         value = ':'.join(pair.split(':')[1:]).strip()
+
         if not id or not value:
           raise InvalidOptionError(pair, 'macro', "Macro options must take the "
                                    "form 'id:value'.")
+
+        # convert string to macro element
+        value = rxml.config.fromstring("<macro id='%s'>%s</macro>" %
+                                      (id, value)) 
 
         map['%%{%s}' % id] = value
 
