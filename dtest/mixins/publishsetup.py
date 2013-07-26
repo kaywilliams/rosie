@@ -39,12 +39,12 @@ class PublishSetupMixinTestCase(EventTestCase):
 
   def pre_setup(self):
     # if test machine is not vm capable, remove interface attribute from
-    # remote-url, if provided, i.e. eliminate 'interface='virbrdpl'
+    # build-host, if provided, i.e. eliminate 'interface='virbrdpl'
     if not check_vm_config(): 
-      remote_url = self.conf.getxpath('/*/%s/remote-url' % self.deploy_module,
+      build_host = self.conf.getxpath('/*/%s/build-host' % self.deploy_module,
                                       None)
-      if remote_url is not None and 'interface' in remote_url.attrib:
-        del remote_url.attrib['interface']
+      if build_host is not None and 'interface' in build_host.attrib:
+        del build_host.attrib['interface']
     EventTestCase.setUp(self)
 
   def pre_teardown(self):
@@ -62,6 +62,7 @@ def PublishSetupMixinTest_Config(self):
     'domain':         '.test-domain',
     'fqdn':           'test-hostname.test-domain',
     'localpath':      '/test/local/path',
+    'build_host':     'test',
     'webpath':        'http://test/web/path',
     'boot_options':   'test boot options',
     'ssh':            True,
@@ -70,13 +71,14 @@ def PublishSetupMixinTest_Config(self):
 
   def pre_setUp():
     mod = self.conf.getxpath('/*/%s' % self.moduleid, None)
-    for item in ['hostname', 'password', 'domain', 'remote-url']:
+    for item in ['hostname', 'password', 'domain', 'remote-url', 'build-host']:
       elem = self.conf.getxpath('/*/%s/%s' % (self.moduleid, item), None)
       if elem is not None: mod.remove(elem)
     config.Element('hostname', text=self.values['hostname'], parent=mod)
     config.Element('domain', text=self.values['domain'], parent=mod)
     config.Element('password', text=self.values['password'], parent=mod)
     config.Element('local-dir', text=self.values['localpath'], parent=mod)
+    config.Element('build-host', text=self.values['build_host'], parent=mod)
     config.Element('remote-url', text=self.values['webpath'], parent=mod)
     config.Element('boot-options', text=self.values['boot_options'], parent=mod)
     config.Element('ssh', text=str(self.values['ssh']), parent=mod)
@@ -102,7 +104,7 @@ def PublishSetupMixinTest_Config(self):
 
     # check macros
     for k in self.values:
-      if k in ['localpath']:
+      if k in ['localpath', 'build_host']:
         continue
       elif k in [ 'webpath']:
         test = ( self.event.macros["%{url}"] == pps.path(self.values[k]) / 

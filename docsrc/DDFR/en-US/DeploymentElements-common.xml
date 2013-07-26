@@ -108,8 +108,8 @@
     </entry>
 
     <entry>
-    A Deploy--calculated host name or IP Address for the build machine.
-    Described under the <xref linkend='remote-url'/> element.
+    A host name or IP Address for the build machine. Described under the <xref
+    linkend='build-host'/> element.
     </entry>
     </row>
 
@@ -395,6 +395,138 @@
       </listitem>
     </varlistentry>
 
+    <varlistentry id='build-host'>
+      <term>
+      build-host
+      </term>
+
+      <listitem>
+      <para>
+      Hostname or ipaddress of the build machine. Used in calculating a
+      <xref linkend='remote-url'/> for accessing repository content.
+      </para>
+
+      <para>
+      This element is optional. The default value is computed using the values
+      of the <emphasis>@interface</emphasis> and <emphasis>@fqdn</emphasis>
+      attributes.
+      </para>
+
+      <para>
+      This element accepts two attributes:
+      <emphasis>@interface</emphasis> and
+      <emphasis>@fqdn</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@interface</emphasis>: TEXT value specifying the network
+      interface name, e.g. "eth1", from which to obtain the
+      <varname>%{build-host}</varname> of the repository.  This attribute only
+      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
+      <constant>FALSE</constant>.
+      </para>
+      
+      <para>
+      This attribute is optional. By default, Deploy uses the first
+      active, non-loopback network interface.
+      </para>
+
+      <para>
+      <emphasis>@fqdn</emphasis>: BOOLEAN value that determines whether
+      <application class="software">Deploy</application> uses the build
+      machine's fully qualified domain name or IP address in the
+      automatically-computed remote-url.
+      </para>
+      
+      <para>This attribute is optional. The default value is
+      <constant>FALSE</constant>.
+      </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Examples</emphasis>
+      </para>
+
+      <para>
+      In the following examples, the build machine's fully qualified domain
+      name is <filename>buildserver.company.com</filename> and the IP addresses
+      of "eth0" and "eth1" are 10.10.1.105 and 192.168.0.10, respectively.
+      </para>
+      
+      <para>
+      <emphasis role='bold'>Example 1</emphasis> - no build-host element
+      specified. If no build-host element is specified, the value is
+      automatically computed using the IP address of the first active network
+      interface ("eth0"). The resulting value is -
+      </para>
+      
+      <para>
+      <filename>10.10.1.105</filename>
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example 2</emphasis> - automatic build-host 
+      computation using FQDN.  In this example, the build-host is automatically
+      computed using the FQDN of the build machine.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;build-host fqdn="true" /&gt;</programlisting>
+      </informalexample>
+
+      <para>
+      The resulting value is -
+      </para>
+ 
+      <para>
+      <filename>buildserver.company.com</filename>
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example 3</emphasis> - automatic build-host 
+      computation using a specific interface.  In this example, the build-host
+      is automatically computed using the IP address of the specified
+      interface, "eth1". 
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;build-host interface="eth1"/&gt;</programlisting>
+      </informalexample>
+
+      <para>
+      The resulting value is -
+      </para>
+ 
+      <para>
+      <filename>192.168.0.10</filename>
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example 4</emphasis> - manual configuration of
+      build-host.  In some cases, it is desirable to specify build-host
+      information manually. For example, the build host may be accessible on
+      both local and public networks, but under different names. To use the
+      public network name, you must specify it manually.
+      </para>
+     
+      <para>
+      As another example, the repository may be created on the build machine,
+      but later moved to a web server, or web server farm, for final
+      publication. In this case, the remote-url must be  manually specified.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;build-host&gt;repos.company.com&lt;/build-host&gt;</programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
     <varlistentry id='remote-url'>
       <term>
       remote-url
@@ -402,16 +534,15 @@
 
       <listitem>
       <para>
-      URL to a directory from which client
-      machines can access this repository.
+      URL to a directory from which client machines can access repository
+      content.
       </para>
 
       <para>
       This element is optional. The default values are listed in the following
-      table, where <varname>%{build-host}</varname> is computed using the
-      values of the <emphasis>@interface</emphasis> and
-      <emphasis>@fqdn</emphasis> attributes, and %{type} is the value of <xref
-      linkend='main-type'/>. 
+      table, where <varname>%{build-host}</varname> is taken from the value of
+      the <xref linkend='build-host'/> element and  %{type} is the value of
+      <xref linkend='main-type'/>. 
       </para>
 
       <para>
@@ -479,178 +610,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      This element accepts two attributes:
-      <emphasis>@interface</emphasis> and
-      <emphasis>@fqdn</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@interface</emphasis>: TEXT value specifying the network
-      interface name, e.g. "eth1", from which to obtain the
-      <varname>%{build-host}</varname> of the repository.  This attribute only
-      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
-      <constant>FALSE</constant>.
-      </para>
-      
-      <para>
-      This attribute is optional. By default, Deploy uses the first
-      active, non-loopback network interface.
-      </para>
-
-      <para>
-      <emphasis>@fqdn</emphasis>: BOOLEAN value that determines whether
-      <application class="software">Deploy</application> uses the build
-      machine's fully qualified domain name or IP address in the
-      automatically-computed remote-url.
-      </para>
-      
-      <para>This attribute is optional. The default value is
-      <constant>FALSE</constant>.
-      </para>
-
-      <para>
-      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
-      </para>
-
-      <para>
-      <emphasis role='bold'>Examples</emphasis>
-      </para>
-
-      <para>
-      In the following examples, the build machine's fully qualified domain
-      name is <filename>buildserver.company.com</filename> and the IP addresses
-      of "eth0" and "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It
-      is building a repository with an <varname>%{id}</varname> of
-      "samba-server-5-i386". 
-      </para>
-      
-      <para>
-      <emphasis role='bold'>Example 1</emphasis> - no remote-url element specified. If no remote-url element is
-      specified, the value is automatically computed using the IP address of
-      the first active network interface ("eth0"). The resulting values are -
-      </para>
-      
-      <simplelist type='horiz' columns='2'>
-      <member>
-      remote-url
-      </member>
-
-      <member>
-      <filename>http://10.10.1.105/deploy/systems</filename>
-      </member>
-
-      <member>
-      %{url}
-      </member>
-    
-      <member>
-      <filename>http://10.10.1.105/deploy/systems/samba-server-5-i386</filename>
-      </member>
-      </simplelist>
-
-      <para>
-      <emphasis role='bold'>Example 2</emphasis> - automatic remote-url
-      computation using FQDN.  In this example, the remote-url is automatically
-      computed using the FQDN of the build machine.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;remote-url fqdn="true" /&gt;</programlisting>
-      </informalexample>
-
-      <para>
-      The resulting values are -
-      </para>
- 
-      <simplelist type='horiz' columns='2'>
-      <member>
-      remote-url
-      </member>
-
-      <member>
-      <filename>http://buildserver.company.com/deploy/systems</filename>
-      </member>
-
-      <member>
-      %{url}
-      </member>
-    
-      <member>
-      <filename>http://buildserver.company.com/deploy/systems/samba-server-5-i386</filename>
-      </member>
-      </simplelist>
-
-      <para>
-      <emphasis role='bold'>Example 3</emphasis> - automatic remote-url
-      computation using a specific interface.  In this example, the remote-url
-      is automatically computed using the IP address of the specified
-      interface, "eth1". 
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;remote-url interface="eth1"/&gt;</programlisting>
-      </informalexample>
-
-      <para>
-      The resulting values are -
-      </para>
- 
-      <simplelist type='horiz' columns='2'>
-      <member>
-      remote-url
-      </member>
-
-      <member>
-      <filename>http://192.168.0.10/deploy/systems</filename>
-      </member>
-
-      <member>
-      %{url}
-      </member>
-    
-      <member>
-      <filename>http://192.168.0.10/deploy/systems/samba-server-5-i386</filename>
-      </member>
-      </simplelist>
-
-      <para>
-      <emphasis role='bold'>Example 4</emphasis> - manual configuration of
-      remote-url.  In this example, the repository is created on the build
-      machine, but later moved to a web server, or web server farm, for final
-      publication. In this case, the remote-url must be  manually specified.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;remote-url&gt;http://repos.company.com/&lt;/remote-url&gt;</programlisting>
-      </informalexample>
-
-      <para>
-      The resulting values are -
-      </para>
- 
-      <simplelist type='horiz' columns='2'>
-      <member>
-      remote-url
-      </member>
-
-      <member>
-      <filename>http://repos.company.com</filename>
-      </member>
-
-      <member>
-      %{url}
-      </member>
-    
-      <member>
-      <filename>http://repos.company.com/samba-server-5-i386</filename>
-      </member>
-      </simplelist>
-
-      <para>
-      <emphasis role='bold'>Example 5</emphasis> - manual configuration using
+      <emphasis role='bold'>Example</emphasis> - manual configuration using
       the <link linkend='deployment-macros'>%{build-host}</link> module macro.
       In this example, the repository is created on the build machine, but will
       be accessed over 'https' rather than the default http protocol. 
@@ -662,9 +622,15 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The resulting values are the same as shown in Example 2.
+      Given a <link linkend='deployment-macros'>%{build-host}</link> value of
+      "repos.company.com" and a repository <varname>%{id}</varname> of
+      "samba-server-5-i386",
+      the resulting %{url} macro value is -
       </para>
-
+ 
+      <para>
+      <filename>https://repos.company.com/deploy/systems/samba-server-5-i386</filename>
+      </para>
       </listitem>
     </varlistentry>
 

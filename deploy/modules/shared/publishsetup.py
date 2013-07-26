@@ -124,7 +124,7 @@ class PublishSetupEventMixin(Event):
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'localpath', 'webpath', 
+                      'ssh_passphrase', 'localpath', 'webpath', 'build_host', 
                       'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -132,6 +132,7 @@ class PublishSetupEventMixin(Event):
     # set DATA 
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
+    self.DATA['config'].append('build-host')
     self.DATA['config'].append('remote-url')
     self.DATA['config'].append('hostname')
     self.DATA['variables'].append('domain')
@@ -153,16 +154,22 @@ class PublishSetupEventMixin(Event):
     return local / self.build_id
   
   def get_build_host(self):
+    # use build-host text, if provided
+    build_host = self.config.getxpath('build-host/text()', None)
+    if build_host:
+      return build_host
+
+    # else calculate
     ifname = self._get_ifname()
     build_host = self._get_ipaddr(ifname)
 
-    if self.config.getbool('remote-url/@fqdn', 'False'):
+    if self.config.getbool('build-host/@fqdn', 'False'):
       build_host = self._get_fqdn(build_host, ifname)
 
     return build_host
 
   def _get_ifname(self):
-    ifname = self.config.getxpath('remote-url/@interface', None)
+    ifname = self.config.getxpath('build-host/@interface', None)
     cached_ifcfg = self.pkldata.get('ifcfg')
     cached_ifname = self.pkldata.get('ifname')
 

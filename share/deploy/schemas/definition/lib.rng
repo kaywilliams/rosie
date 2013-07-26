@@ -278,7 +278,7 @@
     </optional>
 
     <optional>
-    <element name="remote-url">
+    <element name="build-host">
       <ref name="xml-base"/>
       <optional>
         <attribute name="fqdn">
@@ -287,6 +287,13 @@
       </optional>
       <optional><attribute name="interface"/> </optional>
       <optional><text/></optional>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="remote-url">
+      <ref name="xml-base"/>
+      <text/>
     </element>
     </optional>
 

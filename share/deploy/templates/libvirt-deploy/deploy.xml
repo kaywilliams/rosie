@@ -7,7 +7,7 @@
 
 <!-- template content below -->
 <domain>deploy</domain>
-<remote-url interface='virbrdpl'/>
+<build-host interface='virbrdpl'/>
 <kickstart>
 <xi:include href='../common/ks.xml' xpointer="xpointer(./node())"/>
 <xi:include href='../common/ks-post-ssh.xml' xpointer="xpointer(./node())"/>
