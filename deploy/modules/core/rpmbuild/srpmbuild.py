@@ -109,7 +109,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     RpmBuildMixin.setup(self)
   
     # resolve macros
-    srpmlast = self.unshelve('srpmlast', '')
+    srpmlast = self.unshelve('srpmlast', 'None') 
     macros = {'%{srpmid}': self.srpmid,
               '%{srpmdir}': self.srpmdir,
               '%{srpmlast}': srpmlast,

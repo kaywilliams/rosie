@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='azure-configure-endpoints' type='post' comes-after='update' ssh='false'>
+<script id='WA-configure-endpoints' type='post' comes-after='update' ssh='false'>
 #!/bin/bash
+
+# reads open ports from iptables configuration and configures corresponding
+# endpoints
+
 set -e
 
-scp -q -o StrictHostKeyChecking=no root@%{fqdn}:/etc/sysconfig/iptables $(dirname "$0")
+scp -o StrictHostKeyChecking=no root@%{fqdn}:/etc/sysconfig/iptables $(dirname "$0")
 
 ports=$(while read line; do ports="$ports $(echo $line | grep -Eoe "--dport [[:digit:]]+" | grep -Eoe "[[:digit:]]+")"; done &lt; $(dirname "$0")/iptables; echo "$ports")
 

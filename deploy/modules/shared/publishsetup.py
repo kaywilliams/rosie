@@ -36,6 +36,8 @@ from deploy.dlogging   import L1
 from deploy.util       import pps
 from deploy.util       import shlib
 
+from deploy.modules.shared import SSHFailedError
+
 from deploy.util.rxml  import config
 
 DEFAULT_LOCALROOT = '/var/www/html/deploy'
@@ -79,7 +81,8 @@ class PublishSetupEventMixin(Event):
     self.boot_options = self.get_bootoptions()
 
     # ssh setup
-    keyfile=pps.path('/root/.ssh/id_rsa')
+    sshdir = pps.path('/root/.ssh')
+    keyfile = sshdir / 'id_rsa'
     if self.ssh:
       if not keyfile.exists():
         try:
@@ -92,6 +95,15 @@ class PublishSetupEventMixin(Event):
                      "If the error persists, you can generate keys manually "
                      "using the command\n '%s'" % (e, cmd))
           raise SSHFailedError(message=message)
+
+      # enable ssh to local machine
+      authkeys = sshdir / 'authorized_keys'
+      if not authkeys.exists(): authkeys.touch()
+      authkeys.chmod(0600)
+
+      pubkey = (keyfile + '.pub').read_text()
+      if not pubkey in authkeys.read_text():
+        authkeys.write_text(authkeys.read_text() + pubkey)
       
       self.resolve_macros(map={'%{build-host-pubkey}': 
                                      (keyfile + '.pub').read_text()})
@@ -124,7 +136,7 @@ class PublishSetupEventMixin(Event):
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'localpath', 'webpath', 
+                      'ssh_passphrase', 'localpath', 'webpath', 'build_host', 
                       'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
@@ -132,6 +144,7 @@ class PublishSetupEventMixin(Event):
     # set DATA 
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
+    self.DATA['config'].append('build-host')
     self.DATA['config'].append('remote-url')
     self.DATA['config'].append('hostname')
     self.DATA['variables'].append('domain')
@@ -153,16 +166,22 @@ class PublishSetupEventMixin(Event):
     return local / self.build_id
   
   def get_build_host(self):
+    # use build-host text, if provided
+    build_host = self.config.getxpath('build-host/text()', None)
+    if build_host:
+      return build_host
+
+    # else calculate
     ifname = self._get_ifname()
     build_host = self._get_ipaddr(ifname)
 
-    if self.config.getbool('remote-url/@fqdn', 'False'):
+    if self.config.getbool('build-host/@fqdn', 'False'):
       build_host = self._get_fqdn(build_host, ifname)
 
     return build_host
 
   def _get_ifname(self):
-    ifname = self.config.getxpath('remote-url/@interface', None)
+    ifname = self.config.getxpath('build-host/@interface', None)
     cached_ifcfg = self.pkldata.get('ifcfg')
     cached_ifname = self.pkldata.get('ifname')
 
@@ -212,7 +231,7 @@ class PublishSetupEventMixin(Event):
     self.pkldata['fqdn'] = fqdn
     return fqdn
 
-  def get_webpath(self, build_host): 
+  def get_webpath(self, build_host):
     if self.moduleid in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
     else:

@@ -15,7 +15,6 @@
 <requires>libvirt</requires>
 <requires>python-virtinst</requires>
 <requires>qemu-kvm</requires>
-<requires>sudo</requires>
 <requires>virt-manager</requires>
 <requires>virt-viewer</requires>
 <requires>/usr/bin/virsh</requires>

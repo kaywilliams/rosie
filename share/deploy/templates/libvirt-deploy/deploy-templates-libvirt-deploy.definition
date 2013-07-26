@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>libvirt-deploy-local</macro>
+<macro id='name'>libvirt-templates-deploy</macro>
 <macro id='os'>centos</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
@@ -24,16 +24,18 @@
 
 <packages>
 <group repoid='base'>core</group>
-<group repoid='base'>base</group>
 </packages>
 
 <config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href="%{deploy-templates-dir}/libvirt-local-dns/libvirt-local-dns.xml"/>
+<xi:include href="%{deploy-templates-dir}/libvirt-deploy/libvirt-deploy"/>
 </config-rpms>
 
 <test-install>
 <xi:include href="%{deploy-templates-dir}/libvirt-deploy/deploy.xml" 
             xpointer="xpointer(./*)"/>
+<script id='test.definition' type='post'>
+</script>
 </test-install>
 
 <test-update>

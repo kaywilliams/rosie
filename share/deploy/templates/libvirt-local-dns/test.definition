@@ -30,6 +30,10 @@
 <xi:include href="libvirt-local-dns.xml"/>
 </config-rpms>
 
+<srpmbuild>
+<xi:include href="dnsmasq.xml"/>
+</srpmbuild>
+
 <test-install>
 <xi:include href="%{templates-dir}/libvirt-deploy/deploy.xml" 
             xpointer="xpointer(./*)"/>

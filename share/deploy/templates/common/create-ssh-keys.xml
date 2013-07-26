@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='create-ssh-keys' type='activate' verbose='true'>
+<script id='create-ssh-keys' type='install' comes-before="install"  verbose='true'>
+<macro id='datdir'>%{definition-dir}/%{id}</macro>
 #!/bin/bash
 set -e
 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='update' type='post' comes-before="check-kernel, poweroff"> 
 #!/bin/bash
+set -e
+
+output=`yum sync -y`
 
 # run yum sync, checking output for scriptlet failed errors
 while read -r line
@@ -9,7 +12,7 @@ do
   if [[ $line == *"scriptlet failed"* ]]; then
     failed="$failed `echo $line | sed -n '/^[^(]*(\([^)]*\)).*/s//\1/p'`"
   fi
-done &lt; &lt;(yum sync -y)
+done &lt; &lt;(echo "$output")
 
 # if found, remove failed packages and exit with an error
 if [[ ${#failed} > 0 ]]; then

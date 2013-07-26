@@ -1,0 +1,75 @@
+<data xml:base="/root/workspace/deploy/share/deploy/templates/libvirt-deploy-local/libvirt-deploy-local-centos-6-x86_64.dat">
+  <gpgsign>
+    <pubkey>-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+mQGiBFHqEk8RBAD9tXAQaD//hc7Rpb8WRsvkXXgKym3GCpVOJQCpPJM6qdCS5Ip5
+hZ0IwCcFpiPET5OWNhsSWNEV5qH1K5tFCbUWckkbFVjhHCAGMnhvtZizxNEaxRpW
+DGMFNrbRTddNwIC7Qt/dnPzl9yFThZ/lTIZibF6iHluFcyK9E7L/KCu1TwCggpgw
+/3OzGACj4X3escJwPU3U0/ED/A9LNAsxncLNw2MXoa3IwZ+S8YLNek7tJIcNEwso
+9JKMqw/RhcjHf2nWPD5FPqfDGAeZ61l97dGrpwbXAu5tHi06NeOdlQKejwBQRBXM
+RXhGedywdXM8NnjadC28pNz50MbGuXSuDdKnk4fYCMtwYAz5Z9iAsNK9pmw4OLtC
+cgXgBADU25lHv405PebvoOfpxTVm30OlWHYsul+EhPY2jEz/NQUn6OA5+FFhCzXC
+isHQ1ODiBccigwfyEqI/Zx7tvU/I7QbQYPYzMLiwa3VL3mIV/s3ZbBoORV/kq/lg
+yATsRFApbar6ibKaUUADocWd0O5JqvQUcgGjcWqTgOYnW+AwLbQwbGlidmlydC1k
+ZXBsb3ktbG9jYWwtY2VudG9zLTYteDg2XzY0IHNpZ25pbmcga2V5iGIEExECACIF
+AlHqEk8CGyMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEOKf16Wo5KhEmeoA
+njoB/ZpzbssEF+g0dD1hMUeSe77sAJ9tW9SDdM9PjgNlYDnwYShSSQm+4bkBDQRR
+6hJPEAQApxHyMwBk2jT5SvydKa9byOa8m3PYu8a/Y/Ng8D5Re8CpHkq6v8nG8VIW
+yMcOS1JCPDkmf447CbTqpIk9sHD79cwW4NKyI+eeKnsAkdM45RNlqiaOxPyk8KMI
+1Znqpxdn01ME6M6LenbTEVyTzGntHJuceYFYI4gScIs4PW3PoBcAAwcD/ivT5h4d
+bfadZCa5xtebzTEnbYbg0pH3iemDqOi7o7Uky1386vq4ekgrhVXtlbhCnd65X4Cg
+JNGQKqiav2EZIyfVvKGtwEL1OthdjFNHbOlnBR72nufHa0LZt3orJqULmvyaIPBR
+FkRbQuaxZtw0JbZgKqZgjwa7ZKbOB2Q9VCPIiEkEGBECAAkFAlHqEk8CGwwACgkQ
+4p/XpajkqERjzwCfYtjlAlMNXVinU3TgDBoSfkhdoPkAn1FP5CeR+9mn4ZoDZpn2
+SPCGtrQ8
+=RCWZ
+-----END PGP PUBLIC KEY BLOCK-----</pubkey>
+    <seckey>-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+lQG7BFHqEk8RBAD9tXAQaD//hc7Rpb8WRsvkXXgKym3GCpVOJQCpPJM6qdCS5Ip5
+hZ0IwCcFpiPET5OWNhsSWNEV5qH1K5tFCbUWckkbFVjhHCAGMnhvtZizxNEaxRpW
+DGMFNrbRTddNwIC7Qt/dnPzl9yFThZ/lTIZibF6iHluFcyK9E7L/KCu1TwCggpgw
+/3OzGACj4X3escJwPU3U0/ED/A9LNAsxncLNw2MXoa3IwZ+S8YLNek7tJIcNEwso
+9JKMqw/RhcjHf2nWPD5FPqfDGAeZ61l97dGrpwbXAu5tHi06NeOdlQKejwBQRBXM
+RXhGedywdXM8NnjadC28pNz50MbGuXSuDdKnk4fYCMtwYAz5Z9iAsNK9pmw4OLtC
+cgXgBADU25lHv405PebvoOfpxTVm30OlWHYsul+EhPY2jEz/NQUn6OA5+FFhCzXC
+isHQ1ODiBccigwfyEqI/Zx7tvU/I7QbQYPYzMLiwa3VL3mIV/s3ZbBoORV/kq/lg
+yATsRFApbar6ibKaUUADocWd0O5JqvQUcgGjcWqTgOYnW+AwLQAAnA2+w+avxkEh
+JOAlMjIUaM/PLHnvCiK0MGxpYnZpcnQtZGVwbG95LWxvY2FsLWNlbnRvcy02LXg4
+Nl82NCBzaWduaW5nIGtleYhiBBMRAgAiBQJR6hJPAhsjBgsJCAcDAgYVCAIJCgsE
+FgIDAQIeAQIXgAAKCRDin9elqOSoRJnqAJ46Af2ac27LBBfoNHQ9YTFHknu+7ACf
+bVvUg3TPT44DZWA58GEoUkkJvuGdATIEUeoSTxAEAKcR8jMAZNo0+Ur8nSmvW8jm
+vJtz2LvGv2PzYPA+UXvAqR5Kur/JxvFSFsjHDktSQjw5Jn+OOwm06qSJPbBw+/XM
+FuDSsiPnnip7AJHTOOUTZaomjsT8pPCjCNWZ6qcXZ9NTBOjOi3p20xFck8xp7Ryb
+nHmBWCOIEnCLOD1tz6AXAAMHA/4r0+YeHW32nWQmucbXm80xJ22G4NKR94npg6jo
+u6O1JMtd/Or6uHpIK4VV7ZW4Qp3euV+AoCTRkCqomr9hGSMn1byhrcBC9TrYXYxT
+R2zpZwUe9p7nx2tC2bd6KyalC5r8miDwURZEW0LmsWbcNCW2YCqmYI8Gu2Smzgdk
+PVQjyAAA+QGvqT+FQSMFsBWNF6UNuzplZWTO3/O808oAWbwjLDCTDt2ISQQYEQIA
+CQUCUeoSTwIbDAAKCRDin9elqOSoRGPPAJ9bSRibNsJc5S5+EL7fnVES/OxrXACf
+WTOmZsx1Si6OVycBbd1/B820iT0=
+=cu8C
+-----END PGP PRIVATE KEY BLOCK-----</seckey>
+  </gpgsign>
+  <libvirt-local-dns-rpm>
+    <release>2</release>
+  </libvirt-local-dns-rpm>
+  <deploy-ssh-config-rpm>
+    <release>2</release>
+  </deploy-ssh-config-rpm>
+  <test-install>
+    <generated-password>Pj6vMdpYChbeMxFZZ1JldMwvkstt5euRR5YKhSj22vWyYYRCUHH7RGwSlV96KPtw</generated-password>
+    <crypt-password>$6$kIWRBPrh$NQuD9rE239OVxH9ild./oN0T3Pryw72nNBlRJCabCa.xOEbzZmJNVJPuy0atiJEh9ldgVSHwuN/IUPtyeNcaz.</crypt-password>
+  </test-install>
+  <test-install-setup>
+    <release>1</release>
+  </test-install-setup>
+  <test-update>
+    <generated-password>dvZ3F0j0bBGGuDwL4n5DvT1mOfD3IopWGLgoNEMWb5Ravb5TXkH4S</generated-password>
+    <crypt-password>$6$dXfUWq1l$WOha3gDTbrE/6vm4tQmnn4gXjckAo4VMIvM43YBLyYwv5aoIxbyMxx8UqUCzCEL9U/ekgpmPmJz14ICwVlMIA0</crypt-password>
+  </test-update>
+  <test-update-setup>
+    <release>1</release>
+  </test-update-setup>
+</data>

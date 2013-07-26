@@ -3,6 +3,8 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
+TMPDIR := /tmp/$(PKGNAME)-$(VERSION)
+
 SUBDIRS = bin docsrc/man etc share deploy
 
 BUILDARGS =
@@ -38,6 +40,7 @@ install:
 	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 tag:
+	@echo 'hg tag -f -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE)'
 	@if [ "$(USERNAME)" != "" ]; then \
 		hg tag -f --user "$(USERNAME)" -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE); \
 	else \
@@ -45,11 +48,17 @@ tag:
 	fi
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
-archive: tag
-	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) -X docsrc/brand \
-        $(PKGNAME)-$(VERSION).tar.gz
+archive: 
+	@rm -f $(PKGNAME)-$(VERSION).tar.gz
+	@rm -rf $(TMPDIR)
+	@mkdir $(TMPDIR)
+	@for f in `hg locate`; do \
+	cp -a --parents "$$f" $(TMPDIR); \
+	done
+	@tar -czf $(PKGNAME)-$(VERSION).tar.gz \
+	--directory=/tmp $(PKGNAME)-$(VERSION) --exclude=docsrc/brand
+	@rm -rf $(TMPDIR)
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
 	@rm -f $(PKGNAME)-$(VERSION).tar.gz
-
