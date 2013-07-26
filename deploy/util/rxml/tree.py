@@ -386,16 +386,15 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                     if macro in x ]
 
         for attrib in attribs:
-          if not isinstance(map[macro], basestring):
-            message = ("Element content not allowed in attribute values.\n\n"
-                       "The macro is defined as:\n" 
-                       "%s\n\n" % map[macro].tostring(lineno=True,
-                       with_tail=False))
-            raise errors.MacroError(self.getroot().base, message,
-                                    attrib.getparent())
+          if isinstance(map[macro], basestring):
+            string = map[macro]
+          else:
+            string = map[macro].getxpath('./text()', '""')
+          print string
+
           parent = attrib.getparent()
           for key, value in parent.attrib.items():
-            parent.attrib[key] = value.replace(macro, map[macro])
+            parent.attrib[key] = value.replace(macro, string)
 
     return map
 
