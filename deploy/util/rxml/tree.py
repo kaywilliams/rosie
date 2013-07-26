@@ -390,7 +390,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
             string = map[macro]
           else:
             string = map[macro].getxpath('./text()', '""')
-          print string
 
           parent = attrib.getparent()
           for key, value in parent.attrib.items():
