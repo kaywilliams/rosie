@@ -41,7 +41,6 @@ class ExecuteEventMixin:
 
   def __init__(self):
     self.macros = getattr(self, 'macros', {})
-    self.macros['%{definition-dir}'] = self._config.getbase().dirname
 
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')

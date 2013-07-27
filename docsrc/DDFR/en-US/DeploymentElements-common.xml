@@ -114,18 +114,6 @@
     </row>
 
     <row>
-    <entry id='definition-dir-macro'>
-    %{definition-dir}
-    </entry>
-
-    <entry>
-    The folder location of the definition. Typically used within non-SSH
-    scripts for locating files and folders relative to the definition. See the
-    <xref linkend="ssh"/> element for additional information.
-    </entry>
-    </row>
-    
-    <row>
     <entry id='url-macro'>
     %{url}
     </entry>
@@ -1797,7 +1785,8 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       If the ssh attribute is <constant>FALSE</constant>, Deploy creates and
       executes the script from the Deploy cache folder on the build machine.
       Scripts that need to access content relative to the definition file can
-      make use of the %{definition-dir} macro.
+      make use of the <link linkend='definition-dir'>%{definition-dir}</link>
+      global run-time macro.
       </para>
 
       <para>

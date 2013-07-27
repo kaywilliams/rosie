@@ -59,9 +59,10 @@
     </para>
 
     <para>
-    Deploy supports three types of macros: <emphasis>command-line
-    macros</emphasis>, <emphasis>in-document macros</emphasis>, and
-    <emphasis>run-time macros</emphasis>. 
+    Deploy supports four types of macros: <emphasis>command-line
+    macros</emphasis>, <emphasis>in-document macros</emphasis>,
+    <emphasis>global run-time macros</emphasis> and <emphasis>per-module
+    run-time macros</emphasis>. 
     </para>
 
     <section id='command-line-macros'>
@@ -231,10 +232,54 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     </section>
 
     <section>
-    <title>Run-Time Macros</title>
+    <title>Global Run-Time Macros</title>
     <para>
-    Run-Time Macros are macros that are
-    defined by Deploy during the build process rather than defined by users.
+    Global run-time macros are defined by Deploy during the build process and
+    applied across all Deploy modules. Deploy provides two global run-time
+    macros: <emphasis>%{definition-dir}</emphasis> and <emphasis>
+    %{templates-dir}</emphasis>.
+    </para>
+
+    <variablelist>
+    <varlistentry id="definition-dir">
+    <term>
+    %{definition-dir}
+    </term>
+    <listitem>
+    <para>
+    The folder location of the definition file. Useful for specifying files and
+    folders relative to the definition file.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry>
+    <term>
+    %{templates-dir}
+    </term>
+    <listitem>
+    <para>
+    The folder location of Deploy-provided templates,
+    <filename>/usr/share/deploy/templates</filename> by default. Can be set
+    using the <emphasis>templates-path</emphasis> element of the Deploy
+    Configuration file. See <command>man deloy.conf</command> for additional
+    information.  Useful for specifying files and folders relative to the
+    templates folder.
+    </para>
+    </listitem>
+    </varlistentry>
+    </variablelist>
+
+    <para>
+    Global run-time macros are resolved following in-document macros.
+    </para>
+    </section>
+
+    <section>
+    <title>Per-Module Run-Time Macros</title>
+    <para>
+    Per-module run-time macros are macros that are
+    defined by specific modules within the Deploy build process.
     Modules that provide run-time macros include
     <emphasis>config-rpms</emphasis>, <emphasis>srpmbuild</emphasis>,
     <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
@@ -242,7 +287,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     </para>
 
     <para>
-    Run-time macros are the last to be resolved.
+    Per-module run-time macros are the last to be resolved.
     </para>
     </section>
 

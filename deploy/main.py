@@ -74,6 +74,7 @@ API_VERSION = 5.0
 DEFAULT_CACHE_DIR = pps.path('/var/cache/deploy')
 DEFAULT_LIB_DIR = pps.path('/var/lib/deploy')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
+DEFAULT_TEMPLATES_DIR = pps.path('/usr/share/deploy/templates')
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
 
 # supported base distribution versions
@@ -329,8 +330,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if not dp.exists():
       raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
+    map=self._get_opt_macros(options)
+    map['%{definition-dir}'] = dp.dirname 
+    map['%{templates-dir}']  =  self.mainconfig.getpath(
+                                '/deploy/templates-path/text()',
+                                DEFAULT_TEMPLATES_DIR)
     dt = rxml.config.parse(dp, xinclude=True, 
-                           macros=self._get_opt_macros(options), 
+                           macros=map, 
                            remove_macros=True)
     self.definition = dt.getroot()
 

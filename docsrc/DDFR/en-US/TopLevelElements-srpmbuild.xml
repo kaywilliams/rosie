@@ -227,9 +227,9 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      Provides four run-time macros:
-      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis>,
-      <emphasis>srpmlast</emphasis> and <emphasis>definition-dir</emphasis>.
+      Provides three run-time macros:
+      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis> and
+      <emphasis>srpmlast</emphasis>.
       </para>
 
       <para>
@@ -254,10 +254,10 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      <emphasis role='strong'>%{definition-dir}:</emphasis> The folder location
-      of the definition. This macro allows the script, which is saved and
-      executed from the cache folder, to access external content from a 
-      relative location.
+      In addition, scripts can make use of the <link
+      linkend='definition-dir'>%{definition-dir}</link> global run-time macro.
+      This macro allows the script, which is saved and executed from the cache
+      folder, to access external content from a relative location.
       </para>
 
       <para>

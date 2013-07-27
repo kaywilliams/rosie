@@ -72,13 +72,28 @@ Deploy installation does not include a deploy.conf file.</para>
   <listitem>
     <para>Directory <replaceable class="parameter">PATH</replaceable> in which
     one or more of Deploy's shared files can be found; the directory contains a
-    hierarchy enabling Deploy to extract files for schemas,
-    <filename>*.rng</filename>, and example files.  The default path is
+    hierarchy enabling Deploy to extract files for schema
+    <filename>*.rng</filename>.  The default path is
     <filename>/usr/share/deploy</filename>.  Multiple path elements are
-    allowed.  Corresponds to the <option>--share-path</option>
-    command-line option.</para>
+    allowed.  Corresponds to the <option>--share-path</option> command-line
+    option.</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>templates-path</option></term>
+  <listitem>
+    <para>
+    Directory <replaceable class="parameter">PATH</replaceable> in which
+    Deploy-provided template files can be found.  The default path is
+    <filename>/usr/share/deploy/templates</filename>. Corresponds to the 
+    <option>%{templates-dir}</option> global run-time macro.
+    </para>
+<programlisting>
+&lt;templates-path&gt;PATH&lt;/templates-path&gt;
 </programlisting>
   </listitem>
 </varlistentry>

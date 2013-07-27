@@ -33,6 +33,13 @@
         </element>
         </zeroOrMore>
 
+        <optional>
+        <element name="templates-path">
+          <ref name="xml-base"/>
+          <text/>
+        </element>
+        </optional>
+
         <zeroOrMore>
         <element name="lib-path">
           <ref name="xml-base"/>

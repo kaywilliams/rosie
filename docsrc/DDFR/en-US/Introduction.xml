@@ -55,14 +55,14 @@
     <note>
     <para>
     On a system with the Deploy RPM installed, this file can be found as
-    <filename>web-server.definition</filename> in the examples folder at
-    <filename>/usr/share/deploy/../../share/deploy/templates/</filename>.
+    <filename>web-server.definition</filename> in the templates folder at
+    <filename>/usr/share/deploy/templates/httpd-config</filename>.
     </para>
     </note>
 
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/httpd-config/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   </section>
 
