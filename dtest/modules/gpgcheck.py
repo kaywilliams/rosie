@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import unittest
+
 from deploy.errors import DeployError
 
 from deploy.util import pps
@@ -81,6 +83,32 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     self.failUnlessRaises(DeployError, self.event)
 
 
+class Test_FailsOnBadKeyUrl(GpgcheckEventTestCase):
+  "fails on bad key url"
+  _type = 'system' # include packages from base and updates repo
+  _conf = """<packages>
+    <package>kernel</package>
+  </packages>"""
+
+  def _make_repos_config(self):
+    repos = rxml.config.Element('repos')
+    base = repo.getDefaultRepoById('base', os=self.os,
+           version=self.version, arch=self.arch, include_baseurl=True,
+           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
+    # set gpgkeys to none
+    base.update({'mirrorlist': None, 'gpgkey': 'bad', 'gpgcheck': None,
+                 'name': None,})
+    repos.append(base.toxml())
+    return repos
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+
+  def runTest(self):
+    unittest.TestCase.failUnlessRaises(self, DeployError, 
+                                       self.execute_predecessors, self.event)
+    #self.failUnlessRaises(DeployError, self.event)
+
 def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
@@ -89,5 +117,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(make_core_suite(GpgcheckEventTestCase, os, version, arch))
   suite.addTest(Test_FailsOnUnsignedPackages(os, version, arch))
   suite.addTest(Test_FailsIfKeyNotProvided(os, version, arch))
+  suite.addTest(Test_FailsOnBadKeyUrl(os, version, arch))
 
   return suite

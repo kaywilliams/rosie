@@ -51,8 +51,8 @@ from deploy.util.repo.repo     import (YumRepo, RepoContainer, NSMAP,
                                              InvalidFileError)
 from deploy.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'DeployRepo', 
-           'DeployRepoGroup', 'DeployRepoFileParseError']
+__all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'GPGKeysEventMixin', 
+           'DeployRepo', 'DeployRepoGroup', 'DeployRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
@@ -459,6 +459,27 @@ class RepoEventMixin(Event):
                                           got=got,
                                           expected=datafile.checksum)
 
+class GPGKeysEventMixin:
+  gpgkeys_mixin_version = "1.00"
+
+  def setup(self):
+    self.DATA['variables'].append('gpgkeys_mixin_version')
+
+    gpgkeys = {}
+    for repo in (getattr(self, 'repos', None) or self.cvars['repos'].values()):
+      if self.type == 'system' or repo.download:
+        for url in repo.gpgkey:
+          try:
+            self.io.validate_input_file(url)
+          except InputFileError, e:
+            raise GPGKeyError(e)
+          gpgkeys[url.basename] = url
+
+    self.keyids = gpgkeys.keys()
+    self.keyids.sort()
+    self.gpgkeys = gpgkeys.values()
+    self.DATA['variables'].append('keyids') 
+
 class ReposDiffTuple(DiffTuple):
   attrib = DiffTuple.attrib + [('csum', str)]
 
@@ -471,6 +492,9 @@ class ReposDiffTuple(DiffTuple):
       # if mtime is -1, the path must exist, so we don't need try/except
       self.csum = self.path.checksum()
 
+
+class GPGKeyError(DeployEventError):
+  message = "%(message)s"
 
 class NoReposEnabledError(DeployEventError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"

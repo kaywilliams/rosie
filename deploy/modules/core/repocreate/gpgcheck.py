@@ -18,10 +18,12 @@
 import rpmUtils
 import yum
 
+from deploy.dlogging  import L1
 from deploy.errors    import (DeployEventError, DeployIOError,
                                     assert_file_has_content)
 from deploy.event     import Event
-from deploy.dlogging import L1
+
+from deploy.modules.shared import GPGKeysEventMixin 
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -31,7 +33,7 @@ def get_module_info(ptr, *args, **kwargs):
     group       = 'repocreate',
   )
 
-class GpgcheckEvent(Event):
+class GpgcheckEvent(Event, GPGKeysEventMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'gpgcheck',
@@ -40,7 +42,7 @@ class GpgcheckEvent(Event):
       ptr = ptr,
       provides = ['checked-rpms'],
       requires = ['pkglist', 'rpmsdir', 'rpms'],
-      conditionally_requires = ['gpgcheck-enabled', 'gpgkeys',],
+      conditionally_requires = ['gpgcheck-enabled'],
     )
 
     self.DATA = {
@@ -52,12 +54,10 @@ class GpgcheckEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # setup for gpgchecking
     self.rpmdb_dir = self.mddir / 'rpmdb'
     if getattr(self, 'cvars[\'gpgcheck-enabled\']', True):
       self.DATA['variables'].append('cvars[\'gpgcheck-enabled\']')
-      if self.cvars['gpgkeys']:
-        self.DATA['input'].extend(self.cvars['gpgkeys'])
+      GPGKeysEventMixin.setup(self)
 
   def run(self):
     if not self.cvars['gpgcheck-enabled']:
@@ -76,8 +76,8 @@ class GpgcheckEvent(Event):
 
   def _process_keys(self):
     # if any prior key ids no longer exist, start clean to force rechecking
-    if "cvars['gpgkey-ids']" in self.diff.variables.difference():
-      md, curr = self.diff.variables.difference()['cvars[\'gpgkey-ids\']']
+    if "keyids" in self.diff.variables.difference():
+      md, curr = self.diff.variables.difference()['keyids']
       if set(md).difference(curr): #prior key has been removed
         self.log(1, L1("gpgkey(s) removed - rechecking all packages"))
         self.io.clean_eventcache(all=true)
@@ -87,7 +87,7 @@ class GpgcheckEvent(Event):
     self.ts = rpmUtils.transaction.TransactionWrapper(root=self.rpmdb_dir)
 
     #add keys to rpmdb
-    for key in self.cvars['gpgkeys']:
+    for key in self.gpgkeys:
       assert_file_has_content(key, cls=GpgkeyIOError)
       self.ts.pgpImportPubkey(yum.misc.procgpgkey(key.read_text()))
 

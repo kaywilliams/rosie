@@ -22,11 +22,11 @@ import yum
 from deploy.errors         import DeployEventError
 from deploy.event          import Event, DummyConfig
 from deploy.event.fileio   import InputFileError
-from deploy.modules.shared import (ShelveMixin, MkrpmRpmBuildMixin,
+from deploy.modules.shared import (MkrpmRpmBuildMixin, GPGKeysEventMixin,
                                    Trigger, TriggerContainer, DeployRepo)
 from deploy.util           import rxml
 
-class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
+class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   release_mixin_version = "1.26"
 
   def __init__(self): # call after creating self.DATA
@@ -39,8 +39,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     self.conditionally_requires.add('gpg-signing-keys')
 
     MkrpmRpmBuildMixin.__init__(self)
-
-    ShelveMixin.__init__(self)
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             force_release=None):
@@ -102,29 +100,19 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    repos = self.cvars['repos'].values()
+    self.repos = self.cvars['repos'].values()
     if 'gpg-signing-keys' in self.cvars: 
-      repos = (repos +
+      self.repos = (self.repos +
               # using a dummy repo since rpmbuild repo not yet created
                [DeployRepo(id='dummy', 
                            gpgkey=self.cvars['gpg-signing-keys']['pubkey'])])
 
-    self.gpgkeys = {}
-    for repo in repos:
-      for url in repo.gpgkey:
-        if self.type == 'system' or repo.download:
-          try:
-            self.io.validate_input_file(url)
-          except InputFileError, e:
-            raise GPGKeyError(e)
-          self.gpgkeys[url.basename] = url # using key basename as id 
+    GPGKeysEventMixin.setup(self) # set self.repos before calling
 
-    self.cvars['gpgkey-ids'] = self.gpgkeys.keys() # track id changes, not urls
-    self.DATA['variables'].extend(['keydir', 'cvars[\'gpgkey-ids\']'])
+    self.DATA['variables'].extend(['keydir'])
 
   def run(self):
-    for path in [ self.shelvefile, self.local_keydir ]:
-      path.rm(recursive=True, force=True)
+    self.local_keydir.rm(recursive=True, force=True)
     MkrpmRpmBuildMixin.run(self)
 
   def generate(self):
@@ -136,7 +124,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
       # of changes
       self.local_keydir.mkdirs()
       self.keys = []
-      for url in self.gpgkeys.values():
+      for url in self.gpgkeys:
         try:
           url.cp(self.local_keydir, mirror=True)
         except Exception, e:
@@ -196,11 +184,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
   def _gpgkeys(self):
     if not self.cvars['gpgcheck-enabled']:
-      self.shelvefile.rm(force=True)
       return []
-
-    # cache for future
-    self.shelve('keys', self.keys)
 
     # create gpgkey list for use by yum sync plugin
     listfile = self.local_keydir / self.keylist
@@ -214,8 +198,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, ShelveMixin):
 
   def apply(self):
     MkrpmRpmBuildMixin.apply(self)
-    self.cvars['gpgkeys'] = [ self.local_keydir / x 
-                              for x in self.unshelve('keys', []) ]
 
 
 class GPGKeyError(DeployEventError):

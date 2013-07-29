@@ -33,7 +33,7 @@ from deploy.util import shlib
 
 from deploy.util.rxml import config
 
-from deploy.main import Build
+from deploy.main import Build, DEFAULT_TEMPLATES_DIR
 
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
 
@@ -43,11 +43,7 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/deploy/dtest.conf')
-    if mcf.exists():
-      self.mainconfig = config.parse(mcf).getroot()
-    else:
-      self.mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
+    self.mainconfig = get_mainconfig(options) 
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
@@ -55,7 +51,10 @@ class TestBuild(Build):
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
-    self.definition.xinclude(macros=self._get_opt_macros(options=options))
+    map = self._get_opt_macros(options)
+    map.setdefault('%{definition-dir}', self.conf.base)
+    map.setdefault('%{templates-dir}', get_templates_dir(self.mainconfig))
+    self.definition.xinclude(macros=map)
     self.definition.remove_macros()
 
 class EventTestCase(unittest.TestCase):
@@ -159,7 +158,7 @@ class EventTestCase(unittest.TestCase):
 
   # test suite methods
   def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, [])
+    self.tb = TestBuild(self.conf, self.options, []) 
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)
@@ -407,6 +406,21 @@ def decorate(testcase, method, prefn=None, postfn=None):
     postfn and postfn()
 
   setattr(testcase, method, decorated)
+
+def get_mainconfig(options):
+    mcf = pps.path(options.mainconfigpath or '/etc/deploy/dtest.conf')
+    if mcf.exists():
+      mainconfig = config.parse(mcf).getroot()
+    else:
+      mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
+
+    return mainconfig
+
+def get_templates_dir(mainconfig):
+    templates_dir = mainconfig.getpath('/deploy/templates-path/text()',
+                                       DEFAULT_TEMPLATES_DIR)
+
+    return templates_dir
 
 def _run_make(dir):
   cwd = os.getcwd()

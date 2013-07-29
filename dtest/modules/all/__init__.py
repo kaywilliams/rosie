@@ -92,7 +92,7 @@ class Test_XIncludeResolution(AllEventTestCase):
   """
   <publish xmlns:xi='%s' xml:base='%s'>
   <!--case 7: remote xml file with xpointer-->
-  <xi:include href='../../../share/deploy/templates/libvirt-deploy/deploy.xml'
+  <xi:include href='../../share/deploy/templates/libvirt/deploy.xml'
               xpointer='xpointer(/*/*)'/>
   </publish>
   """ % (tree.XI_NS, pps.path(__file__).abspath()),]
@@ -295,25 +295,6 @@ class Test_MacroFailsOnCircularReference(AllEventTestCase):
 
   def tearDown(self): pass
 
-class Test_MacroFailsInsertingElemInAttr(AllEventTestCase):
-  "macro fails inserting element content in an attribute "
-
-  _conf = ["""
-  <macro id='test'><elem/></macro>
-  """,
-  """
-  <packages>
-    <group repoid='%{test}'>group</group>
-  </packages>
-  """]
-  def setUp(self): pass 
-
-  def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, MacroError,
-      TestBuild, self.conf, self.options, [])
-
-  def tearDown(self): pass
-
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('all')
 
@@ -321,6 +302,5 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_XIncludeResolution(os, version, arch))
   suite.addTest(Test_MacroResolution(os, version, arch))
   suite.addTest(Test_MacroFailsOnCircularReference(os, version, arch))
-  suite.addTest(Test_MacroFailsInsertingElemInAttr(os, version, arch))
 
   return suite

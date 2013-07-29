@@ -94,7 +94,7 @@ class Test_OutputsGpgkeys(ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless((self.event.OUTPUT_DIR/'gpgkeys').findpaths(mindepth=1))
-    expected = [ x.basename for x in self.event.cvars['gpgkeys'] ]
+    expected = self.event.keyids
     expected.append('gpgkey.list')
     found = [ x.basename for x in
              (self.event.OUTPUT_DIR/'gpgkeys').findpaths(mindepth=1,
@@ -147,7 +147,7 @@ class Test_GpgkeysInstalled(DeployReleaseRpmEventTestCase):
     # properly you will see an error during the next run. This should
     # be improved so that issues appear during the same run...
     files = self.event._config.getxpath('/*/config-rpms/config-rpm/files')
-    files.text = ' '.join(self.event.cvars['gpgkey-ids']).lower()
+    files.text = ' '.join(self.event.keyids).lower()
     self.tb.dispatch.get('config-rpm').status = True # force config-rpm
 
     # set post script for deploy - doing this after deploy

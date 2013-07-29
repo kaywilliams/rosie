@@ -330,13 +330,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if not dp.exists():
       raise rxml.errors.XmlError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    map=self._get_opt_macros(options)
-    map['%{definition-dir}'] = dp.dirname 
-    map['%{templates-dir}']  =  self.mainconfig.getpath(
+    map = self._get_opt_macros(options)
+    map.setdefault('%{definition-dir}', dp.dirname)
+    map.setdefault('%{templates-dir}', self.mainconfig.getpath(
                                 '/deploy/templates-path/text()',
-                                DEFAULT_TEMPLATES_DIR)
-    dt = rxml.config.parse(dp, xinclude=True, 
-                           macros=map, 
+                                DEFAULT_TEMPLATES_DIR))
+    dt = rxml.config.parse(dp, xinclude=True,
+                           macros=map,
                            remove_macros=True)
     self.definition = dt.getroot()
 

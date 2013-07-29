@@ -79,7 +79,7 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
       ptr = ptr,
       version = '1.00',
       provides = ['os-content', 'release-rpm',
-                  'gpgcheck-enabled', 'gpgkeys', 'gpgkey-ids'],
+                  'gpgcheck-enabled', 'gpgkeys'],
       requires = ['publish-setup-options'],
       conditionally_comes_before = ['config-rpms'],
     )

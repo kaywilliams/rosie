@@ -23,7 +23,8 @@ from lxml import etree
 from deploy.util      import pps
 from deploy.util      import rxml
 
-from dtest        import EventTestCase, decorate
+from dtest        import (EventTestCase, decorate, get_mainconfig,
+                          get_templates_dir)
 from dtest.core   import CoreTestSuite
 from dtest.mixins import check_vm_config
 
@@ -41,12 +42,16 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
     # get default deploy config
     deploy = rxml.config.parse(
-      '%s/../../share/deploy/templates/libvirt-deploy/deploy.xml' %  
+      '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
       pps.path(__file__).dirname.abspath(),
       xinclude = True,
-      macros = {'%{version}'  : '%s' % version,
-                '%{arch}'     : '%s' % arch,
-                '%{file-size}': '6'}
+      macros = {'%{version}'  : version,
+                '%{arch}'     : arch,
+                '%{file-size}': '6',
+                '%{definition-dir}': self.conf.base,
+                '%{templates-dir}': get_templates_dir(
+                                    get_mainconfig(self.options))
+                }
       ).getroot()
 
     # update packages

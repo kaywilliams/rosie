@@ -27,7 +27,7 @@ from deploy.dlogging     import MSG_MAXWIDTH, L0, L1, L2
 from deploy.errors       import (DeployError, DeployEventError, 
                                  DuplicateIdsError, MissingIdError)
 from deploy.event        import Event, CLASS_META
-from deploy.main         import Build
+from deploy.main         import Build, DEFAULT_TEMPLATES_DIR
 from deploy.util         import magic 
 from deploy.util         import pps 
 from deploy.util         import rxml 
@@ -337,9 +337,14 @@ class SrpmBuild(Build):
   def _get_definition(self, options, arguments):
     name, spec, requires = self._get_srpm_info(self.ptr.srpmfile)
 
+    map = self._get_opt_macros(options)
+    map.setdefault('%{definition-dir}', self.ptr.template)
+    map.setdefault('%{templates-dir}', self.mainconfig.getpath(
+                                '/deploy/templates-path/text()',
+                                DEFAULT_TEMPLATES_DIR))
     self.definition = rxml.config.parse(self.ptr.template,
                                         xinclude=True,
-                                        macros = self._get_opt_macros(options),
+                                        macros = map, 
                                         remove_macros = True,
                                         ).getroot()
 
