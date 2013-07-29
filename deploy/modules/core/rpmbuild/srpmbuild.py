@@ -90,8 +90,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.rpmsdir   = self.mddir / 'rpms'
 
-    self.datdir   = self.LIB_DIR / 'srpms'
-    self.datdir.mkdirs()
+    self.data_dir   = self.LIB_DIR / 'srpms'
+    self.data_dir.mkdirs()
 
     if self.version == "5":
       self.build_dir = pps.path('/usr/src/redhat')
@@ -307,7 +307,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       logfile   = self.options.logfile,
       libpath   = self.options.libpath,
       sharepath = self.options.sharepath,
-      datpath = self.datdir,
+      data_dir = self.data_dir,
       force_modules = [],
       skip_modules  = [],
       force_events  = ['deploy'],

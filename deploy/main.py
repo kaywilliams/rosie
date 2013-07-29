@@ -468,10 +468,15 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
-    # setup datfile name
-    self.datfn = ((pps.path(options.datpath) or 
-                  self.definition.getbase().dirname) /
-                  '%s.dat' % self.build_id)
+    # setup data-dir and data file name
+    self.data_dir = (pps.path(options.data_dir) or 
+                     self.definition.getbase().dirname / self.build_id)
+    self.data_dir.exists() or self.data_dir.mkdir()
+    self.datfn = self.data_dir / '%s.dat' % self.build_id
+
+    legacy_datfile = self.data_dir.basename / '%s.dat' % self.build_id
+    if legacy_datfile.exists() and not self.datfn.exists():
+      legacy_datfile.mv(self.data_dir)
 
     # set up cache options
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')

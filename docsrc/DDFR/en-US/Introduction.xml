@@ -96,11 +96,11 @@
     <para>
     By default, the file will be created in the same directory as the 
     definition. An alternative directory location can be specified on the
-    deploy command line using the '--dat-path' parameter, for example:
+    deploy command line using the '--data-dir' parameter, for example:
     </para>
 
     <para><informalexample><programlisting>
-deploy samba.definition --dat-path /my/dat/path    
+deploy samba.definition --data-dir /my/dat/path    
     </programlisting></informalexample>
     </para>
 

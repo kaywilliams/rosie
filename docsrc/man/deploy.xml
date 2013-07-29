@@ -51,7 +51,7 @@
 <option>--log-file <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
-<option>--dat-path <replaceable class='parameter'>PATH</replaceable></option>
+<option>--data-dir <replaceable class='parameter'>PATH</replaceable></option>
 </arg>
 <arg choice="opt">
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
@@ -101,7 +101,7 @@ definition file, see the Deploy Definition File Reference at
 </varlistentry>
 
 <varlistentry>
-  <term><option>--dat-path <replaceable class="parameter">PATH</replaceable></option></term>
+  <term><option>--data-dir <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
     <para>
     Specifies the directory <replaceable class="parameter">PATH</replaceable>
