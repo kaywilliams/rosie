@@ -80,7 +80,7 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
       md, curr = self.diff.variables.difference()['keyids']
       if set(md).difference(curr): #prior key has been removed
         self.log(1, L1("gpgkey(s) removed - rechecking all packages"))
-        self.io.clean_eventcache(all=true)
+        self.io.clean_eventcache(all=True)
         self.tochecks = self.cvars['rpms'].keys()
 
     # create rpmdb for key storage

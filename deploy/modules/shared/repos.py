@@ -465,15 +465,19 @@ class GPGKeysEventMixin:
   def setup(self):
     self.DATA['variables'].append('gpgkeys_mixin_version')
 
-    gpgkeys = {}
+    urls = set()
     for repo in (getattr(self, 'repos', None) or self.cvars['repos'].values()):
       if self.type == 'system' or repo.download:
         for url in repo.gpgkey:
-          try:
-            self.io.validate_input_file(url)
-          except InputFileError, e:
-            raise GPGKeyError(e)
-          gpgkeys[url.basename] = url
+          urls.add(url)
+
+    gpgkeys = {}
+    for url in urls:
+      try:
+        self.io.validate_input_file(url)
+      except PPSPathError, e:
+        raise GPGKeyError(e)
+      gpgkeys[self.io.abspath(url).read_text().strip()] = url
 
     self.keyids = gpgkeys.keys()
     self.keyids.sort()

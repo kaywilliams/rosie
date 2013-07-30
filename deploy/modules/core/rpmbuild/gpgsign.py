@@ -68,10 +68,14 @@ class GpgSignSetupEvent(Event):
     else:
       self.passphrase = str(self.config.getxpath('passphrase/text()'))
 
-    self.DATA['variables'].extend(['pubkey', 'seckey', 'passphrase'])
+    self.get_signing_keys() # sets up self.pubtext and self.sectext
+
+    self.DATA['variables'].extend(['pubtext', 'sectext', 'pubkey', 'seckey',
+                                   'passphrase'])
 
   def run(self):
-    self.get_signing_keys()
+    self.write_keys(self.pubtext, self.sectext)
+    self.validate_keys(map = { self.pubkey: 'public', self.seckey: 'secret' })
     self.DATA['output'].extend([self.pubkey, self.seckey])
 
   def apply(self):
@@ -90,36 +94,33 @@ class GpgSignSetupEvent(Event):
   #------- Helper Methods -------#
 
   def get_signing_keys(self):
-    if not self.config.getxpath('public/text()', ''):
-      self.get_keys_from_datfile() or self.create_keys()
-    else:
-      self.get_keys_from_config() 
+    (self.get_keys_from_config() or 
+     self.get_keys_from_datfile() or 
+     self.create_keys())
 
   def get_keys_from_config(self):
+    self.pubtext = self.config.getxpath('public/text()', '')
+    self.sectext = self.config.getxpath('secret/text()', '')
+
+    if not (self.pubtext and self.sectext):
+      return False
+
+    # else, remove generated keys from datfile, if exist, and return true
     df = self.parse_datfile()
-    pubtext = self.config.getxpath('public/text()', '')
-    sectext = self.config.getxpath('secret/text()', '')
-    self.write_keys(pubtext, sectext)
-    self.validate_keys(map = { self.pubkey: 'public', self.seckey: 'secret' })
-
-
-    # remove generated keys from datfile, if exist
     for key in ['pubkey', 'seckey']:
       elem = df.getxpath('/*/%s/%s' % (self.id, key), None)
       if elem is not None:
         elem.getparent().remove(elem)
-
     self.write_datfile(df)
+    return True
 
   def get_keys_from_datfile(self):
     df = self.parse_datfile()
-    pubtext = df.getxpath('/*/%s/pubkey/text()' % self.id, '')
-    sectext = df.getxpath('/*/%s/seckey/text()' % self.id, '')
+    self.pubtext = df.getxpath('/*/%s/pubkey/text()' % self.id, '')
+    self.sectext = df.getxpath('/*/%s/seckey/text()' % self.id, '')
 
-    if not (pubtext and sectext):
+    if not (self.pubtext and self.sectext):
       return False # no keys in datfile
-   
-    self.write_keys(pubtext, sectext)
 
     return True # keys in datfile
 
@@ -163,20 +164,22 @@ EOF""" % (name, pubring, secring)
     shlib.execute('/usr/bin/gpg --export-secret-key -a --homedir %s "%s" > %s'
                   % (homedir, name, self.seckey))
 
+    self.pubtext = self.pubkey.read_text()
+    self.sectext = self.seckey.read_text()
+
     # write to datfile
     root = self.parse_datfile()
     uElement = config.uElement
 
-    gpgsign  = uElement(self.id, parent=root)
-    pubkey   = uElement('pubkey', parent=gpgsign, text=self.pubkey.read_text())
-    seckey   = uElement('seckey', parent=gpgsign, text=self.seckey.read_text())
-
+    gpgsign      = uElement(self.id, parent=root)
+    pubkey = uElement('pubkey', parent=gpgsign, text=self.pubtext)
+    seckey = uElement('seckey', parent=gpgsign, text=self.sectext)
     self.write_datfile(root)
 
   def write_keys(self, pubtext, sectext):
-    if not self.pubkey.exists() or not pubtext == self.pubkey.read_text():
+    if not self.pubkey.exists() and not self.pubtext == self.pubkey.read_text():
       self.pubkey.write_text((pubtext.strip() + '\n').encode('utf8'))
-    if not self.seckey.exists() or not sectext == self.seckey.read_text():
+    if not self.seckey.exists() and not self.sectext == self.seckey.read_text():
       self.seckey.write_text((sectext.strip() + '\n').encode('utf8'))
 
   def validate_keys(self, map):
@@ -184,7 +187,6 @@ EOF""" % (name, pubring, secring)
       if not magic.match(key) == eval(
         'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
         raise InvalidKeyError(map[key])
-
 
 
 # -------- Error Classes --------#
