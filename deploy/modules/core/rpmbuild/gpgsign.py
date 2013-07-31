@@ -68,7 +68,9 @@ class GpgSignSetupEvent(Event):
     else:
       self.passphrase = str(self.config.getxpath('passphrase/text()'))
 
-    self.get_signing_keys() # sets up self.pubtext and self.sectext
+    (self.get_keys_from_config() or 
+     self.get_keys_from_datfile() or 
+     self.create_keys())
 
     self.DATA['variables'].extend(['pubtext', 'sectext', 'pubkey', 'seckey',
                                    'passphrase'])
@@ -92,11 +94,6 @@ class GpgSignSetupEvent(Event):
     self.verifier.failUnlessExists(self.seckey)
 
   #------- Helper Methods -------#
-
-  def get_signing_keys(self):
-    (self.get_keys_from_config() or 
-     self.get_keys_from_datfile() or 
-     self.create_keys())
 
   def get_keys_from_config(self):
     self.pubtext = self.config.getxpath('public/text()', '')
@@ -177,9 +174,9 @@ EOF""" % (name, pubring, secring)
     self.write_datfile(root)
 
   def write_keys(self, pubtext, sectext):
-    if not self.pubkey.exists() and not self.pubtext == self.pubkey.read_text():
+    if not self.pubkey.exists() or not self.pubkey.read_text() == pubtext:
       self.pubkey.write_text((pubtext.strip() + '\n').encode('utf8'))
-    if not self.seckey.exists() and not self.sectext == self.seckey.read_text():
+    if not self.seckey.exists() or not self.seckey.read_text() == sectext:
       self.seckey.write_text((sectext.strip() + '\n').encode('utf8'))
 
   def validate_keys(self, map):

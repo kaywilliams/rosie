@@ -475,7 +475,7 @@ class GPGKeysEventMixin:
     for url in urls:
       try:
         self.io.validate_input_file(url)
-      except PPSPathError, e:
+      except InputFileError, e:
         raise GPGKeyError(e)
       gpgkeys[self.io.abspath(url).read_text().strip()] = url
 

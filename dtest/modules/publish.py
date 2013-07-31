@@ -94,7 +94,7 @@ class Test_OutputsGpgkeys(ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless((self.event.OUTPUT_DIR/'gpgkeys').findpaths(mindepth=1))
-    expected = self.event.keyids
+    expected = [ x.basename for x in self.event.gpgkeys ]
     expected.append('gpgkey.list')
     found = [ x.basename for x in
              (self.event.OUTPUT_DIR/'gpgkeys').findpaths(mindepth=1,
