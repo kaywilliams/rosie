@@ -8,7 +8,7 @@
 
 <refentry id="command.deploy">
 <refentryinfo>
-<date>2012-12-17</date>
+<date>2013-07-30</date>
 </refentryinfo>
  
 <refmeta>
@@ -19,12 +19,12 @@
 
 <refnamediv>
 <refname>deploy</refname>
-<refpurpose>creates RPM package repositories for use with CentOS and Red Hat Enterprise Linux.</refpurpose>
+<refpurpose>a platform for managing system and application deployment</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 <refsynopsisdivinfo>
-<date>2012-04-18</date>
+<date>2013-07-30</date>
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
@@ -51,7 +51,7 @@
 <option>--log-file <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
-<option>--data-dir <replaceable class='parameter'>PATH</replaceable></option>
+<option>--data-root <replaceable class='parameter'>PATH</replaceable></option>
 </arg>
 <arg choice="opt">
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
@@ -71,7 +71,7 @@
 </refsynopsisdiv>
 
 <refsect1 id="deploy.1-description"><title>DESCRIPTION</title>
-<para>Builds and maintains the repository defined in the file at
+<para>Deploys the system or application defined in the file at
 DEFINITION.</para>
 </refsect1>
 
@@ -101,12 +101,15 @@ definition file, see the Deploy Definition File Reference at
 </varlistentry>
 
 <varlistentry>
-  <term><option>--data-dir <replaceable class="parameter">PATH</replaceable></option></term>
+  <term><option>--data-root <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
     <para>
-    Specifies the directory <replaceable class="parameter">PATH</replaceable>
-    where Deploy should write the definition data file. The default path is the
-    definition directory.
+    Specifies the root directory <replaceable
+    class="parameter">PATH</replaceable> where Deploy should create definition
+    data folders. The default path is the definition directory.  See the Deploy
+    Definition File Reference at <ulink
+    url="http://www.deployproject.org/docs"/> for more information on data
+    files and folders.
     </para>
   </listitem>
 </varlistentry>
@@ -255,7 +258,7 @@ class="parameter">MODULE3</replaceable></para>
   <term><option>--validate-only</option></term>
   <listitem>
 <para>Performs DEPLOY_CONF and DEFINITION validation only; it
-does not build the repository.  The option also displays the complete
+does not build the definition.  The option also displays the complete
 DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
@@ -268,6 +271,13 @@ DEFINITION file after resolving macro and include elements.</para>
 MODULE, PATH and DEPLOY_CONF.</para>
 
 <variablelist>
+<varlistentry>
+  <term>DEPLOY_CONF</term>
+  <listitem>
+    <para>The directory and filename of the Deploy configuration file.</para>
+  </listitem>
+</varlistentry>
+
 <varlistentry>
   <term>MODULE</term>
   <listitem>
@@ -284,12 +294,6 @@ MODULE, PATH and DEPLOY_CONF.</para>
   </listitem>
 </varlistentry>
 
-<varlistentry>
-  <term>DEPLOY_CONF</term>
-  <listitem>
-    <para>The directory and filename of the Deploy configuration file.</para>
-  </listitem>
-</varlistentry>
 </variablelist>
 </refsect1>
 
@@ -297,7 +301,7 @@ MODULE, PATH and DEPLOY_CONF.</para>
 <para>
 A module performs an individual step in the build process, such as
 downloading software packages, creating packages or creating ISO images. 
-On subsequent builds of the same repository, Deploy automatically
+On subsequent builds of the same definition, Deploy automatically
 determines whether a module can be skipped in favor of using cached data from a
 previous build. Users can override the default determination using the
 <command>--skip</command> and <command>--force</command> options.

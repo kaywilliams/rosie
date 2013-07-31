@@ -31,7 +31,7 @@ opt_defaults = dict(
   logfile = None,
   libpath   = [],
   sharepath = [],
-  data_dir = None,
+  data_root = None,
   force_modules = [],
   skip_modules  = [],
   force_events  = [],
@@ -122,6 +122,10 @@ def main():
 
   dtest.BUILD_ROOT = pps.path(options.buildroot)
   dtest.BUILD_ROOT.mkdirs()
+
+  options.data_root = options.buildroot + '/data'
+  pps.path(options.data_root).mkdirs()
+
   dtest.EventTestCase.options = options
 
   runner = dtest.EventTestRunner(options.testlogfile, options.testloglevel)

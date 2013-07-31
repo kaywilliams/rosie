@@ -506,7 +506,7 @@ fi
     </para>
 
     <informalexample>
-    <programlisting><xi:include href="../../../../../share/deploy/templates/httpd-config.xml" parse="text"
+    <programlisting><xi:include href="../../../../../share/deploy/templates/httpd/httpd-config.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
     </informalexample>
 

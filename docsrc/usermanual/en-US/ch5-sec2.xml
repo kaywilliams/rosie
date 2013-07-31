@@ -79,7 +79,7 @@
   Deploy includes a number of deployment templates in the <xref
   linkend='templates'/> folder. In the previous section, we discussed one of
   these templates, the libvirt deployment template located at 
-  <filename>libvirt-deploy/deploy.xml</filename>. 
+  <filename>libvirt/deploy.xml</filename>. 
   </para>
 
   <para>
@@ -166,7 +166,7 @@
   <emphasis role='strong'>libvirt deployment template</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt-deploy/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -198,7 +198,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/deploy/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -206,7 +206,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/deploycommon/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/common/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>

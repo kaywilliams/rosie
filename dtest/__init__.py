@@ -49,26 +49,29 @@ class TestBuild(Build):
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
+  def _get_definition_path(self, *args):
+    self.definition_path = pps.path(self.conf.base) 
+
   def _get_definition(self, options, arguments):
     self.definition = self.conf
-    map = self._get_opt_macros(options)
-    map.setdefault('%{definition-dir}', self.conf.base)
-    map.setdefault('%{templates-dir}', get_templates_dir(self.mainconfig))
-    self.definition.xinclude(macros=map)
+    self.definition.xinclude(macros=self.initial_macros)
     self.definition.remove_macros()
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, os, version, arch='i386', conf=None):
+    self.name = 'test-%s' % self.moduleid
     self.os = os 
     self.version = version
     self.arch = arch
+    self.id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch) 
+    # pretend we read from a config file in the modules directory
+    self.definition_path = pps.path(__file__).dirname/'modules/%s' % self.moduleid
 
     if conf is not None:
       self.conf = conf
     else:
       self.conf = self._make_default_config()
-    # pretend we read from a config file in the modules directory
-    self.conf.base = pps.path(__file__).dirname/'modules/%s' % self.moduleid
+    self.conf.base = self.definition_path
 
     self.buildroot = BUILD_ROOT
 
@@ -112,18 +115,15 @@ class EventTestCase(unittest.TestCase):
   # return config.ConfigElement object or None
 
   def _make_main_config(self):
-    name = 'test-%s' % self.moduleid
-
     main = config.Element('main')
-    config.Element('macro',     attrib={'id': 'name'}, text=name, parent=main)
+    config.Element('macro',     attrib={'id': 'name'}, text=self.name, 
+                                parent=main)
     config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
     config.Element('macro',     attrib={'id':'version'}, text=self.version,
                                 parent=main)
     config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
                                 parent=main)
-    config.Element('macro',     attrib={'id':'id'}, 
-                                text='%{name}-%{os}-%{version}-%{arch}', 
-                                parent=main)
+    config.Element('macro',     attrib={'id':'id'}, text=self.id, parent=main)
 
     config.Element('fullname', text='%{name} event test', parent=main)
     config.Element('name',     text='%{name}', parent=main)

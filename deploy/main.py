@@ -151,6 +151,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set up configs
     try:
       self._get_config(options, arguments)
+      self._get_definition_path(arguments)
+      self._get_templates_dir()
+      self._get_initial_macros(options)
       self._get_definition(options, arguments)
     except rxml.errors.XmlError, e:
       if self.debug: 
@@ -188,6 +191,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       if not VALIDATE_DATA[elem]['validatefn'](value):
         raise InvalidConfigError(self.definition.getbase(), elem, value, 
                                  VALIDATE_DATA[elem]['error'])
+    
+    # set data_dir
+    # wish we could do this before get_definition() for parity with other 
+    # global-runtime macros, but we don't have the build-id until after the
+    # definition has been read.
+    self._get_data_dir(options)
 
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
@@ -282,7 +291,33 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.build_id ))
 
-  def _get_opt_macros(self, options):
+
+  def _get_config(self, options, arguments):
+    """
+    Gets the deploy config based on option values. The deploy
+    config file is optional; if not found, merely uses a set of default values.
+    """
+    cp = pps.path(options.mainconfigpath).expand().abspath()
+    if cp and cp.exists():
+      self.logger.log(4, "Reading '%s'" % cp)
+      mc = rxml.config.parse(cp).getroot()
+    else:
+      self.logger.log(4, "No deploy config file found at '%s'. Using default settings" % cp)
+      mc = rxml.config.fromstring('<deploy/>')
+
+    self.mainconfig = mc
+
+  def _get_definition_path(self, arguments):
+    self.definition_path = pps.path(arguments[0]).expand().abspath()
+    if not self.definition_path.exists():
+      raise rxml.errors.XmlError("No definition found at '%s'" % dp)
+
+  def _get_templates_dir(self):
+    self.templates_dir = self.mainconfig.getpath(
+                         '/deploy/templates-path/text()',
+                          DEFAULT_TEMPLATES_DIR)
+
+  def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
     map = {}
 
@@ -301,22 +336,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
         map['%%{%s}' % id] = value
 
-    return map
+    map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
+    map.setdefault('%{templates-dir}', self.templates_dir)
 
-  def _get_config(self, options, arguments):
-    """
-    Gets the deploy config based on option values. The deploy
-    config file is optional; if not found, merely uses a set of default values.
-    """
-    cp = pps.path(options.mainconfigpath).expand().abspath()
-    if cp and cp.exists():
-      self.logger.log(4, "Reading '%s'" % cp)
-      mc = rxml.config.parse(cp).getroot()
-    else:
-      self.logger.log(4, "No deploy config file found at '%s'. Using default settings" % cp)
-      mc = rxml.config.fromstring('<deploy/>')
-
-    self.mainconfig = mc
+    self.initial_macros = map
 
   def _get_definition(self, options, arguments):
     """
@@ -326,19 +349,28 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     not exist. (This previous allowance is so that a user can type
     `deploy -h` on the command line without giving the '-c' option.) 
     """
-    dp = pps.path(arguments[0]).expand().abspath()
-    if not dp.exists():
-      raise rxml.errors.XmlError("No definition found at '%s'" % dp)
-    self.logger.log(3, "Reading '%s'" % dp)
-    map = self._get_opt_macros(options)
-    map.setdefault('%{definition-dir}', dp.dirname)
-    map.setdefault('%{templates-dir}', self.mainconfig.getpath(
-                                '/deploy/templates-path/text()',
-                                DEFAULT_TEMPLATES_DIR))
-    dt = rxml.config.parse(dp, xinclude=True,
-                           macros=map,
+    self.logger.log(3, "Reading '%s'" % self.definition_path)
+    dt = rxml.config.parse(self.definition_path, xinclude=True,
+                           macros=self.initial_macros,
                            remove_macros=True)
     self.definition = dt.getroot()
+
+  def _get_data_dir(self, options):
+    # setup data-dir and data file name
+    self.data_root = (pps.path(options.data_root) or 
+                      pps.path(self.definition_path).dirname)
+    self.data_root.exists() or self.data_root.mkdir()
+
+    self.data_dir = self.data_root / self.build_id
+    self.data_dir.exists() or self.data_dir.mkdir()
+
+    self.datfn = self.data_dir / '%s.dat' % self.build_id
+
+    legacy_datfile = self.data_root / '%s.dat' % self.build_id
+    if legacy_datfile.exists() and not self.datfn.exists():
+      legacy_datfile.move(self.data_dir)
+
+    self.definition.resolve_macros(map={'%{data-dir}': self.data_dir})
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -467,16 +499,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
-
-    # setup data-dir and data file name
-    self.data_dir = (pps.path(options.data_dir) or 
-                     self.definition.getbase().dirname / self.build_id)
-    self.data_dir.exists() or self.data_dir.mkdir()
-    self.datfn = self.data_dir / '%s.dat' % self.build_id
-
-    legacy_datfile = self.data_dir.basename / '%s.dat' % self.build_id
-    if legacy_datfile.exists() and not self.datfn.exists():
-      legacy_datfile.mv(self.data_dir)
 
     # set up cache options
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')

@@ -62,7 +62,7 @@
 
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/httpd-config/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   </section>
 
@@ -81,32 +81,32 @@
     </para>
    
     <para>
-    The data file is created with a a filename consisting of the repository ID
-    followed by the <filename>.dat</filename> file extension. For example,
-    given a definition with the <emphasis>main/id</emphasis> element specified
-    as "samba-server-6-x86_64", Deploy will create a data file with the
-    following name:
+    Data files are created in data folders. Both are named using the build ID,
+    with data files taking the <filename>.dat</filename> file extension. For
+    example, given a definition with a build ID of "samba-server-6-x86_64"
+    (taken from the <emphasis>main/id</emphasis> element), Deploy will create a
+    data folder and data file as follows:
     </para>
   
     <para><informalexample><programlisting>
-<filename>samba-server-6-x86_64.dat</filename>
+<filename>samba-server-6-x86_64/samba-server-6-x86_64.dat</filename>
     </programlisting></informalexample>
     </para>
 
     <para>
-    By default, the file will be created in the same directory as the 
-    definition. An alternative directory location can be specified on the
-    deploy command line using the '--data-dir' parameter, for example:
+    By default, Deploy creates the data folder in the definition directory.  An
+    alternative directory location can be specified on the deploy command line
+    using the '--data-root' parameter, for example:
     </para>
 
     <para><informalexample><programlisting>
-deploy samba.definition --data-dir /my/dat/path    
+deploy samba.definition --data-root /my/dat/root    
     </programlisting></informalexample>
     </para>
 
     <para>
     See the <xref linkend="main"/> element for information on specifying the
-    repository ID.
+    build ID.
     </para>
 
     <warning>

@@ -645,16 +645,17 @@ $remote-url/%{id}</programlisting>
     <listitem>
     <para>
     TEXT value providing the name of a host, e.g.
-    <emphasis>samba-server</emphasis>. Valid characters in hostnames include
-    a-z, A-Z, 0-9 and '-'. This value is provided as the module macro <link
+    <emphasis>samba-server</emphasis>. Allowed characters include a-z, 0-9 and
+    '-'. This value is provided as the module macro <link
     linkend='deployment-macros'>%{hostname}</link>.
     </para>
 
     <para>
     This element is optional. The default values are shown in the table below,
     where ID is the value of the %{id} macro, with underscores ('_')
-    automatically converted to hyphens ('_'), e.g. 'x86_64' is converted to
-    'x86-64':
+    automatically converted to hyphens ('_') and uppercase characters converted
+    to lowercase, e.g. 'MyServer-centos-6-x86_64' is converted to
+    'myserver-centos-6-x86-64':
     </para>
     
     <informaltable>
@@ -719,8 +720,8 @@ $remote-url/%{id}</programlisting>
     automatically generated. The generated password is between 8 and 72
     characters and contains at least one each of a lowercase character, an
     uppercase character and a digit. The generated password is stored in the
-    repository data file. See <xref linkend="datfile"/> for information on the
-    repository data file. 
+    data file. See <xref linkend="datfile"/> for information on the
+    data file. 
     </para>
 
     <para>
@@ -1103,9 +1104,9 @@ $remote-url/%{id}</programlisting>
     <para>
     The file name of the release-rpm is in the following format, where %{name}
     and %{version} are taken from the corresponding <xref linkend='main-name'/>
-    and <xref linkend="main-version"/> elements, RELEASE is taken from the
-    Repository Data File (see <xref linkend="datfile" />), and DIST is an
-    identifier for the base operating system distribution.
+    and <xref linkend="main-version"/> elements, RELEASE is taken from the data
+    file (see <xref linkend="datfile" />), and DIST is an identifier for the
+    base operating system distribution.
     </para>
 
     <para><synopsis>
@@ -1419,7 +1420,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>libvirt-activate.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/libvirt-deploy</filename>. Sees
+      <filename>/usr/share/deploy/templates/libvirt</filename>. Sees
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1434,7 +1435,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1531,7 +1532,7 @@ $remote-url/%{id}</programlisting>
 &lt;hostname>samba-live&lt;/hostname>
 &lt;password>secret&lt;/password>
 
-<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 &lt;/publish&gt;</programlisting>
       </informalexample>
@@ -1589,7 +1590,7 @@ $remote-url/%{id}</programlisting>
 
 &lt;kickstart>&lt;xi:include href="ks.xml">&lt;/kickstart>
 
-<xi:include href='../../../../../share/deploy/templates/libvirt-deploy/libvirt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 &lt;/publish&gt;</programlisting>
       </informalexample>

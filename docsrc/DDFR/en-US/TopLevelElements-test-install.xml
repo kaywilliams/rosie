@@ -64,7 +64,7 @@
     <para>
     A template for deploying systems to local virtual machines. The template
     file is located in the templates folder as
-    <filename>libvirt-deploy/deploy.xml</filename>.  It will be used across
+    <filename>libvirt/deploy.xml</filename>.  It will be used across
     <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
     top-level element examples.
     </para>
@@ -114,7 +114,7 @@
     linkend='templates'/> for information on locating and using templates.
     </para>
 
-    <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt-deploy/deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </section>
 
   </section>

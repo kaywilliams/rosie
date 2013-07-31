@@ -252,7 +252,9 @@ class PublishSetupEventMixin(Event):
       default = '%s-%s' % (default, self.moduleid)
 
     hostname = self.config.getxpath('hostname/text()', default)
-    hostname = hostname.replace('_', '-') # dns doesn't allow '_' in hostnames
+    # dns doesn't allow '_' in hostnames; use lowercase to avoid case
+    # sensitivity issues
+    hostname = hostname.replace('_', '-').lower()
 
     # validate hostname
     if len(hostname + self.domain) > 255:
@@ -261,7 +263,7 @@ class PublishSetupEventMixin(Event):
     if hostname.endswith("."): # A single trailing dot is legal
       hostname = hostname[:-1] # strip trailing dot, if present
 
-    disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
+    disallowed = re.compile("[^a-z\d-]")
     for label in hostname.split("."):
       if label and not len(label) <= 63: # length is not within proper range
         message = "'%s' exceeds 63 characters" % label
@@ -274,7 +276,7 @@ class PublishSetupEventMixin(Event):
         raise InvalidHostnameError(message)
       if disallowed.search(label): # contains only legal characters
         message = ( "'%s' contains an invalid character. "
-                    "Valid characters are a-z, A-Z, 0-9 and '-'." % label )
+                    "Valid characters are a-z, 0-9 and '-'." % label )
         raise InvalidHostnameError(message)
 
     # if we got through the above, then the hostname is valid

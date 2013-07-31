@@ -27,7 +27,7 @@ from deploy.dlogging     import MSG_MAXWIDTH, L0, L1, L2
 from deploy.errors       import (DeployError, DeployEventError, 
                                  DuplicateIdsError, MissingIdError)
 from deploy.event        import Event, CLASS_META
-from deploy.main         import Build, DEFAULT_TEMPLATES_DIR
+from deploy.main         import Build
 from deploy.util         import magic 
 from deploy.util         import pps 
 from deploy.util         import rxml 
@@ -90,8 +90,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.rpmsdir   = self.mddir / 'rpms'
 
-    self.data_dir   = self.LIB_DIR / 'srpms'
-    self.data_dir.mkdirs()
+    self.data_root   = self.LIB_DIR / 'srpms'
+    self.data_root.mkdirs()
 
     if self.version == "5":
       self.build_dir = pps.path('/usr/src/redhat')
@@ -307,7 +307,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       logfile   = self.options.logfile,
       libpath   = self.options.libpath,
       sharepath = self.options.sharepath,
-      data_dir = self.data_dir,
+      data_root = self.data_root,
       force_modules = [],
       skip_modules  = [],
       force_events  = ['deploy'],
@@ -334,19 +334,13 @@ class SrpmBuild(Build):
     self.ptr = ptr
     Build.__init__(self, *args, **kwargs)
 
+  def _get_definition_path(self, *args):
+    self.definition_path = self.ptr.template
+
   def _get_definition(self, options, arguments):
     name, spec, requires = self._get_srpm_info(self.ptr.srpmfile)
 
-    map = self._get_opt_macros(options)
-    map.setdefault('%{definition-dir}', self.ptr.template)
-    map.setdefault('%{templates-dir}', self.mainconfig.getpath(
-                                '/deploy/templates-path/text()',
-                                DEFAULT_TEMPLATES_DIR))
-    self.definition = rxml.config.parse(self.ptr.template,
-                                        xinclude=True,
-                                        macros = map, 
-                                        remove_macros = True,
-                                        ).getroot()
+    Build._get_definition(self, options, arguments)
 
     # add config-rpm for srpm requires
     config = self.definition.getxpath('/*/config-rpms',

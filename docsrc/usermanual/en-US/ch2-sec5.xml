@@ -51,20 +51,28 @@
 
         <listitem>
 	  <para>
-          A file maintained by Deploy to track Deploy-generated
-          input data. The file is created in the same folder as the
-          definition, with a filename consisting of the <xref
-          linkend='repository-id'/> with the <filename>.dat</filename> file
-          extension. For example, given the repository ID
-          "web-server-centos-6-x86_64", Deploy will create a 
-          data file as follows:
+          A file maintained by Deploy to track Deploy-generated input data.
+          Data files are created in data folders. Both are named using the
+          <xref linkend='repository-id'/>, with datafiles taking the
+          <filename>.dat</filename> file extension.  For example, given the
+          repository ID "web-server-centos-6-x86_64", Deploy will create a data
+          folder and data file as follows:
           </para>
 
           <informalexample>
           <para>
-          <filename>web-server-centos-6-x86_64.dat</filename>
+          <filename>
+          web-server-centos-6-x86_64/web-server-centos-6-x86_64.dat
+          </filename>
           </para>
           </informalexample>
+
+          <para>
+          By default, Deploy creates the data folder in the same folder as the
+          definition. An alternative directory location can be specified on the
+          deploy command line using the '--data-root' parameter. See the
+          Deploy man page for more information.
+          </para>
 
           <warning>
           <para>

@@ -92,7 +92,7 @@ class Test_XIncludeResolution(AllEventTestCase):
   """
   <publish xmlns:xi='%s' xml:base='%s'>
   <!--case 7: remote xml file with xpointer-->
-  <xi:include href='../../share/deploy/templates/libvirt/deploy.xml'
+  <xi:include href='%%{templates-dir}/libvirt/deploy.xml'
               xpointer='xpointer(/*/*)'/>
   </publish>
   """ % (tree.XI_NS, pps.path(__file__).abspath()),]

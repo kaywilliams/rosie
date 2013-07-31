@@ -48,9 +48,10 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
       macros = {'%{version}'  : version,
                 '%{arch}'     : arch,
                 '%{file-size}': '6',
-                '%{definition-dir}': self.conf.base,
+                '%{definition-dir}': self.definition_path.dirname,
                 '%{templates-dir}': get_templates_dir(
-                                    get_mainconfig(self.options))
+                                    get_mainconfig(self.options)),
+                '%{data-dir}': pps.path(self.options.data_root) / self.id
                 }
       ).getroot()
 

@@ -235,9 +235,9 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <title>Global Run-Time Macros</title>
     <para>
     Global run-time macros are defined by Deploy during the build process and
-    applied across all Deploy modules. Deploy provides two global run-time
-    macros: <emphasis>%{definition-dir}</emphasis> and <emphasis>
-    %{templates-dir}</emphasis>.
+    applied across all Deploy modules. Deploy provides three global run-time
+    macros: <emphasis>%{definition-dir}</emphasis>, <emphasis>
+    %{templates-dir}</emphasis> and %{data-dir}.
     </para>
 
     <variablelist>
@@ -265,6 +265,25 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     Configuration file. See <command>man deloy.conf</command> for additional
     information.  Useful for specifying files and folders relative to the
     templates folder.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry>
+    <term>
+    %{data-dir}
+    </term>
+    <listitem>
+    <para>
+    The folder location of the <xref linkend='datfile'/>. Useful for scripts to
+    store and retrieve runtime-generated, per-build-ID data such as machine
+    hostnames and ssh keys.
+    </para>
+
+    <para>
+    The <emphasis>%{data-dir}</emphasis> macro is not supported within XInclude
+    attributes including <emphasis>href</emphasis> and
+    <emphasis>xpointer</emphasis>.
     </para>
     </listitem>
     </varlistentry>
