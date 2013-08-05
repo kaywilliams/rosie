@@ -89,9 +89,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
 
-    self.ssh_defaults = { 'test-triggers': True,
+    self.ssh_defaults = { 'pre': False,
+                          'test-triggers': True,
                           'activate': False,
                           'delete': False,
+                          'pre-install': False, 
                           'install': False,
                           'post-install': True, 
                           'save-triggers': True, 
@@ -141,6 +143,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       KICKSTART_CSUM:            self._get_kickstart_csum(),
       TREEINFO_CSUM:             self._get_treeinfo_csum(),
       INSTALL_SCRIPTS_CSUM:      self._get_script_csum('script[ '
+                                                   '@type="pre" or '
+                                                   '@type="pre-install" or '
                                                    '@type="install"]'),
       POST_INSTALL_SCRIPTS_CSUM: self._get_script_csum('script[ '
                                                     '@type="post-install" or '
@@ -187,7 +191,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self._reinstall():
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise DeployError('test fail on reinstall')
+      self._execute('pre')
       self._execute('delete')
+      self._execute('pre-install')
       self._execute('install')
       self._execute('activate')
       self._execute('post-install')
@@ -195,6 +201,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._execute('post')
 
     else:
+      self._execute('pre')
       self._execute('activate')
       self._execute('post')
  

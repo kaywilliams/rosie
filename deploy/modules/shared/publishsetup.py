@@ -51,8 +51,7 @@ class PublishSetupEventMixin(Event):
     self.provides.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.add('publish-setup-options')
 
-    if not hasattr(self, 'DATA'):
-      self.DATA = {}
+    if not hasattr(self, 'DATA'): self.DATA = {}
     for key in ['input', 'config', 'variables', 'output']:
       self.DATA.setdefault(key, [])
     self.DATA['variables'].append('publish_mixin_version')
@@ -127,10 +126,10 @@ class PublishSetupEventMixin(Event):
         raise SimpleDeployEventError(
           "Macro Resolution Error: \'%s\' macro not allowed in \'%s/%s\'." %
           (key, self.moduleid, map[key]['conf']))
-    self.macros = {} # making this an instance attr so dtest can access
+    self.map = {} # making this an instance attr so dtest can access
     for key in map:
-      self.macros[key] = map[key]['value']
-    self.resolve_macros(map=self.macros)
+      self.map[key] = map[key]['value']
+    self.resolve_macros(map=self.map)
 
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid

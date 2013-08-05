@@ -298,11 +298,33 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <title>Per-Module Run-Time Macros</title>
     <para>
     Per-module run-time macros are macros that are
-    defined by specific modules within the Deploy build process.
-    Modules that provide run-time macros include
-    <emphasis>config-rpms</emphasis>, <emphasis>srpmbuild</emphasis>,
-    <emphasis>test-install</emphasis>, <emphasis>test-update</emphasis> and
-    <emphasis>publish</emphasis>. See these modules for more information.
+    defined by discrete modules within the Deploy build process.
+    </para>
+    
+    <para>
+    All modules provide at least one run-time macro:
+    </para>
+
+    <variablelist>
+    <varlistentry>
+    <term>
+    %{module}
+    </term>
+    <listitem>
+    <para>
+    Name of the module in which the macro is located, e.g. 'test-install',
+    'test-update' or 'publish'.
+    </para>
+    </listitem>
+    </varlistentry>
+    </variablelist>
+
+    <para>
+    In addition, many modules provide module-specific run-time macros. These
+    modules include <emphasis>config-rpms</emphasis>,
+    <emphasis>srpmbuild</emphasis>, <emphasis>test-install</emphasis>,
+    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. See
+    these modules for more information.
     </para>
 
     <para>

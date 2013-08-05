@@ -365,9 +365,11 @@
 
       <attribute name='type'>
       <choice>
+      <value type="string">pre</value>
       <value type="string">activate</value>
       <value type="string">test-triggers</value>
       <value type="string">delete</value>
+      <value type="string">pre-install</value>
       <value type="string">install</value>
       <value type="string">post-install</value>
       <value type="string">save-triggers</value>

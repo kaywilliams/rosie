@@ -286,21 +286,6 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin):
     """Makes a post scriptlet that installs each <file> to the given
     destination, backing up any existing files to .rpmsave"""
     script = ''
-    # Legacy issue: regenerate missing md5sums file to ensure files not
-    # inadvertantly removed during rpm update. Remove this code
-    # after sufficient time has passed (e.g. around Dec 2013). See commit 2871
-    # for more information.
-    script += 'for n in centosstudio systemstudio repostudio; do\n'
-    script += 'dir="/var/lib/$n/config/%s"\n' % self.rpm.name 
-    script += 'if [ -d "$dir/files" ] && [ ! -f "$dir/md5sums" ]\n'
-    script += 'then\n'
-    script += '  for f in `/usr/bin/find "$dir/files" -type f`; do\n'
-    script += '    echo `/usr/bin/md5sum $f | sed -e "s|$dir/files||"` >> $dir/md5sums\n'
-    script += '  done\n'
-    script += 'fi\n'
-    script += 'done\n'
-    script += '\n'
-
     # move support files as needed
     script += 'files="%s"' % '\n      '.join(self.files)
     script += '\nmd5file=%s\n' % self.md5file

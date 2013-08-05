@@ -307,7 +307,7 @@ reboot
   </listitem>
   <listitem>
   <para>
-  Providing a custom <emphasis>libvirt-install</emphasis> script. In this case
+  Providing a custom <emphasis>install</emphasis> script. In this case
   we are setting the virtual machine RAM at 2GB and the disk image size at
   40GB.
   </para>
@@ -316,7 +316,7 @@ reboot
   <para>
   Including all elements from the libvirt deployment 
   template, <emphasis>except</emphasis> the <emphasis>check-kernel</emphasis>
-  and <emphasis>libvirt-install</emphasis> scripts. The check-kernel script is
+  and <emphasis>install</emphasis> scripts. The check-kernel script is
   unnecessary since we are powering off the client after each run.
   </para>
   </listitem>
@@ -326,7 +326,7 @@ reboot
   <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
 &lt;xi:include href="poweroff.xml"/>
-&lt;script id='libvirt-install' type='install'>
+&lt;script id='install' type='install'>
 #!/bin/bash
 virt-install --name %{fqdn} --ram 2000 \
              --file /var/lib/libvirt/images/%{fqdn}.img \
@@ -362,8 +362,8 @@ virt-install --name %{fqdn} --ram 2000 \
   template will be similar to the libvirt deployment template. In the new
   template, you will need to adjust the <emphasis>domain</emphasis> element,
   and provide custom scripts to replace the
-  <emphasis>libvirt-activate</emphasis>, <emphasis>libvirt-delete</emphasis>
-  and <emphasis>libvirt-install</emphasis> scripts.
+  <emphasis>activate</emphasis>, <emphasis>delete</emphasis>
+  and <emphasis>install</emphasis> scripts.
   </para>
 
   <para>

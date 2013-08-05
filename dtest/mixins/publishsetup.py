@@ -107,12 +107,12 @@ def PublishSetupMixinTest_Config(self):
       if k in ['localpath', 'build_host']:
         continue
       elif k in [ 'webpath']:
-        test = ( self.event.macros["%{url}"] == pps.path(self.values[k]) / 
+        test = ( self.event.map["%{url}"] == pps.path(self.values[k]) / 
                                                 self.event.build_id )
       elif k in ['ssh', 'ssh_passphrase']:
         pass
       else:
-        test = (eval('self.event.macros["%%{%s}"]' % k.replace('_', '-')) 
+        test = (eval('self.event.map["%%{%s}"]' % k.replace('_', '-')) 
                 == self.values[k])
       if not test:
         errors.append("%s macro does not match: %s, %s" % 

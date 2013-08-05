@@ -69,7 +69,7 @@
 
   [&lt;script 
     id=TEXT 
-    type=[activate|test-triggers|delete|install|post-install|save-triggers|post]
+    type=[pre|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
     [ssh=BOOLEAN]
     [verbose=BOOLEAN]
     [comes-before=TEXT]
@@ -1009,7 +1009,7 @@ $remote-url/%{id}</programlisting>
     </para>
     <informalexample>
     <programlisting>
-&lt;xi:include href="/path/to/deploy/ks.xml"/&gt;
+&lt;xi:include href="/%{templates-dir}/common/ks.xml"/&gt;
     </programlisting>
     </informalexample>
 
@@ -1401,10 +1401,63 @@ $remote-url/%{id}</programlisting>
       <term>@type</term>
       <listitem>
       <para>
-      Type of the script. Valid values are described below:
+      Type of the script. Valid values are <xref linkend='pre'/>, <xref
+      linkend='activate'/>, <xref linkend='test-triggers'/>, <xref
+      linkend='delete'/>, <xref linkend='pre-install'/>, <xref
+      linkend='install'/>, <xref linkend="post-install"/>, <xref
+      linkend='save-triggers'/>, <xref linkend="update"/> and <xref
+      linkend='post'/>:
       </para>
 
       <variablelist>
+      <varlistentry id='pre'>
+      <term>
+      pre
+      </term>
+
+      <listitem>
+      <para>
+      Performs tasks that are required prior to running other scripts.
+      </para>
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>create-guestname.xml</filename> which is included in the
+      template folder at
+      <filename>/usr/share/deploy/templates/libvirt</filename>. See
+      <xref linkend='templates'/> for more information on templates.
+      </para>
+      
+      <para>
+      The template contains the text of a shell script that creates
+      and saves guestnames, which are limited to 50 characters for libvirt
+      machines. Because it runs as a pre script, the created guestnames are
+      available to other scripts including activate, delete and install. 
+      </para>
+
+      <para>
+      The template makes use of the <emphasis>%{module}</emphasis> run-time
+      macro, described under <xref linkend='macros'/>, to create a unique
+      guestname for each deployment module, e.g. test-install, test-update and
+      publish.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='../../../../../share/deploy/templates/libvirt/create-guestname.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/libvirt/create-guestname.xml"/></programlisting>
+      </informalexample>
+
+      </listitem>
+      </varlistentry>
+
       <varlistentry id='activate'>
       <term>
       activate
@@ -1418,9 +1471,9 @@ $remote-url/%{id}</programlisting>
       </para>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
-      named <filename>libvirt-activate.xml</filename> which is included in the
+      named <filename>activate.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/libvirt</filename>. Sees
+      <filename>/usr/share/deploy/templates/libvirt</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1435,7 +1488,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/libvirt/activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1444,7 +1497,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="path/to/deploy/virt-activate.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/libvirt/activate.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1471,7 +1524,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/deploy</filename>. See <xref
+      <filename>/usr/share/deploy/templates/common</filename>. See <xref
       linkend='templates'/> for more information on templates.
       </para>
      
@@ -1498,7 +1551,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="path/to/deploy/test-triggers.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/common/test-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1517,27 +1570,79 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      <emphasis role='bold'>Example</emphasis> - In this example, a bash script
-      is used to destroy and undefine a virtual machine specified using the
-      <varname>%{fqdn}</varname> module macro. The command <command>set
-      -e</command> is used at the beginning of the script to indicate that if
-      any command in the script fails, the script should return a non-zero exit
-      status.  Typically bash scripts return the exit status of the last
-      command executed in the script.
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>delete.xml</filename> which is included in the
+      templates folder at
+      <filename>/usr/share/deploy/templates/libvirt</filename>. See <xref
+      linkend='templates'/> for more information on templates.
+      </para>
+
+      <para>
+      In this example, a bash script is used to destroy and undefine a virtual
+      machine specified using the <varname>%{fqdn}</varname> module macro. The
+      command <command>set -e</command> is used at the beginning of the script
+      to indicate that if any command in the script fails, the script should
+      return a non-zero exit status.  Typically bash scripts return the exit
+      status of the last command executed in the script.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;publish>
-&lt;hostname>samba-live&lt;/hostname>
-&lt;password>secret&lt;/password>
-
-<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
-
-&lt;/publish&gt;</programlisting>
+&lt;xi:include href="%{templates-dir}/libvirt/delete.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
+
+      <varlistentry id='pre-install'>
+      <term>
+      pre-install
+      </term>
+
+      <listitem>
+      <para>
+      Performs tasks that are required prior to completing client installation.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>create-ssh-keys.xml</filename> which is included in the
+      template folder at
+      <filename>/usr/share/deploy/templates/common</filename>. See
+      <xref linkend='templates'/> for more information on templates.
+      </para>
+      
+      <para>
+      The template contains the text of a shell script that creates and saves
+      ssh keys. This script type is set as <emphasis>pre-install</emphasis> so
+      that the created keys can be used by install-type scripts for configuring
+      ssh to the client machine. 
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='../../../../../share/deploy/templates/common/create-ssh-keys.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/common/create-ssh-keys.xml"/></programlisting>
+      </informalexample>
+
+      </listitem>
+      </varlistentry>
 
     <varlistentry id="install">
       <term>
@@ -1553,19 +1658,14 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      <emphasis role='bold'>Example</emphasis> - This example uses two
-      elements <emphasis>kickstart</emphasis> and
-      <emphasis>install-script</emphasis>.
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>install.xml</filename> which is included in the templates
+      folder at <filename>/usr/share/deploy/templates/libvirt</filename> See
+      <xref linkend='templates'/> for more information on templates.
       </para>
       
       <para>
-      The <emphasis>kickstart</emphasis> element provides settings for the
-      client machine. A kickstart is also required for automated system
-      installation.
-      </para>
-
-      <para>
-      The <emphasis>install-script</emphasis> element provides a bash script
+      The <emphasis>install.xml</emphasis> file provides a bash script
       which completes the actual machine installation. In this case, the script
       executes the <command>virt-install</command> command to create a new
       virtual machine.  The script uses the <varname>%{fqdn}</varname>
@@ -1583,16 +1683,17 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting>
-&lt;publish>
-&lt;hostname>samba-live&lt;/hostname>
-&lt;password>secret&lt;/password>
-
-&lt;kickstart>&lt;xi:include href="ks.xml">&lt;/kickstart>
-
-<xi:include href='../../../../../share/deploy/templates/libvirt/libvirt-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
-
+      <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/publish&gt;</programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>&lt;xi:include href="%{templates-dir}/libvirt/install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1622,22 +1723,32 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      <emphasis role='bold'>Example</emphasis> - In this example the <emphasis>
-      post-install-script</emphasis> element provides a bash script which
-      uses the <command>grep</command> to scan for scriptlet failed errors in
-      the install.log. If errors are found, the script returns an exit status
-      of '1', indicating that verification failed.
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>verify-install.xml</filename> which is included in the
+      templates folder at
+      <filename>/usr/share/deploy/templates/common</filename> See <xref
+      linkend='templates'/> for more information on templates.
+      </para>
+      
+      <para>
+      The file provides a bash script which uses the <command>grep</command> to
+      scan for scriptlet failed errors in the install.log. If errors are found,
+      the script returns an exit status of '1', indicating that verification
+      failed.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;publish>
-&lt;hostname>samba-live&lt;/hostname>
-&lt;password>secret&lt;/password>
-
-<xi:include href='../../../../../share/deploy/templates/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> 
-
-&lt;/publish&gt;</programlisting>
+&lt;xi:include href="%{templates-dir}/common/verify-install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1667,12 +1778,75 @@ $remote-url/%{id}</programlisting>
 <xi:include href='../../../../../share/deploy/templates/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
       </informalexample>
 
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>&lt;xi:include href="%{templates-dir}/common/save-triggers.xml"/></programlisting>
+      </informalexample>
       </listitem>
     </varlistentry>
 
-    <varlistentry id="post-script">
+      <varlistentry id='update'>
       <term>
-      post-script 
+      update
+      </term>
+
+      <listitem>
+      <para>
+      Updates an installed client, typically by executing the <command>yum
+      sync</command> or <command>yum update</command> commands, followed by
+      performing update verification as desired.
+      </para>
+    
+      <para>
+      Update script may also be used for post processing after client updates.
+      For example, an update script may be used to test the running system
+      kernel and restart the machine if a new kernel version has been
+      installed, as is shown in the example update-script below. Note that
+      while post processing actions such as these could be performed as either
+      <emphasis>update</emphasis> or <emphasis>post</emphasis> scripts, the
+      former is preferable since the latter are executed after both installation
+      and updates.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Examples</emphasis> - This example shows a file
+      named <filename>update.xml</filename> which is included in the template
+      folder at /usr/share/deploy/templates/common. See <xref
+      linkend='templates'/> for more information on templates.
+      </para>
+
+      <para>
+      The file provides a shell script that updates the client using the
+      <command>yum sync</command> command. Thereafter, the script tests for a
+      new kernel, and restarts the client if one is found. The <command>set
+      -e</command> is used to halt processing and return a non-zero exit status
+      if an error occurs at any point within the script.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/common/update.xml'
+parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/common/update.xml"/></programlisting>
+      </informalexample>
+      </listitem>
+      </varlistentry>
+
+    <varlistentry id="post">
+      <term>
+      post 
       </term>
 
       <listitem>
@@ -1699,53 +1873,21 @@ $remote-url/%{id}</programlisting>
       <para>
       For the <emphasis>test-install</emphasis> and
       <emphasis>test-update</emphasis> events, the
-      <emphasis>post-script</emphasis> is useful for activities such as
+      <emphasis>post</emphasis> script is useful for activities such as
       completing testing that should run after either install or update, or for
       powering down test machines between runs. 
       </para>
 
       <para>
-      Updates an installed client, typically by executing the <command>yum
-      sync</command> or <command>yum update</command> commands, followed by
-      performing update verification as desired.
+      <emphasis role='bold'>Examples</emphasis> - This example shows a file
+      named <filename>poweroff.xml</filename> which is included in the template
+      folder at /usr/share/deploy/templates/common. See <xref
+      linkend='templates'/> for more information on templates.
       </para>
-    
+      
       <para>
-      The update-script may also be used for post processing after client
-      updates.  For example, the update-script may be used to test the running
-      system kernel and restart the machine if a new kernel version has been
-      installed, as is shown in the example update-script below. Note that
-      while post processing actions such as these could be performed in either
-      the <emphasis>update-script</emphasis> or the
-      <emphasis>post-script</emphasis>, the former is preferable since the
-      latter is executed after both installation and updates.
-      </para>
-
-      <para>
-      <emphasis role='bold'>Example</emphasis> - In the following example, a
-      bash script is provided that updates the client using the <command>yum
-      sync</command> command. Thereafter, the script tests for a new kernel, 
-      and restarts the client if one is found. The <command>set -e</command> 
-      is used to halt processing and return a non-zero exit status if an error
-      occurs at any point within the script.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;publish>
-&lt;hostname>samba-live&lt;/hostname>
-&lt;password>secret&lt;/password>
-
-<xi:include href='../../../../../share/deploy/templates/common/update.xml'
-parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
-
-&lt;/publish&gt;</programlisting>
-      </informalexample>
-
-      <para>
-      <emphasis role='bold'>Examples</emphasis> - In this example, the
-      <emphasis>post-script</emphasis> is a simple bash script with a single
-      command to shut down the client machine.
+      The file contains a simple bash script with a single command to shut down
+      the client machine.
       </para>
 
       <informalexample>
@@ -1753,8 +1895,19 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href='../../../../../share/deploy/templates/common/poweroff.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/common/poweroff.xml"/></programlisting>
+      </informalexample>
       </listitem>
       </varlistentry>
+
       </variablelist>
 
       <para>
