@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- install and update a libvirt vm on the local machine -->
+<macro id='file-size'>30</macro>
+
+<!-- template content below -->
+<domain>deploy</domain>
+<build-host interface='virbrdpl'/>
+<xi:include href='%{templates-dir}/common/ks.xml'/>
+<xi:include href='%{templates-dir}/common/acpid-config.xml'/>
+<xi:include href='%{templates-dir}/common/ssh-config.xml'/>
+<xi:include href='%{templates-dir}/libvirt/libvirt-guest-config.xml'/>
+<xi:include href='%{templates-dir}/libvirt/create-guestname.xml'/>
+<xi:include href='%{templates-dir}/common/test-triggers.xml'/>
+<xi:include href='%{templates-dir}/libvirt/activate.xml'/>
+<xi:include href='%{templates-dir}/libvirt/delete.xml'/>
+<xi:include href='%{templates-dir}/libvirt/install.xml'/>
+<xi:include href='%{templates-dir}/common/verify-install.xml'/>
+<xi:include href='%{templates-dir}/common/save-triggers.xml'/>
+<xi:include href='%{templates-dir}/common/update.xml'/>
+<xi:include href='%{templates-dir}/common/check-kernel.xml'/>
+
+</xml>

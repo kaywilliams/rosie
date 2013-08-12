@@ -49,9 +49,9 @@ sed -i "s|^baseurl.*|baseurl = %{baseurl}|" /etc/yum.repos.d/%{repo}.repo
 </config-rpms>
 
 <test-install>
-  <xi:include href="libvirt-deploy/deploy.xml"
+  <xi:include href="%{templates-dir}/libvirt/deploy.xml"
               xpointer="xpointer(./*[name()!='script'])"/>
-  <xi:include href="libvirt-deploy/deploy.xml"
+  <xi:include href="%{templates-dir}/libvirt/deploy.xml"
               xpointer="xpointer(./script[@id!='check-kernel'])"/>
   <xi:include href="deploy/poweroff.xml"/>
 </test-install>

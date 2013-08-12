@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpm id='deploy-ssh-config'>
-  <!-- specifying required packages for ssh access from build host machine-->
-  <!-- build host public key is installed by kickstart post script -->
-  <requires>openssh</requires>
-  <requires>openssh-clients</requires>
-  <requires>/usr/sbin/sshd</requires>
+<requires>openssh</requires>
+<requires>openssh-clients</requires>
+<requires>/usr/sbin/sshd</requires>
+
+<script type='post'>
+# allow build machine to access client via ssh
+# set some convenience variables
+sshdir=/root/.ssh
+authkeys=$sshdir/authorized_keys
+pubkey="%{build-host-pubkey}"
+
+# make sshdir if it doesn't exist
+[[ -d $sshdir ]] || mkdir $sshdir 
+
+# create authorized_keys file if it doesn't exist
+[[ -f $authkeys ]] || touch $authkeys
+
+# copy pubkey into authorized keys if it's not there already
+[[ `cat $authkeys` == $pubkey ]] || echo $pubkey >> $authkeys
+  
+# set permissions
+chmod 700 $sshdir
+chmod 600 $authkeys
+</script>
 </config-rpm>

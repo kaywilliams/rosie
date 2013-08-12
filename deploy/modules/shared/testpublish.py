@@ -58,8 +58,9 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
     CompsEventMixin.setup(self)
 
     # get release-rpm filename
-    if self.cvars.get('rpmbuild-data', None) and \
-       self.cvars['rpmbuild-data'].get('release-rpm', None):
+    if (self.cvars.get('rpmbuild-data', None) and  
+        self.cvars.get('release-rpm', None) and
+        self.cvars['rpmbuild-data'][self.cvars['release-rpm']]):
       self.release_rpmdata = (self.cvars['rpmbuild-data']
                               [self.cvars['release-rpm']])
       release_rpm = (self.release_rpmdata['rpm-path'].split('/')[-1])

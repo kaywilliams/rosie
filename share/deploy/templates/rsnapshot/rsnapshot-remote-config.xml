@@ -1,0 +1,26 @@
+<config-rpm id='rsnapshot-remote-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!--first create the rsnapshot server (see rsnapshot-server.definition), then
+     provide a macro in your containing definition, pointing to the the server
+     ssh public key (see example below) -->
+<macro id='rsnapshot-server-ssh-pubkey'>%{definition-dir}/rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub</macro>
+
+<script type='post'>
+user="rsnapshot"
+sshdir=/home/$user/.ssh
+pubkey="<xi:include href="%{rsnapshot-server-ssh-pubkey}" parse="text"/>"
+if [[ ! `grep "$user" /etc/passwd` ]]; then
+  useradd $user
+fi
+if [ ! -d $sshdir ]; then
+  mkdir $sshdir
+fi
+if [[ ! -e $sshdir/authorized_keys ]] || \
+   [[ ! `grep "$pubkey" $sshdir/authorized_keys` ]]; then
+  echo $pubkey >> $sshdir/authorized_keys
+fi
+chown -R $user:$user $sshdir
+chmod 700 $sshdir
+chmod 600 $sshdir/authorized_keys
+</script>
+</config-rpm>

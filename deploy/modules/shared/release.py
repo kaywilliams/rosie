@@ -27,7 +27,7 @@ from deploy.modules.shared import (MkrpmRpmBuildMixin, GPGKeysEventMixin,
 from deploy.util           import rxml
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
-  release_mixin_version = "1.26"
+  release_mixin_version = "1.28"
 
   def __init__(self): # call after creating self.DATA
     try:
@@ -52,7 +52,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
     if not hasattr(self, 'webpath'): self.webpath = webpath
-
+   
     self.masterrepo = '%s-%s' % (self.name, 
                       hashlib.md5(self.build_id).hexdigest()[-6:])
 
@@ -94,8 +94,13 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
 
     # setup gpgkeys
-    self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
-                                     'updates/@gpgcheck', True)
+    if self.moduleid == 'publish' :
+      self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
+                                       'updates/@gpgcheck', True)
+    else:
+      # test-install and test-update use gpgcheck value from publish, if set,
+      # else default to True
+      self.cvars.setdefault('gpgcheck-enabled', True)
 
     if not self.cvars['gpgcheck-enabled']:
       return
@@ -124,16 +129,16 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
       # of changes
       self.local_keydir.mkdirs()
       self.keys = []
-      for url in self.gpgkeys:
+      for filename, url in self.gpgkeys.iteritems():
         try:
-          url.cp(self.local_keydir, mirror=True)
+          url.cp(self.local_keydir/filename, mirror=True)
         except Exception, e:
           message = ("An error occurred attempting to retrieve the GPG key "
                      "located at '%s'. The error message is printed below:\n"
                      "%s" % (url, e))
           raise GPGKeyError(message=message)
-        self.keys.append(url.basename)
-        self.DATA['output'].append(self.local_keydir / url.basename)
+        self.keys.append(filename)
+        self.DATA['output'].append(self.local_keydir / filename)
 
     # generate repofile
     self._generate_repofile()

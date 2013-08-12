@@ -17,6 +17,7 @@ FILE=/etc/sysconfig/iptables
 case "$1" in
   "start")
 # Enable http traffic through the firewall
+[[ -f $FILE ]] || touch $FILE
 if [[ ! `fgrep -e "--dport 80 " $FILE` ]]; then
   if [[ $VERSION == 5 ]]
     then

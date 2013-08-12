@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id="deploy-templates-libvirt-deploy">
-<macro id='dest-dir'>/usr/share/deploy/templates/libvirt-deploy</macro>
-<requires>deploy</requires>
-<files destdir="%{dest-dir}">libvirt-activate.xml</files>
-<files destdir="%{dest-dir}">libvirt-delete.xml</files>
-<files destdir="%{dest-dir}">libvirt-install.xml</files>
-</config-rpm>

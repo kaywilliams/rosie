@@ -5,5 +5,5 @@
 set -e
 
 # test custom package removal
-yum -y --disableplugin sync remove %{custom-pkgs}
+yum -y --cacheonly --disableplugin sync remove %{custom-pkgs}
 </script>

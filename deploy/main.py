@@ -310,7 +310,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
   def _get_definition_path(self, arguments):
     self.definition_path = pps.path(arguments[0]).expand().abspath()
     if not self.definition_path.exists():
-      raise rxml.errors.XmlError("No definition found at '%s'" % dp)
+      raise rxml.errors.XmlError("No definition found at '%s'" % 
+                                 self.definition_path)
 
   def _get_templates_dir(self):
     self.templates_dir = self.mainconfig.getpath(

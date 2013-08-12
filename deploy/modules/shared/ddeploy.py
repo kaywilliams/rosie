@@ -47,13 +47,16 @@ POST_INSTALL_SCRIPTS_CSUM = 'post_install_scripts_csum'
 class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
-  def __init__(self, reinstall=False, *args, **kwargs):
-    self.requires.update(['%s-setup-options' % self.moduleid],)
+  def __init__(self, reinstall=False, track_repomd=True, *args, **kwargs):
+    self.requires.add('sshsetup')
+    self.requires.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
                                         'config-rpms', 'srpmbuild', 
                                         '%s-ksname' % self.moduleid,
                                         '%s-ksfile' % self.moduleid])
     self.reinstall = reinstall # forces reinstall on event run
+    self.track_repomd = track_repomd # used by test-install to prevent
+                                     # reinstall on repomd changes
     ExecuteEventMixin.__init__(self)
 
   def setup(self): 
@@ -73,7 +76,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
-    self._track_repomdfile()
+    if self.track_repomd:
+      self._track_repomdfile()
 
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')

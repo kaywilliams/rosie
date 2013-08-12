@@ -20,7 +20,7 @@
 <repos>
 <!-- epel repo provides rpmlint package-->
 <!-- epel repo defines the buildsys-build group for el6-->
-<xi:include href="repos.xml"
+<xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(./repo[@id='base'] | 
                                ./repo[@id='updates'] |
                                ./repo[@id='epel'] )"/>
@@ -28,7 +28,7 @@
 </repos>
 <macro id="repos-5">
 <!--centos-buildsys-5 repo provides buildsys-build package-->
-<xi:include href="repos.xml"
+<xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(./repo[@id='centos-buildsys-5'])"/>
 </macro>
 <macro id="repos-6"/>
@@ -36,20 +36,16 @@
 <packages>
 <group>core</group>
 <package>rpmlint</package>
+
+<macro id="packages-5"><package>buildsys-build</package></macro>
+<macro id="packages-6"><group>buildsys-build</group></macro>
 %{packages-%{version}}
 </packages>
-<macro id="packages-5">
-<package>buildsys-build</package>
-<!--add NetworkManager to workaround RTNETLINK/NOZEROCONF issue in el5-->
-<package>NetworkManager</package>
-</macro>
-<macro id="packages-6"><group>buildsys-build</group></macro>
 
 <publish>
 <kickstart>
 skipx
-<xi:include href='ks.xml' xpointer="xpointer(./node())"/>
-<xi:include href='ks-post-ssh.xml' xpointer="xpointer(./node())"/>
+<xi:include href='%{templates-dir}/common/ks.xml' xpointer="xpointer(./node())"/>
 </kickstart>
 
 <triggers>
@@ -126,7 +122,7 @@ finally:
 </script>
 
 <macro id='file-size'>10</macro>
-<xi:include href="../libvirt-deploy/deploy.xml" 
+<xi:include href="%{templates-dir}/libvirt/deploy.xml" 
             xpointer="xpointer(./*[name()!='kickstart'])"/>
 </publish>
 

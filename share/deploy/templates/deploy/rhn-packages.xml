@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<srpmbuild>
+<srpm id='rhnlib'>
+<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>
+</srpm>
+
+<srpm id='rhn-client-tools'>
+<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>
+</srpm>
+
+<srpm id='yum-rhn-plugin'>
+<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>
+</srpm>
+
+<srpm id='rhnsd'>
+<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>
+</srpm>
+</srpmbuild>

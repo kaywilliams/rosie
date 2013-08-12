@@ -73,7 +73,7 @@ class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
     BootisoEventTestCase.__init__(self, os, version, arch)
     DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
     install_script = self.conf.getxpath(
-                     './publish/script[@id="virt-install"]')
+                     './publish/script[@id="install"]')
     install_script.text = """
 #!/bin/bash
 virt-install --name %{hostname} --ram 512 \

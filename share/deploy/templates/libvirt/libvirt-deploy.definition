@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>rsync-server</macro>
+<macro id='name'>libvirt</macro>
 <macro id='os'>centos</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
@@ -16,17 +16,14 @@
 </main>
 
 <repos>
-<xi:include href='%{templates-dir}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+<xi:include href='%{templates-dir}/common/repos.xml' 
+            xpointer="xpointer(./repo[@id='base' or
+                                      @id='updates'])"/>
 </repos>
 
 <packages>
 <group repoid='base'>core</group>
 </packages>
-
-<config-rpms>
-<xi:include href="%{templates-dir}/rsync/rsync-server-config.xml"/>
-</config-rpms>
 
 <test-install>
 <xi:include href="%{templates-dir}/libvirt/deploy.xml" 

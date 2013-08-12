@@ -19,8 +19,7 @@ import rpmUtils
 import yum
 
 from deploy.dlogging  import L1
-from deploy.errors    import (DeployEventError, DeployIOError,
-                                    assert_file_has_content)
+from deploy.errors    import DeployEventError, DeployIOError
 from deploy.event     import Event
 
 from deploy.modules.shared import GPGKeysEventMixin 
@@ -70,6 +69,7 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
     self._process_packages()
 
   def _get_tochecks(self):
+    self.tochecks = []
     if "cvars['rpms']" in self.diff.variables.difference():
       md, curr = self.diff.variables.difference()["cvars['rpms']"]
       self.tochecks = set(curr).difference(md) # new rpms have been added
@@ -87,9 +87,8 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
     self.ts = rpmUtils.transaction.TransactionWrapper(root=self.rpmdb_dir)
 
     #add keys to rpmdb
-    for key in self.gpgkeys:
-      assert_file_has_content(key, cls=GpgkeyIOError)
-      self.ts.pgpImportPubkey(yum.misc.procgpgkey(key.read_text()))
+    for key in self.keyids:
+      self.ts.pgpImportPubkey(yum.misc.procgpgkey(key))
 
   def _process_packages(self):
     error_text = { 1 : 'missing gpgkey',

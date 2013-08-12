@@ -32,18 +32,13 @@ from deploy.callback   import LinkCallback
 from deploy.event      import Event
 from deploy.errors     import DeployEventError
 from deploy.errors     import SimpleDeployEventError
-from deploy.dlogging   import L1
 from deploy.util       import pps
-from deploy.util       import shlib
-
-from deploy.modules.shared import SSHFailedError
 
 from deploy.util.rxml  import config
 
 DEFAULT_LOCALROOT = '/var/www/html/deploy'
 DEFAULT_WEBROOT = 'http://%{build-host}/deploy'
 
-# Include this mixin in any event that requires hostname and password 
 class PublishSetupEventMixin(Event):
   publish_mixin_version = "1.01"
 
@@ -78,34 +73,6 @@ class PublishSetupEventMixin(Event):
     self.ssh = self.config.getbool('ssh/text()', True)
     self.ssh_passphrase = self.config.getxpath('ssh-passphrase/text()', '')
     self.boot_options = self.get_bootoptions()
-
-    # ssh setup
-    sshdir = pps.path('/root/.ssh')
-    keyfile = sshdir / 'id_rsa'
-    if self.ssh:
-      if not keyfile.exists():
-        try:
-          self.log(1, L1("ssh key not found, generating"))
-          cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % keyfile 
-          shlib.execute(cmd)
-        except shlib.ShExecError, e:
-          message = ("Error occurred creating ssh keys for the "
-                     "root user. The error was: %s\n"
-                     "If the error persists, you can generate keys manually "
-                     "using the command\n '%s'" % (e, cmd))
-          raise SSHFailedError(message=message)
-
-      # enable ssh to local machine
-      authkeys = sshdir / 'authorized_keys'
-      if not authkeys.exists(): authkeys.touch()
-      authkeys.chmod(0600)
-
-      pubkey = (keyfile + '.pub').read_text()
-      if not pubkey in authkeys.read_text():
-        authkeys.write_text(authkeys.read_text() + pubkey)
-      
-      self.resolve_macros(map={'%{build-host-pubkey}': 
-                                     (keyfile + '.pub').read_text()})
 
     # resolve module macros
     map = {'%{url}':            {'value':   self.webpath},
@@ -428,6 +395,3 @@ class FQDNNotFoundError(DeployEventError):
               "record is correctly configured. Otherwise, please specify an "
               "alternative interface for obtaining the IP address. See the "
               "Deploy documentation on 'Publish' for more information.") 
-
-class KeyGenerationFailed(DeployEventError):
-  message = "%(message)s"

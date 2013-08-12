@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpm id='windows-azure-guest-config'>
+
+<repo id='openlogic'>
+<baseurl>
+http://olcentgbl.trafficmanager.net/openlogic/%{version}/openlogic/%{arch}
+</baseurl>
+</repo>
+
+<requires>WALinuxAgent</requires>
+</config-rpm>

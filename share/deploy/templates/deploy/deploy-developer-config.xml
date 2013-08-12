@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-config'>
+
+<!-- conditionally include epel repo for mercurial package -->
+<macro id="mercurial-repo-5">
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(/*/repo[@id='epel'])"/>
+</macro>
+<macro id="mercurial-repo-6"/>
+%{mercurial-repo-%{version}}
+
+<!-- include deploy repo for rhn, deploy-httpd-config and 
+     deploy-libvirt-config packages -->
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(/*/repo[@id='deploy'])"/>
+
+<requires>createrepo</requires>
+<requires>dosfstools</requires>
+<requires>deploy-httpd-config</requires>
+<requires>deploy-libvirt-config</requires>
+<requires>gnupg</requires>
+<requires>gzip</requires>
+<requires>mercurial</requires>
+<requires>mkisofs</requires>
+<requires>pexpect</requires>
+<requires>publican</requires>
+<requires>pykickstart</requires>
+<requires>python-crypto</requires>
+<requires>python-devel</requires>
+<requires>python-hashlib</requires>
+<requires>python-lxml</requires>
+<requires>python-paramiko</requires>
+<requires>python-setuptools</requires>
+<requires>rhnlib</requires>
+<requires>rhn-client-tools</requires>
+<requires>rpm-build</requires>
+<requires>syslinux</requires>
+<requires>xz</requires>
+<requires>/sbin/rngd</requires>
+<requires>/usr/bin/make</requires>
+<!--include os version-specific packages-->
+<macro id="developer-5"><requires>python-hashlib</requires></macro>
+<macro id="developer-6"> </macro>
+%{developer-%{version}}
+</config-rpm>

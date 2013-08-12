@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-basic-config'>
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(/*/repo[@id='deploy'])"/>
+<requires>deploy</requires>
+<requires>deploy-httpd-config</requires>
+</config-rpm>

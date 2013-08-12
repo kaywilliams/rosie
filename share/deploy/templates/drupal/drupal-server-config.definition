@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>rsync-server</macro>
+<macro id='name'>drupal-server</macro>
 <macro id='os'>centos</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
-<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='id'>%{name}</macro>
+
+<!-- change the values below -->
+<macro id='password'>Test1!</macro>
+<macro id='dbtype'>pgsql</macro>
+<macro id='dbuser'>postgres</macro>
+<macro id='sitename'>drupal</macro>
 
 <main>
 <name>%{name}</name>
+<fullname>%{fullname}</fullname>
 <os>%{os}</os>
 <version>%{version}</version>
 <arch>%{arch}</arch>
@@ -16,8 +23,8 @@
 </main>
 
 <repos>
-<xi:include href='%{templates-dir}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(/*/repo[@id='base' or @id='updates'])"/>
 </repos>
 
 <packages>
@@ -25,7 +32,15 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/rsync/rsync-server-config.xml"/>
+<!--drupal-->
+<xi:include href='%{templates-dir}/httpd/httpd-config.xml'/>
+<xi:include href="%{templates-dir}/drupal/drupal-server-config.xml"/> 
+<xi:include href="%{templates-dir}/drupal/drupal-%{dbtype}-config.xml"/>
+<xi:include href="%{templates-dir}/drupal/drush-config.xml"/>
+
+<!--local backup-->
+<xi:include href="%{templates-dir}/rsnapshot/rsnapshot-local-config.xml"/>
+<xi:include href="%{templates-dir}/drupal/drupal-rsnapshot-config.xml"/>
 </config-rpms>
 
 <test-install>

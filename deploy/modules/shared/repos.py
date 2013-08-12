@@ -460,7 +460,7 @@ class RepoEventMixin(Event):
                                           expected=datafile.checksum)
 
 class GPGKeysEventMixin:
-  gpgkeys_mixin_version = "1.00"
+  gpgkeys_mixin_version = "1.01"
 
   def setup(self):
     self.DATA['variables'].append('gpgkeys_mixin_version')
@@ -477,11 +477,28 @@ class GPGKeysEventMixin:
         self.io.validate_input_file(url)
       except InputFileError, e:
         raise GPGKeyError(e)
-      gpgkeys[self.io.abspath(url).read_text().strip()] = url
+      filename = url.basename
+      text = self.io.abspath(url).read_text().strip()
+      if text not in gpgkeys:
+        filenames = [ x for x, _ in gpgkeys.values() ]
+        index = 0
+        while True:
+          if index == 0:
+            filename = url.basename
+          else:
+            filename = url.basename + '(' + str(index) + ')'
+          if filename not in filenames:
+            gpgkeys[text] = (filename, url)
+            break
+          else:
+            index += 1
 
     self.keyids = gpgkeys.keys()
     self.keyids.sort()
-    self.gpgkeys = gpgkeys.values()
+    self.gpgkeys = {}
+    for filename, url in gpgkeys.values():
+      self.gpgkeys[filename] = url
+
     self.DATA['variables'].append('keyids') 
 
 class ReposDiffTuple(DiffTuple):

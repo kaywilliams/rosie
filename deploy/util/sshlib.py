@@ -68,7 +68,8 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
       if "No existing session" in str(e): 
         # connection closed, e.g. after being refused
         raise ConnectionFailedError(str(e), params)
-      if e.errno == socket.EAI_AGAIN: # Temporary failure in name resolution
+      if hasattr(e, 'errno') and e.errno == socket.EAI_AGAIN: 
+        # Temporary failure in name resolution
         raise TemporaryConnectionFailedError(str(e), params)
       if i == 0:
         max = Decimal(retries) * sleep / 60

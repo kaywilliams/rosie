@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>rsync-server</macro>
+<macro id='name'>rsnapshot-client</macro>
 <macro id='os'>centos</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
-<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='id'>%{name}</macro>
 
 <main>
 <name>%{name}</name>
@@ -25,7 +25,7 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/rsync/rsync-server-config.xml"/>
+<xi:include href="%{templates-dir}/rsnapshot/rsnapshot-client-config.xml"/>
 </config-rpms>
 
 <test-install>
@@ -40,5 +40,4 @@
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>
-
 </definition>

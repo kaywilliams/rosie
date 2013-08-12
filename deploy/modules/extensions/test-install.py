@@ -67,7 +67,7 @@ class TestInstallEvent(DeployEventMixin, Event):
       'variables': [], # populated in setup
     }
 
-    DeployEventMixin.__init__(self, reinstall=True)
+    DeployEventMixin.__init__(self, reinstall=True, track_repomd=False)
 
   def setup(self):
     self.diff.setup(self.DATA)
