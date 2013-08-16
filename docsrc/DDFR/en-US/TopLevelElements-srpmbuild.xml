@@ -246,11 +246,10 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpmlast}:</emphasis> The full filename of the
-      last SRPM provided by the script, e.g.
-      <filename>example.1-1.el6.x86_64.rpm</filename> or 'None' if no SRPM was
-      previously provided. Allows scripts to optimize performance by
-      determining whether a new SRPM must be provided.
+      <emphasis role='strong'>%{srpmlast}:</emphasis> The full path to the last
+      SRPM provided by the script or 'None' if no SRPM was previously provided.
+      Allows scripts to optimize performance by determining whether a new SRPM
+      must be provided.
       </para>
 
       <para>

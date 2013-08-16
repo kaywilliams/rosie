@@ -72,7 +72,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       id = '%s-srpm' % self.srpmid, 
       parentid = 'srpmbuild',
       ptr = ptr,
-      version = 1.11,
+      version = 1.14,
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
     )
   
@@ -80,7 +80,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.DATA = {
       'input':     [],
-      'config':    ['.'],
+      'config':    [], # handle config using variables since 
+                       # srpmlast macro causes script content
+                       # to change across runs
       'variables': [],
       'output':    [],
     }
@@ -103,11 +105,15 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     ShelveMixin.__init__(self)
     RpmBuildMixin.__init__(self)
     ExecuteEventMixin.__init__(self)
-  
+ 
   def setup(self):
     self.diff.setup(self.DATA)
     RpmBuildMixin.setup(self)
-  
+ 
+    # add config content to variables diff
+    self.confvar = str(self.config).strip()
+    self.DATA['variables'].append('confvar')
+
     # resolve macros
     srpmlast = self.unshelve('srpmlast', 'None') 
     macros = {'%{srpmid}': self.srpmid,
@@ -290,7 +296,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     else: # srpm provided by path or repo
       self.srpmfile = self.io.list_output(what='srpm')[0]
 
-    self.shelve('srpmlast', self.srpmfile.basename)
+    self.shelve('srpmlast', self.srpmfile)
 
   def _initialize_builder(self):
     try:
