@@ -111,55 +111,54 @@ class BuildCli:
       help="specify a file in which to log output")
     parser.add_option_group(log_group)
   
-    module_group = OptionGroup(parser, "module and library options")
-    module_group.add_option('--lib-path', metavar='PATH',
+    library_group = OptionGroup(parser, "library options")
+    library_group.add_option('--lib-path', metavar='PATH',
       action='append',
       dest='libpath',
       default=[],
       help="specify directory containing deploy library files")
-    module_group.add_option('--share-path', metavar='PATH',
+    library_group.add_option('--share-path', metavar='PATH',
       action='append',
       dest='sharepath',
       default=[],
       help="specify directory containing deploy shared files")
-    module_group.add_option('--enable-module', metavar='MODULE',
-      action='append',
-      dest='enabled_modules',
-      default=[],
-      help=SUPPRESS_HELP)
-    module_group.add_option('--disable-module', metavar='MODULE',
-      action='append',
-      dest='disabled_modules',
-      default=[],
-      help=SUPPRESS_HELP)
-    parser.add_option_group(module_group)
+    parser.add_option_group(library_group)
   
-    event_group = OptionGroup(parser, "module control options")
-    event_group.add_option('--force', metavar='MODULE',
+    module_group = OptionGroup(parser, "module options")
+    module_group.add_option('--force', metavar='MODULE',
       action='append',
       dest='force_modules',
       default=[],
       help="force a module's events to execute")
-    event_group.add_option('--skip', metavar='MODULE',
+    module_group.add_option('--skip', metavar='MODULE',
       action='append',
       dest='skip_modules',
       default=[],
       help="skip execution of a module's events")
+    module_group.add_option('--enable-module', metavar='MODULE',
+      action='append',
+      dest='enabled_modules',
+      default=[],)
+    module_group.add_option('--disable-module', metavar='MODULE',
+      action='append',
+      dest='disabled_modules',
+      default=[],)
+    parser.add_option_group(module_group)
+
+    event_group = OptionGroup(parser, "event options")
     event_group.add_option('--force-event', metavar='EVENT',
       action='append',
       dest='force_events',
-      default=[],
-      help=SUPPRESS_HELP)
+      default=[],)
     event_group.add_option('--skip-event', metavar='EVENT',
       action='append',
       dest='skip_events',
-      default=[],
-      help=SUPPRESS_HELP)
+      default=[],)
     event_group.add_option('--list-events',
       action='store_true',
       default=False,
       dest='list_events',
-      help=SUPPRESS_HELP)
+      help='list all events in execution order')
     parser.add_option_group(event_group)
  
     opts,args = parser.parse_args(args=sys.argv[1:])
