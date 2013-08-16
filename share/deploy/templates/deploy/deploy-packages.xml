@@ -1,30 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
-
-<macro id="name">deploy</macro>
-<macro id="os">centos</macro>
-<macro id="version">6</macro>
-<macro id="arch">x86_64</macro>
-<macro id='id'>%{name}-%{version}-%{arch}</macro>
-
-<main>
-<name>%{name}</name>
-<os>%{os}</os>
-<version>%{version}</version>
-<arch>%{arch}</arch>
-<id>%{id}</id>
-<type>package</type>
-</main>
-
-<repos>
-<xi:include href="/root/workspace/definitions/common/common.xml"
-            xpointer="xpointer(/*/repo[@id='base' or
-                                       @id='updates'])"/>
-</repos>
-
+<xml schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 <config-rpms>
 <xi:include href="%{templates-dir}/deploy/deploy-basic-config.xml"/>
 <xi:include href="%{templates-dir}/deploy/deploy-standard-config.xml"/>
+<xi:include href="%{templates-dir}/deploy/deploy-developer-config.xml"/>
 <config-rpm id='deploy-httpd-config'>
 <xi:include href="%{templates-dir}/httpd/httpd-config.xml"
             xpointer="xpointer(./*)"/>
@@ -41,4 +20,4 @@
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/libvirt/dnsmasq.xml"/>
 </srpmbuild>
-</definition>
+</xml>

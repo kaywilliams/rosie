@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id="name">deploy-srpm</macro>
+<macro id="name">deploy</macro>
 <macro id="os">centos</macro>
 <macro id="version">6</macro>
 <macro id="arch">x86_64</macro>
-<macro id="id">%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='id'>%{name}-%{version}-%{arch}</macro>
 
 <main>
 <name>%{name}</name>
@@ -18,6 +18,8 @@
 <repos>
 <xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(/*/repo[@id='base' or @id='updates'])"/>
+
+<!-- add deploy repository to satisfy deploy srpm dependencies -->
 <xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(/*/repo[@id='deploy'])"/>
 </repos>
@@ -31,6 +33,7 @@
 </srpmbuild>
 
 <test-install>
+<!-- TODO - add post script to do a test deploy run -->
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
@@ -38,9 +41,9 @@
 </test-install>
 
 <test-update>
+<!-- TODO - add post script to do a test deploy run -->
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>
-
 </definition>

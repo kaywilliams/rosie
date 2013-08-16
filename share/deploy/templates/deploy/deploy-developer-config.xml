@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-config'>
 
-<!-- conditionally include epel repo for mercurial package -->
-<macro id="mercurial-repo-5">
-<xi:include href="%{templates-dir}/common/repos.xml"
-            xpointer="xpointer(/*/repo[@id='epel'])"/>
-</macro>
-<macro id="mercurial-repo-6"/>
-%{mercurial-repo-%{version}}
+<macro id="mercurial-workspace">/root/workspace</macro>
 
 <!-- include deploy repo for rhn, deploy-httpd-config and 
      deploy-libvirt-config packages -->
@@ -34,12 +28,45 @@
 <requires>rhnlib</requires>
 <requires>rhn-client-tools</requires>
 <requires>rpm-build</requires>
+<requires>rpmdevtools</requires>
 <requires>syslinux</requires>
 <requires>xz</requires>
 <requires>/sbin/rngd</requires>
 <requires>/usr/bin/make</requires>
-<!--include os version-specific packages-->
-<macro id="developer-5"><requires>python-hashlib</requires></macro>
-<macro id="developer-6"> </macro>
-%{developer-%{version}}
+
+<!-- configure deploy -->
+<files destdir='/etc/deploy' destname='deploy.conf' content='text'>
+&lt;deploy>
+  &lt;lib-path>%{mercurial-workspace}/deploy&lt;/lib-path>
+  &lt;share-path>%{mercurial-workspace}/deploy/share/deploy&lt;/share-path>
+  &lt;templates-path>%{mercurial-workspace}/deploy/share/deploy/templates&lt;/templates-path>
+&lt;/deploy>
+</files>
+
+<!-- set environment variables -->
+<files destdir="/etc/profile.d" destname='deploy.sh' content='text'>
+# set environment variables
+if ! echo ${PATH} | /bin/grep -q /root/workspace/deploy/bin ; then
+        export PATH=/root/workspace/deploy/bin:${PATH}
+fi
+if ! echo ${PYTHONPATH} | /bin/grep -q /root/workspace/deploy ; then
+        export PYTHONPATH=/root/workspace/deploy:${PYTHONPATH}
+fi
+</files>
+
+<!-- clone deploy repository -->
+<script type='post'>
+if [ ! -e %{mercurial-workspace} ]; then /bin/mkdir %{mercurial-workspace}; fi
+repo="https://hg.deployproject.org/hg/public/deploy"
+ 
+if [ ! -d %{mercurial-workspace}/`basename $repo` ]; then
+  cd %{mercurial-workspace}/
+  hg clone $repo
+  cd -
+fi
+
+if [[ $changed = *\ /etc/profile.d/deploy.sh\ * ]]; then
+  source /etc/profile.d/deploy.sh
+fi
+</script>
 </config-rpm>

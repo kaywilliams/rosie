@@ -30,7 +30,6 @@
 </config-rpms>
 
 <test-install>
-<!-- TODO - add post script to clone deploy repo do a test run -->
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
@@ -38,9 +37,12 @@
 </test-install>
 
 <test-update>
-<!-- TODO - add post script to clone deploy repo do a test run -->
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
+<!-- clone deploy mercurial repo and do a test run -->
+<xi:include href="%{templates-dir}/deploy/test-deploy.xml"
+            xpointer="xpointer(./*)"/>
+
 <xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>
 </definition>

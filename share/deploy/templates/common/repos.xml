@@ -24,7 +24,7 @@
 </repo>
 
 <repo id='deploy'>
-<macro id='deploy-mirror'>http://www.deployproject.org/products/deploy</macro>
-<baseurl>%{deploy-mirror}/deploy-%{version}-%{arch}</baseurl>
+<macro id='deploy-mirror'>http://www.deployproject.org/products/deploy/deploy-%{version}-%{arch}</macro>
+<baseurl>%{deploy-mirror}</baseurl>
 </repo>
 </repos>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id="name">deploy</macro>
+<macro id="os">centos</macro>
+<macro id="version">6</macro>
+<macro id="arch">x86_64</macro>
+<macro id='id'>%{name}-%{version}-%{arch}</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+<type>package</type>
+</main>
+
+<repos>
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(/*/repo[@id='base' or @id='updates'])"/>
+</repos>
+
+<packages>
+<group repoid='base'>core</group>
+</packages>
+
+<xi:include href="%{templates-dir}/deploy/deploy-packages.xml"
+            xpointer="xpointer(./*)"/>
+
+</definition>

@@ -6,12 +6,6 @@
 <xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(./repo[@id='epel'])"/>
 
-<!--
-<repo id='epel-testing'>
-<baseurl>http://dl.fedoraproject.org/pub/epel/testing/6/x86_64/</baseurl>
-</repo>
--->
-
 <requires>nodejs</requires>
 <requires>npm</requires>
 <requires>python-simplejson</requires>
@@ -20,5 +14,9 @@
 <script type='post'>
 npm install azure-cli -g
 azure account import %{installdir}/files/azure.publishsettings >/dev/null
+</script>
+
+<script type='preun'>
+[[ $1 = 0 ]] &amp;&amp; azure account clear >/dev/null || :
 </script>
 </config-rpm>
