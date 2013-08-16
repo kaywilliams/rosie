@@ -44,6 +44,7 @@ class PublishSetupEventMixin(Event):
 
   def __init__(self, *args, **kwargs):
     self.provides.add('%s-setup-options' % self.moduleid)
+    self.requires.add('remove-dir')
     self.conditionally_requires.add('publish-setup-options')
 
     if not hasattr(self, 'DATA'): self.DATA = {}
@@ -119,6 +120,12 @@ class PublishSetupEventMixin(Event):
 
     self.__write_datfile()
     self.cache_handler.pkl_dump(self.pkldata, pklkey)
+
+    # write remove script
+    (self.cvars['remove-dir'] / 'remove-%s-dir' % self.moduleid).write_text(
+"""if [ -d %s ]; then
+  /bin/rm -rf %s
+fi""" % (self.localpath, self.localpath))
 
 
   #------ Helper Methods ------#
@@ -276,7 +283,7 @@ class PublishSetupEventMixin(Event):
               % self.moduleid, '') or self.gen_password())
 
   def gen_password(self):
-    size = random.randint(8,72)
+    size = random.randint(8,14)
 
     upper = random.choice(string.uppercase)
     lower = random.choice(string.lowercase)

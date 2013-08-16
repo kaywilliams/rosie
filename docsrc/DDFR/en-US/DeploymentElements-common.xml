@@ -717,7 +717,7 @@ $remote-url/%{id}</programlisting>
     
     <para>
     This element is optional. If not provided, a random password is
-    automatically generated. The generated password is between 8 and 72
+    automatically generated. The generated password is between 8 and 14 
     characters and contains at least one each of a lowercase character, an
     uppercase character and a digit. The generated password is stored in the
     data file. See <xref linkend="datfile"/> for information on the
