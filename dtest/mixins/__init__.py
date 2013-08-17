@@ -197,11 +197,10 @@ def remove_input_files(dir):
 
 # check vm configuration
 def check_vm_config():
-  try:
-    import libvirt
-    import virtinst
+  import subprocess
+  if subprocess.call('/sbin/lsmod | /bin/grep kvm -q', shell=True) == 0:
     return True
-  except ImportError:
+  else:
     return False
 
 

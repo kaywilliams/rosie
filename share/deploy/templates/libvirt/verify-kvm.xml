@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='verify-kvm' type='pre' comes-before='create-guestname'>
+<!-- verify kvm subsystem loaded -->
+if ! /sbin/lsmod | /bin/grep kvm -q; then
+  echo "Error: libvirt deployment template requires kvm subsystem to be loaded"
+  exit 1
+fi
+</script>

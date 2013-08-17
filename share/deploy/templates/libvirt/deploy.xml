@@ -11,6 +11,7 @@
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>
 <xi:include href='%{templates-dir}/common/ssh-config.xml'/>
 <xi:include href='%{templates-dir}/libvirt/libvirt-guest-config.xml'/>
+<xi:include href='%{templates-dir}/libvirt/verify-kvm.xml'/>
 <xi:include href='%{templates-dir}/libvirt/create-guestname.xml'/>
 <xi:include href='%{templates-dir}/common/test-triggers.xml'/>
 <xi:include href='%{templates-dir}/libvirt/activate.xml'/>
