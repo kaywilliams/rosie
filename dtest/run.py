@@ -33,7 +33,7 @@ TIMEFMT = '%Y-%m-%d %X'
 
 opt_defaults = dict(
   os   = 'centos',
-  version  = '5',
+  version  = '6',
   arch = 'i386',
   buildroot   = '/tmp/dtest',
   testlogfile = 'test.log',
