@@ -573,10 +573,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
-    ptr.DATA_DIR     = self.data_dir
     ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
   
-    ptr.datfn = self.datfn # dat filename
+    ptr.data_dir      = self.data_dir
+    ptr.datfn         = self.datfn # dat filename
     ptr.cache_handler = self.cache_handler
 
     ptr.copy_callback  = self.copy_callback
