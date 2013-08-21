@@ -73,7 +73,8 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
-      TestBuild, self.conf, self.options, [])
+      TestBuild, self.conf, options=self.options, args=[], 
+                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
 
   def tearDown(self):
     del self.conf
@@ -236,7 +237,8 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
-      TestBuild, self.conf, self.options, [])
+      TestBuild, self.conf, options=self.options, args=[], 
+                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
 
   def tearDown(self):
     del self.conf
@@ -271,6 +273,14 @@ class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
     self.event.test_lib_dir = pps.path('/root/deploy')
     DeployMixinTestCase.runTest(self)    
 
+class ConfigRpmVMShutdownEventTestCase(DeployMixinTestCase, 
+                                       ConfigRpmEventTestCase):
+  _type = 'system'
+
+  def __init__(self, os, version, arch, *args, **kwargs):
+    ConfigRpmEventTestCase.__init__(self, os, version, arch)
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
+
 def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')
 
@@ -290,7 +300,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   if check_vm_config():
     suite.addTest(Test_FilesInstalled(os, version, arch))
     suite.addTest(Test_FilesPersistOnLibDirChanges(os, version, arch))
-    # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(DeployConfigRpmEventTestCase, os, version, arch, ))
+    suite.addTest(dm_make_suite(ConfigRpmVMShutdownEventTestCase, os, version, arch, ))
 
   return suite
