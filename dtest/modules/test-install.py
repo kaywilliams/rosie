@@ -23,7 +23,7 @@ from deploy.util   import rxml
 
 from deploy.util.rxml import config 
 
-from dtest      import EventTestCase, ModuleTestSuite, TestBuild
+from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
