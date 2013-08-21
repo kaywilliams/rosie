@@ -203,6 +203,28 @@ def check_vm_config():
   else:
     return False
 
+def get_cdrom_virtinstall_script(location):
+  """
+  accepts the location of an iso (bootiso or full cd/dvd) and returns
+  the text of a script for performing a libvirt installation
+  """
+
+  script = """
+#!/bin/bash
+
+%%{source-guestname}
+
+virt-install \
+             --name $guestname \
+             --arch %%{arch} \
+             --ram 512 \
+             --network network=deploy \
+             --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
+             --cdrom %s \
+             --noreboot
+    """ % location
+
+  return script
 
 #------ Convenience Imports ------#
 

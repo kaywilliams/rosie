@@ -27,7 +27,8 @@ from deploy.util.splittree import parse_size
 from dtest        import EventTestCase, ModuleTestSuite
 from dtest.core   import make_core_suite, make_extension_suite
 from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
-                           dm_make_suite, check_vm_config)
+                           dm_make_suite, check_vm_config,
+                           get_cdrom_virtinstall_script)
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):
@@ -177,19 +178,10 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
     IsoEventTestCase.__init__(self, os, version, arch)
     DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
     install_script = self.conf.getxpath(
-                     '/*/publish/script[@id="virt-install"]')
-    install_script.text = """
-#!/bin/bash
-virt-install --name %{hostname} --ram 1000 \
-             --network network=deploy \
-             --file /var/lib/libvirt/images/%{hostname}.img \
-             --file-size 6 \
-             --cdrom /var/www/html/deploy/systems/%{id}/iso/CD/%{name}-disc1.iso \
-             --noreboot
-    """
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='deploy')
+                     '/*/publish/script[@id="install"]')
+    install_script.text = get_cdrom_virtinstall_script(
+                          '/var/www/html/deploy/systems/%s/iso/CD/%s-disc1.iso'
+                          % (self.id, self.name))
 
 
 def make_suite(os, version, arch, *args, **kwargs):
