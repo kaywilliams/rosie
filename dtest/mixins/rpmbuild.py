@@ -24,6 +24,7 @@ from rpmUtils import miscutils
 
 from deploy.util import img
 from deploy.util import pps
+from deploy.util import shlib 
 
 FLAGS_MAP = {
   0: '',
@@ -116,10 +117,11 @@ class MkrpmRpmBuildMixinTestCase(object):
       working_dir = pps.path(tempfile.mkdtemp())
       img_path = pps.path(tempfile.mkdtemp())
       try:
-        filename = working_dir / 'rpm.cpio'
-        miscutils.rpm2cpio(os.open(self.event.rpm.rpm_path, os.O_RDONLY), filename.open('w+'))
-        cpio = img.MakeImage(filename, 'cpio')
-        cpio.open(point=img_path)
+        shlib.execute('/usr/bin/rpmdev-extract -C %s %s | grep -v "\.spec"'
+                      % (img_path, self.event.rpm.rpm_path))
+        #miscutils.rpm2cpio(os.open(self.event.rpm.rpm_path, os.O_RDONLY), filename.open('w+'))
+        #cpio = img.MakeImage(filename, 'cpio')
+        #cpio.open(point=img_path)
       finally:
         working_dir.rm(recursive=True, force=True)
       extracts[self.event.rpm.rpm_path] = img_path
@@ -132,7 +134,10 @@ class MkrpmRpmBuildMixinTestCase(object):
                          what)
     for file in self.event.io.list_output(what=what):
       self.failUnlessExists(file)
-      self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.source_folder))
+      self.failUnlessExists(self.img_path / '%s-%s-%s.%s' %
+                            (self.event.rpm.name, self.event.rpm.version,
+                             self.event.rpm.release, self.event.rpm.arch)
+                             / file.relpathfrom(self.event.rpm.source_folder))
 
   def _get_provides(self):
     return self._get_deps(rpm.RPMTAG_PROVIDENAME,
