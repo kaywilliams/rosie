@@ -49,7 +49,6 @@ class PublishSetupMixinTestCase(EventTestCase):
 
   def pre_teardown(self):
     # 'register' publish_path for deletion upon test completion
-    #if '%s-setup-options' % self.moduleid in self.event.cvars:
     self.output.append(self.event.cvars['%s-setup-options' % self.deploy_module]
                                        ['localpath'])
 
