@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.83
+Version: 1.84
 Release: 1%{?dist}
 Summary: Open platform for managing system and application deployment.
 
@@ -33,7 +33,6 @@ Requires: python-lxml
 Requires: python-paramiko
 Requires: python-setuptools
 Requires: rpmdevtools
-Requires: rpmlint
 Requires: rhn-client-tools
 Requires: rpm-build
 Requires: syslinux
@@ -74,7 +73,7 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Fri Aug 16 2013 Kay Williams <kay@deployproject.org> - 1.83-1
+* Wed Aug 21 2013 Kay Williams <kay@deployproject.org> - 1.84-1
 - TODO  
 
 * Tue Apr 30 2013 Kay Williams <kay@deployproject.org> - 1.76-1
