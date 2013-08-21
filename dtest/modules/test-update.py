@@ -23,7 +23,7 @@ from deploy.util   import rxml
 
 from deploy.util.rxml import config 
 
-from dtest      import EventTestCase, ModuleTestSuite, TestBuild
+from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
@@ -70,5 +70,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   if check_vm_config():
     suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, 
                   arch, offline=False))
+    suite.addTest(dm_make_suite(TestUpdateEventTestCase, os, version, arch,))
 
   return suite
