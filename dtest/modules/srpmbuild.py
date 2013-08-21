@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import subprocess
 import unittest
 
 from deploy.errors   import DeployError
@@ -29,6 +30,7 @@ from dtest.core   import make_core_suite, make_basic_suite
 from dtest.mixins import check_vm_config
 
 from dtest.mixins.rpmbuild import PUBKEY, SECKEY
+from dtest.mixins.ddeploy import prepare_deploy_elem_to_remove_vm
 
 REPODIR  = pps.path(__file__).dirname/'shared' 
 
@@ -67,7 +69,8 @@ class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
-      TestBuild, self.conf, self.options, [])
+      TestBuild, self.conf, options=self.options, args=[],
+                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
 
   def tearDown(self):
     del self.conf
@@ -84,8 +87,9 @@ class Test_Config(TestSrpmTestCase):
   def setUp(self): pass
 
   def runTest(self):
-    unittest.TestCase.failUnlessRaises(self, DeployError, 
-      TestBuild, self.conf, self.options, [])
+    unittest.TestCase.failUnlessRaises(self, DeployError,
+      TestBuild, self.conf, options=self.options, args=[],
+                 mainconfig=self.mainconfig, templates_dir=self.templates_dir) 
 
   def tearDown(self):
     del self.conf
@@ -199,22 +203,36 @@ class Test_Apply(TestSrpmTestCase):
 
 
 class Test_Shutdown(TestSrpmTestCase):
-  "dummy case to shutdown virtual machine"
-  def setUp(self): 
+  "dummy test to delete srpm virtual machine"
+
+  def setUp(self):
+    # create custom srpmbuild.xml template with remove in post script
+    template_file = self.buildroot / 'srpmbuild.xml'
+    (self.templates_dir / 'common/srpmbuild.xml').cp(template_file.dirname)
+    root = rxml.config.parse(template_file, xinclude=True, macros={
+                             '%{os}': self.os,
+                             '%{version}': self.version,
+                             '%{arch}': self.arch,
+                             '%{templates-dir}': self.templates_dir
+                             }).getroot()
+    prepare_deploy_elem_to_remove_vm(root.getxpath('/*/publish'))
+    root.write(template_file)
+
+    # update config to use custom srpmbuild template
+    srpm = self.conf.getxpath('./srpmbuild/srpm')
+    rxml.config.Element('template', parent=srpm, text=template_file)
     EventTestCase.setUp(self)
 
   def runTest(self):
-    pass
+    try:
+      self.tb.dispatch.execute(until=self.event)
+    except DeployError:
+      pass
 
-  def tearDown(self):
-    EventTestCase.tearDown(self) 
-    # shutdown srpmbuild vm
-    exec "import libvirt" in globals()
-    conn = libvirt.open("qemu:///system")
-    vm = conn.lookupByName("srpmbuild-centos-%s-%s" % (
-                           self.version, self.arch.replace("_", "-")))
-    vm.destroy()
-
+    self.failIf(subprocess.call('virsh dominfo srpmbuild-%s-%s-%s &> /dev/null'
+                                % (self.os, self.version, 
+                                   self.arch.replace('_', '-')),
+                                shell=True) == 0)
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
