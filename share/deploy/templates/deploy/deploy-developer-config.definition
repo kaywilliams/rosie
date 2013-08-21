@@ -39,10 +39,11 @@
 <test-update>
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
-<!-- clone deploy mercurial repo and do a test run -->
+<!-- clone deploy mercurial repo and do a test run, uncomment this in the
+     future after we support deployment to remote libvirt hosts
 <xi:include href="%{templates-dir}/deploy/test-deploy.xml"
             xpointer="xpointer(./*)"/>
-
+-->
 <xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>
 </definition>
