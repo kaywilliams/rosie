@@ -38,19 +38,23 @@ from deploy.main import Build, DEFAULT_TEMPLATES_DIR
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
 
 class TestBuild(Build):
-  def __init__(self, conf, *args, **kwargs):
+  def __init__(self, conf, options=None, args=None, mainconfig=None, 
+               templates_dir=None):
     self.conf = conf
-    Build.__init__(self, *args, **kwargs)
+    self.mainconfig = mainconfig
+    self.templates_dir = templates_dir
+    Build.__init__(self, options, args)
 
   def _get_config(self, options, arguments):
-    self.mainconfig = get_mainconfig(options) 
-
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
   def _get_definition_path(self, *args):
     self.definition_path = pps.path(self.conf.base) 
+
+  def _get_templates_dir(self):
+    pass
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
@@ -59,11 +63,11 @@ class TestBuild(Build):
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, os, version, arch='i386', conf=None):
-    self.name = 'test-%s' % self.moduleid
+    self.name = 'dtest-%s' % self.moduleid
     self.os = os 
     self.version = version
     self.arch = arch
-    self.id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch) 
+    self.id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch)
     # pretend we read from a config file in the modules directory
     self.definition_path = pps.path(__file__).dirname/'modules/%s' % self.moduleid
 
@@ -74,6 +78,8 @@ class EventTestCase(unittest.TestCase):
     self.conf.base = self.definition_path
 
     self.buildroot = BUILD_ROOT
+    self.mainconfig = self.get_mainconfig()
+    self.templates_dir = self.get_templates_dir()
 
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):
@@ -86,6 +92,21 @@ class EventTestCase(unittest.TestCase):
     self.output = []
 
     self._testMethodDoc = self.__class__.__doc__
+
+  def get_mainconfig(self):
+      mcf = pps.path(self.options.mainconfigpath or '/etc/deploy/dtest.conf')
+      if mcf.exists():
+        mainconfig = config.parse(mcf).getroot()
+      else:
+        mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
+
+      return mainconfig
+  
+  def get_templates_dir(self):
+      templates_dir = self.mainconfig.getpath('/deploy/templates-path/text()',
+                                              DEFAULT_TEMPLATES_DIR)
+  
+      return templates_dir
 
   # hack to get display working properly in centos 5
   def shortDescription(self):
@@ -158,7 +179,9 @@ class EventTestCase(unittest.TestCase):
 
   # test suite methods
   def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, []) 
+    self.tb = TestBuild(self.conf, options=self.options, args=[], 
+                        mainconfig=self.mainconfig, 
+                        templates_dir=self.templates_dir) 
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)
@@ -406,21 +429,6 @@ def decorate(testcase, method, prefn=None, postfn=None):
     postfn and postfn()
 
   setattr(testcase, method, decorated)
-
-def get_mainconfig(options):
-    mcf = pps.path(options.mainconfigpath or '/etc/deploy/dtest.conf')
-    if mcf.exists():
-      mainconfig = config.parse(mcf).getroot()
-    else:
-      mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
-
-    return mainconfig
-
-def get_templates_dir(mainconfig):
-    templates_dir = mainconfig.getpath('/deploy/templates-path/text()',
-                                       DEFAULT_TEMPLATES_DIR)
-
-    return templates_dir
 
 def _run_make(dir):
   cwd = os.getcwd()
