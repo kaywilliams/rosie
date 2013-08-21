@@ -4,6 +4,8 @@ syntax: glob
 *.dat
 
 syntax: regexp
+^md5sum$
+^.*\.gz$
 .*\#.*\#$
 docsrc/.*/tmp/.*
 docsrc/brand/publish/.*

@@ -59,6 +59,10 @@ archive:
 	--directory=/tmp $(PKGNAME)-$(VERSION) --exclude=docsrc/brand
 	@rm -rf $(TMPDIR)
 
+md5: archive
+	@rm -f md5sum 
+	@md5sum $(PKGNAME)-$(VERSION).tar.gz > md5sum 
+
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
 	@rm -f $(PKGNAME)-$(VERSION).tar.gz
