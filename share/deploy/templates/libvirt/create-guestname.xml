@@ -10,7 +10,7 @@ file="%{data-dir}/libvirt-%{module}"
 if [ -f $file ]; then
   source $file
 else
-  echo "unable to determine guest name"
+  echo "unable to determine guest name - $file does not exist"
   exit 1
 fi
 #!/bin/bash
