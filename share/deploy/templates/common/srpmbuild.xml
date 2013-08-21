@@ -19,11 +19,9 @@
 
 <repos>
 <!-- epel repo provides rpmlint package-->
-<!-- epel repo defines the buildsys-build group for el6-->
+<!-- epel repo defines buildsys-build group for el6-->
 <xi:include href="%{templates-dir}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='base'] | 
-                               ./repo[@id='updates'] |
-                               ./repo[@id='epel'] )"/>
+            xpointer="xpointer(./repo[@id='epel'])"/>
 %{repos-%{version}}
 </repos>
 <macro id="repos-5">
@@ -34,7 +32,7 @@
 <macro id="repos-6"/>
 
 <packages>
-<group>core</group>
+<group repoid='base'>core</group>
 <package>rpmlint</package>
 
 <macro id="packages-5"><package>buildsys-build</package></macro>
