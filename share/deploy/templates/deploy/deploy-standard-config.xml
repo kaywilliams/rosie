@@ -4,5 +4,5 @@
             xpointer="xpointer(/*/repo[@id='deploy'])"/>
 
 <requires>deploy-basic-config</requires>
-<requires>deploy-libvirt-config</requires>
+<requires>deploy-virt-config</requires>
 </config-rpm>

@@ -4,14 +4,14 @@
 <macro id="mercurial-workspace">/root/workspace</macro>
 
 <!-- include deploy repo for rhn, deploy-httpd-config and 
-     deploy-libvirt-config packages -->
+     deploy-virt-config packages -->
 <xi:include href="%{templates-dir}/common/repos.xml"
             xpointer="xpointer(/*/repo[@id='deploy'])"/>
 
 <requires>createrepo</requires>
 <requires>dosfstools</requires>
 <requires>deploy-httpd-config</requires>
-<requires>deploy-libvirt-config</requires>
+<requires>deploy-virt-config</requires>
 <requires>gnupg</requires>
 <requires>gzip</requires>
 <requires>mercurial</requires>

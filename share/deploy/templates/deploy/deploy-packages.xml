@@ -8,7 +8,7 @@
 <xi:include href="%{templates-dir}/httpd/httpd-config.xml"
             xpointer="xpointer(./*)"/>
 </config-rpm>
-<config-rpm id='deploy-libvirt-config'>
+<config-rpm id='deploy-virt-config'>
 <xi:include href="%{templates-dir}/libvirt/libvirt-dnsmasq-config.xml"
             xpointer="xpointer(./*)"/>
 </config-rpm>
