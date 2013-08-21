@@ -291,7 +291,9 @@ class Test_MacroFailsOnCircularReference(AllEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, MacroError,
-      TestBuild, self.conf, self.options, [])
+      TestBuild, self.conf, options=self.options, args=[], 
+                            mainconfig=self.mainconfig, 
+                            templates_dir=self.templates_dir)
 
   def tearDown(self): pass
 
