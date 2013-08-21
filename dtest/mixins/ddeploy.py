@@ -23,8 +23,7 @@ from lxml import etree
 from deploy.util      import pps
 from deploy.util      import rxml
 
-from dtest        import (EventTestCase, decorate, get_mainconfig,
-                          get_templates_dir)
+from dtest        import EventTestCase, decorate
 from dtest.core   import CoreTestSuite
 from dtest.mixins import check_vm_config
 
@@ -45,12 +44,13 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
       '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
       pps.path(__file__).dirname.abspath(),
       xinclude = True,
-      macros = {'%{version}'  : version,
+      macros = {'%{name}'     : self.name,
+                '%{version}'  : version,
                 '%{arch}'     : arch,
+                '%{id}'       : self.id,
                 '%{file-size}': '6',
                 '%{definition-dir}': self.definition_path.dirname,
-                '%{templates-dir}': get_templates_dir(
-                                    get_mainconfig(self.options)),
+                '%{templates-dir}': self.templates_dir,
                 '%{data-dir}': pps.path(self.options.data_root) / self.id
                 }
       ).getroot()
@@ -68,16 +68,9 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     packages.extend(pkgcontent.xpath('/*/*'))
 
     # update module
-    self.hostname = "dtest-%s-%s-%s" % (self.moduleid, self.version,
-                                        self.arch.replace("_", "-"))
-    self.domain = '.local'
-
     mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
     if mod is None:
       mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
-    rxml.config.Element('hostname', parent=mod, text=self.hostname)
-    rxml.config.Element('macro', parent=mod, text='password', 
-                                 attrib={'id':'password'})
 
     if self.deploy_module != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
@@ -92,32 +85,32 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
 
 def DeployMixinTest_Teardown(self):
-  self._testMethodDoc = "dummy test to shutoff virtual machine"
-  def setUp(): 
+  self._testMethodDoc = "dummy test to delete virtual machine"
+
+  def setUp():
+    mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
+    mod = prepare_deploy_elem_to_remove_vm(mod)
     EventTestCase.setUp(self)
 
-  def runTest():
-    pass
-
-  def tearDown():
-    EventTestCase.tearDown(self) 
-
-  def post_tearDown():
-    exec "import libvirt" in globals()
-
-    # shutdown vm
-    conn = libvirt.open("qemu:///system")
-    vm = conn.lookupByName(self.hostname)
-    vm.destroy()
-
   self.setUp = setUp
-  self.runTest = runTest
-  self.tearDown = tearDown
-  decorate(self, 'tearDown', postfn=post_tearDown)
-  
+
   return self
 
 def dm_make_suite(TestCase, os, version, arch):
   suite = CoreTestSuite()
   suite.addTest(DeployMixinTest_Teardown(TestCase(os, version, arch)))
   return suite
+
+def prepare_deploy_elem_to_remove_vm(elem):
+  """ 
+  accepts a deploy elem (publish, test-update or test-install)
+  and massages it to to remove an existing virtual machine on the
+  next run
+  """
+  for script in elem.xpath('script[@id!="create-guestname" and '
+                                 '@id!="delete"]'):
+    elem.remove(script)
+  elem.getxpath('script[@id="delete"]').attrib['type'] = 'post'
+  elem.getxpath('script[@id="delete"]').attrib['ssh'] = 'false'
+
+  return elem
