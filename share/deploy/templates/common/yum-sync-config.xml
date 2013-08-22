@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config-rpm id="yum-sync-config">
+<config-rpm id="yum-sync-config" xmlns:xi="http://www.w3.org/2001/XInclude">
 <description>
 adds a daily cron script to run yum sync, followed by a system restart if the
 system kernel version has changed
