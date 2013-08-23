@@ -50,8 +50,6 @@ class TestUpdateSetupEvent(TestPublishEventMixin, Event):
       ptr = ptr,
       version = 1.0,
       requires = ['os-dir'],
-      # don't run if test-install event fails
-      conditionally_comes_after = [ 'test-install' ],
     )
 
     TestPublishEventMixin.__init__(self)

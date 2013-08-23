@@ -45,6 +45,7 @@ class TestInstallSetupEvent(TestPublishEventMixin, Event):
     Event.__init__(self,
       id = 'test-install-setup',
       parentid = 'test-events',
+      conditionally_comes_after = ['test-update'],
       ptr = ptr,
       version = 1.0,
       requires = ['os-dir'],
