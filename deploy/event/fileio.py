@@ -187,7 +187,7 @@ class IOObject(object):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
     if not hasattr(xpaths, '__iter__'): raise TypeError(type(fpaths))
     for xpath in xpaths:
-      self.add_xpath(xpath, dst, *args, **kwargs)
+      self.add_xpath(xpath, *args, **kwargs)
 
   def add_fpath(self, fpath, dst, id=None, mode=None, destname=None):
     """
