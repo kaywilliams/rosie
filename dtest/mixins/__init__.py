@@ -217,11 +217,17 @@ def get_cdrom_virtinstall_script(location):
 virt-install \
              --name $guestname \
              --arch %%{arch} \
-             --ram 512 \
+             --ram 1000 \
              --network network=deploy \
+             --graphics vnc \
              --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
              --cdrom %s \
              --noreboot
+
+# wait for install to complete and machine to shutdown
+while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
+  sleep 2
+done
     """ % location
 
   return script
