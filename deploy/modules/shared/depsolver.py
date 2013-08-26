@@ -100,6 +100,11 @@ class DepsolverMixin(object):
       conf.append(line)
     for repo in self.cvars['repos'].values():
       conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
+      # ensure our packages are not overridden by packages from other repos
+      # TODO - add a test case
+      if not repo.id == self.build_id:
+        line = 'exclude=' + ' '.join(self.cvars['rpmbuild-data'].keys())
+        conf.append(line)
       conf.append('\n')
     self.depsolve_repo.write_lines(conf)
 
