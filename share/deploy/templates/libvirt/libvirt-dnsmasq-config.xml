@@ -40,8 +40,7 @@ if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then
     ipaddr="192.168.$i.1"
     ipstart="192.168.$i.2"
     ipend="192.168.$i.254"
-    if ! (ifconfig | grep $ipaddr) >/dev/null &amp;&amp; \
-       ! ping -c 1 -w 1 -W 1 $ipaddr; then
+    if ! (ifconfig | grep 192.168.$i ) >/dev/null ; then
       success=true
       break
     fi
