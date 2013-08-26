@@ -18,6 +18,15 @@
     <attribute name="id"/>
 
     <interleave>
+    <zeroOrMore>
+    <element name="prep-script">
+      <ref name="xml-base"/>
+      <optional>
+        <attribute name='verbose'><ref name="value-boolean"/></attribute>
+      </optional>
+      <text/>
+    </element>
+    </zeroOrMore>
     <optional>
     <element name="summary">
       <ref name="xml-base"/>
@@ -287,6 +296,13 @@
       </optional>
       <optional><attribute name="interface"/> </optional>
       <optional><text/></optional>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="deploy-host">
+      <ref name="xml-base"/>
+      <text/>
     </element>
     </optional>
 

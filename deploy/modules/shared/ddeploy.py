@@ -173,7 +173,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.resolve_macros(map={'%{triggers}': triggers,
                              '%{custom-pkgs}': self._get_custom_pkgs()})
 
-    self.deploydir = self.LIB_DIR / 'deploy'
+    self.deployroot = self.LIB_DIR / 'deploy'
+    self.deploydir = self.deployroot / self.build_id
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
     self.resolve_macros(map={'%{trigger-file}': self.triggerfile})
 
@@ -335,9 +336,14 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       cmd = self.io.list_output(what=script.id)[0]
       self.log(1, L1('running %s script' % script.id))
 
-      if self.ssh['enabled'] and script.ssh:
-        # run cmd on remote machine
+
+      if (self.cvars[self.cvar_root]['deploy-host'] or
+         (self.ssh['enabled'] and scrupt.ssh)):
         params = SSHParameters(self, type)
+
+        if not script.ssh:
+          params['hostname'] = self.cvars[self.cvar_root]['deploy-host']
+          
         try:
           try:
             client = self._ssh_connect(params)
@@ -360,10 +366,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                 % (self.LIB_DIR, params['hostname'], str(e)))
 
           # create deploydir
-          if not (self.deploydir.basename in 
-                  sftp.listdir(str(self.deploydir.dirname))): 
-            sftp.mkdir(str(self.deploydir))
-            sftp.chmod(str(self.deploydir), mode=0750)
+          for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
+            if not (d.basename in 
+                    sftp.listdir(str(d.dirname))): 
+              sftp.mkdir(str(d))
+              sftp.chmod(str(d), mode=0750)
 
           # clean deploydir - except for trigger file
           if self.do_clean:
@@ -385,7 +392,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           except SSHFailedError, e:
             raise SSHScriptFailedError(id=script.id, host=params['hostname'],
                                        message=str(e))
-  
+
         finally:
           if 'client' in locals(): client.close()
 

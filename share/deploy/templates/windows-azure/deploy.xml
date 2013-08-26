@@ -5,10 +5,12 @@
 <macro id='user'>deploy</macro>
 <macro id='domain'>cloudapp.net</macro>
 <macro id='build-host'><build-host fqdn='true'/></macro>
+<macro id='deploy-host'>%{build-host}</macro>
 
 <!-- template content below -->
 <domain>%{domain}</domain>
 %{build-host}
+<deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>
 <xi:include href='%{templates-dir}/common/ssh-config.xml'/>
 <xi:include href='%{templates-dir}/common/create-ssh-keys.xml'/>

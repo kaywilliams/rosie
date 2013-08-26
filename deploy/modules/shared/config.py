@@ -20,6 +20,7 @@ import re
 from deploy.errors   import (DeployEventError, MissingIdError,
                                    DuplicateIdsError)
 from deploy.event    import Event, CLASS_META
+from deploy.dlogging  import L0
 from deploy.util     import pps
 
 from deploy.modules.shared import (MkrpmRpmBuildMixin,
@@ -80,7 +81,7 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
 
   return new_events
 
-class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
+class ConfigRpmSetupEventMixin(RepoSetupEventMixin, ExecuteEventMixin):
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -95,14 +96,27 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
 
     self.DATA = {
       'input':     [],
-      'config':    ['.'],
+      'config':    [],
       'variables': [],
       'output':    [],
     }
 
     RepoSetupEventMixin.__init__(self)
+    ExecuteEventMixin.__init__(self)
 
-class ConfigRpmEventMixin(MkrpmRpmBuildMixin, ExecuteEventMixin): 
+  def setup(self):
+    # TODO make prep-scripts fit with our overall test-run-clean model?
+    # TODO document
+    for script in self.config.xpath('prep-script', []):
+      file=self.mddir / 'prep-script' 
+      file.write_text(script.text)
+      file.chmod(0750)
+      if script.getbool('@verbose', False):
+        self.logger.log(1, L0(self.id))
+      self._local_execute(file, verbose=script.getbool('@verbose', False))
+
+
+class ConfigRpmEventMixin(MkrpmRpmBuildMixin): 
   config_mixin_version = "1.02"
 
   def __init__(self, ptr, *args, **kwargs):

@@ -64,6 +64,7 @@ class PublishSetupEventMixin(Event):
     self.resolve_macros(map={ '%{build-host}': self.build_host})
 
     # set additional attributes
+    self.deploy_host = self.config.getxpath('deploy-host/text()', None) 
     self.localpath = self.get_local()
     self.webpath = self.get_webpath(self.build_host)
     self.domain = self.get_domain() # get_hostname() uses this for validation
@@ -103,8 +104,8 @@ class PublishSetupEventMixin(Event):
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'localpath', 'webpath', 'build_host', 
-                      'boot_options']:
+                      'ssh_passphrase', 'localpath', 'webpath', 'build_host',
+                      'deploy_host', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 

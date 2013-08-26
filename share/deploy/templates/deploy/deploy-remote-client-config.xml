@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" 
+            id='deploy-remote-host-config'>
+<description>
+Configures a system to serve as a client for a remote deploy host machine.
+</description>
+
+<macro id='deploy-remote-host-definition'>deploy-remote-host.definition</macro>
+<macro id='deploy-remote-client-pub-keydir'>deploy-remote-host-%{os}-%{version}-%{arch}/deploy-client-pubkeys</macro>
+
+<prep-script>
+%{templates-dir}/common/create-ssh-keys.sh "%{data-dir}" %{fqdn}
+</prep-script>
+
+<prep-script verbose="true">
+#!/bin/sh
+# configure deploy-remote-host to receive requests from deploy-remote-client
+set -e
+if ! diff "%{data-dir}/id_rsa.pub" \
+          "%{deploy-remote-client-pub-keydir}/%{id}.pub" &amp;> /dev/null; then
+  cp %{data-dir}/id_rsa.pub %{deploy-remote-client-pub-keydir}/%{id}.pub
+  echo "updating deploy remote host with client pubkey"
+  deploy %{deploy-remote-host-definition} -l1
+fi
+</prep-script>
+
+<requires>openssh</requires>
+<requires>openssh-clients</requires>
+<requires>/usr/sbin/sshd</requires>
+
+<files destdir='/root/.ssh' mode='600'>%{data-dir}/id_rsa</files>
+<files destdir='/root/.ssh' mode='640'>%{data-dir}/id_rsa.pub</files>
+
+<script type='post'>
+chmod 700 /root/.ssh
+</script>
+
+</config-rpm>

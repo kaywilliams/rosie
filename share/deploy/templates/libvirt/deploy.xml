@@ -3,10 +3,12 @@
 
 <!-- install and update a libvirt vm on the local machine -->
 <macro id='file-size'>30</macro>
+<macro id='deploy-host'>%{build-host}</macro>
 
 <!-- template content below -->
 <domain>deploy</domain>
 <build-host interface='virbrdpl'/>
+<deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/common/ks.xml'/>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>
 <xi:include href='%{templates-dir}/common/ssh-config.xml'/>

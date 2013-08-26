@@ -36,6 +36,7 @@ opt_defaults = dict(
   version  = '6',
   arch = 'i386',
   buildroot   = '/tmp/dtest',
+  deployhost  = None,
   testlogfile = 'test.log',
   testloglevel = 2,
   libpath   = [],
@@ -53,6 +54,8 @@ def reconstruct_cmd(options):
   # only include these values if they arent the defaults
   if options.buildroot != opt_defaults['buildroot']:
     cmd += ['-b', options.buildroot]
+  for macro in options.macros:
+    cmd += ['--macro', macro]
   if options.testlogfile != opt_defaults['testlogfile']:
     cmd += ['-l', options.testlogfile]
   if options.testloglevel != opt_defaults['testloglevel']:
