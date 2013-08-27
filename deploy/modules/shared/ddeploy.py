@@ -370,7 +370,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
             if not (d.basename in 
                     sftp.listdir(str(d.dirname))): 
               sftp.mkdir(str(d))
-              sftp.chmod(str(d), mode=0750)
 
           # clean deploydir - except for trigger file
           if self.do_clean:
