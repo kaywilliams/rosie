@@ -236,19 +236,19 @@ class Test_Shutdown(TestSrpmTestCase):
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
 
-  # suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch, 
-  #               offline=False))
+  suite.addTest(make_core_suite(TestSrpmTestCase, os, version, arch, 
+                offline=False))
 
-  # suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
-  # suite.addTest(Test_Config(os, version, arch))
-  # suite.addTest(Test_FromFolder(os, version, arch))
-  # suite.addTest(Test_FromRepo(os, version, arch))
-  # suite.addTest(Test_FromScript(os, version, arch))
+  suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
+  suite.addTest(Test_Config(os, version, arch))
+  suite.addTest(Test_FromFolder(os, version, arch))
+  suite.addTest(Test_FromRepo(os, version, arch))
+  suite.addTest(Test_FromScript(os, version, arch))
 
-  # suite.addTest(Test_UpdatesDefinition(os, version, arch))
-  # suite.addTest(Test_InvalidRpm(os, version, arch))
+  suite.addTest(Test_UpdatesDefinition(os, version, arch))
+  suite.addTest(Test_InvalidRpm(os, version, arch))
   suite.addTest(Test_Apply(os, version, arch))
-  # suite.addTest(Test_Shutdown(os, version, arch))
+  suite.addTest(Test_Shutdown(os, version, arch))
 
   return suite
 

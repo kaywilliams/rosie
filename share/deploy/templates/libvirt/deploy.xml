@@ -7,11 +7,13 @@
 
 <!-- template content below -->
 <domain>deploy</domain>
-<!--
-<build-host interface='virbrdpl'/>
--->
 <deploy-host>%{deploy-host}</deploy-host>
-<xi:include href='%{templates-dir}/common/ks.xml'/>
+<kickstart>
+<xi:include href='%{templates-dir}/common/ks.xml'
+            xpointer='xpointer(./node())'/>
+<xi:include href='%{templates-dir}/libvirt/ks-post-ssh.xml'
+            xpointer='xpointer(./node())'/>
+</kickstart>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>
 <xi:include href='%{templates-dir}/common/ssh-config.xml'/>
 <xi:include href='%{templates-dir}/libvirt/libvirt-guest-config.xml'/>

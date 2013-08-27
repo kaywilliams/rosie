@@ -24,6 +24,10 @@
 <files destdir="/etc/NetworkManager/dispatcher.d" destname="99-deploy-virt-config" mode="755" content="text">
 #!/bin/bash
 #Create/update deploy virtual network
+
+# verify kvm subsystem
+/sbin/lsmod | /bin/grep kvm -q || exit
+
 domain=deploy
 
 # Assign IP address for virtual network
