@@ -2,7 +2,9 @@
 <script id='verify-kvm' type='pre' comes-before='create-guestname'>
 <!-- verify kvm subsystem loaded -->
 if ! /sbin/lsmod | /bin/grep kvm -q; then
-  echo "Error: libvirt deployment template requires kvm subsystem to be loaded"
+  echo "Error: the libvirt deployment template requires a kvm subsystem."
+  echo "Consider using the deploy-host element to execute deployment scripts"
+  echo "from a remote machine."
   exit 1
 fi
 </script>
