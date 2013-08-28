@@ -371,14 +371,18 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                     sftp.listdir(str(d.dirname))): 
               sftp.mkdir(str(d))
 
+          # no cleaning for now, to support deploy scripts creating
+          # files in the deploy folder (e.g. libvirt guestname). Need a 
+          # better solution for cleaning in the future
+          #
           # clean deploydir - except for trigger file
-          if self.do_clean:
-            files = sftp.listdir(str(self.deploydir))
-            if self.triggerfile.basename in files:
-              files.remove(str(self.triggerfile.basename))
-            for f in files:
-              sftp.remove(str(self.deploydir/f))
-            self.do_clean = False # only clean once per session
+          # if self.do_clean:
+          #   files = sftp.listdir(str(self.deploydir))
+          #   if self.triggerfile.basename in files:
+          #     files.remove(str(self.triggerfile.basename))
+          #   for f in files:
+          #     sftp.remove(str(self.deploydir/f))
+          #   self.do_clean = False # only clean once per session
 
           # copy type
           sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
