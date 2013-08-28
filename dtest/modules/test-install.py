@@ -27,7 +27,7 @@ from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
-                          dm_make_suite, check_vm_config)
+                          dm_make_suite)
 
 
 class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
@@ -222,20 +222,19 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(psm_make_suite(PublishSetupEventTestCase, os, version, arch))
 
   # deploy
-  if check_vm_config():
-    suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,
-                  arch, offline=False))
-    suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
-    suite.addTest(Test_ErrorOnSshDisabled(os, version, arch))
-    suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))
-    suite.addTest(Test_ReinstallOnReleaseRpmChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnConfigRpmChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnKickstartChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnTreeinfoChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnInstallScriptChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnPostInstallScriptChange(os, version, arch))
-    suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(os, version, arch))
-    # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(TestInstallEventTestCase, os, version, arch, ))
+  suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,
+                arch, offline=False))
+  suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
+  suite.addTest(Test_ErrorOnSshDisabled(os, version, arch))
+  suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))
+  suite.addTest(Test_ReinstallOnReleaseRpmChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnConfigRpmChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnKickstartChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnTreeinfoChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnInstallScriptChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnPostInstallScriptChange(os, version, arch))
+  suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(os, version, arch))
+  # dummy test to shutoff vm
+  suite.addTest(dm_make_suite(TestInstallEventTestCase, os, version, arch, ))
 
   return suite

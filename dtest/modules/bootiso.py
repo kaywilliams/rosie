@@ -21,8 +21,7 @@ from deploy.util.img import MakeImage
 from dtest        import EventTestCase, ModuleTestSuite
 from dtest.core   import make_extension_suite
 from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
-                          dm_make_suite, check_vm_config,
-                          get_cdrom_virtinstall_script)
+                          dm_make_suite, get_cdrom_virtinstall_script)
 
 class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'
@@ -76,8 +75,7 @@ class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
     install_script = self.conf.getxpath(
                      './publish/script[@id="install"]')
     install_script.text = get_cdrom_virtinstall_script(
-                          '/var/www/html/deploy/systems/%s/images/boot.iso' 
-                          % self.id)
+                          '%{os-url}/images/boot.iso') 
 
 
 def make_suite(os, version, arch, *args, **kwargs):
@@ -86,8 +84,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   # bootiso
   suite.addTest(make_extension_suite(BootisoEventTestCase, os, version, arch))
   suite.addTest(Test_BootOptionsDefault(os, version, arch))
-  if check_vm_config():
-    suite.addTest(Test_InstallFromBootiso(os, version, arch))
-    suite.addTest(dm_make_suite(Test_InstallFromBootiso, os, version, arch))
+  suite.addTest(Test_InstallFromBootiso(os, version, arch))
+  suite.addTest(dm_make_suite(Test_InstallFromBootiso, os, version, arch))
 
   return suite

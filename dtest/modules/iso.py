@@ -27,7 +27,7 @@ from deploy.util.splittree import parse_size
 from dtest        import EventTestCase, ModuleTestSuite
 from dtest.core   import make_core_suite, make_extension_suite
 from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
-                           dm_make_suite, check_vm_config,
+                           dm_make_suite,
                            get_cdrom_virtinstall_script)
 
 #------ pkgorder ------#
@@ -180,8 +180,8 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
     install_script = self.conf.getxpath(
                      '/*/publish/script[@id="install"]')
     install_script.text = get_cdrom_virtinstall_script(
-                          '/var/www/html/deploy/systems/%s/iso/CD/%s-disc1.iso'
-                          % (self.id, self.name))
+                          '%%{os-url}/iso/CD/%s-disc1.iso'
+                          % self.name)
 
 
 def make_suite(os, version, arch, *args, **kwargs):
@@ -197,7 +197,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_SetsChanged(os, version, arch))
   suite.addTest(Test_BootOptionsDefault(os, version, arch))
   # see note above at the class definition for Test_InstallFromIso
-  if check_vm_config() and version > '5':
+  if version > '5':
     suite.addTest(Test_InstallFromIso(os, version, arch))
     # dummy test to shutoff vm
     suite.addTest(dm_make_suite(Test_InstallFromIso, os, version, arch, ))

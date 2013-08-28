@@ -39,13 +39,7 @@ class EventTestCaseHeader(EventTestCaseDummy):
     test_info = "testing event '%s' (%s-%s-%s)" \
                  % (self.eventid, self.os, self.version, self.arch)
 
-    from dtest.mixins import check_vm_config
-    note = "NOTE: Unable to import libvirt modules; skipping vm tests"
-
-    if check_vm_config():
-      return '\n'.join(['', self.separator1, test_info, self.separator2])
-    else:
-      return '\n'.join(['', self.separator1, test_info, self.separator2, note])
+    return '\n'.join(['', self.separator1, test_info, self.separator2])
 
 class CoreTestSuite(unittest.TestSuite):
   def __init__(self, tests=()):
@@ -63,20 +57,18 @@ class CoreTestSuite(unittest.TestSuite):
         pass
     return result
 
-def make_basic_suite(TestCase, os, version, arch, conf=None):
+def make_core_suite(TestCase, os, version, arch, conf=None, offline=True):
   suite = CoreTestSuite()
 
   # hack-ish solution to get a pretty header
   suite.addTest(EventTestCaseHeader(TestCase.eventid, os, version, arch))
-  return suite
 
-def make_core_suite(TestCase, os, version, arch, conf=None, offline=True):
-  suite = CoreTestSuite()
-  suite.addTest(make_basic_suite(TestCase, os, version, arch, conf))
   suite.addTest(CoreEventTestCase01(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase02(TestCase(os, version, arch, conf)))
+
   if offline:
     suite.addTest(CoreEventTestCase03(TestCase(os, version, arch, conf)))
+
   suite.addTest(CoreEventTestCase04(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase05(TestCase(os, version, arch, conf)))
   suite.addTest(CoreEventTestCase06(TestCase(os, version, arch, conf)))

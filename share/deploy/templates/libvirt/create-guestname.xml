@@ -5,7 +5,7 @@ script snippet for use by other scripts (install, delete, shutdown) to
 source the stored guestname
 -->
 <macro id='source-guestname'>
-file="%{data-dir}/libvirt-%{module}"
+file=$(dirname "$0")/libvirt-%{module}
 
 if [ -f $file ]; then
   source $file
@@ -25,8 +25,11 @@ exceed that limit. This script deals with the limit as follows:
 * creates a unique guestname based on the hostname
 * stores the guestname in a file for inclusion within additional scripts
 -->
+
 # exit if guestname file exists
-[ -f %{data-dir}/libvirt-%{module} ] &amp;&amp; exit
+file=$(dirname "$0")/libvirt-%{module}
+
+[ -f $file ] &amp;&amp; exit
 
 # else create a guestname less than 50 characters
 guestname=%{hostname}
@@ -42,5 +45,5 @@ if [[ ${#guestname} &gt; 50 ]]; then
 fi
 
 # save guestname for use by other scripts
-echo "guestname=$guestname" > %{data-dir}/libvirt-%{module}
+echo "guestname=$guestname" > $file
 </script>

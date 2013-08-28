@@ -25,7 +25,6 @@ from deploy.util      import rxml
 
 from dtest        import EventTestCase, decorate
 from dtest.core   import CoreTestSuite
-from dtest.mixins import check_vm_config
 
 from publishsetup import PublishSetupMixinTestCase
 

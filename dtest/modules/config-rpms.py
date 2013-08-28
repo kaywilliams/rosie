@@ -27,7 +27,7 @@ from dtest          import (BUILD_ROOT, TestBuild, EventTestCase,
 from dtest.core     import make_extension_suite
 from dtest.mixins   import (MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
                              DeployMixinTestCase,
-                             dm_make_suite, check_vm_config)
+                             dm_make_suite)
 
 
 class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
@@ -297,9 +297,8 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_ConfigRpmCvars2(os, version, arch))
   suite.addTest(Test_ValidateDestnames(os, version, arch))
 
-  if check_vm_config():
-    suite.addTest(Test_FilesInstalled(os, version, arch))
-    suite.addTest(Test_FilesPersistOnLibDirChanges(os, version, arch))
-    suite.addTest(dm_make_suite(ConfigRpmVMShutdownEventTestCase, os, version, arch, ))
+  suite.addTest(Test_FilesInstalled(os, version, arch))
+  suite.addTest(Test_FilesPersistOnLibDirChanges(os, version, arch))
+  suite.addTest(dm_make_suite(ConfigRpmVMShutdownEventTestCase, os, version, arch, ))
 
   return suite

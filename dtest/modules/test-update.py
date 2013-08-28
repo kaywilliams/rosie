@@ -27,7 +27,7 @@ from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
-                           dm_make_suite, check_vm_config)
+                           dm_make_suite)
 
 
 class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
@@ -67,9 +67,8 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(make_extension_suite(PublishSetupEventTestCase, os, version, arch))
 
   # deploy
-  if check_vm_config():
-    suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, 
-                  arch, offline=False))
-    suite.addTest(dm_make_suite(TestUpdateEventTestCase, os, version, arch,))
+  suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, 
+                arch, offline=False))
+  suite.addTest(dm_make_suite(TestUpdateEventTestCase, os, version, arch,))
 
   return suite

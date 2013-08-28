@@ -7,7 +7,9 @@
 
 <!-- template content below -->
 <domain>deploy</domain>
+<!--
 <build-host interface='virbrdpl'/>
+-->
 <deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/common/ks.xml'/>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>

@@ -26,7 +26,7 @@ from deploy.util.pps.constants import TYPE_NOT_DIR
 from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_core_suite
 
-from dtest.mixins import (psm_make_suite, check_vm_config, 
+from dtest.mixins import (psm_make_suite, 
                           PublishSetupMixinTestCase,
                           MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
                           DeployMixinTestCase, dm_make_suite)
@@ -227,11 +227,10 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_OutputsGpgkeys(os, version, arch))
   suite.addTest(Test_RemovesGpgkeys(os, version, arch))
 
-  if check_vm_config():
-    suite.addTest(Test_TestMachineSetup(os, version, arch))
-    suite.addTest(Test_GpgkeysInstalled(os, version, arch))
-    # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(DeployReleaseRpmEventTestCase, os, version, arch, ))
+  suite.addTest(Test_TestMachineSetup(os, version, arch))
+  suite.addTest(Test_GpgkeysInstalled(os, version, arch))
+  # dummy test to shutoff vm
+  suite.addTest(dm_make_suite(DeployReleaseRpmEventTestCase, os, version, arch, ))
 
   # kickstart
   suite.addTest(make_core_suite(KickstartEventTestCase, os, version, arch))

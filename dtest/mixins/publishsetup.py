@@ -23,7 +23,6 @@ from deploy.util.rxml import config
 
 from dtest        import EventTestCase, decorate
 from dtest.core   import CoreTestSuite
-from dtest.mixins import check_vm_config
 
 class PublishSetupMixinTestCase(EventTestCase):
   def __init__(self, os, version, arch, deploy_module=None, **kwargs):
@@ -34,18 +33,7 @@ class PublishSetupMixinTestCase(EventTestCase):
         self.deploy_module = self.moduleid
       else:
         self.deploy_module = 'publish'
-    decorate(self, 'setUp', prefn=self.pre_setup)
     decorate(self, 'tearDown', prefn=self.pre_teardown)
-
-  def pre_setup(self):
-    # if test machine is not vm capable, remove interface attribute from
-    # build-host, if provided, i.e. eliminate 'interface='virbrdpl'
-    if not check_vm_config(): 
-      build_host = self.conf.getxpath('/*/%s/build-host' % self.deploy_module,
-                                      None)
-      if build_host is not None and 'interface' in build_host.attrib:
-        del build_host.attrib['interface']
-    EventTestCase.setUp(self)
 
   def pre_teardown(self):
     # 'register' publish_path for deletion upon test completion

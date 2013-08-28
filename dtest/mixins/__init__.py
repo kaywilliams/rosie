@@ -195,14 +195,6 @@ def remove_input_files(dir):
   for file in files:
     (dir/file).remove()
 
-# check vm configuration
-def check_vm_config():
-  import subprocess
-  if subprocess.call('/sbin/lsmod | /bin/grep kvm -q', shell=True) == 0:
-    return True
-  else:
-    return False
-
 def get_cdrom_virtinstall_script(location):
   """
   accepts the location of an iso (bootiso or full cd/dvd) and returns
@@ -214,6 +206,11 @@ def get_cdrom_virtinstall_script(location):
 
 %%{source-guestname}
 
+deploydir="/var/lib/deploy/deploy/%%{id}"
+file=$deploydir/$(basename %(location)s)
+wget -q -O $file %(location)s
+chcon -t httpd_sys_content_t $file
+
 virt-install \
              --name $guestname \
              --arch %%{arch} \
@@ -221,14 +218,14 @@ virt-install \
              --network network=deploy \
              --graphics vnc \
              --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
-             --cdrom %s \
+             --cdrom  $file\
              --noreboot
 
 # wait for install to complete and machine to shutdown
 while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
   sleep 2
 done
-    """ % location
+    """ % {'location': location}
 
   return script
 
