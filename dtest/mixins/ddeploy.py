@@ -39,19 +39,24 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
                                        deploy_module=self.deploy_module)
 
     # get default deploy config
+    macros = {'%{name}'     : self.name,
+              '%{version}'  : version,
+              '%{arch}'     : arch,
+              '%{id}'       : self.id,
+              '%{file-size}': '6',
+              '%{definition-dir}': self.definition_path.dirname,
+              '%{templates-dir}': self.templates_dir,
+              '%{data-dir}': pps.path(self.options.data_root) / self.id
+              }
+
+    for name, value in [ x.split(':') for x in self.options.macros ]:
+      macros['%%{%s}' % name] = value
+
     deploy = rxml.config.parse(
       '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
       pps.path(__file__).dirname.abspath(),
       xinclude = True,
-      macros = {'%{name}'     : self.name,
-                '%{version}'  : version,
-                '%{arch}'     : arch,
-                '%{id}'       : self.id,
-                '%{file-size}': '6',
-                '%{definition-dir}': self.definition_path.dirname,
-                '%{templates-dir}': self.templates_dir,
-                '%{data-dir}': pps.path(self.options.data_root) / self.id
-                }
+      macros = macros
       ).getroot()
 
     # update packages
