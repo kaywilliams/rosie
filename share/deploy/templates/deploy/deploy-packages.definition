@@ -23,6 +23,9 @@
 
 <packages>
 <group repoid='base'>core</group>
+<exclude>rhn-setup-gnome</exclude>
+<exclude>rhn-setup</exclude>
+<exclude>rhn-check</exclude>
 </packages>
 
 <xi:include href="%{templates-dir}/deploy/deploy-packages.xml"

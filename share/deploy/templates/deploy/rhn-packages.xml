@@ -11,16 +11,4 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
 http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
 </repo>
 </srpm>
-
-<srpm id='yum-rhn-plugin'>
-<repo>
-http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
-</repo>
-</srpm>
-
-<srpm id='rhnsd'>
-<repo>
-http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
-</repo>
-</srpm>
 </srpmbuild>
