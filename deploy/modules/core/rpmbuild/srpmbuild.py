@@ -76,7 +76,10 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       config_base = '/*/%s/srpm[@id=\'%s\']' % (self.moduleid, self.srpmid),
     )
   
-    self.options = ptr.options # options not exposed as shared event attr
+    self.options = copy.deepcopy(ptr.options)
+    self.options.macros.extend(['os:%s' % self.os,
+                                'version:%s' % self.version,
+                                'arch:%s' % self.arch])
 
     self.DATA = {
       'input':     [],
@@ -323,9 +326,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       disabled_modules = [],
       list_modules = False,
       list_events = False,
-      macros = ['os:%s' % self.os,
-                'version:%s' % self.version,
-                'arch:%s' % self.arch],
+      macros = self.options.macros,
       no_validate = False,
       validate_only = False,
       offline = self.options.offline,
