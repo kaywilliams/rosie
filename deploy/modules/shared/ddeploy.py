@@ -117,7 +117,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           id = script.getxpath('@id') # id required in schema
           if id in self.scripts:
             raise DuplicateIdsError(element='script', id=id)
-          hosthname = script.getxpath('@hostname', None)
+          hostname = script.getxpath('@hostname', None)
           verbose = script.getbool('@verbose', False)
           xpath = 'script[@id="%s"]' % id
           csum = self._get_script_csum(xpath)
