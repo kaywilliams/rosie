@@ -339,16 +339,6 @@
       <ref name="xml-base"/>
       <text/>
     </element></optional>
-    <optional>
-    <element name="ssh">
-      <ref name="xml-base"/>
-      <ref name="value-boolean"/>
-    </element>
-    </optional>
-    <optional><element name="ssh-passphrase">
-      <ref name="xml-base"/>
-      <text/>
-    </element></optional>
 
     <optional>
     <element name="kickstart">
@@ -394,7 +384,7 @@
       </attribute>
 
       <optional>
-      <attribute name="ssh"><ref name="value-boolean"/></attribute>
+      <attribute name="hostname"><text/></attribute>
       </optional>
 
       <optional>
