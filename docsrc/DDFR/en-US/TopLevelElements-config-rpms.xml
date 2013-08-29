@@ -98,6 +98,8 @@ samba-server-config-5-1.el5.noarch.rpm</programlisting>
     [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
     [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
 
+    [&lt;prep-script [verbose=FALSE]&gt;TEXT&lt;/prep-script&gt;]*
+
     [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
             [content=("file"|"text")]&gt;
       (PATH|TEXT)
@@ -335,6 +337,40 @@ FULLNAME repository.
         CAPABILITY values.
         </para>
 
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-prep-script" >
+        <term>
+        prep-script
+        </term>
+
+        <listitem>
+        <para>
+        TEXT of a script that runs prior to assembling RPM files and scripts.
+        Deploy creates and executes the script from the Deploy cache folder on
+        the build machine. Scripts that need to access content relative to the
+        definition file can make use of the %{definition-dir} macro.
+        </para>
+
+        <para>
+        Can occur zero or more times.
+        </para>
+
+        <para>
+        <emphasis role='bold'>Example</emphasis>
+        </para>
+
+        <para>
+        The following example, from
+        %{templates-dir}/deploy/deploy-remote-client-config.xml, shows using
+        prep-scripts to create files and perform operations for later use by
+        the deployed client.
+        </para>
+
+        <informalexample>
+        <programlisting><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/deploy/deploy-remote-client-config.xml' parse='text'/></programlisting>
+        </informalexample>
         </listitem>
       </varlistentry>
 

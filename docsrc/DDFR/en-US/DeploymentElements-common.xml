@@ -48,14 +48,15 @@
 
     <programlisting>
 [&lt;ELEMENT>
+  [&lt;build-host [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/build-host&gt;]
+  [&lt;deploy-host&gt;TEXT&lt;/deploy-host&gt;]
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
-  [&lt;remote-url [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/remote-url&gt;]
+  [&lt;remote-url&gt;[TEXT]&lt;/remote-url&gt;]
+  [&lt;os-url&gt;[TEXT]&lt;/os-url&gt;]
 
   [&lt;hostname&gt;TEXT&lt;/hostname&gt;]
   [&lt;domain&gt;TEXT&lt;/domain&gt;]
   [&lt;password&gt;TEXT&lt;/password&gt;]
-  [&lt;ssh&gt;BOOLEAN&lt;/ssh&gt;]
-  [&lt;ssh-passphrase&gt;TEXT&lt;/ssh-passphrase&gt;]
   
   [&lt;boot-options&gt;TEXT&lt;/boot-options&gt;]
   [&lt;kickstart&gt;TEXT&lt;/kickstart&gt;]
@@ -70,7 +71,7 @@
   [&lt;script 
     id=TEXT 
     type=[pre|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
-    [ssh=BOOLEAN]
+    [hostname=TEXT]
     [verbose=BOOLEAN]
     [comes-before=TEXT]
     [comes-after=TEXT]
@@ -108,8 +109,19 @@
     </entry>
 
     <entry>
-    A host name or IP Address for the build machine. Described under the <xref
-    linkend='build-host'/> element.
+    A hostname or IP Address for the build host machine. Described under the
+    <xref linkend='build-host'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry id='deploy-host-macro'>
+    %{deploy-host}
+    </entry>
+
+    <entry>
+    A hostname or IP Address for the deployment host machine. Described under
+    the <xref linkend='deploy-host'/> element.
     </entry>
     </row>
 
@@ -314,75 +326,6 @@
     </title>
 
     <variablelist>
-    <varlistentry id="local-dir">
-      <term>
-      local-dir
-      </term>
-
-      <listitem>
-      <para>
-      PATH to a folder where Deploy will publish content. For content to be
-      accessible on the web, the directory must be in the build machine’s local
-      webroot, e.g. the Apache <varname>DocumentRoot</varname>.
-      </para>
-
-      <para>
-      To prevent tampering with repository content, you should ensure that only
-      trusted users and groups have <emphasis>write</emphasis> access to the
-      <emphasis>local-dir</emphasis> folder.
-      </para>
-
-      <para>
-      This element is optional. The default values are as follows, where
-      %{type} is the value of the <xref linkend='main-type'/> element:
-      </para>
-
-      <informaltable>
-      <tgroup cols='2'>
-      <colspec colwidth='1in'/>
-      <tbody valign='top'>
-      <row>
-      <entry><emphasis role='strong'>Module</emphasis></entry>
-      <entry><emphasis role='strong'>Default Value</emphasis></entry>
-      </row>
-      <row>
-      <entry>publish</entry>
-      <entry>
-      <filename>/var/www/html/deploy/%{type}s</filename>
-      </entry>
-      </row>
-      <row>
-      <entry>test-install</entry>
-      <entry>
-      <filename>/var/www/html/deploy/%{type}s/test-install</filename>
-      </entry>
-      </row>
-      <row>
-      <entry>test-update</entry>
-      <entry>
-      <filename>/var/www/html/deploy/%{type}s/test-update</filename>
-      </entry>
-      </row>
-      </tbody>
-      </tgroup>
-      </informaltable>
-
-      <para>
-      See <xref linkend='content-path'/> for information on the PATH element.
-      </para>
-
-      <para>
-      <emphasis role='bold'>Example</emphasis>
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;local-dir&gt;/my/web/root/deploy/systems/&lt;/local-dir&gt;</programlisting>
-      </informalexample>
-
-      </listitem>
-    </varlistentry>
-
     <varlistentry id='build-host'>
       <term>
       build-host
@@ -512,6 +455,111 @@
       <programlisting>
 &lt;build-host&gt;repos.company.com&lt;/build-host&gt;</programlisting>
       </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id='deploy-host'>
+      <term>
+      deploy-host
+      </term>
+
+      <listitem>
+      <para>
+      TEXT value specifying the hostname or ipaddress of the deployment host.
+      This host is used by Deploy for running some deployment scripts.
+      See the <xref linkend='script-hostname'/> attribute of the <xref
+      linkend='deployment-script'/> element for additional information.
+      </para>
+
+      <para>
+      This element is optional. The default value is the hostname or ipaddress
+      of the build host as described under <xref linkend='build-host'/>.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis>
+      </para>
+
+      <para>
+      The section below shows several valid values for the deploy-host element.
+      </para>
+      
+      <informalexample>
+      <programlisting>
+&lt;deploy-host>10.10.1.106&lt;/deploy-host&gt;
+&lt;deploy-host>deploy-host&lt;/deploy-host&gt;
+&lt;deploy-host>deploy-host.company.com&lt;/deploy-host&gt;</programlisting>
+      </informalexample>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="local-dir">
+      <term>
+      local-dir
+      </term>
+
+      <listitem>
+      <para>
+      PATH to a folder where Deploy will publish content. For content to be
+      accessible on the web, the directory must be in the build machine’s local
+      webroot, e.g. the Apache <varname>DocumentRoot</varname>.
+      </para>
+
+      <para>
+      To prevent tampering with repository content, you should ensure that only
+      trusted users and groups have <emphasis>write</emphasis> access to the
+      <emphasis>local-dir</emphasis> folder.
+      </para>
+
+      <para>
+      This element is optional. The default values are as follows, where
+      %{type} is the value of the <xref linkend='main-type'/> element:
+      </para>
+
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='1in'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Module</emphasis></entry>
+      <entry><emphasis role='strong'>Default Value</emphasis></entry>
+      </row>
+      <row>
+      <entry>publish</entry>
+      <entry>
+      <filename>/var/www/html/deploy/%{type}s</filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-install</entry>
+      <entry>
+      <filename>/var/www/html/deploy/%{type}s/test-install</filename>
+      </entry>
+      </row>
+      <row>
+      <entry>test-update</entry>
+      <entry>
+      <filename>/var/www/html/deploy/%{type}s/test-update</filename>
+      </entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
+
+      <para>
+      See <xref linkend='content-path'/> for information on the PATH element.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Example</emphasis>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;local-dir&gt;/my/web/root/deploy/systems/&lt;/local-dir&gt;</programlisting>
+      </informalexample>
+
       </listitem>
     </varlistentry>
 
@@ -735,106 +783,6 @@ $remote-url/%{id}</programlisting>
 
     </listitem>
     </varlistentry>
-
-    <varlistentry id='ssh'>
-    <term>ssh</term>
-
-    <listitem>
-    <para>
-    BOOLEAN value controlling whether Deploy
-    will attempt to execute <emphasis>scripts</emphasis> directly on the
-    <emphasis>client machine</emphasis> identified by the <link
-    linkend='deployment-macros'>%{fqdn}</link> module macro using SSH. Scripts
-    are defined using the <xref linkend='deployment-script'/> element. See
-    <xref linkend="content-boolean"/> for more information on BOOLEAN values.
-    </para>
-
-    <para>
-    This value serves as a default for the module. If the value is
-    <constant>TRUE</constant>, Deploy will use SSH for an individual
-    script based on the value of the script's <emphasis>ssh</emphasis>
-    attribute. See the script element for additional information on the <xref
-    linkend='script-ssh'/>  attribute, as well as for details on script
-    execution.
-    </para>
-   
-    <para>
-    If the value is <constant>FALSE</constant>, Deploy will not use SSH
-    for any script. If a script has been defined that requires SSH, either by
-    default or via the <emphasis>ssh</emphasis> attribute of the script
-    element, Deploy will fail with an error message.
-    </para>
-    
-    <para>
-    Setting the value to <constant>FALSE</constant> allows users to provide
-    custom support for remote script execution, on one <emphasis>or
-    multiple</emphasis> client machines, using any method desired.  In this
-    case, Deploy relies on the script to perform all steps to connect,
-    authenticate, and execute actions on client machines.
-    </para>
-
-    <para>
-    Deploy supports public key authentication for SSH connections.  If
-    the value of the <emphasis>ssh</emphasis> element is
-    <constant>TRUE</constant>, Deploy will check to see if SSH has 
-    been configured for the root user on the build machine. Specifically, it
-    does this by testing for the existence of a file named
-    <filename>/root/.ssh/id_rsa.pub</filename>. If this file does not exist,
-    Deploy will attempt to configure SSH for the build machine by
-    executing the following command:
-    
-    <programlisting>
-/usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""</programlisting>
-    </para>
-
-    <para>
-    If SSH keys have been previously created for the root user, and those keys
-    require the use of a passphrase, the passphrase may be specified using the
-    <xref linkend='ssh-passphrase'/> element.
-    </para>
-
-    <note>
-    <title>Note - SSH Configuration for Client Machines</title>
-    <para>
-    As a final step, users must also configure client machines to allow SSH
-    access from the build machine. This can be accomplished using a <xref
-    linkend="config-rpm"/>. Deploy includes an example template to complete
-    this task. On a system with Deploy installed, the file can be found as
-    <filename>ssh-config.xml</filename> in the templates folder at
-    <filename>/usr/share/deploy/templates/common</filename>.
-    </para>
-
-    <para>
-    See the <xref linkend='deploy-config-rpm'/> element below for an example of
-    using this template. See <xref linkend='templates'/> for more information
-    on templates.
-    </para>
-    </note>
-
-    <para>
-    The <emphasis>ssh</emphasis> element is optional. The default value is
-    <constant>TRUE</constant>.
-    </para>
-
-    </listitem>
-    </varlistentry>
-
-    <varlistentry id='ssh-passphrase'>
-    <term>ssh-passphrase</term>
-
-    <listitem>
-    <para>
-    TEXT value specifying the SSH passphrase, if any,
-    for the root user on the build machine.
-    </para>
-
-    <para>
-    This element is optional. The default value is an empty string,
-    <emphasis>""</emphasis>.
-    </para>
-
-    </listitem>
-    </varlistentry>
   
     <varlistentry id="boot-options">
       <term>
@@ -1042,7 +990,8 @@ $remote-url/%{id}</programlisting>
     <emphasis>deploy-ssh-config</emphasis>. The RPM provides client
     configuration needed for the build machine to establish SSH connections
     with the client and execute deployment scripts.  See the <xref
-    linkend='ssh'/> element for additional information.
+    linkend='script-hostname'/> attribute of the <xref
+    linkend='deployment-script'/> element for additional information.
     </para>
 
     <para>
@@ -1064,7 +1013,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-&lt;xi:include href="path/to/ssh-config.xml"/&gt;</programlisting>
+&lt;xi:include href="%{templates-dir}/common/ssh-config.xml"/&gt;</programlisting>
     </informalexample>
 
     </listitem>
@@ -1245,8 +1194,7 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      The <xref linkend='ssh'/> element is <constant>TRUE</constant> and an
-      attempt to connect to the client machine identified by the <link
+      An attempt to connect to the client machine identified by the <link
       linkend="deployment-macros">%{fqdn}</link> fails.
       </para>
       </listitem>
@@ -1332,11 +1280,9 @@ $remote-url/%{id}</programlisting>
       <term>@connect</term>
       <listitem>
       <para>
-      BOOLEAN value indicating whether Deploy
-      should execute install-related scripts if the <xref linkend='ssh'/>
-      element is <constant>TRUE</constant> and an SSH connection to the client
-      machine identified by <link linkend='deployment-macros'>%{fqdn}</link>
-      cannot be established.  
+      BOOLEAN value indicating whether Deploy should execute install-related
+      scripts if an SSH connection to the client machine identified by <link
+      linkend='deployment-macros'>%{fqdn}</link> cannot be established.  
       </para>
 
       <para>
@@ -1376,7 +1322,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      The script element allows six attributes: <xref linkend='script-id'/>, <xref linkend='script-type'/>, <xref linkend='script-ssh'/>, <xref linkend='script-verbose'/>, <xref linkend='script-comes-before'/> and <xref linkend='script-comes-after'/>.
+      The script element allows six attributes: <xref linkend='script-id'/>, <xref linkend='script-type'/>, <xref linkend='script-hostname'/>, <xref linkend='script-verbose'/>, <xref linkend='script-comes-before'/> and <xref linkend='script-comes-after'/>.
       </para>
 
       <para>
@@ -1916,41 +1862,65 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-ssh">
-      <term>@ssh</term>
+      <varlistentry id="script-hostname">
+      <term>@hostname</term>
       <listitem>
 
       <para>
-      <varname>BOOLEAN</varname> value that determines whether Deploy should
-      attempt to execute the script via SSH.
-      </para>
-
-
-      <para>
-      If the ssh attribute is <constant>TRUE</constant>, Deploy attempts
-      to copy the script to the client machine identified by the <link
-      linkend='deployment-macros'>%{fqdn}</link> macro and execute it from the
-      <filename>/var/lib/deploy/</filename> folder with root privileges.
-      The file will be given the same name as the <xref linkend='script-id'/>
-      attribute.
+      TEXT value specifying the hostname or ipaddress of the machine on which
+      Deploy will attempt to execute the <emphasis>script</emphasis>. The
+      specified machine must be configured to accept SSH connections from the
+      build machine.
       </para>
 
       <para>
-      If the ssh attribute is <constant>FALSE</constant>, Deploy creates and
-      executes the script from the Deploy cache folder on the build machine.
-      Scripts that need to access content relative to the definition file can
-      make use of the <link linkend='definition-dir'>%{definition-dir}</link>
-      global run-time macro.
+      Deploy supports public key authentication for SSH connections. Before
+      performing the connection, Deploy will check to see if SSH has been
+      configured for the root user on the build machine. It does this by
+      testing for the existence of a file named
+      <filename>/root/.ssh/id_rsa.pub</filename>. If this file does not exist,
+      Deploy will attempt to configure SSH for the build machine by executing
+      the following command:
+      
+      <programlisting>
+/usr  /bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""</programlisting>
       </para>
 
       <para>
-      If the value of the <xref linkend='ssh'/> element is set to False, the 
-      @ssh attribute has no effect. See the ssh element for additional
-      information.
+      Deploy does not support the use of a passphrase for the root user SSH
+      key. If an SSH key has been previously created, that key must not require
+      a passphrase.
+      </para>
+
+      <note>
+      <title>Note - SSH Configuration for Client Machines</title>
+      <para>
+      As a final step, users must also configure client machines to allow SSH
+      access from the build machine. This can be accomplished using a <xref
+      linkend="config-rpm"/>. Deploy includes an example template to complete
+      this task. On a system with Deploy installed, the file can be found as
+      <filename>ssh-config.xml</filename> in the templates folder at
+      <filename>/usr/share/deploy/templates/common</filename>.
       </para>
 
       <para>
-      This attribute it optional. Default values are shown in the table below. 
+      See the <xref linkend='deploy-config-rpm'/> element for an example of
+      using this template. See <xref linkend='templates'/> for more information
+      on templates.
+      </para>
+      </note>
+
+      <para>
+      If an SSH connection can be established, Deploy then copies the script to
+      the <filename>/var/lib/deploy/deploy</filename> folder, in a subfolder
+      named with the client <xref linkend='main-id'/>, and executes it with
+      root privileges.  The file will be given the same name as the script
+      <xref linkend='script-id'/> attribute.
+      </para>
+
+      <para>
+      The <emphasis>hostname</emphasis> attribute is optional. The default
+      values vary by script type and are shown in the table below:
       </para>
 
       <informaltable>
@@ -1962,12 +1932,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <entry><emphasis role='strong'>Default Value</emphasis></entry>
       </row>
       <row>
-      <entry>activate, delete, install</entry>
-      <entry><constant>FALSE</constant></entry>
+      <entry>pre, activate, delete, pre-install, install</entry>
+      <entry>%{deploy-host}</entry>
       </row>
       <row>
       <entry>test-triggers, post-install, save-triggers, post</entry>
-      <entry><constant>TRUE</constant></entry>
+      <entry>%{fqdn}</entry>
       </row>
       </tbody>
       </tgroup>
