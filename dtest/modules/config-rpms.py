@@ -248,7 +248,7 @@ class DeployConfigRpmEventTestCase(DeployMixinTestCase,
   _type = 'system'
   _conf = ["""
   <publish>
-  <script id='config-rpm' type='post' ssh='true'>
+  <script id='config-rpm' type='post'>
     #!/bin/bash
     set -e
     ls /etc/testdir/file1

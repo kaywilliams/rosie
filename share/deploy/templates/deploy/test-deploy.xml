@@ -19,7 +19,7 @@ if [[ $hgtip_curr != $hgtip_last ]]; then
 fi
 </input-script>
 
-<script id='test-deploy' ssh='true' verbose='true' type='post' comes-after='install-config' comes-before='poweroff'>
+<script id='test-deploy' verbose='true' type='post' comes-after='install-config' comes-before='poweroff'>
 
 <macro id='mercurial-workspace'>/root/workspace</macro>
 <macro id='oss'>centos rhel</macro>

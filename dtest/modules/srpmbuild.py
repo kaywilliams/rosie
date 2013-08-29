@@ -29,7 +29,8 @@ from dtest        import (EventTestCase, ModuleTestSuite, _run_make,
 from dtest.core   import make_core_suite
 
 from dtest.mixins.rpmbuild import PUBKEY, SECKEY
-from dtest.mixins.ddeploy import prepare_deploy_elem_to_remove_vm
+from dtest.mixins.ddeploy import (parse_option_macros, 
+                                  prepare_deploy_elem_to_remove_vm)
 
 REPODIR  = pps.path(__file__).dirname/'shared' 
 
@@ -214,7 +215,10 @@ class Test_Shutdown(TestSrpmTestCase):
                              '%{arch}': self.arch,
                              '%{templates-dir}': self.templates_dir
                              }).getroot()
-    prepare_deploy_elem_to_remove_vm(root.getxpath('/*/publish'))
+    prepare_deploy_elem_to_remove_vm(
+      root.getxpath('/*/publish'),
+      parse_option_macros(self.options.macros).get(
+      '%{deploy-host}', 'localhost'))
     root.write(template_file)
 
     # update config to use custom srpmbuild template

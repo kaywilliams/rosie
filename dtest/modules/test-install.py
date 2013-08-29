@@ -82,18 +82,6 @@ class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
     self.failUnlessRaises(DeployError, self.event)
 
 
-class Test_ErrorOnSshDisabled(TestInstallEventTestCase):
-  "raises an error if SSH disabled and required by scripts"
-
-  def setUp(self):
-    parent = self.conf.getxpath('test-install')
-    rxml.config.Element('ssh', parent=parent, text='false')
-    EventTestCase.setUp(self) 
-
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(DeployError, self.event)
-
 class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
   "test comes-before and comes-after"
 
@@ -225,7 +213,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,
                 arch, offline=False))
   suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
-  suite.addTest(Test_ErrorOnSshDisabled(os, version, arch))
   suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))
   suite.addTest(Test_ReinstallOnReleaseRpmChange(os, version, arch))
   suite.addTest(Test_ReinstallOnConfigRpmChange(os, version, arch))

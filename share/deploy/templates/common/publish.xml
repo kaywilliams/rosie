@@ -1,6 +1,6 @@
 <publish>
   <remote-url>https://repos.company.com/</remote-url>
-  <script id="sync-to-production-server" type="post" ssh="false">
+  <script id="sync-to-production-server" type="post" hostname="localhost">
   #!/bin/bash
   # sync repository to production server 
 

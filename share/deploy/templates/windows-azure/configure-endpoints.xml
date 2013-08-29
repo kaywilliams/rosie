@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='configure-endpoints' type='post' comes-after='update' comes-before='check-kernel' ssh='false'>
+<script id='configure-endpoints' type='post' comes-after='update' comes-before='check-kernel' hostname='%{deploy-host}'>
 #!/bin/bash
 
 # reads open ports from iptables configuration and configures corresponding

@@ -39,7 +39,10 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
                                        deploy_module=self.deploy_module)
 
     # get default deploy config
-    macros = {'%{name}'     : self.name,
+    macros = parse_option_macros(self.options.macros) 
+
+    macros.update({
+              '%{name}'     : self.name,
               '%{version}'  : version,
               '%{arch}'     : arch,
               '%{id}'       : self.id,
@@ -47,10 +50,7 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
               '%{definition-dir}': self.definition_path.dirname,
               '%{templates-dir}': self.templates_dir,
               '%{data-dir}': pps.path(self.options.data_root) / self.id
-              }
-
-    for name, value in [ x.split(':') for x in self.options.macros ]:
-      macros['%%{%s}' % name] = value
+              })
 
     deploy = rxml.config.parse(
       '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
@@ -93,7 +93,9 @@ def DeployMixinTest_Teardown(self):
 
   def setUp():
     mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
-    mod = prepare_deploy_elem_to_remove_vm(mod)
+    mod = prepare_deploy_elem_to_remove_vm(
+          mod, parse_option_macros(self.options.macros).get(
+          '%{deploy-host}', None))
     EventTestCase.setUp(self)
 
   self.setUp = setUp
@@ -105,7 +107,13 @@ def dm_make_suite(TestCase, os, version, arch):
   suite.addTest(DeployMixinTest_Teardown(TestCase(os, version, arch)))
   return suite
 
-def prepare_deploy_elem_to_remove_vm(elem):
+def parse_option_macros(macro_list):
+  macros = {}
+  for name, value in [ x.split(':') for x in macro_list ]:
+    macros['%%{%s}' % name] = value
+  return macros
+
+def prepare_deploy_elem_to_remove_vm(elem, deploy_host):
   """ 
   accepts a deploy elem (publish, test-update or test-install)
   and massages it to to remove an existing virtual machine on the
@@ -115,6 +123,7 @@ def prepare_deploy_elem_to_remove_vm(elem):
                                  '@id!="delete"]'):
     elem.remove(script)
   elem.getxpath('script[@id="delete"]').attrib['type'] = 'post'
-  elem.getxpath('script[@id="delete"]').attrib['ssh'] = 'false'
+  elem.getxpath('script[@id="delete"]').attrib['hostname'] = (
+                                        deploy_host or 'localhost')
 
   return elem

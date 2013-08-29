@@ -82,31 +82,32 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')
     self.ssh = dict(
-      enabled      = self.cvars[self.cvar_root]['ssh'],
-      hostname     = self.cvars[self.cvar_root]['fqdn'],
+      hostname     = None, # filled in from self.hostname_defaults (below) 
       key_filename = '%s' % keyfile,
-      password     = self.cvars[self.cvar_root]['ssh-passphrase'],
       port         = 22,
       username     = 'root',
       )
 
-    for key in self.ssh:
-      self.DATA['config'].append('@%s' % key)
-
-    self.ssh_defaults = { 'pre': False,
-                          'test-triggers': True,
-                          'activate': False,
-                          'delete': False,
-                          'pre-install': False, 
-                          'install': False,
-                          'post-install': True, 
-                          'save-triggers': True, 
-                          'post': True } 
+    # set ssh host defaults
+    self.deploy_host = self.cvars[self.cvar_root]['deploy-host']
+    self.deploy_client = self.cvars[self.cvar_root]['fqdn']
+    self.hostname_defaults = { 
+                           'pre': self.deploy_host,
+                           'test-triggers': self.deploy_client,
+                           'activate': self.deploy_host,
+                           'delete': self.deploy_host,
+                           'pre-install': self.deploy_host, 
+                           'install': self.deploy_host,
+                           'post-install': self.deploy_client, 
+                           'save-triggers': self.deploy_client, 
+                           'post': self.deploy_client
+                           }
+    self.DATA['variables'].extend(['deploy_host', 'deploy_client'])
 
     # setup types - do this before trigger macro resolution
     self.scripts = {} 
     self.types = {} 
-    for type in self.ssh_defaults:
+    for type in self.hostname_defaults:
       self.types[type] = [] # updated later if scripts exist
       scripts = self.config.xpath('script[@type="%s"]' % type, [])
       if scripts:
@@ -116,7 +117,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           id = script.getxpath('@id') # id required in schema
           if id in self.scripts:
             raise DuplicateIdsError(element='script', id=id)
-          ssh = script.getbool('@ssh', self.ssh_defaults[type])
+          hosthname = script.getxpath('@hostname', None)
           verbose = script.getbool('@verbose', False)
           xpath = 'script[@id="%s"]' % id
           csum = self._get_script_csum(xpath)
@@ -124,21 +125,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
             reqs = script.getxpath('@%s' % x, '')
             exec ("%s = [ s.strip() for s in reqs.replace(',', ' ').split() ]"
                    % x.replace('-', '_'))
-          item = Script(id, ssh, verbose, xpath, csum, comes_before, 
+          item = Script(id, hostname, verbose, xpath, csum, comes_before,
                         comes_after)
           resolver.add_node(item)
           self.scripts[id] = item
 
         self.types[type] = resolver.resolve()
-
-    # raise an error if any script requires ssh and ssh is disabled
-    if not self.ssh['enabled']:
-      for script in self.scripts.values():
-        if script.ssh:
-          message = ("The deployment script with the id '%s' requires SSH "
-                     "connectivity, but SSH has been disabled using the "
-                     "'%s/ssh' element." % (script.id, self.moduleid)) 
-          raise SSHFailedError(message=message)
 
     # resolve trigger macros
     self.trigger_data = { 
@@ -306,7 +298,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         return True # reinstall
 
     # can we get an ssh connection?
-    if self.ssh['enabled'] and self.config.getbool('triggers/@connect', True):
+    if self.config.getbool('triggers/@connect', True):
       params = SSHParameters(self, 'test-triggers')
       self.log(1, L1('attempting to connect'))
       try:
@@ -336,77 +328,70 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       cmd = self.io.list_output(what=script.id)[0]
       self.log(1, L1('running %s script' % script.id))
 
-
-      if (self.cvars[self.cvar_root]['deploy-host'] or
-         (self.ssh['enabled'] and scrupt.ssh)):
-        params = SSHParameters(self, type)
-
-        if not script.ssh:
-          params['hostname'] = self.cvars[self.cvar_root]['deploy-host']
-          
+      params = SSHParameters(self, type)
+      params['hostname'] = script.hostname or params['hostname']
+        
+      try:
         try:
+          client = self._ssh_connect(params)
+        except SSHFailedError, e:
+          raise SSHScriptFailedError(id=script.id, host=params['hostname'], 
+                                     message=str(e))
+
+        # create sftp client
+        sftp = paramiko.SFTPClient.from_transport(client.get_transport())
+
+        # create libdir
+        if not self.LIB_DIR.basename in sftp.listdir(str(
+                                        self.LIB_DIR.dirname)):
           try:
-            client = self._ssh_connect(params)
-          except SSHFailedError, e:
-            raise SSHScriptFailedError(id=script.id, host=params['hostname'], 
-                                       message=str(e))
+            sftp.mkdir(str(self.LIB_DIR))
+          except IOError, e:
+            raise RemoteFileCreationError(msg=
+              "An error occurred creating the script directory '%s' "
+              "on the remote system '%s'. %s"
+              % (self.LIB_DIR, params['hostname'], str(e)))
 
-          # create sftp client
-          sftp = paramiko.SFTPClient.from_transport(client.get_transport())
+        # create deploydir
+        for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
+          if not (d.basename in 
+                  sftp.listdir(str(d.dirname))): 
+            sftp.mkdir(str(d))
 
-          # create libdir
-          if not self.LIB_DIR.basename in sftp.listdir(str(
-                                          self.LIB_DIR.dirname)):
-            try:
-              sftp.mkdir(str(self.LIB_DIR))
-            except IOError, e:
-              raise RemoteFileCreationError(msg=
-                "An error occurred creating the script directory '%s' "
-                "on the remote system '%s'. %s"
-                % (self.LIB_DIR, params['hostname'], str(e)))
+        # no cleaning for now, to support deploy scripts creating
+        # files in the deploy folder (e.g. libvirt guestname). Need a 
+        # better solution for cleaning in the future
+        #
+        # clean deploydir - except for trigger file
+        # if self.do_clean:
+        #   files = sftp.listdir(str(self.deploydir))
+        #   if self.triggerfile.basename in files:
+        #     files.remove(str(self.triggerfile.basename))
+        #   for f in files:
+        #     sftp.remove(str(self.deploydir/f))
+        #   self.do_clean = False # only clean once per session
 
-          # create deploydir
-          for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
-            if not (d.basename in 
-                    sftp.listdir(str(d.dirname))): 
-              sftp.mkdir(str(d))
-
-          # no cleaning for now, to support deploy scripts creating
-          # files in the deploy folder (e.g. libvirt guestname). Need a 
-          # better solution for cleaning in the future
-          #
-          # clean deploydir - except for trigger file
-          # if self.do_clean:
-          #   files = sftp.listdir(str(self.deploydir))
-          #   if self.triggerfile.basename in files:
-          #     files.remove(str(self.triggerfile.basename))
-          #   for f in files:
-          #     sftp.remove(str(self.deploydir/f))
-          #   self.do_clean = False # only clean once per session
-
-          # copy type
-          sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
-          sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
+        # copy type
+        sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
+        sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
  
-          # execute type
-          cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
-          try:
-            self._ssh_execute(client, cmd, script.verbose)
-          except SSHFailedError, e:
-            raise SSHScriptFailedError(id=script.id, host=params['hostname'],
-                                       message=str(e))
+        # execute type
+        cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
+        try:
+          self._ssh_execute(client, cmd, script.verbose)
+        except SSHFailedError, e:
+          raise SSHScriptFailedError(id=script.id, host=params['hostname'],
+                                     message=str(e))
 
-        finally:
-          if 'client' in locals(): client.close()
-
-      else: # run cmd on the local machine
-        self._local_execute(cmd, script.verbose)
+      finally:
+        if 'client' in locals(): client.close()
 
 
 class Script(resolve.Item, DirectedNodeMixin):
-  def __init__(self, id, ssh, verbose, xpath, csum, comes_before, comes_after):
+  def __init__(self, id, hostname, verbose, xpath, csum, comes_before,
+               comes_after):
     self.id = id
-    self.ssh = ssh
+    self.hostname = hostname
     self.verbose = verbose 
     self.xpath = xpath
     self.csum = csum
@@ -418,12 +403,18 @@ class Script(resolve.Item, DirectedNodeMixin):
 
 
 class SSHParameters(DictMixin):
+  """
+  provides default ssh parameters by script type - eliminate in future
+  and handle in _execute method?
+  """
+
   def __init__(self, ptr, type):
     self.params = {}
     for param,value in ptr.ssh.items():
-      if not param == 'enabled':
-        self.params[param] = ptr.config.getxpath(
-                             '%s/@%s' % (type, param), value)
+      if param == 'hostname':
+        self.params[param] = ptr.hostname_defaults[type]
+      else:
+        self.params[param] = value
 
   def __getitem__(self, key):
     return self.params[key]

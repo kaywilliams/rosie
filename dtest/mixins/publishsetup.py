@@ -52,8 +52,6 @@ def PublishSetupMixinTest_Config(self):
     'build_host':     'test',
     'webpath':        'http://test/web/path',
     'boot_options':   'test boot options',
-    'ssh':            True,
-    'ssh_passphrase': 'test ssh passphrase',
     }
 
   def pre_setUp():
@@ -68,9 +66,6 @@ def PublishSetupMixinTest_Config(self):
     config.Element('build-host', text=self.values['build_host'], parent=mod)
     config.Element('remote-url', text=self.values['webpath'], parent=mod)
     config.Element('boot-options', text=self.values['boot_options'], parent=mod)
-    config.Element('ssh', text=str(self.values['ssh']), parent=mod)
-    config.Element('ssh-passphrase', text=self.values['ssh_passphrase'], 
-                   parent=mod)
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
@@ -96,8 +91,6 @@ def PublishSetupMixinTest_Config(self):
       elif k in [ 'webpath']:
         test = ( self.event.map["%{url}"] == pps.path(self.values[k]) / 
                                                 self.event.build_id )
-      elif k in ['ssh', 'ssh_passphrase']:
-        pass
       else:
         test = (eval('self.event.map["%%{%s}"]' % k.replace('_', '-')) 
                 == self.values[k])
