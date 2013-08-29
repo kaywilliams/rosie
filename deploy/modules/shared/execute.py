@@ -48,7 +48,7 @@ class ExecuteEventMixin:
   def _ssh_connect(self, params, log_format='L2'):
     try:
       try:
-        self.log(2, eval('%s' % log_format)(
+        self.log(4, eval('%s' % log_format)(
                          "connecting to host \'%s\'" % params['hostname'])) 
         signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
         client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
@@ -73,7 +73,7 @@ class ExecuteEventMixin:
     return client
 
   def _ssh_execute(self, client, cmd, verbose=False, log_format='L2'):
-    self.log(2, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
+    self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
     chan = client.get_transport().open_session()
     chan.exec_command('"%s"' % cmd)
 
