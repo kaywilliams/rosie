@@ -64,8 +64,8 @@ class PublishSetupEventMixin(Event):
     self.resolve_macros(map={ '%{build-host}': self.build_host})
 
     # set additional attributes
-    self.deploy_host = self.config.getxpath('deploy-host/text()', 
-                                             self.build_host) 
+    self.deploy_host = self.config.getxpath('deploy-host/text()',
+                                             self.build_host)
     self.localpath = self.get_local()
     self.webpath = self.get_webpath(self.build_host)
     self.domain = self.get_domain() # get_hostname() uses this for validation
@@ -78,7 +78,8 @@ class PublishSetupEventMixin(Event):
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
-    map = {'%{url}':            {'value':   self.webpath},
+    map = {'%{deploy-host}':    {'value':  self.deploy_host},
+           '%{url}':            {'value':  self.webpath},
            '%{hostname}':       {'conf':  'hostname\' element',
                                  'value':  self.hostname},
            '%{domain}':         {'conf':  'domain\' element',
