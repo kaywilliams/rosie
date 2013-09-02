@@ -18,11 +18,13 @@
 <script type='post'>
 # create drupal site
 cd /usr/share/drupal7/sites
-drush -y -q si standard \
-  --account-pass=%{password} \
-  --db-url=%{dbtype}://%{dbuser}@localhost/%{sitename} \
-  --db-su=%{dbuser} \
-  --site-name=%{sitename}
+if ! drush core-status | grep "Database name" ; then
+  drush -y -q si standard \
+    --account-pass=%{password} \
+    --db-url=%{dbtype}://%{dbuser}@localhost/%{sitename} \
+    --db-su=%{dbuser} \
+    --site-name=%{sitename}
+fi
 
 # allow public access
 sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
@@ -35,7 +37,8 @@ if [[ `getsebool httpd_can_sendmail | grep off` ]]; then
   setsebool -P httpd_can_sendmail 1
 fi
 
-# restart web server
+# configure web server
+sed -i "s|^DocumentRoot.*|DocumentRoot \"/usr/share/drupal7\"|" /etc/httpd/conf/httpd.conf
 service httpd restart > /dev/null
 </script>
 </config-rpm>
