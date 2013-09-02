@@ -76,6 +76,9 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     if mod is None:
       mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
 
+    if not mod.getxpath('password', None):
+      rxml.config.Element(name='password', parent=mod, text='dtest')
+
     if self.deploy_module != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
       triggers.text = 'kickstart install_scripts'
