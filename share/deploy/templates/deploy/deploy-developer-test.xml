@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="%{templates-dir}/deploy/deploy-developer-config.xml"/> 
+<xi:include href="%{templates-dir}/deploy/deploy-remote-client-config.xml"/> 
+
+<script id='test-deploy-developer' verbose='true' type='post' comes-after='install-config' comes-before='poweroff'>
+
+<macro id='mercurial-workspace'>/root/workspace</macro>
+<macro id='oss'>centos rhel</macro>
+<macro id='versions'>5 6</macro>
+<macro id='archs'>i386 x86_64</macro>
+
+#!/bin/sh
+
+# test script for deploy test machines
+
+# environment
+rootdir=%{mercurial-workspace}
+export PYTHONPATH=$rootdir/deploy:$PYTHONPATH
+
+echo Running tests on host `hostname`
+echo
+echo
+
+# default values
+[ -z "$arch"     ] &amp;&amp; arch=`uname -i`
+[ -z "$loglevel" ] &amp;&amp; loglevel=1
+[ -z "$deployver"  ] &amp;&amp; deployver=tip
+
+echo Cloning deploy '('tag=$deployver')'
+
+[ -e $rootdir ] || mkdir $rootdir
+
+rm -rf $rootdir/deploy
+hg clone --quiet --rev "$deployver" https://www.deployproject.org/hg/public/deploy $rootdir/deploy
+
+# testing
+pwd=$(pwd)
+lastmd5="/var/cache/deploy/md5sum"
+cd $rootdir/deploy
+make md5
+if ! [ -f $lastmd5 ] || ! diff md5sum $lastmd5 > /dev/null; then
+  cd $rootdir/deploy/dtest
+  for os in %{oss}; do
+  for version in %{versions}; do
+  for arch in %{archs}; do
+    echo
+    echo ===================================================
+    echo Testing repo builds for os $os-$version-$arch...
+    python run.py --os $os \
+                  --version $version \
+                  --arch $arch \
+                  --share-path $rootdir/deploy/share/deploy \
+                  --log-level $loglevel \
+                  --macro "deploy-host:192.168.123.1"
+                  $modules
+    mv test.log test.log.$os-$version-$arch
+  done
+  done
+  done
+  cd - &amp;> /dev/null
+  cp md5sum `dirname $lastmd5`
+  cd $pwd
+fi
+</script>
+</xml>

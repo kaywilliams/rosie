@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <srpmbuild>
+<!-- sure wish centos included rhn packages -->
 <srpm id='rhnlib'>
 <repo>
 http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
@@ -7,8 +8,8 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
 </srpm>
 
 <srpm id='rhn-client-tools'>
-<repo>
-http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
-</repo>
+<path>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhn-client-tools-1.0.0.1-4.el6.src.rpm
+</path>
 </srpm>
 </srpmbuild>

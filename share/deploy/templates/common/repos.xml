@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repos xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- See www.centos.org for a list of public mirrors -->
 <repo id="base">
-<macro id='centos-mirror'>http://mirror.centos.org/centos/</macro>
-<baseurl>%{centos-mirror}/%{version}/os/%{arch}/</baseurl>
+%{%{os}-base}
+
+<macro id="centos-mirror">http://mirror.centos.org/centos/</macro>
+<macro id="centos-base">
+<baseurl>%{centos-mirror}/%{version}/os/%{arch}</baseurl>
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</macro>
+
+<macro id="rhel-mirror">http://example.company.com/mirrors/rhel</macro>
+<macro id="rhel-base">
+<baseurl>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}</baseurl>
+<gpgkey>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release</gpgkey>
+</macro>
 </repo>
 
 <repo id="updates">
-<baseurl>%{centos-mirror}/%{version}/updates/%{arch}/</baseurl>
+%{%{os}-updates}
+
+<macro id="centos-updates">
+<baseurl>%{centos-mirror}/%{version}/updates/%{arch}</baseurl>
+<gpgkey>http://repomaster.deployproject.org/mirrors/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</macro>
+
+<macro id="rhn-host">xmlrpc.rhn.redhat.com</macro>
+<macro id="rhn-systemid">/etc/sysconfig/rhn/systemid-%{version}Server-%{arch}</macro>
+<macro id="rhel-updates">
+<baseurl>rhn://%{rhn-host}/rhel-%{arch}-server-%{version}</baseurl>
+<gpgkey>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release</gpgkey>
+<systemid>%{rhn-systemid}</systemid>
+</macro>
 </repo>
 
 <repo id="centos-buildsys-5">

@@ -12,7 +12,7 @@ Configures a system to serve as a client for a remote deploy host machine.
 %{templates-dir}/common/create-ssh-keys.sh "%{data-dir}" %{fqdn}
 </prep-script>
 
-<prep-script verbose="true">
+<prep-script>
 #!/bin/sh
 # configure deploy-remote-host to receive requests from deploy-remote-client
 set -e

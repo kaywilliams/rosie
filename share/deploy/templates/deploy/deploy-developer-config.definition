@@ -26,14 +26,12 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/deploy/deploy-developer-config.xml"/> 
-<xi:include href="%{templates-dir}/deploy/deploy-remote-client-config.xml"/> 
 </config-rpms>
 
 <test-update>
 <xi:include href="%{templates-dir}/libvirt/deploy.xml"
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/deploy/test-deploy.xml"
+<xi:include href="%{templates-dir}/deploy/deploy-developer-test.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>

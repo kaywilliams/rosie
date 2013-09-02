@@ -23,6 +23,8 @@
 
 <packages>
 <group repoid='base'>core</group>
+<exclude>rhnsd</exclude>
+<exclude>yum-rhn-plugin</exclude>
 <exclude>rhn-setup-gnome</exclude>
 <exclude>rhn-setup</exclude>
 <exclude>rhn-check</exclude>
