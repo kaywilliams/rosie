@@ -3,11 +3,8 @@
 
 <macro id="mercurial-workspace">/root/workspace/deploy</macro>
 
-<!-- include deploy repo for rhn, deploy-httpd-config and 
-     deploy-virt-config packages -->
-<xi:include href="%{templates-dir}/common/repos.xml"
-            xpointer="xpointer(/*/repo[@id='deploy'])"/>
-
+<!-- containing definition needs to include deploy repo for rhn, 
+     deploy-httpd-config and deploy-virt-config packages -->
 <requires>createrepo</requires>
 <requires>dosfstools</requires>
 <requires>deploy-httpd-config</requires>
