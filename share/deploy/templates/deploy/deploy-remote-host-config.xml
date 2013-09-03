@@ -5,6 +5,11 @@
 Configures a system to serve as a deploy-host for remote client requests.
 </description>
 
+<!-- containing definitions must also include an update script in their
+     test and publish elements, e.g.
+     <xi:include href="%{templates-dir}/common/update.xml/>
+     -->
+
 <macro id='deploy-client-pub-keydir'>%{data-dir}/deploy-client-pubkeys</macro>
 <prep-script>
 #!/bin/sh

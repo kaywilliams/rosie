@@ -6,7 +6,9 @@ set -e
 # installs virtual machines from within either normal or cron user environments
 # cron environment requires use of the graphics parameter to virt-install, as
 # well as the while loop to wait for installation to complete
+
 <macro id='ram'>1000</macro>
+
 %{source-guestname}
 
 # install machine
