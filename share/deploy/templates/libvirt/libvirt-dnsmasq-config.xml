@@ -4,15 +4,13 @@
 <description></description>
 <license>GPLv2</license>
 
-<xi:include href="%{templates-dir}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='deploy'])"/>
 
 <requires>NetworkManager</requires>
 <!--el6.4 fixed a security issue that breaks local dns resolution, requiring
      an update to dnsmasq. see
      http://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2013q1/006761.html
      The updated dnsmasq rpm is available from the deploy package repository.
-     --> 
+     -->
 <requires>dnsmasq >= 2.66.13</requires>
 <requires>libvirt</requires>
 <requires>python-virtinst</requires>

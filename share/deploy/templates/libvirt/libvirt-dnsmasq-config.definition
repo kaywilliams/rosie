@@ -17,7 +17,9 @@
 
 <repos>
 <xi:include href='%{templates-dir}/common/repos.xml' 
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+            xpointer="xpointer(./repo[@id='base' or
+                                      @id='updates' or
+                                      @id='deploy'])"/>
 </repos>
 
 <packages>
