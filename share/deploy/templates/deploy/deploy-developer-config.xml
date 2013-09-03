@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-config'>
 
-<macro id="mercurial-workspace">/root/workspace</macro>
+<macro id="mercurial-workspace">/root/workspace/deploy</macro>
 
 <!-- include deploy repo for rhn, deploy-httpd-config and 
      deploy-virt-config packages -->
@@ -37,31 +37,31 @@
 <!-- configure deploy -->
 <files destdir='/etc/deploy' destname='deploy.conf' content='text'>
 &lt;deploy>
-  &lt;lib-path>%{mercurial-workspace}/deploy&lt;/lib-path>
-  &lt;share-path>%{mercurial-workspace}/deploy/share/deploy&lt;/share-path>
-  &lt;templates-path>%{mercurial-workspace}/deploy/share/deploy/templates&lt;/templates-path>
+  &lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>
+  &lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>
+  &lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>
 &lt;/deploy>
 </files>
 
 <!-- set environment variables -->
 <files destdir="/etc/profile.d" destname='deploy.sh' content='text'>
 # set environment variables
-if ! echo ${PATH} | /bin/grep -q /root/workspace/deploy/bin ; then
-        export PATH=/root/workspace/deploy/bin:${PATH}
+if ! echo ${PATH} | /bin/grep -q /root/workspace/%{tag}/bin ; then
+        export PATH=/root/workspace/%{tag}/bin:${PATH}
 fi
-if ! echo ${PYTHONPATH} | /bin/grep -q /root/workspace/deploy ; then
-        export PYTHONPATH=/root/workspace/deploy:${PYTHONPATH}
+if ! echo ${PYTHONPATH} | /bin/grep -q /root/workspace/%{tag} ; then
+        export PYTHONPATH=/root/workspace/%{tag}:${PYTHONPATH}
 fi
 </files>
 
 <!-- clone deploy repository -->
 <script type='post'>
 if [ ! -e %{mercurial-workspace} ]; then /bin/mkdir %{mercurial-workspace}; fi
-repo="https://hg.deployproject.org/hg/public/deploy"
+args="https://hg.deployproject.org/hg/public/deploy -r %{tag}"
  
-if [ ! -d %{mercurial-workspace}/`basename $repo` ]; then
-  cd %{mercurial-workspace}/
-  hg clone $repo
+if [ ! -d %{mercurial-workspace}/%{tag} ]; then
+  cd %{mercurial-workspace}
+  hg clone $args %{tag}
   cd -
 fi
 
