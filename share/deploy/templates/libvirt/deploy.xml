@@ -3,7 +3,7 @@
 
 <!-- install and update a libvirt vm on the local machine -->
 <macro id='file-size'>30</macro>
-<macro id='deploy-host'>%{build-host}</macro>
+<macro id='deploy-host'>localhost</macro>
 
 <!-- template content below -->
 <domain>deploy</domain>

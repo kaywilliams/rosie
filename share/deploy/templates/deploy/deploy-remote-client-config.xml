@@ -16,11 +16,15 @@ Configures a system to serve as a client for a remote deploy host machine.
 #!/bin/sh
 # configure deploy-remote-host to receive requests from deploy-remote-client
 set -e
-if ! diff "%{data-dir}/id_rsa.pub" \
-          "%{deploy-remote-client-pub-keydir}/%{id}.pub" &amp;> /dev/null; then
-  cp %{data-dir}/id_rsa.pub %{deploy-remote-client-pub-keydir}/%{id}.pub
+args="-o StrictHostKeyChecking=no"
+if [[ $(cat %{data-dir}/id_rsa.pub) != \
+      $(ssh $args %{deploy-host} cat %{deploy-remote-client-pub-keydir}/%{id}.pub) ]]
+then
+  scp $args %{data-dir}/id_rsa.pub \
+  %{deploy-host}:/%{deploy-remote-client-pub-keydir}/%{id}.pub
+
   echo "updating deploy remote host with client pubkey"
-  deploy %{deploy-remote-host-definition} -l1
+  ssh $args %{deploy-host} deploy %{deploy-remote-host-definition} -l1
 fi
 </prep-script>
 

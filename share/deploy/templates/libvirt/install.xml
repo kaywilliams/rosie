@@ -9,6 +9,9 @@ set -e
 
 <macro id='ram'>1000</macro>
 
+# adding text to workaround a bug with whitespace being eaten with macro text
+# followed by macro placeholders in text
+
 %{source-guestname}
 
 # install machine
