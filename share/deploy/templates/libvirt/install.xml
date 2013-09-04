@@ -7,11 +7,6 @@ set -e
 # cron environment requires use of the graphics parameter to virt-install, as
 # well as the while loop to wait for installation to complete
 
-<macro id='ram'>1000</macro>
-
-# adding text to workaround a bug with whitespace being eaten with macro text
-# followed by macro placeholders in text
-
 %{source-guestname}
 
 # install machine
