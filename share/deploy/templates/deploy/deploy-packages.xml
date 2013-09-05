@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='gpgsign'/>
-
-%{gpgsign}
+<gpgsign>
+<public>%{gpgsign-public}</public>
+<secret>%{gpgsign-secret}</secret>
+</gpgsign>
 
 <config-rpms>
 <xi:include href="%{templates-dir}/deploy/deploy-basic-config.xml"/>

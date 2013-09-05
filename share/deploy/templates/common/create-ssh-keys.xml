@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='create-ssh-keys' type='pre-install'>
+<script id='create-ssh-keys' type='pre-install'
+        xmlns:xi="http://www.w3.org/2001/XInclude">
 #!/bin/bash
 set -e
-%{templates-dir}/common/create-ssh-keys.sh %{data-dir} %{fqdn}
+function create_ssh_keys {
+<xi:include href="%{templates-dir}/common/create-ssh-keys.sh" parse='text'/>
+}
+create_ssh_keys %{data-dir} %{fqdn}
 </script>

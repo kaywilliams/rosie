@@ -9,7 +9,12 @@ Configures a system to serve as a client for a remote deploy host machine.
 <macro id='deploy-remote-client-pub-keydir'>deploy-remote-host-%{os}-%{version}-%{arch}/deploy-client-pubkeys</macro>
 
 <prep-script>
-%{templates-dir}/common/create-ssh-keys.sh "%{data-dir}" %{fqdn}
+#!/bin/bash
+set -e
+function create_ssh_keys {
+<xi:include href="%{templates-dir}/common/create-ssh-keys.sh" parse='text'/>
+}
+create_ssh_keys %{data-dir} %{fqdn}
 </prep-script>
 
 <prep-script>
