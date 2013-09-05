@@ -13,7 +13,7 @@
 set -e
 
 TEMPLATES_DIR="/usr/share/deploy/templates"
-TEST_DIR="/var/lib/deploy/test/deploy/%{release}"
+TEST_DIR="%{test-dir}"
 BUILD_FIRST_DEFINITIONS="rsnapshot-server.definition"
 SKIP_DEFINITIONS="deploy-packages.definition deploy-basic-config.definition deploy-developer-config.definition deploy-standard-config.definition"
 
