@@ -33,4 +33,29 @@
 <xi:include href="%{templates-dir}/deploy/deploy-packages.xml"
             xpointer="xpointer(./*)"/>
 
+<test-update>
+<macro id='test-dir'>%{templates-dir}/deploy</macro>
+
+<script id='test-basic' type='post' hostname='%{build-host}' verbose='true'>
+deploy %{test-dir}/deploy-basic-config.definition --debug \
+  --macro "os:rhel" \
+  --macro "file-size:6" \
+  --macro "test-dir:%{test-dir}" \
+  %{args}
+</script>
+
+<script id='test-standard' type='post' hostname='%{build-host}' verbose='true'>
+deploy %{test-dir}/deploy-standard-config.definition --debug \
+  --macro "file-size:20" \
+  --macro "test-dir:%{test-dir}" \
+  %{args}
+</script>
+
+<script id='test-developer' type='post' hostname='%{build-host}' verbose='true'>
+deploy %{test-dir}/deploy-developer-config.definition --debug \
+  --macro "file-size:20" \
+  --macro "test-dir:%{test-dir}" \
+  %{args}
+</script>
+</test-update>
 </definition>
