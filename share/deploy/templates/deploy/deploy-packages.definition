@@ -6,9 +6,6 @@
 <macro id="version">6</macro>
 <macro id="arch">x86_64</macro>
 <macro id='id'>%{name}-%{version}-%{arch}</macro>
-<macro id='local-dir'/>
-<macro id='remote-url'/>
-<macro id='send-email'>false</macro>
 
 <main>
 <name>%{name}</name>
@@ -36,8 +33,14 @@
 <xi:include href="%{templates-dir}/deploy/deploy-packages.xml"
             xpointer="xpointer(./*)"/>
 
-<test-update>
+<publish>
+<macro id='local-dir'/>
+<macro id='remote-url'/>
+<macro id='send-email'>false</macro>
 <macro id='test-dir'>%{templates-dir}/deploy</macro>
+
+<local-dir>%{local-dir}</local-dir>
+<remote-url>%{remote-url}</remote-url>
 
 <script id='test-basic' type='post' hostname='%{build-host}' verbose='true'>
 deploy %{test-dir}/deploy-basic-config.definition --debug \
@@ -45,24 +48,17 @@ deploy %{test-dir}/deploy-basic-config.definition --debug \
   --macro "file-size:6" \
   %{args}
 </script>
-
 <script id='test-standard' type='post' hostname='%{build-host}' verbose='true'>
 deploy %{test-dir}/deploy-standard-config.definition --debug \
   --macro "file-size:20" \
   %{args}
 </script>
-
 <script id='test-developer' type='post' hostname='%{build-host}' verbose='true'>
 deploy %{test-dir}/deploy-developer-config.definition --debug \
   --macro "file-size:20" \
   %{args}
 </script>
-</test-update>
-
-<publish>
-<local-dir>%{local-dir}</local-dir>
-<remote-url>%{remote-url}</remote-url>
-<script id='update-notify-email' type='post' hostname='%{build-host}'>
+<script id='update-notify-email' type='post' hostname='%{build-host}' comes-after="test-basic, test-standard, test-developer">
 #!/bin/bash
 # send an email notice to the root user if the package repository changes
 if [[ %{send-email} = true ]]; then
