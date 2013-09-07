@@ -62,7 +62,7 @@ deploy %{test-dir}/deploy-developer-config.definition --debug \
 <publish>
 <local-dir>%{local-dir}</local-dir>
 <remote-url>%{remote-url}</remote-url>
-<script id='update-notify-email' type='post' ssh='false'>
+<script id='update-notify-email' type='post' hostname='%{build-host}'>
 #!/bin/bash
 # send an email notice to the root user if the package repository changes
 if [[ %{send-email} = true ]]; then
