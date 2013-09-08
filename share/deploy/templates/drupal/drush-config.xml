@@ -4,10 +4,8 @@
 <requires>/usr/sbin/crond</requires>
 <script type='post'>
 if ! pear channel-info pear.drush.org > /dev/null; then
-  pear channel-discover pear.drush.org || \ 
-    (echo 'Error: pear channel-discover failed' >&amp;2; exit 1)
-  pear install drush/drush || \
-    (echo 'Error: pear install drush failed' >&amp;2; exit 1)
+  pear channel-discover pear.drush.org || echo 'WARNING: pear channel-discover failed' 
+  pear install drush/drush || echo 'WARNING: pear install drush failed'
 fi
 </script>
 <files content='text' destdir='/etc/cron.daily' destname='drush_update' mode='777'>
