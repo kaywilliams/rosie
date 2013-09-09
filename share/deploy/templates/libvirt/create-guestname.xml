@@ -34,7 +34,7 @@ file=$(dirname "$0")/libvirt-%{module}
 # else create a guestname less than 50 characters
 guestname=%{hostname}
 
-if [[ ${#guestname} &gt; 50 ]]; then
+if [[ ${#guestname} -gt 50 ]]; then
   index=1
   while [[ $index -lt 999 ]]
   do

@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config-rpm id='windows-azure-guest-config'>
+<xml>
 
+<!-- openlogic repository does not sign rpms -->
+<macro id='release-rpm'>
+<release-rpm><updates gpgcheck='false'/></release-rpm>
+</macro>
+%{release-rpm}
+
+<config-rpm id='windows-azure-guest-config'>
 <repo id='openlogic'>
 <baseurl>
 http://olcentgbl.trafficmanager.net/openlogic/%{version}/openlogic/%{arch}
 </baseurl>
 </repo>
-
 <requires>WALinuxAgent</requires>
 </config-rpm>
+</xml>

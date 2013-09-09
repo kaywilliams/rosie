@@ -26,20 +26,18 @@
 <group repoid='base'>core</group>
 </packages>
 
-<test-install>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml"
+<test-update>
+<xi:include href="%{templates-dir}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/deploy/deploy-basic-test.xml"
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
+</test-update>
+
+<test-install>
+<xi:include href="%{templates-dir}/libvirt/test-install.xml"
+            xpointer="xpointer(./*)"/>
+<xi:include href="%{templates-dir}/deploy/deploy-basic-test.xml"
+            xpointer="xpointer(./*)"/>
 </test-install>
 
-<test-update>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml"
-            xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/deploy/deploy-basic-test.xml"
-            xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
-</test-update>
 </definition>

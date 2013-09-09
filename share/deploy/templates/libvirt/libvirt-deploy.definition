@@ -26,16 +26,13 @@
 </packages>
 
 <test-install>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml" 
+<xi:include href="%{templates-dir}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-install>
 
 <test-update>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml" 
+<xi:include href="%{templates-dir}/libvirt/test-update.xml" 
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
 </test-update>
 
 </definition>

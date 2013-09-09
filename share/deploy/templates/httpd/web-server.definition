@@ -29,17 +29,16 @@
 <xi:include href='%{templates-dir}/httpd/httpd-config.xml'/>
 </config-rpms>
 
-<test-install>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml" xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
-<xi:include href="%{templates-dir}/httpd/test/test-web-server-running.xml"/>
-</test-install>
-
 <test-update>
-<xi:include href="%{templates-dir}/libvirt/deploy.xml" xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/libvirt/poweroff.xml"/>
+<xi:include href="%{templates-dir}/libvirt/test-update.xml"
+            xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/httpd/test/test-web-server-running.xml"/>
 </test-update>
+
+<test-install>
+<xi:include href="%{templates-dir}/libvirt/test-install.xml"
+            xpointer="xpointer(./*)"/>
+<xi:include href="%{templates-dir}/httpd/test/test-web-server-running.xml"/>
+</test-install>
 
 </definition>

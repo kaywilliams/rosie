@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 1.96
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: An open platform for managing system and application deployment.
 
 License:   GPL
@@ -73,6 +73,9 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sun Sep 08 2013 Deploy Automated Package Builder - 1.96-2
+- rebuilt
+
 * Sat Sep 7 2013 Kay Williams <kay@deployproject.org> - 1.96-1
 - offline support 
 - support for executing deployment scripts from a remote host
