@@ -4,6 +4,6 @@
 set -e
 # destroy vm, if active
 if [[ `/usr/bin/azure vm list` = *\ %{hostname}\ * ]]; then
-  /usr/bin/azure vm delete %{hostname}
+  /usr/bin/azure vm delete -q %{hostname}
 fi
 </script>

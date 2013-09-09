@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.96
-Release: 2%{?dist}
+Version: 1.97
+Release: 1%{?dist}
 Summary: An open platform for managing system and application deployment.
 
 License:   GPL
@@ -73,10 +73,7 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Sun Sep 08 2013 Deploy Automated Package Builder - 1.96-2
-- rebuilt
-
-* Sat Sep 7 2013 Kay Williams <kay@deployproject.org> - 1.96-1
+* Sun Sep 8 2013 Kay Williams <kay@deployproject.org> - 1.97-1
 - offline support 
 - support for executing deployment scripts from a remote host
 - additional templates and template improvements
