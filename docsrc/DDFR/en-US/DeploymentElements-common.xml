@@ -1030,7 +1030,9 @@ $remote-url/%{id}</programlisting>
     </para>
    
     <para>
-    This element is valid only within the publish element.
+    This element is used when defined within the publish element. It is
+    allowed within the test-install and test-update elements, but silently
+    ignored.
     </para>
 
     <itemizedlist>
@@ -1228,16 +1230,8 @@ $remote-url/%{id}</programlisting>
       <itemizedlist>
       <listitem>
       <para>
-      For <emphasis>publish</emphasis>, the default value is an
-      empty string, "".
-      </para>
-      </listitem>
-      
-      <listitem>
-      <para>
-      For <emphasis>test-update</emphasis>, the default value is
-      "<constant>kickstart install_scripts post_install_scripts</constant>".
-      These triggers correspond to module macros of the same name.
+      For <emphasis>publish</emphasis> and <emphasis>test-update</emphasis>,
+      the default value is an empty string, "".
       </para>
       </listitem>
 
@@ -1249,6 +1243,8 @@ $remote-url/%{id}</programlisting>
       </para>
       </listitem>
       </itemizedlist>
+
+      </para>
 
       <para>
       <emphasis role='strong'>Attributes</emphasis>

@@ -6,12 +6,9 @@
 <macro id='domain'>cloudapp.net</macro>
 <macro id='build-host'><build-host fqdn='true'/></macro>
 <macro id='deploy-host'>localhost</macro>
-<macro id='release-rpm'>
-<release-rpm><updates gpgcheck='false'/></release-rpm>
-</macro>
 
 <!-- template content below -->
-%{release-rpm}
+%{build-host}
 <domain>%{domain}</domain>
 <deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>

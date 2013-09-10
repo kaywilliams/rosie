@@ -10,28 +10,6 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <optional>
-        <element name="release-rpm">
-          <ref name="xml-base"/>
-          <optional>
-          <attribute name="enabled"><ref name="value-boolean"/></attribute>
-          </optional>
-
-          <optional>
-          <element name="updates">
-            <ref name="xml-base"/>
-            <optional>
-            <attribute name="sync"><ref name="value-boolean"/></attribute>
-            </optional>
-            <optional>
-            <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
-            </optional>
-          </element>
-          </optional>
-
-        </element>
-        </optional>
-
         <ref name="content-deploy-elements"/>
 
       </element>

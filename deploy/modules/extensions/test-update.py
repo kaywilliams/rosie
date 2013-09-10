@@ -73,8 +73,7 @@ class TestUpdateEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.default_install_triggers = [ KICKSTART_CSUM, INSTALL_SCRIPTS_CSUM,
-                                      POST_INSTALL_SCRIPTS_CSUM ]
+    self.default_install_triggers = []
     DeployEventMixin.setup(self)
 
 

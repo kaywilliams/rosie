@@ -15,10 +15,12 @@ echo "creating %{hostname}"
 
 %{wait}
 
-# configure ssh to root user
+echo "installing ssh key"
+ssh -i %{data-dir}/id_rsa -o StrictHostKeyChecking=no %{user}@%{fqdn} -tt "echo %{password} | sudo -S /bin/bash -c 'mkdir /root/.ssh; chmod 700 /root/.ssh; echo \"%{build-host-pubkey}\" > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; restorecon -R /root/.ssh'"
 
-ssh -i %{data-dir}/id_rsa -o StrictHostKeyChecking=no %{user}@%{fqdn} -t -t "echo \"%{password}\" | sudo -S /bin/bash -c 'mkdir /root/.ssh; chmod 700 /root/.ssh; echo \"%{build-host-pubkey}\" > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; restorecon -R /root/.ssh; wget -q -O /etc/yum.repos.d/%{name}.repo %{os-url}/repo.conf; yum -q -y install %{name}-release'"
+echo "downloading release package"
+ssh -o StrictHostKeyChecking=no root@%{fqdn} -tt "wget -q -O /etc/yum.repos.d/%{name}.repo %{os-url}/repo.conf; yum -q -y install %{name}-release"
 
-# allow kernel updates
+echo "allowing kernel updates"
 ssh -o StrictHostKeyChecking=no root@%{fqdn} "sed -i 's/^exclude=kernel\*/# exclude=kernel*/g' /etc/yum.conf"
 </script>
