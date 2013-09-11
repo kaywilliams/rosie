@@ -4,7 +4,7 @@
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
 <script id='post-delete' type='post' hostname='%{deploy-host}'
-        comes-after="test-remove-custom-pkgs">
+        comes-after="test-remove-custom-pkgs check-kernel">
 <xi:include href="%{templates-dir}/windows-azure/delete.xml"
             xpointer="xpointer(./text())"/>
 </script>
