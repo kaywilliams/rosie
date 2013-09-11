@@ -22,7 +22,7 @@
 
 <macro id="centos-updates">
 <baseurl>%{centos-mirror}/%{version}/updates/%{arch}</baseurl>
-<gpgkey>http://repomaster.deployproject.org/mirrors/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
 <macro id="rhn-host">xmlrpc.rhn.redhat.com</macro>
