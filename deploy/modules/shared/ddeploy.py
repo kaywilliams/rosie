@@ -73,6 +73,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if not self.os_url:
       self.os_url = self.webpath
     self.io.validate_input_file(self.os_url)
+    self.link(self.os_url, self.mddir) # hack to cache for offline support
     self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
