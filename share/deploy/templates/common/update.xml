@@ -3,9 +3,14 @@
 #!/bin/bash
 set -e
 
-output=`yum sync -y`
+# ensure we're using the latest repo.conf
+repodir="/etc/yum.repos.d"
+mv $repodir/%{name}.repo $repodir/%{name}.repo.bak || true #ignore missing
+curl -q -o $repodir/%{name}.repo %{os-url}/repo.conf        
+rm -f $repodir/%{name}.repo.bak
 
 # run yum sync, checking output for scriptlet failed errors
+output=`yum sync -y`
 while read -r line
 do
   echo $line
