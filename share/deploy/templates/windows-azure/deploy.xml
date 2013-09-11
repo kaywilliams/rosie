@@ -4,11 +4,9 @@
 <!-- install and update a Windows Azure virtual machine -->
 <macro id='user'>deploy</macro>
 <macro id='domain'>cloudapp.net</macro>
-<macro id='build-host'><build-host fqdn='true'/></macro>
 <macro id='deploy-host'>localhost</macro>
 
 <!-- template content below -->
-%{build-host}
 <domain>%{domain}</domain>
 <deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/common/acpid-config.xml'/>
