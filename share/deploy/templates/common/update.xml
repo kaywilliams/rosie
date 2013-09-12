@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<xml>
+<config-rpm id='deploy-client-config'>
+<requires>curl</requires>
+<requires>yum</requires>
+</config-rpm>
+
 <script id='update' type='post' comes-before="check-kernel, poweroff"> 
 #!/bin/bash
 set -e
 
-# ensure we're using the latest repo.conf
+echo "echo: ensure we're using the latest repo.conf"
 repodir="/etc/yum.repos.d"
-mv $repodir/%{name}.repo $repodir/%{name}.repo.bak || true #ignore missing
-curl -q -o $repodir/%{name}.repo %{os-url}/repo.conf        
+mv $repodir/%{name}.repo $repodir/%{name}.repo.bak 2>/dev/null || \
+  true #ignore missing
+curl -s -o $repodir/%{name}.repo %{os-url}/repo.conf        
 rm -f $repodir/%{name}.repo.bak
 
-# run yum sync, checking output for scriptlet failed errors
+echo "echo: run yum sync, checking output for scriptlet failed errors"
 output=`yum sync -y`
 while read -r line
 do
@@ -19,10 +26,11 @@ do
   fi
 done &lt; &lt;(echo "$output")
 
-# if found, remove failed packages and exit with an error
+echo "echo: if found, remove failed packages and exit with an error"
 if [[ ${#failed} > 0 ]]; then
   echo "Removing failed package(s): $failed"
   yum erase $failed -q -y --cacheonly --disableplugin sync
   exit 1
 fi
 </script>
+</xml>
