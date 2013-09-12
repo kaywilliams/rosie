@@ -26,45 +26,25 @@ from deploy.util.rxml import config
 from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
-from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
-                           dm_make_suite)
+from dtest.mixins import (psm_make_suite, PublishSetupMixinTestCase, 
+                          DeployMixinTestCase, dm_make_suite)
 
 
-class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
+class TestUpdateSetupEventTestCase(PublishSetupMixinTestCase, EventTestCase):
   moduleid = 'test-update'
   eventid  = 'test-update-setup'
 
 
-class TestUpdateEventTestCase(PublishSetupEventTestCase):
+class TestUpdateEventTestCase(DeployMixinTestCase, EventTestCase):
   moduleid = 'test-update'
   eventid  = 'test-update'
-
-  def __init__(self, os, version, arch, *args, **kwargs):
-    PublishSetupEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
-
-  def setUp(self):
-    PublishSetupEventTestCase.setUp(self)
-
-    if not self.event: # module disabled
-      return
-
-    # set password and crypt password in datfile
-    root = self.event.parse_datfile()
-    mod = root.getxpath('%s' % self.moduleid, '')
-    if len(mod) == 0:
-      mod = config.uElement('%s' % self.moduleid, parent=root)
-    config.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
-    self.event.write_datfile(root)
-
-  def tearDown(self):
-    EventTestCase.tearDown(self) 
 
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-update')
 
   # setup
-  suite.addTest(make_extension_suite(PublishSetupEventTestCase, os, version, arch))
+  suite.addTest(make_extension_suite(TestUpdateSetupEventTestCase, os, version, arch))
 
   # deploy
   suite.addTest(make_extension_suite(TestUpdateEventTestCase, os, version, 

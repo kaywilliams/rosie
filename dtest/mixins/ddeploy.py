@@ -18,8 +18,6 @@
 import re
 import unittest
 
-from lxml import etree
-
 from deploy.util      import pps
 from deploy.util      import rxml
 
@@ -59,18 +57,6 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
       macros = macros
       ).getroot()
 
-    # update packages
-    pkgcontent=etree.XML("""
-    <packages>
-      <group>core</group>
-      <!--add NM as a workaround RTNETLINK/NOZEROCONF issue in el5-->
-      <package>NetworkManager</package>
-    </packages>""")
-    packages = self.conf.getxpath('/*/packages', None)
-    if packages is None:
-      packages = rxml.config.Element('packages', parent=self.conf)
-    packages.extend(pkgcontent.xpath('/*/*'))
-
     # update module
     mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
     if mod is None:
@@ -85,10 +71,9 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
     mod.extend(deploy.xpath("/*/*[name()!='script']"))
     mod.extend(deploy.xpath("/*/script[@id!='post']"))
-  
 
   def runTest(self):
-    self.tb.dispatch.execute(until='deploy')
+    self.tb.dispatch.execute(until=self.deploy_module)
 
 
 def DeployMixinTest_Teardown(self):

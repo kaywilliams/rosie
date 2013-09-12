@@ -26,16 +26,16 @@ from deploy.util.rxml import config
 from dtest      import EventTestCase, ModuleTestSuite
 from dtest.core import make_extension_suite
 
-from dtest.mixins import (psm_make_suite, DeployMixinTestCase,
-                          dm_make_suite)
+from dtest.mixins import (psm_make_suite, PublishSetupMixinTestCase, 
+                          DeployMixinTestCase, dm_make_suite)
 
 
-class PublishSetupEventTestCase(DeployMixinTestCase, EventTestCase):
+class TestInstallSetupEventTestCase(PublishSetupMixinTestCase, EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install-setup'
 
 
-class TestInstallEventTestCase(PublishSetupEventTestCase):
+class TestInstallEventTestCase(DeployMixinTestCase, EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install'
   _conf = ["""
@@ -47,25 +47,6 @@ class TestInstallEventTestCase(PublishSetupEventTestCase):
   </test-install>
   """]
 
-  def __init__(self, os, version, arch, *args, **kwargs):
-    PublishSetupEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
-
-  def setUp(self):
-    PublishSetupEventTestCase.setUp(self)
-
-    if not self.event: # module disabled
-      return
-
-    # set password and crypt password in datfile
-    root = self.event.parse_datfile()
-    mod = root.getxpath('%s' % self.moduleid, '')
-    if len(mod) == 0:
-      mod = config.uElement('%s' % self.moduleid, parent=root)
-    config.uElement('crypt-password', text='$6$OJZ6KCfu$GcpaU07JTXN1y/bMSunZJDt.BBMOl1gs7ZoJy1c6No4iJyyXUFhD3X2ar1ZT2qKN/NS9KLDoyczmuIfVyDPiZ/', parent=mod)
-    self.event.write_datfile(root)
-
-  def tearDown(self):
-    EventTestCase.tearDown(self) 
 
 class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
   "raises an error if multiple scripts provide the same id"
@@ -206,8 +187,8 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')
 
   # setup
-  suite.addTest(make_extension_suite(PublishSetupEventTestCase, os, version, arch))
-  suite.addTest(psm_make_suite(PublishSetupEventTestCase, os, version, arch))
+  suite.addTest(make_extension_suite(TestInstallSetupEventTestCase, os, version, arch))
+  suite.addTest(psm_make_suite(TestInstallSetupEventTestCase, os, version, arch))
 
   # deploy
   suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,

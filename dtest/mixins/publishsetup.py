@@ -17,8 +17,11 @@
 #
 import unittest
 
+from lxml import etree
+
 from deploy.errors    import DeployError
 from deploy.util      import pps
+from deploy.util      import rxml
 from deploy.util.rxml import config
 
 from dtest        import EventTestCase, decorate
@@ -34,6 +37,18 @@ class PublishSetupMixinTestCase(EventTestCase):
       else:
         self.deploy_module = 'publish'
     decorate(self, 'tearDown', prefn=self.pre_teardown)
+
+    # update packages
+    pkgcontent=etree.XML("""
+    <packages>
+      <group>core</group>
+      <!--add NM as a workaround RTNETLINK/NOZEROCONF issue in el5-->
+      <package>NetworkManager</package>
+    </packages>""")
+    packages = self.conf.getxpath('/*/packages', None)
+    if packages is None:
+      packages = rxml.config.Element('packages', parent=self.conf)
+    packages.extend(pkgcontent.xpath('/*/*'))
 
   def pre_teardown(self):
     # 'register' publish_path for deletion upon test completion
