@@ -214,7 +214,10 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       if e.errno == errno.ENOENT:
         raise InvalidDistroError(self.os_url, mdfile)
       else: raise
-    self.DATA['input'].append(self.repomdfile)
+    # we should just list self.repomdfile as input, but for some reason
+    # this results in file mode differences between runs. Need to figure
+    # this out later.
+    self.DATA['input'].append(self.mddir/self.repomdfile.basename)
 
   def _get_csum(self, text):
     return hashlib.md5(text).hexdigest()
