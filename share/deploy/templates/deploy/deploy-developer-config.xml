@@ -30,6 +30,7 @@
 <requires>xz</requires>
 <requires>/sbin/rngd</requires>
 <requires>/usr/bin/make</requires>
+<requires>/usr/bin/wget</requires>
 
 <!-- configure deploy -->
 <files destdir='/etc/deploy' destname='deploy.conf' content='text'>
