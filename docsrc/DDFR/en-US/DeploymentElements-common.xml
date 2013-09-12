@@ -660,12 +660,12 @@ $remote-url/%{id}</programlisting>
       <para>
       Given a <link linkend='deployment-macros'>%{build-host}</link> value of
       "repos.company.com" and a repository <varname>%{id}</varname> of
-      "samba-server-5-i386",
+      "samba-server-6-i386",
       the resulting %{url} macro value is -
       </para>
  
       <para>
-      <filename>https://repos.company.com/deploy/systems/samba-server-5-i386</filename>
+      <filename>https://repos.company.com/deploy/systems/samba-server-6-i386</filename>
       </para>
       </listitem>
     </varlistentry>
@@ -860,7 +860,7 @@ $remote-url/%{id}</programlisting>
     <para>
     Deploy makes the kickstart available as a file
     named <filename>ks.cfg</filename> in the repository publish folder, e.g.
-    <filename>http://server.company.com/deploy/systems/samba-server-5-i386/ks.cfg</filename>.
+    <filename>http://server.company.com/deploy/systems/samba-server-6-i386/ks.cfg</filename>.
     It also includes the kickstart in all ISO images including boot.iso. 
     </para>
   
@@ -1071,7 +1071,7 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para><synopsis>
-    <filename>samba-server-release-5-1.el5.noarch.rpm</filename></synopsis>
+    <filename>samba-server-release-6-1.el6.noarch.rpm</filename></synopsis>
     </para>
 
     <para>
@@ -1079,7 +1079,7 @@ $remote-url/%{id}</programlisting>
     When configuration changes in the future, e.g. when the sync is
     enabled or disabled, Deploy will increment the release number
     by 1, create a new release-rpm (in this case
-    "samba-server-release-5-2.noarch.rpm"), and store the new release
+    "samba-server-release-6-2.noarch.rpm"), and store the new release
     number ("2") in the data file. The incremented version
     number allows installed client machines to determine that a new
     release-rpm is available for download and installation.
@@ -1091,7 +1091,7 @@ $remote-url/%{id}</programlisting>
     The release-rpm event also makes a YUM repository configuration file, named
     <filename>repo.conf</filename>, available from the repository publish
     folder, e.g.
-    <filename>http://server.company.com/deploy/systems/samba-server-5-i386/repo.conf</filename>.
+    <filename>http://server.company.com/deploy/systems/samba-server-6-i386/repo.conf</filename>.
     This file can be used by automated processes in situations where it is
     undesirable to install the release-rpm. This is most common when using YUM
     to install repository packages in a <command>chroot</command> environment,

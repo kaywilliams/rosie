@@ -56,7 +56,7 @@
       </informalexample>
       
       <para>
-      See the <emphasis>Red Hat Enterprise Linux 5 Installation
+      See the <emphasis>Red Hat Enterprise Linux 6 Installation
       Guide</emphasis> under the topic <emphasis>Preparing for a Network
       Installation</emphasis> for more information.
       </para>
@@ -77,7 +77,7 @@
       need to create a systemid. This requires an available subscription to 
       Red Hat Enterprise Linux. See the Red Hat web site for purchase
       information. Once you have an available subscription, install Red Hat 
-      Enterprise Linux 5 in the desired architecture version (i386 or x86_64)
+      Enterprise Linux 6 in the desired architecture version (i386 or x86_64)
       onto a client machine. Register the machine to Red Hat Network during
       installation, or first boot, or later using the 
       <command>rhn_register</command> command. Once the machine has successfully
@@ -105,10 +105,10 @@
       include the following:
 
         <simplelist>
-          <member>rhel-i386-server-5</member>
-          <member>rhel-i386-server-vt-5</member>
-          <member>rhel-x86_64-server-5</member>
-          <member>rhel-x86_64-server-vt-5</member>
+          <member>rhel-i386-server-6</member>
+          <member>rhel-i386-server-vt-6</member>
+          <member>rhel-x86_64-server-6</member>
+          <member>rhel-x86_64-server-vt-6</member>
         </simplelist>
       </para>
 

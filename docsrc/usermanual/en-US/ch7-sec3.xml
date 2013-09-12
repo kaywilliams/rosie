@@ -497,7 +497,7 @@
   <listitem>
   <para>
   Creates an <emphasis>application</emphasis> package repository for each
-  supported combination of CentOS version (5 and 6) and architecture (i386 and
+  supported combination of CentOS version (6) and architecture (i386 and
   x86_64).
   </para>
   </listitem>
@@ -526,7 +526,7 @@ DEPLOY="/usr/bin/deploy"
 LOG_LEVEL=1
 
 REPO=application
-VERSIONS="5 6"
+VERSIONS="6"
 ARCHS="i386 x86_64"
 SCENARIOS="scenario1 scenario2"
  

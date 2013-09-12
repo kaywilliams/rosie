@@ -40,7 +40,7 @@
 
   <para>
   When the process is complete, you can locate your new repository at
-  <filename>/var/www/html/deploy/systems/web-server-5-i386</filename>.
+  <filename>/var/www/html/deploy/systems/web-server-6-i386</filename>.
   Package-type repositories will be located in the  
   <filename>/var/www/html/deploy/packages</filename> folder.
   </para>
@@ -48,7 +48,7 @@
   <para>
   You will also notice that Deploy has created a new <xref
   linkend='data-file'/>,
-  <filename>web-server-5-i386.dat</filename>, in the same location as you
+  <filename>web-server-6-i386.dat</filename>, in the same location as you
   definition. Take care not to delete this file as it contains
   important information for your repository.
   </para>

@@ -9,7 +9,7 @@
   For the purpose of this user guide, examples, processes and illustrations
   will focus on defining, building, deploying and updating an <application
   class="software">Apache</application> web server based on <application
-  class="software">CentOS</application> version 5 or 6. Apache is a project of
+  class="software">CentOS</application> version 6. Apache is a project of
   the <ulink url="http://www.apache.org/">Apache Software Foundation</ulink>. 
   </para>
 
@@ -288,7 +288,7 @@
     <para>
     This example directs Deploy to use public mirrors to access the
     CentOS base and updates repositories. Because it makes use of %{version}
-    and %{arch} macros, it can be used for CentOS version 5 or 6, with either
+    and %{arch} macros, it can be used for CentOS version 6, with either
     i386 or x86_64 architecture.  The line breaks shown are for readability
     and should not be included in your definition.
     </para>

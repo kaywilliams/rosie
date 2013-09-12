@@ -71,13 +71,13 @@ RPMID-%{version}-RELEASE.DIST.noarch.rpm</programlisting>
 
     <para>
     For example, for a config-rpm with the id "samba-server-config", and a
-    base operating system distribution of CentOS 5, the first time the rpm is
+    base operating system distribution of CentOS 6, the first time the rpm is
     generated, the file name would be as follows:
     </para>
 
     <informalexample>
     <programlisting>
-samba-server-config-5-1.el5.noarch.rpm</programlisting>
+samba-server-config-6-1.el6.noarch.rpm</programlisting>
     </informalexample>
   </section>
 

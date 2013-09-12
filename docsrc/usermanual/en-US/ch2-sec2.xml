@@ -14,7 +14,7 @@
   <para>
   Repositories are collections of packages, typically located on remote servers
   or CD/DVD media. Repositories are generally organized by the architecture (e.g.
-  i386 or x86_64) and version (e.g. 5 or 6) of a base operating system.
+  i386 or x86_64) and version (e.g. 6) of a base operating system.
   </para>
   
   <para>

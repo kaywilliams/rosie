@@ -23,11 +23,11 @@
     <programlisting>
 &lt;main&gt;
   &lt;name&gt;TEXT&lt;/name&gt;
-  &lt;os&gt;("centos"|"rhel")&lt;/os&gt;
-  &lt;version&gt;("5"|"6")&lt;/version&gt;
-  &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
+  &lt;os&gt;(centos|rhel)&lt;/os&gt;
+  &lt;version&gt;6&lt;/version&gt;
+  &lt;arch&gt;(i386|x86_64)&lt;/arch&gt;
   &lt;id&gt;TEXT&lt;/id&gt;
- [&lt;type&gt;("package"|"system")&lt;/type&gt;]
+ [&lt;type&gt;(package|system)&lt;/type&gt;]
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;bug-url&gt;URL&lt;/bug-url&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
@@ -93,7 +93,7 @@
       <listitem>
       <para>
       The version of the base operating system for the repository. Valid values
-      are "5" and "6". Typically specified using a macro. See <xref
+      are "6". Typically specified using a macro. See <xref
       linkend='in-document-macros'/> for more information. 
       </para>
 
@@ -250,7 +250,7 @@
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
   &lt;os&gt;centos&lt;/os&gt;
-  &lt;version&gt;5&lt;/version&gt;
+  &lt;version&gt;6&lt;/version&gt;
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
