@@ -3,7 +3,8 @@
 #!/bin/bash
 #check install.log for errors
 
-if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
+if grep -q "scriptlet failed" /root/install.log || \
+   grep -q "error: " /root/install.log; then
   errors=`grep -v "NOKEY" /root/install.log | \
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
   grep -v "^Installing "`
