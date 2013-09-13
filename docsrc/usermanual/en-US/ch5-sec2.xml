@@ -206,7 +206,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/common/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/libvirt/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -269,7 +269,7 @@ reboot
 %{end-%{version}}
 &lt;macro id='end-5'>&lt;/macro>
 &lt;macro id='end-6'>%end&lt;/macro>
-&lt;xi:include href="/path/to/ks-ssh-post.xml" xpointer="xpointer(/*/node())"/>
+&lt;xi:include href="/path/to/ks-post-ssh.xml" xpointer="xpointer(/*/node())"/>
 &lt;/kickstart>
 &lt;/test-install></programlisting>
   </informalexample>
@@ -384,7 +384,7 @@ virt-install --name %{fqdn} --ram 2000 \
 &lt;domain>mydomain.com&lt;/domain>
 &lt;kickstart>
 &lt;xi:include href='../common/ks.xml' xpointer='xpointer(/*/node())'/>
-&lt;xi:include href='../common/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
+&lt;xi:include href='../libvirt/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
 &lt;/kickstart>
 &lt;xi:include href='../common/ssh-config.xml'/>
 &lt;xi:include href='../common/test-triggers.xml'/>
