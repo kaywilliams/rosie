@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 1.100
+Version: 2.0
 Release: 1%{?dist}
 Summary: An open platform for managing system and application deployment.
 
@@ -73,7 +73,7 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Thu Sep 12 2013 Kay Williams <kay@deployproject.org> - 1.100-1
+* Thu Sep 12 2013 Kay Williams <kay@deployproject.org> - 2.0-1
 - offline support 
 - support for executing deployment scripts from a remote host
 - additional templates and template improvements
