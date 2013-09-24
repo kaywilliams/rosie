@@ -73,7 +73,10 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if not self.os_url:
       self.os_url = self.webpath
     self.io.validate_input_file(self.os_url)
-    self.link(self.os_url, self.mddir) # hack to cache for offline support
+    try:
+      self.link(self.os_url, self.mddir) # hack to cache for offline support
+    except PathError:
+      pass # don't fail if path doesn't exist
     self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
@@ -248,7 +251,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   def _get_kickstart_csum(self):
     ksname = self.cvars['%s-ksname' % self.moduleid]
     if ksname and (self.webpath/ksname).exists():
-      kstext = (self.webpath/ksname).read_text()
+      try:
+        kstext = (self.webpath/ksname).read_text() # exists() reports true for 
+                                                   # 404 errors
+      except PathError:
+        kstext = ''
     else:
       kstext = ''
     return self._get_csum(kstext)
