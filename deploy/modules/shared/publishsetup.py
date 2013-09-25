@@ -64,8 +64,7 @@ class PublishSetupEventMixin(Event):
     self.resolve_macros(map={ '%{build-host}': self.build_host})
 
     # set additional attributes
-    self.deploy_host = self.config.getxpath('deploy-host/text()',
-                                             self.build_host)
+    self.deploy_host = self.config.getxpath('deploy-host/text()', 'localhost')
     self.localpath = self.get_local()
     self.webpath = self.get_webpath(self.build_host)
     self.domain = self.get_domain() # get_hostname() uses this for validation

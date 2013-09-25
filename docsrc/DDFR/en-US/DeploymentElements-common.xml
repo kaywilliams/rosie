@@ -466,14 +466,14 @@
       <listitem>
       <para>
       TEXT value specifying the hostname or ipaddress of the deployment host.
-      This host is used by Deploy for running some deployment scripts.
-      See the <xref linkend='script-hostname'/> attribute of the <xref
+      This host is used by Deploy for running deployment scripts.  See the
+      <xref linkend='script-hostname'/> attribute of the <xref
       linkend='deployment-script'/> element for additional information.
       </para>
 
       <para>
-      This element is optional. The default value is the hostname or ipaddress
-      of the build host as described under <xref linkend='build-host'/>.
+      This element is optional. The default value is
+      <constant>localhost</constant>. 
       </para>
 
       <para>
@@ -1861,29 +1861,33 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <listitem>
 
       <para>
-      TEXT value specifying the hostname or ipaddress of the machine on which
-      Deploy will attempt to execute the <emphasis>script</emphasis>. The
-      specified machine must be configured to accept SSH connections from the
-      build machine.
+      TEXT value specifying the hostname or IP address of the machine on which
+      Deploy will attempt to execute the <emphasis>script</emphasis>.
       </para>
 
       <para>
-      Deploy supports public key authentication for SSH connections. Before
-      performing the connection, Deploy will check to see if SSH has been
-      configured for the root user on the build machine. It does this by
-      testing for the existence of a file named
+      If the hostname is <constant>localhost</constant>, the script will be
+      executed on the local machine.
+      </para>
+      
+      <para>
+      Otherwise, the script will be executed on the host machine using SSH. In
+      this case, the specified machine must be configured to accept SSH
+      connections. Deploy supports public key authentication for SSH
+      connections. Before performing the connection, Deploy will check to see
+      if SSH has been configured for the root user on the build machine. It
+      does this by testing for the existence of a file named
       <filename>/root/.ssh/id_rsa.pub</filename>. If this file does not exist,
       Deploy will attempt to configure SSH for the build machine by executing
       the following command:
       
       <programlisting>
-/usr  /bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""</programlisting>
+/usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""</programlisting>
       </para>
 
       <para>
       Deploy does not support the use of a passphrase for the root user SSH
-      key. If an SSH key has been previously created, that key must not require
-      a passphrase.
+      key.
       </para>
 
       <note>
@@ -1905,11 +1909,11 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </note>
 
       <para>
-      If an SSH connection can be established, Deploy then copies the script to
-      the <filename>/var/lib/deploy/deploy</filename> folder, in a subfolder
-      named with the client <xref linkend='main-id'/>, and executes it with
-      root privileges.  The file will be given the same name as the script
-      <xref linkend='script-id'/> attribute.
+      Prior to executing a script, Deploy copies it to the
+      <filename>/var/lib/deploy/deploy</filename> folder of the host machine,
+      in a subfolder named with the client <xref linkend='main-id'/>, and
+      executes it with root privileges. The file will be given the same name as
+      the script <xref linkend='script-id'/> attribute.
       </para>
 
       <para>

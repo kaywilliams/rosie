@@ -341,61 +341,70 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
       params = SSHParameters(self, type)
       params['hostname'] = script.hostname or params['hostname']
-        
-      try:
+
+      if params['hostname'] == 'localhost':
+        # execute script on local machine
+        self.deploydir.mkdirs()
+        cmd.cp(self.deploydir, force=True)
+        (self.deploydir/cmd.basename).chmod(0755)
+        self._local_execute(self.deploydir/cmd.basename, script.verbose)
+
+      else:
+        # execute script via ssh
         try:
-          client = self._ssh_connect(params)
-        except SSHFailedError, e:
-          raise SSHScriptFailedError(id=script.id, host=params['hostname'], 
-                                     message=str(e))
-
-        # create sftp client
-        sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-
-        # create libdir
-        if not self.LIB_DIR.basename in sftp.listdir(str(
-                                        self.LIB_DIR.dirname)):
           try:
-            sftp.mkdir(str(self.LIB_DIR))
-          except IOError, e:
-            raise RemoteFileCreationError(msg=
-              "An error occurred creating the script directory '%s' "
-              "on the remote system '%s'. %s"
-              % (self.LIB_DIR, params['hostname'], str(e)))
+            client = self._ssh_connect(params)
+          except SSHFailedError, e:
+            raise SSHScriptFailedError(id=script.id, host=params['hostname'], 
+                                       message=str(e))
 
-        # create deploydir
-        for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
-          if not (d.basename in 
-                  sftp.listdir(str(d.dirname))): 
-            sftp.mkdir(str(d))
+          # create sftp client
+          sftp = paramiko.SFTPClient.from_transport(client.get_transport())
 
-        # no cleaning for now, to support deploy scripts creating
-        # files in the deploy folder (e.g. libvirt guestname). Need a 
-        # better solution for cleaning in the future
-        #
-        # clean deploydir - except for trigger file
-        # if self.do_clean:
-        #   files = sftp.listdir(str(self.deploydir))
-        #   if self.triggerfile.basename in files:
-        #     files.remove(str(self.triggerfile.basename))
-        #   for f in files:
-        #     sftp.remove(str(self.deploydir/f))
-        #   self.do_clean = False # only clean once per session
+          # create libdir
+          if not self.LIB_DIR.basename in sftp.listdir(str(
+                                          self.LIB_DIR.dirname)):
+            try:
+              sftp.mkdir(str(self.LIB_DIR))
+            except IOError, e:
+              raise RemoteFileCreationError(msg=
+                "An error occurred creating the script directory '%s' "
+                "on the remote system '%s'. %s"
+                % (self.LIB_DIR, params['hostname'], str(e)))
 
-        # copy type
-        sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
-        sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
+          # create deploydir
+          for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
+            if not (d.basename in 
+                    sftp.listdir(str(d.dirname))): 
+              sftp.mkdir(str(d))
+
+          # no cleaning for now, to support deploy scripts creating
+          # files in the deploy folder (e.g. libvirt guestname). Need a 
+          # better solution for cleaning in the future
+          #
+          # clean deploydir - except for trigger file
+          # if self.do_clean:
+          #   files = sftp.listdir(str(self.deploydir))
+          #   if self.triggerfile.basename in files:
+          #     files.remove(str(self.triggerfile.basename))
+          #   for f in files:
+          #     sftp.remove(str(self.deploydir/f))
+          #   self.do_clean = False # only clean once per session
+
+          # copy script 
+          sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
+          sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
  
-        # execute type
-        cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
-        try:
-          self._ssh_execute(client, cmd, script.verbose)
-        except SSHFailedError, e:
-          raise SSHScriptFailedError(id=script.id, host=params['hostname'],
-                                     message=str(e))
+          # execute script
+          cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
+          try:
+            self._ssh_execute(client, cmd, script.verbose)
+          except SSHFailedError, e:
+            raise SSHScriptFailedError(id=script.id, host=params['hostname'],
+                                       message=str(e))
 
-      finally:
-        if 'client' in locals(): client.close()
+        finally:
+          if 'client' in locals(): client.close()
 
 
 class Script(resolve.Item, DirectedNodeMixin):
