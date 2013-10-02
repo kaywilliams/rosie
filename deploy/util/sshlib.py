@@ -74,7 +74,7 @@ def get_client(retries=24, sleep=5, callback=None, **kwargs):
       if i == 0:
         max = Decimal(retries) * sleep / 60
         if callback is not None:
-          cb.start("Unable to connect. System may be starting. Will retry for %s minutes." % max, max=max)
+          cb.start("Unable to connect to %s. System may be starting. Will retry for %s minutes." % (params['hostname'], max), max=max) # TODO Testme
       if callback is not None:
         cb.retry("%s. Retrying..." % e, error_obj = e)
       time.sleep(sleep)
