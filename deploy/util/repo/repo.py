@@ -94,6 +94,7 @@ class BaseRepo(dict):
       except AttributeError:
         v = repo.get(k)
       if v is not None:
+        if k == 'include': k = 'includepkgs' # translate to yum terminology
         line = self._itemsplit(k, v, fmt1=fmt1, fmtN=fmtN, pretty=pretty)
         if doreplace: line = self._var_replace(line)
         lines.append(line)
