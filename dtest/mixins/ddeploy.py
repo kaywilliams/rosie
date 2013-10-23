@@ -73,7 +73,10 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     mod.extend(deploy.xpath("/*/script[@id!='post']"))
 
   def runTest(self):
-    self.tb.dispatch.execute(until=self.deploy_module)
+    if self.deploy_module == 'publish': event = 'deploy'
+    else: event = self.deploy_module
+
+    self.tb.dispatch.execute(until=event)
 
 
 def DeployMixinTest_Teardown(self):
