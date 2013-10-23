@@ -215,6 +215,10 @@ text %%{case6} tail
 %%{%%{case7}-text}
 %%{text-%%{case7}}
 %%{text-%%{case7}-text}
+
+<!-- case 8 - script macro -->
+<macro id='case8' type='script'>echo 'case8'</macro>
+%%{case8}
 </publish>
 </definition>
     """ % {'moduleid': self.moduleid,
@@ -223,7 +227,9 @@ text %%{case6} tail
            'version':  version,
            'arch':     arch}
 
-    self.conf = config.parse(StringIO(xml), xinclude=True, remove_macros=True
+    self.conf = config.parse(StringIO(xml), xinclude=True, remove_macros=True,
+                             macro_defaults_file='%s/%s/%s.dat' 
+                             % (self.options.data_root, self.id, self.id)
                             ).getroot()
 
   def setUp(self): pass
@@ -270,6 +276,7 @@ case6
  <script id='case7a'/>
  <script id='case7b'/>
  <script id='case7c'/>
+case8
 </publish>
 """ ]
 

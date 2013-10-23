@@ -88,11 +88,43 @@ class MacroError(XmlError):
     self.elem = elem.tostring(lineno=True, with_tail=False)
 
   def __str__(self):
-    msg = ("\nError resolving macros in '%s'. %s The invalid section is:"
-           "\n\n%s\n" % (self.file, self.message, self.elem))
+    msg = ("\nERROR: Unable to resolve macros in '%s'. %s The invalid section "
+           "is:\n\n%s\n" % (self.file, self.message, self.elem))
 
     return msg
 
+class MacroDefaultsFileNotProvided(XmlError):
+  def __str__(self):
+    return "ERROR: Unable to resolve macros. No defaults file specified."
+
+class MacroDefaultsFileXmlPathError(XmlPathError):
+  def __init__(self, message):
+    self.message = message
+
+  def __str__(self):
+    return ("ERROR: Unable to resolve macro defaults filename. The error "
+            "is:\n\n%s\n" % self.message)
+
+class MacroDefaultsFileNameUnresolved(XmlError):
+  def __init__(self, filename):
+    self.filename = filename
+
+  def __str__(self):
+    return ("ERROR: Unable to resolve macros. The defaults file name '%s' "
+            "contains unresolved macro placeholders." % self.filename)
+
+class MacroScriptError(XmlError):
+  def __init__(self, file, elem, script_file, error): 
+    self.file = file
+    self.elem = elem.tostring(lineno=True, with_tail=False)
+    self.script_file = script_file
+    self.error = error
+
+  def __str__(self):
+    return ("\nERROR: Unable to execute macro script in '%s'.\n\n%s\n\n"
+            "The script was saved to the file '%s' prior to execution. "
+            "During execution, the following error occurred:\n\n%s"
+             % (self.file, self.elem, self.script_file, self.error))
 
 #-----------ERROR HELPERS---------#
 class ErrorLog(object):

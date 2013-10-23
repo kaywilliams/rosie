@@ -54,7 +54,8 @@ from deploy.errors    import (DeployEventErrorHandler,
                                     DeployEventError,
                                     DeployError,
                                     InvalidOptionError,
-                                    InvalidConfigError)
+                                    InvalidConfigError,
+                                    MissingConfigError)
 from deploy.event     import Event, CLASS_META
 from deploy.dlogging import make_log, L0, L1, L2
 from deploy.validate  import (DeployValidationHandler,
@@ -90,21 +91,13 @@ VERSIONS = ['5', '6']
 VERSIONS_ERROR = ("Accepted values are '%s'." % 
                   "', '".join(VERSIONS))
 
-# the following chars are allowed in filenames...
-FILENAME_REGEX = '^[a-zA-Z0-9_\-]+$'
-FILENAME_ERROR = "Accepted characters are a-z, A-Z, 0-9, _, and -."
-
 VALIDATE_DATA = {
-    'name':    { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
-                 'error':      FILENAME_ERROR},
     'os':      { 'validatefn': lambda x: x in OS_LIST,
                  'error':      OS_ERROR},
     'version': { 'validatefn': lambda x: x in VERSIONS,
                  'error':      VERSIONS_ERROR},
     'arch':    { 'validatefn': lambda x: x in ARCH_MAP,
-                 'error':      ARCH_ERROR},
-    'id':      { 'validatefn': lambda x: re.match(FILENAME_REGEX, x),
-                 'error':      FILENAME_ERROR},}
+                 'error':      ARCH_ERROR},}
 
 
 class Build(DeployEventErrorHandler, DeployValidationHandler, object):
@@ -152,9 +145,11 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     try:
       self._get_config(options, arguments)
       self._get_definition_path(arguments)
+      self._get_data_root(options)
       self._get_templates_dir()
       self._get_initial_macros(options)
       self._get_definition(options, arguments)
+      self.datfn = self.definition.get_macro_defaults_file(self.datfile_format)
     except rxml.errors.XmlError, e:
       if self.debug: 
         raise
@@ -179,25 +174,15 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         raise DeployError(msg)
 
     self.type   = self.definition.getxpath(qstr % 'type', 'system')
-    self.build_id = self.definition.getxpath(qstr % 'id', '%s-%s-%s-%s' % 
-                               (self.name, self.os, self.version, self.arch))
+    self.build_id = self.definition.getxpath(qstr % 'id')
 
     # validate initial variables
     for elem in VALIDATE_DATA:
-      if elem == 'id':
-        value = self.build_id
-      else: 
-        value = eval('self.%s' % elem)
+      value = eval('self.%s' % elem)
       if not VALIDATE_DATA[elem]['validatefn'](value):
         raise InvalidConfigError(self.definition.getbase(), elem, value, 
                                  VALIDATE_DATA[elem]['error'])
     
-    # set data_dir
-    # wish we could do this before get_definition() for parity with other 
-    # global-runtime macros, but we don't have the build-id until after the
-    # definition has been read.
-    self._get_data_dir(options)
-
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
@@ -313,6 +298,19 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       raise rxml.errors.XmlError("No definition found at '%s'" % 
                                  self.definition_path)
 
+  def _get_data_root(self, options):
+    self.data_root = (pps.path(options.data_root) or 
+                      pps.path(self.definition_path).dirname)
+    self.data_root.exists() or self.data_root.mkdir()
+
+    # Specify datfile filename format. The datfile is used for
+    # storing two types of data: macro default values and event 
+    # generated data (e.g. rpm revision numbers). Set the filename
+    # format up outside of the get_definition method so that subclass
+    # applications (dtest, srpmbuild) can access it easily.
+    self.datfile_format = ('%s/%%s/%%s.dat' % self.data_root,
+                          ['./main/id/text()', './main/id/text()'])
+
   def _get_templates_dir(self):
     self.templates_dir = self.mainconfig.getpath(
                          '/deploy/templates-path/text()',
@@ -351,27 +349,17 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     `deploy -h` on the command line without giving the '-c' option.) 
     """
     self.logger.log(3, "Reading '%s'" % self.definition_path)
-    dt = rxml.config.parse(self.definition_path, xinclude=True,
-                           macros=self.initial_macros,
-                           remove_macros=True)
+
+    try:
+      dt = rxml.config.parse(self.definition_path, xinclude=True,
+                             macros=self.initial_macros,
+                             remove_macros=True, 
+                             macro_defaults_file=self.datfile_format)
+    except rxml.errors.MacroDefaultsFileXmlPathError:
+      # main/id element is missing
+      raise MissingConfigError(self.definition_path, 'id')
+
     self.definition = dt.getroot()
-
-  def _get_data_dir(self, options):
-    # setup data-dir and data file name
-    self.data_root = (pps.path(options.data_root) or 
-                      pps.path(self.definition_path).dirname)
-    self.data_root.exists() or self.data_root.mkdir()
-
-    self.data_dir = self.data_root / self.build_id
-    self.data_dir.exists() or self.data_dir.mkdir()
-
-    self.datfn = self.data_dir / '%s.dat' % self.build_id
-
-    legacy_datfile = self.data_root / '%s.dat' % self.build_id
-    if legacy_datfile.exists() and not self.datfn.exists():
-      legacy_datfile.move(self.data_dir)
-
-    self.definition.resolve_macros(map={'%{data-dir}': self.data_dir})
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -575,7 +563,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     ptr.SHARE_DIRS   = self.sharedirs
     ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
   
-    ptr.data_dir      = self.data_dir
     ptr.datfn         = self.datfn # dat filename
     ptr.cache_handler = self.cache_handler
 

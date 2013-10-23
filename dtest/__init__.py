@@ -58,8 +58,9 @@ class TestBuild(Build):
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
-    self.definition.xinclude(macros=self.initial_macros)
-    self.definition.remove_macros()
+    self.definition.xinclude(macros=self.initial_macros, 
+                             macro_defaults_file=self.datfile_format)
+    self.definition.remove_macros(defaults_file=self.datfile_format)
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, os, version, arch='i386', conf=None):

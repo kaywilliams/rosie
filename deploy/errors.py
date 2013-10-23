@@ -72,6 +72,15 @@ class InvalidConfigError(DeployError):
             "invalid value '%s'. %s" %
             (self.file, self.name, self.value, self.accepted))
 
+class MissingConfigError(DeployError):
+  def __init__(self, file, name):
+    self.file = file
+    self.name = name
+
+  def __str__(self):
+    return ("Validation of '%s' failed. Missing 'main/%s' element."
+            % (self.file, self.name))
+
 class DeployEventError(DeployError):
   message = None
   def __init__(self, *args, **kwargs):

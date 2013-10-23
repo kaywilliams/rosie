@@ -397,7 +397,10 @@ class SrpmBuild(Build):
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
       '%{rpms-dir}':    self.ptr.rpmsdir,
-      })
+      },
+      defaults_file=self.datfile_format)
+
+    self.definition.remove_macros(defaults_file=self.datfile_format)
 
   def _get_srpm_info(self, srpm):
     ts = rpmUtils.transaction.initReadOnlyTransaction()

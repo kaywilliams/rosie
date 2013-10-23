@@ -117,23 +117,10 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <section id='in-document-macros'>
     <title>In-Document Macros</title>
     <para>
-    In-Document Macros are specified using
-    macro elements within the definition. Macro elements take a single
-    attribute, "id", which identifies the name of the macro. The text of the
-    macro element identifies content to substitute in place of the macro. For
-    example:
-    </para>
-    
-    <informalexample>
-    <programlisting>
-&lt;macro id="version"&gt;6&lt;/macro&gt;
-    </programlisting>
-    </informalexample>
-    
-    <para>
-    In-document macros can be defined anywhere within the document.
-    They are resolved following command-line macros, and they override
-    run-time macros, described in the next section, with the same id.
+    In-Document Macros are specified using macro elements.  Macro elements can
+    be included anywhere within the definition. They are resolved in order
+    following command-line macros, and they override run-time macros, described
+    in the next section, with the same id.
     </para>
 
     <para>
@@ -142,6 +129,83 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     remaining elements are silently ignored.
     </para>
 
+    <section>
+    <title>Syntax</title>
+    <programlisting>
+[&lt;macro id=TEXT [type=("text"|"script")]>TEXT&lt;/macro>]
+    </programlisting>
+    </section>
+
+    <section>
+    <title>Attributes</title>
+    <para>
+    Macro elements accept two attributes, <constant>id</constant> and
+    <constant>type</constant>.
+    </para>
+
+    <variablelist>
+    <varlistentry>
+    <term>@id</term>
+
+    <listitem>
+    <para>
+    TEXT value identifying the name of the macro.
+    </para>
+    </listitem>
+    </varlistentry>
+    
+    <varlistentry>
+    <term>@type</term>
+    <listitem>
+    <para>
+    The type of macro, either <constant>text</constant> or
+    <constant>script</constant>. This attribute is optional. The default value
+    is <constant>text</constant>.
+    </para>
+    
+    <para>
+    If <emphasis>@type</emphasis> is <constant>text</constant> the element text
+    identifies content to substitute in place of the macro. For example:
+    </para>
+    
+    <informalexample>
+    <programlisting>
+&lt;macro id="version"&gt;6&lt;/macro&gt;
+    </programlisting>
+    </informalexample>
+
+    <para>
+    If <emphasis>@type</emphasis> is <constant>script</constant> the element
+    provides a script used to determine the element value. Deploy first saves
+    the script to a temporary file named <filename>.script</filename> located
+    in in the <emphasis>data folder</emphasis>. See the section on <xref
+    linkend="datfile"/> for more information on data folders. Deploy then
+    executes the script and uses the output as the value for the macro.
+    </para>
+    
+    <para>
+    Deploy stores script output in the data file. On subsequent runs, Deploy
+    first determines if the script has changed. If so, it executes the script,
+    and uses the new value.  If the script has not changed, Deploy retrieves
+    and uses the stored value from the data file. 
+    </para>
+    
+    <informalexample>
+    <programlisting>
+&lt;macro id="unique-id" type="script"&gt;
+#!/usr/bin/python
+import uuid
+print uuid.uuid1()
+&lt;/macro&gt;
+    </programlisting>
+    </informalexample>
+    </listitem>
+    </varlistentry>
+    </variablelist>
+    </section>
+    
+    <section>
+    <title>Examples</title>
     <para>
     <emphasis role='bold'>Example 1 - Global Macros.</emphasis> This example is
     similar to that in the previous section, with the addition of global
@@ -229,6 +293,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
 ...
 &lt;/definition&gt;</programlisting>
     </informalexample>
+    </section>
     </section>
 
     <section>
