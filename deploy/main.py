@@ -54,8 +54,7 @@ from deploy.errors    import (DeployEventErrorHandler,
                                     DeployEventError,
                                     DeployError,
                                     InvalidOptionError,
-                                    InvalidConfigError,
-                                    MissingConfigError)
+                                    InvalidConfigError)
 from deploy.event     import Event, CLASS_META
 from deploy.dlogging import make_log, L0, L1, L2
 from deploy.validate  import (DeployValidationHandler,
@@ -355,9 +354,22 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                              macros=self.initial_macros,
                              remove_macros=True, 
                              macro_defaults_file=self.datfile_format)
-    except rxml.errors.MacroDefaultsFileXmlPathError:
-      # main/id element is missing
-      raise MissingConfigError(self.definition_path, 'id')
+    except (rxml.errors.MacroDefaultsFileXmlPathError, 
+            rxml.errors.MacroDefaultsFileNameUnresolved):
+      raise DeployError("""
+ERROR: Unable to resolve the main/id element. This can be caused by one of two
+issues:
+
+* The element is missing from the definition.
+* The element contains one or more macro placeholders that cannot be resolved
+  prior to performing xinclusion. If this is the case you will need to
+  restructure the main/id element to remove reliance on xincluded content.
+
+See the Deploy Definition File Reference for more information on the main/id
+element.
+
+The definition file is located at %s.
+""" % self.definition_path)
 
     self.definition = dt.getroot()
 

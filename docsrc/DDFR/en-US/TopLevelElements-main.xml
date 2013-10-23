@@ -143,6 +143,23 @@
       See <xref linkend="content-text"/> for more information on TEXT content.
       </para>
 
+      <note>
+      <title>A Note about Macros in the main/id Element</title>
+      <para>
+      Because the <emphasis>id</emphasis> element is used for setting up the
+      <link linkend='datfile'>data file</link>, which is used early in the
+      Deploy process, it has some restrictions on the use of macros.
+      Specifically, any placeholders within the id element must be resolvable
+      using either command line macros, or user-defined macros located within
+      the body of the definition file, i.e. not within xincluded content.
+      </para>
+
+      <para>
+      See <xref linkend='in-document-macros'/> for an example of using macro
+      placeholders in <emphasis>id</emphasis> element.
+      </para>
+      </note>
+
       </listitem>
     </varlistentry>
 

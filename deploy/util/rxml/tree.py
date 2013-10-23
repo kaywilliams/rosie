@@ -627,6 +627,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                   root = parse(href, parser=elem.getroottree().parser,
                                xinclude=True,
                                macros = macros,
+                               macro_defaults_file=self.get_macro_defaults_file(
+                                                   macro_defaults_file),
                                base_url=href).getroot()
                 except (IOError), e:
                   raise errors.XIncludeError(e, elem)
