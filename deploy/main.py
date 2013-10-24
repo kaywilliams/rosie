@@ -148,7 +148,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self._get_templates_dir()
       self._get_initial_macros(options)
       self._get_definition(options, arguments)
-      self.datfn = self.definition.get_macro_defaults_file(self.datfile_format)
     except rxml.errors.XmlError, e:
       if self.debug: 
         raise
@@ -181,7 +180,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       if not VALIDATE_DATA[elem]['validatefn'](value):
         raise InvalidConfigError(self.definition.getbase(), elem, value, 
                                  VALIDATE_DATA[elem]['error'])
-    
+    # set data_dir
+    # wish we could do this before get_definition() for parity with other 
+    # global-runtime macros, but we don't have the build-id until after the
+    # definition has been read.
+    self._get_data_dir(options)
+
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
@@ -372,6 +376,15 @@ The definition file is located at %s.
 """ % self.definition_path)
 
     self.definition = dt.getroot()
+
+  def _get_data_dir(self, options):
+    # setup data-dir and data file name
+    self.datfn = self.definition.get_macro_defaults_file(self.datfile_format)
+
+    self.data_dir = self.datfn.dirname
+    self.data_dir.exists() or self.data_dir.mkdir()
+
+    self.definition.resolve_macros(map={'%{data-dir}': self.data_dir})
 
   def _compute_events(self, modules=None, events=None):
     """
