@@ -145,6 +145,17 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     self.io.validate_destnames([ path for path in 
       self.config.xpath(('files'), [] ) ])
 
+    # rpmbuild behaves badly with unclosed macros in scripts, resulting in a
+    # confusing error about installed but unpackaged files (which occurs
+    # because rpmbuild fails to find the %files element)
+    for elem in self.config.xpath('*[name()="script" or name()="trigger"]', []):
+      if '%{' in elem.text and elem.text.count('%{') != elem.text.count('}'):
+        message = ("ERROR: the following %s element contains a macro "
+                   "placeholder with unbalanced braces '%%{}':\n\n%s"
+                   % (elem.tag, elem))
+        raise ConfigRpmEventError(message=message)
+
+
   def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
 
