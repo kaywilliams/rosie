@@ -8,10 +8,10 @@
   <para>
   A convenient method for testing system repositories is to use a deployment
   template.  Deployment templates are located in the <xref
-  linkend='templates'/> folder. In the instructions below we will use the
-  libvirt deployment template, <filename>libvirt/deploy.xml</filename>.
-  This template allows testing system repositories using virtual machines
-  running on the Deploy build machine.
+  linkend='templates'/> folder. In the instructions below we will use libvirt
+  deployment templates, <filename>libvirt/test-install.xml</filename> and
+  <filename>test-update.xml</filename>.  These templates allows testing system
+  repositories using virtual machines running on the Deploy build machine.
   </para>
   
   <para>
@@ -68,7 +68,7 @@
   <informalexample>
   <programlisting>&lt;test-install>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="libvirt/deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;xi:include href="libvirt/test-install.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-install></programlisting>
   </informalexample>
 
@@ -166,7 +166,7 @@
   </itemizedlist>
   </section>
 
-  <section>
+  <section id='adding-a-test-update-element'>
   <title>Adding a test-update element</title>
   <para>
   Update testing is similar to install testing, you first add a
@@ -177,7 +177,7 @@
   <informalexample>
   <programlisting>&lt;test-update>
 &lt;password>secret&lt;/password>
-&lt;xi:include href="libvirt/deploy.xml" xpointer="xpointer(/*/*)"/>
+&lt;xi:include href="libvirt/test-update.xml" xpointer="xpointer(/*/*)"/>
 &lt;/test-update></programlisting>
   </informalexample>
 
