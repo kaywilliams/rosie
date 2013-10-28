@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-qpid-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Congifures a messaging queue service for openstack.
+</description>
+
+<!-- package requires -->
+<requires>qpid-cpp-server</requires>
+<requires>memcached</requires>
+<requires>openstack-utils</requires>
+<requires>openstack-nova-config</requires>
+
+<script type='post'>
+#!/bin/sh
+set -e
+
+# Disable Qpid authentication by setting the value of the auth configuration key to no in the /etc/qpidd.conf file.
+sed -i "/auth=yes/d" /etc/qpidd.conf # eliminate auth=yes if found
+grep -q "auth=no" /etc/qpidd.conf || echo "auth=no" >> /etc/qpidd.conf
+
+# Start the Qpid message broker.
+service qpidd restart
+
+# Congifures the Qpid message broker to run at startup
+chkconfig qpidd on
+
+# Congifures Nova to use the Qpid message broker for remote procedure calls by setting the value of the rpc_backend configuration key in /etc/nova/nova.conf.
+openstack-config --set /etc/nova/nova.conf \
+                   DEFAULT rpc_backend nova.rpc.impl_qpid
+
+# Congifures Nova to use the Qpid message broker by setting the value of the qpid_hostname configuration key in /etc/nova/nova.conf.
+openstack-config --set /etc/nova/nova.conf \
+                 DEFAULT qpid_hostname 127.0.0.1
+</script>
+
+</config-rpm>

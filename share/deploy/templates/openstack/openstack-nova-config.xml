@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-nova-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Configures a compute service for openstack.
+</description>
+
+<!-- default values -->
+<macro id='nova-api-host'>127.0.0.1</macro>
+<macro id='nova-cert-host'>127.0.0.1</macro>
+<macro id='nova-vncproxy-host'>127.0.0.1</macro>
+<macro id='nova-compute-host'>127.0.0.1</macro>
+<macro id='nova-conductor-host'>127.0.0.1</macro>
+<macro id='nova-db-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='nova-user-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='nova-sched-host'>127.0.0.1</macro>
+<macro id='nova-sched-cpu-alloc-ratio'>16.0</macro>
+<macro id='nova-sched-ram-alloc-ratio'>1.5</macro>
+<macro id='nova-compute-privif'>lo</macro>
+
+<!-- package requires -->
+<requires>openstack-nova</requires>
+<requires>python-novaclient</requires>
+<requires>openstack-mysql-config</requires>
+<requires>openstack-keystone-config</requires>
+
+<script type='post'>
+# create database
+if ! mysql -u root -p%{mysql-password} -e "show databases like 'nova'" |\
+  grep nova; then
+  openstack-db --init --service nova --rootpw "%{mysql-password}" \
+               --password "%{nova-db-password}"
+fi
+
+# modify nova.conf
+openstack-config --set /etc/nova/nova.conf database connection \
+  mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
+openstack-config --set /etc/nova/nova.conf DEFAULT my_ip %{nova-api-host}
+openstack-config --set /etc/nova/nova.conf DEFAULT \
+  vncserver_listen %{nova-api-host}
+openstack-config --set /etc/nova/nova.conf DEFAULT \
+  vncserver_proxyclient_address %{nova-api-host}
+openstack-config --set /etc/nova/nova.conf DEFAULT \
+  rpc_backend nova.openstack.common.rpc.impl_qpid
+openstack-config --set /etc/nova/nova.conf DEFAULT \
+  qpid_hostname %{nova-api-host}
+openstack-config --set /etc/nova/nova.conf DEFAULT api_paste_config \
+  '/etc/nova/api-paste.ini' <!-- is this necessary? -->
+openstack-config --set /etc/nova/nova.conf DEFAULT auth_strategy keystone 
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  auth_host %{keystone-host}
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  auth_port 35357
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  auth_protocol http
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  admin_tenant_name service
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  admin_user nova
+openstack-config --set /etc/nova/nova.conf keystone_authtoken \
+  admin_password %{nova-user-password}
+
+
+# create nova user in keystone
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+
+if ! keystone user-get nova &amp;>/dev/null; then
+  keystone user-create --name nova --pass %{nova-user-password}
+  keystone user-role-add --user nova --tenant service --role admin
+
+  # create nova service and api endpoint entries
+  keystone service-create --name nova --type=compute \
+           --description "Nova Compute Service"
+  serviceid=$(keystone service-get nova | sed -n 's/|.*id.*| \(.*\) |/\1/p')
+  keystone endpoint-create \
+           --service-id=$serviceid \
+           --publicurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s \
+           --internalurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s \
+           --adminurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s
+fi
+
+unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+
+# start nova service
+service openstack-nova-api restart > /dev/null
+service openstack-nova-cert restart > /dev/null
+service openstack-nova-consoleauth restart > /dev/null
+service openstack-nova-scheduler restart > /dev/null
+service openstack-nova-conductor restart > /dev/null
+service openstack-nova-novncproxy restart > /dev/null
+chkconfig openstack-nova-api on
+chkconfig openstack-nova-cert on
+chkconfig openstack-nova-consoleauth on
+chkconfig openstack-nova-scheduler on
+chkconfig openstack-nova-conductor on
+chkconfig openstack-nova-novncproxy on
+</script>
+
+<files destdir='root' destname='keystonerc_admin' mode='600' content='text'>
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
+</files>
+</config-rpm>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="%{templates-dir}/ntp/ntp-client-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-mysql-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-keystone-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-glance-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-qpid-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-nova-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-nova-network-config.xml"/>
+
+<config-rpm id='openstack-server-config'>
+<description>
+Configures a single server openstack installation.
+</description>
+
+<!-- include epel and rdo repos -->
+<repo id='rdo'>
+<baseurl>http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-%{version}/</baseurl>
+<gpgkey>%{templates-dir}/openstack/RPM-GPG-KEY-RDO-Grizzly</gpgkey>
+</repo>
+<xi:include href="%{templates-dir}/common/repos.xml"
+            xpointer="xpointer(./repo[@id='epel'])"/>
+
+
+<!-- configure ssh to support automated packstack installation -->
+<requires>openssh</requires>
+<requires>openssh-clients</requires>
+<requires>/usr/sbin/sshd</requires>
+
+<files mode='750'>%{templates-dir}/common/ssh-install-pubkey.sh</files>
+
+<script type='post'>
+#!/bin/sh
+set -e
+# create root keys if needed
+[[ -f /root/.ssh/id_rsa ]] || \
+  /usr/bin/ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""
+
+# add root public key to authorized_keys
+%{installdir}/files/ssh-install-pubkey.sh \
+    /root/.ssh/id_rsa.pub \
+    /root/.ssh/authorized_keys
+</script>
+</config-rpm>
+</config-rpms>
