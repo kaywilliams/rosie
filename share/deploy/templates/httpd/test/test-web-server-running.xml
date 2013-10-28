@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script type='post' id='test-web-server-running'>
+<script type='update' id='test-web-server-running' comes-after='update'>
 #!/bin/sh
 [[ `pidof httpd` ]] || (echo 'TEST FAILED: Web server not running'; exit 1)
 </script>

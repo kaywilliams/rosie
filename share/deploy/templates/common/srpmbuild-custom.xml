@@ -8,7 +8,7 @@
             xpointer="xpointer(./*[name()!='publish'])"/>
 
 <publish>
-<script id='update' type='post' comes-before='check-kernel'>
+<script id='update' type='update'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty post scripts; ignore errors on install 
 warning=`yum sync -y -q`
@@ -18,7 +18,7 @@ if [[ $? != 0 ]] &amp;&amp; [[ ! `echo $warning | grep docbook-style-xsl` ]]; th
 fi
 </script>
 
-<script id='remove-docbook-style-xsl' type='post' comes-after='copy' comes-before='check-kernel'>
+<script id='remove-docbook-style-xsl' type='update' comes-after='copy'>
 #!/bin/bash
 # the docbook-style-xsl rpm has faulty postun scripts; force removal
 if rpm -q docbook-style-xsl; then

@@ -8,7 +8,7 @@
 <files destdir="/root" destname='rhn-systemid'>%{rhn-systemid}</files>
 </config-rpm>
 
-<script id='test-deploy-templates' type='post' comes-after='install-config' comes-before='poweroff' verbose='true'>
+<script id='test-deploy-templates' type='update' verbose='true'>
 #!/bin/sh
 set -e
 

@@ -401,6 +401,7 @@
       <value type="string">install</value>
       <value type="string">post-install</value>
       <value type="string">save-triggers</value>
+      <value type="string">update</value>
       <value type="string">post</value>
       </choice>
       </attribute>

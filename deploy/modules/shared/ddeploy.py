@@ -104,6 +104,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                            'install': self.deploy_host,
                            'post-install': self.deploy_client, 
                            'save-triggers': self.deploy_client, 
+                           'update': self.deploy_client, 
                            'post': self.deploy_client
                            }
     self.DATA['variables'].extend(['deploy_host', 'deploy_client'])
@@ -149,6 +150,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       POST_INSTALL_SCRIPTS_CSUM: self._get_script_csum('script[ '
                                                     '@type="post-install" or '
                                                     '@type="save-triggers" or '
+                                                    '@type="update" or '
                                                     '@type="post"]'),
       }
     self.DATA['variables'].append('trigger_data')
@@ -199,11 +201,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._execute('activate')
       self._execute('post-install')
       self._execute('save-triggers')
+      self._execute('update')
       self._execute('post')
 
     else:
       self._execute('pre')
       self._execute('activate')
+      self._execute('update')
       self._execute('post')
  
  

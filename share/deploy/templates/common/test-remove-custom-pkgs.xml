@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='test-remove-custom-pkgs' type='post' comes-after="update" 
+<script id='test-remove-custom-pkgs' type='post' 
         comes-before="check-kernel, poweroff"> 
 #!/bin/bash
 set -e

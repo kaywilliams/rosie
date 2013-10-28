@@ -50,7 +50,7 @@ skipx
 kickstart install_scripts post_install_scripts
 </triggers>
 
-<script id='rpmbuild' type='post' comes-after='update' comes-before='check-kernel, poweroff'>
+<script id='rpmbuild' type='update' comes-after='update'>
 #!/bin/bash
 ### build and verify rpm packages ###
 
@@ -86,7 +86,7 @@ for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do
 done
 </script>
 
-<script id="copy" type='post' hostname="localhost" comes-after='rpmbuild' comes-before='check-kernel, poweroff'>
+<script id="copy" type='update' hostname="localhost" comes-after='rpmbuild'>
 #!/usr/bin/python
 import os 
 import paramiko

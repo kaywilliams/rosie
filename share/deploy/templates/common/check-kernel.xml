@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='check-kernel' type='post' comes-after='update' comes-before='poweroff'>
+<script id='check-kernel' type='post' comes-before='poweroff'>
 #!/usr/bin/python
 import glob
 import os
