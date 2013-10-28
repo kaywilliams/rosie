@@ -116,6 +116,21 @@ class Test_RemovesGpgkeys(ReleaseRpmEventTestCase):
     self.failUnless(not (self.event.OUTPUT_DIR/'gpgkeys').
                          findpaths())
 
+class Test_RemovesSyncPlugin(ReleaseRpmEventTestCase):
+  "removes output when sync plugin disabled"
+  _conf = """<publish><release-rpm>
+    <updates sync='false'/>
+  </release-rpm></publish>"""
+
+  def _make_repos_config(self):
+    return ReleaseRpmEventTestCase._make_repos_config(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless(not
+                   (self.event.rpm.source_folder/'usr/lib/yum-plugins/sync.py').
+                    exists())
+
 class DeployReleaseRpmEventTestCase(DeployMixinTestCase, 
                                     ReleaseRpmEventTestCase):
   _conf = 'system'
@@ -226,6 +241,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_ReleaseRpmCvars2(os, version, arch))
   suite.addTest(Test_OutputsGpgkeys(os, version, arch))
   suite.addTest(Test_RemovesGpgkeys(os, version, arch))
+  suite.addTest(Test_RemovesSyncPlugin(os, version, arch))
 
   suite.addTest(Test_TestMachineSetup(os, version, arch))
   suite.addTest(Test_GpgkeysInstalled(os, version, arch))

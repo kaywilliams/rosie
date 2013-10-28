@@ -27,11 +27,11 @@ from deploy.modules.shared import (MkrpmRpmBuildMixin, GPGKeysEventMixin,
 from deploy.util           import rxml
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
-  release_mixin_version = "1.28"
+  release_mixin_version = "1.29"
 
   def __init__(self): # call after creating self.DATA
     try:
-      self.rpmconf = self.config.getxpath('release-rpm')
+      self.rpmconf = self._config.getxpath('./publish/release-rpm')
     except rxml.errors.XmlPathError:
       self.rpmconf = DummyConfig(self._config)
 
@@ -94,13 +94,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
 
     # setup gpgkeys
-    if self.moduleid == 'publish' :
-      self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
-                                       'updates/@gpgcheck', True)
-    else:
-      # test-install and test-update use gpgcheck value from publish, if set,
-      # else default to True
-      self.cvars.setdefault('gpgcheck-enabled', True)
+    self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
+                                     'updates/@gpgcheck', True)
 
     if not self.cvars['gpgcheck-enabled']:
       return
