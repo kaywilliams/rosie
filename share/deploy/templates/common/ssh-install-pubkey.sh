@@ -14,6 +14,12 @@ pubkey=$1
 authkeys=$2
 sshdir=$(dirname $authkeys)
 
+# ensure pubkey exists
+if ! [ -f $pubkey ]; then
+  echo "error: the specified public key '$pubkey' does not exist" >&2 
+  exit 1
+fi
+
 # make sshdir if it doesn't exist
 [[ -d $sshdir ]] || mkdir $sshdir 
 
