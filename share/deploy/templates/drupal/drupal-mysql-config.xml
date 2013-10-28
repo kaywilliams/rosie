@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-mysql-config' xmlns:xi="http://www.w3.org/2001/XInclude">
-<requires>mysql</requires>
-<requires>mysql-server</requires>
+<xi:include href="%{templates-dir}/mysql/mysql-server-config.xml"
+            xpointer="xpointer(./*)"/>
 <requires>php-mysql</requires>
-<script type='post'>
-chkconfig --level 2345 mysqld on
-service mysqld restart > /dev/null
 <!--
 mysql -u root -e "create database if not exists drupal;"
 mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES, CREATE TEMPORARY TABLES ON drupal.* TO 'root'@'localhost';"
