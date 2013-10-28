@@ -30,6 +30,8 @@
 <xi:include href="%{templates-dir}/deploy/deploy-standard-config.xml"/> 
 </config-rpms>
 
+<macro id='file-size'>20</macro>
+
 <test-update>
 <xi:include href="%{templates-dir}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
