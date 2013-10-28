@@ -26,6 +26,8 @@
 <group repoid='base'>core</group>
 </packages>
 
+<macro id='file-size'>20</macro>
+
 <test-update>
 <xi:include href="%{templates-dir}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
