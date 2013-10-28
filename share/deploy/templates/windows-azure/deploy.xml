@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
-
-<!-- install and update a Windows Azure virtual machine -->
-<macro id='user'>deploy</macro>
-<macro id='domain'>cloudapp.net</macro>
-<macro id='deploy-host'>localhost</macro>
-
-<!-- template content below -->
-<domain>%{domain}</domain>
-<deploy-host>%{deploy-host}</deploy-host>
-<xi:include href='%{templates-dir}/common/acpid-config.xml'/>
-<xi:include href='%{templates-dir}/common/ssh-config.xml'/>
-<xi:include href='%{templates-dir}/common/create-ssh-keys.xml'/>
-<xi:include href='%{templates-dir}/windows-azure/windows-azure-guest-config.xml'
+<xi:include href='%{templates-dir}/windows-azure/deploy-base.xml'
             xpointer="xpointer(./*)"/>
-<xi:include href='%{templates-dir}/common/test-triggers.xml'/>
-<xi:include href='%{templates-dir}/windows-azure/activate.xml'/>
-<xi:include href='%{templates-dir}/windows-azure/delete.xml'/>
-<xi:include href='%{templates-dir}/windows-azure/install.xml'/>
-<xi:include href='%{templates-dir}/common/verify-install.xml'/>
-<xi:include href='%{templates-dir}/common/save-triggers.xml'/>
-<xi:include href='%{templates-dir}/common/update.xml' xpointer='xpointer(./*)'/>
-<xi:include href='%{templates-dir}/windows-azure/configure-endpoints.xml'/>
-<xi:include href='%{templates-dir}/common/check-kernel.xml'/>
-
+<xi:include href="%{templates-dir}/windows-azure/poweroff.xml"/>
 </xml>

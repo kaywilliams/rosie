@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href='%{templates-dir}/windows-azure/deploy.xml'
+<xi:include href='%{templates-dir}/windows-azure/deploy-base.xml'
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/common/test-remove-custom-pkgs.xml"/>
 <script id='post-delete' type='post' hostname='%{deploy-host}'
