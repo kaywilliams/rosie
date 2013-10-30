@@ -1,5 +1,6 @@
 <config-rpm id='ntp-client-config'>
 <requires>ntp</requires>
+<requires>/usr/sbin/ntpdate</requires>
 <requires>/sbin/pidof</requires>
 <requires>/bin/ps</requires>
 <requires>/bin/grep</requires>
@@ -7,8 +8,8 @@
 <script type='post'>
 chkconfig ntpd on
 # start ntpd service if we're not under anaconda
-if [[ ! `/sbin/pidof ntpd` ]] &amp;&amp; [[ ! `/bin/ps aux | /bin/grep "[/]usr/bin/anaconda"` ]]; then
-  ntpd -q # perform an initial manual sync
+if ! /sbin/pidof ntpd &amp;&amp; ! /bin/ps aux | /bin/grep -q "[/]usr/bin/anaconda"; then
+  ntpdate -b 0.centos.pool.ntp.org # perform an initial manual sync
   service ntpd start # start the service to manage ongoing sync
 fi
 </script>
