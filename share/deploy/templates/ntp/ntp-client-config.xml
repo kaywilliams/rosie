@@ -6,11 +6,14 @@
 <requires>/bin/grep</requires>
 
 <script type='post'>
+# stop service if running
+service ntpd stop || true
+
+# perform initial update
+ntpd -gq
+
+# start service
+service ntpd start
 chkconfig ntpd on
-# start ntpd service if we're not under anaconda
-if ! /sbin/pidof ntpd &amp;&amp; ! /bin/ps aux | /bin/grep -q "[/]usr/bin/anaconda"; then
-  ntpdate -b 0.centos.pool.ntp.org # perform an initial manual sync
-  service ntpd start # start the service to manage ongoing sync
-fi
 </script>
 </config-rpm>
