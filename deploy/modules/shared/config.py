@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import copy 
 import re
 
 from deploy.errors   import (DeployEventError, MissingIdError,
@@ -28,6 +29,9 @@ from deploy.modules.shared import (MkrpmRpmBuildMixin,
                                          RepoSetupEventMixin,
                                          Trigger, 
                                          TriggerContainer)
+
+from deploy.util.rxml.tree import MACRO_REGEX
+
 
 def make_config_rpm_events(ptr, modname, element_name, globals):
   config_rpm_ids = getattr(ptr, 'cvars[\'config-rpm-ids\']', [])
@@ -149,12 +153,21 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     # confusing error about installed but unpackaged files (which occurs
     # because rpmbuild fails to find the %files element)
     for elem in self.config.xpath('*[name()="script" or name()="trigger"]', []):
-      if '%{' in elem.text and elem.text.count('%{') != elem.text.count('}'):
+      text = copy.deepcopy(elem.text)
+      count = 0 
+      while True:
+        inner_macros = re.findall(MACRO_REGEX, text)
+        for macro in inner_macros:
+          count += 1
+          text = text.replace(macro, '', 1)
+        if not inner_macros:
+          break
+
+      if not count == elem.text.count('%{'):
         message = ("ERROR: the following %s element contains a macro "
                    "placeholder with unbalanced braces '%%{}':\n\n%s"
                    % (elem.tag, elem))
         raise ConfigRpmEventError(message=message)
-
 
   def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
