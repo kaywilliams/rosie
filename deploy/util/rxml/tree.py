@@ -573,7 +573,10 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     while True:
       elems = self.xpath('//xi:include', [], namespaces=({'xi': XI_NS}))
 
-      if not elems: 
+      if not elems:
+        # resolve macros one last time after xincludes are processed
+        # to catch any late-defined macros
+        self.resolve_macros(map=macros, defaults_file=macro_defaults_file)
         break
 
       # process xincludes
