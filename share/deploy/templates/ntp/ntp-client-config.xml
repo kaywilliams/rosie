@@ -1,9 +1,5 @@
 <config-rpm id='ntp-client-config'>
 <requires>ntp</requires>
-<requires>/usr/sbin/ntpdate</requires>
-<requires>/sbin/pidof</requires>
-<requires>/bin/ps</requires>
-<requires>/bin/grep</requires>
 
 <script type='post'>
 # stop service if running
