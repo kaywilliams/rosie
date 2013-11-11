@@ -121,15 +121,15 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
 
     matched = False
     pkgs = []
-    for v in self.cvars['pkglist'].itervalues():
-      pkgs.extend(v)
+    for repo in self.cvars['pkglist'].itervalues():
+      pkgs.extend(repo.values())
     for pkg in pkgs:
       try:
-        n,a,__,_,_ = pkg
-        if n not in KERNELS: continue
-        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.arch,
+        if pkg.name not in KERNELS: continue
+        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(pkg.arch),
+          self.arch,
           "the base arch of kernel package '%s' does not match the specified "
-          "base arch '%s'" % (pkg, self.arch))
+          "base arch '%s'" % (pkg.name, self.arch))
         matched = True
       except AttributeError:
         pass

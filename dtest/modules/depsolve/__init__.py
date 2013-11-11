@@ -64,13 +64,10 @@ class DepsolveEventTestCase(EventTestCase):
     return self.PKGLIST_COUNT.get(caseid)
 
   def getPkgFiles(self):
-    pkgtups = []
-    for tups in self.event.cvars['pkglist'].itervalues():
-      pkgtups.extend(tups)
     pkgfiles = []
-    for tup in pkgtups:
-       _, _, f, _, _ = tup
-       pkgfiles.append(pps.path(f).basename) 
+    for repo in self.event.cvars['pkglist'].itervalues():
+      pkgfiles.extend(pps.path(x.remote_path).basename 
+                      for x in repo.itervalues())
     return pkgfiles
 
   def _make_repos_config(self):

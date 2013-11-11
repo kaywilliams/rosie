@@ -42,7 +42,7 @@ YUMCONF_HEADER = [
 ]
 
 class DepsolverMixin(object):
-  depsolver_mixin_version = "1.00"
+  depsolver_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
     self.requires.update(['comps-object'])
@@ -76,10 +76,8 @@ class DepsolverMixin(object):
       pos = solver.getPackageObjects()
       pkgdict = {}
       for po in pos:
-        if not pkgdict.has_key(po.repoid):
-          pkgdict[po.repoid] = []
-        pkgdict[po.repoid].append( (po.name, po.arch, po.remote_path,
-                                    po.size, po.filetime) )
+        pkgdict.setdefault(po.repoid, {})[po.name] = Package(
+          po.name, po.arch, po.remote_path, po.size, po.filetime, po.checksum)
 
     finally:
       solver.teardown()
@@ -143,3 +141,12 @@ class DeployDepsolver(Depsolver):
       raise DepsolveError('\n--> '.join(errors))
 
     return [ x.po for x in self.tsInfo.getMembers() ]
+
+class Package:
+  def __init__(self, name, arch, remote_path, size, time, checksum):
+    self.name = name
+    self.arch = arch
+    self.remote_path = remote_path
+    self.size = size
+    self.time = time
+    self.checksum = checksum

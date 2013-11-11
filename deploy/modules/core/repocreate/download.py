@@ -20,11 +20,15 @@ import time
 
 from rpmUtils.arch import getArchList
 
+
 from deploy.errors    import DeployEventError 
 from deploy.event     import Event
 from deploy.main      import ARCH_MAP 
+from deploy.util      import rxml
 
 from deploy.modules.shared import ShelveMixin
+
+from deploy.util.difftest.handlers import DiffHandler
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -49,7 +53,8 @@ class DownloadEvent(ShelveMixin, Event):
     self._validarchs = getArchList(ARCH_MAP[self.arch])
 
     self.DATA = {
-      'variables': ['packagepath', 'cvars[\'pkglist\']'],
+      'variables': ['packagepath'],
+      'packages':  [],
       'input':     [],
       'output':    [],
     }
@@ -63,6 +68,8 @@ class DownloadEvent(ShelveMixin, Event):
     self.DATA['variables'].append('rpmsdir')
 
     # setup for downloads
+    last_pkgs = self.unshelve('pkglist', {})
+
     for repo in self.cvars['repos'].values():
       if self.type != 'system' and repo.download is False:
         continue
@@ -71,14 +78,25 @@ class DownloadEvent(ShelveMixin, Event):
         # populate rpm time and size from repodata values (for performance)
         if subrepo.id not in self.cvars['pkglist']:
           continue
-        for tup in self.cvars['pkglist'][subrepo.id]: 
-          _, _, path, size, mtime = tup
-          rpm = subrepo.url//path
+        for p in self.cvars['pkglist'][subrepo.id].itervalues():
+          rpm = subrepo.url//p.remote_path
           rpm.stat(populate=False).update(
-            st_size  = size,
-            st_mtime = mtime,
+            st_size  = p.size,
+            st_mtime = p.time,
             st_mode  = (stat.S_IFREG | 0644),
             st_atime = now)
+
+          # delete existing file if checksum has changed (handles
+          # case where packages have been resigned but file size and 
+          # time have not changed - i.e. time has been manually reset)
+          try:
+            last_checksum = last_pkgs[subrepo.id][p.name].checksum 
+          except KeyError:
+            last_checksum = None
+
+          if last_checksum and last_checksum != p.checksum:
+            (self.rpmsdir / rpm.basename).rm(force=True) 
+
           # add rpm for io sync
           self.io.add_fpath(rpm, self.rpmsdir, id=subrepo.id)
 
@@ -90,6 +108,7 @@ class DownloadEvent(ShelveMixin, Event):
       for f in self.io.list_output(what=subrepo):
         self.rpms[f] = subrepo
     self.shelve('rpms', self.rpms)
+    self.shelve('pkglist', self.cvars['pkglist'])
 
   def apply(self):
     self.cvars['rpmsdir'] = self.rpmsdir
@@ -102,7 +121,7 @@ class DownloadEvent(ShelveMixin, Event):
       debugdir=(self.mddir + '.debug')
       debugdir.mkdir()
       self.mdfile.rename(debugdir / self.mdfile.basename)
-   
+
 
 #------ ERRORS ------#
 class RpmsNotFoundError(DeployEventError):
