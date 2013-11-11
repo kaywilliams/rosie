@@ -72,11 +72,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.os_url = pps.path(self.config.getxpath('os-url/text()', None))
     if not self.os_url:
       self.os_url = self.webpath
-    self.io.validate_input_file(self.os_url)
-    try:
-      self.link(self.os_url, self.mddir) # hack to cache for offline support
-    except PathError:
-      pass # don't fail if path doesn't exist
     self.resolve_macros(map={'%{os-url}': self.os_url})
 
     # add repomd as input file
