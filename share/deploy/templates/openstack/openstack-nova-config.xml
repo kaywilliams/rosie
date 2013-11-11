@@ -29,45 +29,50 @@ print uuid.uuid4().hex[:16]
 <!-- package requires -->
 <requires>openstack-nova</requires>
 <requires>python-novaclient</requires>
-<requires>openstack-mysql-config</requires>
 <requires>openstack-keystone-config</requires>
+<requires>openstack-mysql-config</requires>
+<requires>openstack-qpid-config</requires>
 
 <script type='post'>
+# modify nova.conf
+cmd="openstack-config --set /etc/nova/nova.conf"
+
+$cmd database connection mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
+$cmd DEFAULT my_ip $(%{installdir}/files/get_my_ip)
+$cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
+$cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
+$cmd DEFAULT api_paste_config '/etc/nova/api-paste.ini'
+
+# messaging (qpid)
+$cmd DEFAULT rpc_backend nova.openstack.common.rpc.impl_qpid
+$cmd DEFAULT qpid_hostname %{qpid-host}
+
+# neutron
+$cmd DEFAULT network_api_class nova.network.neutronv2.api.API
+$cmd DEFAULT neutron_admin_username neutron
+$cmd DEFAULT neutron_admin_password %{neutron-user-password}
+$cmd DEFAULT neutron_admin_auth_url http://%{keystone-host}:5000/v2.0
+$cmd DEFAULT neutron_auth_strategy keystone 
+$cmd DEFAULT neutron_admin_tenant_name service 
+$cmd DEFAULT neutron_url http://%{neutron-server-host}:9696/
+$cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+$cmd DEFAULT security_group_api neutron
+
+# auth
+$cmd DEFAULT auth_strategy keystone 
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken auth_port 5000
+$cmd keystone_authtoken auth_protocol http
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_user nova
+$cmd keystone_authtoken admin_password %{nova-user-password}
+
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'nova'" |\
   grep nova; then
-  openstack-db --init --service nova --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service nova --rootpw "%{mysql-password}" \
                --password "%{nova-db-password}"
 fi
-
-# modify nova.conf
-openstack-config --set /etc/nova/nova.conf database connection \
-  mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
-openstack-config --set /etc/nova/nova.conf DEFAULT my_ip %{nova-api-host}
-openstack-config --set /etc/nova/nova.conf DEFAULT \
-  vncserver_listen %{nova-api-host}
-openstack-config --set /etc/nova/nova.conf DEFAULT \
-  vncserver_proxyclient_address %{nova-api-host}
-openstack-config --set /etc/nova/nova.conf DEFAULT \
-  rpc_backend nova.openstack.common.rpc.impl_qpid
-openstack-config --set /etc/nova/nova.conf DEFAULT \
-  qpid_hostname %{nova-api-host}
-openstack-config --set /etc/nova/nova.conf DEFAULT api_paste_config \
-  '/etc/nova/api-paste.ini' <!-- is this necessary? -->
-openstack-config --set /etc/nova/nova.conf DEFAULT auth_strategy keystone 
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  auth_host %{keystone-host}
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  auth_port 35357
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  auth_protocol http
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  admin_tenant_name service
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  admin_user nova
-openstack-config --set /etc/nova/nova.conf keystone_authtoken \
-  admin_password %{nova-user-password}
-
 
 # create nova user in keystone
 export OS_USERNAME=admin
@@ -113,5 +118,28 @@ export OS_TENANT_NAME=admin
 export OS_PASSWORD=%{keystone-admin-password}
 export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
 export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
+</files>
+
+<files destname='get_my_ip' content='text' mode='750'>
+#!/usr/bin/python
+"""
+Borrowed with thanks from nova/netconf.py
+
+Returns the actual ip of the local machine.
+
+This code figures out what source address would be used if some traffic
+were to be sent out to some well known address on the Internet. In this
+case, a Google DNS server is used, but the specific address does not
+matter much.  No traffic is actually sent.
+"""
+import socket
+try:
+    csock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    csock.connect(('8.8.8.8', 80))
+    (addr, port) = csock.getsockname()
+    csock.close()
+    print addr
+except socket.error:
+    print "127.0.0.1"
 </files>
 </config-rpm>

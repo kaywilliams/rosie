@@ -20,22 +20,34 @@ print uuid.uuid4().hex[:16]
 
 <!-- package requires -->
 <requires>openstack-glance</requires>
-<requires>openstack-mysql-config</requires>
 <requires>openstack-keystone-config</requires>
+<requires>openstack-mysql-config</requires>
 
 <script type='post'>
+# modify glance-api.conf
+cmd="openstack-config --set /etc/glance/glance-api.conf"
+$cmd DEFAULT sql_connection \
+     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken admin_user glance
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_password %{glance-user-password}
+
+# modify glance-registry.conf
+cmd="openstack-config --set /etc/glance/glance-registry.conf"
+$cmd DEFAULT sql_connection \
+     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken admin_user glance
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_password %{glance-user-password}
+
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'glance'" |\
   grep glance; then
-  openstack-db --init --service glance --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service glance --rootpw "%{mysql-password}" \
                --password "%{glance-db-password}"
 fi
-
-# specify database location in glance config files
-openstack-config --set /etc/glance/glance-api.conf DEFAULT sql_connection \
-  mysql://glance:%{glance-db-password}@%{glance-host}/glance
-openstack-config --set /etc/glance/glance-registry.conf DEFAULT sql_connection \
-  mysql://glance:%{glance-db-password}@%{glance-host}/glance
 
 # create glance user in keystone
 export OS_USERNAME=admin
@@ -59,27 +71,6 @@ if ! keystone user-get glance &amp;>/dev/null; then
 fi
 
 unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
-
-# add credentials to the image service's configuration files
-openstack-config --set /etc/glance/glance-api.conf keystone_authtoken \
-                       auth_host %{keystone-host}
-openstack-config --set /etc/glance/glance-api.conf keystone_authtoken \
-                       admin_user glance
-openstack-config --set /etc/glance/glance-api.conf keystone_authtoken \
-                       admin_tenant_name service
-openstack-config --set /etc/glance/glance-api.conf keystone_authtoken \
-                       admin_password %{glance-user-password}
-openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken \
-                       auth_host %{keystone-host}
-openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken \
-                       admin_user glance
-openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken \
-                       admin_tenant_name service
-openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken \
-                       admin_password %{glance-user-password}
-
-# initialize glance database
-glance-manage db_sync
 
 # start glance service
 service openstack-glance-api restart > /dev/null

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='openstack-openvswitch-config' 
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="%{templates-dir}/mysql/mysql-server-config.xml"
+            xpointer="xpointer(./*)"/>
+<requires>openvswitch</requires>
+<script type='post'>
+service openvswitch restart > /dev/null
+chkconfig openvswitch on
+</script>
+</config-rpm>

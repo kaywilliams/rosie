@@ -24,19 +24,25 @@
 <group repoid='base'>core</group>
 
 <!--delete these after debugging-->
+<package>screen</package>
 <package>vim-enhanced</package>
 <package>openstack-packstack</package>
+
+<!--see https://bugzilla.redhat.com/show_bug.cgi?id=1024985 -->
+<exclude>spice-server-0.12.0-12.el6_4.5</exclude>
 </packages>
 
 <xi:include href='%{templates-dir}/openstack/openstack-server-config.xml'/>
 
 <test-update>
+<password>openstack</password>
 <xi:include href="%{templates-dir}/libvirt/deploy-base.xml"
             xpointer="xpointer(./*)"/>
 </test-update>
 
 <!--
 <test-install>
+<password>openstack</password>
 <xi:include href="%{templates-dir}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
 </test-install>

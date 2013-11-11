@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-neutron-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Configures neutron networking services for openstack
+</description>
+
+<macro id='neutron-server-host'>127.0.0.1</macro>
+<macro id='neutron-use-namespaces'>y</macro>
+<macro id='neutron-user-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='neutron-db-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='neutron-dhcp-hosts'>127.0.0.1</macro>
+<macro id='neutron-l2-plugin'>openvswitch</macro>
+<macro id='neutron-metadata-hosts'>127.0.0.1</macro>
+<macro id='neutron-metadata-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='neutron-ovs-tenant-network-type'>local</macro>
+<macro id='neutron-ovs-vlan-ranges'></macro>
+<macro id='neutron-ovs-bridge-mappings'></macro>
+<macro id='neutron-ovs-bridge-ifaces'></macro>
+
+<requires>openstack-neutron</requires>
+<requires>openstack-neutron-openvswitch</requires>
+<requires>python-neutronclient</requires>
+<requires>openstack-openvswitch-config</requires>
+<requires>openstack-nova-config</requires>
+<requires>openstack-qpid-config</requires>
+
+<script type='post'>
+# create database
+if ! mysql -u root -p%{mysql-password} -e "show databases like 'ovs_neutron'" |\
+  grep ovs_neutron; then
+  mysql -u root -p%{mysql-password} &lt;&lt;EOF 
+CREATE DATABASE ovs_neutron;
+GRANT ALL PRIVILEGES ON ovs_neutron.* TO 'neutron'@'localhost' \
+IDENTIFIED BY '%{neutron-db-password}';
+GRANT ALL PRIVILEGES ON ovs_neutron.* TO 'neutron'@'%' \
+IDENTIFIED BY '%{neutron-db-password}';
+FLUSH PRIVILEGES;
+EOF
+fi
+
+# defined in openstack-nova-config.xml
+#  cmd="openstack-config --set /etc/nova/nova.conf"
+#  $cmd DEFAULT network_api_class nova.network.neutronv2.api.API
+#  $cmd DEFAULT neutron_admin_username neutron
+#  $cmd DEFAULT neutron_admin_password %{neutron-user-password}
+#  $cmd DEFAULT neutron_admin_auth_url http://%{keystone-host}:5000/v2.0
+#  $cmd DEFAULT neutron_auth_strategy keystone 
+#  $cmd DEFAULT neutron_admin_tenant_name service 
+#  $cmd DEFAULT neutron_url http://%{neutron-server-host}:9696/
+#  $cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+#  $cmd DEFAULT security_group_api neutron
+
+# update neutron.conf
+cmd="openstack-config --set /etc/neutron/neutron.conf"
+$cmd DEFAULT host %{neutron-server-host}
+$cmd DEFAULT core_plugin neutron.plugins.openvswitch.ovs_neutron_plugin.OVSNeutronPluginV2
+$cmd DEFAULT rpc_backend neutron.openstack.common.rpc.impl_qpid
+$cmd DEFAULT qpid_hostname %{qpid-host}
+$cmd DEFAULT auth_strategy keystone 
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken auth_port 5000
+$cmd keystone_authtoken auth_protocol http
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_user neutron 
+$cmd keystone_authtoken admin_password %{neutron-user-password}
+$cmd agent root_helper "sudo neutron-rootwrap /etc/neutron/rootwrap.conf"
+
+# update ovs_neutron_plugin.ini
+plugin_conf=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+cmd="openstack-config --set $plugin_conf"
+$cmd DATABASE sql_connection mysql://neutron:%{neutron-db-password}@%{neutron-server-host}/ovs_neutron
+$cmd SECURITYGROUP firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ln -s $plugin_conf /etc/neutron/plugin.ini || true 
+
+# update dhcp_agent.ini
+cmd="openstack-config --set /etc/neutron/dhcp_agent.ini"
+$cmd DEFAULT auth_url http://%{keystone-host}/5000/v2.0 
+$cmd DEFAULT admin_username neutron
+$cmd DEFAULT admin_password %{neutron-user-password}
+$cmd DEFAULT admin_tenant_name service
+$cmd DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+$cmd DEFAULT enable_isolated_matadata True
+$cmd DEFAULT use_namespaces True
+$cmd DEFAULT ovs_use_veth True
+
+# update l3_agent.ini
+cmd="openstack-config --set /etc/neutron/l3_agent.ini"
+$cmd DEFAULT auth_url http://%{keystone-host}/5000/v2.0 
+$cmd DEFAULT admin_username neutron
+$cmd DEFAULT admin_password %{neutron-user-password}
+$cmd DEFAULT admin_tenant_name service
+$cmd DEFAULT use_namespaces True
+$cmd DEFAULT external_network_bridge br-ex
+$cmd DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+$cmd DEFAULT ovs_use_veth True
+
+# configure sysctl.conf
+sed -i "/net.ipv4.ip_forward/s/0/1/" /etc/sysctl.conf
+sed -i "/net.ipv4.conf.default.rp_filter/s/1/0/" /etc/sysctl.conf
+if ! grep "net.ipv4.conf.all.rp_filter" /etc/sysctl.conf; then
+  echo "net.ipv4.conf.all.rp_filter=0" >> /etc/sysctl.conf
+else
+  sed -i "/net.ipv4.conf.all.rp_filter/s/1/0/" /etc/sysctl.conf
+fi
+ps aux | grep "[/]usr/bin/anaconda" || sysctl -q -p
+
+# create network bridges; if we're running under anaconda, use --no-wait
+ps aux | grep "[/]usr/bin/anaconda" &amp;&amp; wait="--no-wait"
+ovs-vsctl --may-exist $wait add-br br-int
+ovs-vsctl --may-exist $wait add-br br-ex
+
+# create neutron user in keystone
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+
+if ! keystone user-get neutron &amp;>/dev/null; then
+  keystone user-create --name neutron --pass %{neutron-user-password}
+  keystone user-role-add --user neutron --tenant service --role admin
+
+  # create neutron service and api endpoint entries
+  keystone service-create --name neutron --type=network \
+           --description "Quantum Networking Service"
+  serviceid=$(keystone service-get neutron | sed -n 's/|.*id.*| \(.*\) |/\1/p')
+  keystone endpoint-create \
+           --service-id=$serviceid \
+           --publicurl=http://%{neutron-server-host}:9696 \
+           --internalurl=http://%{neutron-server-host}:9696 \
+           --adminurl=http://%{neutron-server-host}:9696
+fi
+
+unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+
+# start neutron service and agents
+service neutron-server restart > /dev/null
+service neutron-openvswitch-agent restart > /dev/null
+service neutron-dhcp-agent restart > /dev/null
+service neutron-l3-agent restart > /dev/null
+service neutron-metadata-agent restart > /dev/null
+chkconfig neutron-server on
+chkconfig neutron-openvswitch-agent on
+chkconfig neutron-ovs-cleanup on
+chkconfig neutron-dhcp-agent on
+chkconfig neutron-l3-agent on
+chkconfig neutron-metadata-agent on
+
+# restart services (shot in the dark to avoid double reboot)
+service qpidd restart > /dev/null
+service neutron-server restart > /dev/null
+service neutron-openvswitch-agent restart > /dev/null
+service neutron-dhcp-agent restart > /dev/null
+service neutron-l3-agent restart > /dev/null
+service neutron-metadata-agent restart > /dev/null
+
+# create external network
+# neutron net-create extnet --router:external=True
+# neutron subnet-create extnet --allocation
+</script>
+
+</config-rpm>

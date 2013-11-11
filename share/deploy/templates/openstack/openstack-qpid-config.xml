@@ -5,33 +5,39 @@
 Congifures a messaging queue service for openstack.
 </description>
 
+<macro id='qpid-host'>127.0.0.1</macro>
+
 <!-- package requires -->
+<requires>python-qpid</requires>
 <requires>qpid-cpp-server</requires>
 <requires>memcached</requires>
 <requires>openstack-utils</requires>
-<requires>openstack-nova-config</requires>
+<requires>ntp-client-config</requires>
+<requires>NetworkManager</requires>
 
 <script type='post'>
 #!/bin/sh
 set -e
 
-# Disable Qpid authentication by setting the value of the auth configuration key to no in the /etc/qpidd.conf file.
-sed -i "/auth=yes/d" /etc/qpidd.conf # eliminate auth=yes if found
-grep -q "auth=no" /etc/qpidd.conf || echo "auth=no" >> /etc/qpidd.conf
+# Disable Qpid authentication by setting the value of the auth configuration key to no in the /etc/qpid/qpidd.conf file.
+file=/etc/qpidd.conf
+sed -i "/auth=yes/d" $file # eliminate auth=yes if found
+grep -q "auth=no" $file || echo "auth=no" >> $file
 
 # Start the Qpid message broker.
-service qpidd restart
-
-# Congifures the Qpid message broker to run at startup
+service qpidd restart > /dev/null
 chkconfig qpidd on
-
-# Congifures Nova to use the Qpid message broker for remote procedure calls by setting the value of the rpc_backend configuration key in /etc/nova/nova.conf.
-openstack-config --set /etc/nova/nova.conf \
-                   DEFAULT rpc_backend nova.rpc.impl_qpid
-
-# Congifures Nova to use the Qpid message broker by setting the value of the qpid_hostname configuration key in /etc/nova/nova.conf.
-openstack-config --set /etc/nova/nova.conf \
-                 DEFAULT qpid_hostname 127.0.0.1
 </script>
 
+<files destdir="/etc/NetworkManager/dispatcher.d" destname="11-qpid" mode="755" content="text">
+#!/bin/bash
+
+# Restart qpid if needed after network interfaces are completely up. See
+# http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
+# for additional information
+
+if ! /bin/netstat -ntupl | /bin/grep -q 5672 | /bin/grep -qF '0.0.0.0:*'; then
+  /sbin/service qpidd restart
+fi
+</files>
 </config-rpm>

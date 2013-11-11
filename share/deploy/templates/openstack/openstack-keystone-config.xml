@@ -34,29 +34,24 @@ print uuid.uuid4().hex
 # delete example database
 rm -f /var/lib/keystone/keystone.db
 
+# configure keystone.conf
+cmd="openstack-config --set /etc/keystone/keystone.conf"
+$cmd DEFAULT admin_token %{keystone-admin-token}
+$cmd sql connection mysql://keystone:%{keystone-db-password}@%{keystone-host}/keystone
+
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'keystone'" |\
   grep keystone; then
-  openstack-db --init --service keystone --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service keystone --rootpw "%{mysql-password}" \
                --password "%{keystone-db-password}"
 fi
 
-# configure keystone service token
-openstack-config --set /etc/keystone/keystone.conf DEFAULT admin_token \
-  %{keystone-admin-token}
-openstack-config --set /etc/keystone/keystone.conf sql connection \
-  mysql://keystone:%{keystone-db-password}@%{keystone-host}/keystone
-
 # create keystone signing keys and certificates
-keystone-manage pki_setup
-chown -R keystone:keystone /etc/keystone/* /var/log/keystone/keystone.log
+keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
 
 # start keystone service
 service openstack-keystone restart > /dev/null
 chkconfig openstack-keystone on
-
-# initialize keystone database
-keystone-manage db_sync
 
 # create keystone admin entries
 export OS_SERVICE_TOKEN=%{keystone-admin-token}
