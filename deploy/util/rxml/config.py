@@ -219,7 +219,7 @@ class ConfigElement(tree.XmlTreeElement):
           for elem in elems:
             subresult = elem.xpath('text()')
             if len(subresult) > 0:
-              result.append(' '.join(subresult))
+              result.append(' '.join(subresult).strip())
           if result: break
       elif 'text()' in p:
         result = tree.XmlTreeElement.xpath(self, p, [], namespaces)
@@ -285,13 +285,10 @@ def uElement(name, attrib=None, nsmap=None, text=None, parent=None,
 def parse(file, parser=PARSER, **kwargs):
   config = tree.parse(file, parser=parser, **kwargs)
 
-  # convert whitespace into None
+  # convert text whitespace into None
   for element in config.getroot().iter():
     if element.text is not None:
       element.text = element.text.strip() or None
-
-    if element.tail is not None:
-      element.tail = element.tail.strip() or None
 
   return config
 

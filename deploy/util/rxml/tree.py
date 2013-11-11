@@ -162,7 +162,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     path should be a valid XPath expression.
     """
-    result = self.xpath(path, namespaces=namespaces, extensions=extensions)
+    result = XmlTreeElement.xpath(self, path, namespaces=namespaces,
+                                        extensions=extensions)
     if len(result) == 0:
       if not isinstance(fallback, NoneObject):
         return fallback
@@ -181,8 +182,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       if len(result) == 0 and not isinstance(fallback, NoneObject):
         return fallback
       else:
-        #if len(result) == 1 and isinstance(result, basestring):
-        #  result = result
         rtn = []
         for item in result:
           if isinstance(item, basestring):
@@ -212,20 +211,22 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     return len(self.xpath(child, [])) > 0
 
   def remove(self, elem):
-    if not elem.tail or not elem.tail.strip():
+    if not elem.tail:
       etree.ElementBase.remove(self, elem)
 
     else:
+      # remove newline (just one) from tail for better whitespace management
+      tail = elem.tail.replace('\n', '', 1)
       previous = elem.getprevious()
 
-      # add tail to previous elem tail
       if previous is not None:
-        previous.tail = (previous.tail or '') + elem.tail
+        # add tail to previous elem tail
+        previous.tail = (previous.tail or '') + tail
         etree.ElementBase.remove(self, elem)
 
-      # add tail to self text
       else:
-        self.text = (self.text or '') + elem.tail
+        # add tail to self text
+        self.text = (self.text or '') + tail
         etree.ElementBase.remove(self, elem)
 
   def replace(self, child, value):
@@ -238,12 +239,20 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     for v in value:
       if isinstance(v, basestring):
-        if not v.strip(): 
-          continue # ignore whitespace only items
+
+        # ignore tails
         if (isinstance(v, etree._ElementStringResult) and 
             v.is_tail and v.getparent() in value):
-          continue # ignore tails
-        self.text = (self.text or '') + v
+          continue
+
+        # if previous sibling, add text to previous sibling tail
+        if child.getprevious() is not None:
+          child.getprevious().tail = (child.getprevious().tail or '') + v
+
+        # else add text to parent element text
+        else:
+          self.text = (self.text or '') + v
+
       else:
         if isinstance(v, etree.ElementBase):
           child.addprevious(v)
@@ -320,7 +329,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # locate and remove macro definitions
     if find:
-      for elem in self.xpath('//macro', []): 
+      for elem in etree.ElementBase.xpath(self, '//macro'): 
         # ignore parent macros (until later loops)
         if [ x for x in elem.iterchildren('macro') ]:
           continue
@@ -530,7 +539,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     return defaults_file
 
   def remove_macros(self, defaults_file=None):
-    macros = self.xpath('.//macro', [])
+    macros = etree.ElementBase.xpath(self, './/macro')
 
     for elem in macros:
       elem.getparent().remove(elem)
@@ -657,8 +666,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                                            'XML content',
                                    elem=target)
       list = [ x for x in results
-               if isinstance(x, etree._Element) or
-                 (isinstance(x, basestring) and x.strip()) ]
+               if isinstance(x, etree._Element) or 
+                  isinstance(x, basestring) ]
     except etree.XPathError, e:
       raise errors.XIncludeXpathError(message=e, elem=target)
 

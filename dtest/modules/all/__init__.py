@@ -202,7 +202,7 @@ case6
 <kickstart>
 text %%{case6} tail 
 text before macro
-<macro id='text'/> <!--macro in text-->
+<macro id='text'/><!--macro in text-->
 text following macro
 </kickstart>
 text %%{case6} tail
@@ -263,9 +263,7 @@ case6
     <elem></elem>
  tail 
 text before macro
- 
 text following macro
-
   </kickstart>
 text 
 case6 
@@ -273,10 +271,14 @@ case6
   <elem/>
   <elem></elem>
  tail
+
+
  <script id='case7a'/>
  <script id='case7b'/>
  <script id='case7c'/>
+
 case8
+
 </publish>
 """ ]
 
