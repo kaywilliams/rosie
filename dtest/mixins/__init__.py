@@ -195,13 +195,16 @@ def remove_input_files(dir):
   for file in files:
     (dir/file).remove()
 
-def get_cdrom_virtinstall_script(location):
+def update_install_script(conf, location):
   """
-  accepts the location of an iso (bootiso or full cd/dvd) and returns
-  the text of a script for performing a libvirt installation
+  updates conf with text of a script for performing libvirt installation
+  given the relative path to an iso file
   """
 
-  script = """
+  install_script = conf.getxpath('./publish/script[@id="install"]')
+  for elem in install_script.getchildren():
+    install_script.remove(elem)
+  install_script.text = """
 #!/bin/bash
 
 %%{source-guestname}
@@ -218,16 +221,15 @@ virt-install \
              --network network=deploy \
              --graphics vnc \
              --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
-             --cdrom  $file\
+             --cdrom  $file \
              --noreboot
 
 # wait for install to complete and machine to shutdown
 while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
   sleep 2
 done
-    """ % {'location': location}
+    """ % {'location': '%%{os-url}/%s' % location}
 
-  return script
 
 #------ Convenience Imports ------#
 
