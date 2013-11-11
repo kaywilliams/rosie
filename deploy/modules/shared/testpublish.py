@@ -97,10 +97,6 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
     KickstartEventMixin.setup(self, default)
 
   def run(self): 
-    #clean publish path if event was forced
-    if self.forced:
-      self.localpath.rm(recursive=True, force=True)
-
     # sync files from compose (os-dir) folder
     self.OUTPUT_DIR.rm(force=True)
     self.io.process_files(link=True, text="preparing %s repository" 
