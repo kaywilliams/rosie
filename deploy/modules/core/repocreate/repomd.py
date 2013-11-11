@@ -34,7 +34,7 @@ class RepomdEvent(RepomdMixin, Event):
       parentid = 'repocreate',
       ptr = ptr,
       provides = ['os-content', 'repomd-file'],
-      requires = ['pkglist', 'rpmsdir'],
+      requires = ['rpms', 'rpmsdir'],
       conditionally_requires = ['checked-rpms', 'groupfile'],
     )
 

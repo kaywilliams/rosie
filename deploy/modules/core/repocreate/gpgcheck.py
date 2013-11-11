@@ -40,7 +40,7 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
       parentid = 'repocreate',
       ptr = ptr,
       provides = ['checked-rpms'],
-      requires = ['pkglist', 'rpmsdir', 'rpms'],
+      requires = ['rpmsdir', 'rpms'],
       conditionally_requires = ['gpgcheck-enabled'],
     )
 
