@@ -28,7 +28,6 @@ import cPickle as pickle
 
 from crypt import crypt
 
-from deploy.callback   import LinkCallback
 from deploy.event      import Event
 from deploy.errors     import DeployEventError
 from deploy.errors     import SimpleDeployEventError
