@@ -180,7 +180,9 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     license = self.config.getxpath('license/text()', 'GPLv2')
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
-                             license=license, requires = ['coreutils'])
+                             license=license, 
+                             requires = ['coreutils', 'diffutils', 'findutils',
+                                         'grep', 'sed'])
 
     self.libdir      = getattr(self, 'test_lib_dir', self.LIB_DIR)
     self.scriptdir   = self.build_folder/'scripts'
