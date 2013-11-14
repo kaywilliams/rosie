@@ -215,8 +215,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       etree.ElementBase.remove(self, elem)
 
     else:
-      # remove newline (just one) from tail for better whitespace management
-      tail = elem.tail.replace('\n', '', 1)
+      # remove leading newline from tail for better whitespace management
+      tail = re.sub(r'^\n', '', elem.tail)
       previous = elem.getprevious()
 
       if previous is not None:
