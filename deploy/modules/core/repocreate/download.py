@@ -94,7 +94,7 @@ class DownloadEvent(ShelveMixin, Event):
           except KeyError:
             last_checksum = None
 
-          if last_checksum and last_checksum != p.checksum:
+          if p.checksum != last_checksum:
             (self.rpmsdir / rpm.basename).rm(force=True) 
 
           # add rpm for io sync
