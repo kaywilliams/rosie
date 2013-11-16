@@ -3,13 +3,13 @@
 
 <script type='post'>
 # stop service if running
-service ntpd stop || true
+service ntpd stop > /dev/null || true
 
 # perform initial update
-ntpd -gq
+ntpd -gq > /dev/null
 
 # start service
-service ntpd start
+service ntpd start > /dev/null
 chkconfig ntpd on
 </script>
 </config-rpm>
