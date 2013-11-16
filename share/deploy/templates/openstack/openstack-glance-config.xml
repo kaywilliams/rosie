@@ -20,7 +20,7 @@ print uuid.uuid4().hex[:16]
 
 <!-- package requires -->
 <requires>openstack-glance</requires>
-<requires>openstack-keystone-config</requires>
+<requires>openstack-keystone-client-config</requires>
 <requires>openstack-mysql-config</requires>
 
 <script type='post'>
@@ -46,31 +46,17 @@ $cmd keystone_authtoken admin_password %{glance-user-password}
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'glance'" |\
   grep glance; then
   openstack-db --yes --init --service glance --rootpw "%{mysql-password}" \
-               --password "%{glance-db-password}"
+               --password "%{glance-db-password}" > /dev/null
 fi
+mysql-change-user-password %{mysql-password} glance %{glance-db-password}
 
-# create glance user in keystone
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-
-if ! keystone user-get glance &amp;>/dev/null; then
-  keystone user-create --name glance --pass %{glance-user-password}
-  keystone user-role-add --user glance --tenant service --role admin
-
-  # create glance service and api endpoint entries
-  keystone service-create --name glance --type=image \
-           --description "Glance Image Service"
-  serviceid=$(keystone service-get glance | sed -n 's/|.*id.*| \(.*\) |/\1/p')
-  keystone endpoint-create \
-           --service-id=$serviceid \
-           --publicurl=http://%{glance-host}:9292 \
-           --internalurl=http://%{glance-host}:9292 \
-           --adminurl=http://%{glance-host}:9292
-fi
-
-unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+# create keystone service
+keystone-service-create \
+  --name glance \
+  --type image \
+  --desc "Glance Image Service" \
+  --url http://%{glance-host}:9292 \
+  --pass %{glance-user-password}
 
 # start glance service
 service openstack-glance-api restart > /dev/null
@@ -78,12 +64,4 @@ service openstack-glance-registry restart > /dev/null
 chkconfig openstack-glance-api on
 chkconfig openstack-glance-registry on
 </script>
-
-<files destdir='root' destname='keystonerc_admin' mode='600' content='text'>
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
-</files>
 </config-rpm>

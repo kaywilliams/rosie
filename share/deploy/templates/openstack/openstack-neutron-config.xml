@@ -36,32 +36,23 @@ print uuid.uuid4().hex[:16]
 <requires>openstack-openvswitch-config</requires>
 <requires>openstack-nova-config</requires>
 <requires>openstack-qpid-config</requires>
+<requires>openstack-keystone-client-config</requires>
+<requires>iptables</requires>
 
 <script type='post'>
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'ovs_neutron'" |\
-  grep ovs_neutron; then
+  grep -q ovs_neutron; then
   mysql -u root -p%{mysql-password} &lt;&lt;EOF 
-CREATE DATABASE ovs_neutron;
-GRANT ALL PRIVILEGES ON ovs_neutron.* TO 'neutron'@'localhost' \
-IDENTIFIED BY '%{neutron-db-password}';
-GRANT ALL PRIVILEGES ON ovs_neutron.* TO 'neutron'@'%' \
-IDENTIFIED BY '%{neutron-db-password}';
-FLUSH PRIVILEGES;
+create database ovs_neutron;
+grant all privileges on ovs_neutron.* to 'neutron'@'localhost' \
+identified by '%{neutron-db-password}';
+grant all privileges on ovs_neutron.* to 'neutron'@'%' \
+identified by '%{neutron-db-password}';
+flush privileges;
 EOF
 fi
-
-# defined in openstack-nova-config.xml
-#  cmd="openstack-config --set /etc/nova/nova.conf"
-#  $cmd DEFAULT network_api_class nova.network.neutronv2.api.API
-#  $cmd DEFAULT neutron_admin_username neutron
-#  $cmd DEFAULT neutron_admin_password %{neutron-user-password}
-#  $cmd DEFAULT neutron_admin_auth_url http://%{keystone-host}:5000/v2.0
-#  $cmd DEFAULT neutron_auth_strategy keystone 
-#  $cmd DEFAULT neutron_admin_tenant_name service 
-#  $cmd DEFAULT neutron_url http://%{neutron-server-host}:9696/
-#  $cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
-#  $cmd DEFAULT security_group_api neutron
+mysql-change-user-password %{mysql-password} neutron %{neutron-db-password}
 
 # update neutron.conf
 cmd="openstack-config --set /etc/neutron/neutron.conf"
@@ -70,9 +61,7 @@ $cmd DEFAULT core_plugin neutron.plugins.openvswitch.ovs_neutron_plugin.OVSNeutr
 $cmd DEFAULT rpc_backend neutron.openstack.common.rpc.impl_qpid
 $cmd DEFAULT qpid_hostname %{qpid-host}
 $cmd DEFAULT auth_strategy keystone 
-$cmd keystone_authtoken auth_host %{keystone-host}
-$cmd keystone_authtoken auth_port 5000
-$cmd keystone_authtoken auth_protocol http
+$cmd keystone_authtoken auth_uri http://%{keystone-host}:5000/v2.0
 $cmd keystone_authtoken admin_tenant_name service
 $cmd keystone_authtoken admin_user neutron 
 $cmd keystone_authtoken admin_password %{neutron-user-password}
@@ -81,9 +70,9 @@ $cmd agent root_helper "sudo neutron-rootwrap /etc/neutron/rootwrap.conf"
 # update ovs_neutron_plugin.ini
 plugin_conf=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
 cmd="openstack-config --set $plugin_conf"
-$cmd DATABASE sql_connection mysql://neutron:%{neutron-db-password}@%{neutron-server-host}/ovs_neutron
-$cmd SECURITYGROUP firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-ln -s $plugin_conf /etc/neutron/plugin.ini || true 
+$cmd database sql_connection mysql://neutron:%{neutron-db-password}@%{neutron-server-host}/ovs_neutron
+$cmd securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ln -sf $plugin_conf /etc/neutron/plugin.ini 
 
 # update dhcp_agent.ini
 cmd="openstack-config --set /etc/neutron/dhcp_agent.ini"
@@ -110,47 +99,36 @@ $cmd DEFAULT ovs_use_veth True
 # configure sysctl.conf
 sed -i "/net.ipv4.ip_forward/s/0/1/" /etc/sysctl.conf
 sed -i "/net.ipv4.conf.default.rp_filter/s/1/0/" /etc/sysctl.conf
-if ! grep "net.ipv4.conf.all.rp_filter" /etc/sysctl.conf; then
+if ! grep -q "net.ipv4.conf.all.rp_filter" /etc/sysctl.conf; then
   echo "net.ipv4.conf.all.rp_filter=0" >> /etc/sysctl.conf
 else
   sed -i "/net.ipv4.conf.all.rp_filter/s/1/0/" /etc/sysctl.conf
 fi
-ps aux | grep "[/]usr/bin/anaconda" || sysctl -q -p
+ps aux | grep -q "[/]usr/bin/anaconda" || sysctl -q -p
 
 # create network bridges; if we're running under anaconda, use --no-wait
-ps aux | grep "[/]usr/bin/anaconda" &amp;&amp; wait="--no-wait"
+ps aux | grep -q "[/]usr/bin/anaconda" &amp;&amp; wait="--no-wait"
 ovs-vsctl --may-exist $wait add-br br-int
 ovs-vsctl --may-exist $wait add-br br-ex
 
-# create neutron user in keystone
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-
-if ! keystone user-get neutron &amp;>/dev/null; then
-  keystone user-create --name neutron --pass %{neutron-user-password}
-  keystone user-role-add --user neutron --tenant service --role admin
-
-  # create neutron service and api endpoint entries
-  keystone service-create --name neutron --type=network \
-           --description "Quantum Networking Service"
-  serviceid=$(keystone service-get neutron | sed -n 's/|.*id.*| \(.*\) |/\1/p')
-  keystone endpoint-create \
-           --service-id=$serviceid \
-           --publicurl=http://%{neutron-server-host}:9696 \
-           --internalurl=http://%{neutron-server-host}:9696 \
-           --adminurl=http://%{neutron-server-host}:9696
-fi
-
-unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+# create keystone service
+keystone-service-create \
+  --name neutron \
+  --type network \
+  --desc "Neutron Networking Service" \
+  --url http://%{neutron-server-host}:9696 \
+  --pass %{neutron-user-password}
 
 # start neutron service and agents
-service neutron-server restart > /dev/null
-service neutron-openvswitch-agent restart > /dev/null
-service neutron-dhcp-agent restart > /dev/null
-service neutron-l3-agent restart > /dev/null
-service neutron-metadata-agent restart > /dev/null
+if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+  service iptables restart > /dev/null
+  service neutron-server restart > /dev/null
+  service neutron-openvswitch-agent restart > /dev/null
+  service neutron-dhcp-agent restart > /dev/null
+  service neutron-l3-agent restart > /dev/null
+  service neutron-metadata-agent restart > /dev/null
+fi
+chkconfig iptables on
 chkconfig neutron-server on
 chkconfig neutron-openvswitch-agent on
 chkconfig neutron-ovs-cleanup on
@@ -158,17 +136,70 @@ chkconfig neutron-dhcp-agent on
 chkconfig neutron-l3-agent on
 chkconfig neutron-metadata-agent on
 
-# restart services (shot in the dark to avoid double reboot)
-service qpidd restart > /dev/null
-service neutron-server restart > /dev/null
-service neutron-openvswitch-agent restart > /dev/null
-service neutron-dhcp-agent restart > /dev/null
-service neutron-l3-agent restart > /dev/null
-service neutron-metadata-agent restart > /dev/null
-
-# create external network
-# neutron net-create extnet --router:external=True
-# neutron subnet-create extnet --allocation
+# # create virtual networks
+# <macro id='network-config'>
+#     export OS_USERNAME=admin
+#     export OS_TENANT_NAME=admin
+#     export OS_PASSWORD=%{keystone-admin-password}
+#     export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+# 
+#     # create external network
+#     extnet_name='extnet'
+#     if ! neutron net-list | grep -q $extnet_name; then
+#       neutron net-create $extnet_name --router:external=True
+#       neutron subnet-create $extnet_name \
+#         --allocation-pool start=192.168.21.10,end=192.168.21.25 \
+#         --gateway 192.168.21.1 \
+#         --enable_dhcp=False \
+#         192.168.21.0/24
+#     fi
+# 
+#     intnet_name='intnet'
+#     if ! neutron net-list | grep -q $intnet_name; then
+#       neutron net-create $intnet_name --router:external=True
+#       neutron subnet-create $intnet_name 192.168.22.0/24
+#     fi
+# 
+#     router_name='default'
+#     if ! neutron router-list | grep -q $router_name; then
+#       neutron router-create $router_name
+# 
+#       # set $routerid, $extnetid and $intsubnets variables
+#       eval $(neutron router-show -Fid -fshell --prefix router $router_name)
+#       eval $(neutron net-show -Fid -fshell --prefix extnet $extnet_name)
+#       eval $(neutron net-show -Fsubnets -fshell --prefix int $intnet_name)
+# 
+#       neutron router-gateway-set $routerid $extnetid
+#       neutron router-interface-add $routerid $intsubnets
+#     fi
+# </macro>
+# if ps aux | grep -q "[/]usr/bin/anaconda"; then
+#   # use a firstboot service to perform network configuration. can't do it 
+#   # directly under anaconda in el6 since openvswitch requires a more recent
+#   # kernel than is included in the anaconda image. see related files element
+#   chkconfig openstack-neutron-firstboot-script on
+# else
+# %{network-config}
+# fi
 </script>
 
+<files destdir='/etc/rc.d/init.d' destname='openstack-neutron-firstboot-script' 
+       mode='755' content='text'>
+#!/bin/bash
+#
+# openstack-neutron-firstboot-script Openstack Configuration Script
+# 
+# chkconfig: - 99 02
+# description: Firstboot script to configure openstack virtual network
+
+case "$1" in
+  start)
+%{network-config}
+    chkconfig openstack-neutron-firstboot-script off
+  ;;
+  stop|status|restart|reload|force-reload)
+    # do nothing
+  ;;
+esac
+</files>
 </config-rpm>

@@ -29,23 +29,28 @@ print uuid.uuid4().hex[:16]
 <!-- package requires -->
 <requires>openstack-nova</requires>
 <requires>python-novaclient</requires>
-<requires>openstack-keystone-config</requires>
+<requires>openstack-keystone-client-config</requires>
 <requires>openstack-mysql-config</requires>
 <requires>openstack-qpid-config</requires>
 
 <script type='post'>
 # modify nova.conf
 cmd="openstack-config --set /etc/nova/nova.conf"
-
 $cmd database connection mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
 $cmd DEFAULT my_ip $(%{installdir}/files/get_my_ip)
 $cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
 $cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
-$cmd DEFAULT api_paste_config '/etc/nova/api-paste.ini'
 
 # messaging (qpid)
 $cmd DEFAULT rpc_backend nova.openstack.common.rpc.impl_qpid
 $cmd DEFAULT qpid_hostname %{qpid-host}
+
+# auth
+$cmd DEFAULT auth_strategy keystone 
+$cmd keystone_authtoken auth_uri http://%{keystone-host}:5000/v2.0
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_user nova
+$cmd keystone_authtoken admin_password %{nova-user-password}
 
 # neutron
 $cmd DEFAULT network_api_class nova.network.neutronv2.api.API
@@ -58,52 +63,31 @@ $cmd DEFAULT neutron_url http://%{neutron-server-host}:9696/
 $cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
 $cmd DEFAULT security_group_api neutron
 
-# auth
-$cmd DEFAULT auth_strategy keystone 
-$cmd keystone_authtoken auth_host %{keystone-host}
-$cmd keystone_authtoken auth_port 5000
-$cmd keystone_authtoken auth_protocol http
-$cmd keystone_authtoken admin_tenant_name service
-$cmd keystone_authtoken admin_user nova
-$cmd keystone_authtoken admin_password %{nova-user-password}
-
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'nova'" |\
-  grep nova; then
+  grep -q nova; then
   openstack-db --yes --init --service nova --rootpw "%{mysql-password}" \
-               --password "%{nova-db-password}"
+               --password "%{nova-db-password}" > /dev/null
 fi
+mysql-change-user-password %{mysql-password} nova %{nova-db-password}
 
-# create nova user in keystone
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-
-if ! keystone user-get nova &amp;>/dev/null; then
-  keystone user-create --name nova --pass %{nova-user-password}
-  keystone user-role-add --user nova --tenant service --role admin
-
-  # create nova service and api endpoint entries
-  keystone service-create --name nova --type=compute \
-           --description "Nova Compute Service"
-  serviceid=$(keystone service-get nova | sed -n 's/|.*id.*| \(.*\) |/\1/p')
-  keystone endpoint-create \
-           --service-id=$serviceid \
-           --publicurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s \
-           --internalurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s \
-           --adminurl=http://%{nova-api-host}:8774/v2/%\(tenant_id\)s
-fi
-
-unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+# keystone configuration
+keystone-service-create \
+  --name nova \
+  --type compute \
+  --desc "Nova Compute Service" \
+  --url http://%{nova-api-host}:8774/v2/%\(tenant_id\)s \
+  --pass %{nova-user-password}
 
 # start nova service
-service openstack-nova-api restart > /dev/null
-service openstack-nova-cert restart > /dev/null
-service openstack-nova-consoleauth restart > /dev/null
-service openstack-nova-scheduler restart > /dev/null
-service openstack-nova-conductor restart > /dev/null
-service openstack-nova-novncproxy restart > /dev/null
+if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+  service openstack-nova-api restart > /dev/null
+  service openstack-nova-cert restart > /dev/null
+  service openstack-nova-consoleauth restart > /dev/null
+  service openstack-nova-scheduler restart > /dev/null
+  service openstack-nova-conductor restart > /dev/null
+  service openstack-nova-novncproxy restart > /dev/null
+fi
 chkconfig openstack-nova-api on
 chkconfig openstack-nova-cert on
 chkconfig openstack-nova-consoleauth on
@@ -112,18 +96,10 @@ chkconfig openstack-nova-conductor on
 chkconfig openstack-nova-novncproxy on
 </script>
 
-<files destdir='root' destname='keystonerc_admin' mode='600' content='text'>
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
-</files>
-
 <files destname='get_my_ip' content='text' mode='750'>
 #!/usr/bin/python
 """
-Borrowed with thanks from nova/netconf.py
+Copied in part from nova/netconf.py
 
 Returns the actual ip of the local machine.
 

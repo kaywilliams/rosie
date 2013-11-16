@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="%{templates-dir}/NetworkManager/NetworkManager-wait-online.xml"/>
 <xi:include href="%{templates-dir}/ntp/ntp-client-config.xml"/>
 <xi:include href="%{templates-dir}/openstack/openstack-mysql-config.xml"/>
 <xi:include href="%{templates-dir}/openstack/openstack-keystone-config.xml"/>
+<xi:include href="%{templates-dir}/openstack/openstack-keystone-client-config.xml"/>
 <xi:include href="%{templates-dir}/openstack/openstack-cinder-config.xml"/>
 <xi:include href="%{templates-dir}/openstack/openstack-glance-config.xml"/>
 <xi:include href="%{templates-dir}/openstack/openstack-qpid-config.xml"/>

@@ -19,6 +19,7 @@ print uuid.uuid4().hex[:16]
 <requires>openstack-utils</requires>
 <requires>openstack-selinux</requires>
 <requires>openstack-qpid-config</requires>
+<requires>openstack-keystone-client-config</requires>
 <requires>lvm2</requires>
 <requires>bc</requires>
 
@@ -70,9 +71,7 @@ $cmd DEFAULT rpc_backend neutron.openstack.common.rpc.impl_qpid
 $cmd DEFAULT qpid_hostname %{qpid-host}
 $cmd DEFAULT glance_host %{glance-host}
 $cmd DEFAULT auth_strategy keystone 
-$cmd keystone_authtoken auth_host %{keystone-host}
-$cmd keystone_authtoken auth_port 35357
-$cmd keystone_authtoken auth_protocol http
+$cmd keystone_authtoken auth_uri http://%{keystone-host}:5000/v2.0
 $cmd keystone_authtoken admin_tenant_name service
 $cmd keystone_authtoken admin_user cinder
 $cmd keystone_authtoken admin_password %{cinder-user-password}
@@ -81,31 +80,17 @@ $cmd keystone_authtoken admin_password %{cinder-user-password}
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'cinder'" |\
   grep cinder; then
   openstack-db --yes --init --service cinder --rootpw "%{mysql-password}" \
-               --password "%{cinder-db-password}"
+               --password "%{cinder-db-password}" > /dev/null
 fi
+mysql-change-user-password %{mysql-password} cinder %{cinder-db-password}
 
-# create cinder user in keystone
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-
-if ! keystone user-get cinder &amp;>/dev/null; then
-  keystone user-create --name cinder --pass %{cinder-user-password}
-  keystone user-role-add --user cinder --tenant service --role admin
-
-  # create cinder service and api endpoint entries
-  keystone service-create --name cinder --type=image \
-           --description "Glance Image Service"
-  serviceid=$(keystone service-get cinder | sed -n 's/|.*id.*| \(.*\) |/\1/p')
-  keystone endpoint-create \
-           --service-id=$serviceid \
-           --publicurl=http://%{cinder-host}:9292 \
-           --internalurl=http://%{cinder-host}:9292 \
-           --adminurl=http://%{cinder-host}:9292
-fi
-
-unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
+# create keystone service
+keystone-service-create \
+  --name cinder \
+  --type storage \
+  --desc "Cinder Block Storage Service" \
+  --url http://%{cinder-host}:8776/v1/%\(tenant_id\)s \
+  --pass %{cinder-user-password}
 
 # start cinder services
 service openstack-cinder-api restart > /dev/null
@@ -118,4 +103,3 @@ chkconfig openstack-cinder-volume on
 chkconfig tgtd on
 </script>
 </config-rpm>
-

@@ -13,7 +13,7 @@ Congifures a messaging queue service for openstack.
 <requires>memcached</requires>
 <requires>openstack-utils</requires>
 <requires>ntp-client-config</requires>
-<requires>NetworkManager</requires>
+<requires>NetworkManager-wait-online</requires>
 
 <script type='post'>
 #!/bin/sh
@@ -24,20 +24,15 @@ file=/etc/qpidd.conf
 sed -i "/auth=yes/d" $file # eliminate auth=yes if found
 grep -q "auth=no" $file || echo "auth=no" >> $file
 
+# Start the NetworkManager-wait-online service to ensure qpid starts after
+# network interfaces are completely up. See
+# http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
+# for additional information
+service NetworkManager-wait-online start > /dev/null
+chkconfig NetworkManager-wait-online on
+
 # Start the Qpid message broker.
 service qpidd restart > /dev/null
 chkconfig qpidd on
 </script>
-
-<files destdir="/etc/NetworkManager/dispatcher.d" destname="11-qpid" mode="755" content="text">
-#!/bin/bash
-
-# Restart qpid if needed after network interfaces are completely up. See
-# http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
-# for additional information
-
-if ! /bin/netstat -ntupl | /bin/grep -q 5672 | /bin/grep -qF '0.0.0.0:*'; then
-  /sbin/service qpidd restart
-fi
-</files>
 </config-rpm>

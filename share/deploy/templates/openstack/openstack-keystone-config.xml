@@ -26,9 +26,7 @@ print uuid.uuid4().hex
 <!-- package requires -->
 <requires>openstack-utils</requires>
 <requires>openstack-keystone</requires>
-<requires>python-keystoneclient</requires>
 <requires>openstack-mysql-config</requires>
-<requires>rootfiles</requires><!-- for setting bash_profile -->
 
 <script type='post'>
 # delete example database
@@ -43,8 +41,9 @@ $cmd sql connection mysql://keystone:%{keystone-db-password}@%{keystone-host}/ke
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'keystone'" |\
   grep keystone; then
   openstack-db --yes --init --service keystone --rootpw "%{mysql-password}" \
-               --password "%{keystone-db-password}"
+               --password "%{keystone-db-password}" > /dev/null
 fi
+mysql-change-user-password %{mysql-password} keystone %{keystone-db-password}
 
 # create keystone signing keys and certificates
 keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
@@ -57,14 +56,20 @@ chkconfig openstack-keystone on
 export OS_SERVICE_TOKEN=%{keystone-admin-token}
 export OS_SERVICE_ENDPOINT=http://%{keystone-host}:35357/v2.0
   
-if ! keystone user-get admin &amp;>/dev/null; then
+keystone tenant-get admin &amp;>/dev/null || \
   keystone tenant-create --name admin --description "Admin Tenant" 
-  keystone tenant-create --name service --description "Service Tenant" 
-  keystone user-create --name admin --pass %{keystone-admin-password}
+keystone tenant-get service &amp;>/dev/null || \
+  keystone tenant-create --name service --description "Service Tenant"
+keystone role-get admin &amp;>/dev/null || \
   keystone role-create --name admin
+
+if ! keystone user-get admin &amp;>/dev/null; then
+  keystone user-create --name admin --pass %{keystone-admin-password}
   keystone user-role-add --user admin --tenant admin --role admin
-  
-  # create keystone service and api endpoint entries
+fi
+keystone user-password-update --pass %{keystone-admin-password} admin
+
+if ! keystone service-get keystone &amp;>/dev/null; then
   keystone service-create --name keystone --type=identity \
            --description "Keystone Identity Service"
   serviceid=$(keystone service-get keystone | sed -n 's/|.*id.*| \(.*\) |/\1/p')
@@ -74,34 +79,5 @@ if ! keystone user-get admin &amp;>/dev/null; then
            --internalurl=http://%{keystone-host}:5000/v2.0 \
            --adminurl=http://%{keystone-host}:35357/v2.0
 fi
-  
-unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT
-
-# add keystone admin environment variables to root user profile
-for i in OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL; do 
-  sed -i "/export $i/d" /root/.bash_profile
-done
-
-echo "
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-" >> /root/.bash_profile
 </script>
-
-<script type='verifyscript'>
-source /root/keystonerc_admin
-keystone token-get
-keystone user-list
-unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL PS1
-</script>
-
-<files destdir='root' destname='keystonerc_admin' mode='600' content='text'>
-export OS_USERNAME=admin
-export OS_TENANT_NAME=admin
-export OS_PASSWORD=%{keystone-admin-password}
-export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
-export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
-</files>
 </config-rpm>

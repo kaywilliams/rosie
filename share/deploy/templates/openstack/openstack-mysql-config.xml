@@ -4,4 +4,23 @@
 <xi:include href="%{templates-dir}/mysql/mysql-server-config.xml"
             xpointer="xpointer(./*)"/>
 <requires>MySQL-python</requires>
+<files destdir="/usr/sbin" destname="mysql-change-user-password" mode="755"
+       content="text">
+#!/bin/sh
+#
+# Changes password for an existing user
+#
+# Usage:
+# mysql-change-user-password ADMIN_PASSWORD USER USER_PASSWORD
+
+adminpass=$1
+user=$2
+userpass=$3
+
+# update password
+mysql -p$adminpass &lt;&lt;EOF >/dev/null 
+set password for '$user'@'localhost' = password('$userpass');
+set password for '$user'@'%' = password('$userpass');
+EOF
+</files>
 </config-rpm>
