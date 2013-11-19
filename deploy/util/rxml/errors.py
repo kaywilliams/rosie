@@ -97,6 +97,15 @@ class MacroDefaultsFileNotProvided(XmlError):
   def __str__(self):
     return "ERROR: Unable to resolve macros. No defaults file specified."
 
+class MacroUnableToCreateFile(pps.Path.error.PathError, XmlError):
+  def __init__(self, file, error):
+    self.file = file
+    self.error = error
+
+  def __str__(self):
+    return ("ERROR: An error occurred creating the file '%s' for storing "
+            "macro values: \n\n%s" % (self.file, self.error))
+
 class MacroDefaultsFileXmlPathError(XmlPathError):
   def __init__(self, message):
     self.message = message

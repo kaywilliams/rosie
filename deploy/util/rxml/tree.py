@@ -475,7 +475,10 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     if defaults_file.exists():
       root = parse(defaults_file).getroot()
     else:
-      defaults_file.dirname.mkdirs()
+      try:
+        defaults_file.dirname.mkdirs()
+      except (pps.Path.error.PathError), e:
+        raise errors.MacroUnableToCreateFile(defaults_file, e)
       root = Element('xml')
 
     if not root.xpath('./macros'):
