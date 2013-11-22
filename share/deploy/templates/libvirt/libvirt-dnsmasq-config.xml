@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id="libvirt-dnsmasq-config" xmlns:xi="http://www.w3.org/2001/XInclude">
 <summary>configures libvirt local dns resolution</summary>
-<description></description>
 <license>GPLv2</license>
 
+<macro id='libvirt-network-domain'>deploy</macro>
+<macro id='libvirt-network-bridge-name'>virbrdpl</macro>
 
 <requires>NetworkManager</requires>
 <!--el6.4 fixed a security issue that breaks local dns resolution, requiring
@@ -23,18 +24,16 @@
 #!/bin/bash
 #Create/update deploy virtual network
 
-# verify kvm subsystem
-if ! /sbin/lsmod | /bin/grep kvm -q; then
-  exit
-fi
+working="%{installdir}"
+libvirt="/etc/libvirt/qemu/networks"
 
-domain=deploy
+last=$working/deploy.last
+[ -e $last ] || touch $last
 
 # Assign IP address for virtual network
-xml=`virsh net-dumpxml deploy 2>/dev/null`
-ipaddr=`echo $xml | sed -n "s/.*&lt;ip address='\([0-9.]\+\).*/\1/p"`
-ipstart=`echo $xml | sed -n "s/.*&lt;range start='\([0-9.]\+\).*/\1/p"`
-ipend=`echo $xml | sed -n "s/.*&lt;range.* end='\([0-9.]\+\).*/\1/p"`
+ipaddr=`sed -n "s/.*&lt;ip address=[\"\']\([0-9.]\+\).*/\1/p" $last`
+ipstart=`sed -n "s/.*&lt;range start=[\"\']\([0-9.]\+\).*/\1/p" $last`
+ipend=`sed -n "s/.*&lt;range.* end=[\"\']\([0-9.]\+\).*/\1/p" $last`
 
 if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then 
   start=123
@@ -44,7 +43,7 @@ if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then
     ipaddr="192.168.$i.1"
     ipstart="192.168.$i.2"
     ipend="192.168.$i.254"
-    if ! (ifconfig | grep 192.168.$i ) >/dev/null ; then
+    if ! (/sbin/ifconfig | grep 192.168.$i ) >/dev/null ; then
       success=true
       break
     fi
@@ -56,32 +55,37 @@ if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then
 fi
 
 # Create/update deploy.xml
-working="%{installdir}"
-libvirt="/etc/libvirt/qemu/networks"
 
 /bin/cp -f $working/deploy.tmpl $working/deploy.xml
-sed -i "s/%domain/$domain/g" $working/deploy.xml
-sed -i "s/%brname/$brname/g" $working/deploy.xml
 sed -i "s/%ipaddr/$ipaddr/g" $working/deploy.xml
 sed -i "s/%ipstart/$ipstart/g" $working/deploy.xml
 sed -i "s/%ipend/$ipend/g" $working/deploy.xml
 
-if ! ([ -e $working/deploy.last ] &amp;&amp; \
-      diff $working/deploy.xml $working/deploy.last>/dev/null); then
-  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    if virsh net-info deploy >/dev/null 2>&amp;1; then
-      virsh net-destroy deploy >/dev/null 2>&amp;1 || true
+if ! diff $working/deploy.xml $working/deploy.last > /dev/null; then
+  if ! ps aux | grep "[/]usr/bin/anaconda"; then
+    if virsh net-info deploy &amp;>/dev/null; then
+      virsh net-destroy deploy &amp;>/dev/null || true
       virsh net-undefine deploy >/dev/null
     fi
   fi
   /bin/cp -f $working/deploy.xml $libvirt/deploy.xml
-  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-    virsh net-define $libvirt/deploy.xml >/dev/null
+fi
+
+# define the network in libvirt
+if ! virsh net-info deploy &amp;> /dev/null; then
+  virsh net-define $libvirt/deploy.xml >/dev/null
+fi
+
+# start it
+if ! ps aux | grep "[/]usr/bin/anaconda"; then
+  if ! virsh net-info deploy | grep Active | grep -q yes; then
     virsh net-start deploy >/dev/null
-    virsh net-autostart deploy >/dev/null
-  else
-    /bin/ln -sf $libvirt/deploy.xml $libvirt/autostart
   fi
+fi
+
+# set it to autostart
+if ! virsh net-info deploy | grep Autostart | grep -q yes; then
+  virsh net-autostart deploy >/dev/null
 fi
 /bin/mv -f $working/deploy.xml $working/deploy.last
 
@@ -94,22 +98,22 @@ nameserver $ipaddr
 # add search statement to resolv.conf if it doesn't exist
 [[ `grep "^search" /etc/resolv.conf` ]] || \
 sed -i "1,/^nameserver $ipaddr/ {/^nameserver/i\
-search $domain
+search %{libvirt-network-domain}
 }" /etc/resolv.conf
 
 # add virtual network to search statement if it doesn't exist
-[[ `grep -P "^search .* $domain( |$)" /etc/resolv.conf` ]] || \
-sed -i "/search /s/$/ $domain/" /etc/resolv.conf
+[[ `grep -P "^search .* %{libvirt-network-domain}( |$)" /etc/resolv.conf` ]] || \
+sed -i "/search /s/$/ %{libvirt-network-domain}/" /etc/resolv.conf
 
 # save ipaddr for use during uninstall
-echo -e "ipaddr=$ipaddr\ndomain=$domain" > %{installdir}/uninstall.info
+echo -e "ipaddr=$ipaddr" > %{installdir}/uninstall.info
 </files>
 
 <files destdir="%{installdir}" destname="deploy.tmpl" content="text">
 &lt;network>
   &lt;name>deploy&lt;/name>
-  &lt;domain name="%domain"/>
-  &lt;bridge name="virbrdpl" />
+  &lt;domain name="%{libvirt-network-domain}"/>
+  &lt;bridge name="%{libvirt-network-bridge-name}" />
   &lt;forward/>
   &lt;ip address="%ipaddr" netmask="255.255.255.0">
     &lt;dhcp>
@@ -122,14 +126,13 @@ echo -e "ipaddr=$ipaddr\ndomain=$domain" > %{installdir}/uninstall.info
 <!-- libvirt configuration-->
 <script type="post">
 # start libvirtd if not running
-if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
-  ( pidof libvirtd || service libvirtd start ) >/dev/null
+if ! ps aux | grep "[/]usr/bin/anaconda"; then
+  ( /sbin/pidof libvirtd || /sbin/service libvirtd start ) >/dev/null
 fi
 
-# run dispatcher.d script if it has changed
-file=/etc/NetworkManager/dispatcher.d/99-deploy-virt-config
-if [[ $changed = *$file* ]] ; then
-  $file
+# run dispatcher.d script
+if ! ps aux | grep "[/]usr/bin/anaconda"; then
+  /etc/NetworkManager/dispatcher.d/99-deploy-virt-config
 fi
 
 # ensure consistent ip forwarding
@@ -141,7 +144,7 @@ file="/etc/sysctl.conf"
 if [[ `grep "$text" $file` = *0* ]] ; then
   sed -i "s/^$text.*/$text = 1/" $file # modify file 
   /bin/cp -r $file %{installdir}       # backup file for use during cleanup
-  if [[ ! `ps aux | grep "[/]usr/bin/anaconda"` ]]; then
+  if ! ps aux | grep "[/]usr/bin/anaconda"; then
     sysctl -q -p                       # update sysctl
   fi
 fi
@@ -168,10 +171,12 @@ if [[ $1 = 0 ]]; then
     fi
 
     # resolv.conf cleanup
-    source %{installdir}/uninstall.info #provides $ipaddr and $domain
+    source %{installdir}/uninstall.info #provides $ipaddr 
     sed -i "/nameserver $ipaddr/d" /etc/resolv.conf
-    sed -i "s/\(^search .*\) $domain/\1/g" /etc/resolv.conf
+    sed -i "s/\(^search .*\) %{libvirt-network-domain}/\1/g" /etc/resolv.conf
   fi
 fi
 </script>
+
+
 </config-rpm>
