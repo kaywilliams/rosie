@@ -27,13 +27,11 @@
 working="%{installdir}"
 libvirt="/etc/libvirt/qemu/networks"
 
-last=$working/deploy.last
-[ -e $last ] || touch $last
-
 # Assign IP address for virtual network
-ipaddr=`sed -n "s/.*&lt;ip address=[\"\']\([0-9.]\+\).*/\1/p" $last`
-ipstart=`sed -n "s/.*&lt;range start=[\"\']\([0-9.]\+\).*/\1/p" $last`
-ipend=`sed -n "s/.*&lt;range.* end=[\"\']\([0-9.]\+\).*/\1/p" $last`
+xml=`virsh net-dumpxml deploy 2>/dev/null`
+ipaddr=`echo $xml | sed -n "s/.*&lt;ip address=[\"\']\([0-9.]\+\).*/\1/p"`
+ipstart=`echo $xml | sed -n "s/.*&lt;range start=[\"\']\([0-9.]\+\).*/\1/p"`
+ipend=`echo $xml | sed -n "s/.*&lt;range.* end=[\"\']\([0-9.]\+\).*/\1/p"`
 
 if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then 
   start=123
@@ -61,6 +59,7 @@ sed -i "s/%ipaddr/$ipaddr/g" $working/deploy.xml
 sed -i "s/%ipstart/$ipstart/g" $working/deploy.xml
 sed -i "s/%ipend/$ipend/g" $working/deploy.xml
 
+[ -e deploy.last ] || touch deploy.last
 if ! diff $working/deploy.xml $working/deploy.last > /dev/null; then
   if ! ps aux | grep "[/]usr/bin/anaconda"; then
     if virsh net-info deploy &amp;>/dev/null; then
@@ -71,7 +70,10 @@ if ! diff $working/deploy.xml $working/deploy.last > /dev/null; then
   /bin/cp -f $working/deploy.xml $libvirt/deploy.xml
 fi
 
-# define the network in libvirt
+# ensure libvirt is running
+/sbin/service libvirtd start > /dev/null
+
+# define the network
 if ! virsh net-info deploy &amp;> /dev/null; then
   virsh net-define $libvirt/deploy.xml >/dev/null
 fi
@@ -125,11 +127,6 @@ echo -e "ipaddr=$ipaddr" > %{installdir}/uninstall.info
 
 <!-- libvirt configuration-->
 <script type="post">
-# start libvirtd if not running
-if ! ps aux | grep "[/]usr/bin/anaconda"; then
-  ( /sbin/pidof libvirtd || /sbin/service libvirtd start ) >/dev/null
-fi
-
 # run dispatcher.d script
 if ! ps aux | grep "[/]usr/bin/anaconda"; then
   /etc/NetworkManager/dispatcher.d/99-deploy-virt-config
