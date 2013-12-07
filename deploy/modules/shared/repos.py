@@ -171,9 +171,14 @@ class DeployRepoGroup(DeployRepo):
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
         cls = RhnDeployRepo
     except AttributeError:
-      if ( self.url.realm.scheme == 'rhn' or
-           self.url.realm.scheme == 'rhns' ):
-        raise RhnSupportError()
+      if self.url.scheme == 'mirror':
+        if ( self.url.realm.scheme == 'rhn' or
+             self.url.realm.scheme == 'rhns' ):
+          raise RhnSupportError()
+      else:
+        if ( self.url.scheme == 'rhn' or
+             self.url.scheme == 'rhns' ):
+          raise RhnSupportError()
 
     # first make sure we can access the repomdfile location (e.g. no network or
     # permissions errors)
