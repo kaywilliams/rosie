@@ -93,7 +93,8 @@ class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
 
 class ReinstallTestInstallEventTestCase(TestInstallEventTestCase):
   def setUp(self):
-    TestInstallEventTestCase.setUp(self)
+    EventTestCase.setUp(self)
+    DeployMixinTestCase.setUp(self)
 
     # tell event to raise an error rather than reinstall if install
     # triggers fail
@@ -119,9 +120,6 @@ class Test_ReinstallOnConfigRpmChange(ReinstallTestInstallEventTestCase):
   </config-rpm>
   </config-rpms>
   """]
-
-  def __init__(self, os, version, arch, *args, **kwargs):
-    ReinstallTestInstallEventTestCase.__init__(self, os, version, arch, *args, **kwargs)
 
   def runTest(self):
     self.execute_predecessors(self.event)

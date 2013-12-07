@@ -26,12 +26,13 @@ import cPickle as pickle
 
 from functools import wraps
 
+import deploy.util
+
 from deploy.util.progressbar   import ProgressBar
 
 from deploy.util.sync.callback import SyncCallbackMetered
 
-from deploy.util import pps
-from deploy.util.pps import path as _path
+from deploy.util.pps import path as _orig_path
 
 from deploy.util.pps.constants import *
 
@@ -69,16 +70,18 @@ class CacheHandler(object):
    * offline             if enabled, files will be accessed from the cache
                          only; if not in the cache, an error will be raised
 
-  It is important to note that CacheHandler instances wrap (decorate) calls to
-  pps.path(), i.e. to direct path objects to use the cache during copy, open
-  and stat operations. To stop path objects from using the cache, i.e. to
-  'unwrap' calls to pps.path(), call the close() method.
+  CacheHandler instances wrap (decorate) calls to deploy.util.pps.path(), i.e.
+  to direct path objects to use the cache during copy, open and stat
+  operations. To stop path objects from using the cache, call the unwrap_path()
+  method.  If multiple pps handlers (i.e. CacheHandler and SearchPathsHandler)
+  are being used, they must be unwrapped in the reverse order that they were
+  wrapped to achieve the desired result.
   """
   def __init__(self, cache_dir=DEFAULT_CACHE_DIR,
                      cache_max_size=DEFAULT_CACHE_SIZE,
                      force=False,
                      offline=False):
-    self.cache_dir = pps.path(cache_dir)
+    self.cache_dir = deploy.util.pps.path(cache_dir)
     self.cache_max_size = cache_max_size
     self.force = force
     self.offline=offline
@@ -95,7 +98,7 @@ class CacheHandler(object):
     self.wrap_path()
 
   def cshfile(self, file):
-    return self.cache_dir / gen_hash(pps.path(file).normpath())
+    return self.cache_dir / gen_hash(deploy.util.pps.path(file).normpath())
 
   def _touch(self, hash):
     "Touch a file in the cache list to update its atime"
@@ -149,17 +152,19 @@ class CacheHandler(object):
         del self.cache_files[cshfile]
 
   def wrap_path(self):
-    "wrap pps.path method to set this instance as the cache handler"
-    setattr(pps, 'path', self.path_wrapper(getattr(pps, 'path')))
+    "wrap deploy.util.pps.path function to set this instance as the cache "
+    "handler"
+    setattr(deploy.util.pps, 'path', 
+            self.path_wrapper(getattr(deploy.util.pps, 'path')))
 
   def unwrap_path(self):
-    "restore original pps.path method"
-    setattr(pps, 'path', _path)
+    "restore original deploy.util.pps.path function"
+    setattr(deploy.util.pps, 'path', _orig_path)
 
   def path_wrapper(self, fn):
     @wraps(fn)
     def wrapped(string, *args, **kwargs):
-      if isinstance(string, pps.Path.BasePath):
+      if isinstance(string, deploy.util.pps.Path.BasePath):
         string.cache_handler=self
         return string
       else:

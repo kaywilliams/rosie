@@ -20,7 +20,8 @@ import errno
 
 from math import ceil, log
 
-from deploy.util.pps            import path
+import deploy.util
+
 from deploy.util.pps.Path.error import PathError
 
 from deploy.util.pps.Path.remote import RemotePath #!
@@ -77,7 +78,7 @@ def trymirrors(meth):
 class MirrorGroup(list):
   def __init__(self, iterable):
     # create list, filtering out unsupported items
-    list.__init__(self, [ [path(x), True] for x in 
+    list.__init__(self, [ [deploy.util.pps.path(x), True] for x in 
                            filter(self._filter, iterable) ])
 
     # hack - reduce the timeout on remote mirrorlist items and only try once

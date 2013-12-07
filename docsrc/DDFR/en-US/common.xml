@@ -20,16 +20,22 @@
   sections throughout the remainder of this document.
   </para>
 
+  <para>
+  Users can customize individual files by copying to a new templates folder
+  that follows the heirarchy of the original. To make Deploy aware of the new
+  folder, add it as a <emphasis role='strong'>templates-path</emphasis> in the
+  Deploy Configuration File (<filename>/etc/deploy/deploy.conf</filename>).
+  Deploy searches template folders in the order specified. See the deploy.conf
+  man page (<command>man deploy.conf</command>) for additional information on
+  the <emphasis role='strong'>templates-path</emphasis> element.
+  </para>
+
   <warning>
   <para>
   Do not modify files in the
   <filename>/usr/share/deploy/templates</filename> folder. Changes to
   these files will be overwritten when updated versions of the Deploy
   RPM are installed.
-  </para>
-
-  <para>
-  Instead, copy files to a new location before editing.
   </para>
   </warning>
 </div>

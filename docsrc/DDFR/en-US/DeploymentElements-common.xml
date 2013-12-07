@@ -957,7 +957,7 @@ $remote-url/%{id}</programlisting>
     </para>
     <informalexample>
     <programlisting>
-&lt;xi:include href="/%{templates-dir}/common/ks.xml"/&gt;
+&lt;xi:include href="%{templates-dir}/common/ks.xml"/&gt;
     </programlisting>
     </informalexample>
 

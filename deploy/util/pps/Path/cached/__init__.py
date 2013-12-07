@@ -18,8 +18,6 @@
 
 from copy import copy
 
-from deploy.util.pps import path as _path
-
 from deploy.util.pps.UriTuple import urlunparse
 
 from deploy.util.pps.Path import BasePath

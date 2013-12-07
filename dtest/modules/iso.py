@@ -27,7 +27,7 @@ from deploy.util.splittree import parse_size
 from dtest        import EventTestCase, ModuleTestSuite
 from dtest.core   import make_core_suite, make_extension_suite
 from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
-                           dm_make_suite, update_install_script)
+                          dm_make_suite)
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):
@@ -175,8 +175,13 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
 
   def __init__(self, os, version, arch, *args, **kwargs):
     IsoEventTestCase.__init__(self, os, version, arch)
-    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
-    update_install_script(self.conf, 'iso/CD/%s-disc1.iso' % self.name)
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish',
+                                 iso=True,
+                                 iso_location='iso/CD/%s-disc1.iso' % self.name)
+
+  def setUp(self):
+    IsoEventTestCase.setUp(self)
+    DeployMixinTestCase.setUp(self)
 
 
 def make_suite(os, version, arch, *args, **kwargs):

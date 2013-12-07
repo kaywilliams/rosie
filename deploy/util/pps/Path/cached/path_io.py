@@ -18,7 +18,8 @@
 
 import errno
 
-from deploy.util.pps     import path
+import deploy.util
+
 from deploy.util.pps.lib import file_cache
 
 from deploy.util.pps.Path import Path_IO
@@ -45,7 +46,7 @@ class CachedPath_IO(Path_IO):
 
     if callback and hasattr(callback, '_notify_copy'):
       callback._notify_copy()
-    csh._copy(dst=path(dst), callback=callback, **kwargs)
+    csh._copy(dst=deploy.util.pps.path(dst), callback=callback, **kwargs)
 
   def open(self, mode='r', seek=None, **kwargs):
     if not self.cache_handler:

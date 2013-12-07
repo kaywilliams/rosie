@@ -195,41 +195,6 @@ def remove_input_files(dir):
   for file in files:
     (dir/file).remove()
 
-def update_install_script(conf, location):
-  """
-  updates conf with text of a script for performing libvirt installation
-  given the relative path to an iso file
-  """
-
-  install_script = conf.getxpath('./publish/script[@id="install"]')
-  for elem in install_script.getchildren():
-    install_script.remove(elem)
-  install_script.text = """
-#!/bin/bash
-
-%%{source-guestname}
-
-deploydir="/var/lib/deploy/deploy/%%{id}"
-file=$deploydir/$(basename %(location)s)
-wget -q -O $file %(location)s
-chcon -t httpd_sys_content_t $file
-
-virt-install \
-             --name $guestname \
-             --arch %%{arch} \
-             --ram 1000 \
-             --network network=deploy \
-             --graphics vnc \
-             --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
-             --cdrom  $file \
-             --noreboot
-
-# wait for install to complete and machine to shutdown
-while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
-  sleep 2
-done
-    """ % {'location': '%%{os-url}/%s' % location}
-
 
 #------ Convenience Imports ------#
 

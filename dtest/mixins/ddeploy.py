@@ -31,38 +31,72 @@ __all__ = ['DeployMixinTestCase', 'dm_make_suite']
 class DeployMixinTestCase(PublishSetupMixinTestCase):
   _type = 'system'
   
-  def __init__(self, os, version, arch, module=None):
+  def __init__(self, os, version, arch, module=None, 
+               iso=False, iso_location=None):
     self.deploy_module = module or self.moduleid
+    self.iso = iso
+    self.iso_location = iso_location
+
     PublishSetupMixinTestCase.__init__(self, os, version, arch,
                                        deploy_module=self.deploy_module)
 
-    # get default deploy config
-    macros = parse_option_macros(self.options.macros) 
+    # ensure deploy_module element exists
+    mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
+    if mod is None:
+      mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
 
-    macros.update({
-              '%{name}'     : self.name,
-              '%{version}'  : version,
-              '%{arch}'     : arch,
-              '%{id}'       : self.id,
+    # add dummy kickstart element so kickstart event doesn't disable itself
+    # this is technically only necessary when deploy_module == publish
+    self.kickstart_added=False
+    if not mod.getxpath('kickstart', None):
+      rxml.config.Element(name='kickstart', parent=mod, text='dummy')
+      self.kickstart_added=True
+
+    # add dummy script element so deploy event doesn't disable itself
+    # this is technically only necessary when deploy_module == publish
+    self.script_added=False
+    if not mod.xpath('script', []):
+      rxml.config.Element(name='script', parent=mod, text='dummy',
+                          attrib={'id':'dummy', 'type':'post'})
+      self.script_added=True
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+
+    # get default deploy config
+    self.macros = self.tb.initial_macros 
+
+    self.macros.update({
+              '%{name}'     : self.tb.name,
+              '%{version}'  : self.tb.version,
+              '%{arch}'     : self.tb.arch,
+              '%{id}'       : self.tb.id,
               '%{file-size}': '6',
-              '%{definition-dir}': self.definition_path.dirname,
-              '%{templates-dir}': self.templates_dir,
-              '%{data-dir}': pps.path(self.options.data_root) / self.id
+              '%{definition-dir}': self.tb.definition_path.dirname,
+              '%{data-dir}' : self.tb.data_dir,
+              '%{module}'   : self.deploy_module
               })
 
     deploy = rxml.config.parse(
       '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
       pps.path(__file__).dirname.abspath(),
       xinclude = True,
-      macros = macros
+      macros = self.macros,
       ).getroot()
 
-    # update module
-    mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
-    if mod is None:
-      mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
+    if self.iso:
+      self._iso_install_script(deploy, self.iso_location)
 
-    if not mod.getxpath('password', None):
+    deploy.remove_macros()
+
+    # update module
+    mod = self.tb.definition.getxpath('/*/%s' % self.deploy_module, None)
+
+    # remove dummy elements added by __init__()
+    self.kickstart_added and mod.remove(mod.getxpath('kickstart'))
+    self.script_added and mod.remove(mod.getxpath('script[@id="dummy"]'))
+
+    if mod.getxpath('password', None) is not None:
       rxml.config.Element(name='password', parent=mod, text='dtest')
 
     if self.deploy_module != 'test-install':
@@ -78,16 +112,50 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
     self.tb.dispatch.execute(until=event)
 
+  def _iso_install_script(self, root, location):
+    """
+    updates deploy element with text of a script for performing libvirt 
+    installation given the relative path to an iso file
+    """
+  
+    install_script = root.getxpath('script[@id="install"]')
+    for elem in install_script.getchildren():
+      install_script.remove(elem)
+    install_script.text = """
+#!/bin/bash
+
+%%{source-guestname}
+
+deploydir="/var/lib/deploy/deploy/%%{id}"
+file=$deploydir/$(basename %(location)s)
+wget -q -O $file %(location)s
+chcon -t httpd_sys_content_t $file
+
+virt-install \
+             --name $guestname \
+             --arch %%{arch} \
+             --ram 1000 \
+             --network network=deploy \
+             --graphics vnc \
+             --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
+             --cdrom  $file \
+             --noreboot
+
+# wait for install to complete and machine to shutdown
+while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
+  sleep 2
+done
+    """ % {'location': '%%{os-url}/%s' % location}
+
+    root.resolve_macros(map=self.macros)
 
 def DeployMixinTest_Teardown(self):
   self._testMethodDoc = "dummy test to delete virtual machine"
 
   def setUp():
-    mod = self.conf.getxpath('/*/%s' % self.deploy_module, None)
-    mod = prepare_deploy_elem_to_remove_vm(
-          mod, parse_option_macros(self.options.macros).get(
-          '%{deploy-host}', None))
-    EventTestCase.setUp(self)
+    DeployMixinTestCase.setUp(self)
+    mod = self.tb.definition.getxpath('/*/%s' % self.deploy_module, None)
+    mod = prepare_deploy_elem_to_remove_vm(mod)
 
   self.setUp = setUp
 
@@ -98,13 +166,7 @@ def dm_make_suite(TestCase, os, version, arch):
   suite.addTest(DeployMixinTest_Teardown(TestCase(os, version, arch)))
   return suite
 
-def parse_option_macros(macro_list):
-  macros = {}
-  for name, value in [ x.split(':') for x in macro_list ]:
-    macros['%%{%s}' % name] = value
-  return macros
-
-def prepare_deploy_elem_to_remove_vm(elem, deploy_host):
+def prepare_deploy_elem_to_remove_vm(elem):
   """ 
   accepts a deploy elem (publish, test-update or test-install)
   and massages it to to remove an existing virtual machine on the
@@ -114,7 +176,7 @@ def prepare_deploy_elem_to_remove_vm(elem, deploy_host):
                                  '@id!="delete"]'):
     elem.remove(script)
   elem.getxpath('script[@id="delete"]').attrib['type'] = 'post'
-  elem.getxpath('script[@id="delete"]').attrib['hostname'] = (
-                                        deploy_host or 'localhost')
+  elem.getxpath('script[@id="delete"]').attrib['hostname'] = 'localhost'
 
   return elem
+

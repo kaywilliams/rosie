@@ -29,8 +29,7 @@ from dtest        import (EventTestCase, ModuleTestSuite, _run_make,
 from dtest.core   import make_core_suite
 
 from dtest.mixins.rpmbuild import PUBKEY, SECKEY
-from dtest.mixins.ddeploy import (parse_option_macros, 
-                                  prepare_deploy_elem_to_remove_vm)
+from dtest.mixins.ddeploy  import prepare_deploy_elem_to_remove_vm
 
 REPODIR  = pps.path(__file__).dirname/'shared' 
 
@@ -70,7 +69,7 @@ class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
       TestBuild, self.conf, options=self.options, args=[],
-                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
+                 mainconfig=self.mainconfig)
 
   def tearDown(self):
     del self.conf
@@ -89,7 +88,7 @@ class Test_Config(TestSrpmTestCase):
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
       TestBuild, self.conf, options=self.options, args=[],
-                 mainconfig=self.mainconfig, templates_dir=self.templates_dir) 
+                 mainconfig=self.mainconfig) 
 
   def tearDown(self):
     del self.conf
@@ -208,17 +207,13 @@ class Test_Shutdown(TestSrpmTestCase):
   def setUp(self):
     # create custom srpmbuild.xml template with remove in post script
     template_file = self.buildroot / 'srpmbuild.xml'
-    (self.templates_dir / 'common/srpmbuild.xml').cp(template_file.dirname)
+    pps.path('%{templates-dir}/common/srpmbuild.xml').cp(template_file.dirname)
     root = rxml.config.parse(template_file, xinclude=True, macros={
                              '%{os}': self.os,
                              '%{version}': self.version,
                              '%{arch}': self.arch,
-                             '%{templates-dir}': self.templates_dir
                              }).getroot()
-    prepare_deploy_elem_to_remove_vm(
-      root.getxpath('/*/publish'),
-      parse_option_macros(self.options.macros).get(
-      '%{deploy-host}', 'localhost'))
+    prepare_deploy_elem_to_remove_vm(root.getxpath('/*/publish'))
     root.write(template_file)
 
     # update config to use custom srpmbuild template

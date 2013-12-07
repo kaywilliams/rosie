@@ -31,7 +31,9 @@ mirror:http://mirrors.fedoraproject.org/mirrorlist?arch=i386&distro=fedora8::/re
 import errno
 import posixpath
 
-from deploy.util.pps            import path as _path, register_scheme
+import deploy.util
+
+from deploy.util.pps            import register_scheme
 from deploy.util.pps.UriTuple   import UriTuple
 from deploy.util.pps.lib        import cached
 from deploy.util.pps.lib.mirror import MirrorGroup, validate_mirrorlist
@@ -85,7 +87,7 @@ class MirrorPath(MirrorPath_IO, MirrorPath_Printf, MirrorPath_Stat,
     s,n,rp,p,q,f = urlparse(relpath) # s, n always None or ''
     if protocol and root:
       return UriTuple(('mirror',
-                       _path(root),
+                       deploy.util.pps.path(root),
                        self._new(relpath),
                        p, q, f))
     else:

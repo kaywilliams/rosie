@@ -19,7 +19,7 @@ import errno
 import hashlib
 import stat
 
-from deploy.util.pps import path
+import deploy.util
 
 from deploy.util.pps.lib       import cached
 from deploy.util.pps.constants import *
@@ -34,10 +34,10 @@ class Path_IO(object):
   def chmod(self, mode):     raise NotImplementedError
   def chown(self, uid, gid): raise NotImplementedError
   def copymode(self, dst):
-    path(dst).chmod(stat.S_IMODE(self.stat().st_mode))
+    deploy.util.pps.path(dst).chmod(stat.S_IMODE(self.stat().st_mode))
   def copystat(self, dst, time=True, mode=True, owner=True):
     st = self.stat()
-    dst = path(dst)
+    dst = deploy.util.pps.path(dst)
     if time:  dst.utime((st.st_atime, st.st_mtime))
     if mode:  dst.chmod(stat.S_IMODE(st.st_mode))
     if owner and st.st_uid: dst.chown(st.st_uid, st.st_gid)
@@ -112,7 +112,7 @@ class Path_IO(object):
   def _open(self, *args, **kwargs): raise NotImplementedError
 
   def copyfile(self, dst, callback=None, preserve=False, **kwargs):
-    dst = path(dst)
+    dst = deploy.util.pps.path(dst)
 
     fsrc = None
     fdst = None
@@ -149,7 +149,7 @@ class Path_IO(object):
     kwargs['preserve'] = preserve
     kwargs['callback'] = callback 
 
-    dst = path(dst)
+    dst = deploy.util.pps.path(dst)
     if self.isdir():
       if not recursive:
         raise PathError(errno.EISDIR, "cannot copy directory '%s' in non-recursive mode" % self)
@@ -189,7 +189,7 @@ class Path_IO(object):
     if callback: callback._cp_start(size, self.basename)
 
     kwargs['callback'] = callback
-    dst = path(dst)
+    dst = deploy.util.pps.path(dst)
     if force or update or mirror:
       if force: 
         dst.rm(force=True)

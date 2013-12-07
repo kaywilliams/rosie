@@ -16,7 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from deploy.util.pps          import path as _path, register_scheme
+import deploy.util
+
+from deploy.util.pps          import register_scheme
 from deploy.util.pps.lib.http import auth_handler
 from deploy.util.pps.util     import urlunparse
 
@@ -52,7 +54,7 @@ class RhnPath(RhnPath_IO, RhnPath_Printf, RhnPath_Stat,
     else:
       scheme = 'http'
 
-    uri = _path(urlunparse((scheme,
+    uri = deploy.util.pps.path(urlunparse((scheme,
                             self.realm or self.default_realm,
                             self.rpc_prefix / self.path,
                             '', '', '')))
@@ -74,7 +76,7 @@ class RhnsPath(RhnPath):
 def path(string, cls=RhnPath, systemid=None, **kwargs):
   p = cls(string, **kwargs)
   if systemid:
-    p._systemid = _path(systemid)
+    p._systemid = deploy.util.pps.path(systemid)
   return p
 
 register_scheme('rhn',  path, None, {'cls': RhnPath})

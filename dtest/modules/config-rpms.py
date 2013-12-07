@@ -74,7 +74,7 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
       TestBuild, self.conf, options=self.options, args=[], 
-                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
+                 mainconfig=self.mainconfig)
 
   def tearDown(self):
     del self.conf
@@ -238,7 +238,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
       TestBuild, self.conf, options=self.options, args=[], 
-                 mainconfig=self.mainconfig, templates_dir=self.templates_dir)
+                 mainconfig=self.mainconfig)
 
   def tearDown(self):
     del self.conf
@@ -263,6 +263,10 @@ class DeployConfigRpmEventTestCase(DeployMixinTestCase,
   def __init__(self, os, version, arch, *args, **kwargs):
     ConfigRpmInputsEventTestCase.__init__(self, os, version, arch)
     DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
+
+  def setUp(self):
+    ConfigRpmInputsEventTestCase.setUp(self)
+    DeployMixinTestCase.setUp(self)
 
 class Test_FilesInstalled(DeployConfigRpmEventTestCase):
   "files installed on client machine"

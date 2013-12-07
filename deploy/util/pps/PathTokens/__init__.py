@@ -19,7 +19,7 @@
 PathTokens - an alternate representation of Path objects
 """
 
-from deploy.util.pps import path
+import deploy.util
 
 class PathTokens(list):
   """
@@ -45,7 +45,7 @@ class PathTokens(list):
 
   def __init__(self, iterable):
     if not hasattr(iterable, '__iter__'):
-      iterable = path(iterable).splitall()
+      iterable = deploy.util.pps.path(iterable).splitall()
 
     list.__init__(self, iterable)
 

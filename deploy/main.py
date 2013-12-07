@@ -43,7 +43,9 @@ from deploy.util import shlib
 from deploy.util import si
 
 from deploy.util import pps
-from deploy.util.pps.Path.error import OfflinePathError
+from deploy.util.pps.Path.error   import OfflinePathError
+from deploy.util.pps.cache        import CacheHandler
+from deploy.util.pps.search_paths import SearchPathsHandler
 
 from deploy.util import sync
 
@@ -74,7 +76,7 @@ API_VERSION = 5.0
 DEFAULT_CACHE_DIR = pps.path('/var/cache/deploy')
 DEFAULT_LIB_DIR = pps.path('/var/lib/deploy')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
-DEFAULT_TEMPLATES_DIR = pps.path('/usr/share/deploy/templates')
+DEFAULT_TEMPLATE_DIRS = [ pps.path('/usr/share/deploy/templates') ]
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
 
 # supported base distribution versions
@@ -315,9 +317,19 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                           ['./main/id/text()', './main/id/text()'])
 
   def _get_templates_dir(self):
-    self.templates_dir = self.mainconfig.getpath(
-                         '/deploy/templates-path/text()',
-                          DEFAULT_TEMPLATES_DIR)
+    self.template_dirs = [ x.expand().abspath()
+                           for x in self.mainconfig.getpaths(
+                           '/deploy/templates-path/text()', []) ]
+    self.template_dirs.extend(DEFAULT_TEMPLATE_DIRS)
+
+    for d in self.template_dirs:
+      if not d in DEFAULT_TEMPLATE_DIRS and not d.isdir():
+        raise RuntimeError("The specified templates-path '%s' does not exist."
+                            % d)
+
+    self.search_paths_handler = SearchPathsHandler({
+                                '%{templates-dir}': self.template_dirs 
+                                })
 
   def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
@@ -339,7 +351,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         map['%%{%s}' % id] = value
 
     map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
-    map.setdefault('%{templates-dir}', self.templates_dir)
 
     self.initial_macros = map
 
@@ -521,7 +532,7 @@ The definition file is located at %s.
     self.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
 
-    self.cache_handler = pps.cache.CacheHandler(
+    self.cache_handler = CacheHandler(
                          cache_dir = self.CACHE_DIR / '.cache',
                          cache_max_size = self.CACHE_MAX_SIZE,
                          offline = self.mainconfig.getxpath(

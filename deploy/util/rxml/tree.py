@@ -211,7 +211,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     return len(self.xpath(child, [])) > 0
 
   def remove(self, elem):
-    if not elem.tail:
+    if not isinstance(elem, etree._Element) or not elem.tail:
       etree.ElementBase.remove(self, elem)
 
     else:
@@ -616,9 +616,16 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
           # process remote includes
           if 'href' in elem.attrib:
-           # get absolute href
+            # get absolute href
             base = pps.path(elem.base or '.')
-            href = (base.dirname / elem.attrib['href']).normpath()
+            href = pps.path(elem.attrib['href'], 
+                            search_path_ignore=[base]) # allow file overloading
+            href = (base.dirname / href).normpath()
+
+            if base == href:
+              raise errors.XIncludeError(message='The file contains a '
+                                                 'recursive include to '
+                                                 'itself' , elem=elem)
 
             # text
             if 'parse' in elem.attrib and elem.attrib['parse'] == 'text':

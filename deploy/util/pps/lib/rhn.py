@@ -38,12 +38,12 @@
 
 import xmlrpclib
 
-from deploy.util.pps import path
+import deploy.util
 
 # systemid validation
 def validate_systemid(systemid):
   "Validate a systemid string to ensure it really is a systemid"
-  text = path(systemid).read_text()
+  text = deploy.util.pps.path(systemid).read_text()
   try:
     sysid,_ = xmlrpclib.loads(text)
   except Exception, e:

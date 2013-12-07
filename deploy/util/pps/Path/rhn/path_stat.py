@@ -17,7 +17,8 @@
 #
 import time
 
-from deploy.util.pps         import path
+import deploy.util
+
 from deploy.util.pps.lib.rhn import validate_systemid
 
 from deploy.util.pps.Path.remote   import RemotePath_Stat
@@ -51,7 +52,8 @@ class RhnPath_Stat(RemotePath_Stat):
 
   def _get_systemid(self):
     if not systemids.has_key(self.channel):
-      systemids[self.channel] = path('/etc/sysconfig/rhn/systemid')
+      systemids[self.channel] = deploy.util.pps.path(
+                                '/etc/sysconfig/rhn/systemid')
     return systemids[self.channel]
 
   def _set_systemid(self, sysid):

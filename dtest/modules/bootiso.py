@@ -21,7 +21,7 @@ from deploy.util.img import MakeImage
 from dtest        import EventTestCase, ModuleTestSuite
 from dtest.core   import make_extension_suite
 from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
-                          dm_make_suite, update_install_script)
+                          dm_make_suite)
 
 class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'
@@ -71,8 +71,12 @@ class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
 
   def __init__(self, os, version, arch):
     BootisoEventTestCase.__init__(self, os, version, arch)
-    DeployMixinTestCase.__init__(self, os, version, arch, module='publish')
-    update_install_script(self.conf, 'images/boot.iso')
+    DeployMixinTestCase.__init__(self, os, version, arch, module='publish',
+                                 iso=True, iso_location='images/boot.iso')
+
+  def setUp(self):
+    BootisoEventTestCase.setUp(self)
+    DeployMixinTestCase.setUp(self)
 
 
 def make_suite(os, version, arch, *args, **kwargs):

@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+
+import itertools 
+import re
+
 """
 PPS - Python Pathing System (boring name, will be more creative later!)
 
@@ -45,16 +49,68 @@ indexing method.  See the modules themselves for more information on the
 purpose and function of these classes.
 """
 
-
-def path(string, *args, **kwargs):
+def path(string, search_paths={}, search_path_ignore=[], *args, **kwargs):
   """Factory function to create a Path object of the correct type from a
   string.  NOTE - if you want to create a (local) path without a scheme that
-  contains ':', use pps.Path.local.path() instead."""
+  contains ':', use pps.Path.local.path() instead.
+  
+  Accepts two arguments:
+   * search_paths - a dict of search paths in 'placeholder: list of values'
+     format, for example:
+
+     { '%{templates_dir}' : [ '/etc/deploy/templates',
+                              '/usr/share/deploy/templates' ]
+     }
+                              '
+     PPS checks if one or more placeholder is in the provided string. If so,
+     it iterates through a list of (placeholder, value) combinations, testing
+     the resulting string at each pass to see if a file of that name file.
+     If a match is found, processing stops and a Path with the resulting string
+     is returned. Else, a Path to the original string is returned.
+
+   * search_path_ignore - a string or list of strings to ignore when resolving
+     search paths. If a resolved string matches an item in the list, it is
+     ignored and the search for a match continues.
+
+  Calling applications can use the SearchPathsHandler, see search_paths.py,
+  to wrap the path function providing a default list of search paths.
+  """
   if isinstance(string, Path.BasePath):
     return string
   elif string is None:
     return None
 
+  # attempt to resolve macros, if found
+  MACRO_REGEX = '%{(?:(?!%{).)*?}' # match inner macros - nested macros
+                                   # not allowed in search paths for now
+  found_macros = []
+  for macro in re.findall(MACRO_REGEX, string):
+    if macro in search_paths: found_macros.append(macro)
+
+  if found_macros:
+    if isinstance(search_path_ignore, basestring): 
+      search_path_ignore=[ search_path_ignore ]
+    search_path_ignore = [ str(x) for x in search_path_ignore ]
+
+    macro_tuples = [] 
+    for macro in found_macros:
+      macro_tuples.append( [ (macro, x) for x in search_paths[macro] ] )
+
+    for item in itertools.product(*macro_tuples):
+      new_string = string[:] # copy string
+      for macro, value in item:
+        new_string = new_string.replace(macro, value)
+      if new_string in search_path_ignore:
+        continue
+      pathobj = __path(new_string, *args, **kwargs)
+      if pathobj.exists():
+        return pathobj
+    
+  # if no macros, or if macros could not be resolved, return a path with the
+  # initial string
+  return __path(string, *args, **kwargs)
+
+def __path(string, *args, **kwargs):
   i = string.find(':')
   if i > 0:
     scheme = string[:i].lower()
@@ -68,6 +124,7 @@ def path(string, *args, **kwargs):
   args = list(args)
   args.extend(fargs)
   kwargs.update(fkwargs)
+
   return fn(string, *args, **kwargs)
 
 registered_schemes = {}
@@ -76,11 +133,27 @@ def register_scheme(scheme, fn, args=None, kwargs=None):
   "that type.  Optionally passes *args, and **kwargs to fn"
   registered_schemes[scheme] = (fn, args or [], kwargs or {})
 
-# by waiting to import until after the factory function, we allow path
+# by waiting to import until after the register_scheme function, we allow path
 # modules to import it without creating a circular dependency
+#
+# path modules should avoid making a local copy of the path function as this 
+# obstructs function wrapping by the cache and search_paths handlers, 
+# specifically,
+#
+# do this:
+#
+#   import deploy.util
+#   p = deploy.util.pps.path('somepath')
+# 
+# rather than this:
+#
+#   from deploy.util.pps import path
+#   p = path('somepath')
+#
+
 import Path
 
-#import Path.ftp
+#import Path.ftp # not fully implemented
 try:
   import Path.rhn
 except ImportError:

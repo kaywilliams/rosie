@@ -18,9 +18,11 @@
 
 import os
 
+import deploy.util
+
+from deploy.util.pps      import register_scheme
 from deploy.util.pps.util import urlunparse, _normpart
 
-from deploy.util.pps      import path as _path, register_scheme
 from deploy.util.pps.Path import BasePath
 
 from path_io   import LocalPath_IO
@@ -43,7 +45,7 @@ class _LocalPath(BasePath):
   def equivpath(self, other):
     try:
       return self.expand().abspath().realpath() == \
-             _path(other).expand().abspath().realpath()
+             deploy.util.pps.path(other).expand().abspath().realpath()
     except AttributeError:
       return False
 
@@ -52,7 +54,7 @@ class _LocalPath(BasePath):
 
   def relpathto(self, dst):
     start = self.abspath()
-    end   = _path(dst)
+    end   = deploy.util.pps.path(dst)
 
     if hasattr(end, 'abspath'):
       end = end.abspath()

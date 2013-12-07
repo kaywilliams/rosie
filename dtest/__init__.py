@@ -33,16 +33,14 @@ from deploy.util import shlib
 
 from deploy.util.rxml import config
 
-from deploy.main import Build, DEFAULT_TEMPLATES_DIR
+from deploy.main import Build
 
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
 
 class TestBuild(Build):
-  def __init__(self, conf, options=None, args=None, mainconfig=None, 
-               templates_dir=None):
+  def __init__(self, conf, options=None, args=None, mainconfig=None):
     self.conf = conf
     self.mainconfig = mainconfig
-    self.templates_dir = templates_dir
     Build.__init__(self, options, args)
 
   def _get_config(self, options, arguments):
@@ -52,9 +50,6 @@ class TestBuild(Build):
 
   def _get_definition_path(self, *args):
     self.definition_path = pps.path(self.conf.base) 
-
-  def _get_templates_dir(self):
-    pass
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
@@ -80,7 +75,6 @@ class EventTestCase(unittest.TestCase):
 
     self.buildroot = BUILD_ROOT
     self.mainconfig = self.get_mainconfig()
-    self.templates_dir = self.get_templates_dir()
 
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):
@@ -103,12 +97,6 @@ class EventTestCase(unittest.TestCase):
 
       return mainconfig
   
-  def get_templates_dir(self):
-      templates_dir = self.mainconfig.getpath('/deploy/templates-path/text()',
-                                              DEFAULT_TEMPLATES_DIR)
-  
-      return templates_dir
-
   # hack to get display working properly in centos 5
   def shortDescription(self):
     return self._testMethodDoc
@@ -181,8 +169,7 @@ class EventTestCase(unittest.TestCase):
   # test suite methods
   def setUp(self):
     self.tb = TestBuild(self.conf, options=self.options, args=[], 
-                        mainconfig=self.mainconfig, 
-                        templates_dir=self.templates_dir) 
+                        mainconfig=self.mainconfig)
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)

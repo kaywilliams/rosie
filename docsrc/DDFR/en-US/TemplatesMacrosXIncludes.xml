@@ -324,12 +324,17 @@ print uuid.uuid1()
     </term>
     <listitem>
     <para>
-    The folder location of Deploy-provided templates,
-    <filename>/usr/share/deploy/templates</filename> by default. Can be set
-    using the <emphasis>templates-path</emphasis> element of the Deploy
-    Configuration file. See <command>man deloy.conf</command> for additional
-    information.  Useful for specifying files and folders relative to the
-    templates folder.
+    The folder location of template files,
+    <filename>/usr/share/deploy/templates</filename> by default. Additional
+    template locations can be specified using the
+    <emphasis>templates-path</emphasis> element of the Deploy Configuration
+    file. Deploy searches templates folders in the order specified. See
+    <command>man deloy.conf</command> for additional information.
+    </para>
+    
+    <para>
+    Useful for specifying paths relative to a heirarchical list 
+    of folders.
     </para>
     </listitem>
     </varlistentry>
