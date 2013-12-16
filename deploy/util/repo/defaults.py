@@ -84,7 +84,7 @@ DEFAULTS = {
     'mirrorlist': 'http://mirrors.fedoraproject.org/mirrorlist',
     # path to a location at the root of a fedora mirror; beneath it is
     # typically 'core', 'releases', etc
-    'baseurl':    'http://download.fedora.redhat.com/pub/fedora/linux',
+    'baseurl':    'http://dl.fedoraproject.org/pub/fedora/linux',
   },
   DISTRO_REDHAT: {
     # redhat has no publicly-available mirrorlist
@@ -466,7 +466,7 @@ REPO_DATA = {
     DISTRO_FEDORA: {
       ('1','2','3','4','5','6'):
         FEDORA_PACKAGES_OLD,
-      ('7', '8', '9'):
+      ('7', '8', '9', '19'):
         FEDORA_PACKAGES,
       ('10-Beta'):
         FEDORA_PACKAGES_BETA,
@@ -474,7 +474,7 @@ REPO_DATA = {
         FEDORA_PACKAGES_DEVEL,
     },
     '%s.newkey' % DISTRO_FEDORA: {
-      ('8', '9'):
+      ('8', '9', '19'):
         FEDORA_PACKAGES_NEWKEY,
     },
     DISTRO_REDHAT: REDHAT_PACKAGES,
@@ -484,7 +484,7 @@ REPO_DATA = {
     DISTRO_FEDORA: {
       ('1','2','3','4','5','6'):
         FEDORA_SOURCE_OLD,
-      ('7', '8', '9'):
+      ('7', '8', '9', '19'):
         FEDORA_SOURCE,
       ('10-Beta'):
         FEDORA_SOURCE_BETA,
@@ -492,7 +492,7 @@ REPO_DATA = {
         FEDORA_SOURCE_DEVEL,
     },
     '%s.newkey' % DISTRO_FEDORA: {
-      ('8', '9'):
+      ('8', '9', '19'):
         FEDORA_SOURCE_NEWKEY,
     },
     DISTRO_REDHAT: REDHAT_SOURCE,
@@ -502,7 +502,7 @@ REPO_DATA = {
     DISTRO_FEDORA: {
       ('1','2','3','4','5','6'):
         FEDORA_INSTALLER_OLD,
-      ('7','8','9'):
+      ('7','8','9', '19'):
         FEDORA_INSTALLER,
       ('10-Beta'):
         FEDORA_INSTALLER_BETA,
@@ -518,7 +518,7 @@ GPGKEYS = {
   DISTRO_FEDORA: {
     ('1','2','3','4','5','6'):
       FEDORA_GPGKEYS_OLD,
-    ('7','8','9'):
+    ('7','8','9', '19'):
       FEDORA_GPGKEYS,
     ('10-Beta'):
       FEDORA_GPGKEYS_BETA,

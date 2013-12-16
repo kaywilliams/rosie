@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpm id="yum-sync-config" xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+adds a daily cron script to run yum sync, followed by a system restart if the
+system kernel version has changed
+</description>
+
+<requires>yum</requires>
+
+<files destdir="/etc/cron.daily" destname="yum-sync" content="text" mode="755">
+#!/bin/bash
+SHELL=/bin/bash
+set -e
+/usr/bin/yum -q -y sync
+/usr/sbin/check-kernel
+</files>
+
+<files destdir="/usr/sbin/" destname="check-kernel" mode='750' content='text'>
+<xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml" 
+            xpointer='xpointer(/*/text())'/>
+</files>
+</config-rpm>

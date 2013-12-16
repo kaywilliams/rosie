@@ -49,9 +49,9 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
     self.provides.update(['rpmbuild-data', 'comps-object'])
+    self.requires.update(['dist-tag'])
     self.rpms = [] # list of rpmbuild dicts (get_rpmbuild_data()) to be 
                    # managed by the mixin
-    self.dist = '.el%s' % self.version
     ShelveMixin.__init__(self)
 
   @property
@@ -60,6 +60,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def setup(self):
     self.DATA.setdefault('variables', []).append('rpmbuild_mixin_version')
+    self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
     self._setup_signing_keys()
 
   def run(self):
@@ -277,7 +278,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def _get_release(self):
     if self.force_release: # use provided release
-      return str(self.force_release)
+      return str(self.force_release.replace(self.dist, ''))
 
     else: # bump calculated release  
       self.datfile = self.parse_datfile()

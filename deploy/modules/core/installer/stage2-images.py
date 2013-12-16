@@ -55,10 +55,12 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     self._download()
 
   def apply(self):
-    # semi hack so that bootiso can contain stage2.img in anaconda >= 11.4.0.40
+    # set stage2-images cvar
     self.cvars.setdefault('stage2-images', {})
     for k,v in self.file_locals.items():
-      self.cvars['stage2-images'][k] = self.OUTPUT_DIR/v['path']
+      self.cvars['stage2-images'][k] = (v['path'], self.OUTPUT_DIR/v['path'])
+
+    # set treeinfo-checksums cvar
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
     for f in self.OUTPUT_DIR.findpaths(type=pps.constants.TYPE_NOT_DIR):
       cvar.add((self.OUTPUT_DIR, f.relpathfrom(self.OUTPUT_DIR)))

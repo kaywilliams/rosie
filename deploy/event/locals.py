@@ -45,13 +45,19 @@ class LocalsObject:
   L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.anaconda_ver])
   L_LOGOS             = property(lambda self: L_LOGOS[self.anaconda_ver])
   L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.anaconda_ver])
+  L_REQUIRED_PACKAGES = property(lambda self: L_REQUIRED_PACKAGES[
+                                                self.anaconda_ver])
 
   # createrepo-version based
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
 
   # base distribution and version based
-  L_ANACONDA_VERSION  = property(lambda self: L_ANACONDA_VERSION[self.base_ver])
-  L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
+  L_ANACONDA_VERSION  = property(lambda self: L_ANACONDA_VERSION[
+                                                self.ptr.cvars['dist-tag']][
+                                                self.base_ver])
+  L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[
+                                                self.base_name][
+                                                self.base_ver])
 
   # pykickstart version based
   pykickstart_ver = property(lambda self: 'pykickstart-%s' % self.ptr.cvars['pykickstart-version'])

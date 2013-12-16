@@ -27,13 +27,14 @@ from deploy.event import Event
 
 from deploy.util import listfmt
 from deploy.util import pps
+from deploy.util import shlib 
 from deploy.util import rxml
-
-from deploy.util.pps.cache import gen_hash
 
 from deploy.util.difftest.filesdiff import DiffTuple
 
+from deploy.util.pps.cache      import gen_hash
 from deploy.util.pps.constants  import TYPE_DIR
+from deploy.util.pps.Path.http  import HttpPath 
 from deploy.util.pps.Path.error import PathError
 
 from deploy.errors       import (DeployEventError,
@@ -484,14 +485,27 @@ class GPGKeysEventMixin:
         raise GPGKeyError(e)
       filename = url.basename
       text = self.io.abspath(url).read_text().strip()
+
+      # some urls return keys encoded within a web page, get just the key
+      match = re.search(r"-----(.|\n)*-----", text)
+
+      if not match:
+        msg = "The file at '%s' does not contain a valid GPG key." % url.touri()
+        raise GPGKeyError(msg)
+      else:
+        text = match.group()
+
       if text not in gpgkeys:
         filenames = [ x for x, _ in gpgkeys.values() ]
         index = 0
         while True:
-          if index == 0:
-            filename = url.basename
+          if isinstance(url, HttpPath) and '?' in url.basename:
+            filename = "RPM-GPG-KEY-%s" % self._get_gpgkey_uid(text).replace(
+                       ' ', '-')
           else:
-            filename = url.basename + '(' + str(index) + ')'
+            filename = url.basename
+          if index != 0:
+            filename = filename + '(' + str(index) + ')'
           if filename not in filenames:
             gpgkeys[text] = (filename, url)
             break
@@ -505,6 +519,24 @@ class GPGKeysEventMixin:
       self.gpgkeys[filename] = url
 
     self.DATA['variables'].append('keyids') 
+
+  def _get_gpgkey_uid(self, text):
+    homedir = self.mddir/'homedir'
+    
+    homedir.rm(recursive=True, force=True)
+    homedir.mkdir()
+    homedir.chmod(0700)
+
+    file = homedir / 'tmp.gpg'
+    file.write_text(text)
+
+    shlib.execute('/usr/bin/gpg --homedir %s --keyring pubring.gpg --import %s'
+                  % (homedir, file))
+
+    uid = shlib.execute('/usr/bin/gpg --list-keys --homedir %s |'
+                        '/bin/grep uid | sed "s/uid[ ]*//"' % homedir)
+
+    return uid[0]
 
 class ReposDiffTuple(DiffTuple):
   attrib = DiffTuple.attrib + [('csum', str)]

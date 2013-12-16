@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-keystone-client-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Congifures keystone-client utilities for openstack.
+</description>
+
+<macro id='keystone-server'>
+<requires>openstack-keystone-config</requires>
+</macro>
+
+<requires>openstack-utils</requires>
+<requires>python-keystoneclient</requires>
+<requires>rootfiles</requires><!-- for setting bash_profile -->
+%{keystone-server}
+
+<script type='post'>
+# add keystone admin environment variables to root user profile
+for i in OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL; do 
+  sed -i "/export $i/d" /root/.bash_profile
+done
+
+echo "
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+" >> /root/.bash_profile
+</script>
+
+<script type='verifyscript'>
+source /root/keystonerc_admin
+keystone token-get
+keystone user-list
+</script>
+
+<files destdir='root' destname='keystonerc_admin' mode='600' content='text'>
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
+</files>
+
+<files destdir='/usr/sbin' destname='keystone-service-create' mode='755'
+       content='text'>
+#!/bin/sh
+#
+# create a keystone service
+#
+# keystone-service-create NAME TYPE DESCRIPTION URL PASSWORD
+
+usage() {
+
+cat &lt;&lt; EOF
+
+Usage: keystone-service-create --name &lt;name> --type &lt;type> 
+                               --desc &lt;description> --url &lt;url>
+                               --pass &lt;password>
+
+Options:
+  --help | -h
+      Print usage information
+  --name
+      Service name, e.g.  "nova"
+  --type
+      Type of service, e.g. "compute"
+  --desc
+      Description of the service, e.g. "Nova Compute Service"
+  --url
+      Url for service, e.g. "http://127.0.0.1:8774/v2/%\(tenant_id\)s"
+  --pass
+      Password for the service user
+EOF
+
+  exit $1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) usage 0 ;;
+    --name) shift; NAME=$1 ;;
+    --type) shift; TYPE=$1 ;;
+    --desc) shift; DESC=$1 ;;
+    --url) shift; URL=$1 ;;
+    --pass) shift; PASS=$1 ;;
+    *) shift ;; # ignore
+  esac
+  shift
+done
+
+export OS_USERNAME=admin
+export OS_TENANT_NAME=admin
+export OS_PASSWORD=%{keystone-admin-password}
+export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
+
+# create user
+if ! keystone user-get $NAME &amp;>/dev/null; then
+  keystone user-create --name $NAME --pass $PASS
+  keystone user-role-add --user $NAME --tenant service --role admin
+fi
+keystone user-password-update --pass $PASS $NAME
+
+# create service and endpoint
+if ! keystone service-get $NAME &amp;>/dev/null; then
+  keystone service-create --name $NAME --type=$TYPE \
+           --description "$DESC"
+  serviceid=$(keystone service-get $NAME | sed -n 's/|.*id.*| \(.*\) |/\1/p')
+  keystone endpoint-create \
+           --service-id=$serviceid \
+           --publicurl=$URL \
+           --internalurl=$URL \
+           --adminurl=$URL
+fi
+</files>
+</config-rpm>

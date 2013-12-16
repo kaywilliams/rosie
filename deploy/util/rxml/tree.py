@@ -726,7 +726,8 @@ def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={}, 
+def parse(file, parser=PARSER, base_url=None, xinclude=False, 
+                resolve_macros=False, macros={}, 
                 remove_macros=False, macro_defaults_file=None): 
   try:
     roottree = etree.parse(file, parser, base_url=base_url)
@@ -742,6 +743,10 @@ def parse(file, parser=PARSER, base_url=None, xinclude=False, macros={},
   if xinclude:
     roottree.getroot().xinclude(macros=macros, 
                                 macro_defaults_file=macro_defaults_file)
+  elif resolve_macros:
+    roottree.getroot().resolve_macros(find=True,
+                                      map=macros, 
+                                      defaults_file=macro_defaults_file)
 
   if remove_macros:
     roottree.getroot().remove_macros(defaults_file=macro_defaults_file)

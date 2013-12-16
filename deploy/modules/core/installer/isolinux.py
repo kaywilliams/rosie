@@ -37,7 +37,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
       conditional = True, # don't run unless provides required by another 
                           # event, i.e. iso or bootiso
-      conditionally_requires = ['installer-splash'],
     )
 
     self.DATA = {
@@ -52,15 +51,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.L_FILES['isolinux']
-    if self.cvars.get('installer-splash', None) is not None:
-      ## HACK: adding the 'installer-splash' file with the id
-      ## 'FileDownloadMixin' is a pretty big hack. It is done just so
-      ## that everything after the setup() method is the same as
-      ## before.
-      self.io.add_fpath(self.cvars['installer-splash'],
-                        self.OUTPUT_DIR/'isolinux',
-                        id='FileDownloadMixin')
-      self.file_locals.pop(self.cvars['installer-splash'].basename)
     FileDownloadMixin.setup(self)
 
   def run(self):
@@ -69,9 +59,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def apply(self):
     self.cvars.setdefault('isolinux-files', {})
     for k,v in self.file_locals.items():
-      self.cvars['isolinux-files'][k] = self.OUTPUT_DIR/v['path']
-    if self.cvars.get('installer-splash', None) is not None:
-      splash_image = self.cvars['installer-splash']
-      self.cvars['isolinux-files'][splash_image.basename] = splash_image
+      self.cvars['isolinux-files'][k] = (v['path'], self.OUTPUT_DIR/v['path'])
     self.cvars['boot-config-file'] = \
       self.OUTPUT_DIR/self.file_locals['isolinux.cfg']['path']

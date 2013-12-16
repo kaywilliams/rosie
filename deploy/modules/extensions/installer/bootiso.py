@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from deploy.util import pps 
 from deploy.util import shlib
 
 from deploy.event import Event
@@ -36,16 +37,14 @@ class BootisoEvent(Event, BootOptionsMixin):
       parentid = 'installer',
       ptr = ptr,
       version = '1.03',
-      requires = ['isolinux-files', 'boot-config-file'],
+      requires = ['isolinux-files', 'stage2-images', 'boot-config-file'],
       provides = ['treeinfo-checksums', 'os-content'],
     )
-
-    self.bootiso = self.OUTPUT_DIR/'images/boot.iso'
 
     self.DATA = {
       'config':    ['.'],
       'input':     [],
-      'output':    [self.bootiso],
+      'output':    [],
       'variables': ['cvars[\'anaconda-version\']'],
     }
 
@@ -53,34 +52,39 @@ class BootisoEvent(Event, BootOptionsMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.DATA['input'].extend(self.cvars['isolinux-files'].values())
-    self.bootoptions.setup(include_method=True, include_ks='web')
+
+    self.isodir = self.mddir/'build'
+    self.bootiso = self.OUTPUT_DIR/'images/boot.iso' # todo: use locals
+
+    for d,f in self.cvars['isolinux-files'].values() + \
+               self.cvars['stage2-images'].values():
+      self.io.add_fpath(f, self.isodir / pps.path(d).dirname)
+
+    self.bootoptions.setup(include_method='web', include_ks='web')
 
   def run(self):
-    isodir = self.OUTPUT_DIR/'images/isopath'
-    isolinuxdir = isodir/'isolinux'
+    self.io.clean_eventcache(all=True)
 
-    isolinuxdir.mkdirs()
-    for fn in self.cvars['isolinux-files'].values():
-      if fn.basename == 'isolinux.cfg':
-        # copy and modify isolinux.cfg
-        self.copy(fn, isolinuxdir)
-        self.bootoptions.modify(isolinuxdir/fn.basename)
-      else:
-        # link other files
-        self.link(fn, isolinuxdir)
+    self.bootiso.dirname.mkdirs()
+
+    files = self.io.process_files(callback=self.link_callback, text=None)
+
+    for f in files:
+      if f.basename == 'isolinux.cfg':
+        self.bootoptions.modify(f)
 
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original
     # when we finish
-    ibin = self.cvars['isolinux-files']['isolinux.bin']
+    ibin = self.cvars['isolinux-files']['isolinux.bin'][1]
     ibin_st = ibin.stat()
     shlib.execute('/usr/bin/mkisofs -o %s -b isolinux/isolinux.bin '
                   '-c isolinux/boot.cat -no-emul-boot -boot-load-size 4 '
                   '-boot-info-table -RJTV "%s" %s' \
-                  % (self.bootiso, self.name, isodir))
+                  % (self.bootiso, self.bootoptions.disc_label, self.isodir))
+    shlib.execute('/usr/bin/implantisomd5 --supported-iso "%s"' % self.bootiso)
     ibin.utime((ibin_st.st_atime, ibin_st.st_mtime))
-    isodir.rm(recursive=True)
+    self.DATA['output'].append(self.bootiso)
 
   def apply(self):
     self.cvars.setdefault('treeinfo-checksums', set()).add(

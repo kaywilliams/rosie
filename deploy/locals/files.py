@@ -85,13 +85,26 @@ L_FILES = LocalsDict({
       'grub.conf':    dict(path='isolinux/grub.conf'),
       'options.msg':  REMOVE,
       'general.msg':  REMOVE,
-      'param.msg':  REMOVE,
-      'rescue.msg':  REMOVE,
+      'param.msg':    REMOVE,
+      'rescue.msg':   REMOVE,
     },
   },
   "anaconda-13.21.149-1": { # initrd images using LZMA compression
     'isolinux': {
       'initrd.img':   dict(format=CPIO, zipped=True, zip_format='lzma'),
+    },
+  },
+  "anaconda-19.30.13": {
+    'isolinux': {
+      'memtest':      dict(path='isolinux/memtest'),
+      'splash.jpg':   REMOVE,
+      'splash.png':   dict(path='isolinux/splash.png'),
+    },
+    'stage2': { # renamed upgrade.img and moved to pxeboot folder 
+      'stage2.img':   dict(path='LiveOS/squashfs.img'),
+    },
+    'pxeboot': { # pxeboot images
+      'upgrade.img':  dict(path='images/pxeboot/upgrade.img'),
     },
   },
 })

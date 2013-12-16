@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<srpm id='deploy'>
-<macro id='deploy--source'>%{templates-dir}/../../../</macro>
-<script>
-%{templates-dir}/common/srpmbuild.py %{srpmid} "%{deploy-source}" %{srpmdir} %{srpmlast} folder
-</script>
-</srpm>

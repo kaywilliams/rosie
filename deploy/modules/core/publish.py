@@ -112,7 +112,7 @@ class KickstartEvent(KickstartEventMixin, Event):
       parentid = 'installer',
       ptr = ptr,
       version = 1.02,
-      provides = ['initrd-image-content', 'os-content'],
+      provides = ['os-content'],
     )
 
     if self.config.getxpath('kickstart', False) is False: 

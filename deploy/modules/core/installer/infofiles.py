@@ -89,6 +89,10 @@ class TreeinfoEvent(Event):
       ptr = ptr,
       provides = ['treeinfo-text', 'os-content'],
       requires = ['anaconda-version', 'treeinfo-checksums'],
+      # ensure repomd event runs first to provide repomd.xml checksum,
+      # which should be brought in by treeinfo-checksums requires
+      # but for some reason it is not
+      conditionally_comes_after = ['repomd']
     )
 
     self.tifile = self.OUTPUT_DIR/'.treeinfo'
@@ -160,7 +164,7 @@ class BuildstampEvent(Event):
     self.bsfile = self.mddir/'.buildstamp'
 
     self.DATA = {
-      'variables': ['fullname', 'version', 'packagepath', 'arch', 'webloc',
+      'variables': ['fullname', 'version', 'packagepath', 'arch', 'bugurl',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'base-info\']'],
       'output':    [self.bsfile],

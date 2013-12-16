@@ -22,6 +22,7 @@ Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
 Requires: gzip 
+Requires: isomd5sum 
 Requires: mkisofs
 Requires: openssh 
 Requires: pexpect

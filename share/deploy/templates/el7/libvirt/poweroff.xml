@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='poweroff' type='post' hostname='%{deploy-host}'>
+#!/bin/bash
+
+%{source-guestname}
+
+virsh shutdown $guestname
+</script>

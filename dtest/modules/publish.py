@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import pykickstart 
 import unittest
 from deploy.errors import DeployError
 from deploy.util   import pps
@@ -31,7 +32,6 @@ from dtest.mixins import (psm_make_suite,
                           MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
                           DeployMixinTestCase, dm_make_suite)
 
-
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish-setup'
@@ -43,19 +43,6 @@ class ReleaseRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   eventid  = 'release-rpm'
   _type = 'package' 
 
-  def _make_repos_config(self):
-    repos = rxml.config.Element('repos')
-
-    base = repo.getDefaultRepoById('base', os=self.os,
-                                           version=self.version,
-                                           arch=self.arch,
-                                           include_baseurl=True,
-                                           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-    base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
-
-    repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
-
-    return repos
 
 class Test_ReleaseRpmBuild(ReleaseRpmEventTestCase):
   def setUp(self):
@@ -193,10 +180,17 @@ class KickstartEventTestCase(EventTestCase):
   _conf = [
   """<packages><package>kernel</package></packages>""",
   """<base-info enabled='true'/>""",
-  """<publish>
-  <include xmlns='http://www.w3.org/2001/XInclude'
-           href='%s/../../share/deploy/templates/common/ks.xml'/>
-  </publish>""" % pps.path(__file__).dirname.abspath()]
+  """<publish/>""",]
+  
+  def __init__(self, os, version, arch, *args, **kwargs):
+    EventTestCase.__init__(self, os, version, arch)
+
+    xinclude = rxml.config.fromstring("""
+<include xmlns='http://www.w3.org/2001/XInclude'
+         href='%s/../../share/deploy/templates/%s/common/ks.xml'/>
+""" % (pps.path(__file__).dirname.abspath(), self.norm_os))
+
+    self.conf.getxpath('publish').append(xinclude)
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -210,12 +204,20 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   _conf = ["<packages><package>kernel</package></packages>",
            "<publish><kickstart>invalid</kickstart></publish>"]
 
+  def __init__(self, os, version, arch, *args, **kwargs):
+    EventTestCase.__init__(self, os, version, arch)
+
   def runTest(self):
    self.execute_predecessors(self.event)
-   if self.event.cvars['pykickstart-version'] < '1.74' and self.event.cvars['base-info']['version'][:1] >= '6':
-     pass # el5 pykickstart can't validate el6 files
-   else:
+   self.event.setup()
+   try:
+     exec(self.event.locals.L_PYKICKSTART % {'ksver' : self.event.ksver,
+                                             'ksfile': self.event.ksfile})
      self.failUnlessRaises(DeployError, self.event)
+   except pykickstart.errors.KickstartVersionError: 
+     # todo - use a unittest info log mechanism, if available
+     print ("pykickstart on the test system doesn't support '%s' "
+            "... skipping test" % self.event.ksver)
 
   def tearDown(self):
     EventTestCase.tearDown(self)

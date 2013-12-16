@@ -46,20 +46,6 @@ class ConfigRpmEventTestCase(MkrpmRpmBuildMixinTestCase, EventTestCase):
   </config-rpm>
   </config-rpms>"""]
 
-  def _make_repos_config(self):
-    repos = rxml.config.Element('repos')
-
-    base = repo.getDefaultRepoById('base', os=self.os,
-                                           version=self.version,
-                                           arch=self.arch,
-                                           include_baseurl=True,
-                                           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-    base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
-
-    repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
-
-    return repos
-
 class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   "raises an error if multiple rpms provide the same id"
   _conf = """

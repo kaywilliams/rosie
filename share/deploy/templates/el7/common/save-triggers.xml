@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='save-triggers' type='save-triggers'>
+#!/bin/bash
+set -e
+# create TRIGGER_INFO file
+
+TRIGGER_INFO=%{trigger-file}
+echo "
+last_triggers='%{triggers}'
+last_release_pkg_csum='%{release_pkg_csum}'
+last_custom_pkgs_csum='%{custom_pkgs_csum}'
+last_kickstart_csum='%{kickstart_csum}'
+last_treeinfo_csum='%{treeinfo_csum}'
+last_install_scripts_csum='%{install_scripts_csum}'
+last_post_install_scripts_csum='%{post_install_scripts_csum}'
+" > $TRIGGER_INFO
+</script>

@@ -33,23 +33,32 @@ from deploy.util import shlib
 
 from deploy.util.rxml import config
 
-from deploy.main import Build
+from deploy.main import Build, DIST_TAG
 
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
 
 class TestBuild(Build):
-  def __init__(self, conf, options=None, args=None, mainconfig=None):
+  def __init__(self, conf, options=None, args=None, mainconfig=None,): 
     self.conf = conf
+
     self.mainconfig = mainconfig
     Build.__init__(self, options, args)
 
   def _get_config(self, options, arguments):
     # set the cache dir
-    p = config.uElement('cache', parent=self.mainconfig)
-    config.uElement('path', parent=p).text = BUILD_ROOT
+    if self.mainconfig.getxpath('./cache/path', None) is not None:
+      elem = config.uElement('cache', parent=self.mainconfig)
+      config.uElement('path', parent=elem).text = BUILD_ROOT 
+
+  def _get_main_vars(self, *args):
+    self.name    = self.conf.getxpath('./main/name/text()')
+    self.os      = self.conf.getxpath('./main/os/text()')
+    self.version = self.conf.getxpath('./main/version/text()')
+    self.arch    = self.conf.getxpath('./main/arch/text()')
+    self.id      = self.conf.getxpath('./main/id/text()')
 
   def _get_definition_path(self, *args):
-    self.definition_path = pps.path(self.conf.base) 
+    self.definition_path = pps.path(self.conf.base)
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
@@ -64,8 +73,12 @@ class EventTestCase(unittest.TestCase):
     self.version = version
     self.arch = arch
     self.id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch)
+    # some tests need norm_os prior to initializing the TestBuild object
+    self.norm_os = "%s%s" % (DIST_TAG[self.os], self.version)
     # pretend we read from a config file in the modules directory
     self.definition_path = pps.path(__file__).dirname/'modules/%s' % self.moduleid
+    # do this before make_default_config()
+    self.mainconfig = self.get_mainconfig()
 
     if conf is not None:
       self.conf = conf
@@ -74,7 +87,6 @@ class EventTestCase(unittest.TestCase):
     self.conf.base = self.definition_path
 
     self.buildroot = BUILD_ROOT
-    self.mainconfig = self.get_mainconfig()
 
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):
@@ -126,37 +138,37 @@ class EventTestCase(unittest.TestCase):
 
   def _make_main_config(self):
     main = config.Element('main')
-    config.Element('macro',     attrib={'id': 'name'}, text=self.name, 
-                                parent=main)
-    config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
-    config.Element('macro',     attrib={'id':'version'}, text=self.version,
-                                parent=main)
-    config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
-                                parent=main)
-    config.Element('macro',     attrib={'id':'id'}, text=self.id, parent=main)
+    # config.Element('macro',     attrib={'id': 'name'}, text=self.name, 
+    #                             parent=main)
+    # config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
+    # config.Element('macro',     attrib={'id':'version'}, text=self.version,
+    #                             parent=main)
+    # config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
+    #                             parent=main)
+    # config.Element('macro',     attrib={'id':'id'}, text=self.id, parent=main)
 
+    config.Element('name',     text=self.name, parent=main)
+    config.Element('os',       text=self.os, parent=main)
+    config.Element('version',  text=self.version, parent=main)
+    config.Element('arch',     text=self.arch, parent=main)
+    config.Element('id',       text=self.id, parent=main) 
     config.Element('fullname', text='%{name} event test', parent=main)
-    config.Element('name',     text='%{name}', parent=main)
-    config.Element('os',       text='%{os}', parent=main)
-    config.Element('version',  text='%{version}', parent=main)
-    config.Element('arch',     text='%{arch}', parent=main)
-    config.Element('id',       text='%{id}', parent=main) 
     config.Element('type',     text=getattr(self, '_type', 'system'), 
                                parent=main)
 
     return main
 
   def _make_repos_config(self):
-    repos = config.Element('repos')
-
-    base = repo.getDefaultRepoById('base', os=self.os,
-                                           version=self.version,
-                                           arch=self.arch,
-                                           include_baseurl=True,
-                                           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-    base.update({'mirrorlist': None, 'gpgcheck': None, 'name': None,})
-
-    repos.append(base.toxml())
+    repos = config.fromstring("""
+<repos xmlns:xi="http://www.w3.org/2001/XInclude">
+<macro id='os'>%s</macro>
+<macro id='version'>%s</macro>
+<macro id='arch'>%s</macro>
+<xi:include href='%s'
+            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+</repos>
+""" % (self.os, self.version, self.arch, 
+       pps.path('%{templates-dir}/%{norm-os}/common/repos.xml')))
 
     return repos
 
@@ -169,7 +181,7 @@ class EventTestCase(unittest.TestCase):
   # test suite methods
   def setUp(self):
     self.tb = TestBuild(self.conf, options=self.options, args=[], 
-                        mainconfig=self.mainconfig)
+                        mainconfig=self.mainconfig) 
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)

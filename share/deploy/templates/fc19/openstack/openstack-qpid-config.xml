@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-qpid-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Congifures a messaging queue service for openstack.
+</description>
+
+<macro id='qpid-host'>127.0.0.1</macro>
+
+<!-- package requires -->
+<requires>python-qpid</requires>
+<requires>qpid-cpp-server</requires>
+<requires>memcached</requires>
+<requires>openstack-utils</requires>
+<requires>ntp-client-config</requires>
+<requires>NetworkManager-wait-online</requires>
+
+<script type='post'>
+#!/bin/sh
+set -e
+
+# Disable Qpid authentication by setting the value of the auth configuration key to no in the /etc/qpid/qpidd.conf file.
+file=/etc/qpidd.conf
+sed -i "/auth=yes/d" $file # eliminate auth=yes if found
+grep -q "auth=no" $file || echo "auth=no" >> $file
+
+# Start the NetworkManager-wait-online service to ensure qpid starts after
+# network interfaces are completely up. See
+# http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
+# for additional information
+service NetworkManager-wait-online start > /dev/null
+chkconfig NetworkManager-wait-online on
+
+# Start the Qpid message broker.
+service qpidd restart > /dev/null
+chkconfig qpidd on
+</script>
+</config-rpm>

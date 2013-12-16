@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='delete' type='delete'>
+#!/bin/bash
+set -e
+
+%{source-guestname}
+
+# remove managedsave image, if domain exists
+if [[ `/usr/bin/virsh list --all` = *\ $guestname\ * ]]; then 
+  /usr/bin/virsh managedsave-remove $guestname 
+fi
+
+# destroy domain, if active
+if [[ `/usr/bin/virsh list` = *\ $guestname\ * ]]; then
+  /usr/bin/virsh destroy $guestname
+fi
+
+# undefine domain and delete image, if domain exists
+if [[ `/usr/bin/virsh list --all` = *\ $guestname\ * ]]; then 
+  /usr/bin/virsh undefine $guestname
+  /usr/bin/virsh vol-delete --pool default $guestname.img
+fi
+</script>

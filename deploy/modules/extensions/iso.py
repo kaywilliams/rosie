@@ -56,7 +56,7 @@ class PkgorderEvent(Event):
       parentid = 'publish-events',
       ptr = ptr,
       provides = ['pkgorder-file'],
-      requires = ['isolinux-files', 'repomd-file', 'os-dir'],
+      requires = ['repomd-file', 'os-dir'],
     )
 
     self.DATA =  {
@@ -145,7 +145,8 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
     # note: el5 anaconda boot options seems to be broken in a couple of ways
     # * mediacheck runs even when not specified
     # * method=cdrom (or repo=cdrom) ignored when ks=<something> present
-    self.bootoptions.setup(defaults=[], include_ks='local')
+    self.bootoptions.setup(defaults=[], include_ks='cdrom', 
+                                        include_method='cdrom')
 
   def run(self):
     oldsets = None
@@ -244,13 +245,14 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
         bootargs = '-b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table'
       else:
         bootargs = ''
-      shlib.execute('/usr/bin/mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
+      isofile = "%s/%s/%s.iso" % (self.isodir, set, iso)
+      shlib.execute('/usr/bin/mkisofs %s -UJRTV "%s" -o "%s" "%s"' % \
          (bootargs,
-          '%s %s disc %d' % \
-            (self.name, self.version, i),
-          self.isodir/set/iso,
+          self.bootoptions.disc_label,
+          isofile,
           self.splittrees/set/iso),
         verbose=False)
+      shlib.execute('/usr/bin/implantisomd5 --supported-iso "%s"' % isofile)
 
       if i == 1: # reset mtime on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))

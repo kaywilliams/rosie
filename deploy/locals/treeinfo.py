@@ -9,7 +9,7 @@ L_TREEINFO_FORMAT = LocalsDict({
       'content': {
         'family':       dict(index=0, value='%(family)s'),
         'timestamp':    dict(index=1, value='%(timestamp)s'),
-        'variant':      dict(index=2, value='%(fullname)s'),
+        'variant':      dict(index=2, value='%(family)s'),
         'totaldiscs':   dict(index=3, value='1'),
         'version':      dict(index=4, value='%(version)s'),
         'discnum':      dict(index=5, value='1'),
@@ -59,6 +59,24 @@ L_TREEINFO_FORMAT = LocalsDict({
       'content': {
         'instimage':    REMOVE,
         'mainimage':    dict(index=0, value='images/install.img'),
+      },
+    },
+  },
+  "anaconda-19.30.13": {
+    'general': {
+      'content': {
+        'name':         dict(index=0, value='%(fullname)s-%(version)s'),
+        # 'packagedir':   dict(index=6, value=''),
+      },
+    },
+    'stage2': {
+      'content': {
+        'mainimage':    dict(index=0, value='LiveOS/squashfs.img'),
+      },
+    },
+    'images-%(arch)s': {
+      'content': {
+        'upgrade':      dict(index=3, value='images/pxeboot/upgrade.img'),
       },
     },
   }

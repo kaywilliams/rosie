@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='check-kernel' type='post' comes-before='poweroff'>
+#!/usr/bin/python
+import glob
+import os
+import sys
+import yum
+
+from subprocess import call, Popen, PIPE, STDOUT
+
+# copied from yum.misc for consistent behavior across el5 and el6
+def get_running_kernel_pkgtup(ts):
+    """This takes the output of uname and figures out the pkgtup of the running
+       kernel (name, arch, epoch, version, release)."""
+    ver = os.uname()[2]
+
+    # we glob for the file that MIGHT have this kernel
+    # and then look up the file in our rpmdb.
+    fns = sorted(glob.glob('/boot/vmlinuz*%s*' % ver))
+    for fn in fns:
+        mi = ts.dbMatch('basenames', fn)
+        for h in mi:
+            e = h['epoch']
+            if h['epoch'] is None:
+                e = '0'
+            return (h['name'], h['arch'], e, h['version'], h['release'])
+    
+    return (None, None, None, None, None)
+
+# main process
+yb = yum.YumBase()
+yb.preconf.init_plugins = False
+yb.conf.cache = 1
+
+ts = yb.rpmdb.readOnlyTS()
+running_kernel = get_running_kernel_pkgtup(ts) 
+arch = running_kernel[1]
+latest_kernel = yb.rpmdb.returnNewestByNameArch(('kernel', arch))[0]
+
+if running_kernel != latest_kernel:
+  n, a, e, v, r = latest_kernel
+  kernel_path = '/boot/vmlinuz-' + '.'.join([v,r])
+  p = Popen(['/sbin/grubby', '--default-kernel'], 
+             stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+  default_kernel = p.communicate()[0].rstrip()
+  result = p.returncode
+
+  if result != 0:
+    sys.exit("ERROR: check-kernel was unable to determine the default boot kernel. Check your boot configuration manually to ensure the latest kernel '%s' is the default, and restart the machine." % ('-'.join([v,r])))
+
+  elif ('-'.join([v,r]))  not in default_kernel:
+    sys.exit("ERROR: check-kernel has determined that the latest kernel '%s' is not the default boot kernel. Uninstall earlier kernel versions manually, and restart the machine." % ('-'.join([v,r])))
+
+  else:
+    print "Running kernel differs from installed - restarting machine"
+    call(['/sbin/shutdown', '-r', 'now'])
+</script>

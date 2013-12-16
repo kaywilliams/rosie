@@ -79,13 +79,32 @@ class CompsEventTestCase(EventTestCase):
 
 class Test_IncludePackages(CompsEventTestCase):
   "groupfile generated, groups included in core, kernel unlisted"
-  _conf = \
-  """<packages>
-    <group>core</group>
-    <group>base</group>
-    <package>createrepo</package>
-    <package>httpd</package>
-  </packages>"""
+
+  def __init__(self, os, version, arch, conf=None):
+    CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
+    self._add_config({ 
+    'el6': \
+    """<packages>
+      <group>core</group>
+      <group>base</group>
+      <package>createrepo</package>
+      <package>httpd</package>
+    </packages>""",
+    'el7': \
+    """<packages>
+      <group>core</group>
+      <group>base</group>
+      <package>createrepo</package>
+      <package>httpd</package>
+    </packages>""",
+    'fc19': \
+    """<packages>
+      <group>core</group>
+      <group>standard</group>
+      <package>createrepo</package>
+      <package>httpd</package>
+    </packages>""",
+    }[self.norm_os])
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
@@ -100,17 +119,22 @@ class Test_IncludeGroupsAndPackages(CompsEventTestCase):
   def __init__(self, os, version, arch, conf=None):
     CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
     self._add_config({ 
-    '5': \
-    """<packages>
-      <group>base</group>
-      <group>printing</group>
-    </packages>""",
-    '6': \
+    'el6': \
     """<packages>
       <group>base</group>
       <group>console-internet</group>
     </packages>""",
-    }[version[:1]])
+    'el7': \
+    """<packages>
+      <group>base</group>
+      <group>web-server</group>
+    </packages>""",
+    'fc19': \
+    """<packages>
+      <group>standard</group>
+      <group>web-server</group>
+    </packages>""",
+    }[self.norm_os])
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
@@ -141,18 +165,25 @@ class Test_GroupsByRepo(CompsEventTestCase):
   def __init__(self, os, version, arch, conf=None):
     CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
     self._add_config({ 
-    '5':
-    """<packages>
-      <group repoid="base">core</group>
-      <group>base</group>
-      <group repoid="base">printing</group>
-    </packages>""",
-    '6':
+    'el6':
     """<packages>
       <group repoid="base">core</group>
       <group>base</group>
       <group repoid="base">console-internet</group>
-    </packages>""",}[version[:1]])
+    </packages>""",
+    'el7':
+    """<packages>
+      <group repoid="base">core</group>
+      <group>base</group>
+      <group repoid="base">web-server</group>
+    </packages>""",
+    'fc19': 
+    """<packages>
+      <group repoid="base">core</group>
+      <group>standard</group>
+      <group repoid="base">web-server</group>
+    </packages>""",
+    }[self.norm_os])
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
@@ -163,11 +194,26 @@ class Test_GroupsByRepo(CompsEventTestCase):
 
 class Test_MultipleGroupfiles(CompsEventTestCase):
   "groupfile generated, multiple repositories with groupfiles"
-  _conf = \
-  """<packages>
-    <group repoid="base">core</groups>
-    <group>base-x</group>
-  </packages>"""
+
+  def __init__(self, os, version, arch, conf=None):
+    CompsEventTestCase.__init__(self, os, version, arch, conf=conf)
+    self._add_config({ 
+    'el6': \
+    """<packages>
+      <group>base</group>
+      <group>base-x</group>
+    </packages>""",
+    'el7': \
+    """<packages>
+      <group>base</group>
+      <group>base-x</group>
+    </packages>""",
+    'fc19': \
+    """<packages>
+      <group>standard</group>
+      <group>base-x</group>
+    </packages>""",
+    }[self.norm_os])
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)

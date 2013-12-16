@@ -18,6 +18,8 @@
 import re
 import ConfigParser
 
+from deploy.main import DIST_TAG
+
 from deploy.util.repo    import (ReposFromXml, ReposFromFile, RepoContainer,
                                 RepoFileParseError)
 
@@ -30,6 +32,13 @@ from deploy.dlogging  import L1, L2
 from deploy.validate import InvalidConfigError
 
 from deploy.modules.shared import RepoEventMixin, DeployRepoGroup, DeployRepoFileParseError
+
+# map treeinfo family to deploy os
+OS = {
+  'CentOS':                   'centos',
+  'Red Hat Enterprise Linux': 'rhel',
+  'Fedora':                   'fedora',
+  }
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -45,7 +54,7 @@ class ReposEvent(RepoEventMixin, Event):
       parentid = 'setup-events',
       ptr = ptr,
       version = 1.3,
-      provides = ['anaconda-version', 
+      provides = ['dist-tag', 'anaconda-version',
                   'repos', 'installer-repo', 'base-treeinfo',
                   'base-treeinfo-text'
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
@@ -99,25 +108,22 @@ class ReposEvent(RepoEventMixin, Event):
 
         # .treeinfo exists?
         if not (self.mddir/repo.id/repo.treeinfofile).exists():
-          raise TreeinfoNotFoundError(repoid=repo.id, repourl=repo.url.touri())   
+          raise TreeinfoNotFoundError(repoid=repo.id, repourl=repo.url.touri()) 
 
         # read treeinfo
         else:
           treeinfo = ConfigParser.SafeConfigParser()
           treeinfo.read(self.mddir/repo.id/repo.treeinfofile)
 
-          # supported distribution?
-          df = treeinfo.get('general', 'family')
-          dv = treeinfo.get('general', 'version')[:1]
-          supported = False
-          for d in ['CentOS', 'Red Hat Enterprise Linux']:
-            if d in df and dv in ['5','6']:
-              supported = True
-          if not supported: 
-            raise UnsupportedInstallerRepoError(repoid=repo.id, 
-                  family=df, 
-                  version=treeinfo.get('general', 'version'), 
-                  repourl=repo.url.realm)
+          # does treeinfo match specified os-version-arch?
+          os = OS[treeinfo.get('general', 'family')]
+          version = treeinfo.get('general', 'version').split('.')[0]
+          arch = treeinfo.get('general', 'arch')
+
+          if not [os, version, arch] == [self.os, self.version, self.arch]: 
+            raise InstallerRepoMismatchError(repoid=repo.id, 
+                  repourl=repo.url.touri(), os=self.os,
+                  version=self.version, arch=self.arch)
 
           # set base-treeinfo control variables
           self.cvars['base-treeinfo'] = treeinfo
@@ -125,6 +131,7 @@ class ReposEvent(RepoEventMixin, Event):
             (self.mddir/repo.id/repo.treeinfofile).read_text().rstrip())
 
           # set anaconda version
+          self.cvars['dist-tag'] = DIST_TAG[self.os] 
           self.cvars['anaconda-version'] = self.locals.L_ANACONDA_VERSION
       
     if self.type == "system" and not self.cvars['installer-repo']:
@@ -160,6 +167,7 @@ class TreeinfoNotFoundError(DeployEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
               "at '%(repourl)s' " )
 
-class UnsupportedInstallerRepoError(DeployEventError):
-  message = ( "The '%(repoid)s' repository containing '%(family)s %(version)s' "
-              "at '%(repourl)s' is not supported." )
+class InstallerRepoMismatchError(DeployEventError):
+  message = ( "The installer repository '%(repoid)s' at '%(repourl)s' does "
+              "not match the specified operating system "
+              "('%(os)s-%(version)s-%(arch)s').")

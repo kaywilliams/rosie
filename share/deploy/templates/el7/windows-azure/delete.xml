@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='delete' type='delete'>
+#!/bin/bash
+set -e
+# destroy vm, if active
+if [[ `/usr/bin/azure vm list` = *\ %{hostname}\ * ]]; then
+  /usr/bin/azure vm delete -q %{hostname}
+fi
+</script>

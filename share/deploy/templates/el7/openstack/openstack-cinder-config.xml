@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='openstack-cinder-config' 
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id="cinder-host">127.0.0.1</macro>
+<macro id='cinder-db-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='cinder-user-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id="cinder_volumes_size">20</macro>
+
+<requires>openstack-cinder</requires>
+<requires>openstack-utils</requires>
+<requires>openstack-selinux</requires>
+<requires>openstack-qpid-config</requires>
+<requires>openstack-keystone-client-config</requires>
+<requires>lvm2</requires>
+<requires>bc</requires>
+
+<script type='post'>
+# modify lvm conf 
+sed -i -r "s/^ *snapshot_autoextend_threshold +=.*/    snapshot_autoextend_threshold = 80/" /etc/lvm/lvm.conf
+sed -i -r "s/^ *snapshot_autoextend_percent +=.*/    snapshot_autoextend_percent = 20/" /etc/lvm/lvm.conf
+
+# create cinder volumes
+volume_path="/var/lib/cinder"
+volume_name="cinder-volumes"
+restart_cmd="service openstack-cinder-volume restart"
+if ! vgdisplay $volume_name > /dev/null; then
+  [[ ! -d $volume_path ]] || mkdir -p $volume_path
+  volume_size=$((%{cinder_volumes_size} * 1024))
+  reserve=$(echo "$volume_size * 0.03" | bc | cut -d. -f1)
+
+  volume_size=$(($volume_size + $reserve))
+  volume_path="$volume_path/$volume_name"
+
+  dd if=/dev/zero of=$volume_path bs=1 count=0 seek=${volume_size}M
+  LOFI=$(losetup --show -f $volume_path)
+
+  # TODO - make cleanup a function
+  cleanup="losetup -d $(losetup -j $volume_path | cut -d : -f 1)"
+  pvcreate $LOFI || ($($cleanup); exit 1)
+  vgcreate $volume_name $LOFI || ($($cleanup); exit 1)
+
+  # Add the loop device on boot
+  grep $volume_name /etc/rc.d/rc.local || \
+  echo "losetup -f $volume_path &amp;&amp; vgchange -a y $volume_name &amp;&amp; $restart_cmd" >> /etc/rc.d/rc.local
+  grep '#!' /etc/rc.d/rc.local || sed -i '1i#!/bin/sh' /etc/rc.d/rc.local
+  chmod +x /etc/rc.d/rc.local
+
+  # check if it exists
+  vgdisplay $volume_name > /dev/null
+fi
+
+# configure ISCI target to discover cinder volumes
+text="include /etc/cinder/volumes/*"
+file="/etc/tgt/targets.conf"
+grep "$text" $file || sed -i "1i${text}" $file 
+
+# modify cinder.conf
+cmd="openstack-config --set /etc/cinder/cinder.conf"
+$cmd DEFAULT sql_connection \
+     mysql://cinder:%{cinder-db-password}@%{cinder-host}/cinder
+$cmd DEFAULT rpc_backend neutron.openstack.common.rpc.impl_qpid
+$cmd DEFAULT qpid_hostname %{qpid-host}
+$cmd DEFAULT glance_host %{glance-host}
+$cmd DEFAULT auth_strategy keystone 
+$cmd keystone_authtoken auth_uri http://%{keystone-host}:5000/v2.0
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_user cinder
+$cmd keystone_authtoken admin_password %{cinder-user-password}
+
+# create database (after conf is modified, i.e. sql_connection)
+if ! mysql -u root -p%{mysql-password} -e "show databases like 'cinder'" |\
+  grep cinder; then
+  openstack-db --yes --init --service cinder --rootpw "%{mysql-password}" \
+               --password "%{cinder-db-password}" > /dev/null
+fi
+mysql-change-user-password %{mysql-password} cinder %{cinder-db-password}
+
+# create keystone service
+keystone-service-create \
+  --name cinder \
+  --type storage \
+  --desc "Cinder Block Storage Service" \
+  --url http://%{cinder-host}:8776/v1/%\(tenant_id\)s \
+  --pass %{cinder-user-password}
+
+# start cinder services
+service openstack-cinder-api restart > /dev/null
+service openstack-cinder-scheduler restart > /dev/null
+service openstack-cinder-volume restart > /dev/null
+service tgtd start > /dev/null
+chkconfig openstack-cinder-api on
+chkconfig openstack-cinder-scheduler on
+chkconfig openstack-cinder-volume on
+chkconfig tgtd on
+</script>
+</config-rpm>

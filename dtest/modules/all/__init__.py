@@ -40,63 +40,67 @@ class AllEventTestCase(EventTestCase):
 class Test_XIncludeResolution(AllEventTestCase):
   "test xinclude resolution"
 
-  _conf = ["""
-  <config-rpms xmlns:xi='%s' xml:base='%s'>
+  def __init__(self, os, version, arch):
+    EventTestCase.__init__(self, os, version, arch)
+    config_rpms = config.fromstring("""
+<config-rpms xmlns:xi='%s' xml:base='%s'>
 
-  <config-rpm id='test'>
+<config-rpm id='test'>
 
-  <!--case 1: local xpointer to elem-->
-  <xi:include xpointer="xpointer(//config-rpm[@id='target']/files)"/>
+<!--case 1: local xpointer to elem-->
+<xi:include xpointer="xpointer(//config-rpm[@id='target']/files)"/>
 
-  <!--case 2: local xpointer to text-->
-  <files destdir='/case2'>
-  <xi:include xpointer="xpointer(//config-rpm[@id='target']/files/text())"/>
-  </files>
+<!--case 2: local xpointer to text-->
+<files destdir='/case2'>
+<xi:include xpointer="xpointer(//config-rpm[@id='target']/files/text())"/>
+</files>
 
-  <!--case 3: include remote text file-->
-  <files content='text' destdir='/case3' destname='file.txt'>
-  <xi:include href="file.txt" parse="text"/>
-  </files>
+<!--case 3: include remote text file-->
+<files content='text' destdir='/case3' destname='file.txt'>
+<xi:include href="file.txt" parse="text"/>
+</files>
 
-  <!--case 4: tail after include elem-->
-  <files content='text' destdir='/case4' destname='file.txt'>
-  <xi:include href="file.txt" parse="text"/>
-  tail text
-  </files>
+<!--case 4: tail after include elem-->
+<files content='text' destdir='/case4' destname='file.txt'>
+<xi:include href="file.txt" parse="text"/>
+tail text
+</files>
 
-  <!--case 5: macro in include attributes-->
-  <macro id='5'>5</macro>
-  <files content='text' destdir='/case%%{5}' destname='file.txt'>text</files>
-  </config-rpm>
+<!--case 5: macro in include attributes-->
+<macro id='5'>5</macro>
+<files content='text' destdir='/case%%{5}' destname='file.txt'>text</files>
+</config-rpm>
 
-  <!--case 6: nested includes-->
-  <config-rpm id='case6'>
-  <xi:include xpointer="xpointer(//config-rpm[@id='case6a']/*)"/>
-  </config-rpm>
-  <config-rpm id='case6a'>
-  <files content='text' destdir='/case6' destname='file.txt'>
-  <xi:include xpointer="xpointer(//config-rpm[@id='case6b']/files/text())"/>i
-  </files>
-  </config-rpm>
-  <config-rpm id='case6b'>
-  <files destdir='/test' destname='test'>case 6</files>
-  </config-rpm>
-  
-  <!--local xinclude target-->
-  <config-rpm id='target'>
-  <files destdir='/case1'>test</files>
-  </config-rpm>
+<!--case 6: nested includes-->
+<config-rpm id='case6'>
+<xi:include xpointer="xpointer(//config-rpm[@id='case6a']/*)"/>
+</config-rpm>
+<config-rpm id='case6a'>
+<files content='text' destdir='/case6' destname='file.txt'>
+<xi:include xpointer="xpointer(//config-rpm[@id='case6b']/files/text())"/>i
+</files>
+</config-rpm>
+<config-rpm id='case6b'>
+<files destdir='/test' destname='test'>case 6</files>
+</config-rpm>
 
-  </config-rpms>
-  """ % (tree.XI_NS, pps.path(__file__).abspath()),
-  """
-  <publish xmlns:xi='%s' xml:base='%s'>
-  <!--case 7: remote xml file with xpointer-->
-  <xi:include href='%%{templates-dir}/libvirt/deploy.xml'
-              xpointer='xpointer(/*/*)'/>
-  </publish>
-  """ % (tree.XI_NS, pps.path(__file__).abspath()),]
-  
+<!--local xinclude target-->
+<config-rpm id='target'>
+<files destdir='/case1'>test</files>
+</config-rpm>
+
+</config-rpms>
+  """ % (tree.XI_NS, pps.path(__file__).abspath()), xinclude=True)
+
+    publish = config.fromstring("""
+<publish xmlns:xi='%s' xml:base='%s'>
+<!--case 7: remote xml file with xpointer-->
+<xi:include href='%%{templates-dir}/%%{norm-os}/libvirt/deploy.xml'
+            xpointer='xpointer(/*/*)'/>
+</publish>
+  """ % (tree.XI_NS, pps.path(__file__).abspath()))
+
+    self.conf.extend([config_rpms, publish])
 
   def runTest(self):
     xp = '/*/config-rpms/config-rpm/files'

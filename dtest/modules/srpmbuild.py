@@ -178,7 +178,6 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     secret = definition.getxpath('/*/gpgsign/secret/text()', '')
     parent_repo = self.conf.getxpath('/*/repos/repo[@id="base"]')
     child_repo = definition.getxpath('/*/repos/repo[@id="base"]')
-    del child_repo.attrib['{%s}base' % rxml.tree.XML_NS]
 
     self.failUnless(len(public) == len(PUBKEY) and
                     len(secret) == len(SECKEY) and
@@ -205,21 +204,24 @@ class Test_Shutdown(TestSrpmTestCase):
   "dummy test to delete srpm virtual machine"
 
   def setUp(self):
+    EventTestCase.setUp(self) # do this ahead of pps.path with %{templates_dir}
+
     # create custom srpmbuild.xml template with remove in post script
     template_file = self.buildroot / 'srpmbuild.xml'
-    pps.path('%{templates-dir}/common/srpmbuild.xml').cp(template_file.dirname)
+    pps.path('%%{templates-dir}/%s/common/srpmbuild.xml' % self.norm_os).cp(
+             template_file.dirname)
     root = rxml.config.parse(template_file, xinclude=True, macros={
                              '%{os}': self.os,
                              '%{version}': self.version,
                              '%{arch}': self.arch,
+                             '%{norm-os}': self.norm_os,
                              }).getroot()
     prepare_deploy_elem_to_remove_vm(root.getxpath('/*/publish'))
     root.write(template_file)
 
     # update config to use custom srpmbuild template
-    srpm = self.conf.getxpath('./srpmbuild/srpm')
+    srpm = self.tb.definition.getxpath('./srpmbuild/srpm')
     rxml.config.Element('template', parent=srpm, text=template_file)
-    EventTestCase.setUp(self)
 
   def runTest(self):
     try:

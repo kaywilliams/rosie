@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kickstart>
+<macro id='timezone'>America/Vancouver</macro>
+#version rhel%{version}
+install
+network --hostname %{hostname}
+rootpw --iscrypted "%{crypt-password}"
+lang en_US
+keyboard us
+zerombr
+bootloader --location=mbr
+clearpart --all --initlabel
+part / --fstype ext4 --size 1 --grow --asprimary
+part swap --recommended
+part /boot --fstype ext3 --size 512 --asprimary
+timezone --utc %{timezone}
+auth --enablemd5 --enableshadow --enablecache
+selinux --enforcing
+reboot
+
+%packages --nobase
+@core
+%end
+</kickstart>

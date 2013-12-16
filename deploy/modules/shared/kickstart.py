@@ -18,7 +18,16 @@
 import rpm
 
 from deploy.errors import DeployEventError
+from deploy.dlogging import L1
 from deploy.util.versort import Version
+
+from pykickstart.errors import KickstartVersionError
+
+PYKICKSTART_VERSION_PREFIX = {
+ 'centos': 'rhel',
+ 'rhel':   'rhel',
+ 'fedora': 'f'
+ }
 
 class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
@@ -34,7 +43,7 @@ class KickstartEventMixin:
       '%s-ksname' % self.moduleid, 
           # default basename (i.e. ks.cfg). Used by modules that
           # look for a kickstart on a remote web server (e.g. deploy), or
-          # within an image (e.g. initrd-image), etc. Moduleid prepended
+          # within an image (e.g. bootoptions), etc. Moduleid prepended
           # to assist with module dependency resolution (i.e. test-install 
           # comes before test-update).
       '%s-ksfile' % self.moduleid, 
@@ -57,6 +66,7 @@ class KickstartEventMixin:
       self.ksfile = None
       return
 
+    self.ksver = '%s%s' %  (PYKICKSTART_VERSION_PREFIX[self.os], self.version)
     self.ksfile = self.OUTPUT_DIR / self.ksname
     self.DATA['variables'].extend(['ksname'])
 
@@ -69,15 +79,20 @@ class KickstartEventMixin:
   def run(self):
     if not self.ksfile: return
 
-    ksver = 'rhel%s' %  self.version
-
     # write kickstart
     self.ksfile.dirname.mkdirs()
     self.ksfile.write_text((self.kstext + '\n').encode('utf8'))
 
     #validate kickstart
-    map = { 'ksver': ksver, 'ksfile': self.ksfile }
-    exec(self.locals.L_PYKICKSTART % map)
+    map = { 'ksver': self.ksver, 'ksfile': self.ksfile }
+    try:
+      exec(self.locals.L_PYKICKSTART % map)
+    except KickstartVersionError:
+      self.log(4, L1("[Info] Ignoring kickstart validation. The operating "
+                     "system version '%s-%s' is not supported by the version "
+                     "of pykickstart installed on this system." % (self.os,
+                     self.version)))
+      pass
 
     self.DATA['output'].append(self.ksfile)
 

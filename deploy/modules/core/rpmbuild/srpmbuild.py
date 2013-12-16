@@ -134,9 +134,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     elif script: self._get_srpm_from_script(script)
 
     # get default build machine definition template
-    search_dirs = self.SHARE_DIRS
+    search_dirs = self.TEMPLATE_DIRS
     default = ''
-    for d in search_dirs:
+    for d in [ x / self.norm_os for x in search_dirs]:
       results = d.findpaths(mindepth=1, type=pps.constants.TYPE_NOT_DIR,
                             glob='%s.xml' % self.moduleid)
       if results:
@@ -375,6 +375,9 @@ class SrpmBuild(Build):
       self.definition.append(parent_gpgsign)
      
     # append repos from parent definition, if provided
+    if self.definition.getxpath('/*/repos', None) is None:
+      rxml.config.Element('repos', parent=self.definition)
+      
     parent_repos = {}
     for repo in self.ptr.config.getxpath('/*/repos'):
       parent_repos[repo.get('id')] = repo

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-glance-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Configures an image service for openstack.
+</description>
+
+<!-- default values -->
+<macro id='glance-host'>127.0.0.1</macro>
+<macro id='glance-db-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='glance-user-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+
+<!-- package requires -->
+<requires>openstack-glance</requires>
+<requires>openstack-keystone-client-config</requires>
+<requires>openstack-mysql-config</requires>
+
+<script type='post'>
+# modify glance-api.conf
+cmd="openstack-config --set /etc/glance/glance-api.conf"
+$cmd DEFAULT sql_connection \
+     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken admin_user glance
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_password %{glance-user-password}
+
+# modify glance-registry.conf
+cmd="openstack-config --set /etc/glance/glance-registry.conf"
+$cmd DEFAULT sql_connection \
+     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+$cmd keystone_authtoken auth_host %{keystone-host}
+$cmd keystone_authtoken admin_user glance
+$cmd keystone_authtoken admin_tenant_name service
+$cmd keystone_authtoken admin_password %{glance-user-password}
+
+# create database
+if ! mysql -u root -p%{mysql-password} -e "show databases like 'glance'" |\
+  grep glance; then
+  openstack-db --yes --init --service glance --rootpw "%{mysql-password}" \
+               --password "%{glance-db-password}" > /dev/null
+fi
+mysql-change-user-password %{mysql-password} glance %{glance-db-password}
+
+# create keystone service
+keystone-service-create \
+  --name glance \
+  --type image \
+  --desc "Glance Image Service" \
+  --url http://%{glance-host}:9292 \
+  --pass %{glance-user-password}
+
+# start glance service
+service openstack-glance-api restart > /dev/null
+service openstack-glance-registry restart > /dev/null
+chkconfig openstack-glance-api on
+chkconfig openstack-glance-registry on
+</script>
+</config-rpm>

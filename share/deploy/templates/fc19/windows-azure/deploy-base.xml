@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- install and update a Windows Azure virtual machine -->
+<macro id='user'>deploy</macro>
+<macro id='domain'>cloudapp.net</macro>
+<macro id='deploy-host'>localhost</macro>
+
+<!-- template content below -->
+<domain>%{domain}</domain>
+<deploy-host>%{deploy-host}</deploy-host>
+<xi:include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/windows-azure-guest-config.xml'
+            xpointer="xpointer(./*)"/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/activate.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/delete.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/install.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml' xpointer='xpointer(./*)'/>
+<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/configure-endpoints.xml'/>
+
+</xml>

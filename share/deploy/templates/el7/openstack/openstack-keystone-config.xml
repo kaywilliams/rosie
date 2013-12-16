@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-keystone-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Congifures an identity service for openstack.
+</description>
+
+<!-- default values -->
+<macro id='keystone-host'>127.0.0.1</macro>
+<macro id='keystone-db-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex[:16]
+</macro>
+<macro id='keystone-admin-token' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex
+</macro>
+<macro id='keystone-admin-password' type='script'>
+#!/usr/bin/python
+import uuid
+print uuid.uuid4().hex
+</macro>
+
+<!-- package requires -->
+<requires>openstack-utils</requires>
+<requires>openstack-keystone</requires>
+<requires>openstack-mysql-config</requires>
+
+<script type='post'>
+# delete example database
+rm -f /var/lib/keystone/keystone.db
+
+# configure keystone.conf
+cmd="openstack-config --set /etc/keystone/keystone.conf"
+$cmd DEFAULT admin_token %{keystone-admin-token}
+$cmd sql connection mysql://keystone:%{keystone-db-password}@%{keystone-host}/keystone
+
+# create database
+if ! mysql -u root -p%{mysql-password} -e "show databases like 'keystone'" |\
+  grep keystone; then
+  openstack-db --yes --init --service keystone --rootpw "%{mysql-password}" \
+               --password "%{keystone-db-password}" > /dev/null
+fi
+mysql-change-user-password %{mysql-password} keystone %{keystone-db-password}
+
+# create keystone signing keys and certificates
+keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
+
+# start keystone service
+service openstack-keystone restart > /dev/null
+chkconfig openstack-keystone on
+
+# create keystone admin entries
+export OS_SERVICE_TOKEN=%{keystone-admin-token}
+export OS_SERVICE_ENDPOINT=http://%{keystone-host}:35357/v2.0
+  
+keystone tenant-get admin &amp;>/dev/null || \
+  keystone tenant-create --name admin --description "Admin Tenant" 
+keystone tenant-get service &amp;>/dev/null || \
+  keystone tenant-create --name service --description "Service Tenant"
+keystone role-get admin &amp;>/dev/null || \
+  keystone role-create --name admin
+
+if ! keystone user-get admin &amp;>/dev/null; then
+  keystone user-create --name admin --pass %{keystone-admin-password}
+  keystone user-role-add --user admin --tenant admin --role admin
+fi
+keystone user-password-update --pass %{keystone-admin-password} admin
+
+if ! keystone service-get keystone &amp;>/dev/null; then
+  keystone service-create --name keystone --type=identity \
+           --description "Keystone Identity Service"
+  serviceid=$(keystone service-get keystone | sed -n 's/|.*id.*| \(.*\) |/\1/p')
+  keystone endpoint-create \
+           --service-id=$serviceid \
+           --publicurl=http://%{keystone-host}:5000/v2.0 \
+           --internalurl=http://%{keystone-host}:5000/v2.0 \
+           --adminurl=http://%{keystone-host}:35357/v2.0
+fi
+</script>
+</config-rpm>

@@ -45,7 +45,7 @@ class IsoEventTestCase(EventTestCase):
   _conf = ["""
   <iso>
     <set>CD</set>
-    <set>400 MB</set>
+    <set>500 MB</set>
   </iso>
   """, 
   """<packages><package>kernel</package></packages>""",
@@ -101,7 +101,7 @@ class Test_IsoContent(IsoEventTestCase):
   _conf = [
   """<iso>
     <set>CD</set>
-    <set>400 MB</set>
+    <set>500 MB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
   """<publish>
@@ -145,7 +145,7 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
   _conf = [
   """<iso>
     <set>CD</set>
-    <set>400 MB</set>
+    <set>500 MB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
   """<publish>
@@ -156,12 +156,7 @@ class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
     IsoEventBootOptionsTestCase.setUp(self)
     self.do_defaults = True
 
-# Note 1 - Not running this test for el5 since a couple of anaconda bugs(?)
-# prevent us from creating an automated install - (1) media check runs
-# automatically, (2) if a kickstart is provided on the command line, anaconda
-# prompts to learn where the installation repository is located (cdrom, network,
-# etc.) 
-# Note 2 - this test could be made faster if we provided a general method
+# Note - this test could be made faster if we provided a general method
 # for modifing the isolinux configuration, which by default waits 60 seconds
 # for the user to manually select the installation type.
 class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
@@ -196,10 +191,8 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_IsoContent(os, version, arch))
   suite.addTest(Test_SetsChanged(os, version, arch))
   suite.addTest(Test_BootOptionsDefault(os, version, arch))
-  # see note above at the class definition for Test_InstallFromIso
-  if version > '5':
-    suite.addTest(Test_InstallFromIso(os, version, arch))
-    # dummy test to shutoff vm
-    suite.addTest(dm_make_suite(Test_InstallFromIso, os, version, arch, ))
+  suite.addTest(Test_InstallFromIso(os, version, arch))
+  # dummy test to shutoff vm
+  suite.addTest(dm_make_suite(Test_InstallFromIso, os, version, arch, ))
 
   return suite

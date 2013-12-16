@@ -17,6 +17,7 @@
 #
 
 from deploy.util import magic
+from deploy.util import rxml 
 
 from deploy.constants import KERNELS
 from deploy.errors    import DeployEventError
@@ -77,6 +78,9 @@ class PackagesEvent(ShelveMixin):
 
     # track changes in repo type
     self.DATA['variables'].append('type')
+
+    # track changes in anaconda-required packages
+    self.DATA['variables'].append('locals.L_REQUIRED_PACKAGES')
 
     # track file changes
     self.DATA['input'].extend([gf for _,gf in self.groupfiles])
@@ -163,8 +167,9 @@ class PackagesEvent(ShelveMixin):
     if 'core' not in self.config.xpath('group', []):
       self.comps.add_core_group()
 
-    # add groups
-    for group in self.config.xpath('group', []):
+    for group in (self.config.xpath('group', []) +  
+                  [rxml.config.fromstring('<group>%s</group>' % x) for x in 
+                   self.locals.L_REQUIRED_PACKAGES['groups']]):
       added = False
       for repoid, gf in groupfiles.items():
         if ( group.getxpath('@repoid', None) is None or
@@ -182,6 +187,10 @@ class PackagesEvent(ShelveMixin):
     # add packages
     for package in self.config.xpath('package', []):
       core_group.mandatory_packages[package.text] = 1
+
+    # add anaconda-required packages
+    for package in self.locals.L_REQUIRED_PACKAGES['packages']:
+      core_group.mandatory_packages[package] = 1
 
     # make sure a kernel package or equivalent exists for system repos
     if self.type == 'system':

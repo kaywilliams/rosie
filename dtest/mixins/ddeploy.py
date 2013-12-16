@@ -78,8 +78,8 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
               })
 
     deploy = rxml.config.parse(
-      '%s/../../share/deploy/templates/libvirt/deploy.xml' %  
-      pps.path(__file__).dirname.abspath(),
+      '%s/../../share/deploy/templates/%s/libvirt/deploy.xml' %  
+      (pps.path(__file__).dirname.abspath(), self.norm_os),
       xinclude = True,
       macros = self.macros,
       ).getroot()

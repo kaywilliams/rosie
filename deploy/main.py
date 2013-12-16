@@ -55,8 +55,7 @@ from deploy.constants import *
 from deploy.errors    import (DeployEventErrorHandler, 
                                     DeployEventError,
                                     DeployError,
-                                    InvalidOptionError,
-                                    InvalidConfigError)
+                                    InvalidOptionError)
 from deploy.event     import Event, CLASS_META
 from deploy.dlogging import make_log, L0, L1, L2
 from deploy.validate  import (DeployValidationHandler,
@@ -79,26 +78,19 @@ DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
 DEFAULT_TEMPLATE_DIRS = [ pps.path('/usr/share/deploy/templates') ]
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
 
-# supported base distribution versions
-OS_LIST = ['centos', 'rhel']
-OS_ERROR = "Accepted values are '%s'." % "', '".join(OS_LIST)
+SUPPORTED = ['centos-6-i386', 'centos-6-x86_64', 
+             'rhel-6-i386', 'rhel-6-x86_64',
+             'rhel-7-x86_64',
+             'fedora-19-i386', 'fedora-19-x86_64']
+
+DIST_TAG = { 
+  'centos': 'el',
+  'rhel'  : 'el',
+  'fedora': 'fc',
+  }
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
-ARCH_ERROR = "Accepted values are '%s'." % "', '".join(ARCH_MAP)
-
-# supported base distribution versions
-VERSIONS = ['5', '6']
-VERSIONS_ERROR = ("Accepted values are '%s'." % 
-                  "', '".join(VERSIONS))
-
-VALIDATE_DATA = {
-    'os':      { 'validatefn': lambda x: x in OS_LIST,
-                 'error':      OS_ERROR},
-    'version': { 'validatefn': lambda x: x in VERSIONS,
-                 'error':      VERSIONS_ERROR},
-    'arch':    { 'validatefn': lambda x: x in ARCH_MAP,
-                 'error':      ARCH_ERROR},}
 
 
 class Build(DeployEventErrorHandler, DeployValidationHandler, object):
@@ -148,6 +140,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self._get_definition_path(arguments)
       self._get_data_root(options)
       self._get_templates_dir()
+      self._get_main_vars(options)
       self._get_initial_macros(options)
       self._get_definition(options, arguments)
     except rxml.errors.XmlError, e:
@@ -164,28 +157,17 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set up initial variables
     qstr = '/*/main/%s/text()'
 
-    for elem in ['name', 'os', 'version', 'arch', 'id']:
-      try:
-        exec ("self.%s = self.definition.getxpath('/*/main/%s/text()')" 
-              % (elem, elem))
-      except rxml.errors.XmlPathError, e:
-        msg = ("ERROR: Validation of %s failed. Missing required 'main/%s' "
-               "element." % (self.definition.getroot().getbase(), elem))
-        raise DeployError(msg)
-
     self.type   = self.definition.getxpath(qstr % 'type', 'system')
     self.build_id = self.definition.getxpath(qstr % 'id')
 
-    # validate initial variables
-    for elem in VALIDATE_DATA:
-      value = eval('self.%s' % elem)
-      if not VALIDATE_DATA[elem]['validatefn'](value):
-        raise InvalidConfigError(self.definition.getbase(), elem, value, 
-                                 VALIDATE_DATA[elem]['error'])
+    # validate distribution
+    if not '%s-%s-%s' % (self.os, self.version, self.arch) in SUPPORTED:
+      msg = ("ERROR: The specified operating system '%s-%s-%s' is not "
+             "supported. Supported operating systems are %s." % 
+             (self.os, self.version, self.arch, SUPPORTED))
+      raise DeployError(msg)
+
     # set data_dir
-    # wish we could do this before get_definition() for parity with other 
-    # global-runtime macros, but we don't have the build-id until after the
-    # definition has been read.
     self._get_data_dir(options)
 
     # set up real logger - console and file, unless provided as init arg
@@ -331,24 +313,37 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                                 '%{templates-dir}': self.template_dirs 
                                 })
 
+  def _get_main_vars(self, options):
+    # read definition one time without processing xincludes to
+    # get name, os, version, arch and id elems. this lets us resolve norm_os
+    # early and provide it as a global macro
+    definition = rxml.config.parse(self.definition_path, 
+                                   resolve_macros=True, 
+                                   macros=get_initial_macros(options),
+                                   ).getroot()
+
+    for elem in ['name', 'os', 'version', 'arch', 'id']:
+      try:
+        exec ("self.%s = definition.getxpath('./main/%s/text()')" 
+              % (elem, elem))
+      except rxml.errors.XmlPathError, e:
+        msg = ("ERROR: Validation of %s failed. Missing required 'main/%s' "
+               "element." % (definition.getroot().getbase(), elem))
+        raise DeployError(msg)
+
+
   def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
-    map = {}
+    map = get_initial_macros(options)
 
-    if options.macros:
-      for pair in options.macros:
-        id = pair.split(':')[0].strip()
-        value = ':'.join(pair.split(':')[1:]).strip()
+    map.setdefault('%{name}',    self.name)
+    map.setdefault('%{os}',      self.os)
+    map.setdefault('%{version}', self.version)
+    map.setdefault('%{arch}',    self.arch)
+    map.setdefault('%{id}',      self.id)
 
-        if not id or not value:
-          raise InvalidOptionError(pair, 'macro', "Macro options must take the "
-                                   "form 'id:value'.")
-
-        # convert string to macro element
-        value = rxml.config.fromstring("<macro id='%s'>%s</macro>" %
-                                      (id, value)) 
-
-        map['%%{%s}' % id] = value
+    self.norm_os = '%s%s' % (DIST_TAG[self.os], self.version)
+    map.setdefault('%{norm-os}', self.norm_os)
 
     map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
 
@@ -499,7 +494,7 @@ The definition file is located at %s.
     qstr = '/*/main/%s/text()'
     self.fullname    = self.definition.getxpath(qstr % 'fullname', self.name)
     self.packagepath = 'Packages'
-    self.webloc      = self.definition.getxpath(qstr % 'bug-url', 
+    self.bugurl      = self.definition.getxpath(qstr % 'bug-url', 
                                                   'No bug url provided')
 
     # set up other directories
@@ -526,7 +521,8 @@ The definition file is located at %s.
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     # set up cache options
-    cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()', '30GB')
+    cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()',
+                                              '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
     self.CACHE_MAX_SIZE = si.parse(cache_max_size)
@@ -560,11 +556,10 @@ The definition file is located at %s.
     self.logger.log(1, "Starting build of '%s' at %s" % (self.build_id, time.strftime('%Y-%m-%d %X')))
     self.logger.log(5, "Loaded modules: %s" % self.cvars['loaded-modules'])
     self.logger.log(5, "Event list: %s" % [ e.id for e in self.dispatch._top ])
+
   def _log_footer(self):
     self.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
-
-  ###### Helper Methods ######
   def get_event_attrs(self, ptr):
     """
     Called by Event.__init__() to set up a bunch of convenience variables for
@@ -582,12 +577,13 @@ The definition file is located at %s.
     di['os']                = self.os
     di['version']           = self.version
     di['arch']              = self.arch
+    di['norm_os']           = self.norm_os
     di['type']              = self.type
     di['build_id']          = self.build_id
     di['anaconda-version']  = None
     di['fullname']          = self.fullname
     di['packagepath']       = 'Packages'
-    di['webloc']            = self.webloc
+    di['bugurl']            = self.bugurl
   
     for k,v in di.items():
       setattr(ptr, k, v)
@@ -597,6 +593,7 @@ The definition file is located at %s.
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
+    ptr.TEMPLATE_DIRS   = self.template_dirs # needed by srpmbuild
     ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
   
     ptr.datfn         = self.datfn # dat filename
@@ -626,3 +623,25 @@ class AllEvent(Event):
       properties = CLASS_META,
       suppress_run_message = True,
     )
+
+##### Helper Methods #####
+def get_initial_macros(options):
+  # get macros using values from options 
+  map = {}
+
+  if options.macros:
+    for pair in options.macros:
+      id = pair.split(':')[0].strip()
+      value = ':'.join(pair.split(':')[1:]).strip()
+
+      if not id or not value:
+        raise InvalidOptionError(pair, 'macro', "Macro options must take the "
+                                 "form 'id:value'.")
+
+      # convert string to macro element
+      value = rxml.config.fromstring("<macro id='%s'>%s</macro>" %
+                                    (id, value)) 
+
+      map['%%{%s}' % id] = value
+
+  return map

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='create-guestname' type='pre'>
+<!--
+script snippet for use by other scripts (install, delete, shutdown) to
+source the stored guestname
+-->
+<macro id='source-guestname'>
+file=$(dirname "$0")/libvirt-%{module}
+
+if [ -f $file ]; then
+  source $file
+else
+  echo "unable to determine guest name - $file does not exist"
+  exit 1
+fi
+#!/bin/bash
+set -e
+</macro>
+
+<!--
+Libvirt guestnames are limited to 50 characters. Sometimes, however,
+Deploy-created hostnames, which contain os, version, arch and install type,
+exceed that limit. This script deals with the limit as follows:
+
+* creates a unique guestname based on the hostname
+* stores the guestname in a file for inclusion within additional scripts
+-->
+
+# exit if guestname file exists
+file=$(dirname "$0")/libvirt-%{module}
+
+[ -f $file ] &amp;&amp; exit
+
+# else create a guestname less than 50 characters
+guestname=%{hostname}
+
+if [[ ${#guestname} -gt 50 ]]; then
+  index=1
+  while [[ $index -lt 999 ]]
+  do
+    guestname="${guestname:0:48}-$index"
+    virsh dominfo $guestname  || break  # if guestname available, break from loop
+    index=`expr $index + 1`
+  done
+fi
+
+# save guestname for use by other scripts
+echo "guestname=$guestname" > $file
+</script>

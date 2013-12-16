@@ -79,7 +79,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
 
     # release-rpm
     if release_rpm:
-      self.release = self.release_rpmdata['rpm-release'].replace(self.dist, '')
+      self.release = self.release_rpmdata['rpm-release']
     else:
       self.release = 1
     ReleaseRpmEventMixin.setup(self, webpath=self.webpath, 

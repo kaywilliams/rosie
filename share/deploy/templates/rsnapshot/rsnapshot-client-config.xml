@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<config-rpm id='rsnapshot-client-config' xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/rsnapshot/rsnapshot-local-config.xml"
-            xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/rsnapshot/rsnapshot-remote-config.xml"
-            xpointer="xpointer(./*)"/>
-</config-rpm>

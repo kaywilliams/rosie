@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
+<!--drupal-->
+<xi:include href='%{templates-dir}/%{norm-os}/httpd/httpd-config.xml'/>
+<xi:include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"/> 
+<xi:include href="%{templates-dir}/%{norm-os}/drupal/drupal-%{dbtype}-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/drupal/drush-config.xml"/>
+
+<!--local backup-->
+<xi:include href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-local-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/drupal/drupal-rsnapshot-config.xml"/>
+</config-rpms>
