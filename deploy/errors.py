@@ -72,6 +72,19 @@ class InvalidConfigError(DeployError):
             "invalid value '%s'. %s" %
             (self.file, self.name, self.value, self.accepted))
 
+class InvalidMainConfigPathError(DeployError):
+  def __init__(self, file, message, elem):
+    self.file = pps.path(file)
+    self.message = message
+    self.elem = elem
+
+  def __str__(self):
+    msg = ("ERROR: Unable to resolve %s in '%s'. %s The invalid section "
+           "is:\n\n%s" % (self.elem.tag, self.file, self.message, 
+                            self.elem.tostring(lineno=True, with_tail=False)))
+
+    return msg
+
 class DeployEventError(DeployError):
   message = None
   def __init__(self, *args, **kwargs):

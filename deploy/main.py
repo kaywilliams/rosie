@@ -55,7 +55,8 @@ from deploy.constants import *
 from deploy.errors    import (DeployEventErrorHandler, 
                                     DeployEventError,
                                     DeployError,
-                                    InvalidOptionError)
+                                    InvalidOptionError,
+                                    InvalidMainConfigPathError,)
 from deploy.event     import Event, CLASS_META
 from deploy.dlogging import make_log, L0, L1, L2
 from deploy.validate  import (DeployValidationHandler,
@@ -299,15 +300,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                           ['./main/id/text()', './main/id/text()'])
 
   def _get_templates_dir(self):
-    self.template_dirs = [ x.expand().abspath()
-                           for x in self.mainconfig.getpaths(
-                           '/deploy/templates-path/text()', []) ]
+    self.template_dirs = self._get_mainconfig_paths('templates-path') 
     self.template_dirs.extend(DEFAULT_TEMPLATE_DIRS)
-
-    for d in self.template_dirs:
-      if not d in DEFAULT_TEMPLATE_DIRS and not d.isdir():
-        raise RuntimeError("The specified templates-path '%s' does not exist."
-                            % d)
 
     self.search_paths_handler = SearchPathsHandler({
                                 '%{templates-dir}': self.template_dirs 
@@ -507,9 +501,7 @@ The definition file is located at %s.
     self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
-    sharedirs.extend(reversed([ x.expand().abspath()
-      for x in self.mainconfig.getpaths(
-        '/deploy/share-path/text()', []) ]))
+    sharedirs.extend(reversed(self._get_mainconfig_paths('share-path')))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
       for x in options.sharepath ]))
 
@@ -518,7 +510,8 @@ The definition file is located at %s.
     assert self.sharedirs
     for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
-        raise RuntimeError("The specified share-path '%s' does not exist." %d)
+        raise DeployError("ERROR: The specified share-path '%s' does not "
+                          "exist." %d)
 
     # set up cache options
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()',
@@ -604,6 +597,20 @@ The definition file is located at %s.
     ptr.link_callback  = self.link_callback
     ptr.copy_callback_compressed = self.copy_callback_compressed
 
+  def _get_mainconfig_paths(self, tag):
+    paths = []
+    for elem in self.mainconfig.xpath('./%s' % tag, []):
+      d = elem.getpath('./text()', None)
+      if not d:
+        msg = "No path was specified."
+        raise InvalidMainConfigPathError(self.mainconfig.base, msg, elem)
+      d.expand().abspath()
+      if not d.isdir():
+        msg = "The specified path does not exist."
+        raise InvalidMainConfigPathError(self.mainconfig.base, msg, elem)
+      paths.append(d)
+
+    return paths
 
 ###### Classes ######
 class CvarsDict(dict):
