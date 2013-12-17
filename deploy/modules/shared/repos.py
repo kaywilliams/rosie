@@ -109,6 +109,10 @@ class DeployRepo(YumRepo):
     p = pps.path(p)
     try:
       if isinstance(p, pps.Path.rhn.RhnPath):
+        # lowercase edition (e.g. 'rhel-i386-Server-6') for rhn consumption
+        p = pps.path(p.lower())
+
+        # set the systemid
         systemid = self.get('systemid')
         if systemid:
           systemid = pps.path(systemid).realpath()
