@@ -166,7 +166,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.resolve_macros(map={'%{triggers}': triggers,
                              '%{custom-pkgs}': self._get_custom_pkgs()})
 
-    self.deployroot = self.LIB_DIR / 'deploy'
+    self.deployroot = self.VAR_DIR / 'deploy'
     self.deploydir = self.deployroot / self.build_id
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
     self.resolve_macros(map={'%{trigger-file}': self.triggerfile})
@@ -361,18 +361,18 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           sftp = paramiko.SFTPClient.from_transport(client.get_transport())
 
           # create libdir
-          if not self.LIB_DIR.basename in sftp.listdir(str(
-                                          self.LIB_DIR.dirname)):
+          if not self.VAR_DIR.basename in sftp.listdir(str(
+                                          self.VAR_DIR.dirname)):
             try:
-              sftp.mkdir(str(self.LIB_DIR))
+              sftp.mkdir(str(self.VAR_DIR))
             except IOError, e:
               raise RemoteFileCreationError(msg=
                 "An error occurred creating the script directory '%s' "
                 "on the remote system '%s'. %s"
-                % (self.LIB_DIR, params['hostname'], str(e)))
+                % (self.VAR_DIR, params['hostname'], str(e)))
 
           # create deploydir
-          for d in [ self.LIB_DIR, self.deployroot, self.deploydir ]:
+          for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
             if not (d.basename in 
                     sftp.listdir(str(d.dirname))): 
               sftp.mkdir(str(d))

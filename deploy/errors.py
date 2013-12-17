@@ -73,14 +73,15 @@ class InvalidConfigError(DeployError):
             (self.file, self.name, self.value, self.accepted))
 
 class InvalidMainConfigPathError(DeployError):
-  def __init__(self, file, message, elem):
+  def __init__(self, tag, file, message, elem):
+    self.tag = tag
     self.file = pps.path(file)
     self.message = message
     self.elem = elem
 
   def __str__(self):
     msg = ("ERROR: Unable to resolve %s in '%s'. %s The invalid section "
-           "is:\n\n%s" % (self.elem.tag, self.file, self.message, 
+           "is:\n\n%s" % (self.tag, self.file, self.message, 
                             self.elem.tostring(lineno=True, with_tail=False)))
 
     return msg

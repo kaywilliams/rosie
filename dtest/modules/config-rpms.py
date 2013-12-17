@@ -258,7 +258,7 @@ class Test_FilesInstalled(DeployConfigRpmEventTestCase):
   "files installed on client machine"
 
 class Test_FilesPersistOnLibDirChanges(DeployConfigRpmEventTestCase):
-  "files persist on LIB_DIR changes"
+  "files persist on VAR_DIR changes"
   def runTest(self):
     self.event.test_lib_dir = pps.path('/root/deploy')
     DeployMixinTestCase.runTest(self)    

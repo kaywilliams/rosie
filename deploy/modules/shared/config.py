@@ -184,9 +184,9 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
                              requires = ['coreutils', 'diffutils', 'findutils',
                                          'grep', 'sed'])
 
-    self.libdir      = getattr(self, 'test_lib_dir', self.LIB_DIR)
+    self.vardir      = getattr(self, 'test_lib_dir', self.VAR_DIR)
     self.scriptdir   = self.build_folder/'scripts'
-    self.rootinstdir = self.libdir / 'config' 
+    self.rootinstdir = self.vardir / 'config' 
     self.installdir  = self.rootinstdir/name
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.source_folder // self.filerelpath

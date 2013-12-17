@@ -74,7 +74,7 @@ from deploy.event.loader import Loader
 API_VERSION = 5.0
 
 DEFAULT_CACHE_DIR = pps.path('/var/cache/deploy')
-DEFAULT_LIB_DIR = pps.path('/var/lib/deploy')
+DEFAULT_VAR_DIR = pps.path('/var/lib/deploy')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
 DEFAULT_TEMPLATE_DIRS = [ pps.path('/usr/share/deploy/templates') ]
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
@@ -431,8 +431,7 @@ The definition file is located at %s.
     options    : an optparse.Values instance containing the result of parsing
                  command line options
     """
-    import_dirs = [ x.expand().abspath() for x in \
-      self.mainconfig.getpaths('/deploy/lib-path/text()', []) ]
+    import_dirs = self._get_mainconfig_paths('lib-path')
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
@@ -492,12 +491,11 @@ The definition file is located at %s.
                                                   'No bug url provided')
 
     # set up other directories
-    self.LIB_DIR      = self.mainconfig.getpath(
+    self.VAR_DIR      = self.mainconfig.getpath(
                         '/deploy/libdir/path/text()',
-                        DEFAULT_LIB_DIR).expand().abspath()
-    self.CACHE_DIR    = self.mainconfig.getpath(
-                        '/deploy/cache/path/text()',
-                        DEFAULT_CACHE_DIR).expand().abspath()
+                        DEFAULT_VAR_DIR).expand().abspath()
+    self.CACHE_DIR    = self._get_mainconfig_paths('cache/path') or \
+                        DEFAULT_CACHE_DIR
     self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
@@ -582,7 +580,7 @@ The definition file is located at %s.
       setattr(ptr, k, v)
   
     # set up other directories
-    ptr.LIB_DIR      = self.LIB_DIR
+    ptr.VAR_DIR      = self.VAR_DIR
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
@@ -603,11 +601,11 @@ The definition file is located at %s.
       d = elem.getpath('./text()', None)
       if not d:
         msg = "No path was specified."
-        raise InvalidMainConfigPathError(self.mainconfig.base, msg, elem)
+        raise InvalidMainConfigPathError(tag, self.mainconfig.base, msg, elem)
       d.expand().abspath()
       if not d.isdir():
         msg = "The specified path does not exist."
-        raise InvalidMainConfigPathError(self.mainconfig.base, msg, elem)
+        raise InvalidMainConfigPathError(tag, self.mainconfig.base, msg, elem)
       paths.append(d)
 
     return paths

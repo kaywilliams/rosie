@@ -95,7 +95,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.rpmsdir   = self.mddir / 'rpms'
 
-    self.data_root   = self.LIB_DIR / 'srpms'
+    self.data_root   = self.VAR_DIR / 'srpms'
     self.data_root.mkdirs()
 
     if self.version == "5":
