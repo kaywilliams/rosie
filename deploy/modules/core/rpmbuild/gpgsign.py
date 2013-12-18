@@ -181,11 +181,13 @@ EOF""" % (name, pubring, secring)
 
   def validate_keys(self, map):
     for key in map:
+      # TODO - the InvalidKeyError message is potentially misleading as 
+      # we are validating both provided and generated keys 
       if not magic.match(key) == eval(
         'magic.FILE_TYPE_GPG%sKEY' % map[key][:3].upper()):
-        raise InvalidKeyError(map[key])
+        raise InvalidKeyError(type=map[key], text=key.read_text())
 
 
 # -------- Error Classes --------#
 class InvalidKeyError(DeployEventError):
-  message = "The %(type)s key provided does not appear to be valid."
+  message = ("The provided %(type)s signing key is invalid:\n\n%(text)s ")
