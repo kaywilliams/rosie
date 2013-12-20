@@ -93,12 +93,12 @@ tail text
   """ % (tree.XI_NS, pps.path(__file__).abspath()), xinclude=True)
 
     publish = config.fromstring("""
-<publish xmlns:xi='%s' xml:base='%s'>
+<publish xmlns:xi='%s'>
 <!--case 7: remote xml file with xpointer-->
 <xi:include href='%%{templates-dir}/%%{norm-os}/libvirt/deploy.xml'
             xpointer='xpointer(/*/*)'/>
 </publish>
-  """ % (tree.XI_NS, pps.path(__file__).abspath()))
+  """ % tree.XI_NS)
 
     self.conf.extend([config_rpms, publish])
 
@@ -308,6 +308,23 @@ class Test_MacroFailsOnCircularReference(AllEventTestCase):
 
   def tearDown(self): pass
 
+class Test_MacroFailsOnUnresolvedFunctionMacro(AllEventTestCase):
+  "macro fails on unresolved function macro "
+
+  _conf = """
+<publish xmlns:xi='%s'>
+<xi:include href='%%{templates-dir}/%%{norm-os}/common/ks.xml'/>
+<xi:include href='%%{templates-dir}/%%{norm-os}/bad.xml'/>
+</publish>
+  """ % tree.XI_NS
+  def setUp(self): pass 
+
+  def runTest(self):
+    unittest.TestCase.failUnlessRaises(self, MacroError,
+      TestBuild, self.conf, options=self.options, args=[])
+
+  def tearDown(self): pass
+
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('all')
 
@@ -315,5 +332,6 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_XIncludeResolution(os, version, arch))
   suite.addTest(Test_MacroResolution(os, version, arch))
   suite.addTest(Test_MacroFailsOnCircularReference(os, version, arch))
+  suite.addTest(Test_MacroFailsOnUnresolvedFunctionMacro(os, version, arch))
 
   return suite

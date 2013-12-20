@@ -407,7 +407,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       if not remaining:
         break
 
-      remaining_strings = set() 
+      remaining_strings = set()
 
       # get remaining strings
       for macro in remaining:
@@ -432,20 +432,24 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
         for string in remaining[macro]['text_strings']:
           parent = string.getparent()
 
-          if isinstance(map[macro], basestring): # macro is string
+          # macro is string
+          if isinstance(map[macro], basestring):
             if string.is_text:
               parent.text = string.replace(macro, map[macro])
             if string.is_tail:
               parent.tail = string.replace(macro, map[macro])
+            if string in unresolved_strings: unresolved_strings.remove(string)
 
-          elif hasattr(map[macro], '__call__'): # macro is function
+          # macro is function
+          elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
             if self._validate_resolved_macro(macro, string, newstring, 
                 unresolved_strings, remaining_strings, parent):
               if string.is_text: parent.text = newstring
               if string.is_tail: parent.tail = newstring
 
-          else: # macro is macro element
+          # macros is macro element
+          else:
             # resolve script values
             if 'type' in map[macro].attrib and \
                map[macro].attrib['type'] == 'script':
@@ -481,27 +485,37 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               else:
                 parent.tail += tail
 
-            if elems: # creating new elems invalidates the original string
+            if elems: 
+              # creating new elems invalidates the original string, so
+              # remove it from all macros in this loop.
               for r in remaining:
                 if string in remaining[r]['text_strings']:
                   remaining[r]['text_strings'].remove(string)
+ 
+            if string in unresolved_strings: unresolved_strings.remove(string)
 
         # attributes
         for string in remaining[macro]['attrib_strings']:
           parent = string.getparent()
           id = [ k for k,v in parent.items() if string == v][0]
-          if isinstance(map[macro], basestring): # macro is string
-            parent.attrib[id] = string.replace(macro, map[macro])
 
-          elif hasattr(map[macro], '__call__'): # macro is function
+          # macros is string
+          if isinstance(map[macro], basestring):
+            parent.attrib[id] = string.replace(macro, map[macro])
+            if string in unresolved_strings: unresolved_strings.remove(string)
+
+          # macro is function
+          elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
             if self._validate_resolved_macro(macro, string, newstring, 
                 unresolved_strings, remaining_strings, parent):
               parent.attrib[id] = newstring
-          
-          else: # macro is macro elem
+         
+          # macro is macro elem
+          else:
             parent.attrib[id] = string.replace(macro, 
                                  map[macro].getxpath('./text()', '""'))
+            if string in unresolved_strings: unresolved_strings.remove(string)
 
     return map
 
@@ -610,9 +624,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       unresolved_strings.add(currstring)
       return False
     else: # success
-      if macro in unresolved_strings:
-        if currstring in unresolved_strings: 
-          unresolved_strings.remove(currstring)
+      if currstring in unresolved_strings:
+        unresolved_strings.remove(currstring)
       return True
 
   def write(self, file):
