@@ -87,7 +87,7 @@ class BasePath(_base):
     path('/var/') // '/www' returns path('/var/www')
     """
     if not other: return self._new(self)
-    other = _new(other)
+    other = self._new(other)
     return self._new(self._pypath.join(self.__str__(), other.path.__str__()))
   def __rdiv__(self, other):
     """
@@ -281,7 +281,7 @@ class BasePath(_base):
     ('.' in posix).
     """
     start = self.normpath()
-    end   = _new(dst.normpath())
+    end   = self._new(dst.normpath())
 
     if start.isabs():
       assert end.isabs()
@@ -309,7 +309,7 @@ class BasePath(_base):
 
     Invariant: path.relpathto(dst) == dst.relpathfrom(path)
     """
-    return _new(src).relpathto(self)
+    return self._new(src).relpathto(self)
 
   def equivpath(self, other):
     """
@@ -317,7 +317,7 @@ class BasePath(_base):
     and .normcase(), above, the behavior of this method is largely path-type
     dependant.
     """
-    return self.normpath() == _new(other).normpath()
+    return self.normpath() == self._new(other).normpath()
 
   @cached()
   def _urlparse(self):
