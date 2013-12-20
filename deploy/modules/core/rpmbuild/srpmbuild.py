@@ -229,7 +229,13 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
   def _get_srpm_from_repo(self, baseurl):
     # cache repodata to mddir and have yum read it from there
     repo = DeployRepo(baseurl=baseurl)
-    repo.read_repomd()
+    try:
+      repo.read_repomd()
+    except pps.Path.error.PathError, e:
+      message = ("unable to read metadata for the repo at '%s'\n\n%s:" %
+                 (baseurl, e))
+      raise SrpmBuildEventError(message=message)
+
 
     repodata_dir = self.mddir / 'repodata'
     repodata_dir.mkdirs()
