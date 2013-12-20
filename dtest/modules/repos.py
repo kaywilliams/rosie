@@ -35,8 +35,7 @@ class Test_NoBase(ReposEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
-      TestBuild, self.conf, options=self.options, args=[],
-                 mainconfig=self.mainconfig)
+      TestBuild, self.conf, options=self.options, args=[])
 
   def tearDown(self):
     del self.conf

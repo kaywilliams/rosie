@@ -139,6 +139,7 @@ def CoreEventTestCase03(self):
     self.tb.dispatch.execute(until=self.eventid)
 
   def pre_teardown():
+    self.event.cache_handler.offline = False 
     for n, v in inspect.getmembers(socket, inspect.isroutine):
       setattr(socket, n, self.socket_orig[n])
 

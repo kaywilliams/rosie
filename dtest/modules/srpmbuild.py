@@ -68,8 +68,7 @@ class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
-      TestBuild, self.conf, options=self.options, args=[],
-                 mainconfig=self.mainconfig)
+      TestBuild, self.conf, options=self.options, args=[])
 
   def tearDown(self):
     del self.conf
@@ -87,8 +86,7 @@ class Test_Config(TestSrpmTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError,
-      TestBuild, self.conf, options=self.options, args=[],
-                 mainconfig=self.mainconfig) 
+      TestBuild, self.conf, options=self.options, args=[])
 
   def tearDown(self):
     del self.conf

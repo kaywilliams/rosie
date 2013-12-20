@@ -38,17 +38,16 @@ from deploy.main import Build, DIST_TAG
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
 
 class TestBuild(Build):
-  def __init__(self, conf, options=None, args=None, mainconfig=None,): 
+  def __init__(self, conf, options=None, args=None):
     self.conf = conf
-
-    self.mainconfig = mainconfig
     Build.__init__(self, options, args)
 
   def _get_config(self, options, arguments):
-    # set the cache dir
-    if self.mainconfig.getxpath('./cache/path', None) is not None:
-      elem = config.uElement('cache', parent=self.mainconfig)
-      config.uElement('path', parent=elem).text = BUILD_ROOT 
+    self.mainconfig = options.mainconfig
+
+  def _setup_cache(self, options):
+    self.CACHE_DIR = options.cache_dir
+    self.cache_handler = options.cache_handler
 
   def _get_main_vars(self, *args):
     self.name    = self.conf.getxpath('./main/name/text()')
@@ -101,14 +100,17 @@ class EventTestCase(unittest.TestCase):
     self._testMethodDoc = self.__class__.__doc__
 
   def get_mainconfig(self):
-      mcf = pps.path(self.options.mainconfigpath or '/etc/deploy/dtest.conf')
-      if mcf.exists():
-        mainconfig = config.parse(mcf).getroot()
-      else:
-        mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
+    mcf = pps.path(self.options.mainconfigpath or '/etc/deploy/dtest.conf')
+    if mcf.exists():
+      mainconfig = config.parse(mcf).getroot()
+    else:
+      mainconfig = config.parse(StringIO('<deploy/>').getroot()) 
 
-      return mainconfig
-  
+    # use options to pass mainconfig to TestBuild
+    self.options.mainconfig = mainconfig
+
+    return mainconfig
+
   # hack to get display working properly in centos 5
   def shortDescription(self):
     return self._testMethodDoc
@@ -138,14 +140,6 @@ class EventTestCase(unittest.TestCase):
 
   def _make_main_config(self):
     main = config.Element('main')
-    # config.Element('macro',     attrib={'id': 'name'}, text=self.name, 
-    #                             parent=main)
-    # config.Element('macro',     attrib={'id':'os'}, text=self.os, parent=main)
-    # config.Element('macro',     attrib={'id':'version'}, text=self.version,
-    #                             parent=main)
-    # config.Element('macro',     attrib={'id':'arch'}, text=self.arch, 
-    #                             parent=main)
-    # config.Element('macro',     attrib={'id':'id'}, text=self.id, parent=main)
 
     config.Element('name',     text=self.name, parent=main)
     config.Element('os',       text=self.os, parent=main)
@@ -180,8 +174,7 @@ class EventTestCase(unittest.TestCase):
 
   # test suite methods
   def setUp(self):
-    self.tb = TestBuild(self.conf, options=self.options, args=[], 
-                        mainconfig=self.mainconfig) 
+    self.tb = TestBuild(self.conf, options=self.options, args=[]) 
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)

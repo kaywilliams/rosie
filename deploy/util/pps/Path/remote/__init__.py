@@ -16,6 +16,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import deploy.util
+
 from deploy.util.pps.UriTuple import urlunparse
 
 from deploy.util.pps.Path.cached import _CachedPath as CachedPath
@@ -54,10 +56,7 @@ class _RemotePath(CachedPath):
                                       self.fragment)))
 
   def _new(self, string):
-    newobj = self.__class__(string)
-    self._copy_attrs(newobj)
-
-    return newobj
+    return deploy.util.pps.path(string)
 
   def _copy_attrs(self, newobj):
     newobj.cache_handler = self.cache_handler

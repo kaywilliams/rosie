@@ -23,6 +23,7 @@ import sys
 import unittest
 
 from deploy.util import pps
+from deploy.util.pps.cache import CacheHandler
 
 from deploy.util.CleanHelpFormatter import CleanHelpFormatter
 
@@ -130,6 +131,11 @@ def main():
 
   options.data_root = options.buildroot + '/data'
   pps.path(options.data_root).mkdirs()
+
+  # use options as a convenient mechanism for passing additional attributes
+  # to the TestBuild object
+  options.cache_dir = dtest.BUILD_ROOT / '.cache'
+  options.cache_handler = CacheHandler(options.cache_dir)
 
   dtest.EventTestCase.options = options
 

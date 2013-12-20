@@ -59,8 +59,7 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
-      TestBuild, self.conf, options=self.options, args=[], 
-                 mainconfig=self.mainconfig)
+      TestBuild, self.conf, options=self.options, args=[]) 
 
   def tearDown(self):
     del self.conf
@@ -223,8 +222,7 @@ class Test_ValidateDestnames(ConfigRpmEventTestCase):
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
-      TestBuild, self.conf, options=self.options, args=[], 
-                 mainconfig=self.mainconfig)
+      TestBuild, self.conf, options=self.options, args=[]) 
 
   def tearDown(self):
     del self.conf

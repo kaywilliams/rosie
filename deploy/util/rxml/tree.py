@@ -282,11 +282,18 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     discovered  and removed from the element and its descendants.  The default
     value is False.
     
-    map -- a dictionary containing existing macro definitions to use in
-    addition to any found macros, e.g.
+    map -- a dictionary in placeholder:value format for use in resolving
+    macros. Values can be one of three types:
+    
+    * string - a string value, e.g. 'text'
+    * macro_element - a macro element , e.g. fromstring('<macro>...</macro>')
+    * macro_resolution_function - a function that accepts two parameters
+      placeholder and string, and returns a resolved string. See the 
+      resolve_search_path_macro function in this file for an example.
 
-        map = {'%{name1}: 'value1'
-                %{name2}: 'value2'}
+        map = {'%{name1}: string,
+                %{name2}: macro_elem,
+                %{name3}: macro_resolution_function}
 
     Provided macros take precedence over found macros.
 
@@ -387,25 +394,42 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     waiting = set() # macro references that cannot be resolved until 
                     # defaults_file name is resolved
 
+    unresolved_strings = set() #strings with macro resolution errors
+
     while True:
-      remaining = set(re.findall(MACRO_REGEX,
-                  etree.tostring(search_elem))).difference(unknown)
+      remaining = {}
+
+      for macro in set(re.findall(MACRO_REGEX,
+                       etree.tostring(search_elem))).difference(unknown):
+        remaining[macro] = {'attrib_strings': [],
+                            'text_strings': [],}
 
       if not remaining:
         break
 
+      remaining_strings = set() 
+
+      # get remaining strings
       for macro in remaining:
         # ignore unknown
         if not macro in map:
           unknown.add(macro)
           continue
 
-        # text and tails
-        strings = etree.ElementBase.xpath(search_elem,
-                  ".//text()[re:test(., '.*%s.*', 'g')]" % macro,
-                  namespaces={'re':RE_NS})
+        for s in [ x for x in etree.ElementBase.xpath(search_elem, './/@*') 
+          if macro in x ]:
+          remaining[macro]['attrib_strings'].append(s)
+          remaining_strings.add(s)
 
-        for string in strings:
+        for s in etree.ElementBase.xpath(search_elem,
+          ".//text()[re:test(., '.*%s.*', 'g')]" % macro,
+          namespaces={'re':RE_NS}):
+          remaining[macro]['text_strings'].append(s)
+          remaining_strings.add(s)
+            
+      for macro in remaining:
+        # text and tails
+        for string in remaining[macro]['text_strings']:
           parent = string.getparent()
 
           if isinstance(map[macro], basestring): # macro is string
@@ -413,6 +437,13 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               parent.text = string.replace(macro, map[macro])
             if string.is_tail:
               parent.tail = string.replace(macro, map[macro])
+
+          elif hasattr(map[macro], '__call__'): # macro is function
+            newstring = map[macro](macro, string)
+            if self._validate_resolved_macro(macro, string, newstring, 
+                unresolved_strings, remaining_strings, parent):
+              if string.is_text: parent.text = newstring
+              if string.is_tail: parent.tail = newstring
 
           else: # macro is macro element
             # resolve script values
@@ -423,11 +454,11 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                 waiting.discard(macro)
               except errors.MacroDefaultsFileNameUnresolved as e:
                 waiting.add(macro)
-                if remaining == waiting: raise
+                if set(remaining.keys()) == waiting: raise
               continue
 
             # resolve text values 
-            text, tail = string.split(macro, 1) # this looks broken
+            text, tail = string.split(macro, 1)
             elems = [ x.copy() for x in map[macro] ]
             elems.reverse()
 
@@ -450,19 +481,27 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               else:
                 parent.tail += tail
 
+            if elems: # creating new elems invalidates the original string
+              for r in remaining:
+                if string in remaining[r]['text_strings']:
+                  remaining[r]['text_strings'].remove(string)
+
         # attributes
-        attribs = [ x for x in etree.ElementBase.xpath(search_elem, './/@*') 
-                    if macro in x ]
+        for string in remaining[macro]['attrib_strings']:
+          parent = string.getparent()
+          id = [ k for k,v in parent.items() if string == v][0]
+          if isinstance(map[macro], basestring): # macro is string
+            parent.attrib[id] = string.replace(macro, map[macro])
 
-        for attrib in attribs:
-          if isinstance(map[macro], basestring):
-            string = map[macro]
-          else:
-            string = map[macro].getxpath('./text()', '""')
-
-          parent = attrib.getparent()
-          for key, value in parent.attrib.items():
-            parent.attrib[key] = value.replace(macro, string)
+          elif hasattr(map[macro], '__call__'): # macro is function
+            newstring = map[macro](macro, string)
+            if self._validate_resolved_macro(macro, string, newstring, 
+                unresolved_strings, remaining_strings, parent):
+              parent.attrib[id] = newstring
+          
+          else: # macro is macro elem
+            parent.attrib[id] = string.replace(macro, 
+                                 map[macro].getxpath('./text()', '""'))
 
     return map
 
@@ -563,6 +602,18 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     XmlTreeElement.write(stored_macros, defaults_file)
 
+  def _validate_resolved_macro(self, macro, currstring, newstring, 
+                               unresolved_strings, remaining_strings, elem):
+    if currstring == newstring: # fail
+      if unresolved_strings == remaining_strings:
+        raise errors.MacroError(self.getroot().base, '', elem) 
+      unresolved_strings.add(currstring)
+      return False
+    else: # success
+      if macro in unresolved_strings:
+        if currstring in unresolved_strings: 
+          unresolved_strings.remove(currstring)
+      return True
 
   def write(self, file):
     file = pps.path(file)
@@ -618,8 +669,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           if 'href' in elem.attrib:
             # get absolute href
             base = pps.path(elem.base or '.')
-            href = pps.path(elem.attrib['href'], 
-                            search_path_ignore=[base]) # allow file overloading
+            href = pps.path(elem.attrib['href'])
             href = (base.dirname / href).normpath()
 
             if base == href:
@@ -760,3 +810,32 @@ def fromstring(s, **kwargs):
   root = parse(StringIO(s), **kwargs).getroot()
   root.base = None
   return root
+
+
+#-----------MACRO RESOLVER FUNCTIONS-----------#
+
+def resolve_search_path_macro(placeholder, string):
+  """
+  Function that can be provided in a macro map (see 
+  XmlTreeElement.resolve_macros method) for resolving pps search_path macros.
+
+  Requires a search path handler to be established prior to use. See the
+  pps.search_paths module for information.
+
+  Accepts two parameters:
+  
+  * placeholder - The macro placeholder to be replaced, e.g. 
+                  '%{templates_dir}'
+  * string      - An _ElementStringResult containing the placeholder, e.g. 
+                  'Here is a path to a file: %{templates_dir}/some/file.txt"
+
+  Returns a copy of the string with the placeholder resolved.
+  """
+  for substring in string.split():
+    if placeholder in substring:
+      replaced = pps.path(substring, 
+                          search_path_ignore=[string.getparent().base])
+      string = string.replace(substring, replaced)
+      break
+
+  return string

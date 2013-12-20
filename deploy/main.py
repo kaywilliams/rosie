@@ -138,6 +138,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set up configs
     try:
       self._get_config(options, arguments)
+      self._setup_cache(options)
       self._get_definition_path(arguments)
       self._get_data_root(options)
       self._get_templates_dir()
@@ -280,6 +281,21 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     self.mainconfig = mc
 
+  def _setup_cache(self, options):
+    self.CACHE_DIR    = self._get_mainconfig_paths('cache/path') or \
+                        DEFAULT_CACHE_DIR
+
+    cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()',
+                                              '30GB')
+    if cache_max_size.isdigit():
+      cache_max_size = '%sGB' % cache_max_size
+
+    self.cache_handler = CacheHandler(cache_dir = self.CACHE_DIR / '.cache',
+                               cache_max_size = si.parse(cache_max_size),
+                               offline = self.mainconfig.getxpath(
+                                         '/deploy/offline/text()', 
+                                          options.offline))
+
   def _get_definition_path(self, arguments):
     self.definition_path = pps.path(arguments[0]).expand().abspath()
     if not self.definition_path.exists():
@@ -339,6 +355,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.norm_os = '%s%s' % (DIST_TAG[self.os], self.version)
     map.setdefault('%{norm-os}', self.norm_os)
 
+    map.setdefault('%{templates-dir}', rxml.tree.resolve_search_path_macro)
     map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
 
     self.initial_macros = map
@@ -494,10 +511,6 @@ The definition file is located at %s.
     self.VAR_DIR      = self.mainconfig.getpath(
                         '/deploy/libdir/path/text()',
                         DEFAULT_VAR_DIR).expand().abspath()
-    self.CACHE_DIR    = self._get_mainconfig_paths('cache/path') or \
-                        DEFAULT_CACHE_DIR
-    self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
-
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed(self._get_mainconfig_paths('share-path')))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
@@ -512,19 +525,7 @@ The definition file is located at %s.
                           "exist." %d)
 
     # set up cache options
-    cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()',
-                                              '30GB')
-    if cache_max_size.isdigit():
-      cache_max_size = '%sGB' % cache_max_size
-    self.CACHE_MAX_SIZE = si.parse(cache_max_size)
-
-
-    self.cache_handler = CacheHandler(
-                         cache_dir = self.CACHE_DIR / '.cache',
-                         cache_max_size = self.CACHE_MAX_SIZE,
-                         offline = self.mainconfig.getxpath(
-                                   '/deploy/offline/text()', 
-                                    options.offline))
+    self.METADATA_DIR = self.CACHE_DIR  / (self.type + 's') / self.build_id
     self.copy_callback  = SyncCallback(self.logger, self.METADATA_DIR)
     self.cache_callback = CachedCopyCallback(self.logger, self.METADATA_DIR)
     self.link_callback  = LinkCallback(self.logger, self.METADATA_DIR)
@@ -584,8 +585,7 @@ The definition file is located at %s.
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
-    ptr.TEMPLATE_DIRS   = self.template_dirs # needed by srpmbuild
-    ptr.CACHE_MAX_SIZE = self.CACHE_MAX_SIZE
+    ptr.TEMPLATE_DIRS  = self.template_dirs # needed by srpmbuild
   
     ptr.datfn         = self.datfn # dat filename
     ptr.cache_handler = self.cache_handler

@@ -88,8 +88,8 @@ class MacroError(XmlError):
     self.elem = elem.tostring(lineno=True, with_tail=False)
 
   def __str__(self):
-    msg = ("\nERROR: Unable to resolve macros in '%s'. %s The invalid section "
-           "is:\n\n%s\n" % (self.file, self.message, self.elem))
+    msg = ("\nERROR: Unable to resolve macros in '%s'. %s The unresolved "
+           "section is:\n\n%s\n" % (self.file, self.message, self.elem))
 
     return msg
 

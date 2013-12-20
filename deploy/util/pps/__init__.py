@@ -55,13 +55,13 @@ def path(string, search_paths={}, search_path_ignore=[], *args, **kwargs):
   contains ':', use pps.Path.local.path() instead.
   
   Accepts two arguments:
-   * search_paths - a dict of search paths in 'placeholder: list of values'
+   * search_paths - a dict of search paths in 'placeholder: string or list'
      format, for example:
 
-     { '%{templates_dir}' : [ '/etc/deploy/templates',
-                              '/usr/share/deploy/templates' ]
-     }
-                              '
+     { '%{templates-dir}' : '/usr/share/deploy/templates' }
+     { '%{templates-dir}' : [ '/etc/deploy/templates',
+                              '/usr/share/deploy/templates' ] }
+
      PPS checks if one or more placeholder is in the provided string. If so,
      it iterates through a list of (placeholder, value) combinations, testing
      the resulting string at each pass to see if a file of that name file.
@@ -94,7 +94,9 @@ def path(string, search_paths={}, search_path_ignore=[], *args, **kwargs):
 
     macro_tuples = [] 
     for macro in found_macros:
-      macro_tuples.append( [ (macro, x) for x in search_paths[macro] ] )
+      values = search_paths[macro]
+      if isinstance(values, basestring): values = [ values ]
+      macro_tuples.append( [ (macro, v) for v in values ] )
 
     for item in itertools.product(*macro_tuples):
       new_string = string[:] # copy string

@@ -18,6 +18,8 @@
 
 from copy import copy
 
+import deploy.util
+
 from deploy.util.pps.UriTuple import urlunparse
 
 from deploy.util.pps.Path import BasePath
@@ -41,10 +43,7 @@ class _CachedPath(BasePath):
     self.cache_handler = cache_handler
 
   def _new(self, string):
-    newobj = self.__class__(string)
-    self._copy_attrs(newobj)
-
-    return newobj
+    return deploy.util.pps.path(string)
 
   def _copy_attrs(self, newobj):
     newobj.cache_handler = self.cache_handler
