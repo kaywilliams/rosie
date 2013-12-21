@@ -260,13 +260,13 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     try:
       yb.doSackSetup(archlist=['src'], thisrepo=self.id)
     except yum.Errors.RepoError:
-      raise InvalidRepoError(url=repo)
+      raise InvalidRepoError(url=baseurl)
   
     try:
       srpm = (yb.repos.getRepo(self.id).getPackageSack()
               .returnNewestByName(name=self.srpmid)[0])
     except yum.Errors.PackageSackError:
-      raise SrpmNotFoundError(name=self.srpmid, path=repo)
+      raise SrpmNotFoundError(name=self.srpmid, path=baseurl)
       
     self.io.add_fpath(srpm.remote_url.replace(localurl, baseurl), 
                       self.srpmdir, id='srpm')
