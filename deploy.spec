@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.1
-Release: 21%{?dist}
+Release: 27%{?dist}
 Summary: An open platform for managing system and application deployment.
 
 License:   GPL
@@ -27,19 +27,17 @@ Requires: mkisofs
 Requires: openssh 
 Requires: pexpect
 Requires: pykickstart
-Requires: python-crypto
 Requires: python-devel
 Requires: python-hashlib
 Requires: python-lxml
-Requires: python-paramiko
 Requires: python-setuptools
 Requires: rpmdevtools
+Requires: rng-tools
 Requires: rhn-client-tools
 Requires: rpm-build
 Requires: syslinux
 Requires: yum
 Requires: xz
-Requires: /sbin/rngd
 Requires: /usr/bin/sudo
 
 %description
@@ -74,66 +72,6 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Sun Nov 17 2013 Deploy Automated Package Builder - 2.1-21
-- rebuilt
-
-* Sun Nov 17 2013 Deploy Automated Package Builder - 2.1-20
-- rebuilt
-
-* Sun Nov 17 2013 Deploy Automated Package Builder - 2.1-19
-- rebuilt
-
-* Sun Nov 17 2013 Deploy Automated Package Builder - 2.1-18
-- rebuilt
-
-* Sun Nov 17 2013 Deploy Automated Package Builder - 2.1-17
-- rebuilt
-
-* Sat Nov 16 2013 Deploy Automated Package Builder - 2.1-16
-- rebuilt
-
-* Fri Nov 15 2013 Deploy Automated Package Builder - 2.1-15
-- rebuilt
-
-* Thu Nov 14 2013 Deploy Automated Package Builder - 2.1-14
-- rebuilt
-
-* Wed Nov 13 2013 Deploy Automated Package Builder - 2.1-13
-- rebuilt
-
-* Tue Nov 12 2013 Deploy Automated Package Builder - 2.1-12
-- rebuilt
-
-* Sun Nov 10 2013 Deploy Automated Package Builder - 2.1-11
-- rebuilt
-
-* Sat Nov 09 2013 Deploy Automated Package Builder - 2.1-10
-- rebuilt
-
-* Fri Nov 08 2013 Deploy Automated Package Builder - 2.1-9
-- rebuilt
-
-* Thu Nov 07 2013 Deploy Automated Package Builder - 2.1-8
-- rebuilt
-
-* Wed Nov 06 2013 Deploy Automated Package Builder - 2.1-7
-- rebuilt
-
-* Mon Nov 04 2013 Deploy Automated Package Builder - 2.1-6
-- rebuilt
-
-* Sat Nov 02 2013 Deploy Automated Package Builder - 2.1-5
-- rebuilt
-
-* Fri Nov 01 2013 Deploy Automated Package Builder - 2.1-4
-- rebuilt
-
-* Thu Oct 31 2013 Deploy Automated Package Builder - 2.1-3
-- rebuilt
-
-* Wed Oct 30 2013 Deploy Automated Package Builder - 2.1-2
-- rebuilt
-
 * Fri Sep 13 2013 Kay Williams <kay@deployproject.org> - 2.1-1
 - offline support 
 - support for executing deployment scripts from a remote host

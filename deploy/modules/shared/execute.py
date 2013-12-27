@@ -18,23 +18,25 @@
 import errno
 import fcntl
 import os
-import paramiko
+import re
 import select
 import signal
 import subprocess 
 import sys
+import time
 import traceback
+
+from decimal import Decimal
 
 from deploy.dlogging import L2, MSG_MAXWIDTH
 from deploy.errors import DeployEventError
 from deploy.util import pps 
-from deploy.util import sshlib 
 
 SSH_RETRIES = 24
 SSH_SLEEP = 5
 
-__all__ = ['ExecuteEventMixin', 'ScriptFailedError', 'SSHFailedError', 
-           'SSHScriptFailedError']
+__all__ = ['ExecuteEventMixin', 'SSHConnectionFailedError',
+           'ScriptFailedError', 'SSHScriptFailedError', ]
 
 class ExecuteEventMixin:
   execute_mixin_version = "1.00"
@@ -45,110 +47,125 @@ class ExecuteEventMixin:
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')
 
-  def _ssh_connect(self, params, log_format='L2'):
+  def _ssh_connect(self, params, log_format='L2', **kwargs):
+    # dummy command to just to confirm a connection is possible 
+    self._ssh_execute('exit', params, **kwargs)
+
+  def _ssh_execute(self, script, params, **kwargs):
+    cmd = "/usr/bin/ssh %s %s@%s %s" % (
+          self._get_ssh_options(params['port'], params['key_filename']),
+          params['username'], params['hostname'],
+          script)
+
     try:
-      try:
-        self.log(4, eval('%s' % log_format)(
-                         "connecting to host \'%s\'" % params['hostname'])) 
-        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
-        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
-                                   callback=SSHConnectCallback(self.logger),
-                                   **dict(params))
+      self._remote_execute(cmd, params, **kwargs)
+    except ScriptFailedError, e:
+      raise SSHScriptFailedError(id=script, host=params['hostname'],
+                                 message=e.map['errtxt'])
 
-        # setting keepalive causes client to cancel processes started by the
-        # server after the SSH session is terminated. It takes a few seconds for
-        # the client to notice and cancel the process. 
-        client.get_transport().set_keepalive(1)
+  def _sftp(self, cmd, params, **kwargs):
+    cmd = 'echo -e "%s" | /usr/bin/sftp -b - %s %s@%s' % (
+          cmd,
+          self._get_ssh_options(params['port'], params['key_filename']),
+          params['username'], params['hostname'])
 
-      except sshlib.TemporaryConnectionFailedError, e:
-        raise TemporarySSHFailedError(message=e) 
+    self._remote_execute(cmd, params, **kwargs)
 
-      except sshlib.ConnectionFailedError, e:
-        raise SSHFailedError(message=e) 
+  def _remote_execute(self, cmd, params, retries=24, sleep=5, verbose=False,
+                      log_format='L2'):
+    """                   
+    Wrapper for _local_execute that retries ssh commands for a timeout period
+    in case the system is starting.
 
-    except:
-      if 'client' in locals(): client.close()
-      raise
-
-    return client
-
-  def _ssh_execute(self, client, cmd, verbose=False, log_format='L2'):
+    * retries -  specifies the number of time to retry the connection
+    * sleep - specifies the time in seconds to sleep between each retry
+    
+    The defaults are 24 and 5, respectively, for a total wait period of 2
+    mintues. 
+    """
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
-    chan = client.get_transport().open_session()
-    chan.exec_command('"%s"' % cmd)
 
-    outlines = []
-    errlines = []
-    header_logged = False
-    while True:
-      r, w, x = select.select([chan], [], [], 0.0)
-      if len(r) > 0:
-        got_data = False
-        if chan.recv_ready():
-          data = chan.recv(1024)
-          if data:
-            got_data = True
-            outlines.extend(data.rstrip('\n').split('\n'))
-            if verbose or self.logger.test(4):
-              if header_logged is False:
-                self.logger.log_header(0, "%s event - '%s' script output" % 
-                                      (self.id, pps.path(cmd).basename))
-                header_logged = True
-              self.log(0, data.rstrip('\n'))
-        if chan.recv_stderr_ready():
-          data = chan.recv_stderr(1024)
-          if data:
-            got_data = True
-            errlines.extend(data.rstrip('\n').split('\n'))
-        if not got_data:
-          break
+    for i in range(retries): # retry connect
+      try:
+        self._local_execute(cmd, verbose=verbose)
+        break
+      except SSHError, e:
+        if i == 0:
+          max = Decimal(retries) * sleep / 60
+          message = ("Unable to connect to %s. System may be starting. "
+                     "Will retry for %s minutes." % (params['hostname'], max))
+          self.logger.log(2, L2(message))
+        message = str(e).split(': ')[-1].strip() # strip ssh error prefix
+        self.logger.log(2, L2("%s. Retrying..." % message))
+        time.sleep(sleep)
 
-    if header_logged:
-      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
-      self.logger.log(0, '')
-      
-    status = chan.recv_exit_status()
-    chan.close()
-
-    if status != 0:
-      raise SSHFailedError(message='\n'.join(outlines + errlines))
+    else:
+      raise SSHConnectionFailedError(str(e), params)
 
   def _local_execute(self, cmd, verbose=False):
-    # using shell=True which gives better error messages for scripts lacking
-    # an interpreter directive (i.e. #!/bin/bash). Callers need to verify
-    # that cmd does not contain arbitrary (and potentially dangerous) text.
-    proc = subprocess.Popen("%s" % cmd, shell=True, stdout=subprocess.PIPE, 
-                                                    stderr=subprocess.PIPE)
+    try:
+      # using shell=True which gives better error messages for scripts lacking
+      # an interpreter directive (i.e. #!/bin/bash).
+      _PIPE = subprocess.PIPE
+      proc = subprocess.Popen(cmd, stdin=_PIPE, stdout=_PIPE, stderr=_PIPE,
+                              close_fds=True, shell=True)
 
-    self.make_async(proc.stdout)
-    self.make_async(proc.stderr)
+      self.make_async(proc.stdout)
+      self.make_async(proc.stderr)
 
-    outlines = []
-    errlines = []
-    header_logged = False
-    while True:
-      select.select([proc.stdout, proc.stderr], [], [], 0.0)
-      outline = self.read_async(proc.stdout)
-      errline = self.read_async(proc.stderr)
-      if outline != '' or errline != '' or proc.poll() is None:
-        if outline:
-          outlines.append(outline)
-          if verbose or self.logger.test(4): 
-            if not header_logged:
-              self.logger.log_header(0, "%s event - '%s' script output" %
-                                    (self.id, pps.path(cmd).basename))
-              header_logged = True
-            self.log(0, outline)
-        if errline: errlines.append(errline) 
-      else:
-        break
+      outlines = []
+      errlines = []
+      header_logged = False
 
-    if header_logged:
-      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
+      while True:
+        select.select([proc.stdout, proc.stderr], [], [], 0.0)
+        outline = self.read_async(proc.stdout)
+        errline = self.read_async(proc.stderr)
+        if outline != '' or errline != '' or proc.poll() is None:
+          if outline:
+            outlines.append(outline)
+            if verbose or self.logger.test(4): 
+              if not header_logged:
+                self.logger.log_header(0, "%s event - '%s' script output" %
+                                      (self.id, pps.path(cmd).basename))
+                header_logged = True
+              self.log(0, outline)
+          if errline: errlines.append(errline) 
+        else:
+          break
 
-    if proc.returncode != 0:
-      raise ScriptFailedError(cmd=cmd, errtxt='\n'.join(outlines + errlines))
-    return
+      if header_logged:
+        self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
+
+      if proc.returncode:
+        if errlines and re.search(r'^ssh\:', errlines[0]):
+          raise SSHError('\n'.join(outlines + errlines))
+        else:
+          raise ScriptFailedError(cmd, errtxt='\n'.join(outlines + errlines))
+      return
+
+    # Kill subprocesses, especially ssh, and any children. The goal is to 
+    # circumvent native ssh connection timeout handling and ensure consistent
+    # connect handling via _remote_execute. 
+    except KeyboardInterrupt as e:
+      try:
+        os.killpg(proc.pid, signal.SIGTERM)  # kill subprocess and children
+      except OSError: # e.g. No such process
+        pass
+      raise e
+
+  def _get_ssh_options(self, port, key_filename):
+    return ' '.join(["-o", "StrictHostKeyChecking=no",
+                     "-o", "UserKnownHostsFile=/dev/null",
+                     "-o", "IdentityFile=%s" % key_filename,
+                     "-o", "Port=%s" % port,
+                     "-o", "ServerAliveCountMax=1",
+                     "-o", "ServerAliveInterval=5",
+                     "-o", "TCPKeepAlive=no",
+                     "-o", "ConnectionAttempts=1",
+                     "-o", "ConnectTimeout=0",
+                     "-o", "LogLevel=ERROR",
+                     ])
 
   # Helper function to add the O_NONBLOCK flag to a file descriptor
   def make_async(self, fd):
@@ -167,26 +184,27 @@ class ExecuteEventMixin:
 
 
 #------ Errors ------#
-class TemporarySSHFailedError(DeployEventError):
-  message = "%(message)s"
+class SSHError(Exception):
+  pass
+
+class SSHConnectionFailedError(Exception):
+  def  __init__(self, message, params):
+    self.hostname = params['hostname']
+    self.message = message
+    self.params = ', '.join([ '%s=\'%s\'' % (k,params[k]) 
+                              for k in params ])
+
+  def __str__(self):
+    return ("Unable to establish connection with remote host: '%s':\n"
+            "Error Message: %s\n"
+            "SSH Parameters: %s" 
+            % (self.hostname, self.message, self.params))
+
 
 class ScriptFailedError(DeployEventError):
-  message = "Error occured running '%(cmd)s'. See script output below:\n%(errtxt)s"
+  message = "Error occured running '%(cmd)s':\n%(errtxt)s"
 
-class SSHFailedError(ScriptFailedError):
-  message = "%(message)s"
 
 class SSHScriptFailedError(ScriptFailedError):
   message = """Error(s) occured running '%(id)s' script on '%(host)s':
 %(message)s"""
-
-#------ Callbacks ------#
-class SSHConnectCallback:
-  def __init__(self, logger):
-    self.logger = logger
-
-  def start(self, message, *args, **kwargs):
-    self.logger.log(2, L2(message))
-
-  def retry(self, message, *args, **kwargs):
-    self.logger.log(2, L2(message))

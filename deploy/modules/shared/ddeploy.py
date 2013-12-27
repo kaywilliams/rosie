@@ -17,7 +17,6 @@
 #
 import errno 
 import hashlib
-import paramiko
 import re
 
 from deploy.dlogging import L0, L1
@@ -29,9 +28,8 @@ from deploy.util import resolve
 from deploy.util.pps.Path.error import PathError
 
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
-                                   ScriptFailedError,
-                                   SSHFailedError, SSHScriptFailedError)
-# InputEventMixin loads ExecuteEventMixin
+                                   ScriptFailedError, SSHConnectionFailedError,
+                                   SSHScriptFailedError)
 
 from deploy.util.graph import DirectedNodeMixin
 
@@ -312,9 +310,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       params = SSHParameters(self, 'test-triggers')
       self.log(1, L1('attempting to connect'))
       try:
-        client = self._ssh_connect(params)
-        client.close()
-      except SSHFailedError, e:
+        self._ssh_connect(params)
+      except SSHConnectionFailedError, e:
         self.log(3, L1(e))
         self.log(1, L1("unable to connect to machine, reinstalling...")) 
         return True # reinstall
@@ -323,7 +320,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self.types['test-triggers']:
       try:
         self._execute('test-triggers')
-      except ScriptFailedError, e:
+      except (SSHConnectionFailedError, ScriptFailedError), e:
         self.log(3, L1(str(e)))
         self.log(1, L1("test-trigger script failed, reinstalling..."))
         return True # reinstall
@@ -349,61 +346,28 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._local_execute(self.deploydir/cmd.basename, script.verbose)
 
       else:
-        # execute script via ssh
+        # create scriptdir
         try:
-          try:
-            client = self._ssh_connect(params)
-          except SSHFailedError, e:
-            raise SSHScriptFailedError(id=script.id, host=params['hostname'], 
-                                       message=str(e))
+          self._ssh_execute('mkdir -p %s' % self.deploydir, params)
+        except SSHScriptFailedError, e:
+          raise RemoteFileCreationError(msg=
+            "An error occurred creating the script directory '%s' "
+            "on the remote system '%s'. %s"
+            % (self.VAR_DIR, params['hostname'], str(e)))
 
-          # create sftp client
-          sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-
-          # create libdir
-          if not self.VAR_DIR.basename in sftp.listdir(str(
-                                          self.VAR_DIR.dirname)):
-            try:
-              sftp.mkdir(str(self.VAR_DIR))
-            except IOError, e:
-              raise RemoteFileCreationError(msg=
-                "An error occurred creating the script directory '%s' "
-                "on the remote system '%s'. %s"
-                % (self.VAR_DIR, params['hostname'], str(e)))
-
-          # create deploydir
-          for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
-            if not (d.basename in 
-                    sftp.listdir(str(d.dirname))): 
-              sftp.mkdir(str(d))
-
-          # no cleaning for now, to support deploy scripts creating
-          # files in the deploy folder (e.g. libvirt guestname). Need a 
-          # better solution for cleaning in the future
-          #
-          # clean deploydir - except for trigger file
-          # if self.do_clean:
-          #   files = sftp.listdir(str(self.deploydir))
-          #   if self.triggerfile.basename in files:
-          #     files.remove(str(self.triggerfile.basename))
-          #   for f in files:
-          #     sftp.remove(str(self.deploydir/f))
-          #   self.do_clean = False # only clean once per session
-
-          # copy script 
-          sftp.put(cmd, str( self.deploydir/cmd.basename )) # cmd is local file 
-          sftp.chmod(str(self.deploydir/cmd.basename), mode=0750)
+        # copy script
+        try:
+          sftp_cmd="cd %s\nput %s\nchmod 750 %s" % (self.deploydir, cmd, 
+                                                    cmd.basename)
+          self._sftp(sftp_cmd, params)
+        except ScriptFailedError, e:
+          raise RemoteFileCreationError(msg=
+            "An error occurred copying '%s' script to the remote system '%s'. "
+            "%s" % (cmd, params['hostname'], str(e)))
  
-          # execute script
-          cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
-          try:
-            self._ssh_execute(client, cmd, script.verbose)
-          except SSHFailedError, e:
-            raise SSHScriptFailedError(id=script.id, host=params['hostname'],
-                                       message=str(e))
-
-        finally:
-          if 'client' in locals(): client.close()
+        # execute script
+        cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
+        self._ssh_execute(cmd, params, verbose=script.verbose)
 
 
 class Script(resolve.Item, DirectedNodeMixin):

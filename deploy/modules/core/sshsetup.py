@@ -21,8 +21,6 @@ from deploy.dlogging   import L1
 from deploy.util       import pps
 from deploy.util       import shlib
 
-from deploy.modules.shared import SSHFailedError
-
 def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
@@ -55,7 +53,7 @@ class SshSetupEvent(Event):
                    "root user. The error was: %s\n"
                    "If the error persists, you can generate keys manually "
                    "using the command\n '%s'" % (e, cmd))
-        raise SSHFailedError(message=message)
+        raise KeyGenerationFailed(message=message)
 
     # enable ssh to local machine
     authkeys = sshdir / 'authorized_keys'
