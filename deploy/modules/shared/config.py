@@ -255,7 +255,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def get_post(self):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
-    scripts.append('/bin/chmod 750 %s' % self.installdir)
+    scripts.append('chmod 750 %s' % self.installdir)
     scripts.append('trap - INT TERM EXIT')
     return self._make_script(scripts, 'post')
   def get_preun(self):
@@ -311,10 +311,10 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     script += '\n'.join([
       '',
       'if [ -e $file ]; then',
-      '  /bin/cp $file $file.prev',
+      '  cp $file $file.prev',
       'else',
       '  if [ ! -e $file.prev ]; then',
-      '  /bin/mkdir -p `dirname $file`',
+      '  mkdir -p `dirname $file`',
       '  touch $file.prev',
       '  fi',
       'fi',
@@ -344,7 +344,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       '    if [[ $curr != $new ]]; then',
       '      if [[ $curr != $prev ]]; then',
       '        # file changed by user',
-      '        /bin/mv $f $f.rpmsave',
+      '        mv $f $f.rpmsave',
       '        changed="$changed $f"',
       '      fi',
       '    fi',
@@ -355,20 +355,22 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       '    for i in `seq 2 ${#levels}`; do',
       '      dir=`echo $f | cut -f 1-$i -d/`',
       '      if [ ! -d $dir ]; then',
-      '        /bin/mkdir $dir',
+      '        mkdir $dir',
       '        echo $dir >> $mkdirs',
       '      fi',
       '    done',
       '  fi',
       '  # copy file to final location',
-      '  /bin/cp --preserve=mode,ownership,timestamps $s/$f $f',
+      '  cp --preserve=mode,ownership,timestamps $s/$f $f',
       'done',
       '', ])
 
     # add differences between current and previous md5sum files to changed
     # variable; yuck lots of massaging to get a space separated list 
     script += '\n'
-    script += 'changed=\"$changed `diff $md5file $md5file.prev | grep -o \'\/.*\' | sed -e \"s|$s||g\" | tr \'\\n\' \' \'`\"\n'
+    script += ('changed=\"$changed `diff $md5file $md5file.prev | '
+               'grep -o \'\/.*\' | '
+               'sed -e \"s|$s||g\" | tr \'\\n\' \' \'`\"\n')
     script += '\n'
 
     file = self.debug_postfile[len(self.rpm.source_folder):]
@@ -428,9 +430,9 @@ for f in $files; do
       done
       if [[ $remove == true ]]; then
         if [ -e $f.rpmsave ]; then
-          /bin/mv -f $f.rpmsave $f
+          mv -f $f.rpmsave $f
         else
-          /bin/rm -f $f
+          rm -f $f
         fi
       fi
     fi
@@ -455,7 +457,7 @@ if [ -e $mkdirs ]; then
 fi
 
 # remove md5sums.prev file   
-/bin/rm -f %(installdir)s/md5sums.prev
+rm -f %(installdir)s/md5sums.prev
 
 # remove per-system folder uninstall
 if [ $1 -eq 0 ]; then
