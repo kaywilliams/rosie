@@ -60,7 +60,7 @@ class ExecuteEventMixin:
     try:
       self._remote_execute(cmd, params, **kwargs)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(id=script, host=params['hostname'],
+      raise SSHScriptFailedError(script=script, hostname=params['hostname'],
                                  message=e.map['errtxt'])
 
   def _sftp(self, cmd, params, **kwargs):
@@ -206,5 +206,11 @@ class ScriptFailedError(DeployEventError):
 
 
 class SSHScriptFailedError(ScriptFailedError):
-  message = """Error(s) occured running '%(id)s' script on '%(host)s':
-%(message)s"""
+  def __init__(self, script, hostname, message):
+    self.script = script
+    self.hostname = hostname
+    self.message = message
+
+  def __str__(self):
+    return ("Error(s) occured running '%s' script on '%s':\n\n"
+            "%s" % (self.script, self.hostname, self.message))

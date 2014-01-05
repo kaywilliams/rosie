@@ -352,8 +352,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         except SSHScriptFailedError, e:
           raise RemoteFileCreationError(msg=
             "An error occurred creating the script directory '%s' "
-            "on the remote system '%s'. %s"
-            % (self.VAR_DIR, params['hostname'], str(e)))
+            "on the remote system '%s':\n\n%s"
+            % (self.VAR_DIR, params['hostname'], e.message))
 
         # copy script
         try:
