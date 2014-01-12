@@ -16,6 +16,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import deploy.util
+
 from deploy.util.pps          import register_scheme
 from deploy.util.pps.lib.http import auth_handler
 
@@ -30,14 +32,32 @@ class HttpPath(HttpPath_IO, HttpPath_Printf, HttpPath_Stat,
                HttpPath_Walk, RemotePath):
   "String representation of HTTP file paths"
   def __init__(self, value, **kwargs):
+    self.ssl_client_key  = kwargs.pop('ssl_client_key', None)
+    self.ssl_client_cert = kwargs.pop('ssl_client_cert', None)
+    self.ssl_ca_certs    = kwargs.pop('ssl_ca_certs', None)
+
     RemotePath.__init__(self, value, **kwargs)
     HttpPath_IO.__init__(self, value, **kwargs)
+
+  def _new(self, string):
+    new =  deploy.util.pps.path(string)
+
+    # copy ssl attributes, if any, and new path is a child of this path
+    if (self.ssl_client_key or self.ssl_client_cert or self.ssl_ca_certs) and \
+        new.startswith(self):
+      new.ssl_client_key = self.ssl_client_key
+      new.ssl_client_cert = self.ssl_client_cert
+      new.ssl_ca_certs = self.ssl_ca_certs
+
+    return new
+
 
 class HttpsPath(HttpPath):
   "String representation of HTTPS file paths"
   def __init__(self, value, **kwargs):
     HttpPath.__init__(self, value, **kwargs)
 
+  # consider consolidating this with ssl auth handling (see HttpPath)
   def set_auth(self, username, password):
     "Provides the default grabber object with a username, password pair to use"
     "when accessing this path"

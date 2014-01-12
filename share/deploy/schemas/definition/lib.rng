@@ -128,6 +128,27 @@
       </optional>
 
       <optional>
+      <element name="sslcacert">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
+      </optional>
+
+      <optional>
+      <element name="sslclientkey">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
+      </optional>
+
+      <optional>
+      <element name="sslclientcert">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
+      </optional>
+
+      <optional>
       <element name="systemid">
         <ref name="xml-base"/>
         <text/>

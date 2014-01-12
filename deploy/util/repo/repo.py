@@ -126,7 +126,14 @@ class BaseRepo(dict):
       return fmt1 % dict(key=itemid, value=' '.join(items))
 
   def _xform_uri(self, p):
-    return pps.path(p).touri()
+    p = pps.path(p).touri()
+
+    # add ssl options
+    p.ssl_ca_certs    = getattr(self, 'sslcacert', None)
+    p.ssl_client_key  = getattr(self, 'sslclientkey', None)
+    p.ssl_client_cert = getattr(self, 'sslclientcert', None)
+
+    return p
 
   def toxml(self, fn=rxml.tree.Element):
     repo = fn('repo', attrib={'id': self.id})
@@ -215,12 +222,14 @@ class IORepo(BaseRepo):
 
   def read_repomd(self):
     try:
-      self.repomd = rxml.tree.parse((self.url//self.repomdfile).open()
-                                     ).getroot()
-    except rxml.errors.XmlSyntaxError:
+      file = self.url//self.repomdfile
+      self.repomd = rxml.tree.parse(file.open()).getroot()
+    except rxml.errors.XmlSyntaxError, e:
+      # remove bad file from cache
+      if hasattr(file, 'cache_handler'):
+        file.cache_handler.cshfile(file).rm(force=True)
       raise InvalidFileError("The repository metadata file at %s does not "
-                             "appear to be valid"
-                             % (self.url//self.repomdfile)) 
+                             "appear to be valid:\n\n%s" % (file, e)) 
 
     for data in self.repomd.xpath('repo:data', namespaces=NSMAP):
       self.datafiles[data.getxpath('@type')] = RepoDataFile(data)
@@ -334,6 +343,12 @@ class YumRepo(IORepo):
   def include(self): return self.get('include', '').split()
   @property
   def enabled(self):     return self._boolparse(self.get('enabled', 'yes'))
+  @property
+  def sslcacert(self):   return self.get('sslcacert')
+  @property
+  def sslclientcert(self):   return self.get('sslclientcert')
+  @property
+  def sslclientkey(self):   return self.get('sslclientkey')
 
   # hack to allow updating gpgkeys
   def extend_gpgkey(self, list):

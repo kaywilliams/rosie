@@ -45,10 +45,6 @@ class _CachedPath(BasePath):
   def _new(self, string):
     return deploy.util.pps.path(string)
 
-  def _copy_attrs(self, newobj):
-    newobj.cache_handler = self.cache_handler
-    return newobj
-
 
 class CachedPath(CachedPath_IO, CachedPath_Printf, CachedPath_Stat,
                  CachedPath_Walk, _CachedPath):

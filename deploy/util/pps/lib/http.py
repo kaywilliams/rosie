@@ -17,15 +17,18 @@
 #
 # a lot of this code is shamelessly ripped from urlgrabber, though most of it
 # has been stripped down to a more basic form
+#
+# thanks also to https://gist.github.com/tomstrummer/5093603 for Https
+# connection handling code with ssl certs
 
 import copy
+import httplib
 import socket
 import string
+import ssl
 import time
 import urllib2
 import urlparse
-
-from httplib import HTTPException
 
 from __init__ import raw_throttle
 
@@ -39,7 +42,8 @@ else:
 try:
   # add in range support conditionally too
   from urlgrabber.byterange import (HTTPRangeHandler, HTTPSRangeHandler,
-                                    range_tuple_normalize, range_tuple_to_header,
+                                    range_tuple_normalize,
+                                    range_tuple_to_header,
                                     RangeError)
 except ImportError, msg:
   range_handlers = ()
@@ -64,6 +68,63 @@ httpfo_params = dict(
 auth_handler = urllib2.HTTPBasicAuthHandler(
                  urllib2.HTTPPasswordMgrWithDefaultRealm()
                )
+
+class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
+  def __init__(self, key=None, cert=None, ca_certs=None, ssl_version=None, 
+               ciphers=None):
+    urllib2.HTTPSHandler.__init__(self)
+    self.key = key
+    self.cert = cert
+    self.ca_certs = ca_certs
+    self.ssl_version = ssl_version
+    self.ciphers = ciphers
+
+  def https_open(self, req):
+    # Rather than pass in a reference to a connection class, we pass in
+    # a reference to a function which, for all intents and purposes,
+    # will behave as a constructor
+    return self.do_open(self.getConnection, req)
+
+  def getConnection(self, host, timeout=300):
+    return HTTPSConnection(host, 
+                           timeout = timeout,
+                           key_file=self.key,
+                           cert_file=self.cert,
+                           ca_certs = self.ca_certs,
+                           ssl_version = self.ssl_version,
+                           ciphers = self.ciphers)
+
+
+class HTTPSConnection(httplib.HTTPSConnection):
+  '''
+  Overridden to allow peer certificate validation, configuration
+  of SSL/ TLS version and cipher selection. See:
+  http://hg.python.org/cpython/file/c1c45755397b/Lib/httplib.py#l1144
+  and `ssl.wrap_socket()`
+  '''
+  def __init__(self, host, **kwargs):
+    self.ciphers = kwargs.pop('ciphers',None)
+    self.ca_certs = kwargs.pop('ca_certs',None)
+    self.ssl_version = kwargs.pop('ssl_version',ssl.PROTOCOL_SSLv23)
+     
+    httplib.HTTPSConnection.__init__(self,host,**kwargs)
+   
+  def connect(self):
+    sock = socket.create_connection( (self.host, self.port), self.timeout )
+     
+    if self._tunnel_host:
+      self.sock = sock
+      self._tunnel()
+     
+    # with open(self.ca_certs,'r') as test:
+    # logging.info('+++++++++++++++ CA CERTS: %s ++++++++++++++', self.ca_certs)
+    self.sock = ssl.wrap_socket( sock,
+    keyfile = self.key_file,
+    certfile = self.cert_file,
+    ca_certs = self.ca_certs,
+    # ciphers = self.ciphers, # DOH! This is Python 2.7-only!
+    cert_reqs = ssl.CERT_REQUIRED if self.ca_certs else ssl.CERT_NONE,
+    ssl_version = self.ssl_version )
 
 
 class HttpSyncRedirectHandler(urllib2.HTTPRedirectHandler):
@@ -94,6 +155,7 @@ class HttpSyncRedirectHandler(urllib2.HTTPRedirectHandler):
 
 class HttpFileObject:
   def __init__(self, url, opener=None, range=None, headers=None, **kwargs):
+    self._url = url
     self.url,_ = _urlparse(url)
 
     foargs = copy.copy(httpfo_params)
@@ -196,7 +258,19 @@ class HttpFileObject:
          handlers.extend(range_handlers)
 
       handlers.append(HttpSyncRedirectHandler())
-      handlers.append(auth_handler)
+
+      if (getattr(self._url, 'ssl_client_key', None) or 
+          getattr(self._url, 'ssl_client_cert', None) or 
+          getattr(self._url, 'ssl_ca_certs', None)):
+        handlers.append( HTTPSClientAuthHandler(
+                         key = self._url.ssl_client_key,
+                         cert = self._url.ssl_client_cert,
+                         ca_certs = self._url.ssl_ca_certs,
+                         ssl_version = ssl.PROTOCOL_TLSv1,
+                          ) )
+      else:
+        handlers.append(auth_handler)
+
       self._opener = urllib2.build_opener(*handlers)
     return self._opener
 
@@ -256,7 +330,7 @@ class HttpFileObject:
         raise HttpFileObjectError(4, 'IOError: %s' % e)
     except OSError, e:
       raise HttpFileObjectError(5, 'OSError: %s' % e)
-    except HTTPException, e:
+    except httplib.HTTPException, e:
       raise HttpFileObjectError(7, 'HTTP Exception (%s): %s' % \
                          (e.__class__.__name__, e))
     else:

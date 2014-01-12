@@ -173,8 +173,12 @@ class DeployRepoGroup(DeployRepo):
     # need special handling for rhn paths
     cls = DeployRepo
     try:
-      if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnDeployRepo
+      if self.url.scheme == 'mirror':
+        if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
+          cls = RhnDeployRepo
+      else:
+        if isinstance(self.url, pps.Path.rhn.RhnPath):
+          cls = RhnDeployRepo
     except AttributeError:
       if self.url.scheme == 'mirror':
         if ( self.url.realm.scheme == 'rhn' or

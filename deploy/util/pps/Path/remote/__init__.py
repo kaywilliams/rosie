@@ -58,9 +58,6 @@ class _RemotePath(CachedPath):
   def _new(self, string):
     return deploy.util.pps.path(string)
 
-  def _copy_attrs(self, newobj):
-    newobj.cache_handler = self.cache_handler
-    return newobj
 
 class RemotePath(RemotePath_IO, RemotePath_Printf, RemotePath_Stat,
                  RemotePath_Walk, _RemotePath):
