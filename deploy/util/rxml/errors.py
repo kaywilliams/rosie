@@ -55,7 +55,7 @@ class XmlSyntaxError(StandardError, XmlError):
     self.error = error
 
   def __str__(self):
-    if isinstance(self.file, StringIO):
+    if hasattr(self.file, 'read'):
       msg = 'Error reading XML string:'
     else:
       msg = 'Error reading "%s":' % self.file
@@ -68,9 +68,11 @@ class XmlSyntaxError(StandardError, XmlError):
     # msg += ' %s' % self.error.text
 
     lines = []
-    if isinstance(self.file, StringIO):
+    if hasattr(self.file, 'getvalue'):
       lines = self.file.getvalue().splitlines()
-    elif pps.path(self.file).isfile():
+    if isinstance(self.file, basestring):
+      pps.path(self.file)
+    if hasattr(self.file, 'read_lines'):
       lines = self.file.read_lines()
 
     if lines:
