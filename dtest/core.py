@@ -23,6 +23,7 @@ from dtest import EventTestCase, EventTestCaseDummy, decorate
 
 from deploy.errors import DeployError
 
+import functools
 from functools import wraps
 
 class EventTestCaseHeader(EventTestCaseDummy):
@@ -92,7 +93,7 @@ def CoreEventTestCase01(self):
   def runTest():
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
-    result = self.event.verifier.unittest()
+    result = self.event.verify()
     self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
@@ -108,7 +109,7 @@ def CoreEventTestCase02(self):
   def runTest():
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
-    result = self.event.verifier.unittest()
+    result = self.event.verify()
     self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
@@ -121,7 +122,8 @@ def CoreEventTestCase03(self):
 
   # wrap calls to socket raising a Runtime Error if they are called
   def socket_wrapper(fn):
-    @wraps(fn)
+    # see http://bugs.python.org/issue3445 
+    @wraps(fn, set(functools.WRAPPER_ASSIGNMENTS) & set(dir(fn)))
     def wrapped(*args, **kwargs):
       raise RuntimeError("call to socket")
     return wrapped
@@ -157,7 +159,7 @@ def CoreEventTestCase04(self):
   def runTest():
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
-    result = self.event.verifier.unittest()
+    result = self.event.verify()
     self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
@@ -173,7 +175,7 @@ def CoreEventTestCase05(self):
   def runTest():
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
-    result = self.event.verifier.unittest()
+    result = self.event.verify()
     self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
@@ -185,7 +187,7 @@ def CoreEventTestCase06(self):
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
-    result = self.event.verifier.unittest()
+    result = self.event.verify()
     self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp')

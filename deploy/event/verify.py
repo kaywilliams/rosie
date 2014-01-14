@@ -25,32 +25,16 @@ from deploy.verify   import BuildTestResult
 
 class VerifyMixin:
   def __init__(self):
-    self.verifier = VerifyObject(self)
+    self.method_prefix = 'verify_'
+
+    # dummy pointer to allow access to deploy-specific verify methods
+    self.verifier = DeployFunctionTestCase(testFunc=None, ptr=self)
 
   def verify(self):
-    self.verifier.unittest()
-
-class VerifyObject(unittest.TestCase):
-  "Dummy class to contain verify-related methods"
-  def __init__(self, ptr):
-    self.ptr = ptr
-    self.logger = self.ptr.logger
-    self.method_prefix = 'verify_'
-    self._testMethodName = None
-    self._testMethodDoc = None
-
-  def failUnlessSet(self, cvar):
-    self.failUnless(self.ptr.cvars[cvar] is not None, "'%s' cvar not set" % cvar)
-  def failIfExists(self, path):
-    self.failIf(pps.path(path).exists(), "'%s' exists" % path)
-  def failUnlessExists(self, path):
-    self.failUnless(pps.path(path).exists(), "'%s' does not exist " % path)
-
-  def unittest(self):
     methods = [] # set of methods to run
-    for attr in dir(self.ptr):
+    for attr in dir(self):
       if not attr.startswith(self.method_prefix): continue
-      method = getattr(self.ptr, attr)
+      method = getattr(self, attr)
       if not callable(method): continue
       methods.append(method)
 
@@ -62,24 +46,8 @@ class VerifyObject(unittest.TestCase):
       starttime = time.time()
 
       for method in methods:
-        fntest = unittest.FunctionTestCase(method)
-
-        result.startTest(fntest)
-        try:
-          ok = False
-          try:
-            method()
-            ok = True
-          except self.failureException:
-            result.addFailure(fntest, self._exc_info())
-          except KeyboardInterrupt:
-            raise
-          except:
-            result.addError(fntest, self._exc_info())
-          if ok:
-            result.addSuccess(fntest)
-        finally:
-          result.stopTest(fntest)
+        fntest = DeployFunctionTestCase(method, ptr=self)
+        fntest.run(result=result)
 
       elapsedtime = time.time() - starttime
 
@@ -95,6 +63,40 @@ class VerifyObject(unittest.TestCase):
         result.printErrors()
 
     return result
+
+
+class DeployFunctionTestCase(unittest.FunctionTestCase):
+  "child class to contain deploy-specific verify vethods"
+  def __init__(self, testFunc, ptr=None):
+    unittest.FunctionTestCase.__init__(self, testFunc)
+    self.ptr = ptr
+    self._testMethodDoc = None
+
+  def failUnlessSet(self, cvar):
+    self.failUnless(self.ptr.cvars[cvar] is not None, "'%s' cvar not set" % cvar)
+  def failIfExists(self, path):
+    self.failIf(pps.path(path).exists(), "'%s' exists" % path)
+  def failUnlessExists(self, path):
+    self.failUnless(pps.path(path).exists(), "'%s' does not exist " % path)
+
+  def run(self, result=None):
+    result.startTest(self)
+    testMethod = getattr(self, self._testMethodName)
+    try:
+      ok = False
+      try:
+        testMethod()
+        ok = True
+      except self.failureException:
+        result.addFailure(self._testMethodName, self._exc_info())
+      except KeyboardInterrupt:
+        raise
+      except:
+        result.addError(self, self._exc_info())
+      if ok:
+        result.addSuccess(self)
+    finally:
+      result.stopTest(self)
 
   def _exc_info(self):
     """
