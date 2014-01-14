@@ -22,7 +22,10 @@ class BaseInfoEventTestCase(EventTestCase):
   moduleid = 'base-info'
   eventid  = 'base-info'
   _type = 'system'
-  _conf = "<packages><package>kernel</package></packages>"
+  _conf = [
+    "<repocreate enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+    ]
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('base-info')
