@@ -124,16 +124,13 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
     for repo in self.cvars['pkglist'].itervalues():
       pkgs.extend(repo.values())
     for pkg in pkgs:
-      try:
-        if pkg.name not in KERNELS: continue
-        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(pkg.arch),
-          self.arch,
-          "the base arch of kernel package '%s' does not match the specified "
-          "base arch '%s'" % (pkg.name, self.arch))
-        matched = True
-      except AttributeError:
-        pass
-
+      if pkg.name not in KERNELS: continue
+      self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(pkg.arch),
+        self.arch,
+        "the base arch of kernel package '%s' does not match the specified "
+        "base arch '%s'" % (pkg.name, self.arch))
+      matched = True
+   
     self.verifier.failUnless(matched, "no kernel package found")
 
   def _clean_dsdir(self):
