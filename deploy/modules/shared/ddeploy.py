@@ -28,8 +28,7 @@ from deploy.util import resolve
 from deploy.util.pps.Path.error import PathError
 
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
-                                   ScriptFailedError, SSHConnectionFailedError,
-                                   SSHScriptFailedError)
+                                   ScriptFailedError, SSHScriptFailedError)
 
 from deploy.util.graph import DirectedNodeMixin
 
@@ -311,7 +310,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self.log(1, L1('attempting to connect'))
       try:
         self._ssh_connect(params)
-      except SSHConnectionFailedError, e:
+      except SSHScriptFailedError, e:
         self.log(3, L1(e))
         self.log(1, L1("unable to connect to machine, reinstalling...")) 
         return True # reinstall
@@ -320,7 +319,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self.types['test-triggers']:
       try:
         self._execute('test-triggers')
-      except (SSHConnectionFailedError, ScriptFailedError), e:
+      except (ScriptFailedError), e:
         self.log(3, L1(str(e)))
         self.log(1, L1("test-trigger script failed, reinstalling..."))
         return True # reinstall
