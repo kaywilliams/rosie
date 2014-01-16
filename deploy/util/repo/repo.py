@@ -438,7 +438,6 @@ class _RepoContent(list):
     parser.setContentHandler(handler)
     parser.parse(fpxml)
     fpxml.close()
-    fpxml.filename = None # memory leak fix?
     del fpxml
 
     return handler.pkgs
