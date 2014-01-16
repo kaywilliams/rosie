@@ -122,7 +122,8 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     for elem in install_script.getchildren():
       install_script.remove(elem)
     install_script.text = """
-#!/bin/bash
+#!/bin/sh
+set -e
 
 %%{source-guestname}
 
