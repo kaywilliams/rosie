@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<test-install xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml'
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/%{norm-os}/common/test-remove-custom-pkgs.xml"/>
@@ -8,4 +8,4 @@
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"
             xpointer="xpointer(./text())"/>
 </script>
-</xml>
+</test-install>
