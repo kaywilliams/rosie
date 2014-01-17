@@ -1,0 +1,12 @@
+<config-rpm id='chrony-wait-config'>
+<requires>chrony</requires>
+<requires>systemd-units</requires>
+
+<script type='post'>
+/usr/bin/systemctl enable chronyd
+/usr/bin/systemctl start chronyd
+
+/usr/bin/systemctl enable chrony-wait
+/usr/bin/systemctl start chrony-wait
+</script>
+</config-rpm>
