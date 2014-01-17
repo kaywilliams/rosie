@@ -10,11 +10,12 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
-<macro id="rhel-mirror">http://mirror.company.com/rhel</macro>
+<macro id="edition">Server</macro>
+<macro id="rhel-mirror">http://mirror.company.com/rhel/enterprise/%{version}%{edition}/en/os/%{arch}</macro>
 <macro id="rhel-base">
-<baseurl>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}</baseurl>
-<gpgkey>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release</gpgkey>
-<gpgkey>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-beta</gpgkey>
+<baseurl>%{rhel-mirror}</baseurl>
+<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
+<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
 
 <macro id="fedora-mirror">http://mirror.pnl.gov/fedora/linux</macro>
@@ -37,13 +38,19 @@
 <gpgkey>http://keyserver.gingerbear.net/pks/lookup?op=get&amp;search=0x07477E65FB4B18E6</gpgkey>
 </macro>
 
-<macro id="rhn-host">xmlrpc.rhn.redhat.com</macro>
-<macro id="rhn-systemid">/etc/sysconfig/rhn/systemid-%{version}Server-%{arch}</macro>
 <macro id="rhel-updates">
-<baseurl>rhn://%{rhn-host}/rhel-%{arch}-server-%{version}</baseurl>
-<gpgkey>%{rhel-mirror}/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release</gpgkey>
-<systemid>%{rhn-systemid}</systemid>
+<baseurl>https://cdn.redhat.com/content/beta/rhel/%{edition}/%{version}/%{arch}/os</baseurl>
+<sslcacert>/etc/rhsm/ca/redhat-uep.pem</sslcacert>
+<sslclientkey>/etc/pki/entitlement/xxx-key.pem</sslclientkey>
+<sslclientcert>/etc/pki/entitlement/xxx.pem</sslclientcert>
 </macro>
+
+<!-- example rhn repo defition
+<macro id="rhel-updates">
+<baseurl>rhn://xmlrpc.rhn.redhat.com/rhel-%{arch}-%{edition}-%{version}</baseurl>
+<systemid>/etc/sysconfig/rhn/systemid-%{version}%{edition}-%{arch}</systemid>
+</macro>
+-->
 </repo>
 
 <repo id='epel'>
@@ -52,8 +59,4 @@
 <gpgkey>%{epel-mirror}/RPM-GPG-KEY-EPEL-%{version}</gpgkey>
 </repo>
 
-<repo id='deploy'>
-<macro id='deploy-mirror'>http://www.deployproject.org/products/deploy/deploy-%{version}-%{arch}</macro>
-<baseurl>%{deploy-mirror}</baseurl>
-</repo>
 </repos>
