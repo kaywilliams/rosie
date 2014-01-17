@@ -13,8 +13,6 @@ else
   echo "unable to determine guest name - $file does not exist"
   exit 1
 fi
-#!/bin/bash
-set -e
 </macro>
 
 <!--
@@ -25,6 +23,8 @@ exceed that limit. This script deals with the limit as follows:
 * creates a unique guestname based on the hostname
 * stores the guestname in a file for inclusion within additional scripts
 -->
+#!/bin/sh
+set -e
 
 # exit if guestname file exists
 file=$(dirname "$0")/libvirt-%{module}
