@@ -2,13 +2,7 @@
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- install and update a libvirt vm on the local machine -->
-<macro id='ram'>1000</macro>
-<macro id='file-size'>30</macro>
-<macro id='deploy-host'>localhost</macro>
-
-<!-- template content below -->
 <domain>deploy</domain>
-<deploy-host>%{deploy-host}</deploy-host>
 <kickstart>
 <xi:include href='%{templates-dir}/%{norm-os}/common/ks.xml'
             xpointer='xpointer(./node())'/>
