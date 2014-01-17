@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id="libvirt-dnsmasq-config" xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id="deploy-libvirt-config" xmlns:xi="http://www.w3.org/2001/XInclude">
 <summary>configures libvirt local dns resolution</summary>
 <license>GPLv2</license>
 
@@ -14,15 +14,47 @@
      -->
 <requires>dnsmasq >= 2.66.13</requires>
 <requires>libvirt</requires>
-<requires>python-virtinst</requires>
 <requires>qemu-kvm</requires>
+<requires>virt-install</requires>
 <requires>virt-manager</requires>
 <requires>virt-viewer</requires>
+<requires>/sbin/ifconfig</requires>
 <requires>/usr/bin/virsh</requires>
 
-<files destdir="/etc/NetworkManager/dispatcher.d" destname="99-deploy-virt-config" mode="755" content="text">
-#!/bin/bash
-#Create/update deploy virtual network
+<files destdir="/etc/modprobe.d" destname="nested-kvm.conf" content="text">
+options kvm-intel nested=y
+</files>
+
+<files destdir="/etc/systemd/system" 
+       destname="dbus-org.freedesktop.nm-dispatcher.service" 
+       mode="755" content="text">
+# modify NetworkManager dispatcher service to remain active after exit; this
+# works around the 3 second timeout issue - see 
+# https://wiki.archlinux.org/index.php/NetworkManager
+
+.include /usr/lib/systemd/system/NetworkManager-dispatcher.service
+[Service]
+RemainAfterExit=yes
+</files>
+
+<files destdir="/etc/NetworkManager/dispatcher.d" 
+       destname="99-deploy-libvirt-config" mode="755" content="text">
+#!/bin/sh
+
+# execute deploy-libvirt-config script as a background process to work
+# around the nm-dispatcher 3 second timeout issue.
+
+/sbin/deploy-libvirt-config &amp;
+</files>
+
+<files destdir="/sbin" destname="deploy-libvirt-config"
+       mode="755" content="text">
+#!/bin/sh
+
+# Create/update deploy virtual network
+
+# ensure libvirt is running
+/bin/systemctl start libvirtd.service
 
 working="%{installdir}"
 libvirt="/etc/libvirt/qemu/networks"
@@ -47,7 +79,7 @@ if [[ "$ipaddr" = "" || "$ipstart" = "" || "$ipend" = "" ]]; then
     fi
   done
   if [[ $success = false ]]; then
-    logger -t "deploy-virt-config" -s "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again."
+    logger -t "deploy-libvirt-config" -s "ERROR: Unable to assign IP address for virtual network in the range '192.168.$start.1' to '192.168.$end.1'. Please change the IP address of an existing virtual network and try again."
     exit 1
   fi
 fi
@@ -59,9 +91,9 @@ sed -i "s/%ipaddr/$ipaddr/g" $working/deploy.xml
 sed -i "s/%ipstart/$ipstart/g" $working/deploy.xml
 sed -i "s/%ipend/$ipend/g" $working/deploy.xml
 
-[ -e deploy.last ] || touch deploy.last
-if ! diff $working/deploy.xml $working/deploy.last > /dev/null; then
-  if ! ps aux | grep "[/]usr/bin/anaconda"; then
+[ -e $working/deploy.last ] || touch $working/deploy.last
+if ! diff $working/deploy.xml $working/deploy.last &amp;> /dev/null; then
+  if ! ps aux | grep "[/]sbin/anaconda"; then
     if virsh net-info deploy &amp;>/dev/null; then
       virsh net-destroy deploy &amp;>/dev/null || true
       virsh net-undefine deploy >/dev/null
@@ -70,16 +102,14 @@ if ! diff $working/deploy.xml $working/deploy.last > /dev/null; then
   /bin/cp -f $working/deploy.xml $libvirt/deploy.xml
 fi
 
-# ensure libvirt is running
-/sbin/service libvirtd start > /dev/null
-
 # define the network
+virsh net-info deploy
 if ! virsh net-info deploy &amp;> /dev/null; then
   virsh net-define $libvirt/deploy.xml >/dev/null
 fi
 
-# start it
-if ! ps aux | grep "[/]usr/bin/anaconda"; then
+# start it 
+if ! ps aux | grep "[/]sbin/anaconda"; then
   if ! virsh net-info deploy | grep Active | grep -q yes; then
     virsh net-start deploy >/dev/null
   fi
@@ -128,8 +158,12 @@ echo -e "ipaddr=$ipaddr" > %{installdir}/uninstall.info
 <!-- libvirt configuration-->
 <script type="post">
 # run dispatcher.d script
-if ! ps aux | grep "[/]usr/bin/anaconda"; then
-  /etc/NetworkManager/dispatcher.d/99-deploy-virt-config
+if ! ps aux | grep "[/]sbin/anaconda"; then
+  #ensure our modified dispatcher service is started
+  /bin/systemctl restart NetworkManager-dispatcher.service
+
+  # run the script
+  /etc/NetworkManager/dispatcher.d/99-deploy-libvirt-config
 fi
 
 # ensure consistent ip forwarding
@@ -141,7 +175,7 @@ file="/etc/sysctl.conf"
 if [[ `grep "$text" $file` = *0* ]] ; then
   sed -i "s/^$text.*/$text = 1/" $file # modify file 
   /bin/cp -r $file %{installdir}       # backup file for use during cleanup
-  if ! ps aux | grep "[/]usr/bin/anaconda"; then
+  if ! ps aux | grep "[/]sbin/anaconda"; then
     sysctl -q -p                       # update sysctl
   fi
 fi
@@ -149,7 +183,7 @@ fi
 
 <script type='postun'>
 if [[ $1 = 0 ]]; then
-  if find `basename %{installdir}` -name '99-deploy-virt-config' | \
+  if find `basename %{installdir}` -name '99-deploy-libvirt-config' | \
      grep -v %{installdir} ; then 
     # revert /etc/sysctl.conf if necessary 
     text="net.ipv4.ip_forward"
@@ -174,6 +208,4 @@ if [[ $1 = 0 ]]; then
   fi
 fi
 </script>
-
-
 </config-rpm>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<macro id="gpgsign-public"/>
+<macro id="gpgsign-secret"/>
 
 <gpgsign>
 <public>%{gpgsign-public}</public>
@@ -14,16 +16,15 @@
 <xi:include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"
             xpointer="xpointer(./*)"/>
 </config-rpm>
-<config-rpm id='deploy-virt-config'>
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/libvirt-dnsmasq-config.xml"
-            xpointer="xpointer(./*)"/>
-</config-rpm>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
 </config-rpms>
 
 <srpmbuild>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
+
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-packages.xml"
             xpointer="xpointer(./*)"/>
+
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/dnsmasq.xml"/>
 </srpmbuild>
 </xml>
