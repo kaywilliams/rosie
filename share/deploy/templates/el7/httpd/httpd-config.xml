@@ -1,57 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='httpd-config'>
+<description>
+Configures httpd and related firewall settings
+</description>
+
 <requires>httpd</requires>
-<requires>iptables</requires>
-<requires>/bin/ps</requires>
-<requires>/sbin/pidof</requires>
-<files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d' 
-       mode='750'>
-#!/bin/sh
-#
-#chkconfig: 2345 07 91
-#description: Iptables configuration for HTTP
-#
-VERSION=%{version}
-FILE=/etc/sysconfig/iptables
+<requires>firewalld</requires>
+<requires>/usr/bin/ps</requires>
 
-case "$1" in
-  "start")
-# Enable http traffic through the firewall
-[[ -f $FILE ]] || touch $FILE
-if [[ ! `fgrep -e "--dport 80 " $FILE` ]]; then
-  if [[ $VERSION == 5 ]]
-    then
-      sed -i '1,/REJECT/ {/REJECT/i\
--A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-}' $FILE
-    else # version 6 and future
-      sed -i '1,/REJECT/ {/REJECT/i\
--A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-}' $FILE
-  fi
-fi
-     ;;
-  "stop")
-     exit 0
-     ;;
-esac
-</files>
+<script type='post'>
+# configure httpd to start at system boot
+systemctl -q enable httpd
 
-<script type = 'post'>
-# Start web server and configure to start at system boot
-if [[ -z `pidof httpd` ]] ; then
-  service httpd start > /dev/null
-fi
-chkconfig --level 345 httpd on
+# configure persistent firewall rules
+file=/etc/firewalld/zones/public.xml
+[ -f $file ] || cp /usr/lib/firewalld/zones/public.xml $file
+sed -i "/&lt;\/zone>/d" $file
+grep -qw http $file || echo '  &lt;service name="http"/>' >> $file
+grep -qw https $file || echo '  &lt;service name="https"/>' >> $file
+echo "&lt;/zone>" >> $file
 
-# Enable http traffic through the firewall
-if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
-  chkconfig --add iptables-httpd
-  # /etc/sysconfig/iptables doesn't exist yet if we're running under anaconda
-  if ! ps aux | grep "[/]usr/bin/anaconda"; then
-    service iptables-httpd start
-    service iptables restart > /dev/null
-  fi
+# start http and reload firewall rules
+if ! ps aux | grep "[/]sbin/anaconda"; then
+  systemctl start httpd
+  firewall-cmd -q --reload
 fi
 </script>
 </config-rpm>
