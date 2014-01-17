@@ -12,14 +12,14 @@ file = pps.path(os.path.dirname(os.path.abspath(__file__)))/ 'libvirt-%{module}'
 if file.exists():
   guestname = file.read_text().strip().replace('guestname=', '')
 else:
-  print "unable to determine guestname - %s does not exist" % file
+  sys.stderr.write("unable to determine guestname - %s does not exist\n" % file)
   sys.exit(1)
 
 connection = libvirt.open('qemu:///system')
 try: #vm exists?
   vm = connection.lookupByName(guestname)
 except libvirt.libvirtError:
-  print "vm does not exist"
+  sys.stderr.write("vm does not exist\n")
   sys.exit(1)
 state = vm.state(0)[0]
 if state == 1: # vm is active
@@ -28,11 +28,11 @@ elif state == 3: # vm is paused
   if vm.resume() == 0: 
     sys.exit(0) #resume succeded
   else:
-    print "vm is paused and failed to resume"
+    sys.stderr.write("vm is paused and failed to resume\n")
     sys.exit(1)
 elif vm.create() == 0: # vm is inactive
   sys.exit(0)
 else:
-  print "vm is inactive and failed to start"
+  sys.stderr.write("vm is inactive and failed to start\n")
   sys.exit(1)
 </script>
