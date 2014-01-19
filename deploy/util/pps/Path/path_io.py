@@ -125,6 +125,13 @@ class Path_IO(object):
       if fsrc: fsrc.close()
       if fdst: fdst.close()
 
+    # validate
+    if self.stat().st_size != dst.stat().st_size:
+      dst.rm(force=True)
+      raise PathError(errno.EIO,
+            "Error copying file - destination file size did not match source, "
+            "destination removed")
+
     if preserve: self.copystat(dst)
 
     return read

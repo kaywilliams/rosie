@@ -109,10 +109,10 @@ class IOObject(object):
                      "element. " % xpath)
         else:
           suggest = ""
-        raise XpathInputFileError(errno=e.errno, message=e.strerror, 
-                                  file=f, suggest=suggest, xpath=xpath)
+        raise XpathInputFileError(message=e, file=f, suggest=suggest, 
+                                  xpath=xpath)
       else:
-        raise InputFileError(errno=e.errno, message=e.strerror, file=f)
+        raise InputFileError(message=e, file=f)
 
   def add_item(self, src, dst, id=None, mode=None, content='file',
                allow_text=False, xpath=None):
@@ -149,6 +149,8 @@ class IOObject(object):
     for s,d in self.compute_dst(src, dst, content):
       m = self.compute_mode(s, mode, content)
 
+      # this should really be in process_items, but it causes problems with
+      # test cases - look at again in the future....
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)
 
@@ -255,8 +257,7 @@ class IOObject(object):
             syncfn(item.src, item.dst, link=link, mode=item.mode,
                                        callback=cb, **kwargs)
           except pps.Path.error.PathError, e:
-            raise InputFileError(errno=e.errno, message=e.strerror, 
-                                 file=item.src)
+            raise InputFileError(message=e, file=item.src)
         output.append(item.dst)
       cb.sync_end()
 
@@ -360,13 +361,13 @@ class TransactionData(object):
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
 class XpathInputFileError(DeployEventError):
-  message = ("Error accessing the specified file or folder '%(file)s'. Check "
+  message = ("Error downloading the specified file or folder '%(file)s'. Check "
              "that the '%(xpath)s' element is correct. %(suggest)s"
-             "[errno %(errno)d] %(message)s.")
+             "%(message)s.")
 
 class InputFileError(DeployEventError):
-  message = ("Error accessing the specified file or folder '%(file)s'. "
-             "[errno %(errno)d] %(message)s.")
+  message = ("Error downloading the specified file or folder '%(file)s'. "
+             "%(message)s.")
              
 class BrokenLinkError(DeployEventError):
   message = ("Error accessing the file referenced by '%(file)s'. It appears "
