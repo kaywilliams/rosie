@@ -57,7 +57,7 @@ class ExecuteEventMixin:
     try:
       self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(script=script, hostname=params['hostname'],
+      raise SSHScriptFailedError(id=cmd_id, hostname=params['hostname'],
                                  message=e.map['errtxt'])
 
   def _sftp(self, cmd, params, log_format='L2', **kwargs):
@@ -105,8 +105,7 @@ class ExecuteEventMixin:
       self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
     if proc.returncode:
-      raise ScriptFailedError(cmd, errtxt='\n'.join(outlines + errlines))
-
+      raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
     return ' '.join(["-o", "StrictHostKeyChecking=no",
@@ -118,6 +117,7 @@ class ExecuteEventMixin:
                      "-o", "TCPKeepAlive=no",
                      "-o", "ConnectionAttempts=24",
                      "-o", "ConnectTimeout=5",
+                     "-o", "LogLevel=ERROR",
                      ])
 
   # Helper function to add the O_NONBLOCK flag to a file descriptor
@@ -138,14 +138,14 @@ class ExecuteEventMixin:
 
 #------ Errors ------#
 class ScriptFailedError(DeployEventError):
-  message = "Error occured running '%(cmd)s':\n%(errtxt)s"
+  message = "Error occured running '%(id)s':\n%(errtxt)s"
 
 class SSHScriptFailedError(ScriptFailedError):
-  def __init__(self, script, hostname, message):
-    self.script = script
+  def __init__(self, id, hostname, message):
+    self.id = id
     self.hostname = hostname
     self.message = message
 
   def __str__(self):
     return ("Error(s) occured running '%s' script on '%s':\n\n"
-            "%s" % (self.script, self.hostname, self.message))
+            "%s" % (self.id, self.hostname, self.message))
