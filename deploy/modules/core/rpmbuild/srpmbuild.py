@@ -133,6 +133,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     elif repo: self._get_srpm_from_repo(repo)
     elif script: self._get_srpm_from_script(script)
 
+    # get rpms to exclude
+    self.exclude_rpms = ' '.join(self.config.xpath('exclude/text()', []))
+
     # get default build machine definition template
     search_dirs = self.TEMPLATE_DIRS
     default = ''
@@ -191,7 +194,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     rpmfiles = self.rpmsdir.findpaths(mindepth=1)
     if not rpmfiles:
-      message = ("The SRPM file '%s' did not create any RPMs." % 
+      message = ("The build process for '%s' did not output any RPMs." % 
                  self.srpmfile.basename)
       raise SrpmBuildEventError(message=message)
     for file in rpmfiles:
@@ -406,6 +409,7 @@ class SrpmBuild(Build):
       '%{srpm}':        self.ptr.originals_dir / self.ptr.srpmfile.basename,
       '%{spec}':        self.ptr.build_dir / 'SPECS' / spec,
       '%{rpms-dir}':    self.ptr.rpmsdir,
+      '%{exclude-rpms}':self.ptr.exclude_rpms,
       },
       defaults_file=self.datfile_format)
 

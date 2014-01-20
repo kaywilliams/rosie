@@ -181,6 +181,73 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
                     len(secret) == len(SECKEY) and
                     child_repo == parent_repo)
 
+class Test_Excludes(TestSrpmTestCase):
+  "excludes specified subpackages"
+  _conf = """
+<srpmbuild>
+<srpm id='package1'>
+<script>
+#!/bin/bash
+
+# create dirs
+rm -rf %{srpmdir}
+mkdir -p %{srpmdir}/SPECS %{srpmdir}/SRPMS
+
+# create specfile
+echo "
+%define  _use_internal_dependency_generator 0
+
+Summary: SUMMARY
+Name: package1 
+Version: 1.0
+Release: 1
+License: UNKNOWN
+Group: Development/Libraries
+BuildArch: noarch
+%description
+DESCRIPTION
+
+%package sub1
+Summary: subpackage sub1
+Group: Development/Libraries
+%description sub1
+DESCRIPTION
+
+%package sub2
+Summary: subpackage sub2
+Group: Development/Libraries
+%description sub2
+DESCRIPTION
+
+%prep
+
+%build
+
+%install
+
+%clean
+
+%files sub1
+%files sub2" > %{srpmdir}/SPECS/package1.spec 
+
+# build srpm
+rpmbuild -bs %{srpmdir}/SPECS/package1.spec --define "_topdir %{srpmdir}"
+
+# copy rpm
+srpm=%{srpmdir}/SRPMS/package1-1.0-1.src.rpm
+if [[ $srpm != '%{srpmlast}' ]]; then 
+  cp -a $srpm '%{srpmdir}'
+fi
+</script>
+<exclude>package1-sub2</exclude>
+</srpm>
+</srpmbuild>
+"""
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failIf('package1-sub2' in self.event.cvars['rpmbuild-data'])
+
 class Test_InvalidRpm(TestSrpmTestCase):
   "fails on invalid rpms"
 
@@ -189,14 +256,12 @@ class Test_InvalidRpm(TestSrpmTestCase):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(DeployError, self.event)
 
-
 class Test_Apply(TestSrpmTestCase):
   "rpmbuild-data added for generated rpm(s)"
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless('package1' in self.event.cvars['rpmbuild-data'])
-
 
 class Test_Shutdown(TestSrpmTestCase):
   "dummy test to delete srpm virtual machine"
@@ -245,6 +310,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_FromScript(os, version, arch))
 
   suite.addTest(Test_UpdatesDefinition(os, version, arch))
+  suite.addTest(Test_Excludes(os, version, arch))
   suite.addTest(Test_InvalidRpm(os, version, arch))
   suite.addTest(Test_Apply(os, version, arch))
   suite.addTest(Test_Shutdown(os, version, arch))

@@ -40,10 +40,19 @@
           </element>
           </choice>
 
-          <optional><element name="template">
+          <zeroOrMore>
+          <element name="exclude">
             <ref name="xml-base"/>
             <text/>
-          </element></optional>
+          </element>
+          </zeroOrMore>
+
+          <optional>
+          <element name="template">
+            <ref name="xml-base"/>
+            <text/>
+          </element>
+          </optional>
 
           </interleave>
 
