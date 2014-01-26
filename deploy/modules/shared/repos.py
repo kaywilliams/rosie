@@ -198,7 +198,7 @@ class DeployRepoGroup(DeployRepo):
         repomd.stat()
       except pps.Path.error.PathError, e:
         if e.errno != errno.ENOENT: # report errors other than "does not exist"
-          raise InputFileError(errno=e.errno, message=e.strerror, 
+          raise InputFileError(message=e.strerror, 
                                file=self.url.touri()/self.repomdfile)
 
     # get directory listing so we can figure out information about this repo
