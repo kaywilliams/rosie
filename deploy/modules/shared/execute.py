@@ -18,8 +18,12 @@
 import errno
 import fcntl
 import os
+import re
 import select
-import subprocess 
+import subprocess
+import time
+
+from decimal import Decimal
 
 from deploy.dlogging import L2, MSG_MAXWIDTH
 from deploy.errors import DeployEventError
@@ -28,7 +32,7 @@ from deploy.util import pps
 SSH_RETRIES = 24
 SSH_SLEEP = 5
 
-__all__ = ['ExecuteEventMixin', 
+__all__ = ['ExecuteEventMixin',
            'ScriptFailedError', 'SSHScriptFailedError', ]
 
 class ExecuteEventMixin:
@@ -40,35 +44,78 @@ class ExecuteEventMixin:
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')
 
-  def _ssh_connect(self, params, **kwargs):
+  def _ssh_connect(self, params={}):
     # dummy command to test if a connection can be established 
-    self._ssh_execute('exit', params, cmd_id="connect", **kwargs)
+    self._ssh_execute('exit', cmd_id="connect", params=params)
 
-  def _ssh_execute(self, script, params, cmd_id=None, log_format='L2', 
+  def _ssh_execute(self, script, cmd_id=None, params={}, log_format='L2', 
                    **kwargs):
     cmd = "/usr/bin/ssh %s %s@%s %s" % (
           self._get_ssh_options(params['port'], params['key_filename']),
-          params['username'], params['hostname'],
-          script)
+          params['username'], params['hostname'], script)
     cmd_id = cmd_id or pps.path(script).basename
 
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
 
     try:
-      self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
+      self._remote_execute(cmd, cmd_id=cmd_id, hostname=params['hostname'], 
+                           log_format=log_format, **kwargs)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(id=cmd_id, hostname=params['hostname'],
-                                 message=e.map['errtxt'])
+      raise SSHScriptFailedError(id=cmd_id, hostname=params['hostname'], 
+                                 errtxt=e.errtxt)
 
-  def _sftp(self, cmd, params, log_format='L2', **kwargs):
+  def _sftp(self, cmd, cmd_id=None, params={}, log_format='L2', **kwargs):
     cmd = 'echo -e "%s" | /usr/bin/sftp -b - %s %s@%s' % (
-          cmd,
-          self._get_ssh_options(params['port'], params['key_filename']),
+          cmd, self._get_ssh_options(params['port'], params['key_filename']), 
           params['username'], params['hostname'])
+    cmd_id = cmd_id or 'sftp' 
 
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
 
-    self._local_execute(cmd, cmd_id='sftp', **kwargs)
+    self._remote_execute(cmd, cmd_id=cmd_id, hostname=params['hostname'], 
+                         log_format=log_format, **kwargs)
+
+  def _remote_execute(self, cmd, cmd_id=None, hostname=None, 
+                      retries=24, sleep=5, log_format='L2', **kwargs):
+    """                   
+    Wrapper for _local_execute that retries ssh commands for a timeout period
+    in case the system is starting.
+
+    * retries -  specifies the number of time to retry the connection
+    * sleep - specifies the time in seconds to sleep between each retry
+    
+    The defaults are 24 and 5, respectively, for a total wait period of 2
+    minutes. These values correspond to the values for ssh options 
+    ConnectionAttempts and ConnectTimeouts, see the get_ssh_options function.
+    """
+    self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
+
+    for i in range(retries): # retry connect
+      try:
+        self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
+        break
+      except ScriptFailedError, e:
+        if ('Name or service not known' in e.errtxt or
+            'No route to host' in e.errtxt or 
+            'Connection refused' in e.errtxt or
+            'Connection timed out' in e.errtxt):
+          if i == 0:
+            max = Decimal(retries) * sleep / 60
+            message = ("Unable to connect to %s. System may be starting. "
+                       "Will retry for %s minutes." % (hostname, max))
+            self.logger.log(2, L2(message))
+
+          # log just the last segment of the ssh error output
+          message = e.errtxt.split(': ')[-1].strip() 
+          self.logger.log(2, L2("%s. Retrying..." % message))
+
+          time.sleep(sleep)
+        else:
+          raise SSHScriptFailedError(id=cmd_id, hostname=hostname,
+                                     errtxt=e.errtxt)
+    else:                                 
+      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, 
+            errtxt="Unable to connect to remote host within timeout period")
 
   def _local_execute(self, cmd, cmd_id=None, verbose=False, **kwargs):
     # using shell=True which gives better error messages for scripts lacking
@@ -97,7 +144,15 @@ class ExecuteEventMixin:
                                     (self.id, cmd_id or cmd))
               header_logged = True
             self.log(0, outline)
-        if errline: errlines.append(errline) 
+        if errline:
+          # Kludge to remove misleading ssh known hosts warning from output.
+          # We are doing this because ssh doesn't provide a clean way to 
+          # disable just this warning without turning off ALL warnings, many
+          # others of which are useful
+          if re.search(r"Warning: Permanently added '[^ ]+' \(RSA\) to the "
+                        "list of known hosts.\r", errline):
+            continue
+          errlines.append(errline) 
       else:
         break
 
@@ -105,6 +160,9 @@ class ExecuteEventMixin:
       self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
     if proc.returncode:
+      if not '\n'.join(errlines):
+        # report exit code if no error message is returned
+        errlines = ['Error: exit code %s' % proc.returncode]
       raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
@@ -112,12 +170,9 @@ class ExecuteEventMixin:
                      "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
                      "-o", "Port=%s" % port,
-                     "-o", "ServerAliveCountMax=1",
-                     "-o", "ServerAliveInterval=5",
+                     "-o", "ServerAliveCountMax=3",
+                     "-o", "ServerAliveInterval=15",
                      "-o", "TCPKeepAlive=no",
-                     "-o", "ConnectionAttempts=24",
-                     "-o", "ConnectTimeout=5",
-                     "-o", "LogLevel=ERROR",
                      ])
 
   # Helper function to add the O_NONBLOCK flag to a file descriptor
@@ -138,14 +193,19 @@ class ExecuteEventMixin:
 
 #------ Errors ------#
 class ScriptFailedError(DeployEventError):
-  message = "Error occured running '%(id)s':\n%(errtxt)s"
-
-class SSHScriptFailedError(ScriptFailedError):
-  def __init__(self, id, hostname, message):
+  def __init__(self, id, errtxt):
     self.id = id
-    self.hostname = hostname
-    self.message = message
+    self.errtxt = errtxt
 
   def __str__(self):
-    return ("Error(s) occured running '%s' script on '%s':\n\n"
-            "%s" % (self.id, self.hostname, self.message))
+    return "Error occured running '%s':\n%s" % (self.id, self.errtxt)
+
+class SSHScriptFailedError(ScriptFailedError):
+  def __init__(self, id, hostname, errtxt):
+    self.id = id
+    self.hostname = hostname
+    self.errtxt = errtxt
+
+  def __str__(self):
+    return ("Error(s) occured running '%s' script on '%s':\n"
+            "%s" % (self.id, self.hostname, self.errtxt))

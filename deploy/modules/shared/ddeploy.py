@@ -309,7 +309,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       params = SSHParameters(self, 'test-triggers')
       self.log(1, L1('attempting to connect'))
       try:
-        self._ssh_connect(params)
+        self._ssh_connect(params=params)
       except SSHScriptFailedError, e:
         self.log(3, L1(e))
         self.log(1, L1("unable to connect to machine, reinstalling...")) 
@@ -319,8 +319,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self.types['test-triggers']:
       try:
         self._execute('test-triggers')
-      except (ScriptFailedError), e:
-        self.log(3, L1(str(e)))
+      except ScriptFailedError, e:
+        self.log(3, L1(e))
         self.log(1, L1("test-trigger script failed, reinstalling..."))
         return True # reinstall
 
@@ -342,31 +342,34 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self.deploydir.mkdirs()
         cmd.cp(self.deploydir, force=True)
         (self.deploydir/cmd.basename).chmod(0755)
-        self._local_execute(self.deploydir/cmd.basename, script.verbose)
+        self._local_execute(self.deploydir/cmd.basename, cmd_id=script.id,
+                            verbose=script.verbose)
 
       else:
         # create scriptdir
         try:
-          self._ssh_execute('mkdir -p %s' % self.deploydir, params)
+          self._ssh_execute('mkdir -p %s' % self.deploydir,  
+                             cmd_id='create scriptdir', params=params)
         except SSHScriptFailedError, e:
           raise RemoteFileCreationError(msg=
             "An error occurred creating the script directory '%s' "
             "on the remote system '%s':\n\n%s"
-            % (self.VAR_DIR, params['hostname'], e.message))
+            % (self.VAR_DIR, params['hostname'], e.errtxt))
 
         # copy script
         try:
           sftp_cmd="cd %s\nput %s\nchmod 750 %s" % (self.deploydir, cmd, 
                                                     cmd.basename)
-          self._sftp(sftp_cmd, params)
+          self._sftp(sftp_cmd, cmd_id='copy script', params=params)
         except ScriptFailedError, e:
           raise RemoteFileCreationError(msg=
             "An error occurred copying '%s' script to the remote system '%s'. "
-            "%s" % (cmd, params['hostname'], str(e)))
+            "%s" % (cmd, params['hostname'], e.errtxt))
  
         # execute script
         cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
-        self._ssh_execute(cmd, params, verbose=script.verbose)
+        self._ssh_execute(cmd, cmd_id=script.id, params=params, 
+                          verbose=script.verbose)
 
 
 class Script(resolve.Item, DirectedNodeMixin):
