@@ -24,7 +24,6 @@ from deploy.util import shlib
 from deploy.util.pps.constants import *
 
 from deploy.errors   import DeployEventError
-from deploy.validate import InvalidConfigError
 
 class IOMixin:
   def __init__(self):
@@ -86,10 +85,9 @@ class IOObject(object):
     # expects a list of path-like elements
     for path in xpaths: #allow python to raise an error of no paths provided
       if path.getxpath('@content', None) and not path.getxpath('@destname', None):
-        raise InvalidConfigError(self.ptr._config.getbase(),
-          "[%s] missing 'destname' attribute at '%s':"
-          "\n %s" % (self.ptr.id, self.ptr._config.getroottree().getpath(path),
-                     path))
+        raise InvalidConfigError(message=(
+          "Missing 'destname' attribute at '%s':"
+          "\n %s" % (self.ptr._config.getroottree().getpath(path), path)))
 
   def validate_input_file(self, f, allow_text=False, xpath=None):
     # method called by add_item() to ensure the source is a valid file
@@ -171,11 +169,10 @@ class IOObject(object):
     for item in self.ptr.config.xpath(xpath, []):
       # ensure item has text content
       if item.getxpath('text()', None) is None: 
-        raise InvalidConfigError(self.ptr._config.getbase(),
-          "[%s] no %s provided for '%s':"
-          "\n %s" % (self.ptr.id, content, 
+        raise InvalidConfigError(message=("No %s provided for '%s':"
+          "\n %s" % (content, 
                      self.ptr._config.getroottree().getpath(item),
-                     item))
+                     item)))
 
       # if item has content...
       s,d,f,m,c = self._process_path_xml(item, destname=destname,
@@ -359,6 +356,9 @@ class TransactionData(object):
   def __str__(self):  return str((self.src, self.dst, self.mode, self.content,
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
+
+class InvalidConfigError(DeployEventError):
+  message = ("%(message)s")  
 
 class XpathInputFileError(DeployEventError):
   message = ("Error downloading the specified file or folder '%(file)s'. Check "
