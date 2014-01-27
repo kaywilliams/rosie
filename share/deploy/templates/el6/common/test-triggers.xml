@@ -14,6 +14,9 @@ echo "$1 changed" >&amp;2
 # get last trigger variables
 if [[ -f $TRIGGER_INFO ]]; then
   source $TRIGGER_INFO
+else
+  FAIL=1
+  echo "missing trigger information" >&amp;2
 fi
 
 # set current trigger variables
