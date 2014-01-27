@@ -25,18 +25,6 @@
 options kvm-intel nested=y
 </files>
 
-<files destdir="/etc/systemd/system" 
-       destname="dbus-org.freedesktop.nm-dispatcher.service" 
-       mode="755" content="text">
-# modify NetworkManager dispatcher service to remain active after exit; this
-# works around the 3 second timeout issue - see 
-# https://wiki.archlinux.org/index.php/NetworkManager
-
-.include /usr/lib/systemd/system/NetworkManager-dispatcher.service
-[Service]
-RemainAfterExit=yes
-</files>
-
 <files destdir="/etc/NetworkManager/dispatcher.d" 
        destname="99-deploy-libvirt-config" mode="755" content="text">
 #!/bin/sh
@@ -155,7 +143,23 @@ echo -e "ipaddr=$ipaddr" > %{installdir}/uninstall.info
 &lt;/network>
 </files>
 
-<!-- libvirt configuration-->
+<trigger type="triggerin" trigger="NetworkManager">
+#!/bin/sh
+set -e
+
+file=/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
+
+if ! grep -q "RemainAfterExit" $file; then
+echo "
+# modified by deploy-libvirt-config to work around 3 second timeout
+# see https://bugzilla.redhat.com/show_bug.cgi?id=1048345
+
+[Service]
+RemainAfterExit=yes
+" >> $file
+fi
+</trigger>
+
 <script type="post">
 # run dispatcher.d script
 if ! ps aux | grep "[/]sbin/anaconda"; then
@@ -183,7 +187,7 @@ fi
 
 <script type='postun'>
 if [[ $1 = 0 ]]; then
-  if find `basename %{installdir}` -name '99-deploy-libvirt-config' | \
+  if find `dirname %{installdir}` -name '99-deploy-libvirt-config' | \
      grep -v %{installdir} ; then 
     # revert /etc/sysctl.conf if necessary 
     text="net.ipv4.ip_forward"
