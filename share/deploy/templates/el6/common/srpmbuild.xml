@@ -71,15 +71,32 @@ done
 
 <script id="copy" type='update' hostname="localhost" comes-after='rpmbuild'>
 #!/bin/sh
-echo "get %{build-dir}/RPMS/*/*.rpm %{rpms-dir}" | sftp -b - \
-      -o StrictHostKeyChecking=no \
-      -o UserKnownHostsFile=/dev/null \
-      -o IdentityFile=/root/.ssh/id_rsa \
-      -o ServerAliveCountMax=1 \
-      -o ServerAliveInterval=5 \
-      -o TCPKeepAlive=no \
-      -o LogLevel=ERROR \
-      root@%{fqdn}
+set -e
+
+options="
+-o StrictHostKeyChecking=no 
+-o UserKnownHostsFile=/dev/null 
+-o IdentityFile=/root/.ssh/id_rsa 
+-o ServerAliveCountMax=3 
+-o ServerAliveInterval=15 
+-o TCPKeepAlive=no 
+"
+
+rpms=$(ssh %{fqdn} $options find %{build-dir}/RPMS -name "*.rpm")
+
+for rpm in $rpms; do
+  copy=true
+  for exclude in %{exclude-rpms}; do 
+    if [[ $(echo $(basename $rpm) | sed 's/-[^-]*-[^-]*$//') == $exclude ]] 
+    then
+      copy=false
+      break
+    fi
+  done
+  if [[ $copy == true ]]; then
+    echo "get $rpm %{rpms-dir}" | sftp -b - $options %{fqdn}
+  fi
+done
 </script>
 
 <macro id='file-size'>10</macro>
