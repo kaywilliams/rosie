@@ -3,7 +3,7 @@
 
 <macro id='name'>deploy-developer</macro>
 <macro id='os'>centos</macro>
-<macro id='version'>6</macro>
+<macro id='version'>7</macro>
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
 
@@ -18,8 +18,7 @@
 <repos>
 <xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
             xpointer="xpointer(/*/repo[@id='base' or
-                                       @id='updates' or
-                                       @id='deploy'])"/>
+                                       @id='updates'])"/>
 </repos>
 
 <packages>
@@ -27,17 +26,28 @@
 </packages>
 
 <config-rpms>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-packages.xml"
+            xpointer="xpointer(./config-rpms/*[@id='deploy-httpd-config'])"/>
 </config-rpms>
+
+<srpmbuild>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-srpms.xml"
+            xpointer="xpointer(./*)"/>
+</srpmbuild>
 
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-test.xml"
-            xpointer="xpointer(./*)"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-test.xml"/>
 </test-update>
 
 <test-install>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-test.xml"/>
 </test-install>
 </definition>
