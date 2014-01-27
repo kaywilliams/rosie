@@ -150,7 +150,7 @@ fi
 
 <script type='postun'>
 if [[ $1 = 0 ]]; then
-  if find `basename %{installdir}` -name '99-deploy-virt-config' | \
+  if find `dirname %{installdir}` -name '99-deploy-virt-config' | \
      grep -v %{installdir} ; then 
     # revert /etc/sysctl.conf if necessary 
     text="net.ipv4.ip_forward"
