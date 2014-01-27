@@ -19,6 +19,7 @@
 
 <packages>
 <group repoid='base'>core</group>
+<package>gcc</package>
 <package>rpm-build</package>
 <package>rpmlint</package>
 </packages>
