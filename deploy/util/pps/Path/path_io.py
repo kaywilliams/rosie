@@ -112,6 +112,9 @@ class Path_IO(object):
   def _open(self, *args, **kwargs): raise NotImplementedError
 
   def copyfile(self, dst, callback=None, preserve=False, **kwargs):
+    if self.isdir():
+      raise PathError(errno.EISDIR, "cannot read file '%s'" % self)
+
     dst = deploy.util.pps.path(dst)
 
     fsrc = None
