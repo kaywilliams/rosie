@@ -491,8 +491,13 @@ class GPGKeysEventMixin:
         self.io.validate_input_file(url)
       except InputFileError, e:
         raise GPGKeyError(e)
+
       filename = url.basename
-      text = self.io.abspath(url).read_text().strip()
+      try:
+        text = self.io.abspath(url).read_text().strip()
+      except PathError, e:
+        msg = "Error reading gpgkey file at '%s'. %s." % (url.touri(), e)
+        raise GPGKeyError(msg)
 
       # some urls return keys encoded within a web page, get just the key
       match = re.search(r"-----(.|\n)*-----", text)
