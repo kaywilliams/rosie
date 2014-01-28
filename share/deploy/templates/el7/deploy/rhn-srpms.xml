@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<srpmbuild>
+<!-- sure wish centos included rhn packages -->
+<srpm id='rhnlib'>
+<repo>
+http://ftp.redhat.com/pub/redhat/rhel/beta/%{version}/source
+</repo>
+<!--<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>-->
+</srpm>
+
+<srpm id='rhn-client-tools'>
+<repo>
+http://ftp.redhat.com/pub/redhat/rhel/beta/%{version}/source
+</repo>
+<exclude>rhnsd</exclude>
+<exclude>yum-rhn-plugin</exclude>
+<exclude>rhn-setup-gnome</exclude>
+<exclude>rhn-setup</exclude>
+<exclude>rhn-check</exclude>
+</srpm>
+</srpmbuild>

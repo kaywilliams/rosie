@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<srpm id='dnsmasq'>
+<!-- dnsmasq 2.66.13 required by deploy-libvirt-config -->
+<path>
+http://www.deployproject.org/products/deploy/sources/dnsmasq-2.66.13-1.el6.src.rpm
+</path>
+<exclude>dnsmasq-utils</exclude>
+</srpm>

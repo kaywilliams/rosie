@@ -12,6 +12,7 @@
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
 <config-rpm id='deploy-httpd-config'>
 <xi:include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"
             xpointer="xpointer(./*)"/>
@@ -21,10 +22,8 @@
 
 <srpmbuild>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
-
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-packages.xml"
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-srpms.xml"
             xpointer="xpointer(./*)"/>
-
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/dnsmasq.xml"/>
 </srpmbuild>
 </xml>

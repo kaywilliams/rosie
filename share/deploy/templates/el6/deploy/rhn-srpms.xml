@@ -8,8 +8,13 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
 </srpm>
 
 <srpm id='rhn-client-tools'>
-<path>
-http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS/rhn-client-tools-1.0.0.1-4.el6.src.rpm
-</path>
+<repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/%{version}Server/en/os/SRPMS
+</repo>
+<exclude>rhnsd</exclude>
+<exclude>yum-rhn-plugin</exclude>
+<exclude>rhn-setup-gnome</exclude>
+<exclude>rhn-setup</exclude>
+<exclude>rhn-check</exclude>
 </srpm>
 </srpmbuild>

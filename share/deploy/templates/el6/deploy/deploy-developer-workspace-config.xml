@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-workspace-config'>
+<requires>mercurial</requires>
+
+<macro id="mercurial-workspace">/root/workspace</macro>
+<macro id="tag">deploy</macro>
+
+<files destdir='/etc/deploy' destname='deploy.conf' content='text'>
+&lt;deploy>
+  &lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>
+  &lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>
+  &lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>
+&lt;/deploy>
+</files>
+
+<files destdir="/etc/profile.d" destname='deploy.sh' content='text'>
+# set environment variables
+if ! echo ${PATH} | /bin/grep -q %{mercurial-workspace}/%{tag}/bin ; then
+        export PATH=%{mercurial-workspace}/%{tag}/bin:${PATH}
+fi
+if ! echo ${PYTHONPATH} | /bin/grep -q %{mercurial-workspace}/%{tag} ; then
+        export PYTHONPATH=%{mercurial-workspace}/%{tag}:${PYTHONPATH}
+fi
+</files>
+
+<script type='post'>
+set -e
+# clone deploy repository
+if [ ! -e %{mercurial-workspace} ];
+  then /bin/mkdir %{mercurial-workspace};
+fi
+
+if [[ ! %{tag} = deploy ]]; then 
+  args="-r %{tag}"
+fi
+ 
+if [ ! -d %{mercurial-workspace}/%{tag} ]; then
+  cd %{mercurial-workspace}
+  hg clone https://www.deployproject.org/hg/public/deploy $args
+  cd -
+fi
+
+if [[ $changed = *\ /etc/profile.d/deploy.sh\ * ]]; then
+  source /etc/profile.d/deploy.sh
+fi
+</script>
+</config-rpm>
