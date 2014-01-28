@@ -95,10 +95,11 @@ class ExecuteEventMixin:
         self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
         break
       except ScriptFailedError, e:
-        if ('Name or service not known' in e.errtxt or
+        if ('ssh:' in e.errtxt and (
+            'Name or service not known' in e.errtxt or
             'No route to host' in e.errtxt or 
             'Connection refused' in e.errtxt or
-            'Connection timed out' in e.errtxt):
+            'Connection timed out' in e.errtxt)):
           if i == 0:
             max = Decimal(retries) * sleep / 60
             message = ("Unable to connect to %s. System may be starting. "
