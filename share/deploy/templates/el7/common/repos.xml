@@ -10,6 +10,14 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
+<macro id="rhel-mirror">http://ftp.redhat.com/pub/redhat/rhel/beta/%{version}/%{arch}/os</macro>
+<macro id="rhel-base">
+<baseurl>%{rhel-mirror}</baseurl>
+<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
+<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
+</macro>
+
+<!--
 <macro id="edition">Server</macro>
 <macro id="rhel-mirror">http://mirror.company.com/rhel/enterprise/%{version}%{edition}/en/os/%{arch}</macro>
 <macro id="rhel-base">
@@ -17,12 +25,7 @@
 <gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
 <gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
-
-<macro id="fedora-mirror">http://mirror.pnl.gov/fedora/linux</macro>
-<macro id="fedora-base">
-<baseurl>%{fedora-mirror}/releases/%{version}/Fedora/%{arch}/os</baseurl>
-<gpgkey>http://keyserver.gingerbear.net/pks/lookup?op=get&amp;search=0x07477E65FB4B18E6</gpgkey>
-</macro>
+-->
 </repo>
 
 <repo id="updates">
@@ -33,17 +36,18 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
-<macro id="fedora-updates">
-<baseurl>%{fedora-mirror}/updates/%{version}/%{arch}</baseurl>
-<gpgkey>http://keyserver.gingerbear.net/pks/lookup?op=get&amp;search=0x07477E65FB4B18E6</gpgkey>
+<macro id="rhel-updates">
+%{rhel-base}
 </macro>
 
+<!--
 <macro id="rhel-updates">
 <baseurl>https://cdn.redhat.com/content/beta/rhel/%{edition}/%{version}/%{arch}/os</baseurl>
 <sslcacert>/etc/rhsm/ca/redhat-uep.pem</sslcacert>
 <sslclientkey>/etc/pki/entitlement/xxx-key.pem</sslclientkey>
 <sslclientcert>/etc/pki/entitlement/xxx.pem</sslclientcert>
 </macro>
+-->
 
 <!-- example rhn repo defition
 <macro id="rhel-updates">

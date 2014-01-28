@@ -17,12 +17,6 @@
 <gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
 <gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
-
-<macro id="fedora-mirror">http://mirror.pnl.gov/fedora/linux</macro>
-<macro id="fedora-base">
-<baseurl>%{fedora-mirror}/releases/%{version}/Fedora/%{arch}/os</baseurl>
-<gpgkey>http://keyserver.gingerbear.net/pks/lookup?op=get&amp;search=0x07477E65FB4B18E6</gpgkey>
-</macro>
 </repo>
 
 <repo id="updates">
@@ -31,11 +25,6 @@
 <macro id="centos-updates">
 <baseurl>%{centos-mirror}/%{version}/updates/%{arch}</baseurl>
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
-</macro>
-
-<macro id="fedora-updates">
-<baseurl>%{fedora-mirror}/updates/%{version}/%{arch}</baseurl>
-<gpgkey>http://keyserver.gingerbear.net/pks/lookup?op=get&amp;search=0x07477E65FB4B18E6</gpgkey>
 </macro>
 
 <macro id="rhel-updates">
