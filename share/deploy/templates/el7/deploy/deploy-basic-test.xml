@@ -2,19 +2,12 @@
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/> 
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-remote-client-config.xml"/> 
-
-<config-rpm id='deploy-basic-test-config'>
-<files destdir="/root" destname='rhn-systemid'>%{rhn-systemid}</files>
-</config-rpm>
 
 <script id='test-deploy-basic' type='update'>
 #!/bin/sh
-deploy /usr/share/deploy/templates/httpd/web-server.definition \
+deploy /usr/share/deploy/templates/%{norm-os}/httpd/web-server.definition \
   --disable-module test-install \
   --disable-module test-update \
   --macro "os:%{os}" \
-  --macro "rhel-mirror:%{rhel-mirror}" \
-  --macro "rhn-systemid:/root/rhn-systemid"
 </script>
 </xml>
