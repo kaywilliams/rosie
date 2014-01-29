@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.1
-Release: 27%{?dist}
+Release: 1%{?dist}
 Summary: An open platform for managing system and application deployment.
 
 License:   GPL
@@ -38,6 +38,7 @@ Requires: rpm-build
 Requires: syslinux
 Requires: yum
 Requires: xz
+Requires: /usr/bin/rpmsign
 Requires: /usr/bin/sudo
 
 %description
