@@ -3,10 +3,12 @@
 <requires>systemd-units</requires>
 
 <script type='post'>
-/usr/bin/systemctl enable chronyd
-/usr/bin/systemctl start chronyd
+/bin/systemctl enable chronyd
+/bin/systemctl enable chrony-wait
 
-/usr/bin/systemctl enable chrony-wait
-/usr/bin/systemctl start chrony-wait
+if ! ps aux | grep "[/]sbin/anaconda"; then
+  /bin/systemctl start chronyd
+  /bin/systemctl start chrony-wait
+fi
 </script>
 </config-rpm>
