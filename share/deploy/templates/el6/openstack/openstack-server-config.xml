@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!--todo respond cleanly to service hostname changes, i.e. update nova.services
+     and nova.instances db tables. Reference http://stackoverflow.com/questions/13244716/how-to-remove-duplicate-service-with-help-of-nova-manage-command -->
+
+<macro id='install-glance'>y</macro>
+<macro id='install-cinder'>y</macro>
+<macro id='install-nova'>y</macro>
+<macro id='install-neutron'>n</macro>
+<macro id='install-horizon'>n</macro><!--not yet implemented-->
+<macro id='install-swift'>n</macro><!--not yet implemented-->
+<macro id='install-client'>y</macro>
+<macro id='install-nagios'>n</macro><!--not yet implemented-->
+
 <xi:include href="%{templates-dir}/%{norm-os}/NetworkManager/NetworkManager-wait-online.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/ntp/ntp-client-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-mysql-config.xml"/>
@@ -8,9 +21,13 @@
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-cinder-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-glance-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-qpid-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-controller-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-compute-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-network-config.xml"/>
+<!--
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-openvswitch-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-neutron-config.xml"/>
+-->
 
 <config-rpm id='openstack-server-config'>
 <description>

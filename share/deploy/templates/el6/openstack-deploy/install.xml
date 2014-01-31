@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='install' type='install'
+        xmlns:xi="http://www.w3.org/2001/XInclude">
+<macro id='image-is-public'>false</macro>
+<macro id='instance-flavor'>1</macro>
+# create image using virt-install
+<xi:include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'
+            xpointer='xpointer(./node())'/>
+
+%{source-guestname}
+source /root/keystonerc_admin
+
+# remove old image from library
+# FIXME - hostname is not unique - use image id instead
+if nova image-list | grep %{hostname}; then
+  nova image-delete %{hostname}
+fi
+
+# add to glance library
+glance image-create \
+    --name "%{hostname}" \
+    --disk-format %{image-format} \
+    --is-public %{image-is-public} \
+    --container-format bare &lt; /var/lib/libvirt/images/$guestname.img
+
+# get image id
+imageid=$(glance image-show %{hostname} | sed -n 's/|.*id.*| \(.*\) |/\1/p')
+
+# create virtual machine
+# todo add --key-name
+nova boot --flavor %{instance-flavor} \
+          --image $imageid \
+          --security_group default \ 
+          %{hostname}
+</script

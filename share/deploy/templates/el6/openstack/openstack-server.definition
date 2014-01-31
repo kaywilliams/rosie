@@ -24,7 +24,6 @@
 <group repoid='base'>core</group>
 
 <!--delete these after debugging-->
-<package>screen</package>
 <package>vim-enhanced</package>
 <package>openstack-packstack</package>
 

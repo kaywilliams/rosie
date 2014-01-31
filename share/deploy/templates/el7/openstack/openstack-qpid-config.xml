@@ -12,8 +12,9 @@ Congifures a messaging queue service for openstack.
 <requires>qpid-cpp-server</requires>
 <requires>memcached</requires>
 <requires>openstack-utils</requires>
-<requires>ntp-client-config</requires>
-<requires>NetworkManager-wait-online</requires>
+<requires>chrony-wait-config</requires>
+<requires>NetworkManager</requires>
+<requires>systemd-units</requires>
 
 <script type='post'>
 #!/bin/sh
@@ -28,11 +29,11 @@ grep -q "auth=no" $file || echo "auth=no" >> $file
 # network interfaces are completely up. See
 # http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
 # for additional information
-service NetworkManager-wait-online start > /dev/null
-chkconfig NetworkManager-wait-online on
+/bin/systemctl enable NetworkManager-wait-online.service
+/bin/systemctl start NetworkManager-wait-online.service
 
 # Start the Qpid message broker.
-service qpidd restart > /dev/null
-chkconfig qpidd on
+/bin/systemctl enable qpidd
+/bin/systemctl reload-or-restart qpidd
 </script>
 </config-rpm>

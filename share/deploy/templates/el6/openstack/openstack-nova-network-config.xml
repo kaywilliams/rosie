@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="openstack-nova-network-config"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+<description>
+Configures nova-networking services for openstack
+</description>
+
+<macro id='nova-network-host'>127.0.0.1</macro>
+<macro id='nova-network-privif'>lo</macro>
+<macro id='nova-network-bridge-name'></macro>
+<macro id='nova-network-bridge-ipaddr'>192.168.32.1</macro>
+<macro id='nova-network-bridge-netmask'>255.255.252.0</macro>
+<macro id='nova-network-fixedrange'>192.168.32.0/22</macro>
+<macro id='nova-network-floatrange'>10.3.4.0/22</macro>
+<macro id='nova-network-defaultfloatingpool'>nova</macro>
+<macro id='nova-network-autoassignfloatingip'>n</macro>
+<macro id='network-config'><!--used in openstack-nova-config.xml-->
+# calculate some variables
+routing_prefix=$(echo %{nova-network-fixedrange} | cut -d/ -f2)
+network_size=`python -c "size = 2 ** (32-$routing_prefix); print size"`
+ 
+# update nova.conf
+cmd="openstack-config --set /etc/nova/nova.conf"
+$cmd DEFAULT firewall_driver nova.virt.libvirt.firewall.IptablesFirewallDriver
+$cmd DEFAULT network_manager nova.network.manager.FlatManager
+$cmd DEFAULT flat_interface $(%{installdir}/device-from-ip)
+$cmd DEFAULT public_interface $(%{installdir}/device-from-ip)
+$cmd DEFAULT flat_network_bridge %{nova-network-bridge-name}
+$cmd DEFAULT multi_host False 
+$cmd DEFAULT network_size $network_size 
+$cmd DEFAULT allow_same_net_traffic True 
+$cmd DEFAULT send_arp_for_ha True
+$cmd DEFAULT share_dhcp_address True
+$cmd DEFAULT force_dhcp_release True
+</macro>
+
+<requires>openstack-nova-network</requires>
+<requires>openstack-nova-compute-config</requires>
+<requires>openstack-keystone-client-config</requires>
+
+<script type='post'>
+# allow vms to access public network interface
+ip link set $(%{installdir}/device-from-ip) promisc on
+
+# start nova-network service
+if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+  service openstack-nova-network restart > /dev/null
+fi
+chkconfig openstack-nova-network on
+
+# create bridge network
+if ! nova-manage network list | grep -q '%{nova-network-fixedrange}'; then
+  nova-manage network create private \
+    --fixed_range_v4=%{nova-network-fixedrange} \
+    --bridge_interface=%{nova-network-bridge-name}
+fi
+</script>
+
+<!--
+<files destdir='/etc/sysconfig/network-scripts'
+       destname='ifcfg-%{nova-network-bridge-name}'
+       content='text'>
+DEVICE=%{nova-network-bridge-name}
+TYPE=Bridge
+ONBOOT=yes
+DELAY=0
+BOOTPROTO=static
+IPADDR=%{nova-network-bridge-ipaddr}
+NETMASK=%{nova-network-bridge-netmask}
+</files>
+-->
+
+<files destdir="/etc/NetworkManager/dispatcher.d" 
+       destname="11-nova-set-public-network-promiscuous" 
+       mode="755" content="text">
+#!/bin/bash
+# Set nova network public interface in promiscuous mode for all-in-one 
+# configuration
+
+/sbin/ip link set $(%{installdir}/device-from-ip) promisc on
+</files>
+
+<xi:include href="openstack-nova-controller-config.xml"
+            xpointer="xpointer(./files[@destname='get-my-ip'])"/>
+
+<files destdir='%{installdir}' destname='device-from-ip' content='text'
+       mode='750'>
+#!/bin/sh
+#
+# returns network device name for an ipaddress. Uses host ipaddress
+# if not provided
+#
+set -e
+
+if [ ! -z $1 ]; then
+  IP=$1
+else
+  IP=$(%{installdir}/get-my-ip)
+fi
+
+DEVICE=($(ip -o address show to $IP | cut -f 2 -d ' '))
+
+# Ensure that the IP is assigned to only one interface
+if [ ! -z ${DISPLAY[1]} ]; then false; fi
+
+# Ensure device exists
+ip link show "$DEVICE" > /dev/null
+
+echo $DEVICE
+</files>
+</config-rpm>

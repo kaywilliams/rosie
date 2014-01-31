@@ -14,7 +14,9 @@ lock file = /var/run/rsync.lock
   timeout = 300
 </files>
 <files destdir="/etc/rc.d/init.d" destname="rsyncd" content="text" mode="755">
-#!/bin/bash
+#!/bin/sh
+
+# TODO - convert to systemd
 
 # Source function library.
 . /etc/rc.d/init.d/functions

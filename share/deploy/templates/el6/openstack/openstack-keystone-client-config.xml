@@ -45,10 +45,6 @@ export PS1='[\\u@\\h \\W(keystone_admin)]\\$ '
 <files destdir='/usr/sbin' destname='keystone-service-create' mode='755'
        content='text'>
 #!/bin/sh
-#
-# create a keystone service
-#
-# keystone-service-create NAME TYPE DESCRIPTION URL PASSWORD
 
 usage() {
 

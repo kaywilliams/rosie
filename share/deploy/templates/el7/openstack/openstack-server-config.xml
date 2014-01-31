@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/%{norm-os}/NetworkManager/NetworkManager-wait-online.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/ntp/ntp-client-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/chrony/chrony-wait-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-mysql-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-client-config.xml"/>

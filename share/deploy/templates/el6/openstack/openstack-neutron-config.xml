@@ -29,6 +29,19 @@ print uuid.uuid4().hex[:16]
 <macro id='neutron-ovs-vlan-ranges'></macro>
 <macro id='neutron-ovs-bridge-mappings'></macro>
 <macro id='neutron-ovs-bridge-ifaces'></macro>
+<macro id='network-config'><!--used in openstack-nova-config.xml-->
+# neutron
+cmd="openstack-config --set /etc/nova/nova.conf"
+$cmd DEFAULT network_api_class nova.network.neutronv2.api.API
+$cmd DEFAULT neutron_admin_username neutron
+$cmd DEFAULT neutron_admin_password %{neutron-user-password}
+$cmd DEFAULT neutron_admin_auth_url http://%{keystone-host}:5000/v2.0
+$cmd DEFAULT neutron_auth_strategy keystone 
+$cmd DEFAULT neutron_admin_tenant_name service 
+$cmd DEFAULT neutron_url http://%{neutron-server-host}:9696/
+$cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+$cmd DEFAULT security_group_api neutron
+</macro>
 
 <requires>openstack-neutron</requires>
 <requires>openstack-neutron-openvswitch</requires>
@@ -121,7 +134,9 @@ keystone-service-create \
 
 # start neutron service and agents
 if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
-  service iptables restart > /dev/null
+  # do we need to start iptables? eliminates errors (which ones?) on first
+  # install, but breaks on update because /etc/sysconfig/iptables
+  service iptables restart > /dev/null 
   service neutron-server restart > /dev/null
   service neutron-openvswitch-agent restart > /dev/null
   service neutron-dhcp-agent restart > /dev/null
@@ -137,7 +152,7 @@ chkconfig neutron-l3-agent on
 chkconfig neutron-metadata-agent on
 
 # # create virtual networks
-# <macro id='network-config'>
+# <macro id='virtual-network-config'>
 #     export OS_USERNAME=admin
 #     export OS_TENANT_NAME=admin
 #     export OS_PASSWORD=%{keystone-admin-password}
@@ -179,7 +194,7 @@ chkconfig neutron-metadata-agent on
 #   # kernel than is included in the anaconda image. see related files element
 #   chkconfig openstack-neutron-firstboot-script on
 # else
-# %{network-config}
+# %{virtual-network-config}
 # fi
 </script>
 
@@ -194,7 +209,7 @@ chkconfig neutron-metadata-agent on
 
 case "$1" in
   start)
-%{network-config}
+%{virtual-network-config}
     chkconfig openstack-neutron-firstboot-script off
   ;;
   stop|status|restart|reload|force-reload)

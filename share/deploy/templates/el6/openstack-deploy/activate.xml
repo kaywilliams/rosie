@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='activate' type='activate'>
+#!/bin/sh
+
+<macro id='activate-timeout'>300</macro>
+<macro id='wait'>
+echo 'activating %{hostname}'
+nova='/usr/bin/nova'
+timeout=%{activate-timeout}
+sleep=5
+wait=0
+while true; do
+  state=`$nova show %{hostname} --json | python -c "import json; import sys; data=json.load(sys.stdin); print data['InstanceStatus']"`
+  if [[ $state == StoppedVM ]] ; then
+    $nova vm start %{hostname}
+  fi
+  if [[ $state == ReadyRole ]] ; then
+    break
+  else
+    if [ "$wait" -lt "$timeout" ] ; then
+      remaining=`expr $timeout - $wait`
+      echo "Attempting to activate: $state, will retry for $remaining seconds"
+      wait=`expr $wait + $sleep`
+      sleep $sleep
+    else 
+      echo "Activation timeout expired"
+      exit 1
+    fi
+  fi
+done
+</macro>
+
+#!/bin/bash
+set -e
+
+# vm exists? 
+if ! [[ `/usr/bin/nova vm list` = *\ %{hostname}\ * ]]; then
+  echo "vm does not exist" >&amp;2
+  exit 1
+fi
+
+%{wait}
+
+# raise error if provisioning failed
+if [[ $state == "ProvisioningFailed" ]] ; then
+  echo "Activation failed with the following error: `/usr/bin/nova vm show %{hostname} --json | python -c \"import json; import sys; data=json.load(sys.stdin); print data['InstanceStateDetails']\"`" >&amp;2
+  exit 1
+fi
+</script>
