@@ -19,9 +19,28 @@
 
 <packages>
 <group repoid='base'>core</group>
+<package>bash</package>
+<package>bzip2</package>
+<package>coreutils</package>
+<package>cpio</package>
+<package>diffutils</package>
+<package>findutils</package>
+<package>gawk</package>
 <package>gcc</package>
+<package>gcc-c++</package>
+<package>grep</package>
+<package>gzip</package>
+<package>info</package>
+<package>make</package>
+<package>patch</package>
 <package>rpm-build</package>
 <package>rpmlint</package>
+<package>sed</package>
+<package>shadow-utils</package>
+<package>tar</package>
+<package>unzip</package>
+<package>which</package>
+<package>xz</package>
 </packages>
 
 <publish>
