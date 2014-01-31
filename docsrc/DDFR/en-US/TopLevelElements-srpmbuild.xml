@@ -293,6 +293,40 @@ fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} 
     </varlistentry>
 
     <varlistentry>
+      <term>exclude</term>
+
+      <listitem>
+      <para>
+      Name of a package contained within the srpm to exclude from the build
+      process.
+      </para>
+
+      <para>
+      This element can occur zero or more times.
+      </para>
+
+      <para>
+      The example below shows excluding several packages, also known as 
+      subpackages, of the rhn-client-tools srpm. 
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;srpm id="rhn-client-tools">
+&lt;repo>
+http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
+&lt;/repo>
+&lt;exclude>rhnsd&lt;/exclude>
+&lt;exclude>yum-rhn-plugin&lt;/exclude>
+&lt;exclude>rhn-setup-gnome&lt;/exclude>
+&lt;exclude>rhn-setup&lt;/exclude>
+&lt;exclude>rhn-check&lt;/exclude>
+&lt;srpm></programlisting>
+      </informalexample>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
     <term>template</term>
     <listitem>
     <para>
