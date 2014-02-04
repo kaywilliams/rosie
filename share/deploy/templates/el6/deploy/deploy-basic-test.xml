@@ -3,11 +3,14 @@
 
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/> 
 
+<macro id='args'/>
+
 <script id='test-deploy-basic' type='update'>
 #!/bin/sh
 deploy /usr/share/deploy/templates/%{norm-os}/httpd/web-server.definition \
   --disable-module test-install \
   --disable-module test-update \
   --macro "os:%{os}" \
+  %{args}
 </script>
 </xml>
