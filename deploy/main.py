@@ -162,13 +162,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.type   = self.definition.getxpath(qstr % 'type', 'system')
     self.build_id = self.definition.getxpath(qstr % 'id')
 
-    # validate distribution
-    if not '%s-%s-%s' % (self.os, self.version, self.arch) in SUPPORTED:
-      msg = ("ERROR: The specified operating system '%s-%s-%s' is not "
-             "supported. Supported operating systems are %s." % 
-             (self.os, self.version, self.arch, SUPPORTED))
-      raise DeployError(msg)
-
     # set data_dir
     self._get_data_dir(options)
 
@@ -341,6 +334,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                "element." % (definition.getroot().getbase(), elem))
         raise DeployError(msg)
 
+    # validate distribution
+    if not '%s-%s-%s' % (self.os, self.version, self.arch) in SUPPORTED:
+      msg = ("ERROR: The specified operating system '%s-%s-%s' is not "
+             "supported. Supported operating systems are %s." % 
+             (self.os, self.version, self.arch, SUPPORTED))
+      raise DeployError(msg)
 
   def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
