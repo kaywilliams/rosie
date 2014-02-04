@@ -37,22 +37,6 @@
 <local-dir>%{local-dir}</local-dir>
 <remote-url>%{remote-url}</remote-url>
 
-<script id='test-basic' type='post' hostname='localhost' verbose='true'>
-#!/bin/sh
-deploy %{test-dir}/deploy-basic-config.definition --debug \
-  --macro "os:rhel" \
-  %{args}
-</script>
-<script id='test-standard' type='post' hostname='localhost' verbose='true'>
-#!/bin/sh
-deploy %{test-dir}/deploy-standard-config.definition --debug \
-  %{args}
-</script>
-<script id='test-developer' type='post' hostname='localhost' verbose='true'>
-#!/bin/sh
-deploy %{test-dir}/deploy-developer-config.definition --debug \
-  %{args}
-</script>
 <script id='update-notify-email' type='post' hostname='localhost' 
         comes-after="test-basic, test-standard, test-developer">
 #!/bin/sh
