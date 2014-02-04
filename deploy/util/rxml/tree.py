@@ -497,7 +497,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
         # attributes
         for string in remaining[macro]['attrib_strings']:
           parent = string.getparent()
-          id = [ k for k,v in parent.items() if string == v][0]
+          if string in parent.values(): # ignore previously changed strings
+            id = [ k for k,v in parent.items() if string == v][0]
 
           # macros is string
           if isinstance(map[macro], basestring):
