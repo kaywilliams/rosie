@@ -62,8 +62,8 @@ class DepsolverMixin(object):
     self._create_repoconfig()
 
     solver = DeployDepsolver(
-      all_packages = self.all_packages,
       user_required = self.user_required,
+      comps = self.cvars['comps-object'],
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
       arch = ARCH_MAP[self.arch],
@@ -74,6 +74,8 @@ class DepsolverMixin(object):
       solver.setup()
 
       pos = solver.getPackageObjects()
+      pkgs = [ po.name for po in pos ]
+
       pkgdict = {}
       for po in pos:
         pkgdict.setdefault(po.repoid, {})[po.name] = Package(
@@ -108,7 +110,7 @@ class DepsolverMixin(object):
 
 
 class DeployDepsolver(Depsolver):
-  def __init__(self, all_packages=None, user_required=None,
+  def __init__(self, comps=None, user_required=None, 
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):
     Depsolver.__init__(self,
@@ -117,23 +119,27 @@ class DeployDepsolver(Depsolver):
       arch = arch,
       callback = PkglistCallback(logger)
     )
-    self.all_packages = all_packages
+    self._comps = comps
+
     self.user_required = user_required
     self.logger = logger
 
   def setup(self):
     Depsolver.setup(self)
 
+  def _getGroups(self):
+    return self._comps
+
   def getPackageObjects(self):
     if self.logger: inscb = TimerCallback(self.logger)
     else:           inscb = None
 
-    for package in self.all_packages:
-      try:
-        self.install(name=package)
-      except yum.Errors.InstallError:
-        if package in self.user_required:
-          raise yum.Errors.InstallError("No packages provide '%s'" % package)
+    self.install_errors = []
+    self.selectGroup('core', enable_group_conditionals=True)
+    missing = set(self.user_required) & set(self.install_errors)
+    if missing:
+      raise yum.Errors.InstallError("No packages provide '%s'" % 
+                                    ', '.join(missing))
 
     retcode, errors = self.resolveDeps()
 

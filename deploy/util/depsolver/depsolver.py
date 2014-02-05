@@ -36,6 +36,8 @@ class DeployYum(yum.YumBase):
     self.archstr = arch
     self.dsCallback = callback
 
+    self.install_errors = []
+
   def __del__(self):
     pass
 
@@ -129,15 +131,15 @@ class DeployYum(yum.YumBase):
     else:
       return None
 
-  def install(self, po=None, name=None, **kwargs):
-    if po is None and name is None:
-      raise yum.Errors.InstallError("nothing specified to install")
-    if not po:
-      po = self.getBestAvailablePackage(name=name, arch=self.archstr)
-    if isinstance(po, yum.packages.YumAvailablePackage):
-      return yum.YumBase.install(self, po=po)
-    else:
-      raise yum.Errors.InstallError("No packages provide '%s'" % name)
+  def install(self, po=None, **kwargs):
+    try:
+      return yum.YumBase.install(self, po=po, **kwargs)
+    except yum.Errors.InstallError, e:
+      if hasattr(po, 'name'): name = po.name
+      elif 'name' in kwargs:  name = kwargs['name']
+      if name: self.install_errors.append(name)
+
+      raise
 
   def teardown(self):
     self.close()

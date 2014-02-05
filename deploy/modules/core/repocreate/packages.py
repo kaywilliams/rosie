@@ -201,6 +201,9 @@ class PackagesEvent(ShelveMixin):
       if not kfound:
         core_group.mandatory_packages['kernel'] = 1
 
+      # conditionally add kernel-devel package
+      core_group.conditional_packages['kernel-devel'] = 'gcc'
+
       self.comps.add_group(core_group)
 
     # create a category
