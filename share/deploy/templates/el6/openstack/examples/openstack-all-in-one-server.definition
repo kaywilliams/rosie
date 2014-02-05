@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<definition xmlns:xi="http://www.w3.org/2001/XInclude">
-
-<macro id='name'>openstack-server</macro>
-<macro id='extra-servers'/>
-
-<xi:include href='template.definition' xpointer='xpointer(./*)'/>
-</definition>

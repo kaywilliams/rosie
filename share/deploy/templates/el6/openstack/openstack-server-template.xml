@@ -15,6 +15,8 @@
 <id>%{id}</id>
 </main>
 
+<macro id='deploy-extra-servers'/>
+
 <repos>
 <xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
             xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
@@ -23,27 +25,27 @@
 <packages>
 <group repoid='base'>core</group>
 
-<!--delete these after debugging-->
+<!--delete these after debugging
 <package>vim-enhanced</package>
 <package>openstack-packstack</package>
+-->
 
-<!--see https://bugzilla.redhat.com/show_bug.cgi?id=1024985 -->
-<exclude>spice-server-0.12.0-12.el6_4.5</exclude>
 </packages>
 
 <xi:include href='%{templates-dir}/%{norm-os}/openstack/openstack-server-config.xml'/>
 
+
 <test-update>
-<password>openstack</password>
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml"
+<xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
 </test-update>
 
-<!--
 <test-install>
-<password>openstack</password>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
 </test-install>
--->
+
+<publish>
+%{deploy-extra-servers}
+</publish>
 </definition>

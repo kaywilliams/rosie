@@ -21,6 +21,7 @@
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-cinder-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-glance-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-qpid-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-network-utils.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-controller-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-compute-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-network-config.xml"/>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>openstack-all-in-one</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<xi:include
+  href='%{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml'
+  xpointer="xpointer(./*[name()!='main'])"/>
+</definition>

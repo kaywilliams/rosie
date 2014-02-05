@@ -29,6 +29,7 @@ print uuid.uuid4().hex[:16]
 <!-- package requires -->
 <requires>openstack-nova</requires>
 <requires>python-novaclient</requires>
+<requires>openstack-network-utils</requires>
 <requires>openstack-keystone-client-config</requires>
 <requires>openstack-mysql-config</requires>
 <requires>openstack-qpid-config</requires>
@@ -37,7 +38,7 @@ print uuid.uuid4().hex[:16]
 # modify nova.conf
 cmd="openstack-config --set /etc/nova/nova.conf"
 $cmd database connection mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
-$cmd DEFAULT my_ip $(%{installdir}/get-my-ip)
+$cmd DEFAULT my_ip $(/usr/bin/get-my-ip)
 $cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
 $cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
 
@@ -53,7 +54,7 @@ $cmd keystone_authtoken admin_user nova
 $cmd keystone_authtoken admin_password %{nova-user-password}
 
 # network config
-%{network-config} <!--set in nova-network-config or neutron-network-config-->
+%{network-config} <!--set in nova-network-config or neutron-config-->
 
 # create database
 if ! mysql -u root -p%{mysql-password} -e "show databases like 'nova'" |\
@@ -127,28 +128,5 @@ case "$1" in
     # do nothing
   ;;
 esac
-</files>
-
-<files destdir='%{installdir}' destname='get-my-ip' content='text' mode='750'>
-#!/usr/bin/python
-"""
-Copied in part from nova/netconf.py
-
-Returns the actual ip of the local machine.
-
-This code figures out what source address would be used if some traffic
-were to be sent out to some well known address on the Internet. In this
-case, a Google DNS server is used, but the specific address does not
-matter much.  No traffic is actually sent.
-"""
-import socket
-try:
-    csock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    csock.connect(('8.8.8.8', 80))
-    (addr, port) = csock.getsockname()
-    csock.close()
-    print addr
-except socket.error:
-    print "127.0.0.1"
 </files>
 </config-rpm>

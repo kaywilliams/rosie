@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='openstack-network-utils' xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<files destdir='/usr/bin' destname='get-my-ip' content='text' mode='750'>
+#!/usr/bin/python
+"""
+Copied in part from nova/netconf.py
+
+Returns the actual ip of the local machine.
+
+This code figures out what source address would be used if some traffic
+were to be sent out to some well known address on the Internet. In this
+case, a Google DNS server is used, but the specific address does not
+matter much.  No traffic is actually sent.
+"""
+import socket
+try:
+    csock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    csock.connect(('8.8.8.8', 80))
+    (addr, port) = csock.getsockname()
+    csock.close()
+    print addr
+except socket.error:
+    print "127.0.0.1"
+</files>
+
+<files destdir='/usr/bin' destname='device-from-ip' content='text'
+       mode='750'>
+#!/bin/sh
+#
+# returns network device name for an ipaddress. Uses host ipaddress
+# if not provided
+#
+set -e
+
+if [ ! -z $1 ]; then
+  IP=$1
+else
+  IP=$(/usr/bin/get-my-ip)
+fi
+
+DEVICE=($(ip -o address show to $IP | cut -f 2 -d ' '))
+
+# Ensure that the IP is assigned to only one interface
+if [ ! -z ${DISPLAY[1]} ]; then false; fi
+
+# Ensure device exists
+ip link show "$DEVICE" > /dev/null
+
+echo $DEVICE
+</files>
+</config-rpm>

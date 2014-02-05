@@ -30,7 +30,7 @@ Configures a compute node for openstack.
 # modify nova.conf
 cmd="openstack-config --set /etc/nova/nova.conf"
 $cmd database connection mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
-$cmd DEFAULT my_ip $(%{installdir}/get-my-ip)
+$cmd DEFAULT my_ip $(/usr/bin/get-my-ip)
 $cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
 $cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
 $cmd DEFAULT rpc_backend nova.openstack.common.rpc.impl_qpid
@@ -57,7 +57,4 @@ chkconfig openstack-nova-compute on
 chkconfig libvirtd on
 chkconfig messagebus on
 </script>
-
-<xi:include href="openstack-nova-controller-config.xml"
-            xpointer="xpointer(./files[@destname='get-my-ip'])"/>
 </config-rpm>

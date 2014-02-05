@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>openstack-controller</macro>
+<macro id='os'>centos</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<macro id='install-nova-compute'>n</macro>
+<macro id='install-cinder'>n</macro>
+
+<macro id='deploy-extra-servers'>
+<script id='deploy-extra-servers' type='post' hostname='localhost'>
+# TODO - modify these to deploy production servers
+# deploy %{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml \
+#   --macro "name:openstack-compute1" \
+#   --macro "install-default:n" \
+#   --macro "install-nova-compute:y" \
+#   --disable-module test-update \ 
+#   --disable-module test-install
+# 
+# deploy %{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml \
+#   --macro "name:openstack-compute2" \
+#   --macro "install-default:n" \
+#   --macro "install-nova-compute:y" \
+#   --disable-module test-update \ 
+#   --disable-module test-install
+# 
+# deploy %{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml \
+#   --macro "name:openstack-block1" \
+#   --macro "install-default:n" \
+#   --macro "install-cinder:y" \
+#   --disable-module test-update \ 
+#   --disable-module test-install
+</script>
+</macro>
+
+<xi:include
+  href='%{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml'
+  xpointer="xpointer(./*[name()!='main'])"/>
+</definition>
