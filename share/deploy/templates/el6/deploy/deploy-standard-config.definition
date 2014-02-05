@@ -26,6 +26,7 @@
 </packages>
 
 <config-rpms>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-packages.xml"
@@ -40,15 +41,19 @@
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
+<!-- requires nested kvm
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-test.xml"
             xpointer="xpointer(./*)"/>
+-->
 </test-update>
 
 <test-install>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
+<!-- requires nested kvm
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-test.xml"
             xpointer="xpointer(./*)"/>
+-->
 </test-install>
 
 </definition>

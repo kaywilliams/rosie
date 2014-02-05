@@ -30,7 +30,7 @@
 </config-rpms>
 
 <srpmbuild>
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/dnsmasq.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
 </srpmbuild>
 
 <test-install>
