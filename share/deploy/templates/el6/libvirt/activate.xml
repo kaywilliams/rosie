@@ -3,6 +3,7 @@
 #!/usr/bin/python
 
 import libvirt
+import libvirtmod
 import os
 import sys
 
@@ -22,17 +23,57 @@ except libvirt.libvirtError:
   sys.stderr.write("vm does not exist\n")
   sys.exit(1)
 state = vm.state(0)[0]
-if state == 1: # vm is active
-  sys.exit(0) 
-elif state == 3: # vm is paused 
-  if vm.resume() == 0: 
-    sys.exit(0) #resume succeded
-  else:
-    sys.stderr.write("vm is paused and failed to resume\n")
-    sys.exit(1)
-elif vm.create() == 0: # vm is inactive
+
+# if vm is active, exit
+if state == 1:
   sys.exit(0)
+
+# if vm is idle blocked on resource, warn but exit success
+if state == 2:
+  sys.stdout.write("warning: domain is active, but currently idle waiting "
+                   "for system resources\n")
+  sys.exit(0)
+
+# if vm is paused or suspended, attempt to resume it
+elif state == 3:
+  try:
+    vm.resume() 
+    sys.exit(0)
+  except libvirt.libvirtError, e:
+    sys.stderr.write("vm is paused and failed to resume [%s]\n" % e)
+    sys.exit(1)
+
+# if vm is being shutdown, print an error and exit
+# perhaps in the future wait for shutdown to complete and restart
+elif state == 4:
+  sys.stderr.write("vm is shutting down, unable to activate\n")
+  sys.exit(1)
+
+# if vm is shut off, attempt to start it
+elif state == 5:
+  try:
+    vm.create()
+    sys.exit(0)
+  except libvirt.libvirtError, e:
+    sys.stderr.write("vm is shut off and failed to start [%s]\n" % e)
+    sys.exit(1)
+    
+# if vm is crashed, print an error and exit
+elif state == 6:
+  sys.stderr.write("vm is crashed, unable to activate\n")
+  sys.exit(1)
+
+# if vm is suspended by guest power management, attempt to resume it
+elif state == 7:
+  try:
+    vm.pMWakeup(0)
+    sys.exit(0)
+  except libvirt.libvirtError, e:
+    sys.stderr.write("vm is suspended and failed to resume [%s]\n" % e)
+    sys.exit(1)
+
 else:
-  sys.stderr.write("vm is inactive and failed to start\n")
+  sys.stderr.write("vm is in an unknown state, unable to activate "
+                   "[state code: %s]\n" % state)
   sys.exit(1)
 </script>
