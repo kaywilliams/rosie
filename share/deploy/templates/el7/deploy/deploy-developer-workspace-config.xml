@@ -47,15 +47,13 @@ fi
        mode="755" content="text">
 [Unit]
 Description=first boot service to clone the deploy repository
-Wants=network-online.target
+Requires=network-online.target
 After=network-online.target
 
 [Service]
 Type=oneshot
 ExecStart=%{installdir}/files/clone-deploy-repo.sh
 ExecStartPost=/bin/systemctl disable clone-deploy-repo.service
-TimeoutSec=0
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
@@ -65,23 +63,60 @@ WantedBy=multi-user.target
 #!/bin/sh -
 set -e
 
-# clone deploy repository
-if [ ! -e %{mercurial-workspace} ];
-  then /bin/mkdir %{mercurial-workspace};
-fi
+# clone definition repository
+/bin/mkdir -p %{mercurial-workspace}
 
 if [[ ! %{tag} = deploy ]]; then 
   args="-r %{tag}"
 fi
  
-if [ ! -d %{mercurial-workspace}/%{tag} ]; then
+repo="https://www.deployproject.org/hg/public/deploy $args"
+definition_dir=%{mercurial-workspace}/%{tag}
+
+if [ ! -d $definition_dir ]; then
   cd %{mercurial-workspace}
-  hg clone https://www.deployproject.org/hg/public/deploy $args
-  cd -
+
+  # clone the repository inside a retry loop in case network not yet up
+  # see https://bugzilla.redhat.com/show_bug.cgi?id=1062704
+  success=false
+  ((count = 6))
+
+  set +e
+  while [[ $count -ne 0 ]] ; do
+    output=$(hg -q clone $repo 2>&amp;1)
+    status=$?
+
+    # success
+    if [[ $status -eq 0 ]] ; then
+      success=true
+      break
+    fi
+
+    # error
+    if [[ $status -eq 255 ]] ; then 
+      # network error - keep trying
+      sleep 5
+      ((count = count -1))
+    else 
+      # other error - exit
+      logger -t "clone-definitions-repo" \
+             -s "ERROR: unable to clone definitions repo [$output]"
+      exit 1
+    fi
+  done
+  set -e
+
+  if [[ $success == false ]]; then
+    logger -t "clone-definitions-repo" \
+           -s "ERROR: network not up in timeout period [$output]"
+    exit 1
+  fi
 fi
 
 if [[ $changed = *\ /etc/profile.d/deploy.sh\ * ]]; then
   source /etc/profile.d/deploy.sh
 fi
+
+/bin/systemctl disable clone-deploy-repo.service > /dev/null
 </files>
 </config-rpm>
