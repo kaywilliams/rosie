@@ -66,7 +66,9 @@ class MountableImageHandler:
       try:
         shlib.execute('/bin/umount %s' % self._mount)
       except shlib.ShExecError, e:
-        if count >= UMOUNT_ATTEMPTS or e.retcode != 1:
+        # earlier versions of umount used retcode 1 for device busy errors
+        # current versions (e.g. util-linux 2.23.2) use retcode 32; 
+        if count >= UMOUNT_ATTEMPTS or e.retcode not in [1, 32]:
           raise
         else:
           # device may be busy
