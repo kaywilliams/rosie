@@ -293,6 +293,13 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
         text = 'set -e\n'
         file.write_text(text + file.read_text())
 
+      # ensure an interpreter line in non-shell scripts so rpmbuild doesn't
+      # get confused when auto-adding requires and think things like import 
+      # statements are shell commands
+      if inter is not None:
+        if not file.read_lines()[0].startswith('#!'):
+          file.write_text('#!%s\n' % inter + file.read_text())
+
       # make the file executable
       file.chmod(0750)
 
