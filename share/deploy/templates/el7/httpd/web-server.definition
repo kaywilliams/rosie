@@ -22,7 +22,8 @@
 </repos>
 
 <packages>
-<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+            xpointer="xpointer(./packages[@id='core']/*)"/>
 </packages>
 
 <config-rpms>
