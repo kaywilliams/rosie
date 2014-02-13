@@ -28,7 +28,8 @@ baseurl - full url to package repository on build machine, must be accessible fr
 </main>
 
 <packages>
-<group repoid='base'>core</group>
+<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+            xpointer="xpointer(./packages[@id='core']/*)"/>
 </packages>
 
 <repos>

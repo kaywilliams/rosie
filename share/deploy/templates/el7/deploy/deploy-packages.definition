@@ -22,7 +22,8 @@
 </repos>
 
 <packages>
-<group repoid='base'>core</group>
+<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+            xpointer="xpointer(./packages[@id='core']/*)"/>
 </packages>
 
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-packages.xml"

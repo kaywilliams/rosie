@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<packages id='core'>
+<group repoid='base'>core</group>
+<package>authconfig</package>
+<package>chrony</package>
+<package>firewalld</package>
+<package>grub2</package>
+</packages>
+
+</xml>

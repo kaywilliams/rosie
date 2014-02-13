@@ -18,7 +18,8 @@
 </main>
 
 <packages>
-<group repoid='base'>core</group>
+<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+            xpointer="xpointer(./packages[@id='core']/*)"/>
 <package>bash</package>
 <package>bzip2</package>
 <package>coreutils</package>
