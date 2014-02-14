@@ -12,7 +12,6 @@ Congifures a messaging queue service for openstack.
 <requires>qpid-cpp-server</requires>
 <requires>memcached</requires>
 <requires>openstack-utils</requires>
-<requires>chrony-wait-config</requires>
 <requires>NetworkManager</requires>
 <requires>systemd-units</requires>
 
@@ -29,11 +28,15 @@ grep -q "auth=no" $file || echo "auth=no" >> $file
 # network interfaces are completely up. See
 # http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
 # for additional information
-/bin/systemctl enable NetworkManager-wait-online.service
-/bin/systemctl start NetworkManager-wait-online.service
+/bin/systemctl -q enable NetworkManager-wait-online.service
+if ! ps aux | grep "[/]sbin/anaconda"; then
+  /bin/systemctl start NetworkManager-wait-online.service
+fi
 
 # Start the Qpid message broker.
-/bin/systemctl enable qpidd
-/bin/systemctl reload-or-restart qpidd
+/bin/systemctl -q enable qpidd
+if ! ps aux | grep "[/]sbin/anaconda"; then
+  /bin/systemctl reload-or-restart qpidd
+fi
 </script>
 </config-rpm>

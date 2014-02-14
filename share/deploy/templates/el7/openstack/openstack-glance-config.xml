@@ -21,13 +21,13 @@ print uuid.uuid4().hex[:16]
 <!-- package requires -->
 <requires>openstack-glance</requires>
 <requires>openstack-keystone-client-config</requires>
-<requires>openstack-mysql-config</requires>
+<requires>openstack-mariadb-config</requires>
 
 <script type='post'>
 # modify glance-api.conf
 cmd="openstack-config --set /etc/glance/glance-api.conf"
 $cmd DEFAULT sql_connection \
-     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+     mariadb://glance:%{glance-db-password}@%{glance-host}/glance
 $cmd keystone_authtoken auth_host %{keystone-host}
 $cmd keystone_authtoken admin_user glance
 $cmd keystone_authtoken admin_tenant_name service
@@ -36,19 +36,19 @@ $cmd keystone_authtoken admin_password %{glance-user-password}
 # modify glance-registry.conf
 cmd="openstack-config --set /etc/glance/glance-registry.conf"
 $cmd DEFAULT sql_connection \
-     mysql://glance:%{glance-db-password}@%{glance-host}/glance
+     mariadb://glance:%{glance-db-password}@%{glance-host}/glance
 $cmd keystone_authtoken auth_host %{keystone-host}
 $cmd keystone_authtoken admin_user glance
 $cmd keystone_authtoken admin_tenant_name service
 $cmd keystone_authtoken admin_password %{glance-user-password}
 
 # create database
-if ! mysql -u root -p%{mysql-password} -e "show databases like 'glance'" |\
+if ! mariadb -u root -p%{mariadb-password} -e "show databases like 'glance'" |\
   grep glance; then
-  openstack-db --yes --init --service glance --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service glance --rootpw "%{mariadb-password}" \
                --password "%{glance-db-password}" > /dev/null
 fi
-mysql-change-user-password %{mysql-password} glance %{glance-db-password}
+mariadb-change-user-password %{mariadb-password} glance %{glance-db-password}
 
 # create keystone service
 keystone-service-create \

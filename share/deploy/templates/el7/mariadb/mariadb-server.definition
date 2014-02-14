@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>chrony-client</macro>
+<macro id='name'>mariadb-server</macro>
 <macro id='os'>centos</macro>
 <macro id='version'>7</macro>
 <macro id='arch'>x86_64</macro>
@@ -26,7 +26,7 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/%{norm-os}/chrony/chrony-wait-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/mariadb/mariadb-server-config.xml"/>
 </config-rpms>
 
 <test-update>

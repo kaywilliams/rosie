@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/%{norm-os}/chrony/chrony-wait-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-mysql-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-mariadb-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-client-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-cinder-config.xml"/>
@@ -18,8 +17,8 @@ Configures a single server openstack installation.
 
 <!-- include rdo repo -->
 <repo id='rdo'>
-<baseurl>http://repos.fedorapeople.org/repos/openstack/openstack-havana/epel-%{version}/</baseurl>
-<gpgkey>%{templates-dir}/%{norm-os}/openstack/RPM-GPG-KEY-RDO-Havana</gpgkey>
+<baseurl>http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-%{version}/</baseurl>
+<gpgkey>%{templates-dir}/%{norm-os}/openstack/RPM-GPG-KEY-RDO-Icehouse</gpgkey>
 </repo>
 
 <!-- include epel repo -->

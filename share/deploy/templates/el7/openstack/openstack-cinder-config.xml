@@ -66,7 +66,7 @@ grep "$text" $file || sed -i "1i${text}" $file
 # modify cinder.conf
 cmd="openstack-config --set /etc/cinder/cinder.conf"
 $cmd DEFAULT sql_connection \
-     mysql://cinder:%{cinder-db-password}@%{cinder-host}/cinder
+     mariadb://cinder:%{cinder-db-password}@%{cinder-host}/cinder
 $cmd DEFAULT rpc_backend neutron.openstack.common.rpc.impl_qpid
 $cmd DEFAULT qpid_hostname %{qpid-host}
 $cmd DEFAULT glance_host %{glance-host}
@@ -77,12 +77,12 @@ $cmd keystone_authtoken admin_user cinder
 $cmd keystone_authtoken admin_password %{cinder-user-password}
 
 # create database (after conf is modified, i.e. sql_connection)
-if ! mysql -u root -p%{mysql-password} -e "show databases like 'cinder'" |\
+if ! mariadb -u root -p%{mariadb-password} -e "show databases like 'cinder'" |\
   grep cinder; then
-  openstack-db --yes --init --service cinder --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service cinder --rootpw "%{mariadb-password}" \
                --password "%{cinder-db-password}" > /dev/null
 fi
-mysql-change-user-password %{mysql-password} cinder %{cinder-db-password}
+mariadb-change-user-password %{mariadb-password} cinder %{cinder-db-password}
 
 # create keystone service
 keystone-service-create \

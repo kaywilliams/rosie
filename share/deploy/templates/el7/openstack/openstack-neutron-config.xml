@@ -41,9 +41,9 @@ print uuid.uuid4().hex[:16]
 
 <script type='post'>
 # create database
-if ! mysql -u root -p%{mysql-password} -e "show databases like 'ovs_neutron'" |\
+if ! mariadb -u root -p%{mariadb-password} -e "show databases like 'ovs_neutron'" |\
   grep -q ovs_neutron; then
-  mysql -u root -p%{mysql-password} &lt;&lt;EOF 
+  mariadb -u root -p%{mariadb-password} &lt;&lt;EOF 
 create database ovs_neutron;
 grant all privileges on ovs_neutron.* to 'neutron'@'localhost' \
 identified by '%{neutron-db-password}';
@@ -52,7 +52,7 @@ identified by '%{neutron-db-password}';
 flush privileges;
 EOF
 fi
-mysql-change-user-password %{mysql-password} neutron %{neutron-db-password}
+mariadb-change-user-password %{mariadb-password} neutron %{neutron-db-password}
 
 # update neutron.conf
 cmd="openstack-config --set /etc/neutron/neutron.conf"
@@ -70,7 +70,7 @@ $cmd agent root_helper "sudo neutron-rootwrap /etc/neutron/rootwrap.conf"
 # update ovs_neutron_plugin.ini
 plugin_conf=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
 cmd="openstack-config --set $plugin_conf"
-$cmd database sql_connection mysql://neutron:%{neutron-db-password}@%{neutron-server-host}/ovs_neutron
+$cmd database sql_connection mariadb://neutron:%{neutron-db-password}@%{neutron-server-host}/ovs_neutron
 $cmd securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 ln -sf $plugin_conf /etc/neutron/plugin.ini 
 
@@ -104,10 +104,10 @@ if ! grep -q "net.ipv4.conf.all.rp_filter" /etc/sysctl.conf; then
 else
   sed -i "/net.ipv4.conf.all.rp_filter/s/1/0/" /etc/sysctl.conf
 fi
-ps aux | grep -q "[/]usr/bin/anaconda" || sysctl -q -p
+ps aux | grep -q "[/]sbin/anaconda" || sysctl -q -p
 
 # create network bridges; if we're running under anaconda, use --no-wait
-ps aux | grep -q "[/]usr/bin/anaconda" &amp;&amp; wait="--no-wait"
+ps aux | grep -q "[/]sbin/anaconda" &amp;&amp; wait="--no-wait"
 ovs-vsctl --may-exist $wait add-br br-int
 ovs-vsctl --may-exist $wait add-br br-ex
 
@@ -120,7 +120,7 @@ keystone-service-create \
   --pass %{neutron-user-password}
 
 # start neutron service and agents
-if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+if ! ps aux | grep -q "[/]sbin/anaconda"; then
   service iptables restart > /dev/null
   service neutron-server restart > /dev/null
   service neutron-openvswitch-agent restart > /dev/null
@@ -173,7 +173,7 @@ chkconfig neutron-metadata-agent on
 #       neutron router-interface-add $routerid $intsubnets
 #     fi
 # </macro>
-# if ps aux | grep -q "[/]usr/bin/anaconda"; then
+# if ps aux | grep -q "[/]sbin/anaconda"; then
 #   # use a firstboot service to perform network configuration. can't do it 
 #   # directly under anaconda in el6 since openvswitch requires a more recent
 #   # kernel than is included in the anaconda image. see related files element

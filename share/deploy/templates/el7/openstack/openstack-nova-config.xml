@@ -30,13 +30,13 @@ print uuid.uuid4().hex[:16]
 <requires>openstack-nova</requires>
 <requires>python-novaclient</requires>
 <requires>openstack-keystone-client-config</requires>
-<requires>openstack-mysql-config</requires>
+<requires>openstack-mariadb-config</requires>
 <requires>openstack-qpid-config</requires>
 
 <script type='post'>
 # modify nova.conf
 cmd="openstack-config --set /etc/nova/nova.conf"
-$cmd database connection mysql://nova:%{nova-db-password}@%{nova-api-host}/nova
+$cmd database connection mariadb://nova:%{nova-db-password}@%{nova-api-host}/nova
 $cmd DEFAULT my_ip $(%{installdir}/files/get_my_ip)
 $cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
 $cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
@@ -64,12 +64,12 @@ $cmd DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
 $cmd DEFAULT security_group_api neutron
 
 # create database
-if ! mysql -u root -p%{mysql-password} -e "show databases like 'nova'" |\
+if ! mariadb -u root -p%{mariadb-password} -e "show databases like 'nova'" |\
   grep -q nova; then
-  openstack-db --yes --init --service nova --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service nova --rootpw "%{mariadb-password}" \
                --password "%{nova-db-password}" > /dev/null
 fi
-mysql-change-user-password %{mysql-password} nova %{nova-db-password}
+mariadb-change-user-password %{mariadb-password} nova %{nova-db-password}
 
 # keystone configuration
 keystone-service-create \
@@ -80,7 +80,7 @@ keystone-service-create \
   --pass %{nova-user-password}
 
 # start nova service
-if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+if ! ps aux | grep -q "[/]sbin/anaconda"; then
   service openstack-nova-api restart > /dev/null
   service openstack-nova-cert restart > /dev/null
   service openstack-nova-consoleauth restart > /dev/null

@@ -1,44 +1,8 @@
 <config-rpm id="rsync-server-config">
 <requires>rsync</requires>
-<requires>/usr/sbin/semanage</requires>
-<requires>/sbin/restorecon</requires>
 
-<files destdir="/etc" destname="rsyncd.conf" content="text">
-log file = /var/log/rsync.log
-pid file = /var/run/rsyncd.pid
-lock file = /var/run/rsync.lock
-[files]
-  path = /srv/files
-  comment = file area
-  read only = false
-  timeout = 300
-</files>
-<files destdir="/etc/rc.d/init.d" destname="rsyncd" content="text" mode="755">
-#!/bin/sh
-
-# TODO - convert to systemd
-
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-[ -f /usr/bin/rsync ] || exit 0
-
-case "$1" in
-start)
-action "Starting rsyncd: " /usr/bin/rsync --daemon
-;;
-stop)
-action "Stopping rsyncd: " killall rsync
-;;
-*)
-echo "Usage: rsyncd {start|stop}"
-exit 1
-esac
-exit 0
-</files>
 <script type='post'>
-semanage fcontext -a -t initrc_exec_t "/etc/rc.d/init.d/rsyncd"
-restorecon -R -v /etc/rc.d/init.d/rsyncd
-[[ $(ps aux | grep "[/]usr/bin/rsync") ]] || service rsyncd start
+/bin/systemctl -q enable rsyncd
+ps aux | grep -q "[/]sbin/anaconda" || /bin/systemctl start rsyncd
 </script>
 </config-rpm>

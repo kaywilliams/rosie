@@ -99,15 +99,15 @@ if [ ! -d $definition_dir ]; then
       ((count = count -1))
     else 
       # other error - exit
-      logger -t "clone-definitions-repo" \
-             -s "ERROR: unable to clone definitions repo [$output]"
+      logger -t "clone-deploy-repo" \
+             -s "ERROR: unable to clone deploy repo [$output]"
       exit 1
     fi
   done
   set -e
 
   if [[ $success == false ]]; then
-    logger -t "clone-definitions-repo" \
+    logger -t "clone-deploy-repo" \
            -s "ERROR: network not up in timeout period [$output]"
     exit 1
   fi

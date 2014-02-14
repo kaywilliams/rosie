@@ -2,7 +2,7 @@
 <config-rpm id='drupal-config' xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <macro id='password'>Test1!</macro>
-<macro id='dbtype'>pgsql</macro><!-- valid values are 'pgsql' or 'mysql' -->
+<macro id='dbtype'>pgsql</macro><!-- valid values are 'pgsql' or 'mariadb' -->
 <macro id='dbuser'>postgres</macro>
 <macro id='sitename'>drupal</macro>
 

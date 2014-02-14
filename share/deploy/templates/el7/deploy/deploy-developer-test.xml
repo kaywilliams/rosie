@@ -4,9 +4,40 @@
 #!/bin/sh
 set -e
 
-# update deploy sources
-cd %{mercurial-workspace}/deploy
-hg pull -u
+# update deploy sources - do this inside a retry loop in case the 
+# clone-deploy-repo service is still in the process of cloning
+success=false
+((count = 6))
+
+set +e
+while [[ $count -ne 0 ]] ; do
+  cd %{mercurial-workspace}/deploy
+  output=$(hg -q pull -u 2>&amp;1)
+  status=$?
+
+  # success
+  if [[ $status -eq 0 ]] ; then
+    success=true
+    break
+  fi
+
+  # error
+  if [[ $status -eq 255 ]] ; then 
+    # network error - keep trying
+    sleep 5
+    ((count = count -1))
+  else 
+    # other error - exit
+    echo "ERROR: unable to update deploy repo [$output]" >&amp;2
+    exit 1
+  fi
+done
+set -e
+
+if [[ $success == false ]]; then
+  echo "ERROR: unable to update deploy repo in timeout period [$output]" >&amp;2
+  exit 1
+fi
 
 # test deploy operation
 deploy share/deploy/templates/%{norm-os}/httpd/web-server.definition \

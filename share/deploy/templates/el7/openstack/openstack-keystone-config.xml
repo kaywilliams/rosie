@@ -26,7 +26,7 @@ print uuid.uuid4().hex
 <!-- package requires -->
 <requires>openstack-utils</requires>
 <requires>openstack-keystone</requires>
-<requires>openstack-mysql-config</requires>
+<requires>openstack-mariadb-config</requires>
 
 <script type='post'>
 # delete example database
@@ -35,15 +35,15 @@ rm -f /var/lib/keystone/keystone.db
 # configure keystone.conf
 cmd="openstack-config --set /etc/keystone/keystone.conf"
 $cmd DEFAULT admin_token %{keystone-admin-token}
-$cmd sql connection mysql://keystone:%{keystone-db-password}@%{keystone-host}/keystone
+$cmd sql connection mariadb://keystone:%{keystone-db-password}@%{keystone-host}/keystone
 
 # create database
-if ! mysql -u root -p%{mysql-password} -e "show databases like 'keystone'" |\
+if ! mariadb -u root -p%{mariadb-password} -e "show databases like 'keystone'" |\
   grep keystone; then
-  openstack-db --yes --init --service keystone --rootpw "%{mysql-password}" \
+  openstack-db --yes --init --service keystone --rootpw "%{mariadb-password}" \
                --password "%{keystone-db-password}" > /dev/null
 fi
-mysql-change-user-password %{mysql-password} keystone %{keystone-db-password}
+mariadb-change-user-password %{mariadb-password} keystone %{keystone-db-password}
 
 # create keystone signing keys and certificates
 keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
