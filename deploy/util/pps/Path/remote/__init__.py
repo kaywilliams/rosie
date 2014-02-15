@@ -40,6 +40,9 @@ class _RemotePath(CachedPath):
   # the operation performed on path.
 
   # os functions
+  def abspath(self): return self
+  def expand(self):  return self
+
   def normcase(self):
     realm = self.hostname.lower()
     if self.username and self.password:
