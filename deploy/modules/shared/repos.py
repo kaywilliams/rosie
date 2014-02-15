@@ -198,8 +198,14 @@ class DeployRepoGroup(DeployRepo):
         repomd.stat()
       except pps.Path.error.PathError, e:
         if e.errno != errno.ENOENT: # report errors other than "does not exist"
+          try:
+            # convert mirror paths to regular urls
+            uri = self.url.touri()
+          except pps.Path.error.PathError:
+            # touri might fail as it automatically tries to download headers
+            uri = self.url
           raise InputFileError(message=e.strerror, 
-                               file=self.url.touri()/self.repomdfile)
+                               file=uri/self.repomdfile)
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
