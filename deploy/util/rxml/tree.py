@@ -792,7 +792,11 @@ def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
 
 def parse(file, parser=PARSER, base_url=None, xinclude=False, 
                 resolve_macros=False, macros={}, 
-                remove_macros=False, macro_defaults_file=None): 
+                remove_macros=False, macro_defaults_file=None):
+
+  if isinstance(file, basestring) and pps.path(file).isdir():
+    raise IOError("cannot read '%s': Is a directory" % file)
+
   try:
     roottree = etree.parse(file, parser, base_url=base_url)
   except etree.XMLSyntaxError, e:

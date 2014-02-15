@@ -73,14 +73,17 @@ class XmlSyntaxError(StandardError, XmlError):
     if isinstance(self.file, basestring):
       pps.path(self.file)
     if hasattr(self.file, 'read_lines'):
-      lines = self.file.read_lines()
+      try:
+        lines = self.file.read_lines()
+      except:
+        pass
 
     if lines:
       pad = len(str(len(lines)))
       extra = '' 
       for i, line in enumerate(lines):
         extra += '%%s%%%dd:%%s' % pad % (i != 0 and '\n' or '', i+1, line)
-      msg = extra + '\n\n' + msg
+      msg = '\n' + extra + '\n\n' + msg
     return msg
 
 class MacroError(XmlError):

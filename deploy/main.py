@@ -267,7 +267,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     cp = pps.path(options.mainconfigpath).expand().abspath()
     if cp and cp.exists():
       self.logger.log(4, "Reading '%s'" % cp)
-      mc = rxml.config.parse(cp).getroot()
+      try:
+        mc = rxml.config.parse(cp).getroot()
+      except (IOError, rxml.errors.XmlSyntaxError), e:
+        raise DeployError("Error reading deploy configuration: %s" % e)
     else:
       self.logger.log(4, "No deploy config file found at '%s'. Using default settings" % cp)
       mc = rxml.config.fromstring('<deploy/>')
@@ -320,10 +323,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # read definition one time without processing xincludes to
     # get name, os, version, arch and id elems. this lets us resolve norm_os
     # early and provide it as a global macro
-    definition = rxml.config.parse(self.definition_path, 
-                                   resolve_macros=True, 
-                                   macros=get_initial_macros(options),
-                                   ).getroot()
+    try:
+      definition = rxml.config.parse(self.definition_path, 
+                                     resolve_macros=True, 
+                                     macros=get_initial_macros(options),
+                                     ).getroot()
+    except (IOError, rxml.errors.XmlSyntaxError), e:
+      raise DeployError("Error reading definition: %s" % e)
 
     for elem in ['name', 'os', 'version', 'arch', 'id']:
       try:
@@ -390,6 +396,8 @@ element.
 
 The definition file is located at %s.
 """ % self.definition_path)
+    except (IOError, rxml.errors.XmlSyntaxError), e:
+      raise DeployError("Error reading definition: %s" % e)
 
     self.definition = dt.getroot()
 
