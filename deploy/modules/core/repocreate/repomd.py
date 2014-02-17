@@ -48,6 +48,7 @@ class RepomdEvent(RepomdMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+    RepomdMixin.setup(self)
 
     self.io.add_fpath(self.cvars['rpmsdir'], self.OUTPUT_DIR)
 

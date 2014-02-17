@@ -16,9 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import errno
+import gzip
 import os
 import sys
 
+from deploy.util import magic
 from deploy.util import shlib
 
 from deploy.util.repo import IORepo
@@ -35,6 +37,9 @@ class RepomdMixin:
   repomd_mixin_version = "1.00"
 
   def __init__(self, *args, **kwargs):
+    if self.type == 'system':
+      self.requires.add('installer-repo')
+
     self.cvars['createrepo-version'] = Version(
       shlib.execute('/usr/bin/createrepo --version')[0].lstrip("createrepo "))
     if self.logger:
@@ -45,17 +50,24 @@ class RepomdMixin:
     self.repomdfile = self.OUTPUT_DIR / 'repodata/repomd.xml'
 
     self.DATA['variables'].append('repomd_mixin_version')
+  
+  def setup(self):
+    if (self.type == 'system' and 
+        'productid' in self.cvars['installer-repo'].datafiles):
+      self.DATA['variables'].append(
+        'cvars[\'installer-repo\'].datafiles[\'productid\'][0].checksum')
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True, checksum=None):
     "Run createrepo on the path specified."
     if self.crcb: self.crcb.start("running createrepo")
+    repodata_dir = path / 'repodata'
 
     args = ['/usr/bin/createrepo']
     #note: using createrepo help to determine update capability since 
     #createrepo reported version number was incorrect (0.4.9) for version
     #0.4.11.
-    if (update and (path/'repodata').exists() and 
+    if (update and (repodata_dir).exists() and 
        '--update' in ' '.join(shlib.execute('/usr/bin/createrepo --help'))):
       args.append('--update')
     if quiet:
@@ -86,6 +98,23 @@ class RepomdMixin:
         count += 1
       else:
         break
+
+    # add productid
+    if (self.type == 'system' and
+        'productid' in self.cvars['installer-repo'].datafiles):
+      pidfile = repodata_dir / 'productid'
+      (self.cvars['installer-repo'].url / 
+       self.cvars['installer-repo'].datafiles['productid'][0].href).cp(pidfile)
+      try:
+        fo = None
+        if magic.match(pidfile) == magic.FILE_TYPE_GZIP:
+          fo = gzip.open(pidfile)
+          pidfile.write_text(fo.read())
+      finally:
+        fo and fo.close()
+
+      shlib.execute('modifyrepo --mdtype=productid %s %s' % 
+                   (pidfile, repodata_dir))
 
     os.chdir(cwd)
     if self.crcb: self.crcb.end()

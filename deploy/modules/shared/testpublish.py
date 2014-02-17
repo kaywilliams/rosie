@@ -56,6 +56,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
     CompsEventMixin.setup(self)
+    RepomdMixin.setup(self)
 
     # get release-rpm filename
     if (self.cvars.get('rpmbuild-data', None) and  
