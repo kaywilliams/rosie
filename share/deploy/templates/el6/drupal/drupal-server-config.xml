@@ -5,6 +5,7 @@
 <xi:include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"/> 
 <xi:include href="%{templates-dir}/%{norm-os}/drupal/drupal-%{dbtype}-config.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/drupal/drush-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/php/php-composer-config.xml"/>
 
 <!--local backup-->
 <xi:include href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-local-config.xml"/>
