@@ -683,7 +683,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           if 'href' in elem.attrib:
             # get absolute href
             base = pps.path(elem.base or '.')
-            href = pps.path(elem.attrib['href'])
+            href = pps.path(elem.attrib['href'], search_path_ignore=[base])
             href = (base.dirname / href).normpath()
 
             if base == href:
