@@ -361,12 +361,13 @@ class InvalidConfigError(DeployEventError):
   message = ("%(message)s")  
 
 class XpathInputFileError(DeployEventError):
-  message = ("Error downloading the specified file or folder '%(file)s'. Check "
-             "that the '%(xpath)s' element is correct. %(suggest)s"
+  message = ("Error downloading the specified file or folder '%(file)s'.\n\n"
+             "Check that the '%(xpath)s' element is correct.\n\n"
+             "%(suggest)s\n\n"
              "%(message)s.")
 
 class InputFileError(DeployEventError):
-  message = ("Error downloading the specified file or folder '%(file)s'. "
+  message = ("Error downloading the specified file or folder '%(file)s'.\n\n"
              "%(message)s.")
              
 class BrokenLinkError(DeployEventError):
