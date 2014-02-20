@@ -40,11 +40,10 @@ class PublishSetupMixinTestCase(EventTestCase):
 
     # update packages
     pkgcontent=etree.XML("""
-    <packages>
-      <group>core</group>
-      <!--add NM as a workaround RTNETLINK/NOZEROCONF issue in el5-->
-      <package>NetworkManager</package>
-    </packages>""")
+    <packages xmlns:xi='%s'>
+      <xi:include href="%%{templates-dir}/%%{norm-os}/common/packages.xml"
+                  xpointer="xpointer(./packages[@id='core']/*)"/>
+    </packages>""" % rxml.tree.XI_NS)
     packages = self.conf.getxpath('/*/packages', None)
     if packages is None:
       packages = rxml.config.Element('packages', parent=self.conf)

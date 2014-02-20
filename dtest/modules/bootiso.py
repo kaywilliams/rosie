@@ -67,7 +67,7 @@ class Test_BootOptionsDefault(_BootisoEventTestCase):
 class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
   "installs from boot.iso"
 
-  _conf = ['<packages><group>core</group></packages>']
+  _conf = [ ]
 
   def __init__(self, os, version, arch):
     BootisoEventTestCase.__init__(self, os, version, arch)

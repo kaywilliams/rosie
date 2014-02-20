@@ -165,7 +165,6 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   """<iso>
     <set>CD</set>
   </iso>""",
-  """<packages><group>core</group></packages>""",
   ]
 
   def __init__(self, os, version, arch, *args, **kwargs):
