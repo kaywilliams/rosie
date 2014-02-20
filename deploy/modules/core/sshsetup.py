@@ -44,6 +44,7 @@ class SshSetupEvent(Event):
     keyfile = sshdir / 'id_rsa'
 
     if not keyfile.exists():
+      # generate keys
       try:
         self.log(1, L1("ssh key not found, generating"))
         cmd = '/usr/bin/ssh-keygen -t rsa -f %s -N ""' % keyfile 
@@ -54,6 +55,11 @@ class SshSetupEvent(Event):
                    "If the error persists, you can generate keys manually "
                    "using the command\n '%s'" % (e, cmd))
         raise KeyGenerationFailed(message=message)
+      # add to ssh agent, ignoring errors as the agent may not be installed
+      try:
+        shlib.execute('/usr/bin/ssh-add')
+      except shlib.ShExecError:
+        pass
 
     # enable ssh to local machine
     authkeys = sshdir / 'authorized_keys'
