@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='install' type='install'>
 <macro id='cpu'>--cpu host</macro><!-- for nested kvm -->
-<macro id='ram'>1000</macro>
-<macro id='file-size'>30</macro>
+<macro id='ram'>1024</macro>
+<macro id='file-size'>8</macro>
 <macro id='image-format'>raw</macro>
 #!/bin/bash
 set -e
