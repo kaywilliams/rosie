@@ -98,6 +98,7 @@ options="
 -o StrictHostKeyChecking=no 
 -o UserKnownHostsFile=/dev/null 
 -o IdentityFile=/root/.ssh/id_rsa 
+-o PasswordAuthentication=no 
 -o ServerAliveCountMax=3 
 -o ServerAliveInterval=15 
 -o TCPKeepAlive=no 

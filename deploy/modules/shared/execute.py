@@ -170,6 +170,7 @@ class ExecuteEventMixin:
     return ' '.join(["-o", "StrictHostKeyChecking=no",
                      "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
+                     "-o", "PasswordAuthentication=no",
                      "-o", "Port=%s" % port,
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
