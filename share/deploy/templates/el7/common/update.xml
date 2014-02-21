@@ -34,7 +34,10 @@ for command in $commands; do
   do
     echo $line
     if [[ $line == *"scriptlet failed"* ]]; then
-      failed="$failed `echo $line | sed -n '/^[^(]*(\([^)]*\)).*/s//\1/p'`"
+      pkg=$(echo $line | sed -n "s/[^(]*(\([^)]*\).*/\1/p")
+      if [[ "%{custom-pkgs}" == *$pkg* ]]; then
+        failed="$failed $pkg"
+      fi
     fi
   done &lt; &lt;(echo "$output")
 done

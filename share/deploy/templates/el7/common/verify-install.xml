@@ -4,12 +4,23 @@
 #check install log for package errors
 
 logfile="/var/log/anaconda/anaconda.packaging.log"
-errors=`grep "scriptlet failed" $logfile`
+
+failed_pkgs=$(grep 'scriptlet failed' $logfile | \
+              sed -n "s/[^(]*(\([^)]*\).*$/\1/gp")
+
+# check for scriptlet failed errors in custom pkgs
+failed_flag=false
+for pkg in $failed_pkgs; do
+  if [[ "%{custom-pkgs}" == *$pkg* ]]; then 
+    failed_flag=true
+    break
+  fi
+done
 
 # hopefully https://bugzilla.redhat.com/show_bug.cgi?id=1035745 will 
 # be fixed and we can provide more informative install errors in the future
-
-if [ -n "$errors" ]; then
+if [[ $failed_flag == true ]]; then
+  errors=`grep "scriptlet failed" $logfile`
   echo -e "Scriptlet failed errors found in $logfile:\n\n$errors" >&amp;2
   exit 1
 fi

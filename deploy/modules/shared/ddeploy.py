@@ -277,11 +277,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   def _get_custom_pkgs(self):
     if 'rpmbuild-data' in self.cvars:
       pkgs = [] 
-      for rpm in self.cvars['rpmbuild-data']:
+      for rpm, data in self.cvars['rpmbuild-data'].items():
         if rpm == '%s-release' % self.name: # ignore release rpm
           pass
         else:
-          pkgs.append(rpm)
+          pkgs.append('%s-%s-%s.%s' % (data['rpm-name'], data['rpm-version'],
+                                       data['rpm-release'], data['rpm-arch']))
           pkgs.sort()
       return ' '.join(pkgs)
     else: 

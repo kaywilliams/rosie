@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='verify-install' type='post-install'>
 #!/bin/bash
-#check install.log for errors
+#check install.log for scriptlet failed errors
 
-if grep -q "scriptlet failed" /root/install.log || \
-   grep -q "error: " /root/install.log; then
-  errors=`grep -v "NOKEY" /root/install.log | \
+logfile="/root/install.log"
+
+failed_pkgs=$(grep 'scriptlet failed' $logfile | \
+              sed -n "s/[^(]*(\([^)]*\).*$/\1/gp")
+
+# check for scriptlet failed errors in custom pkgs
+failed_flag=false
+for pkg in $failed_pkgs; do
+  if [[ "%{custom-pkgs}" == *$pkg* ]]; then 
+    failed_flag=true
+    break
+  fi
+done
+
+if [[ $failed_flag == true ]]; then 
+  errors=`grep -v "NOKEY" $logfile | \
   grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
   grep -v "^Installing "`
-  echo -e "Errors found in /root/install.log:\n$errors" >&amp;2
+  echo -e "Errors found in $logfile:\n$errors" >&amp;2
   exit 1
 fi
 </script>
