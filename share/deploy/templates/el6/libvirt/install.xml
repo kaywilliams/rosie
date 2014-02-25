@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='install' type='install'>
-<macro id='cpu'>--cpu host</macro><!-- for nested kvm -->
 <macro id='ram'>1024</macro>
 <macro id='file-size'>8</macro>
 <macro id='image-format'>raw</macro>
@@ -19,12 +18,10 @@ virt-install \
   --arch %{arch} \
   --ram %{ram} \
   --disk path=/var/lib/libvirt/images/$guestname.img,size=%{file-size},format=%{image-format} \
-  --graphics vnc \
   --network network=deploy \
   --location %{os-url} \
   --extra-args "%{boot-options} ks=%{url}/ks.cfg" \
-  --noreboot \
-  %{cpu}
+  --noreboot
 
 # wait for install to complete and machine to shutdown
 while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
