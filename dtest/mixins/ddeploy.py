@@ -135,11 +135,10 @@ chcon -t httpd_sys_content_t $file
 virt-install \
              --name $guestname \
              --arch %%{arch} \
-             --ram 1000 \
+             --ram 1024 \
              --network network=deploy \
-             --graphics vnc \
              --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
-             --cdrom  $file \
+             --cdrom $file \
              --noreboot
 
 # wait for install to complete and machine to shutdown

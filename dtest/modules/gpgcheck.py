@@ -63,19 +63,11 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     <package>kernel</package>
   </packages>"""
 
-  def _make_repos_config(self):
-    repos = rxml.config.Element('repos')
-    base = repo.getDefaultRepoById('base', os=self.os,
-           version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-    # set gpgkeys to none
-    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None,
-                 'name': None,})
-    repos.append(base.toxml())
-    return repos
-
   def setUp(self):
     EventTestCase.setUp(self)
+    base = self.tb.definition.getxpath("./repos/repo[@id='base']")
+    for item in base.xpath('./gpgkey'):
+      base.remove(item)
     self.clean_event_md()
 
   def runTest(self):

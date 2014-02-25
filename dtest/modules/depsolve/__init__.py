@@ -44,8 +44,6 @@ class DepsolveEventTestCase(EventTestCase):
   caseid = None
   clean  = False
 
-  repos = ['base'] # list of repos to include
-
   PKGLIST_COUNT = {}
 
   def setUp(self):
@@ -70,25 +68,6 @@ class DepsolveEventTestCase(EventTestCase):
                       for x in repo.itervalues())
     return pkgfiles
 
-  def _make_repos_config(self):
-    repos = rxml.config.Element('repos')
-
-    for repoid in ['base', 'updates', 'everything']:
-      if repoid in self.repos:
-        r = repo.getDefaultRepoById(repoid, os=self.os,
-                                            version=self.version,
-                                            arch=self.arch,
-                                            include_baseurl=True,
-                                            baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': None, 
-                  'name': None,})
-        if repoid == 'updates' and 'systemid' in r:
-          # look for systemid in dtest folder 
-          r['systemid'] = (pps.path(('/').join(__file__.split('/')[:-3]))
-                           /pps.path(r['systemid']).basename)
-        repos.append(r.toxml())
-
-    return repos
 
 class Test_PackageAdded(DepsolveEventTestCase):
   "Package Added"
@@ -99,7 +78,7 @@ class Test_PackageAdded(DepsolveEventTestCase):
   clean  = True
 
   def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
+    repos = EventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
                  text='/tmp/dtest/depsolve-test-repos1.repo'))
@@ -119,7 +98,7 @@ class Test_ObsoletedPackage(DepsolveEventTestCase):
   caseid = 'pkgobsoleted'
 
   def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
+    repos = EventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
                  text='/tmp/dtest/depsolve-test-repos1.repo'))
@@ -149,7 +128,7 @@ class Test_ExclusivePackage_1(DepsolveEventTestCase):
   caseid = 'exclusive_1'
 
   def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
+    repos = EventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
                  text='/tmp/dtest/depsolve-test-repos3.repo'))
@@ -182,7 +161,7 @@ class Test_ConflictingPackages(DepsolveEventTestCase):
   </packages>"""
 
   def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
+    repos = EventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
                  text='/tmp/dtest/depsolve-test-repos6.repo'))
