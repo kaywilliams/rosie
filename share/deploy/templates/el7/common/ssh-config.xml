@@ -8,8 +8,8 @@
 <files mode='750'>%{templates-dir}/%{norm-os}/common/ssh-install-pubkey.sh</files>
 
 <script type='post'>
-%{installdir}/files/ssh-install-pubkey.sh \
-    %{installdir}/files/build-host-pubkey \
+%{install-dir}/files/ssh-install-pubkey.sh \
+    %{install-dir}/files/build-host-pubkey \
     /root/.ssh/authorized_keys
 </script>
 </config-rpm>

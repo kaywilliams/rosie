@@ -122,19 +122,19 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
 
   <para>
   Deploy provides two <emphasis>module run-time macros</emphasis> to
-  config-rpms: <emphasis>%{rpmid}</emphasis> and
-  <emphasis>%{installdir}</emphasis>.
+  config-rpms: <emphasis>%{rpm-id}</emphasis> and
+  <emphasis>%{install-dir}</emphasis>.
   </para>
 
   <para>
-  The <emphasis role='strong'>%{rpmid}</emphasis> macro contains the value
+  The <emphasis role='strong'>%{rpm-id}</emphasis> macro contains the value
   specified by the <emphasis>@id</emphasis> attribute of the config-rpm element.
   </para>
 
   <para>
-  The <emphasis role='strong'>%{installdir}</emphasis> macro specifies the
+  The <emphasis role='strong'>%{install-dir}</emphasis> macro specifies the
   location where variable data for the config-rpm is installed, specifically
-  <filename>/var/lib/deploy/config/%{rpmid}</filename>.  This can be
+  <filename>/var/lib/deploy/config/%{rpm-id}</filename>.  This can be
   useful for scripts specified within <xref linkend='config-rpms-files'/>,
   <xref linkend='config-rpms-script'/> and <xref
   linkend='config-rpms-trigger'/> elements, as it provides these scripts with a
@@ -143,7 +143,7 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
 
   <para>
   The <filename>ssh-config.xml</filename> file located within the templates
-  folder shows an example of using the <emphasis>%{installdir}</emphasis>
+  folder shows an example of using the <emphasis>%{install-dir}</emphasis>
   macro. See <xref linkend="templates"/> for information on templates.
   </para>
 
@@ -174,7 +174,7 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
       </para>
 
       <variablelist>
-      <varlistentry id="rpmid">
+      <varlistentry id="rpm-id">
       <term>@id</term>
 
       <listitem>
@@ -232,7 +232,7 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
 
         <para>
         <synopsis>
-The %{rpmid} package provides configuration files and scripts for the
+The %{rpm-id} package provides configuration files and scripts for the
 FULLNAME repository. 
         </synopsis>
         </para>
@@ -412,7 +412,7 @@ FULLNAME repository.
         <para>
         <emphasis>@destdir</emphasis>: Controls the location to which this file
         or folder should be installed on client machines. The default value is
-        <filename>%{installdir}/files</filename>. See <xref
+        <filename>%{install-dir}/files</filename>. See <xref
         linkend="destdir"/> for more information on the destdir attribute.
         </para>
 
@@ -485,7 +485,7 @@ FULLNAME repository.
 
         <para>
         Scripts that create and store data during runtime operation may wish
-        to use the <link linkend='configrpm-macros'>%{installdir}</link> macro.
+        to use the <link linkend='configrpm-macros'>%{install-dir}</link> macro.
         </para>
 
         <para>
@@ -606,7 +606,7 @@ chkconfig smb on
 
         <para>
         Triggers that create and store data during runtime operation may wish
-        to use the <link linkend='configrpm-macros'>%{installdir}</link> macro.
+        to use the <link linkend='configrpm-macros'>%{install-dir}</link> macro.
         </para>
 
         <para>

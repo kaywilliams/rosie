@@ -37,7 +37,7 @@ print uuid.uuid4().hex[:16]
 # modify nova.conf
 cmd="openstack-config --set /etc/nova/nova.conf"
 $cmd database connection mariadb://nova:%{nova-db-password}@%{nova-api-host}/nova
-$cmd DEFAULT my_ip $(%{installdir}/files/get_my_ip)
+$cmd DEFAULT my_ip $(%{install-dir}/files/get_my_ip)
 $cmd DEFAULT vncserver_listen %{nova-vncproxy-host}
 $cmd DEFAULT vncserver_proxyclient_address %{nova-vncproxy-host}
 

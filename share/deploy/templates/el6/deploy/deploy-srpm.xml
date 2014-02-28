@@ -2,6 +2,6 @@
 <srpm id='deploy'>
 <macro id='deploy-source'>$(which deploy)/../../</macro>
 <script>
-%{templates-dir}/%{norm-os}/common/srpmbuild.py %{srpmid} "%{deploy-source}" %{srpmdir} %{srpmlast} folder
+%{templates-dir}/%{norm-os}/common/srpmbuild.py %{srpm-id} "%{deploy-source}" %{srpm-dir} %{srpm-last} folder
 </script>
 </srpm>

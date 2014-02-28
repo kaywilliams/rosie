@@ -112,7 +112,7 @@
       </para>
 
       <variablelist>
-      <varlistentry id='srpmid'>
+      <varlistentry id='srpm-id'>
       <term>id</term>
 
       <listitem>
@@ -220,7 +220,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       <listitem>
       <para>
       TEXT value providing a script to be executed on the local machine that
-      performs desired actions, and ultimately copies an SRPM to the %{srpmdir}
+      performs desired actions, and ultimately copies an SRPM to the %{srpm-dir}
       location. Deploy saves the provided script in the cache folder and
       executes it with root user permissions. See the Deploy User Manual or the
       deploy.conf man page for information on the cache folder.
@@ -228,25 +228,25 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 
       <para>
       Provides three run-time macros:
-      <emphasis>srpmid</emphasis>, <emphasis>srpmdir</emphasis> and
-      <emphasis>srpmlast</emphasis>.
+      <emphasis>srpm-id</emphasis>, <emphasis>srpm-dir</emphasis> and
+      <emphasis>srpm-last</emphasis>.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpmid}:</emphasis> The name of the SRPM as
+      <emphasis role='strong'>%{srpm-id}:</emphasis> The name of the SRPM as
       specified by the <emphasis>@id</emphasis> attribute.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpmdir}:</emphasis> The path to a folder where
+      <emphasis role='strong'>%{srpm-dir}:</emphasis> The path to a folder where
       the script should copy an SRPM upon completion. Note that Deploy
-      allows only a single SRPM file to exist in the srpmdir. Scripts are
+      allows only a single SRPM file to exist in the srpm-dir. Scripts are
       responsible for removing any files, e.g. a file cached from a previous
       build, prior to copying a new SRPM file.
       </para>
 
       <para>
-      <emphasis role='strong'>%{srpmlast}:</emphasis> The full path to the last
+      <emphasis role='strong'>%{srpm-last}:</emphasis> The full path to the last
       SRPM provided by the script or 'None' if no SRPM was previously provided.
       Allows scripts to optimize performance by determining whether a new SRPM
       must be provided.
@@ -272,11 +272,11 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       <para>
       In the example below, the TEXT of a script is provided to perform custom
       actions, and ultimately copy an SRPM to the location identified by the
-      <emphasis>srpmdir</emphasis> macro. The script shown below makes a call
+      <emphasis>srpm-dir</emphasis> macro. The script shown below makes a call
       to a custom external program (<filename>fetch.py</filename>) providing
       command line parameters that that the program will use to process and
       copy the SRPM to the location identified by 
-      <emphasis>%{srpmdir}</emphasis>. 
+      <emphasis>%{srpm-dir}</emphasis>. 
       </para>
   
       <informalexample>
@@ -284,7 +284,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;srpm id="my-package">
 &lt;script>
 #!/bin/bash
-fetch.py %{srpmid} https://www.deployproject.org/hg/public/%{srpmid} %{srpmdir} %{srpmlast}
+fetch.py %{srpm-id} https://www.deployproject.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
 &lt;/script>
 &lt;srpm></programlisting>
      </informalexample>

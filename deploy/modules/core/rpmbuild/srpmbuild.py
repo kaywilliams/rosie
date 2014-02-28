@@ -119,9 +119,9 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     # resolve macros
     srpmlast = self.unshelve('srpmlast', 'None') 
-    macros = {'%{srpmid}': self.srpmid,
-              '%{srpmdir}': self.srpmdir,
-              '%{srpmlast}': srpmlast,
+    macros = {'%{srpm-id}': self.srpmid,
+              '%{srpm-dir}': self.srpmdir,
+              '%{srpm-last}': srpmlast,
              }
     self.resolve_macros(map=macros)
   
@@ -289,7 +289,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     if not results:
       message = ("The script provided for the '%s' srpm did not output an "
                  "srpm beginning with '%s' and ending with '.src.rpm' in the "
-                 "location specified by the %%{srpmdir} macro ('%s'). See the "
+                 "location specified by the %%{srpm-dir} macro ('%s'). See the "
                  "Deploy documentation for information on using the "
                  "srpm/script element." % (self.srpmid, self.srpmid, 
                                            self.srpmdir))

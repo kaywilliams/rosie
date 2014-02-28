@@ -193,8 +193,8 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     self.md5file     = self.installdir/'md5sums'
 
     # resolve module macros
-    self.resolve_macros(map={'%{rpmid}': name,
-                                    '%{installdir}': self.installdir})
+    self.resolve_macros(map={'%{rpm-id}': name,
+                             '%{install-dir}': self.installdir})
 
     # add files for synchronization to the build folder
     self.io.add_xpath('files', self.srcfiledir, allow_text=True) 

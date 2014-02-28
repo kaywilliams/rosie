@@ -38,7 +38,7 @@ a run-once systemd service.
 if ps aux | grep "[/]sbin/anaconda"; then
   systemctl -q enable clone-deploy-repo.service
 else
-  %{installdir}/files/clone-deploy-repo.sh
+  %{install-dir}/files/clone-deploy-repo.sh
 fi
 </script>
 
@@ -52,7 +52,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%{installdir}/files/clone-deploy-repo.sh
+ExecStart=%{install-dir}/files/clone-deploy-repo.sh
 ExecStartPost=/bin/systemctl disable clone-deploy-repo.service
 
 [Install]

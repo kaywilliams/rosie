@@ -13,7 +13,7 @@
 <files destname='azure.publishsettings'>%{azure-publish-settings}</files>
 <script type='post'>
 npm install azure-cli -g
-azure account import %{installdir}/files/azure.publishsettings >/dev/null
+azure account import %{install-dir}/files/azure.publishsettings >/dev/null
 </script>
 
 <script type='preun'>

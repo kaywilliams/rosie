@@ -134,11 +134,11 @@ class Test_FromScript(TestSrpmTestCase):
       <srpm id='package1'>
         <script>
         #!/bin/bash
-        rm -rf %%{srpmdir}
-        mkdir %%{srpmdir}
+        rm -rf %%{srpm-dir}
+        mkdir %%{srpm-dir}
         srpm=%s/repo1/SRPMS/package1-1.0-2.src.rpm
-        if [[ $srpm != '%%{srpmlast}' ]]; then 
-          cp -a $srpm '%%{srpmdir}'
+        if [[ $srpm != '%%{srpm-last}' ]]; then 
+          cp -a $srpm '%%{srpm-dir}'
         fi
         </script>
       </srpm>
@@ -190,8 +190,8 @@ class Test_Excludes(TestSrpmTestCase):
 #!/bin/bash
 
 # create dirs
-rm -rf %{srpmdir}
-mkdir -p %{srpmdir}/SPECS %{srpmdir}/SRPMS
+rm -rf %{srpm-dir}
+mkdir -p %{srpm-dir}/SPECS %{srpm-dir}/SRPMS
 
 # create specfile
 echo "
@@ -228,15 +228,15 @@ DESCRIPTION
 %clean
 
 %files sub1
-%files sub2" > %{srpmdir}/SPECS/package1.spec 
+%files sub2" > %{srpm-dir}/SPECS/package1.spec 
 
 # build srpm
-rpmbuild -bs %{srpmdir}/SPECS/package1.spec --define "_topdir %{srpmdir}"
+rpmbuild -bs %{srpm-dir}/SPECS/package1.spec --define "_topdir %{srpm-dir}"
 
 # copy rpm
-srpm=%{srpmdir}/SRPMS/package1-1.0-1.src.rpm
-if [[ $srpm != '%{srpmlast}' ]]; then 
-  cp -a $srpm '%{srpmdir}'
+srpm=%{srpm-dir}/SRPMS/package1-1.0-1.src.rpm
+if [[ $srpm != '%{srpm-last}' ]]; then 
+  cp -a $srpm '%{srpm-dir}'
 fi
 </script>
 <exclude>package1-sub2</exclude>
