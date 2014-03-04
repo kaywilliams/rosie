@@ -61,8 +61,6 @@ class RpmbuildRepoEvent(Event):
       'variables': [],
     }
 
-    self.repos = RepoContainer()
-
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -87,8 +85,9 @@ class RpmbuildRepoEvent(Event):
       #                                 baseurl=self.RPMBUILD_SRPMS,
       #                                 locals=self.locals)
 
-      self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms})
-      #                                         self.csid: rpmbuild_srpms})
+      self.repos=self._setup_repos('packages', 
+                                    updates = {self.cid:  rpmbuild_rpms})
+      #                                        self.csid: rpmbuild_srpms})
 
   def run(self):
     # remove previous output
@@ -143,7 +142,6 @@ class RpmbuildRepoEvent(Event):
 
     # update default values
     repos.add_repos(updates or {})
-
     for repo in repos.values():
       # set pkgsfile
       repo.localurl = self.mddir/repo.id
@@ -155,5 +153,4 @@ class RpmbuildRepoEvent(Event):
 
     self.repoids = repos.keys()
 
-    self.repos.add_repos(repos)
-    return self.repos
+    return repos

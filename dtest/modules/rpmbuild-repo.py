@@ -26,9 +26,8 @@ class RpmbuildRepoTestCase(EventTestCase):
 class Test_NoDefaults(RpmbuildRepoTestCase):
   "defaults are not added to rpmbuild repo list"
   def runTest(self):
-    self.failIf('base'       in self.event.repos)
-    self.failIf('everything' in self.event.repos)
-    self.failIf('updates'    in self.event.repos)
+    self.tb.dispatch.execute(until=self.eventid)
+    self.failUnless(self.event.repos.keys() == [self.event.build_id])
 
 
 def make_suite(os, version, arch, *args, **kwargs):
