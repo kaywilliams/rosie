@@ -138,7 +138,8 @@ class GpgMixin:
     key = homedir / key.basename
     if not magic.match(key) == magic.FILE_TYPE_GPGKEY:
       raise RuntimeError("file '%s' does not appear to be a gpg key" % key)
-    shlib.execute('/usr/bin/gpg --homedir %s --import %s' % (homedir, key))
+    shlib.execute('/usr/bin/gpg --batch --homedir %s --import %s' % 
+                 (homedir, key))
 
   def get_gpgname(self, homedir, index=0):
     gpg_keys = self.get_gpgkeys(homedir)

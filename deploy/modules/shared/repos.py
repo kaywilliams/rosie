@@ -549,10 +549,10 @@ class GPGKeysEventMixin:
     file = homedir / 'tmp.gpg'
     file.write_text(text)
 
-    shlib.execute('/usr/bin/gpg --homedir %s --keyring pubring.gpg --import %s'
-                  % (homedir, file))
+    shlib.execute('/usr/bin/gpg --batch --homedir %s --keyring pubring.gpg ' 
+                  '--import %s' % (homedir, file))
 
-    uid = shlib.execute('/usr/bin/gpg --list-keys --homedir %s |'
+    uid = shlib.execute('/usr/bin/gpg --batch --list-keys --homedir %s | '
                         '/bin/grep uid | sed "s/uid[ ]*//"' % homedir)
 
     return uid[0]

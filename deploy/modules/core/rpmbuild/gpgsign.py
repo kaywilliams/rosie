@@ -132,7 +132,7 @@ class GpgSignSetupEvent(Event):
 
     name = "%s signing key" % self.build_id
 
-    cmd = """gpg --quiet --batch --gen-key <<EOF
+    cmd = """/usr/bin/gpg --quiet --batch --gen-key <<EOF
      Key-Type: DSA
      Key-Length: 1024
      Subkey-Type: ELG-E
@@ -156,9 +156,9 @@ EOF""" % (name, pubring, secring)
     finally:
       if rngd.exists(): os.kill(p.pid, signal.SIGTERM)
 
-    shlib.execute('/usr/bin/gpg --export -a --homedir %s "%s" > %s' % (homedir, name,
-                   self.pubkey))
-    shlib.execute('/usr/bin/gpg --export-secret-key -a --homedir %s "%s" > %s'
+    shlib.execute('/usr/bin/gpg --batch --export -a --homedir %s "%s" > %s' % 
+                 (homedir, name, self.pubkey))
+    shlib.execute('/usr/bin/gpg --batch --export-secret-key -a --homedir %s "%s" > %s'
                   % (homedir, name, self.seckey))
 
     self.pubtext = self.pubkey.read_text()
