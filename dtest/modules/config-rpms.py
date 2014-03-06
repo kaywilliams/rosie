@@ -19,7 +19,6 @@ import unittest
 
 from deploy.errors  import DeployError
 from deploy.util    import pps
-from deploy.util    import repo
 from deploy.util    import rxml
 
 from dtest          import (BUILD_ROOT, TestBuild, EventTestCase, 

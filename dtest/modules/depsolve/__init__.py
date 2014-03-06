@@ -18,7 +18,6 @@
 import unittest
 
 from deploy.util import pps
-from deploy.util import repo
 from deploy.util import rxml
 
 from deploy.constants import KERNELS

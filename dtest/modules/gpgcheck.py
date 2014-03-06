@@ -20,7 +20,6 @@ import unittest
 from deploy.errors import DeployError
 
 from deploy.util import pps
-from deploy.util import repo
 from deploy.util import rxml
 
 from dtest      import EventTestCase, ModuleTestSuite, _run_make
@@ -58,17 +57,17 @@ class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
 
 class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
   "fails if key not provided"
-  _type = 'system' # include packages from base and updates repo
+  _type = 'system' # include packages from base repo
   _conf = """<packages>
     <package>kernel</package>
   </packages>"""
 
   def setUp(self):
     EventTestCase.setUp(self)
-    base = self.tb.definition.getxpath("./repos/repo[@id='base']")
-    for item in base.xpath('./gpgkey'):
-      base.remove(item)
-    self.clean_event_md()
+
+    # remove existing keys
+    for gpgkey in  self.tb.definition.xpath("./repos/repo/gpgkey"):
+      gpgkey.getparent().remove(gpgkey)
 
   def runTest(self):
     self.execute_predecessors(self.event)
@@ -77,29 +76,25 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
 
 class Test_FailsOnBadKeyUrl(GpgcheckEventTestCase):
   "fails on bad key url"
-  _type = 'system' # include packages from base and updates repo
+  _type = 'system' # include packages from base repo
   _conf = """<packages>
     <package>kernel</package>
   </packages>"""
 
-  def _make_repos_config(self):
-    repos = rxml.config.Element('repos')
-    base = repo.getDefaultRepoById('base', os=self.os,
-           version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://repomaster.deployproject.org/mirrors/%s' % self.os)
-    # set gpgkeys to none
-    base.update({'mirrorlist': None, 'gpgkey': 'bad', 'gpgcheck': None,
-                 'name': None,})
-    repos.append(base.toxml())
-    return repos
-
   def setUp(self):
     EventTestCase.setUp(self)
+
+    # remove existing keys
+    for gpgkey in  self.tb.definition.xpath("./repos/repo/gpgkey"):
+      gpgkey.getparent().remove(gpgkey)
+
+    # add bad key
+    repo = self.tb.definition.getxpath("./repos/repo[@id='base']")
+    rxml.config.Element('gpgkey', text='bad', parent=repo)
 
   def runTest(self):
     unittest.TestCase.failUnlessRaises(self, DeployError, 
                                        self.execute_predecessors, self.event)
-    #self.failUnlessRaises(DeployError, self.event)
 
 def make_suite(os, version, arch, *args, **kwargs):
   _run_make(pps.path(__file__).dirname/'shared')

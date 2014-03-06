@@ -159,7 +159,7 @@ class EventTestCase(unittest.TestCase):
 <macro id='version'>%s</macro>
 <macro id='arch'>%s</macro>
 <xi:include href='%s'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+            xpointer="xpointer(./repo[@id='base'])"/>
 </repos>
 """ % (self.os, self.version, self.arch, 
        pps.path('%{templates-dir}/%{norm-os}/common/repos.xml')))

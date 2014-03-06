@@ -19,7 +19,6 @@ import pykickstart
 import unittest
 from deploy.errors import DeployError
 from deploy.util   import pps
-from deploy.util   import repo
 from deploy.util   import rxml
 
 from deploy.util.pps.constants import TYPE_NOT_DIR
@@ -75,8 +74,6 @@ class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmEventTestCase):
 
 class Test_OutputsGpgkeys(ReleaseRpmEventTestCase):
   "creates output when gpgcheck enabled"
-  def _make_repos_config(self):
-    return ReleaseRpmEventTestCase._make_repos_config(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
@@ -95,9 +92,6 @@ class Test_RemovesGpgkeys(ReleaseRpmEventTestCase):
     <updates gpgcheck='false'/>
   </release-rpm></publish>"""
 
-  def _make_repos_config(self):
-    return ReleaseRpmEventTestCase._make_repos_config(self)
-
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless(not (self.event.OUTPUT_DIR/'gpgkeys').
@@ -108,9 +102,6 @@ class Test_RemovesSyncPlugin(ReleaseRpmEventTestCase):
   _conf = """<publish><release-rpm>
     <updates sync='false'/>
   </release-rpm></publish>"""
-
-  def _make_repos_config(self):
-    return ReleaseRpmEventTestCase._make_repos_config(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
