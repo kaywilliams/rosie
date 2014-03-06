@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='install' type='install'>
 <macro id='ram'>1024</macro>
+<macro id='graphics'>vnc</macro>
 <macro id='file-size'>8</macro>
 <macro id='image-format'>raw</macro>
 #!/bin/bash
 set -e
-
-# installs virtual machines from within either normal or cron user environments
-# cron environment requires use of the graphics parameter to virt-install, as
-# well as the while loop to wait for installation to complete
 
 %{source-guestname}
 
@@ -17,14 +14,12 @@ virt-install \
   --name $guestname \
   --arch %{arch} \
   --ram %{ram} \
+  --graphics %{graphics} \
   --disk path=/var/lib/libvirt/images/$guestname.img,size=%{file-size},format=%{image-format} \
   --network network=deploy \
   --location %{os-url} \
   --extra-args "%{boot-options} ks=%{url}/ks.cfg" \
+  --force \
+  --wait=-1 \
   --noreboot
-
-# wait for install to complete and machine to shutdown
-while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
-  sleep 2 
-done
 </script>

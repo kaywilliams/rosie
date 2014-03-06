@@ -136,15 +136,13 @@ virt-install \
              --name $guestname \
              --arch %%{arch} \
              --ram 1024 \
+             --graphics vnc \
              --network network=deploy \
              --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
              --cdrom $file \
+             --force \
+             --wait=-1 \
              --noreboot
-
-# wait for install to complete and machine to shutdown
-while [[ `/usr/bin/virsh domstate $guestname` = "running" ]]; do
-  sleep 2
-done
     """ % {'location': '%%{os-url}/%s' % location}
 
     root.resolve_macros(map=self.macros)
