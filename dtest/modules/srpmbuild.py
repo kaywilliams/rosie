@@ -31,7 +31,8 @@ from dtest.core   import make_core_suite
 from dtest.mixins.rpmbuild import PUBKEY, SECKEY
 from dtest.mixins.ddeploy  import prepare_deploy_elem_to_remove_vm
 
-REPODIR  = pps.path(__file__).dirname/'shared' 
+REPODIR  = pps.path(__file__).dirname/'shared'
+BUILD_MACHINE_NAME = 'dtest-srpmbuild-machine'
 
 class TestSrpmTestCase(EventTestCase):
   """
@@ -54,6 +55,32 @@ class TestSrpmTestCase(EventTestCase):
 
   def __init__(self, os, version, arch, conf=None):
     EventTestCase.__init__(self, os, version, arch, conf=conf)
+
+  def setUp(self):
+    # create custom srpmbuild.xml template with dtest in name
+    # do this inside the test case since we need the templates-dir macro
+
+    EventTestCase.setUp(self) # do this ahead of pps.path with %{templates-dir}
+
+    template_file = self.buildroot / 'srpmbuild.xml'
+
+    # don't create the template file if it exists, else the timestamp
+    # change causes the event to run when it shouldn't
+    if not template_file.exists():
+      pps.path('%%{templates-dir}/%s/common/srpmbuild.xml' % self.norm_os).cp(
+               template_file.dirname)
+      root = rxml.config.parse(template_file, xinclude=True, macros={
+                               '%{name}': BUILD_MACHINE_NAME,
+                               '%{os}': self.os,
+                               '%{version}': self.version,
+                               '%{arch}': self.arch,
+                               '%{norm-os}': self.norm_os,
+                               }).getroot()
+      root.write(template_file)
+
+    # update config to use custom srpmbuild template
+    srpm = self.tb.definition.getxpath('./srpmbuild/srpm')
+    rxml.config.Element('template', parent=srpm, text=template_file)
 
 class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
   "raises an error if multiple srpms provide the same id"
@@ -271,9 +298,11 @@ class Test_Shutdown(TestSrpmTestCase):
 
     # create custom srpmbuild.xml template with remove in post script
     template_file = self.buildroot / 'srpmbuild.xml'
+    template_file.rm(force=True) 
     pps.path('%%{templates-dir}/%s/common/srpmbuild.xml' % self.norm_os).cp(
              template_file.dirname)
     root = rxml.config.parse(template_file, xinclude=True, macros={
+                             '%{name}': BUILD_MACHINE_NAME,
                              '%{os}': self.os,
                              '%{version}': self.version,
                              '%{arch}': self.arch,
@@ -292,8 +321,8 @@ class Test_Shutdown(TestSrpmTestCase):
     except DeployError:
       pass
 
-    self.failIf(subprocess.call('virsh dominfo srpmbuild-%s-%s-%s &> /dev/null'
-                                % (self.os, self.version, 
+    self.failIf(subprocess.call('virsh dominfo %s-%s-%s-%s &> /dev/null'
+                                % (BUILD_MACHINE_NAME, self.os, self.version, 
                                    self.arch.replace('_', '-')),
                                 shell=True) == 0)
 
