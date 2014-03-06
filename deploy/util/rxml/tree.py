@@ -621,7 +621,9 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                                unresolved_strings, remaining_strings, elem):
     if currstring == newstring: # fail
       if unresolved_strings == remaining_strings:
-        raise errors.MacroError(self.getroot().base, '', elem) 
+        msg = "The unresolved macro is '%s'." % macro
+        raise errors.MacroError(self.getroot().base, msg, elem, 
+                                tail=currstring.is_tail) 
       unresolved_strings.add(currstring)
       return False
     else: # success
@@ -849,11 +851,8 @@ def resolve_search_path_macro(placeholder, string):
 
   Returns a copy of the string with the placeholder resolved.
   """
-  for substring in string.split():
-    if placeholder in substring:
-      replaced = pps.path(substring, 
-                          search_path_ignore=[string.getparent().base])
-      string = string.replace(substring, replaced)
-      break
+  substring = string.replace(string.split(placeholder)[0], '').split()[0]
+  replaced = pps.path(substring, search_path_ignore=[string.getparent().base])
+  string = string.replace(substring, replaced)
 
   return string
