@@ -75,48 +75,18 @@ class ExecuteEventMixin:
     self._remote_execute(cmd, cmd_id=cmd_id, hostname=params['hostname'], 
                          log_format=log_format, **kwargs)
 
-  def _remote_execute(self, cmd, cmd_id=None, hostname=None, 
-                      retries=24, sleep=5, log_format='L2', **kwargs):
+  def _remote_execute(self, cmd, cmd_id=None, hostname=None, log_format='L2',
+                      **kwargs):
     """                   
-    Wrapper for _local_execute that retries ssh commands for a timeout period
-    in case the system is starting.
-
-    * retries -  specifies the number of time to retry the connection
-    * sleep - specifies the time in seconds to sleep between each retry
-    
-    The defaults are 24 and 5, respectively, for a total wait period of 2
-    minutes. These values correspond to the values for ssh options 
-    ConnectionAttempts and ConnectTimeouts, see the get_ssh_options function.
+    Wrapper for _local_execute that provides the hostname in log and error
+    messages
     """
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
 
-    for i in range(retries): # retry connect
-      try:
-        self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
-        break
-      except ScriptFailedError, e:
-        if ('ssh:' in e.errtxt and (
-            'Name or service not known' in e.errtxt or
-            'No route to host' in e.errtxt or 
-            'Connection refused' in e.errtxt or
-            'Connection timed out' in e.errtxt)):
-          if i == 0:
-            max = Decimal(retries) * sleep / 60
-            message = ("Unable to connect to %s. System may be starting. "
-                       "Will retry for %s minutes." % (hostname, max))
-            self.logger.log(2, L2(message))
-
-          # log just the last segment of the ssh error output
-          message = e.errtxt.split(': ')[-1].strip() 
-          self.logger.log(2, L2("%s. Retrying..." % message))
-
-          time.sleep(sleep)
-        else:
-          raise SSHScriptFailedError(id=cmd_id, hostname=hostname,
-                                     errtxt=e.errtxt)
-    else:                                 
-      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, 
-            errtxt="Unable to connect to remote host within timeout period")
+    try:
+      self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
+    except ScriptFailedError, e:
+      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, errtxt=e.errtxt)
 
   def _local_execute(self, cmd, cmd_id=None, verbose=False, **kwargs):
     # using shell=True which gives better error messages for scripts lacking
@@ -167,11 +137,21 @@ class ExecuteEventMixin:
       raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
-    return ' '.join(["-o", "StrictHostKeyChecking=no",
+    """
+    ConnectionTimeout - set this to a high value (2 minutes) to prevent
+         'Name or service not known' and 'No route to host' errors while
+         system is booting.
+    ConnectionAttempts - set this to a high value (2 minutes) also to prevent
+         'Connection refused' errors after the system has booted but before
+         the ssh daemon is up.
+    """
+    return ' '.join(["-o", "BatchMode=yes",
+                     "-o", "StrictHostKeyChecking=no",
                      "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
-                     "-o", "PasswordAuthentication=no",
                      "-o", "Port=%s" % port,
+                     "-o", "ConnectTimeout=120", 
+                     "-o", "ConnectionAttempts=120",
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
                      "-o", "TCPKeepAlive=no",
