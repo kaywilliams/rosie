@@ -21,4 +21,10 @@ reboot
 %packages --nobase
 @core
 %end
+
+%pre
+# ensure dns entries are set correctly during during install
+# rhel6 did this automatically, but rhel7 does not
+dhclient -H %{hostname}
+%end
 </kickstart>

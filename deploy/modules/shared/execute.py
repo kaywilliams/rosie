@@ -78,62 +78,15 @@ class ExecuteEventMixin:
   def _remote_execute(self, cmd, cmd_id=None, hostname=None, log_format='L2',
                       **kwargs):
     """                   
-    Wrapper for _local_execute that retries ssh commands for a timeout period
-    of two minutes in case the system is starting.
-
-    Requires the following ssh options, which are set in the _ssh_get_options
-    method:
-
-    LogLevel=INFO        # ensures we get ssh error text
-    ConnectionAttempts=1 # prevents ssh from reattempting connections
-    ConnectTimeouts=0    # prevents ssh from retrying connection when the
-                         # remote host is down
-
-    These effectively disable native ssh connection timeout/retry handling so
-    that we can do it reliably ourselves. Our implementation has one important
-    benefit over the native implementation: 
-    
-    The native implementation resolves the hostname once (potentially using
-    an old DNS record) and uses the same ipaddress for all retries.
-    
-    Our implementation resolves the hostname at each retry, accounting
-    for the situation where a DNS record exists before a system starts, but it
-    is replace by a new record as the system starts (potentially with a new
-    MAC address in the case of a new virtual machine) and dhcp processing
-    occurs.
+    Wrapper for _local_execute that provides the hostname in log and error
+    messages
     """
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
 
-    retries = 24
-    sleep = 5
-
-    for i in range(retries): # retry connect
-      try:
-        self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
-        break
-      except ScriptFailedError, e:
-        if ('ssh:' in e.errtxt and (
-            'Name or service not known' in e.errtxt or
-            'No route to host' in e.errtxt or
-            'Connection refused' in e.errtxt or
-            'Connection timed out' in e.errtxt)):
-          if i == 0:
-            max = Decimal(retries) * sleep / 60
-            message = ("Unable to connect to %s. System may be starting. "
-                       "Will retry for %s minutes." % (hostname, max))
-            self.logger.log(2, L2(message))
-
-          # log just the last segment of the ssh error output
-          message = e.errtxt.split(': ')[-1].strip()
-          self.logger.log(2, L2("%s. Retrying..." % message))
-
-          time.sleep(sleep)
-        else:
-          raise SSHScriptFailedError(id=cmd_id, hostname=hostname,
-                                     errtxt=e.errtxt)
-    else:                                 
-      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, 
-            errtxt="Unable to connect to remote host within timeout period")
+    try:
+      self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
+    except ScriptFailedError, e:
+      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, errtxt=e.errtxt)
 
   def _local_execute(self, cmd, cmd_id=None, verbose=False, **kwargs):
     # using shell=True which gives better error messages for scripts lacking
@@ -184,15 +137,21 @@ class ExecuteEventMixin:
       raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
-    # see comments in the _remote_execute method before making changes below
+    """
+    ConnectionTimeout - set this to a high value (2 minutes) to prevent
+         'Name or service not known' and 'No route to host' errors while
+         system is booting.
+    ConnectionAttempts - set this to a high value (2 minutes) also to prevent
+         'Connection refused' errors after the system has booted but before
+         the ssh daemon is up.
+    """
     return ' '.join(["-o", "BatchMode=yes",
                      "-o", "StrictHostKeyChecking=no",
                      "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
                      "-o", "Port=%s" % port,
-                     "-o", "LogLevel=INFO",
-                     "-o", "ConnectTimeout=0",
-                     "-o", "ConnectionAttempts=1",
+                     "-o", "ConnectTimeout=120", 
+                     "-o", "ConnectionAttempts=120",
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
                      "-o", "TCPKeepAlive=no",
