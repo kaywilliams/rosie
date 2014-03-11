@@ -10,11 +10,11 @@
   and by systems administrators, who manage applications and configuration
   across multiple clients within an organization. Package repositories are
   useful for deploying software and configuration that is applicable across
-  diverse clients, and that does not change from client to client.
+  multiple clients, and that does not change from client to client.
   </para>
 
   <para>
-  In this chapter we will discuss defining, testing and deploying package
+  In this chapter we will discuss defining, creating and using package
   repositories.
   </para>
 
@@ -25,9 +25,6 @@
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="ch7-sec3.xml" xpointer="element(/1)"
-                xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <xi:include href="ch7-sec4.xml" xpointer="element(/1)"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
 
 </chapter>

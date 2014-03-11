@@ -20,8 +20,7 @@
   In Deploy, configuration packages are defined using
   <emphasis>config-rpm</emphasis> elements. This section covers config-rpm
   parent elements, defining config-rpms and creating config-rpm templates.
-  Config-rpm testing is covered in <xref linkend='testing-system-repos'/> and
-  <xref linkend='testing-package-repos'/>.
+  Config-rpm testing is covered in <xref linkend='testing-system-repos'/>.
   </para>
   
   <section>
