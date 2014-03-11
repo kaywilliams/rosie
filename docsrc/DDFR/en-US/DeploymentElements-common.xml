@@ -109,8 +109,20 @@
     </entry>
 
     <entry>
-    A hostname or IP Address for the build host machine. Described under the
+    Hostname or IP Address for the build host. Described under the
     <xref linkend='build-host'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry id='build-host-pubkey-macro'>
+    %{build-host-pubkey}
+    </entry>
+
+    <entry>
+    TEXT of the ssh public key for the build host. Used for configuring
+    the client machine to accept ssh connections from the build host. See the
+    <xref linkend='kickstart'/> element for an example.
     </entry>
     </row>
 
@@ -120,7 +132,7 @@
     </entry>
 
     <entry>
-    A hostname or IP Address for the deployment host machine. Described under
+    Hostname or IP Address for the deployment host machine. Described under
     the <xref linkend='deploy-host'/> element.
     </entry>
     </row>
@@ -131,7 +143,7 @@
     </entry>
 
     <entry>
-    A full URL to the repository on the repository download server. Described
+    URL to the repository on the repository download server. Described
     under the <xref linkend='remote-url'/> element.
     </entry>
     </row>
@@ -152,7 +164,7 @@
     </entry>
 
     <entry>
-    The host name for a client machine. Takes its value from the <xref
+    Host name for a client machine. Takes its value from the <xref
     linkend='hostname'/> element.
     </entry>
     </row>
@@ -163,7 +175,7 @@
     </entry>
 
     <entry>
-    The domain name for a client machine. Taken from the <xref
+    Domain name for a client machine. Taken from the <xref
     linkend='domain'/> element. Resolves to an empty string if no domain
     is provided.
     </entry>
@@ -176,7 +188,7 @@
 
     <entry>
     <para>
-    The Fully Qualified Domain Name (FQDN) for a client machine. Determined by
+    Fully Qualified Domain Name (FQDN) for a client machine. Determined by
     concatenating the values of the <xref linkend='hostname'/> and <xref
     linkend='domain'/> macros.
     </para>
@@ -198,7 +210,7 @@
     </entry>
 
     <entry>
-    A password for the root user of a client machine, described under the
+    Password for the root user of a client machine, described under the
     <xref linkend='password'/> element.
     </entry>
     </row>
@@ -209,8 +221,8 @@
     </entry>
 
     <entry>
-    A Deploy-generated encrypted version of the %{password} macro. See
-    the <xref linkend='password'/> element for additional information.
+    Encrypted version of the %{password} macro. See the <xref
+    linkend='password'/> element for additional information.
     </entry>
     </row>
 
@@ -231,8 +243,8 @@
     </entry>
 
     <entry>
-    A space separated list of names for packages created during the build
-    process using <xref linkend='config-rpm'/> or <xref linkend='srpmbuild'/>
+    Space separated list of names for packages created during the build
+    process using <xref linkend='config-rpm'/> or <xref linkend='srpm'/>
     elements.  Typically used for performing package testing. See the
     <filename>test-remove-custom-pkgs.xml</filename> template for an example.
     </entry>
@@ -283,7 +295,7 @@
     <row>
     <entry>%{custom_pkgs_csum}</entry>
     <entry>MD5 hash of release numbers for all custom rpms including <xref
-    linkend='config-rpms'/> and <xref linkend='srpmbuild'/> rpms.
+    linkend='config-rpm'/> and <xref linkend='srpm'/> packages.
     </entry>
     </row>
 
@@ -845,9 +857,8 @@ $remote-url/%{id}</programlisting>
   
     <listitem>
     <para>
-    Specifies the TEXT of a kickstart file. Ignored
-    if the <xref linkend="main-type"/> element is set to
-    <constant>package</constant>.
+    TEXT of a kickstart file. Ignored if the <xref linkend="main-type"/>
+    element is set to <constant>package</constant>.
     </para>
     
     <para>
@@ -879,19 +890,6 @@ $remote-url/%{id}</programlisting>
     section as follows:
     </para>
 
-    <para>
-    CentOS and RHEL version 5
-    </para>
-    <informalexample>
-    <programlisting>
-%packages --nobase
-@core
-    </programlisting>
-    </informalexample>
-
-    <para>
-    CentOS and RHEL version 6
-    </para>
     <informalexample>
     <programlisting>
 %packages --nobase
@@ -907,49 +905,29 @@ $remote-url/%{id}</programlisting>
     that is applied <emphasis>only</emphasis> during client installation.
     Instead, use config-rpms to apply client configuration. This ensures
     uniform results whether the client is installed from scratch, or merely
-    updated.  See the <filename>httpd-config.xml</filename> <link
+    updated. See the <filename>httpd-config.xml</filename> <link
     linkend='templates'>template</link> for an example of firewall
     configuration using a config-rpm.
     </para>
-
-    <para>
-    <emphasis role='bold'><emphasis>%end</emphasis> delimiters - </emphasis>
-    For CentOS and RHEL version 6, an "%end" delimiter is required after
-    <emphasis>%packages</emphasis> and <emphasis>%post</emphasis> sections. In
-    version 5, however, the <emphasis>%end</emphasis> delimiter is not
-    supported and will cause an error.  To create kickstart elements that are
-    compatible with either version, you can use macros as shown in the example
-    below: 
-    </para>
-
-    <informalexample>
-    <programlisting>
-%packages --nobase
-@core
-%{end-%{version}}
-&lt;macro id='end-5'>&lt;/macro>
-&lt;macro id='end-6'>%end&lt;/macro>
-    </programlisting>
-    </informalexample>
  
     <para>
-    Kickstart is an optional element. If not provided, users will be propted
+    Kickstart is an optional element. If not provided, users will be prompted
     for information at the time of client installation.
     </para>
 
     <para>
-    <emphasis role='bold'>Example</emphasis> - The following example shows a
+    <emphasis role='bold'>Example 1</emphasis> - The following example shows a
     file named ks.xml which is included in the <link
     linkend='templates'>templates</link> folder. The template provides a
-    kickstart file with all the information required to fully automate a client
-    machine installation. It uses <varname>%{fqdn}</varname> and
+    kickstart file with information required to fully automate client
+    installation. It uses <varname>%{fqdn}</varname> and
     <varname>%{crypt-password}</varname> <link
     linkend='deployment-macros'>module macros</link>.
     </para>
 
     <informalexample>
     <programlisting>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/common/ks.xml' parse='text'/></programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el7/common/ks.xml' parse='text'/></programlisting>
     </informalexample>
 
     <para>
@@ -957,10 +935,38 @@ $remote-url/%{id}</programlisting>
     </para>
     <informalexample>
     <programlisting>
-&lt;xi:include href="%{templates-dir}/common/ks.xml"/&gt;
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ks.xml"/&gt;
     </programlisting>
     </informalexample>
 
+    <para>
+    <emphasis role='bold'>Example 2</emphasis> - This example shows a file
+    named ks-post-ssh.xml which is included in the <link
+    linkend='templates'>templates</link> folder. The template uses a
+    kickstart post script to configure the client to accept ssh connections
+    from the build host. It uses the <varname>%{build-host-pubkey}</varname>
+    macro described under 
+    <link linkend='deployment-macros'>module macros</link>.
+    </para>
+
+    <informalexample>
+    <programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el7/libvirt/ks-post-ssh.xml' parse='text'/></programlisting>
+    </informalexample>
+
+    <para>
+    The template can be included in a kickstart element as follows:
+    </para>
+    <informalexample>
+    <programlisting>
+&lt;kickstart>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ks.xml"
+               xpointer="xpointer(./node())"/>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml"/>
+               xpointer="xpointer(./node())"/>
+&lt;/kickstart>
+    </programlisting>
+    </informalexample>
     </listitem>
     </varlistentry>
 
@@ -1002,7 +1008,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-<xi:include href='../../../../../share/deploy/templates/common/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href='../../../../../share/deploy/templates/el7/common/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   
     <para>
@@ -1013,7 +1019,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-&lt;xi:include href="%{templates-dir}/common/ssh-config.xml"/&gt;</programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ssh-config.xml"/&gt;</programlisting>
     </informalexample>
 
     </listitem>
@@ -1383,7 +1389,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/libvirt/create-guestname.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el7/libvirt/create-guestname.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1392,7 +1398,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/libvirt/create-guestname.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1428,7 +1434,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/libvirt/activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el7/libvirt/activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1437,7 +1443,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/libvirt/activate.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/activate.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1482,7 +1488,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/common/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el7/common/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1491,7 +1497,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/common/test-triggers.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/test-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1527,7 +1533,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/libvirt/delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
@@ -1537,7 +1543,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/libvirt/delete.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1569,7 +1575,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/common/create-ssh-keys.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el7/common/create-ssh-keys.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1578,7 +1584,7 @@ $remote-url/%{id}</programlisting>
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/common/create-ssh-keys.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1623,7 +1629,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/libvirt/install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/libvirt/install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/publish&gt;</programlisting>
       </informalexample>
 
@@ -1633,7 +1639,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting>&lt;xi:include href="%{templates-dir}/libvirt/install.xml"/></programlisting>
+      <programlisting>&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1678,7 +1684,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
@@ -1688,7 +1694,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/common/verify-install.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/verify-install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1715,7 +1721,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
+<xi:include href='../../../../../share/deploy/templates/el7/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
       </informalexample>
 
       <para>
@@ -1724,7 +1730,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting>&lt;xi:include href="%{templates-dir}/common/save-triggers.xml"/></programlisting>
+      <programlisting>&lt;xi:include href="%{templates-dir}/%{norm-os}/common/save-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1768,7 +1774,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/common/update.xml'
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/common/update.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
@@ -1779,7 +1785,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/common/update.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update.xml"/></programlisting>
       </informalexample>
       </listitem>
       </varlistentry>
@@ -1832,7 +1838,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/common/poweroff.xml'
+<xi:include href='../../../../../share/deploy/templates/el7/common/poweroff.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
@@ -1843,7 +1849,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/common/poweroff.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/poweroff.xml"/></programlisting>
       </informalexample>
       </listitem>
       </varlistentry>

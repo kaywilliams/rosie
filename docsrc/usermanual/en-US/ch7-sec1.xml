@@ -216,9 +216,9 @@ templates/
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/deploy/templates/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/scenario2-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/scenario3-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario3-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>

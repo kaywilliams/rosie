@@ -3,7 +3,7 @@
 if [[ $1 = "--copy-templates" ]]; then
   TMPLDIR=/var/www/html/templates
   rm -rf $TMPLDIR
-  cp -aL ../../share/deploy/templates $TMPLDIR
+  cp -aL ../../share/deploy/templates/el7 $TMPLDIR
   chown -R apache:apache $TMPLDIR
   restorecon -R $TMPLDIR
 fi

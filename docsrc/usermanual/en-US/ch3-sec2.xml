@@ -41,7 +41,7 @@
 
     <para><informalexample>
       <programlisting>
-<xi:include href="../../../../../share/deploy/templates/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el7/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample></para>
 
     <para>
@@ -426,7 +426,7 @@
     </para>
 
     <informalexample>
-    <programlisting><xi:include href="../../../../../share/deploy/templates/common/repos.xml" parse="text"
+    <programlisting><xi:include href="../../../../../share/deploy/templates/el7/common/repos.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
     </informalexample>
 

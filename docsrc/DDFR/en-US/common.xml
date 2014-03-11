@@ -22,7 +22,7 @@
 
   <para>
   Users can customize individual files by copying to a new templates folder
-  that follows the heirarchy of the original. To make Deploy aware of the new
+  that follows the hierarchy of the original. To make Deploy aware of the new
   folder, add it as a <emphasis role='strong'>templates-path</emphasis> in the
   Deploy Configuration File (<filename>/etc/deploy/deploy.conf</filename>).
   Deploy searches template folders in the order specified. See the deploy.conf

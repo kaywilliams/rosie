@@ -300,24 +300,13 @@ print uuid.uuid1()
     <title>Global Run-Time Macros</title>
     <para>
     Global run-time macros are defined by Deploy during the build process and
-    applied across all Deploy modules. Deploy provides three global run-time
-    macros: <emphasis>%{definition-dir}</emphasis>, <emphasis>
-    %{templates-dir}</emphasis> and %{data-dir}.
+    applied across all Deploy modules. Deploy provides four global run-time
+    macros: <emphasis>%{templates-dir}</emphasis>,
+    <emphasis>%{norm-os}</emphasis>, <emphasis>%{definition-dir}</emphasis> and
+    <emphasis>%{data-dir}</emphasis>.
     </para>
 
     <variablelist>
-    <varlistentry id="definition-dir">
-    <term>
-    %{definition-dir}
-    </term>
-    <listitem>
-    <para>
-    The folder location of the definition file. Useful for specifying files and
-    folders relative to the definition file.
-    </para>
-    </listitem>
-    </varlistentry>
-
     <varlistentry>
     <term>
     %{templates-dir}
@@ -333,8 +322,68 @@ print uuid.uuid1()
     </para>
     
     <para>
-    Useful for specifying paths relative to a heirarchical list 
+    Useful for specifying paths relative to a hierarchical list 
     of folders.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry>
+    <term>
+    %{norm-os}
+    </term>
+    <listitem>
+    <para>
+    Normalized name and version of the OS as shown in the following table:
+    </para>
+
+    <informaltable>
+    <tgroup cols='3'>
+    <tbody valign='top'>
+    <row>
+    <entry><emphasis role='strong'>OS Name</emphasis></entry>
+    <entry><emphasis role='strong'>OS Version</emphasis></entry>
+    <entry><emphasis role='strong'>%{norm-os}</emphasis></entry>
+    </row>
+    <row>
+    <entry>centos</entry>
+    <entry>6</entry>
+    <entry>el6</entry>
+    </row>
+    <row>
+    <entry>rhel</entry>
+    <entry>6</entry>
+    <entry>el6</entry>
+    </row>
+    <row>
+    <entry>centos</entry>
+    <entry>7</entry>
+    <entry>el7</entry>
+    </row>
+    <row>
+    <entry>rhel</entry>
+    <entry>7</entry>
+    <entry>el7</entry>
+    </row>
+    </tbody>
+    </tgroup>
+    </informaltable>
+    
+    <para>
+    Useful for organizing template files according to the underlying operating
+    system.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id="definition-dir">
+    <term>
+    %{definition-dir}
+    </term>
+    <listitem>
+    <para>
+    The folder location of the definition file. Useful for specifying files and
+    folders relative to the definition file.
     </para>
     </listitem>
     </varlistentry>
@@ -573,14 +622,14 @@ print uuid.uuid1()
       <para>
       On a system with the Deploy RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/deploy/../../share/deploy/templates/</filename>.
+      <filename>/usr/share/deploy/../../share/deploy/templates/el7/</filename>.
       </para>
       </note>
 
       <para><emphasis role="strong">repos.xml</emphasis></para>
       <informalexample>
       <programlisting>
-<xi:include href="../../../../../share/deploy/templates/common/repos.xml"
+<xi:include href="../../../../../share/deploy/templates/el7/common/repos.xml"
             parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>

@@ -132,8 +132,8 @@
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/deploy/templates/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario2-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>
@@ -244,7 +244,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/common/test.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/el7/common/test.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
   </section>
 

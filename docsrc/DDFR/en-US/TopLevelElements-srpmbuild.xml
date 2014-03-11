@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="srpmbuild"
-        >
+<section id="srpmbuild">
   <title>
   Srpmbuild 
   </title>
@@ -36,9 +35,8 @@
     <itemizedlist>
     <listitem>
     <para>
-    Obtain the SRPM from one of the provided mechanisms:
-    <emphasis>path</emphasis>, <emphasis>repo</emphasis> or 
-    <emphasis>script</emphasis>.
+    Obtain the SRPM from a <emphasis>path</emphasis>, <emphasis>repo</emphasis>
+    or <emphasis>script</emphasis>.
     </para>
     </listitem>
 
@@ -80,6 +78,7 @@
     (&lt;path>URL&lt;/path> | 
      &lt;repo>PATH&lt;/repo> | 
      &lt;script>TEXT&lt;/script>)
+    [&lt;exclude>PACKAGE&lt;/exclude>*]
     [&lt;template>PATH&lt;/template>]
   &lt;/srpm>
   [&lt;template>TEXT&lt;/template>]
@@ -297,8 +296,8 @@ fetch.py %{srpm-id} https://www.deployproject.org/hg/public/%{srpm-id} %{srpm-di
 
       <listitem>
       <para>
-      Name of a package contained within the srpm to exclude from the build
-      process.
+      The name of a package provided by the SRPM to exclude from the
+      repository.
       </para>
 
       <para>
@@ -306,8 +305,13 @@ fetch.py %{srpm-id} https://www.deployproject.org/hg/public/%{srpm-id} %{srpm-di
       </para>
 
       <para>
+      The <emphasis role='strong'>%{exclude-rpms}</emphasis> run-time macro
+      provides a space-separated list of excluded packages.
+      </para>
+
+      <para>
       The example below shows excluding several packages, also known as 
-      subpackages, of the rhn-client-tools srpm. 
+      subpackages, of the rhn-client-tools SRPM. 
       </para>
 
       <informalexample>
@@ -361,7 +365,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       default template, shown in the examples section below. On a system with
       Deploy installed, the default template can be found in the templates
       folder at
-      <filename>/usr/share/deploy/../../share/deploy/templates/common/srpmbuild.xml</filename>.
+      <filename>/usr/share/deploy/../../share/deploy/templates/el7/common/srpmbuild.xml</filename>.
       See <xref linkend='templates'/> for additional information on templates. 
       </para>
 
@@ -531,7 +535,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/common/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el7/common/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 
@@ -541,7 +545,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     The section below shows the complete default
     <filename>srpmbuild.xml</filename> as a reference. On a system with
     Deploy installed, this file can be found at
-    <filename>/usr/share/deploy/../../share/deploy/templates/common/srpmbuild.xml</filename>.
+    <filename>/usr/share/deploy/../../share/deploy/templates/el7/common/srpmbuild.xml</filename>.
     </para>
 
     <para>
@@ -549,7 +553,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/common/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el7/common/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 

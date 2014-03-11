@@ -42,7 +42,7 @@
 
   <informalexample>
   <programlisting>
-<xi:include href="../../../../../share/deploy/templates/common/publish.xml" 
+<xi:include href="../../../../../share/deploy/templates/el7/common/publish.xml" 
             parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>

@@ -356,21 +356,6 @@ FULLNAME repository.
         <para>
         Can occur zero or more times.
         </para>
-
-        <para>
-        <emphasis role='bold'>Example</emphasis>
-        </para>
-
-        <para>
-        The following example, from
-        %{templates-dir}/deploy/deploy-remote-client-config.xml, shows using
-        prep-scripts to create files and perform operations for later use by
-        the deployed client.
-        </para>
-
-        <informalexample>
-        <programlisting><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/deploy/deploy-remote-client-config.xml' parse='text'/></programlisting>
-        </informalexample>
         </listitem>
       </varlistentry>
 
