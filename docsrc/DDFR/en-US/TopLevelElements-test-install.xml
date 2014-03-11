@@ -28,9 +28,9 @@
 
     <para>
     Because its focus is on installation testing, the test-install event
-    attempts to perform a clean client installation each time install-related
-    changes occur in the repository. The list of factors that trigger a clean
-    client installation are described under <xref linkend='triggers'/>.
+    attempts to perform a clean client installation each time changes
+    changes occur to repository content, to the kickstart file, or to 
+    installation scripts.
     </para>
 
     <para>

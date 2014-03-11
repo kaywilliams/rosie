@@ -1184,10 +1184,10 @@ $remote-url/%{id}</programlisting>
       linkend="deployment-macros">%{triggers}</link> module macro.
       </para>
 
-      <note>
       <para>
-      Deploy executes installation-related scripts
-      (<xref linkend='delete'/>, <xref linkend='install'/>, <xref
+      For <emphasis>publish</emphasis> and <emphasis>test-update</emphasis>
+      events, Deploy executes installation-related scripts (<xref
+      linkend='delete'/>, <xref linkend='install'/>, <xref
       linkend='post-install'/> and <xref linkend='save-triggers'/>) only when
       one of the following conditions is true.
       </para>
@@ -1223,32 +1223,17 @@ $remote-url/%{id}</programlisting>
       macros and save-triggers and test-triggers-type scripts, provide control
       over this behavior. 
       </para>
-      </note>
 
       <para>
-      This element is optional.
-      </para>
-     
-      <para>
-      The default value varies based on the parent element:
+      This element is optional. The default value is an empty string, "".
       </para>
 
-      <itemizedlist>
-      <listitem>
       <para>
-      For <emphasis>publish</emphasis> and <emphasis>test-update</emphasis>,
-      the default value is an empty string, "".
+      This element applies to <emphasis>publish</emphasis> and
+      <emphasis>test-update</emphasis> only. It is silently ignored for
+      <emphasis>test-install</emphasis>; see <xref linkend='test-install'/> for
+      additional information.
       </para>
-      </listitem>
-
-      <listitem>
-      <para>
-      For <emphasis>test-install</emphasis>, the default value is "
-      <constant>release_rpm config_rpms kickstart treeinfo install_scripts
-      post_install_scripts</constant>".
-      </para>
-      </listitem>
-      </itemizedlist>
 
       <para>
       <emphasis role='strong'>Attributes</emphasis>
