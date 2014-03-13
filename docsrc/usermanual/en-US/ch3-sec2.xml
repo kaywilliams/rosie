@@ -53,9 +53,12 @@
     <para>
     Likewise, the "xmlns:xi..." attribute is not required on the
     "&lt;definition>" element. It is strongly recommended, however, as it
-    allows the use of XIncludes within the document. XIncludes, a convenient
-    mechanism for reusing content across multiple definitions, are discussed in
-    the Deploy Definition File Reference (DDFR).
+    allows the use of XIncludes within the document. XIncludes are a convenient
+    mechanism for reusing content across multiple definitions, and most
+    definitions will make heavy use of them. XIncludes are discussed in more
+    detail in the <ulink
+    url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
+    Reference (DDFR)</ulink>.
     </para>   
   </section>
 
@@ -70,8 +73,8 @@
 
     <warning>
     <para>
-    Definitions contain sensitive data including system root passwords, and GPG
-    private keys. Take care to save your definitions, and related files
+    Definitions may contain sensitive data including system root passwords and
+    GPG private keys. Take care to save your definitions, and related files
     including data files and templates, in a secure location.
     </para>
     </warning>
@@ -149,8 +152,9 @@
 
     <note>
     <para>
-    Each time you change a repository's id, Deploy creates new folders in the
-    publish and cache folders (<emphasis>/var/www/html/repos</emphasis> and
+    Each time you change the id element, either directly or indirectly by
+    changing a macro value, Deploy creates new folders in the publish and cache
+    folders (<emphasis>/var/www/html/repos</emphasis> and
     <emphasis>/var/cache/deploy</emphasis>, by default). To preserve hard drive
     space, you may wish to review the publish and cache folders on occasion.
     Folders for obsolete repository ids can be deleted using standard file
@@ -165,8 +169,8 @@
   <title>Specifying a repository type</title>
 
   <para>
-  By default, Deploy creates <emphasis>system</emphasis>-type
-  repositories. To create a <emphasis>package</emphasis>-type repository, add
+  By default, Deploy creates <emphasis>system</emphasis>
+  repositories. To create a <emphasis>package</emphasis> repository, add
   the <emphasis>type</emphasis> element to the <emphasis>main</emphasis>
   section.
   </para>
@@ -232,9 +236,8 @@
     <important>
     <para>
     If you are building a <emphasis>system</emphasis> repository, you must
-    include a definition for the Operating System Base Repository.
-    This repository must contain <filename
-    class="directory">isolinux</filename> and <filename
+    define an Operating System Base Repository.  This repository must contain
+    <filename class="directory">isolinux</filename> and <filename
     class="directory">images</filename> folders. Typically, you will also want
     to include an Operating System Update Repository.
     </para>
@@ -432,7 +435,7 @@
 
     <para>
     Below is an example of including repo elements from the
-    <filename>repos.xml</filename> file within a definition.
+    <filename>repos.xml</filename> template within a definition.
     </para>
 
     <informalexample>
@@ -441,10 +444,9 @@
 &lt;definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
 ...
-
 &lt;repos>
-&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/>
-&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/>
+&lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
 &lt;/repos>
 
 &lt;/definition></programlisting>
@@ -473,63 +475,53 @@
     </para>
 
     <para>
-    The packages element is required for <emphasis>system</emphasis>-type
-    repositories and optional for <emphasis>package</emphasis>-type
+    The packages element is required for <emphasis>system</emphasis>
+    repositories and optional for <emphasis>package</emphasis>
     repositories.
     </para>
 
     <para>
-    For system repositories, at a minimum you will usually want to include the
-    <emphasis>core</emphasis> and <emphasis>base</emphasis> groups. These
-    groups contain the needed packages for file system operation, network
-    connectivity, and system maintenance (e.g. the YUM application). The
-    example below shows including core and base package groups from the base
-    repository. To include a group from any repository, eliminate the
-    <emphasis>repoid</emphasis> attribute.
+    For system repositories, at a minimum you will need the
+    <emphasis>core</emphasis> group and, depending on the OS version, a few
+    extra packages. Because the minimum set varies across OS
+    versions, Deploy provides a template, <filename>packages.xml</filename>,
+    to assist with minimum package selection.
+    </para>
+    
+    <para>
+    The example below shows including a minimum set of packages using the
+    <filename>packages.xml</filename> template.
     </para>
 
-    <para><informalexample>
-      <programlisting>
-&lt;packages&gt;
-  &lt;group repoid='base'&gt;core&lt;/group&gt;
-  &lt;group repoid='base'&gt;base&lt;/group&gt;
-&lt;/packages&gt;  </programlisting>
-    </informalexample></para>
+    <para>
+    <informalexample>
+    <programlisting>
+&lt;packages>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+              xpointer="xpointer(./packages[@id='core']/*)"/>
+&lt;/packages></programlisting>
+    </informalexample>
+    </para>
 
     <para>    
-    In addition, you may wish to include the package groups required to install
-    a Graphical User Interface (GUI). Note that the names of package
-    groups often vary across operation system versions. The example below
-    shows using Macros, XIncludes and XML elements to create a flexible
-    definition that includes appropriate groups for installing a GUI on each
-    operating system version. See the <xref linkend='ddfr'/> for more
-    information on Macros, XIncludes and XML elements.
+    In addition, you may wish to include the minimal set of packages required
+    for a Graphical User Interface (GUI). Again, the set of packages varies
+    across OS version, and again the <filename>packages.xml</filename>
+    template can assist, as shown in the example below:
     </para>
 
     <para><informalexample>
       <programlisting>
-&lt;packages&gt;
-  &lt;group repoid='base'&gt;core&lt;/group&gt;
-  &lt;group repoid='base'&gt;base&lt;/group&gt;
-  &lt;xi:include xpointer="xpointer(//xml[@id='packages%{version}]/*)"/>
-&lt;/packages&gt;
-
-&lt;xml id="packages5">
-  &lt;group&gt;base-x&lt;/group&gt;
-  &lt;group&gt;gnome-desktop&lt;/group&gt;
-&lt;xml>
-
-&lt;xml id="packages6">
-  &lt;group&gt;X11&lt;/group&gt;
-  &lt;group&gt;desktop-platform&lt;/group&gt;
-  &lt;group&gt;basic-desktop&lt;/group&gt;
-  &lt;group&gt;general-desktop&lt;/group&gt;
-&lt;xml></programlisting>
+&lt;packages>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+              xpointer="xpointer(./packages[@id='core' or @id='gui']/*)"/>
+&lt;/packages></programlisting>
     </informalexample></para>
 
     <para>
-    You can browse groups provided by a repository, if any, by opening the
-    groups file for the repository. The groups file can be located in the
+    Many additional groups exist that may be useful based on your scenario.
+    You can browse groups provided by an input repository by opening the
+    repository's groups file. The groups file can be located in the
     repository's <filename>repodata</filename> folder, with a filename
     typically ending with <filename>comps.xml</filename>.
     </para>
@@ -545,7 +537,7 @@
     </informalexample></para>
 
     <para>
-    Often, however, for greater flexibility and definition reuse, individual
+    Often, however, for greater flexibility and content reuse, individual
     packages are specified within the context of <xref linkend='config-rpms'/>.
     Config-rpms will be discussed later in this document, in 
     <xref linkend='building-rpms'/>.

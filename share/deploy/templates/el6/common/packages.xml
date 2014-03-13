@@ -5,4 +5,12 @@
 <group repoid='base'>core</group>
 </packages>
 
+<packages id='gui'>
+<group>base</group>
+<group>X11</group>
+<group>fonts</group>
+<group>desktop-platform</group>
+<group>basic-desktop</group>
+<group>general-desktop</group>
+</packages>
 </xml>

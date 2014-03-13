@@ -32,9 +32,36 @@
   <section id="templates">
   <title>Templates</title>
 
-  <xi:include href="common.xml" 
-              xpointer="xpointer(//div[@id='templates-description']/*)"
-              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <para>
+  Deploy includes a number of templates to assist with common definition
+  creation tasks. These templates are located in the default templates folder
+  at <filename>/usr/share/deploy/templates/</filename>. Individual templates are
+  not discussed in detail here, but are referenced throughout this document.
+  </para>
+  
+  <para>
+  Users can specify additional template folders in the Deploy Configuration
+  file, <filename>/etc/deploy/deploy.conf</filename> by default, using
+  <emphasis>templates-path</emphasis> elements. See the <ulink
+  url='http://www.deployproject.org/docs/deploy.conf'>Deploy Configuration File
+  Manual Page (man deploy.conf)</ulink> for additional information. Deploy
+  searches template folders in the order specified in the configuration file.
+  </para>
+
+  <para>
+  Templates can be included within definitions using
+  <varname>%{templates-dir}</varname> and <varname>%{norm-os}</varname> macros,
+  examples are shown through this document.
+  </para>
+
+  <warning>
+  <para>
+  Do not modify files in the <filename>/usr/share/deploy/templates</filename>
+  folder. Changes to these files will be overwritten when Deploy is updated.
+  Instead, create a new template folder as described above, and copy files to
+  this location, following the original folder hierarchy. 
+  </para>
+  </warning>
 
   </section>
 
@@ -54,7 +81,7 @@
     
     <para>
     The syntax for macro placeholders is a percent sign preceding a
-    macro id enclosed in braces: <emphasis>%{ID}</emphasis>. Placeholders can
+    macro id enclosed in braces: <varname>%{id}</varname>. Placeholders can
     be used anywhere within the definition.
     </para>
 
@@ -301,9 +328,9 @@ print uuid.uuid1()
     <para>
     Global run-time macros are defined by Deploy during the build process and
     applied across all Deploy modules. Deploy provides four global run-time
-    macros: <emphasis>%{templates-dir}</emphasis>,
-    <emphasis>%{norm-os}</emphasis>, <emphasis>%{definition-dir}</emphasis> and
-    <emphasis>%{data-dir}</emphasis>.
+    macros: <varname>%{templates-dir}</varname>,
+    <varname>%{norm-os}</varname>, <varname>%{definition-dir}</varname> and
+    <varname>%{data-dir}</varname>.
     </para>
 
     <variablelist>
@@ -322,8 +349,7 @@ print uuid.uuid1()
     </para>
     
     <para>
-    Useful for specifying paths relative to a hierarchical list 
-    of folders.
+    Useful for specifying template files in a hierarchical list of folders.
     </para>
     </listitem>
     </varlistentry>
@@ -622,7 +648,7 @@ print uuid.uuid1()
       <para>
       On a system with the Deploy RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/deploy/../../share/deploy/templates/el7/</filename>.
+      <filename>/usr/share/deploy/templates/el7/</filename>.
       </para>
       </note>
 

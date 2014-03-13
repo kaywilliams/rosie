@@ -51,7 +51,7 @@
             </entry>
           </row>
           <row>
-            <entry>/usr/share/deploy/../../share/deploy/templates/el7/</entry>
+            <entry>/usr/share/deploy/templates/</entry>
 
             <entry>
             Templates for use in definition creation. See the section on <xref

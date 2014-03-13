@@ -9,4 +9,10 @@
 <package>grub2</package>
 </packages>
 
+<packages id='gui'>
+<group>base</group>
+<group>X11</group>
+<group>fonts</group>
+<group>gnome-desktop</group>
+</packages>
 </xml>

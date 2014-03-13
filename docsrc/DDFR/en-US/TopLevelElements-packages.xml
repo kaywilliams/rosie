@@ -29,10 +29,8 @@
 
       <programlisting>
 &lt;packages&gt;
-  &lt;!-- must have at least one &lt;group&gt; or &lt;package&gt; element --&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
   [&lt;package&gt;PACKAGE&lt;/package&gt;]*
-
   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
 &lt;/packages&gt;</programlisting>
   </section>
@@ -104,9 +102,7 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the repository. If the
-      <varname>TEXT</varname> value contains globbing characters, all matching
-      packages from all repositories will be included.
+      The name of a package to be included in the repository.
       </para>
 
       <para>
@@ -128,21 +124,25 @@
     </title>
 
     <para>
-    In the example below, the repository that Deploy generates will
-    include packages from several groups as well as a few individual packages.
-    Packages from the "base" and "core" groups of the "base" repository
-    will be included.  Packages from the remaining groups will be included,
-    irrespective of the repository in which they are defined. Additionally, the
-    "httpd" and "createrepo" packages, as well as all packages matching the
-    glob "samba*" will be included. Finally, the "system-config-soundcard"
-    package will be excluded from the repository.
+    In the example below, the repository that Deploy generates will include
+    packages from several groups as well as a few individual packages.  A
+    template will be used to obtain a minimal set of packages, see <xref
+    linkend='templates'/> for additional information on templates. The "base"
+    group of the "base" repository will be included.  Packages from the
+    remaining groups will be included, irrespective of the repository in which
+    they are defined.  Additionally, the "createrepo" and "httpd" packages will
+    be included.  Finally, the "system-config-soundcard" package will be
+    excluded from the repository.
     </para>
 
     <informalexample>
     <programlisting>
 &lt;packages&gt;
-  &lt;!-- include packages from these groups in the "base" repo --&gt;
-  &lt;group id="base"&gt;core&lt;/group&gt;
+  &lt;!-- include a minimal set of packages from the packages.xml template -->
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml
+              xpointer="xpointer(./packages[@id='core']/*)"/>
+
+  &lt;!-- include packages from the base group of the "base" repo --&gt;
   &lt;group id="base"&gt;base&lt;/group&gt;
 
   &lt;!-- include packages from these groups defined in any repo --&gt;
@@ -154,7 +154,6 @@
 
   &lt;!-- include these packages --&gt;
   &lt;package&gt;httpd&lt;/package&gt;
-  &lt;package&gt;samba*&lt;/package&gt;
   &lt;package&gt;createrepo&lt;/package&gt;
 
   &lt;!-- exclude system-config-soundcard from the system --&gt;

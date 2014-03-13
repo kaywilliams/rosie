@@ -1003,7 +1003,7 @@ $remote-url/%{id}</programlisting>
     <para>
     On a system with Deploy installed, this config-rpm template can be
     found as a file named <filename>ssh-config.xml</filename> in the examples
-    folder at <filename>/usr/share/deploy/templates/deploy</filename>.
+    folder at <filename>/usr/share/deploy/templates/el7/common</filename>.
     </para>
 
     <informalexample>
@@ -1354,7 +1354,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>create-guestname.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/libvirt</filename>. See
+      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1404,7 +1404,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>activate.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/libvirt</filename>. See
+      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1455,7 +1455,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/common</filename>. See <xref
+      <filename>/usr/share/deploy/templates/el7/common</filename>. See <xref
       linkend='templates'/> for more information on templates.
       </para>
      
@@ -1504,7 +1504,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>delete.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/libvirt</filename>. See <xref
+      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
@@ -1547,7 +1547,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>create-ssh-keys.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/common</filename>. See
+      <filename>/usr/share/deploy/templates/el7/common</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1591,7 +1591,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>install.xml</filename> which is included in the templates
-      folder at <filename>/usr/share/deploy/templates/libvirt</filename> See
+      folder at <filename>/usr/share/deploy/templates/el7/libvirt</filename> See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1657,7 +1657,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>verify-install.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/common</filename> See <xref
+      <filename>/usr/share/deploy/templates/el7/common</filename> See <xref
       linkend='templates'/> for more information on templates.
       </para>
       
@@ -1695,7 +1695,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis>Example</emphasis> - This example shows the
       <filename>save-triggers.xml</filename> file which is included in the
-      templates folder at <filename>/usr/share/deploy/templates/common</filename>. See
+      templates folder at <filename>/usr/share/deploy/templates/el7/common</filename>. See
       <xref linkend="templates"/> for more information on templates.
       </para>
       
@@ -1746,7 +1746,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Examples</emphasis> - This example shows a file
       named <filename>update.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/common. See <xref
+      folder at /usr/share/deploy/templates/el7/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
@@ -1812,7 +1812,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <para>
       <emphasis role='bold'>Examples</emphasis> - This example shows a file
       named <filename>poweroff.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/common. See <xref
+      folder at /usr/share/deploy/templates/el7/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
       
@@ -1889,7 +1889,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       linkend="config-rpm"/>. Deploy includes an example template to complete
       this task. On a system with Deploy installed, the file can be found as
       <filename>ssh-config.xml</filename> in the templates folder at
-      <filename>/usr/share/deploy/templates/common</filename>.
+      <filename>/usr/share/deploy/templates/el7/common</filename>.
       </para>
 
       <para>

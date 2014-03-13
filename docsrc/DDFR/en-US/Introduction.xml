@@ -56,7 +56,7 @@
     <para>
     On a system with the Deploy RPM installed, this file can be found as
     <filename>web-server.definition</filename> in the templates folder at
-    <filename>/usr/share/deploy/templates/httpd-config</filename>.
+    <filename>/usr/share/deploy/templates/el7/httpd</filename>.
     </para>
     </note>
 
