@@ -1,61 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Updating Repositories</title>
+<section id='building-repositories'>
+  <title>Building Repositories</title>
 
   <para>
-  To keep your repository current, you will need to run Deploy on a
-  regular basis. Each time Deploy runs, it checks for changes in the
-  definition or in input data - such as new packages available from
-  an input repository - and refreshes the repository as necessary.
+  Now that you have defined your repository, you use the
+  <command>deploy</command> command to build it. Running Deploy
+  validates the definition syntax, creates the repository, and logs
+  process results. The default level of screen output includes errors, build
+  status and file download and creation status. Deploy also sends this
+  output to the log file, by default
+  <filename>/var/log/deploy.log</filename>. If a critical error occurs,
+  Deploy includes detailed error information in the log file.
   </para>
 
   <para>
-  If Deploy finds updated packages, it refreshes the <xref
-  linkend="repository"/> to contain just the current set of packages.
-  Specifically, when Deploy determines that packages have changed, it
-  calculates the list of packages needed to satisfy repository requirements,
-  and then adds and removes packages as necessary to bring the repository into
-  conformance with the list. This behavior allows the <xref
-  linkend="yum-sync-plugin" /> to rely on packages in the repository as a
-  master list of packages to be installed on client machines.
+  The initial build of a repository can be time consuming, on the order of
+  several minutes to an hour or more, depending on the location of package
+  repositories (local or remote), network connection speed, the number of
+  packages included in the repository, and the amount of content that can be
+  reused from the Deploy shared cache. Subsequent builds complete in
+  much less time, often less than a minute, depending on the level and type of
+  change since the previous build.
   </para>
 
-  <para>
-  To update your repository, you use the same command as you used to initially
-  build it, for example:
-  </para>
+  <para>To build the web-server repository we have been defining, enter the
+  command below:</para> 
+
+  <para><informalexample>
+      <programlisting>#deploy web-server.definition</programlisting>
+    </informalexample></para>
+
+  <para>The output for an initial run details all the steps
+  for downloading packages, checking package dependencies and creating
+  images. If there are any errors, <application
+  class="software">Deploy</application> notes those and, in many cases,
+  halts the process.</para>
 
   <para>
-  <informalexample><programlisting># deploy web-server.definition</programlisting></informalexample>
+  When the process is complete, you can locate your new repository at
+  <filename>/var/www/html/deploy/systems/web-server-6-i386</filename>.
+  Package-type repositories will be located in the  
+  <filename>/var/www/html/deploy/packages</filename> folder.
+  </para>
+  
+  <para>
+  You will also notice that Deploy has created a new <xref
+  linkend='data-file'/>,
+  <filename>web-server-6-i386.dat</filename>, in the same location as you
+  definition. Take care not to delete this file as it contains
+  important information for your repository.
   </para>
 
+  <section>
+  <title>Using command-line macros </title>
+
   <para>
-  You can automate repository updates using <command>cron</command>. The
-  following example shows a shell script that updates the web-server
-  repository.
+  Because we were careful to make use of macros while creating the definition,
+  the same definition can be used for multiple operating system versions and
+  architectures. To provide the desired version and arch when executing Deploy, use the <constant>--macro</constant> command line option. The example
+  below shows using command line macros to specify both version and arch.
   </para>
 
   <para><informalexample>
-  <programlisting>#!/bin/sh
-DEF_DIR=/root/definitions
-PARAMS="\
-  $DEF_DIR/web-server.definition \
-  "
+      <programlisting>#deploy --macro "version:6" --macro "arch:x86_64" web-server.definition</programlisting>
+    </informalexample></para>
 
-for params in $PARAMS; do
-  deploy $params 
-done</programlisting>
-  </informalexample></para>
-
+  <note>
   <para>
-  You can extend this script to update additional repositories by adding lines
-  to the PARAMS variable.  To run the script on a nightly basis, save it to a
-  file (e.g.  <filename>nightly_build.sh</filename>), copy the file to the
-  <filename>/etc/cron.daily</filename> folder, and make it executable (e.g. by
-  using the command <command>chmod +x
-  /etc/cron.daily/nightly_build.sh</command>).
+  If your repository uses RHN channels as repositories, Deploy may
+  occasionally report errors such as the following while downloading or
+  verifying repository metadata:
+
+  <programlisting>[repos] long int too large to convert to int</programlisting> 
+
+  This can happen when Deploy receives invalid data from RHN. (Typically
+  this occurs when data is being replicated across RHN servers). The error may
+  be corrected by running Deploy again, either immediately or after
+  waiting several minutes.
   </para>
+  </note>
+  </section>
 
 </section>

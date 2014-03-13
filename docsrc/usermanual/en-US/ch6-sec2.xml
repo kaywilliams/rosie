@@ -198,7 +198,7 @@
 &lt;password>production-password&lt;password>
 
 &lt;kickstart>
-<xi:include href="../../../../../share/deploy/templates/el7/common/ks.xml"
+<xi:include href="../../../../../share/deploy/templates/el6/common/ks.xml"
             parse='text' 
             xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/kickstart>

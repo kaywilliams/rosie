@@ -1,548 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-
-<section id="creating-a-definition">
-  <title>Creating a Definition</title>
+<section id="working-with-templates">
+  <title>Working with Templates</title>
 
   <para>
-  For the purpose of this user guide, examples, processes and illustrations
-  will focus on defining, building, deploying and updating an <application
-  class="software">Apache</application> web server based on <application
-  class="software">CentOS</application> version 6. Apache is a project of
-  the <ulink url="http://www.apache.org/">Apache Software Foundation</ulink>. 
+  Before you can use Deploy, you must first create a definition describing the
+  work you want it to do. Definitions can feel somewhat daunting at first, but
+  Deploy includes a number of templates to help with the task. In fact, you 
+  will almost never create a definition from scratch. It is much easier to
+  copy an existing template and modify.
   </para>
 
   <para>
-  In this chapter, the examples assume the Apache web server will be installed
-  via the network directly from the build machine. The <xref linkend='ddfr'/>
-  provides the syntax for all parent and child elements and their attributes.
+  After you install Deploy, you can find the default templates in the
+  <filename>/usr/share/deploy/templates</filename> folder. You should not
+  modify the templates in this folder, however, as your changes may be 
+  overwritten in future updates.
   </para>
 
   <para>
-  Creating the web server repository entails several steps. After configuring
-  the <application class="software">Deploy</application> build machine, as
-  described in the previous chapter, you need to create a definition file
-  (<filename class="extension">web-server.definition</filename>).  Then you run
-  <command>deploy</command> to validate the file and build the repository.
-  </para>
-
-  <para>The next section will explain how to define the repository.</para>
-
- <section>
-    <title>Creating a definition</title>
-
-    <para>A definition is a text file in XML format. It can
-    be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;definition&gt; and 
-    &lt;/definition&gt; encapsulate all additional elements and attributes. A
-    typical system defintion looks as follows:
-    </para>
-
-    <para><informalexample>
-      <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el7/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-    </informalexample></para>
-
-    <para>
-    The first line, beginning in "&lt;?xml", identifies the file
-    as an XML file. This line is not required, but it is a good practice to
-    include it for compatibility with future XML format changes.
-    </para>
-
-    <para>
-    Likewise, the "xmlns:xi..." attribute is not required on the
-    "&lt;definition>" element. It is strongly recommended, however, as it
-    allows the use of XIncludes within the document. XIncludes are a convenient
-    mechanism for reusing content across multiple definitions, and most
-    definitions will make heavy use of them. XIncludes are discussed in more
-    detail in the <ulink
-    url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
-    Reference (DDFR)</ulink>.
-    </para>   
-  </section>
-
-  <section>
-    <title>Saving a definition</title>
-    
-    <para>
-    Definitions are commonly saved with the name of the repository
-    and the file extension "<filename>.definition</filename>", e.g.
-    <filename>web-server.definition</filename>.
-    </para>
-
-    <warning>
-    <para>
-    Definitions may contain sensitive data including system root passwords and
-    GPG private keys. Take care to save your definitions, and related files
-    including data files and templates, in a secure location.
-    </para>
-    </warning>
-  </section>
-
-  <section>
-    <title>Naming a repository</title>
-
-    <para>
-    The first required element of the definition, <emphasis>main</emphasis>,
-    includes the name of the repository, the base operating system, the
-    OS version and architecture, and a repository id. Deploy uses the
-    repository id to create folders for storing the completed repository (under
-    <filename class="directory">/var/www/html/repos</filename>, by default) and
-    for caching repository content (under <filename
-    class="directory">/var/cache/deploy</filename>, by default).
-    </para>
-
-    <para><note>
-        <para>The elements can be in any order within a definition.
-        </para>
-      </note></para>
-
-    <para>
-    In the example below, the base operating system is 'centos', the OS version
-    is '6', the OS architecture is 'x86_64', and the id is
-    'web-server-centos-6-x86_64'.
-    </para>
-
-    <para><informalexample>
-      <programlisting>&lt;main&gt;
-  &lt;fullname&gt;Example Web Server&lt;/fullname&gt;
-  &lt;name&gt;web-server&lt;/name&gt;
-  &lt;os&gt;centos&lt;/os&gt;
-  &lt;version&gt;6&lt;/version&gt;
-  &lt;arch&gt;x86_64&lt;/arch&gt;
-  &lt;id&gt;web-server-centos-6-x86_64&lt;/arch&gt;
-&lt;/main&gt;</programlisting>
-    </informalexample></para>
-
-    <para>
-    The example above shows creating a definition for a specific operating
-    system (<emphasis>centos</emphasis>), version (<emphasis>6</emphasis>) and
-    architecture (<emphasis>x86_64</emphasis>). Typically you will want to make
-    your definitions more flexible, however, so that they can encompass
-    multiple operating systems, versions and architectures, and also so that
-    you can reuse common content throughout the definition. You can do this
-    using macros.
-    </para>
-
-    <para>
-    To make use of macros, change the definition as shown below.
-    This example, like the one above, defaults to creating a repository based
-    on CentOS 6 for the x86_64 architecture.  In addition, it enables providing
-    an alternative OS, version or archicture using command-line macros. Command
-    line macros will be discussed in more detail in <xref
-    linkend='building-repositories'/>.
-    </para>
-
-    <para><informalexample>
-      <programlisting>&lt;macro id='name'>web-server&lt;macro>
-&lt;macro id='os'>centos&lt;macro>
-&lt;macro id='version'>6&lt;macro>
-&lt;macro id='arch'>x86_64&lt;macro>
-&lt;macro id='id'>%{name}-%{os}-%{version}-%{arch}&lt;macro>
-
-&lt;main&gt;
-  &lt;name&gt;web-server&lt;/name&gt;
-  &lt;os&gt;%{os}&lt;/os&gt;
-  &lt;version&gt;%{version}&lt;/version&gt;
-  &lt;arch&gt;%{arch}&lt;/arch&gt;
-  &lt;id&gt;%{id}&lt;/id&gt;
-&lt;/main&gt;</programlisting>
-    </informalexample></para>
-
-    <note>
-    <para>
-    Each time you change the id element, either directly or indirectly by
-    changing a macro value, Deploy creates new folders in the publish and cache
-    folders (<emphasis>/var/www/html/repos</emphasis> and
-    <emphasis>/var/cache/deploy</emphasis>, by default). To preserve hard drive
-    space, you may wish to review the publish and cache folders on occasion.
-    Folders for obsolete repository ids can be deleted using standard file
-    system methods, as shown below: <synopsis>rm -rf
-    <emphasis>obsolete_folder</emphasis></synopsis>
-    </para>
-    </note>
-
-  </section>
-
-  <section>
-  <title>Specifying a repository type</title>
-
-  <para>
-  By default, Deploy creates <emphasis>system</emphasis>
-  repositories. To create a <emphasis>package</emphasis> repository, add
-  the <emphasis>type</emphasis> element to the <emphasis>main</emphasis>
-  section.
-  </para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;main&gt;
-  ...
-  &lt;type&gt;package&lt;/type&gt;
-&lt;/main&gt;</programlisting>
-    </informalexample></para>
-
-  <para>
-  See <xref linkend="repositories"/> for more information on types.
+  Instead, you should copy the templates to a new folder, and direct Deploy to
+  look for them in this location. This will allow you to make changes, while 
+  still preserving the original files for reference.
   </para>
 
   <para>
-  Save the file as <filename>web-server.definition</filename> before
-  proceeding.
-  </para>
-  </section>
-
-  <section id="specifying-input-repositories">
-  <title>Specifying Input Repositories</title>
-
-    <para>
-    During the repository creation process, Deploy obtains software from
-    other existing repositories, referred to as <emphasis>input
-    repositories</emphasis> in this document.  In this section, you will define
-    the input repositories to be used for creating your repository.
-    </para>
-
-    <para>
-    Input repositories fall into three general classes.
-    </para>
-
-    <itemizedlist>
-
-      <listitem><para>
-      Operating System Base Repository. For CentOS, the base repository will be
-      obtained from a public or local mirror. For Red Hat Enterprise Linux, it
-      will be obtained from an install tree created using an ISO image file.
-      The base repository is unique in that it contains <filename
-      class="directory">isolinux</filename> and <filename
-      class="directory">images</filename> folders in addition to RPM packages.
-      Existing Deploy-created system repositories can also serve as
-      Operating System Base Repositories.
-      </para></listitem>
-
-      <listitem><para>
-      Operating System Update Repositories. For CentOS, again the update 
-      repository will be located on a public or local mirror. For Red Hat
-      Enterprise Network, it will be available as a channel within Red Hat
-      Network.
-      </para></listitem>
-
-      <listitem><para>Additional Repositories. Your repository may 
-      include packages from any number of additional public or private 
-      repositories.</para></listitem>
-
-    </itemizedlist>
-
-    <important>
-    <para>
-    If you are building a <emphasis>system</emphasis> repository, you must
-    define an Operating System Base Repository.  This repository must contain
-    <filename class="directory">isolinux</filename> and <filename
-    class="directory">images</filename> folders. Typically, you will also want
-    to include an Operating System Update Repository.
-    </para>
-    </important>
-
-  <section>
-  <title>Input repository identifiers</title>
-
-  <para>
-  For each input repository you specify, you will need to provide a unique
-  identifier or <emphasis>id</emphasis>. Typically the Operating System Base
-  Repository is given the id "<emphasis>base</emphasis>", and the Operating
-  System Update Repository is given the id "<emphasis>updates</emphasis>". Ids
-  for other repositories are commonly descriptive for the repository, e.g.
-  "<emphasis>epel</emphasis>" for the <emphasis>Extra Packages for Enterprise
-  Linux</emphasis> repository.
-  </para>
-  
-  <para>
-  Deploy gives special meaning to repositories with the ids
-  "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
-  repositories are assumed to be associated with the base operating system.
-  This special meaning applies only when creating
-  <emphasis>package</emphasis>-type repositories. Specifically, when creating
-  package-type repositories, Deploy automatically sets the
-  <emphasis>download</emphasis> property to <emphasis>false</emphasis> for the
-  base and updates input repositories.
+  Here are the steps:
   </para>
 
   <para>
-  The effect of this behavior is that packages from operating system
-  repositories will not be included in <emphasis>package</emphasis>-type
-  repositories. They will, however, be used for resolving dependencies. This
-  ensures that packages from the <emphasis>package</emphasis> repository can be
-  installed without error on existing client systems, independent of the
-  installed operating system (CentOS or Red Hat Enterprise Linux).
+  1. Create a new templates folder and copy files to it. Substitute the name
+  of your folder for the text "/my/templates/folder" below.
+  </para>
+
+  <programlisting>
+mkdir -p /my/templates/folder
+cp -a /usr/share/deploy/templates/* /my/templates/folder
+  </programlisting>
+
+  <para>
+  2. Add a line to <filename>/etc/deploy/deploy.conf</filename> as shown below:
+  </para>
+
+  <programlisting>
+&lt;deploy>
+&lt;templates-path>/my/templates/folder&lt;/templates-path>
+&lt;/deploy>
+  </programlisting>
+
+  <para>
+  As you are creating definitions, you will often want to tell Deploy to
+  include a file, or a portion of a file, from a templates folder. You can do
+  this using the <varname>%{templates-dir}</varname> macro. When Deploy sees
+  this macro it will look for the specified file in a folder listed in 
+  <filename>deploy.conf</filename> (multiple folders can be listed). If it
+  cannot find the file, it will then search the default location.
   </para>
 
   <para>
-  See the following sections for examples of specifying input repository
-  <emphasis>ids</emphasis>. See also the chapter on <emphasis>Repos</emphasis>
-  in the <xref linkend='ddfr'/> for more information on the
-  <emphasis>download</emphasis> element. 
+  You will see the <varname>%{templates-dir}</varname> macro used frequently
+  throughout the remainder of this document.
   </para>
-
-  </section>
-
-  <section>
-  <title>CentOS repositories</title>
-
-    <para>
-    This example directs Deploy to use public mirrors to access the
-    CentOS base and updates repositories. Because it makes use of %{version}
-    and %{arch} macros, it can be used for CentOS version 6, with either
-    i386 or x86_64 architecture.  The line breaks shown are for readability
-    and should not be included in your definition.
-    </para>
-
-    <para><informalexample>
-    <programlisting>&lt;repos&gt;
-
-&lt;repo id="base"&gt;
-&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-&lt;/repo&gt;
-
-&lt;repo id="updates"&gt;
-&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/updates/%{arch}/&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-&lt;/repo&gt;
-
-&lt;/repos&gt;</programlisting>
-      </informalexample></para>
-
-    </section>
-
-    <section>
-    <title>Red Hat Enterprise Linux repositories</title>
-      <para>
-      Prior to using Deploy to access Red Hat Enterprise Linux
-      repositories, you will need to complete the following steps:</para>
-
-      <itemizedlist>
-
-        <listitem><para>Create a Red Hat Enterprise Linux 6 install tree. This
-        can be accomplished by downloading an ISO image (a single DVD image is
-        recommended for easier mounting) from Red Hat Network and using the
-        <command>mount -o loop</command> command to mount the
-        <filename>.iso</filename> to a folder location. You can then copy the
-        contents of the ISO image to a permanent folder. Be sure to also copy
-        the hidden <filename>.treeinfo</filename> file from the root of the ISO
-        image to the permanent folder to avoid errors during Deploy
-        operation. See the <emphasis>Red Hat Enterprise Linux 6 Installation
-        Guide</emphasis>, under the topic <emphasis>Preparing for a Network
-        Installation</emphasis>, for more information.</para></listitem>
-
-        <listitem><para>
-        Create a systemid for accessing updates from RHN. This step requires an
-        available subscription to Red Hat Enterprise Linux. See the Red Hat web
-        site for purchase information. Once you have an available subscription,
-        install Red Hat Enterprise Linux 6 in the desired architecture version
-        (i386 or x86_64) onto a client machine.  Register the machine to Red
-        Hat Network during installation, or first boot, or later using the
-        <command>rhn_register</command> command. Once the system has
-        successfully registered with RHN, a systemid file will be created in
-        the <filename class="directory">/etc/sysconfig/</filename> folder of the
-        machine. You will use this file to configure Deploy to access
-        software from RHN. You may copy this file to the Deploy build
-        machine if necessary. Note, to ensure the systemid has access to the
-        software desired for your repository, you can use the Red Hat Network
-        web user interface to locate the system, and view and alter its
-        channel subscriptions.
-        </para></listitem>
-      </itemizedlist>
-
-      <para>
-      After completing the above steps, you are ready to specify base
-      and updates repositories for Red Hat Enterprise Linux.
-      </para>
-
-      <para>
-      The base repository will point to the Red Hat Enterprise Linux
-      install tree, created in the first step above.  In the example below, this
-      is located at <filename class="directory">http://www.examplecompany.com/
-      install_server/redhat/enterprise/6/en/os/x86_64/</filename>. This location
-      must contain <filename class="directory">isolinux</filename> and 
-      <filename class="directory">images</filename> folders.
-      </para>
-
-      <para>The update repository will point to the subscribed channel in RHN
-      using a custom <filename>rhn://</filename> protocol in the following
-      format:</para>
-
-      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
-      
-
-      <para>where $rhnhost is the hostname of the server to contact and
-      $rhnchannel is the name of the RHN channel from which to obtain packages.
-      If not specified, $rhnhost defaults to a public Red Hat Network server at
-      xmlrpc.rhn.redhat.com. Valid $rhnchannel values include:
-
-        <simplelist>
-          <member>rhel-x86_64-server-6</member>
-          <member>rhel-x86_64-server-6</member>
-        </simplelist>
-      </para>
-
-      <para>In the following example, Deploy will contact the RHN server
-      located at <filename class="directory">xmlrpc.rhn.examplecompany.com
-      </filename> and request packages from the 
-      <filename>rhel-x86_64-server-6</filename> software channel.</para>
-
-      <para>
-      <informalexample>
-      <programlisting>&lt;repos&gt;
-
-&lt;repo id="base"&gt;
-&lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-&lt;/repo&gt;
-
-&lt;repo id="updates"&gt;
-&lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
-&lt;/repo&gt;
-
-&lt;/repos&gt; </programlisting>
-      </informalexample>
-      </para>
-
-    </section>
-
-    <section>
-    <title>Reusing definitions</title>
-
-    <para>
-    Often you will want to reuse the same input repositories across multiple
-    definitions. To accomplish this, you can save your input
-    repository definitions in an external file, and include them into your main
-    definition using <emphasis>XML Includes</emphasis>.
-    </para>
-    
-    <para>
-    The following example shows the contents of an external file containing
-    repository definitions. The file shown below is included in the <xref
-    linkend='templates'/> folder as a reference. The file is named
-    <filename>repos.xml</filename>.
-    </para>
-
-    <informalexample>
-    <programlisting><xi:include href="../../../../../share/deploy/templates/el7/common/repos.xml" parse="text"
-            xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
-    </informalexample>
-
-    <para>
-    Below is an example of including repo elements from the
-    <filename>repos.xml</filename> template within a definition.
-    </para>
-
-    <informalexample>
-    <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude">
-
-...
-&lt;repos>
-&lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
-&lt;/repos>
-
-&lt;/definition></programlisting>
-    </informalexample>
-
-    <para>
-    See the <xref linkend='ddfr'/> for complete information on the
-    <emphasis>repos</emphasis> element and its subelements, as well as for more
-    information <emphasis>XML Inclusions (XIncludes)</emphasis>.
-    </para>
-
-    <para>
-    Now that you've identified input repositories, you are ready
-    to start including packages.
-    </para>
-    </section>
-  </section>
-
-  <section>
-    <title>Specifying Packages</title>
-
-    <para>
-    Once you have defined input repositories, you can specify packages and
-    groups to include in your repository. Use the <emphasis>packages</emphasis>
-    top-level element to accomplish this.
-    </para>
-
-    <para>
-    The packages element is required for <emphasis>system</emphasis>
-    repositories and optional for <emphasis>package</emphasis>
-    repositories.
-    </para>
-
-    <para>
-    For system repositories, at a minimum you will need the
-    <emphasis>core</emphasis> group and, depending on the OS version, a few
-    extra packages. Because the minimum set varies across OS
-    versions, Deploy provides a template, <filename>packages.xml</filename>,
-    to assist with minimum package selection.
-    </para>
-    
-    <para>
-    The example below shows including a minimum set of packages using the
-    <filename>packages.xml</filename> template.
-    </para>
-
-    <para>
-    <informalexample>
-    <programlisting>
-&lt;packages>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-              xpointer="xpointer(./packages[@id='core']/*)"/>
-&lt;/packages></programlisting>
-    </informalexample>
-    </para>
-
-    <para>    
-    In addition, you may wish to include the minimal set of packages required
-    for a Graphical User Interface (GUI). Again, the set of packages varies
-    across OS version, and again the <filename>packages.xml</filename>
-    template can assist, as shown in the example below:
-    </para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;packages>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-              xpointer="xpointer(./packages[@id='core' or @id='gui']/*)"/>
-&lt;/packages></programlisting>
-    </informalexample></para>
-
-    <para>
-    Many additional groups exist that may be useful based on your scenario.
-    You can browse groups provided by an input repository by opening the
-    repository's groups file. The groups file can be located in the
-    repository's <filename>repodata</filename> folder, with a filename
-    typically ending with <filename>comps.xml</filename>.
-    </para>
-
-    <para>
-    In addition to groups, you can also specify individual packages, as
-    shown below.
-    </para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;package&gt;httpd&lt;/package></programlisting>
-    </informalexample></para>
-
-    <para>
-    Often, however, for greater flexibility and content reuse, individual
-    packages are specified within the context of <xref linkend='config-rpms'/>.
-    Config-rpms will be discussed later in this document, in 
-    <xref linkend='building-rpms'/>.
-    </para>
-
-  </section>
 
 </section>

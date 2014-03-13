@@ -58,9 +58,25 @@
   <para>
   Do not modify files in the <filename>/usr/share/deploy/templates</filename>
   folder. Changes to these files will be overwritten when Deploy is updated.
-  Instead, create a new template folder as described above, and copy files to
-  this location, following the original folder hierarchy. 
+  Instead, complete the following steps:
   </para>
+
+  <para>
+  1. Create a new templates folder and copy files to it.
+  </para>
+  <programlisting>
+mkdir -p <emphasis>/my/templates/folder</emphasis>
+cp -a /usr/share/deploy/templates/* <emphasis>/my/templates/folder</emphasis>
+  </programlisting>
+
+  <para>
+  2. Add a line to <filename>/etc/deploy/deploy.conf</filename> as follows:
+  </para>
+  <programlisting>
+&lt;deploy>
+&lt;templates-path><emphasis>/my/templates/folder</emphasis>&lt;/templates-path>
+&lt;/deploy>
+  </programlisting>
   </warning>
 
   </section>
@@ -384,12 +400,12 @@ print uuid.uuid1()
     <row>
     <entry>centos</entry>
     <entry>7</entry>
-    <entry>el7</entry>
+    <entry>el6</entry>
     </row>
     <row>
     <entry>rhel</entry>
     <entry>7</entry>
-    <entry>el7</entry>
+    <entry>el6</entry>
     </row>
     </tbody>
     </tgroup>
@@ -648,14 +664,14 @@ print uuid.uuid1()
       <para>
       On a system with the Deploy RPM installed, the <filename>
       repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/deploy/templates/el7/</filename>.
+      <filename>/usr/share/deploy/templates/el6/</filename>.
       </para>
       </note>
 
       <para><emphasis role="strong">repos.xml</emphasis></para>
       <informalexample>
       <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el7/common/repos.xml"
+<xi:include href="../../../../../share/deploy/templates/el6/common/repos.xml"
             parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>

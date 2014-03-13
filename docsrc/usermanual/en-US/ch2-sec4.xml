@@ -17,8 +17,7 @@
             <entry><application>Deploy</application> looks
             for this file to locate deploy configuration. See the
             deploy and deploy.conf man pages for more information.
-            This file is optional and does not exist in the default Deploy
-            installation.</entry>
+            </entry>
           </row>
           <row>
             <entry>/usr/bin/deploy</entry>

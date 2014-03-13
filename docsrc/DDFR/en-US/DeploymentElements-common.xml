@@ -927,7 +927,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el7/common/ks.xml' parse='text'/></programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el6/common/ks.xml' parse='text'/></programlisting>
     </informalexample>
 
     <para>
@@ -951,7 +951,7 @@ $remote-url/%{id}</programlisting>
 
     <informalexample>
     <programlisting>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el7/libvirt/ks-post-ssh.xml' parse='text'/></programlisting>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href='../../../../../share/deploy/templates/el6/libvirt/ks-post-ssh.xml' parse='text'/></programlisting>
     </informalexample>
 
     <para>
@@ -1003,12 +1003,12 @@ $remote-url/%{id}</programlisting>
     <para>
     On a system with Deploy installed, this config-rpm template can be
     found as a file named <filename>ssh-config.xml</filename> in the examples
-    folder at <filename>/usr/share/deploy/templates/el7/common</filename>.
+    folder at <filename>/usr/share/deploy/templates/el6/common</filename>.
     </para>
 
     <informalexample>
     <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/common/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/common/ssh-config.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   
     <para>
@@ -1354,7 +1354,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>create-guestname.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See
+      <filename>/usr/share/deploy/templates/el6/libvirt</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1374,7 +1374,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/libvirt/create-guestname.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/libvirt/create-guestname.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1404,7 +1404,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>activate.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See
+      <filename>/usr/share/deploy/templates/el6/libvirt</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1419,7 +1419,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/libvirt/activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/libvirt/activate.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1455,7 +1455,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-triggers.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/el7/common</filename>. See <xref
+      <filename>/usr/share/deploy/templates/el6/common</filename>. See <xref
       linkend='templates'/> for more information on templates.
       </para>
      
@@ -1473,7 +1473,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/common/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/common/test-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1504,7 +1504,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>delete.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/el7/libvirt</filename>. See <xref
+      <filename>/usr/share/deploy/templates/el6/libvirt</filename>. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
@@ -1518,7 +1518,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/libvirt/delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/delete.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
@@ -1547,7 +1547,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>create-ssh-keys.xml</filename> which is included in the
       template folder at
-      <filename>/usr/share/deploy/templates/el7/common</filename>. See
+      <filename>/usr/share/deploy/templates/el6/common</filename>. See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1560,7 +1560,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/common/create-ssh-keys.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/common/create-ssh-keys.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
       </informalexample>
 
       <para>
@@ -1591,7 +1591,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>install.xml</filename> which is included in the templates
-      folder at <filename>/usr/share/deploy/templates/el7/libvirt</filename> See
+      folder at <filename>/usr/share/deploy/templates/el6/libvirt</filename> See
       <xref linkend='templates'/> for more information on templates.
       </para>
       
@@ -1614,7 +1614,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/libvirt/install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/>
 &lt;/publish&gt;</programlisting>
       </informalexample>
 
@@ -1657,7 +1657,7 @@ $remote-url/%{id}</programlisting>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>verify-install.xml</filename> which is included in the
       templates folder at
-      <filename>/usr/share/deploy/templates/el7/common</filename> See <xref
+      <filename>/usr/share/deploy/templates/el6/common</filename> See <xref
       linkend='templates'/> for more information on templates.
       </para>
       
@@ -1669,7 +1669,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/verify-install.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
@@ -1695,7 +1695,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis>Example</emphasis> - This example shows the
       <filename>save-triggers.xml</filename> file which is included in the
-      templates folder at <filename>/usr/share/deploy/templates/el7/common</filename>. See
+      templates folder at <filename>/usr/share/deploy/templates/el6/common</filename>. See
       <xref linkend="templates"/> for more information on templates.
       </para>
       
@@ -1706,7 +1706,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
+<xi:include href='../../../../../share/deploy/templates/el6/common/save-triggers.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting> 
       </informalexample>
 
       <para>
@@ -1746,7 +1746,7 @@ $remote-url/%{id}</programlisting>
       <para>
       <emphasis role='bold'>Examples</emphasis> - This example shows a file
       named <filename>update.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/el7/common. See <xref
+      folder at /usr/share/deploy/templates/el6/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
@@ -1759,7 +1759,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/el7/common/update.xml'
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/update.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
@@ -1812,7 +1812,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <para>
       <emphasis role='bold'>Examples</emphasis> - This example shows a file
       named <filename>poweroff.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/el7/common. See <xref
+      folder at /usr/share/deploy/templates/el6/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
       
@@ -1823,7 +1823,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el7/common/poweroff.xml'
+<xi:include href='../../../../../share/deploy/templates/el6/common/poweroff.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
@@ -1889,7 +1889,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       linkend="config-rpm"/>. Deploy includes an example template to complete
       this task. On a system with Deploy installed, the file can be found as
       <filename>ssh-config.xml</filename> in the templates folder at
-      <filename>/usr/share/deploy/templates/el7/common</filename>.
+      <filename>/usr/share/deploy/templates/el6/common</filename>.
       </para>
 
       <para>

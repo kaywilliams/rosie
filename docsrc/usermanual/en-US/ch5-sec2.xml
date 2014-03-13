@@ -166,7 +166,7 @@
   <emphasis role='strong'>libvirt deployment template</emphasis>
   </para>
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/el7/libvirt/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -198,7 +198,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/el7/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
@@ -206,7 +206,7 @@
   </para>
 
   <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/el7/libvirt/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/libvirt/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>

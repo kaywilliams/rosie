@@ -6,7 +6,7 @@
 
   <para>
   Defining package repositories is much like defining system repositories, as
-  discussed in <xref linkend='building-a-system-repo'/> and <xref
+  discussed in <xref linkend='building-a-system'/> and <xref
   linkend='building-rpms'/> earlier in this document. Technically, package
   repositories are subsets of system repositories, containing just the packages
   needed to deploy application-specific or organization-specific software and
@@ -216,9 +216,9 @@ templates/
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario2-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/el7/scenario3-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario1-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario2-config.xml"/>
+&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario3-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>

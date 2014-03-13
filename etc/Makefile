@@ -1,4 +1,4 @@
-SUBDIRS = logrotate.d
+SUBDIRS = logrotate.d deploy
 
 .PHONY: all install clean
 

@@ -56,13 +56,13 @@
     <para>
     On a system with the Deploy RPM installed, this file can be found as
     <filename>web-server.definition</filename> in the templates folder at
-    <filename>/usr/share/deploy/templates/el7/httpd</filename>.
+    <filename>/usr/share/deploy/templates/el6/httpd</filename>.
     </para>
     </note>
 
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el7/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el6/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
   </section>
 

@@ -33,7 +33,8 @@
   Deploy requires a CentOS-compatible operating system repository as
   input for creating new repositories. Currently supported operating system
   repositories include CentOS and Red Hat Enterprise Linux, version 6
-  for i386 and x86_64 architectures. See <xref
+  for i386 and x86_64 architectures, and RedHat Enterprise Linux version
+  7 for x86_64. See <xref
   linkend="specifying-input-repositories" /> for more information.
   </para>
   </listitem>

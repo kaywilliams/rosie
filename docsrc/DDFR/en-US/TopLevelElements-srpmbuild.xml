@@ -535,7 +535,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el7/common/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el6/common/srpmbuild-custom.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 
@@ -553,7 +553,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     </para>
     <informalexample>
     <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el7/common/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+<xi:include href="../../../../../share/deploy/templates/el6/common/srpmbuild.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample>
     </section>
 
