@@ -394,7 +394,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     waiting = set() # macro references that cannot be resolved until 
                     # defaults_file name is resolved
 
-    unresolved_strings = set() #strings with macro resolution errors
+    unresolved_strings = set() #strings with temporary macro resolution errors
+    unresolvable_strings = set() #strings with permanent macro resolution errors
 
     while True:
       remaining = {}
@@ -418,14 +419,19 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
         for s in [ x for x in etree.ElementBase.xpath(search_elem, './/@*') 
           if macro in x ]:
+          if s in unresolvable_strings: continue 
           remaining[macro]['attrib_strings'].append(s)
           remaining_strings.add(s)
 
         for s in etree.ElementBase.xpath(search_elem,
           ".//text()[re:test(., '.*%s.*', 'g')]" % macro,
           namespaces={'re':RE_NS}):
+          if s in unresolvable_strings: continue 
           remaining[macro]['text_strings'].append(s)
           remaining_strings.add(s)
+
+      if not remaining_strings:
+        break
             
       for macro in remaining:
         # text and tails
@@ -444,7 +450,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
             if self._validate_resolved_macro(macro, string, newstring, 
-                unresolved_strings, remaining_strings, parent):
+                unresolved_strings, unresolvable_strings, remaining_strings, 
+                parent):
               if string.is_text: parent.text = newstring
               if string.is_tail: parent.tail = newstring
 
@@ -509,7 +516,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
             if self._validate_resolved_macro(macro, string, newstring, 
-                unresolved_strings, remaining_strings, parent):
+                unresolved_strings, unresolvable_strings, remaining_strings, 
+                parent):
               parent.attrib[id] = newstring
          
           # macro is macro elem
@@ -618,14 +626,23 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     XmlTreeElement.write(stored_macros, defaults_file)
 
   def _validate_resolved_macro(self, macro, currstring, newstring, 
-                               unresolved_strings, remaining_strings, elem):
+                               unresolved_strings, unresolvable_strings, 
+                               remaining_strings, elem):
     if currstring == newstring: # fail
+      if len(set(re.findall(MACRO_REGEX, currstring))) == 1:
+        # macro is last remaining macro in the string, mark it as unresolvable 
+        # and continue
+        unresolvable_strings.add(currstring)
+        return True
       if unresolved_strings == remaining_strings:
-        msg = "The unresolved macro is '%s'." % macro
-        raise errors.MacroError(self.getroot().base, msg, elem, 
-                                tail=currstring.is_tail) 
-      unresolved_strings.add(currstring)
-      return False
+        # all macros in the string are unresolvable, mark it as unresolvable
+        # and continue
+        unresolvable_strings.add(currstring)
+        return True
+      else:
+        # keep trying until all macros are either resolved or unresolvable
+        unresolved_strings.add(currstring)
+        return False
     else: # success
       if currstring in unresolved_strings:
         unresolved_strings.remove(currstring)
