@@ -203,13 +203,8 @@
         <para>
         Deploy includes a number of templates to assist with common definition
         creation tasks. These templates are located in the folder at
-        <filename>/usr/share/deploy/templates/</filename>. Additional template
-        folders can be added in the Deploy Configuration File. See the <ulink
-        url="http://www.deployproject.org/docs/DDFR">Deploy Definition File
-        Reference (DDFR)</ulink> and the <ulink
-        url="http://www.deployproject.org/docs/deploy.conf">Deploy
-        Configuration File Manual Page (man deploy.conf)</ulink> for additional
-        information.
+        <filename>/usr/share/deploy/templates/</filename>. See  
+        <xref linkend='working-with-templates'/> for additional information.
         </para>
         </listitem>
       </varlistentry>

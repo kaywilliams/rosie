@@ -12,7 +12,7 @@
     </title>
 
     <para>
-    Specifies packages to be included in the repository.
+    Specifies required packages and groups.
     </para>
   </section>
 
@@ -30,7 +30,7 @@
       <programlisting>
 &lt;packages&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
-  [&lt;package&gt;PACKAGE&lt;/package&gt;]*
+  [&lt;package&gt;TEXT&lt;/package&gt;]*
   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
 &lt;/packages&gt;</programlisting>
   </section>
@@ -41,34 +41,37 @@
     </title>
 
     <variablelist>
-    <varlistentry id="packages-exclude"
-                 >
+    <varlistentry id="packages-exclude">
       <term>
       exclude
       </term>
 
       <listitem>
       <para>
-      The name of a package to be excluded from the repository. 
+      PACKAGE pattern to exclude across all repositories. To exclude a
+      package from a specific repository, see the <link 
+      linkend='exclude'><varname>repo/exclude</varname></link> element.
       </para>
 
       <para>
       This element can occur zero or more times.
       </para>
 
+      <para>
+      See <xref linkend='content-package'/> for information on PACKAGE patterns.
+      </para>
+
       </listitem>
     </varlistentry>
 
-    <varlistentry id="packages-group"
-                 >
+    <varlistentry id="packages-group">
       <term>
       group
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the repository 
-      using one or more of the repository groupfiles indicated by the
-      <emphasis>@repoid</emphasis> attributes as a source.
+      <para>
+      The unique ID of a required group.
       </para>
 
       <para>
@@ -85,24 +88,24 @@
       </para>
 
       <para>
-      <emphasis>@repoid</emphasis>: The id of the repository from which
-      to obtain group data.  This id corresponds to a <emphasis>repoid</emphasis>
-      defined in a <emphasis role="strong">repo</emphasis> element. If not specified,
-      <application class="software">Deploy</application> merges all matching
-      groups from all repo groupfiles.
+      <emphasis>@repoid</emphasis>: The id of the repository from which to
+      obtain group packages. This id corresponds to a
+      <emphasis>repoid</emphasis> defined in a <emphasis
+      role="strong">repo</emphasis> element. If not specified, <application
+      class="software">Deploy</application> obtains all packages from groups
+      with this name across all repos.
       </para>
       </listitem>
     </varlistentry>
 
-    <varlistentry id="packages-package"
-                 >
+    <varlistentry id="packages-package">
       <term>
       package
       </term>
 
       <listitem>
       <para>
-      The name of a package to be included in the repository.
+      The name of a required package.
       </para>
 
       <para>
@@ -169,7 +172,6 @@
 
     <para>
     <xref linkend="content-boolean" />,
-    <xref linkend="content-package" />,
     <xref linkend="content-text" />,
     <emphasis><xref linkend="repos" /></emphasis>
     </para>

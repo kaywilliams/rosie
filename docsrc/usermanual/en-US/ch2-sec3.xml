@@ -35,7 +35,7 @@
   repositories include CentOS and Red Hat Enterprise Linux, version 6
   for i386 and x86_64 architectures, and RedHat Enterprise Linux version
   7 for x86_64. See <xref
-  linkend="specifying-input-repositories" /> for more information.
+  linkend="specifying-repositories" /> for more information.
   </para>
   </listitem>
 
@@ -44,9 +44,9 @@
   <emphasis role="strong">Additional Package Repositories.</emphasis> Deploy
   uses RPM package repositories to locate and download additional software
   components for the repository. A typical definition will specify
-  multiple additional input repositories, including a operating system update
+  multiple additional repositories, including a operating system update
   repository, and repositories made available from other internal and external
-  providers. See <xref linkend="specifying-input-repositories" /> for more
+  providers. See <xref linkend="specifying-repositories" /> for more
   information.
   </para>
   </listitem>

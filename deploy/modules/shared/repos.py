@@ -38,7 +38,7 @@ from deploy.util.pps.Path.http  import HttpPath
 from deploy.util.pps.Path.error import PathError
 
 from deploy.errors       import (DeployEventError,
-                                    DeployIOError, RhnSupportError,
+                                    DeployIOError,
                                     assert_file_readable, 
                                     assert_file_has_content)
 from deploy.dlogging     import L1, L2
@@ -60,13 +60,12 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
 class DeployRepo(YumRepo):
-  keyfilter = ['id', 'systemid']
+  keyfilter = ['id']
   treeinfofile = '.treeinfo'
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
     self.localurl = None
-    self._systemid = None # system id, for redhat mirrors
 
   def _boolparse(self, s):
     if s.lower() in BOOLEANS_FALSE:
@@ -106,50 +105,7 @@ class DeployRepo(YumRepo):
     return (None, None)
 
   def _xform_uri(self, p):
-    p = pps.path(p)
-    try:
-      if isinstance(p, pps.Path.rhn.RhnPath):
-        # lowercase edition (e.g. 'rhel-i386-Server-6') for rhn consumption
-        p = pps.path(p.lower())
-
-        # set the systemid
-        systemid = self.get('systemid')
-        if systemid:
-          systemid = pps.path(systemid).realpath()
-          try:
-            assert_file_has_content(systemid, cls=SystemidIOError, repoid=self.id)
-          except pps.lib.rhn.SystemidInvalidError, e:
-            raise SystemidInvalidError(systemid, self.id, str(e))
-          p.systemid = systemid
-        else:
-          raise SystemidUndefinedError(self.id)
-      else:
-        p = YumRepo._xform_uri(self, p)
-    except AttributeError:
-      p = YumRepo._xform_uri(self, p)
-    return p
-
-class RhnDeployRepo(DeployRepo):
-  # redhat's RHN repos are very annoying in that they have inconsitent
-  # metadata at times.  This class aims to account for this instability
-
-  def __init__(self, **kwargs):
-    DeployRepo.__init__(self, **kwargs)
-
-  EMPTY_FILE_CSUM = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
-  MAX_TRIES = 10 # number of times to try redownloading repomd
-
-  def read_repomd(self):
-    i = 0; consistent = False
-    while i < self.MAX_TRIES:
-      DeployRepo.read_repomd(self)
-      if self.EMPTY_FILE_CSUM not in \
-        self.repomd.xpath('//repo:data/repo:checksum/text()',
-                          namespaces=NSMAP):
-        consistent = True; break
-      i += 1
-    if not consistent:
-      raise InconsistentRepodataError(self.id, self.MAX_TRIES)
+    return YumRepo._xform_uri(self, pps.path(p))
 
 
 class DeployRepoGroup(DeployRepo):
@@ -170,24 +126,7 @@ class DeployRepoGroup(DeployRepo):
     except pps.lib.mirror.MirrorlistFormatInvalidError, e:
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
-    # need special handling for rhn paths
     cls = DeployRepo
-    try:
-      if self.url.scheme == 'mirror':
-        if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-          cls = RhnDeployRepo
-      else:
-        if isinstance(self.url, pps.Path.rhn.RhnPath):
-          cls = RhnDeployRepo
-    except AttributeError:
-      if self.url.scheme == 'mirror':
-        if ( self.url.realm.scheme == 'rhn' or
-             self.url.realm.scheme == 'rhns' ):
-          raise RhnSupportError()
-      else:
-        if ( self.url.scheme == 'rhn' or
-             self.url.scheme == 'rhns' ):
-          raise RhnSupportError()
 
     # first make sure we can access the repomdfile location (e.g. no network or
     # permissions errors)
@@ -429,10 +368,6 @@ class RepoEventMixin(Event):
             mtime = existing.stat().st_mtime
             src.stat().update(st_mtime=existing.stat().st_mtime)
 
-          # if source doesn't have an mtime (i.e. rhn) use the datfile time
-          elif src.stat().st_mtime == -1:
-            src.stat().update(st_mtime=float(datafile.timestamp))
-
           # otherwise, leave the src mtime as it is
           else: pass
 
@@ -451,7 +386,7 @@ class RepoEventMixin(Event):
       # explicitly create directory for repos that don't have repodata
       (self.mddir/repo.id).mkdirs()
 
-      # always write repomd.xml since rhn doesn't give us timestamps
+      # always write repomd.xml so we have it for offline use 
       for subrepo in repo.subrepos.values():
         src = subrepo.url/subrepo.repomdfile
         dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
@@ -588,17 +523,6 @@ class InvalidRepomdFileError(DeployEventError, RuntimeError):
 class InconsistentRepodataError(DeployEventError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
-
-class SystemidIOError(DeployIOError):
-  message = ( "Unable to read systemid file '%(file)s' for repo "
-              "'%(repoid)s': [errno %(errno)d] %(message)s" )
-
-class SystemidUndefinedError(DeployEventError, InvalidConfigError):
-  message = "No <systemid> element defined for repo '%(repoid)s'"
-
-class SystemidInvalidError(DeployEventError):
-  message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
-              "%(message)s" )
 
 class PkgsfileIOError(DeployIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "

@@ -26,8 +26,7 @@
     </para>
 
     <para><informalexample>
-      <programlisting>
-<xi:include href="../../../../../share/deploy/templates/el6/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      <programlisting><xi:include href="../../../../../share/deploy/templates/el6/httpd/web-server.definition" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </informalexample></para>
 
     <para>
@@ -37,12 +36,13 @@
     </para>
 
     <para>
-    Likewise, the "xmlns:xi..." attribute is not required on the
-    "&lt;definition>" element. It is strongly recommended, however, as it
-    allows the use of XIncludes within the document. XIncludes are a convenient
-    mechanism for reusing content across multiple definitions, and most
-    definitions will make heavy use of them. XIncludes are discussed in more
-    detail in the <ulink
+    Likewise, the attribute
+    <constant>xmlns:xi="http://www.we.org/2001/XInclude"</constant> is not
+    required on the "&lt;definition>" element. It is strongly recommended,
+    however, as it allows the use of XIncludes within the document. XIncludes
+    are a convenient mechanism for reusing content across multiple definitions,
+    and most definitions will make heavy use of them. XIncludes are discussed
+    in more detail in the <ulink
     url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
     Reference (DDFR)</ulink>.
     </para>   
@@ -67,16 +67,16 @@
   </section>
 
   <section>
-    <title>Naming a repository</title>
+    <title>Naming a system</title>
 
     <para>
     The first required element of the definition, <emphasis>main</emphasis>,
-    includes the name of the repository, the base operating system, the
-    OS version and architecture, and a repository id. Deploy uses the
-    repository id to create folders for storing the completed repository (under
-    <filename class="directory">/var/www/html/repos</filename>, by default) and
-    for caching repository content (under <filename
-    class="directory">/var/cache/deploy</filename>, by default).
+    includes the name of the system, the base operating system, the
+    OS version and architecture, and a system id. Deploy uses the
+    system id to create folders for storing the completed system (under
+    <filename class="directory">/var/www/html/deploy/systems</filename>, by 
+    default) and for caching system content (under <filename
+    class="directory">/var/cache/deploy/systems</filename>, by default).
     </para>
 
     <para><note>
@@ -86,8 +86,9 @@
 
     <para>
     Typically you will want to complete the main section of your definition
-    using macros. Macros make your definition flexible, so that it you can
-    easily switch between operating systems, versions and architectures.
+    using macros. Macros make your definition flexible, so that you can
+    provide content once, and reuse it through the remainder of your 
+    definition.
     </para>
 
     <para>
@@ -102,7 +103,7 @@
 &lt;macro id='id'>%{name}-%{os}-%{version}-%{arch}&lt;macro>
 
 &lt;main&gt;
-  &lt;name&gt;web-server&lt;/name&gt;
+  &lt;name&gt;%{name}&lt;/name&gt;
   &lt;os&gt;%{os}&lt;/os&gt;
   &lt;version&gt;%{version}&lt;/version&gt;
   &lt;arch&gt;%{arch}&lt;/arch&gt;
@@ -110,289 +111,263 @@
 &lt;/main&gt;</programlisting>
     </informalexample></para>
 
-    <note>
     <para>
-    Each time you change the id element, either directly or indirectly by
-    changing a macro value, Deploy creates new folders in the publish and cache
-    folders (<emphasis>/var/www/html/repos</emphasis> and
-    <emphasis>/var/cache/deploy</emphasis>, by default). To preserve hard drive
-    space, you may wish to review the publish and cache folders on occasion.
-    Folders for obsolete repository ids can be deleted using standard file
-    system methods, as shown below: <synopsis>rm -rf
-    <emphasis>obsolete_folder</emphasis></synopsis>
+    The <ulink
+    url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
+    Reference (DDFR)</ulink> contains additional details on the main section,
+    as well as on creating and using macros.
     </para>
-    </note>
 
   </section>
 
-  <section id="specifying-input-repositories">
-  <title>Specifying Input Repositories</title>
+  <section id="specifying-repositories">
+  <title>Specifying Repositories</title>
 
     <para>
     During the system build process, Deploy obtains software from existing
-    repositories, referred to as <emphasis>input repositories</emphasis> in
-    this document. In this section, you will define the input repositories to
-    be used for creating your system.
+    repositories. In this section, you will define repositories
+    to be used for creating your system.
     </para>
 
     <para>
-    Input repositories fall into three general classes.
+    The easiest way to define repositories is to include them from the
+    <filename>repos.xml</filename> template, as shown below:
+    </para>
+
+    <informalexample>
+    <programlisting>&lt;repos>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+&lt;/repos></programlisting>
+    </informalexample>
+
+    <para>
+    The example above does the following:
     </para>
 
     <itemizedlist>
-
-      <listitem><para>
-      Operating System Base Repository. For CentOS, the base repository will be
-      obtained from a public or local mirror. For Red Hat Enterprise Linux, it
-      will be obtained from an install tree created using an ISO image file.
-      The base repository is unique in that it contains <filename
-      class="directory">isolinux</filename> and <filename
-      class="directory">images</filename> folders in addition to RPM packages.
-      Existing Deploy-created system repositories can also serve as
-      Operating System Base Repositories.
-      </para></listitem>
-
-      <listitem><para>
-      Operating System Update Repositories. For CentOS, again the update 
-      repository will be located on a public or local mirror. For Red Hat
-      Enterprise Network, it will be available as a channel within Red Hat
-      Network.
-      </para></listitem>
-
-      <listitem><para>Additional Repositories. Your repository may 
-      include packages from any number of additional public or private 
-      repositories.</para></listitem>
-
+    <listitem>
+    <para>
+    It uses the element <varname>xi:include</varname> to include content from
+    an external document. The use of this element requires that the
+    <varname>xmlns:xi="http://www.w3.org/2001/XInclude"</varname> attribute has
+    been set previously in the definition, as discussed under <xref
+    linkend='creating-a-definition'/> 
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    It uses the attribute
+    <constant>href='%{templates-dir}/%{norm-os}/common/repos.xml'</constant> to
+    specify the location of the external document.  Deploy resolves the
+    <constant>%{templates-dir}</constant> and <constant>%{norm-os}</constant>
+    macros at runtime to locate the file in an appropriate folder. 
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    It uses the attribute <constant>xpointer="xpointer(./repo[@id='base' or
+    @id='updates'])"</constant> to specify an XPath query selecting specific
+    content from the document. 
+    </para>
+    </listitem>
     </itemizedlist>
 
-    <important>
     <para>
-    If you are building a <emphasis>system</emphasis> repository, you must
-    define an Operating System Base Repository.  This repository must contain
-    <filename class="directory">isolinux</filename> and <filename
-    class="directory">images</filename> folders. Typically, you will also want
-    to include an Operating System Update Repository.
-    </para>
-    </important>
-
-  <section>
-  <title>Input repository identifiers</title>
-
-  <para>
-  For each input repository you specify, you will need to provide a unique
-  identifier or <emphasis>id</emphasis>. Typically the Operating System Base
-  Repository is given the id "<emphasis>base</emphasis>", and the Operating
-  System Update Repository is given the id "<emphasis>updates</emphasis>". Ids
-  for other repositories are commonly descriptive for the repository, e.g.
-  "<emphasis>epel</emphasis>" for the <emphasis>Extra Packages for Enterprise
-  Linux</emphasis> repository.
-  </para>
-  
-  <para>
-  Deploy gives special meaning to repositories with the ids
-  "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
-  repositories are assumed to be associated with the base operating system.
-  This special meaning applies only when creating
-  <emphasis>package</emphasis>-type repositories. Specifically, when creating
-  package-type repositories, Deploy automatically sets the
-  <emphasis>download</emphasis> property to <emphasis>false</emphasis> for the
-  base and updates input repositories.
-  </para>
-
-  <para>
-  The effect of this behavior is that packages from operating system
-  repositories will not be included in <emphasis>package</emphasis>-type
-  repositories. They will, however, be used for resolving dependencies. This
-  ensures that packages from the <emphasis>package</emphasis> repository can be
-  installed without error on existing client systems, independent of the
-  installed operating system (CentOS or Red Hat Enterprise Linux).
-  </para>
-
-  <para>
-  See the following sections for examples of specifying input repository
-  <emphasis>ids</emphasis>. See also the chapter on <emphasis>Repos</emphasis>
-  in the <xref linkend='ddfr'/> for more information on the
-  <emphasis>download</emphasis> element. 
-  </para>
-
-  </section>
-
-  <section>
-  <title>CentOS repositories</title>
-
-    <para>
-    This example directs Deploy to use public mirrors to access the
-    CentOS base and updates repositories. Because it makes use of %{version}
-    and %{arch} macros, it can be used for CentOS version 6, with either
-    i386 or x86_64 architecture.  The line breaks shown are for readability
-    and should not be included in your definition.
+    Templates are discussed previously in this document under <xref
+    linkend='working-with-templates'/>.  In addition, the <ulink
+    url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
+    Reference (DDFR)</ulink> contains a chapter on Templates, Macros
+    and XIncludes.
     </para>
 
-    <para><informalexample>
-    <programlisting>&lt;repos&gt;
+  <section>
+  <title>Working with CentOS repositories</title>
 
-&lt;repo id="base"&gt;
-&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-&lt;/repo&gt;
+    <para>
+    The <filename>repos.xml</filename> template is configured to access
+    CentOS base and update repositories from the mirror at <filename>http://
+    mirror.centos.org/centos</filename>. For improved performance, you may 
+    wish to modify the template to use an alternative mirror, as follows:
+    </para>
 
-&lt;repo id="updates"&gt;
-&lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/updates/%{arch}/&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}&lt;/gpgkey&gt;
-&lt;/repo&gt;
-
-&lt;/repos&gt;</programlisting>
-      </informalexample></para>
-
+    <itemizedlist>
+    <listitem>
+    <para>
+    View the list of CentOS mirrors at
+    <filename>http://www.centos.org/download/mirrors</filename> and select an
+    alternative.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    Open the <filename>repos.xml</filename> file(s) in the templates folder and
+    modify the centos-mirror macro, where
+    <varname>my.mirror.com</varname> is the new mirror location.
+    </para>
+    <informalexample>
+    <programlisting>&lt;macro id='centos-mirror'>http://my.mirror.com/centos&lt;macro></programlisting>
+    </informalexample>
+    </listitem>
+    </itemizedlist>
     </section>
 
     <section>
-    <title>Red Hat Enterprise Linux repositories</title>
-      <para>
-      Prior to using Deploy to access Red Hat Enterprise Linux
-      repositories, you will need to complete the following steps:</para>
-
-      <itemizedlist>
-
-        <listitem><para>Create a Red Hat Enterprise Linux 6 install tree. This
-        can be accomplished by downloading an ISO image (a single DVD image is
-        recommended for easier mounting) from Red Hat Network and using the
-        <command>mount -o loop</command> command to mount the
-        <filename>.iso</filename> to a folder location. You can then copy the
-        contents of the ISO image to a permanent folder. Be sure to also copy
-        the hidden <filename>.treeinfo</filename> file from the root of the ISO
-        image to the permanent folder to avoid errors during Deploy
-        operation. See the <emphasis>Red Hat Enterprise Linux 6 Installation
-        Guide</emphasis>, under the topic <emphasis>Preparing for a Network
-        Installation</emphasis>, for more information.</para></listitem>
-
-        <listitem><para>
-        Create a systemid for accessing updates from RHN. This step requires an
-        available subscription to Red Hat Enterprise Linux. See the Red Hat web
-        site for purchase information. Once you have an available subscription,
-        install Red Hat Enterprise Linux 6 in the desired architecture version
-        (i386 or x86_64) onto a client machine.  Register the machine to Red
-        Hat Network during installation, or first boot, or later using the
-        <command>rhn_register</command> command. Once the system has
-        successfully registered with RHN, a systemid file will be created in
-        the <filename class="directory">/etc/sysconfig/</filename> folder of the
-        machine. You will use this file to configure Deploy to access
-        software from RHN. You may copy this file to the Deploy build
-        machine if necessary. Note, to ensure the systemid has access to the
-        software desired for your repository, you can use the Red Hat Network
-        web user interface to locate the system, and view and alter its
-        channel subscriptions.
-        </para></listitem>
-      </itemizedlist>
+      <title>
+      Working with Red Hat Enterprise Linux repositories
+      </title>
 
       <para>
-      After completing the above steps, you are ready to specify base
-      and updates repositories for Red Hat Enterprise Linux.
+      Before you can use the <filename>repos.xml</filename> template with Red
+      Hat repositories, you will need to complete several additional steps. 
+      These steps require at least one active software subscription.
+      Visit the <ulink url="http://www.redhat.com">Red Hat</ulink> website to
+      purchase a subscription.
+      </para>
+
+      <section>
+      <title>Red Hat Enterprise Linux base repositories</title>
+      <para>
+      Once you have an active subscription, complete the following steps to
+      create a base operating system repository and modify the <filename>
+      repos.xml</filename> template to use it.
       </para>
 
       <para>
-      The base repository will point to the Red Hat Enterprise Linux
-      install tree, created in the first step above.  In the example below, this
-      is located at <filename class="directory">http://www.examplecompany.com/
-      install_server/redhat/enterprise/6/en/os/x86_64/</filename>. This location
-      must contain <filename class="directory">isolinux</filename> and 
-      <filename class="directory">images</filename> folders.
+      First, create a base operating system repository.
       </para>
-
-      <para>The update repository will point to the subscribed channel in RHN
-      using a custom <filename>rhn://</filename> protocol in the following
-      format:</para>
-
-      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
-      
-
-      <para>where $rhnhost is the hostname of the server to contact and
-      $rhnchannel is the name of the RHN channel from which to obtain packages.
-      If not specified, $rhnhost defaults to a public Red Hat Network server at
-      xmlrpc.rhn.redhat.com. Valid $rhnchannel values include:
-
-        <simplelist>
-          <member>rhel-x86_64-server-6</member>
-          <member>rhel-x86_64-server-6</member>
-        </simplelist>
-      </para>
-
-      <para>In the following example, Deploy will contact the RHN server
-      located at <filename class="directory">xmlrpc.rhn.examplecompany.com
-      </filename> and request packages from the 
-      <filename>rhel-x86_64-server-6</filename> software channel.</para>
-
+      <orderedlist>
+      <listitem>
       <para>
+      From the <ulink url="http://access.redhat.com/home">Red Hat Customer
+      Portal</ulink>, download an ISO image for the desired version of Red Hat
+      Enterprise Linux. A single DVD image is recommended for easier mounting.
+      </para>
+      </listitem>
+      <listitem>
+      <para>
+      Mount the ISO image to a folder location as follows:
+      </para>
       <informalexample>
-      <programlisting>&lt;repos&gt;
-
-&lt;repo id="base"&gt;
-&lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-&lt;/repo&gt;
-
-&lt;repo id="updates"&gt;
-&lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
-&lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/%{version}Server/en/os/%{arch}/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
-&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
-&lt;/repo&gt;
-
-&lt;/repos&gt; </programlisting>
+      <programlisting>TMPDIR=/mnt/tmp
+mkdir $TMPDIR
+mount -o loop downloaded.iso $TMPDIR</programlisting>
       </informalexample>
+      </listitem>
+      <listitem>
+      <para>
+      Copy contents of the ISO image to a permanent folder. Be sure to also
+      copy the hidden <filename>.treeinfo</filename> file from the root of the
+      ISO image to the permanent folder to avoid errors during Deploy
+      operation. The example below shows coping image contents to a web server
+      location on the localhost.
+      </para>
+      <informalexample>
+      <programlisting>DESTDIR=mirror/rhel/enterprise/6Server/en/os/x86_64
+mkdir -p /var/www/html/$DESTDIR
+cp -pr $TMPDIR/* /var/www/html/$DESTDIR
+cp -p $TMPDIR/.treeinfo /var/www/html/$DESTDIR
+umount $TMPDIR</programlisting>
+      </informalexample>
+      <para>
+      See the <emphasis>Red Hat Enterprise Linux 6 Installation
+      Guide</emphasis>, under the topic <emphasis>Preparing for a Network
+      Installation</emphasis>, for more information.
+      </para>
+      </listitem>
+      </orderedlist>
+
+      <para>
+      Then, modify the repos.xml template to use the repository you have
+      created. Open the <filename>repos.xml</filename> file(s) in the templates
+      folder and modify the <varname>edition</varname> and
+      <varname>rhel-mirror</varname> macros as appropriate.
       </para>
 
-    </section>
+      <informalexample>
+      <programlisting>&lt;macro id='edition'>Server&lt;/macro>
+&lt;macro id='rhel-mirror'>http://localhost/mirror/rhel/enterprise/%{version}%{edition}/en/os/%{arch}&lt;/macro></programlisting>
+      </informalexample>
 
-    <section>
-    <title>Reusing definitions</title>
+      </section>
 
-    <para>
-    Often you will want to reuse the same input repositories across multiple
-    definitions. To accomplish this, you can save your input
-    repository definitions in an external file, and include them into your main
-    definition using <emphasis>XML Includes</emphasis>.
-    </para>
-    
-    <para>
-    The following example shows just such an external file,
-    <filename>repos.xml</filename>, located in the <xref linkend='templates'/>
-    folder.
-    </para>
+      <section>
+      <title>Red Hat Enterprise Linux updates (CDN) repositories</title>
+      <para>
+      Updates repositories for Red Hat Enterprise Linux are provided by the Red
+      Hat Content Delivery Network (CDN). To access repositories from CDN, you
+      will need to obtain SSL certificates, and copy them to the location
+      expected by the <filename>repos.xml</filename> template. See the steps 
+      below:
+      </para>
 
-    <informalexample>
-    <programlisting><xi:include href="../../../../../share/deploy/templates/el6/common/repos.xml" parse="text"
-            xmlns:xi="http://www.w3.org/2001/XInclude" /></programlisting>
-    </informalexample>
+      <orderedlist>
+      <listitem>
+      <para>
+      Install Red Hat Enterprise Linux on a client machine.
+      </para>
+      </listitem>
+      <listitem>
+      <para>
+      Register the machine with Red Hat Subscription Manager (RHSM). This can
+      be done during installation, or at first boot. Or, post installation
+      using the <command>subscription-manager</command> command as follows:
+      </para>
 
-    <para>
-    Below is an example of including repo elements from the
-    <filename>repos.xml</filename> template within a definition.
-    </para>
+      <programlisting>
+subscription-manager register
+subscription-manager attach --auto
+      </programlisting>
+      </listitem>
+      
+      <listitem>
+      <para>
+      Once the machine has an attached subscription, the necessary SSL key and
+      certificates can be located as follows, where <emphasis
+      role='strong'>xxx</emphasis> below is a multiple-digit subscription id:
+      </para>
+      
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='1.5in'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Certificate/Key Type</emphasis></entry>
+      <entry><emphasis role='strong'>Certificate/Key Location</emphasis></entry>
+      </row>
+      <row>
+      <entry>sslcacert</entry>
+      <entry>/etc/rhsm/ca/redhat-uep.pem</entry>
+      </row>
+      <row>
+      <entry>sslclientcert</entry>
+      <entry>/etc/pki/entitlement/xxx.pem</entry>
+      </row>
+      <row>
+      <entry>sslclientkey</entry>
+      <entry>/etc/pki/entitlement/xxx-key.pem</entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
 
-    <informalexample>
-    <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude">
+      <para>
+      To use the the key and certificates with Deploy, copy them to the
+      <filename>%{templates-dir}/%{norm-os}/common/rhsm</filename> folder.
+      Then rename the xxx.pem and xxx-key.pem files as follows, where
+      <varname>%{edition}</varname> and <varname>%{version}</varname> are the
+      edition and version of the installed operating system, e.g. "server" and
+      "6":
+      </para>
 
-...
-&lt;repos>
-&lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
-&lt;/repos>
+      <programlisting>
+mv xxx.pem %{edition}-%{version}.pem
+mv xxx-key.pem %{edition}-%{version}-key.pem
+      </programlisting>
+      </listitem>
+      </orderedlist>
 
-&lt;/definition></programlisting>
-    </informalexample>
-
-    <para>
-    See the <xref linkend='ddfr'/> for complete information on the
-    <emphasis>repos</emphasis> element and its subelements, as well as for more
-    information <emphasis>XML Inclusions (XIncludes)</emphasis>.
-    </para>
-
-    <para>
-    Now that you've identified input repositories, you are ready
-    to start including packages.
-    </para>
+      </section>
     </section>
   </section>
 
@@ -400,9 +375,9 @@
     <title>Specifying Packages</title>
 
     <para>
-    Once you have defined input repositories, you can specify packages and
-    groups to include in your repository. Use the <emphasis>packages</emphasis>
-    top-level element to accomplish this.
+    Once you have defined external repositories, you can specify packages and
+    groups to include. Use the <emphasis>packages</emphasis> top-level element
+    to accomplish this.
     </para>
 
     <para>
@@ -410,7 +385,7 @@
     <emphasis>core</emphasis> group and, depending on the OS version, a few
     extra packages. Because the minimum set varies across OS
     versions, Deploy provides a template, <filename>packages.xml</filename>,
-    to assist with minimum package selection.
+    to assist with package selection.
     </para>
     
     <para>
@@ -445,7 +420,7 @@
 
     <para>
     Many additional groups exist that may be useful based on your scenario.
-    You can browse groups provided by an input repository by opening the
+    You can browse groups provided by an external repository by opening the
     repository's groups file. The groups file can be located in the
     repository's <filename>repodata</filename> folder, with a filename
     typically ending with <filename>comps.xml</filename>.

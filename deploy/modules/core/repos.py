@@ -21,7 +21,7 @@ import ConfigParser
 from deploy.main import DIST_TAG
 
 from deploy.util.repo    import (ReposFromXml, ReposFromFile, RepoContainer,
-                                RepoFileParseError)
+                                 RepoFileParseError, RepoValidationError)
 
 from deploy.util.versort import Version
 
@@ -75,23 +75,27 @@ class ReposEvent(RepoEventMixin, Event):
     self.diff.setup(self.DATA)
 
     updates  = self.cvars.get('repos', RepoContainer())
-    if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.getxpath('.'),
-                                     cls=DeployRepoGroup,
-                                     ignore_duplicates=True,
-                                     locals=self.locals),
-                        ignore_duplicates=True)
 
-    for filexml in self.config.xpath('repofile/text()', []):
-      fn = self.io.abspath(filexml)
-      assert_file_has_content(fn)
-      try:
-        updates.add_repos(ReposFromFile(fn, cls=DeployRepoGroup,
-                                            ignore_duplicates=True,
-                                            locals=self.locals),
+    try:
+      if self.config.pathexists('.'):
+        updates.add_repos(ReposFromXml(self.config.getxpath('.'),
+                                       cls=DeployRepoGroup,
+                                       ignore_duplicates=True,
+                                       locals=self.locals),
                           ignore_duplicates=True)
-      except RepoFileParseError, e:
-        raise DeployRepoFileParseError(e.args[0])
+
+      for filexml in self.config.xpath('repofile/text()', []):
+        fn = self.io.abspath(filexml)
+        assert_file_has_content(fn)
+        try:
+          updates.add_repos(ReposFromFile(fn, cls=DeployRepoGroup,
+                                              ignore_duplicates=True,
+                                              locals=self.locals),
+                            ignore_duplicates=True)
+        except RepoFileParseError, e:
+          raise DeployRepoFileParseError(e.args[0])
+    except RepoValidationError, e:
+      raise DeployRepoValidationError(msg=e) 
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -158,6 +162,9 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
+class DeployRepoValidationError(DeployEventError):
+  message = "%(msg)s"
+
 class InstallerRepoNotFoundError(DeployEventError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository. In system mode, at least one operating "

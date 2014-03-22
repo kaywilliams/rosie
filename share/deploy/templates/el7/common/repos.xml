@@ -1,62 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <repos xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<macro id="edition">server</macro>
+
+<!-- base repo -->
 <repo id="base">
-%{%{os}-base}
+%{%{os}-%{edition}-base}
 
 <macro id="centos-mirror">http://mirror.centos.org/centos/</macro>
-<macro id="centos-base">
+<macro id="centos-server-base">%{centos-everything-base}</macro>
+<macro id="centos-workstation-base">%{centos-everything-base}</macro>
+<macro id="centos-desktop-base">%{centos-everything-base}</macro>
+<macro id="centos-everything-base">
 <baseurl>%{centos-mirror}/%{version}/os/%{arch}</baseurl>
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
-<macro id="rhel-mirror">http://ftp.redhat.com/pub/redhat/rhel/beta/%{version}/%{arch}/os</macro>
-<macro id="rhel-base">
-<baseurl>%{rhel-mirror}</baseurl>
-<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
-<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
+
+<macro id="rhel-server-base">%{rhel-beta-base}</macro>
+<macro id="rhel-beta-mirror">http://ftp.redhat.com/pub/redhat/rhel/beta/7/%{arch}/os</macro>
+<macro id="rhel-beta-base">
+<baseurl>%{rhel-beta-mirror}</baseurl>
+<gpgkey>%{rhel-beta-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
+<gpgkey>%{rhel-beta-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
 
 <!--
-<macro id="edition">Server</macro>
-<macro id="rhel-mirror">http://mirror.company.com/rhel/enterprise/%{version}%{edition}/en/os/%{arch}</macro>
-<macro id="rhel-base">
-<baseurl>%{rhel-mirror}</baseurl>
-<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
-<gpgkey>%{rhel-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
+<macro id="rhel-server-mirror">http://mirror.company.com/rhel/enterprise/6Server/en/os/%{arch}</macro>
+<macro id="rhel-server-base">
+<baseurl>%{rhel-server-mirror}</baseurl>
+<gpgkey>%{rhel-server-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
+<gpgkey>%{rhel-server-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
 -->
 </repo>
 
+<!-- updates repo -->
 <repo id="updates">
-%{%{os}-updates}
+%{%{os}-%{edition}-updates}
 
-<macro id="centos-updates">
+<macro id="centos-server-updates">%{centos-everything-updates}</macro>
+<macro id="centos-workstation-updates">%{centos-everything-updates}</macro>
+<macro id="centos-dekstop-updates">%{centos-everything-updates}</macro>
+<macro id="centos-everything-updates">
 <baseurl>%{centos-mirror}/%{version}/updates/%{arch}</baseurl>
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
-<macro id="rhel-updates">
-%{rhel-base}
+<macro id="rhsm-dir">%{templates-dir}/%{norm-os}/common/rhsm</macro>
+<macro id="rhel-server-updates">%{rhel-beta-updates}</macro>
+<macro id="rhel-beta-updates">
+<baseurl>https://cdn.redhat.com/content/beta/rhel/everything/7/%{arch}/os</baseurl>
+<sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
+<sslclientcert>%{rhsm-dir}/beta-7.pem</sslclientcert>
+<sslclientkey>%{rhsm-dir}/beta-7-key.pem</sslclientkey>
 </macro>
 
 <!--
-<macro id="rhel-updates">
-<baseurl>https://cdn.redhat.com/content/beta/rhel/%{edition}/%{version}/%{arch}/os</baseurl>
-<sslcacert>/etc/rhsm/ca/redhat-uep.pem</sslcacert>
-<sslclientkey>/etc/pki/entitlement/xxx-key.pem</sslclientkey>
-<sslclientcert>/etc/pki/entitlement/xxx.pem</sslclientcert>
-</macro>
--->
-
-<!-- example rhn repo defition
-<macro id="rhel-updates">
-<baseurl>rhn://xmlrpc.rhn.redhat.com/rhel-%{arch}-%{edition}-%{version}</baseurl>
-<systemid>/etc/sysconfig/rhn/systemid-%{version}%{edition}-%{arch}</systemid>
+<macro id="rhel-server-updates">
+<baseurl>https://cdn.redhat.com/content/beta/rhel/Server/7/%{arch}/os</baseurl>
+<sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
+<sslclientcert>%{rhsm-dir}/server-7.pem</sslclientcert>
+<sslclientkey>%{rhsm-dir}/server-7-key.pem</sslclientkey>
 </macro>
 -->
 </repo>
 
+<!-- epel repo -->
 <repo id='epel'>
 <macro id='epel-mirror'>http://dl.fedoraproject.org/pub/epel</macro>
 <baseurl>%{epel-mirror}/%{version}/%{arch}</baseurl>

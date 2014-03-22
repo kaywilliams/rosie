@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Cleanup and Maintenance</title>
+
+  <para>
+  Each time you change the id element in a definition, either directly or
+  indirectly using a command-line macro, Deploy creates new folders in the
+  publish and cache folders (<emphasis>/var/www/html/deploy</emphasis> and
+  <emphasis>/var/cache/deploy</emphasis>, by default). To preserve hard drive
+  space, you may wish to review the publish and cache folders on occasion.
+  Folders for obsolete system and package repositories can be deleted using
+  standard file system methods, as shown below: 
+  </para>
+
+  <informalexample>
+  <programlisting>
+rm -rf <emphasis>obsolete_folder</emphasis>
+  </programlisting>
+  </informalexample>
+
+</section>

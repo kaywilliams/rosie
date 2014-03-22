@@ -6,7 +6,7 @@
 
   <para>
   Defining package repositories is much like defining system repositories, as
-  discussed in <xref linkend='building-a-system'/> and <xref
+  discussed in <xref linkend='building-a-system-repository'/> and <xref
   linkend='building-rpms'/> earlier in this document. Technically, package
   repositories are subsets of system repositories, containing just the packages
   needed to deploy application-specific or organization-specific software and
@@ -66,8 +66,8 @@
   </para>
   </section>
 
-  <section>
-  <title>Excluding packages from external repositories</title>
+  <section id="excluding-package-repositories">
+  <title>Excluding packages</title>
   <para>
   Packages in your repository will often have dependencies on packages in
   external repositories. Deploy helps you ensure that your packages will
@@ -106,10 +106,12 @@
   <para>
   You can exclude packages from specific repositories using the <emphasis
   role='strong'>repo/download</emphasis> element. By default, the value of this
-  element is <emphasis>'false'</emphasis>, meaning that packages will not be
-  downloaded, for repos with the <emphasis role='strong'>@id</emphasis> of
-  <emphasis>'base'</emphasis> or <emphasis>'updates'</emphasis> and
-  <emphasis>'true'</emphasis> for all others.
+  element is <emphasis>'false'</emphasis> for repos with the <emphasis
+  role='strong'>@id</emphasis> of <emphasis>'base'</emphasis> or
+  <emphasis>'updates'</emphasis> and <emphasis>'true'</emphasis> for all
+  others.  The effect of this behavior is that packages from operating system
+  repositories will not be included in <emphasis>package</emphasis>-type
+  repositories. They will, however, be used for resolving dependencies.
   </para>
 
   <para>
@@ -128,8 +130,9 @@
   </informalexample>
 
   <para>
-  For more information, see the <emphasis>Repos</emphasis> section in the <xref
-  linkend='ddfr'/>
+  For more information on the <emphasis>download</emphasis> element, and the
+  <emphasis>repos</emphasis> element in general, see the
+  <emphasis>Repos</emphasis> section in the <xref linkend='ddfr'/>
   </para>
   </section>
 

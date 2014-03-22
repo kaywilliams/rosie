@@ -16,8 +16,6 @@
 <requires>python-hashlib</requires>
 <requires>python-lxml</requires>
 <requires>python-setuptools</requires>
-<requires>rhnlib</requires>
-<requires>rhn-client-tools</requires>
 <requires>rng-tools</requires>
 <requires>rpm-build</requires>
 <requires>rpmdevtools</requires>

@@ -6,7 +6,7 @@ from deploy.util import pps
 from deploy.util import rxml
 
 __all__ = ['BaseRepo', 'IORepo', 'YumRepo', 'RepoContainer', 'RPM_PNVRA_REGEX',
-           'RepoDuplicateIdsError']
+           'RepoDuplicateIdsError', 'RepoValidationError']
 
 RPM_PNVRA_REGEX = re.compile('(?P<path>.*/)?'  # all chars up to the last '/'
                              '(?P<name>.+)'    # rpm name
@@ -28,6 +28,8 @@ class BaseRepo(dict):
     dict.__init__(self, **kwargs)
 
     self.vars = {} # dict of substr:replace values (use with $yumvars, for ex.)
+
+    self.validate_ssl_options()
 
   @property
   def id(self):         return self.get('id', None)
@@ -144,6 +146,22 @@ class BaseRepo(dict):
         for i in self._itemsplit(k, v, fmt1='%(value)s').split():
           fn(k, text=i, parent=repo)
     return repo
+
+  def validate_ssl_options(self):
+    opts = {'sslcacert'    : self.get('sslcacert', None),
+            'sslclientcert': self.get('sslclientcert', None),
+            'sslclientkey' : self.get('sslclientkey', None) }
+
+    if opts['sslcacert'] or opts['sslclientkey'] or opts['sslclientcert']:
+      for opt, file in opts.items():
+        file = pps.path(file)
+        if not file:
+          raise RepoInvalidSSLOptionError("Missing option '%s' for repo '%s'" % 
+                                         (opt, self.id))
+        if not file.isfile():
+          raise RepoInvalidSSLOptionError("Invalid option '%s' for repo '%s': "
+                                          "File not found '%s'" % 
+                                         (opt, self.id, file))
 
 
 NSMAP = dict(repo   = 'http://linux.duke.edu/metadata/repo',
@@ -374,6 +392,8 @@ class RepoContainer(dict):
         return
       else:
         raise RepoDuplicateIdsError(id=repo.id)
+
+    
     self[repo.id].update(**kwargs)
 
   def add_repos(self, repocontainer, **kwargs):
@@ -567,9 +587,13 @@ def pkgtup(pkgpath):
   except AttributeError:
     return (None, None, None, None, None)
 
-class InvalidFileError(RuntimeError): pass
+class RepoError(RuntimeError): pass
 
-class RepoDuplicateIdsError(StandardError):
+class InvalidFileError(StandardError): pass
+
+class RepoValidationError(RepoError): pass
+
+class RepoDuplicateIdsError(RepoValidationError):
   def __init__(self, id):
     self.id = id
     self.message = "Duplicate ids found: '%s'" % self.id
@@ -577,3 +601,4 @@ class RepoDuplicateIdsError(StandardError):
   def __str__(self):
     return self.message
   
+class RepoInvalidSSLOptionError(RepoValidationError): pass

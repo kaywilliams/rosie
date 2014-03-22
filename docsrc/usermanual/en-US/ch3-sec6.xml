@@ -2,10 +2,10 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Updating Repositories</title>
+  <title>Updating a System Repository</title>
 
   <para>
-  To keep your repository current, you will need to run Deploy on a
+  To keep your system content current, you will need to run Deploy on a
   regular basis. Each time Deploy runs, it checks for changes in the
   definition or in input data - such as new packages available from
   an input repository - and refreshes the repository as necessary.

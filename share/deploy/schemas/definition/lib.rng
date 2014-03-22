@@ -148,13 +148,6 @@
       </element>
       </optional>
 
-      <optional>
-      <element name="systemid">
-        <ref name="xml-base"/>
-        <text/>
-      </element>
-      </optional>
-
       <zeroOrMore>
       <element name="include">
         <ref name="xml-base"/>

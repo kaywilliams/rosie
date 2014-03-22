@@ -3,6 +3,7 @@
 
 <macro id='name'>deploy-developer</macro>
 <macro id='os'>centos</macro>
+<macro id='edition'>server</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
@@ -36,8 +37,6 @@
 
 <srpmbuild>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-srpms.xml"
-            xpointer="xpointer(./*)"/>
 </srpmbuild>
 
 <test-update>

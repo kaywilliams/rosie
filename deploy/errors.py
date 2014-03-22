@@ -135,12 +135,6 @@ class ShLibError(DeployEventError):
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, DeployEventError):
-  def __str__(self):
-    return ( "RHN support not enabled - please install the 'rhnlib' and "
-             "'rhn-client-tools' packages from the deploy software repo "
-             "at www.deployproject.org" )
-
 class MissingIdError(DeployEventError):
   message = ("Validation Error: Missing 'id' attribute while validating "
              "'%(element)s' elements.")

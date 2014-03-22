@@ -53,8 +53,8 @@
             <entry>/usr/share/deploy/templates/</entry>
 
             <entry>
-            Templates for use in definition creation. See the section on <xref
-            linkend='templates'/> in the Glossary of Terms for more information.
+            Templates for use in definition creation. Discussed in <xref
+            linkend='working-with-templates'/>.
             </entry>
           </row>
           <row>

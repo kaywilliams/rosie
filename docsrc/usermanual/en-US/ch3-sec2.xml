@@ -5,11 +5,12 @@
   <title>Working with Templates</title>
 
   <para>
-  Before you can use Deploy, you must first create a definition describing the
-  work you want it to do. Definitions can feel somewhat daunting at first, but
-  Deploy includes a number of templates to help with the task. In fact, you 
-  will almost never create a definition from scratch. It is much easier to
-  copy an existing template and modify.
+  Before you can use Deploy, you must first create a definition. Definitions
+  describe the content to include in your system, as well as instructions for
+  ongoing testing, deployment, and maintenance.  Definitions can feel somewhat
+  daunting at first, but Deploy includes a number of templates to help with the
+  task. In fact, you will almost never create a definition from scratch. It is
+  much easier to copy an existing template and modify.
   </para>
 
   <para>
@@ -55,7 +56,8 @@ cp -a /usr/share/deploy/templates/* /my/templates/folder
   this using the <varname>%{templates-dir}</varname> macro. When Deploy sees
   this macro it will look for the specified file in a folder listed in 
   <filename>deploy.conf</filename> (multiple folders can be listed). If it
-  cannot find the file, it will then search the default location.
+  cannot find the file, it will then search look for the file in the default
+  templates folder.
   </para>
 
   <para>
@@ -63,4 +65,12 @@ cp -a /usr/share/deploy/templates/* /my/templates/folder
   throughout the remainder of this document.
   </para>
 
+  <para>
+  Information on templates and template folders is also available 
+  in the <ulink
+  url="http://www.deployproject.org/docs/ddfr">Deploy Definition File
+  Reference (DDFR)</ulink> and the <ulink
+  url="http://www.deployproject.org/docs/deploy.conf">Deploy
+  Configuration File Manual Page (man deploy.conf)</ulink>.
+  </para>
 </section>

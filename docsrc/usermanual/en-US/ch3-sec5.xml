@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id='building-repositories'>
-  <title>Building Repositories</title>
+<section id='building-systems'>
+  <title>Building a System Repository</title>
 
   <para>
   Now that you have defined your repository, you use the
@@ -16,13 +16,12 @@
   </para>
 
   <para>
-  The initial build of a repository can be time consuming, on the order of
-  several minutes to an hour or more, depending on the location of package
-  repositories (local or remote), network connection speed, the number of
-  packages included in the repository, and the amount of content that can be
-  reused from the Deploy shared cache. Subsequent builds complete in
-  much less time, often less than a minute, depending on the level and type of
-  change since the previous build.
+  The initial build of a repository can be time consuming, on the order of 2-10
+  minutes or more, depending on the location of package repositories (local or
+  remote), network connection speed, the number of packages included in the
+  repository, and the amount of content that can be reused from the Deploy
+  shared cache.  Subsequent builds complete in much less time, often less than
+  a minute, depending on the level and type of change since the previous build.
   </para>
 
   <para>To build the web-server repository we have been defining, enter the
@@ -41,8 +40,6 @@
   <para>
   When the process is complete, you can locate your new repository at
   <filename>/var/www/html/deploy/systems/web-server-6-i386</filename>.
-  Package-type repositories will be located in the  
-  <filename>/var/www/html/deploy/packages</filename> folder.
   </para>
   
   <para>
@@ -50,7 +47,7 @@
   linkend='data-file'/>,
   <filename>web-server-6-i386.dat</filename>, in the same location as you
   definition. Take care not to delete this file as it contains
-  important information for your repository.
+  important information for your system.
   </para>
 
   <section>
@@ -60,27 +57,11 @@
   Because we were careful to make use of macros while creating the definition,
   the same definition can be used for multiple operating system versions and
   architectures. To provide the desired version and arch when executing Deploy, use the <constant>--macro</constant> command line option. The example
-  below shows using command line macros to specify both version and arch.
+  below shows using command line macros to specify both os and arch.
   </para>
 
   <para><informalexample>
-      <programlisting>#deploy --macro "version:6" --macro "arch:x86_64" web-server.definition</programlisting>
+      <programlisting>#deploy --macro "os:rhel" --macro "arch:x86_64" web-server.definition</programlisting>
     </informalexample></para>
-
-  <note>
-  <para>
-  If your repository uses RHN channels as repositories, Deploy may
-  occasionally report errors such as the following while downloading or
-  verifying repository metadata:
-
-  <programlisting>[repos] long int too large to convert to int</programlisting> 
-
-  This can happen when Deploy receives invalid data from RHN. (Typically
-  this occurs when data is being replicated across RHN servers). The error may
-  be corrected by running Deploy again, either immediately or after
-  waiting several minutes.
-  </para>
-  </note>
   </section>
-
 </section>

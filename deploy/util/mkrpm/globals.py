@@ -128,7 +128,6 @@ rpmtag = {
   "payloadformat": (1124, RPM_STRING, None, 0),    # "cpio"
   "payloadcompressor": (1125, RPM_STRING, None, 0),# "gzip" or "bzip2"
   "payloadflags": (1126, RPM_STRING, None, 0),     # "9"
-  "rhnplatform": (1131, RPM_STRING, None, 4),      # == arch
   "platform": (1132, RPM_STRING, None, 0),
 
   # rpm source packages:

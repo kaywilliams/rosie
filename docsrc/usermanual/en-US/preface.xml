@@ -12,9 +12,10 @@
     administrators. It assumes basic experience with software packaging and
     package repositories, as well as with system installation, system and
     application configuration, and software updating. Background knowledge in
-    XML file creation and editing, system automation using BASH or other
-    scripting languages, and networking and machine virtualization will also
-    assist the reader.
+    XML file creation and editing, XML Includes (XInclude), the XML Path
+    Language (XPath), system automation using BASH or other scripting
+    languages, and networking and machine virtualization will also assist the
+    reader.
     </para>
 
   </section>
@@ -88,7 +89,7 @@
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>repo</emphasis>. For
           more details on XPath syntax, see <ulink
-          url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
+          url="http://www.w3.org/TR/xpath">XML Path Language</ulink>.
           </para>
         </listitem>
       </varlistentry>

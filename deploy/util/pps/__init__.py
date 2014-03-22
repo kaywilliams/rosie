@@ -156,10 +156,6 @@ def register_scheme(scheme, fn, args=None, kwargs=None):
 import Path
 
 #import Path.ftp # not fully implemented
-try:
-  import Path.rhn
-except ImportError:
-  pass
 import Path.mirror
 import Path.http
 import Path.local

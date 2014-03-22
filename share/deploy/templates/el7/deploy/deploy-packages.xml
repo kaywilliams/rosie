@@ -23,7 +23,5 @@
 <srpmbuild>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/rhn-srpms.xml"
-            xpointer="xpointer(./*)"/>
 </srpmbuild>
 </xml>

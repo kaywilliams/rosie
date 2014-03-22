@@ -12,188 +12,19 @@
     </title>
 
     <para>
-    Contains a list of input repositories that Deploy uses to download  
-    packages for the repository.
+    The repos element specifies repositories that Deploy uses to download
+    required packages.
     </para>
 
     <para>
-    When the value of <xref linkend="main-type"/> is "system", <application
-    class="software">Deploy </application> requires at least one input
-    repository.  Repositories are specified using <emphasis>repo</emphasis>
-    elements (see <emphasis>&lt;xref linkend="repo" /&gt;</emphasis>). Valid
-    repository definitions must include a minimum of one baseurl.
-    Furthermore, all repositories must have a unique id.
+    Repositories are specified using <emphasis><xref
+    linkend='repo'/></emphasis> elements.
     </para>
 
-    <section id="repo-base-repository">
-      <title>
-      Base Repositories
-      </title>
-      <para>
-      Also when the value of <xref linkend="main-type"/> is "system", at least
-      one of the input repositories must specify an operating system base
-      repository containing install images and isolinux files. These files are
-      located within folders called <filename>images</filename> and
-      <filename>isolinux</filename>, respectively, and are used to create
-      installation images for the system. Base repositories include CentOS base
-      repositories, Red Hat Enterprise Linux base repositories, or any system
-      repository created by Deploy. Multiple base repositories may be
-      specified, making it possible to create new system repositories, for
-      example, by starting with a Deploy created system repository and
-      adding packages from compatible CentOS or RHEL base and update
-      repositories.
-      </para>
-      
-      <para>
-      For CentOS, and Deploy-created repositories, the base repository
-      will be a public or local mirror.  For Red Hat Enterprise Linux, it will
-      be an install tree created by using the following command to mount an ISO
-      image file to a local or web-available network location:
-      </para>
-      
-      <informalexample>
-      <synopsis>mount -o loop <emphasis>isofile</emphasis><emphasis>mount_location</emphasis></synopsis>
-      </informalexample>
-      
-      <para>
-      See the <emphasis>Red Hat Enterprise Linux 6 Installation
-      Guide</emphasis> under the topic <emphasis>Preparing for a Network
-      Installation</emphasis> for more information.
-      </para>
-
-    </section>
-
-    <section id="repo-rhn-repositories">
-      <title>
-      Red Hat Network Repositories
-      </title>
-      <para>
-      Deploy supports connecting to and downloading packages from Red
-      Hat Network (RHN) servers. 
-      </para>
-
-      <para>
-      Prior to using Deploy to access updates from RHN you will
-      need to create a systemid. This requires an available subscription to 
-      Red Hat Enterprise Linux. See the Red Hat web site for purchase
-      information. Once you have an available subscription, install Red Hat 
-      Enterprise Linux 6 in the desired architecture version (i386 or x86_64)
-      onto a client machine. Register the machine to Red Hat Network during
-      installation, or first boot, or later using the 
-      <command>rhn_register</command> command. Once the machine has successfully
-      registered with RHN, a systemid file will be created in the 
-      <filename class="directory">/etc/sysconfig/</filename> folder of the
-      machine. This is the file you will use to configure Deploy to
-      access software from RHN. You may copy this file to the Deploy
-      build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your repository, you can use the Red Hat
-      Network web user interface to locate the machine, and view and alter its
-      channel subscriptions.</para>
-
-      <para>After the above steps are completed, you are ready to create RHN
-      repository definitions. In the definitions, you will use a custom 
-      <filename>rhn://</filename> protocol, as follows, to specify a URL for 
-      the channel:</para>
-
-      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
-
-      <para>In the above, $rhnhost is the hostname of the server to contact and
-      $rhnchannel is the label of the RHN channel from which to obtain packages.
-      If not specified, $rhnhost defaults to a public Red Hat Network server at
-      xmlrpc.rhn.redhat.com. RHN channel labels can be located in the RHN web 
-      user interface by clicking the name of a channel. Common channel labels 
-      include the following:
-
-        <simplelist>
-          <member>rhel-i386-server-6</member>
-          <member>rhel-i386-server-vt-6</member>
-          <member>rhel-x86_64-server-6</member>
-          <member>rhel-x86_64-server-vt-6</member>
-        </simplelist>
-      </para>
-
-      <para>Separate repositories must be defined for the base channel as
-      well as for each child channel. See 
-      <emphasis><xref linkend="repo-rhn-example"/></emphasis> for
-      an example.</para>
-
-    </section>
-
-    <section id="repo-including-excluding-repository-content">
-      <title>
-      Including and Excluding Repository Content
-      </title>
-
-      <para>
-      By default, all packages in all repositories are available for 
-      Deploy to use. Packages can be excluded from <emphasis>all 
-      repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
-      element. See <xref linkend="packages" /> for information.
-      </para>
-
-      <para>
-      Available packages for <emphasis>a single repository</emphasis> can be
-      restricted by using one or more <emphasis>repo/exclude</emphasis> or
-      <emphasis>repo/include</emphasis> elements. The logic for processing
-      these elements, described below, is the same as YUM's processing of
-      <varname>include</varname> and <varname>exclude</varname> repo
-      options.
-      </para>
-
-      <para>
-      Using a repository's <emphasis>repo/include</emphasis>
-      elements, the list of available packages is restricted to only those
-      packages that match one or more of the included <varname>PACKAGE</varname>
-      patterns. If no <emphasis>repo/include</emphasis> patterns are 
-      specified, all packages are considered available.
-      </para>
-
-      <para>
-      After processing a repository's <emphasis>repo/include</emphasis>
-      elements, the <emphasis>repo/exclude</emphasis> element can be used to
-      selectively remove specific packages from the list of available packages
-      for the repository. Any package matching one or more of the
-      <varname>PACKAGE</varname> patterns specified in a
-      <emphasis>repo/exclude</emphasis> element will be ignored by Deploy.
-      </para>
-
-      <para>
-      See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis>
-      for an example.
-      </para>
-
-    </section>
-
-    <section id="repo-group">
-      <title>
-      Repository Groups
-      </title>
-
-      <para>
-      Deploy supports an expanded type of repository, a
-      "repository group". A repository group is a collection of standard
-      YUM repositories within a single folder. This feature allows, for 
-      example, defining a Red Hat Enterprise Linux installation tree as a
-      single repository when in fact it contain multiple repositories.</para>
-
-      <para>
-      For example, if there are three repositories
-      <filename>repoA</filename>, <filename>repoB</filename>, and
-      <filename>repoC</filename> in folder <filename>/var/repos</filename>,
-      all the repos can be included in Deploy using a repo group:
-      </para>
-
-      <programlisting>
-&lt;repo id="repogroup"&gt;
-  &lt;baseurl&gt;/var/repos&lt;/baseurl&gt;
-&lt;/repo&gt;</programlisting>
-
-      <para>
-      This repository contains all the packages available in each
-      of the individual repositories <filename>repoA</filename>,
-      <filename>repoB</filename>, and <filename>repoC</filename>.
-      </para>
-    </section>
+    <para>
+    Repo elements can also be specified within 
+    <xref linkend='config-rpm'/> elements.
+    </para>
 
   </section>
 
@@ -206,11 +37,13 @@
 [&lt;repos>
   &lt;repo id=TEXT>*
     (&lt;baseurl>URL&lt;/baseurl> | 
-    [&lt;download>BOOLEAN&lt;/download>]* | 
+    [&lt;download>BOOLEAN&lt;/download>] | 
     [&lt;exclude>PACKAGE&lt;/exclude>]* | 
     [&lt;gpgkey>PATH&lt;/gpgkey>]* | 
     [&lt;include>PACKAGE&lt;/include>]* | 
-    [&lt;systemid>TEXT&lt;/systemid>])
+    [&lt;sslcacert>PATH&lt;/sslcacert>] | 
+    [&lt;sslclientcert>PATH&lt;/sslclientcert>] | 
+    [&lt;sslclientkey>PATH&lt;/sslclientkey>] | 
   &lt;/repo>
 &lt;/repos>]</programlisting>
   </section>
@@ -228,24 +61,45 @@
 
       <listitem>
       <para>
-      An RPM package repository from which to select packages for  
+      A YUM package repository from which to select packages for  
       including in the repository.
       </para>
 
       <para>
+      Valid repository definitions must include a minimum of one baseurl.
+      Furthermore, all repositories must have a unique id.
+      </para>
+
+      <para>
       This element can occur zero or more times. However, if <xref
-      linkend='main-type'/> is "system", the <emphasis
-      role="strong">repo</emphasis> top-level element must have at least one
-      <emphasis>repos/repo</emphasis> element.
+      linkend='main-type'/> is "system", at least one <emphasis
+      role="strong">repo</emphasis> must be defined: an operating system base
+      repository.  Base repositories are unique in that they contain install
+      images and isolinux files. These files are located within folders named
+      <filename>images</filename> and <filename>isolinux</filename>,
+      respectively. They are used to create installation images for the system.
+      Base repositories include CentOS and Red Hat Enterprise Linux.
+      </para>
+      
+      <para>
+      For CentOS, the base repository will be a public or local mirror.  For
+      Red Hat Enterprise Linux, it will be an install tree created by using the
+      following command to mount an ISO image file to a local or web-available
+      network location:
+      </para>
+      
+      <informalexample>
+      <synopsis>mount -o loop <emphasis>isofile</emphasis><emphasis>mount_location</emphasis></synopsis>
+      </informalexample>
+      
+      <para>
+      See the <emphasis>Red Hat Enterprise Linux 6 Installation
+      Guide</emphasis> under the topic <emphasis>Preparing for a Network
+      Installation</emphasis> for more information.
       </para>
 
       <para>
-      The repo element provides a means to define various properties about
-      <application>YUM</application> and RHN repositories.
-      </para>
-
-      <para>
-      Attributes
+      <emphasis role='strong'>Attributes</emphasis>
       </para>
 
       <variablelist>
@@ -254,7 +108,8 @@
 
         <listitem>
         <para>
-        A unique one-word <varname>ID</varname> representing this repository.
+        A unique <varname>ID</varname> representing this repository. Spaces
+        are not permitted in the ID.
         </para>
 
         <para>
@@ -266,12 +121,21 @@
         repository is used and duplicates are silently ignored.
         </para>
 
+        <para>
+        Deploy gives special meaning to repositories with the ids
+        "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
+        repositories are assumed to be associated with the base operating
+        system.  This special meaning applies only when creating
+        <emphasis>package</emphasis>-type repositories, see the <xref
+        linkend='download'/> element for additional information. 
+        </para>
+
         </listitem>
       </varlistentry>
       </variablelist>
 
       <para>
-      Elements
+      <emphasis role='strong'>Elements</emphasis>
       </para>
 
       <variablelist>
@@ -283,6 +147,30 @@
         <listitem>
         <para>
         URL to a valid repository.
+        </para>
+
+        <para>
+        Deploy supports an expanded type of repository, a "repository group". A
+        repository group is a collection of repositories within a single
+        baseurl.
+        </para>
+
+        <para>
+        For example, if there are three repositories
+        <filename>repoA</filename>, <filename>repoB</filename>, and
+        <filename>repoC</filename> in folder <filename>/var/repos</filename>,
+        all the repos can be included in Deploy as follows:
+        </para>
+
+        <programlisting>
+&lt;repo id="repogroup"&gt;
+  &lt;baseurl&gt;/var/repos&lt;/baseurl&gt;
+&lt;/repo&gt;</programlisting>
+
+        <para>
+        This repository contains all the packages available in each
+        of the individual repositories <filename>repoA</filename>,
+        <filename>repoB</filename>, and <filename>repoC</filename>.
         </para>
 
         <para>
@@ -334,15 +222,46 @@
         </para>
 
         <para>
+        By default, all packages in all repositories are available for 
+        Deploy to use. Packages can be excluded from <emphasis>all 
+        repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
+        element. See <xref linkend="packages" /> for information.
+        </para>
+
+        <para>
+        Available packages for <emphasis>a single repository</emphasis> can be
+        restricted using one or more <emphasis>repo/exclude</emphasis> or
+        <emphasis>repo/include</emphasis> elements. The logic for processing
+        these elements, described below, is the same as YUM's processing of
+        <varname>exclude</varname> and <varname>includepkgs</varname> repo
+        options.
+        </para>
+
+        <para>
+        Using a repository's <emphasis>repo/include</emphasis> elements, the
+        list of available packages is restricted to only those packages that
+        match one or more of the included package patterns.  If no
+        <emphasis>repo/include</emphasis> package patterns are specified, all
+        packages are considered available.
+        </para>
+
+        <para>
+        After processing a repository's <emphasis>repo/include</emphasis>
+        elements, Deploy processes <emphasis>repo/exclude</emphasis> elements.
+        Packages matching patterns specified in these elements will be ignored.
+        </para>
+
+        <para>
         This element can occur zero or more times.
         </para>
 
         <para>
-        See <xref linkend="content-package"/> for information on PACKAGE values.
+        See <xref linkend="content-package"/> for information on PACKAGE
+        patterns.
         </para>
+
         <para>
-        See Also <emphasis>
-        <xref linkend="repo-including-excluding-repository-content" /></emphasis>.
+        See also <emphasis><xref linkend="include-package"/></emphasis>.
         </para>
         </listitem>
       </varlistentry>
@@ -371,22 +290,21 @@
         </para>
 
         <para>
-        See Also the <emphasis><xref linkend="release-rpm" /></emphasis>
+        See also the <emphasis><xref linkend="release-rpm" /></emphasis>
         element.
         </para>
 
         </listitem>
       </varlistentry>
 
-      <varlistentry id="include-package"
-                   >
+      <varlistentry id="include-package">
         <term>
         include
         </term>
 
         <listitem>
           <para>
-          Package pattern to include from the repository. If one or more
+          PACKAGE pattern to include from the repository. If one or more
           <emphasis>repo/include</emphasis> patterns are defined, the
           repository will include only packages that match these patterns and
           nothing else.
@@ -398,33 +316,92 @@
 
           <para>
           See <xref linkend="content-package"/> for information on PACKAGE
-          values.
+          patterns.
           </para>
 
           <para>
-          See Also <emphasis>
-          <xref linkend="repo-including-excluding-repository-content" /></emphasis>.
+          See also <emphasis><xref linkend="exclude"/></emphasis>.
           </para>
           </listitem>
         </varlistentry>
 
-        <varlistentry id="systemid"
-                     >
+        <varlistentry id="sslcacert">
           <term>
-          systemid
+          sslcacert
           </term>
 
           <listitem>
           <para>
-          PATH to a systemid file to use when contacting the Red Hat Network.
+          PATH to a file or directory containing certificate authority
+          certificates to be used to verify SSL certificates.
           </para>
 
           <para>
-          This element is required when using RHN baseurls.
+          This element is required when providing
+          <constant>sslclientcert</constant> and
+          <constant>sslclientkey</constant> elements.
           </para>
 
           <para>
-          See <xref linkend='content-path'/> for informaiton on PATH values.
+          See <xref linkend='repos.xml'/> for an example.
+          </para>
+          
+          <para>
+          See <xref linkend='content-path'/> for information on PATH values.
+          </para>
+
+          </listitem>
+        </varlistentry>
+
+        <varlistentry id="sslclientcert">
+          <term>
+          sslclientcert
+          </term>
+
+          <listitem>
+          <para>
+          PATH to a file containing an SSL certificate for connecting to the 
+          repository.
+          </para>
+
+          <para>
+          This element is required when providing <constant>sslcacert</constant>
+          and <constant>sslclientkey</constant> elements.
+          </para>
+
+          <para>
+          See <xref linkend='repos.xml'/> for an example.
+          </para>
+
+          <para>
+          See <xref linkend='content-path'/> for information on PATH values.
+          </para>
+
+          </listitem>
+        </varlistentry>
+
+        <varlistentry id="sslclientkey">
+          <term>
+          sslclientkey
+          </term>
+
+          <listitem>
+          <para>
+          PATH to a file containing an SSL client key for connecting to the 
+          repository.
+          </para>
+
+          <para>
+          This element is required when providing <constant>sslcacert</constant>
+          and <constant>sslclientcert</constant> elements.
+          </para>
+
+          <para>
+          See <xref linkend='repos.xml'/> for an example.
+          </para>
+          
+          <para>
+          See <xref linkend='content-path'/> for information on PATH values.
           </para>
 
           </listitem>
@@ -441,15 +418,103 @@
     </title>
 
     <para>
-    In the following examples, line breaks have been added to the
+    In the following example, line breaks may have been added to the
     <emphasis>repos/repo/baseurl</emphasis> to improve readability.
     In a real repository definition, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
+    <section id="repos.xml">
+    <title>Example 1 - repos.xml template</title>
+    <para>
+    Deploy includes a template to assist with repository definition. The
+    template is located at
+    <filename>%{templates-dir}/el6/common/repos.xml</filename>. It can be used
+    within a definition as follows:
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;repos>
+&lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+&lt;/repos>
+    </programlisting>
+    </informalexample>
+
+    <para>
+    Users will need to complete additional steps to make 
+    effective use of the <filename>repos.xml</filename> template. These steps
+    include:
+    </para>
+
+    <orderedlist>
+    <listitem>
+    <para>
+    Copying the file to a custom templates folder and making Deploy aware of
+    that folder (recommended).
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    For CentOS-based systems:
+    <orderedlist>
+    <listitem>
+    <para>
+    Modifying the <emphasis>centos-mirror</emphasis> 
+    macro definition to point to a local mirror (optional).
+    </para>
+    </listitem>
+    </orderedlist>
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    For RHEL-based systems:
+    </para>
+    <orderedlist>
+    <listitem>
+    <para>
+    Creating a rhel-base repository, which includes downloading an ISO image
+    and making the contents available on the local machine or from a network
+    file location (required).
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    Modifying the <emphasis>rhel-mirror</emphasis> macro definition to point to
+    the location created above (required).
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    Obtaining an SSL key and SSL certificates for accessing RHEL repositories
+    using the Red Hat Content Delivery Network (CDN), and place these files in
+    the location specified by the template (required).
+    </para>
+    </listitem>
+    </orderedlist>
+    </listitem>
+    </orderedlist>
+    
+    <para> 
+    These steps are discussed in detail in the <ulink
+    url="http://www.deployproject.org/docs/usermanual">Deploy User
+    Manual</ulink> under "Creating a Definition".
+    </para>
+
+    <para>
+    The complete text of <filename>repos.xml</filename> is shown below:
+    </para>
+
+    <informalexample>
+    <programlisting><xi:include href="../../../../../share/deploy/templates/el6/common/repos.xml" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </informalexample>
+    </section>
+
     <section  id="repo-include-exclude-example">
       <title>
-      Example 1 - using <emphasis>repos/repo/include</emphasis>
+      Example 2 - using <emphasis>repos/repo/include</emphasis>
       and <emphasis>repos/repo/exclude</emphasis>
       </title>
 
@@ -459,11 +524,6 @@
       those that match the <varname>PACKAGE</varname> pattern "xorg-x11-drv*"
       while the second repository only includes packages that match the
       same pattern.
-      </para>
-
-      <para>
-      Additionally, Deploy will include any and all repositories defined
-      in the file <filename>centos-extras.repo</filename>.
       </para>
 
       <informalexample>
@@ -485,44 +545,11 @@
 &lt;/repos&gt;</programlisting>
       </informalexample>
     </section>
-
-    <section id="repo-rhn-example">
-      <title>
-      Example 2 - Red Hat Network repositories
-      </title>
-
-      <para>
-      Repositories that utilize the <filename>rhn</filename> protocol to contact
-      the Red Hat Network require a systemid to be specified. See
-      <xref linkend="repo-rhn-repositories" /> for more information on using Red Hat
-      Network repositories.
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;repos&gt;
-&lt;repo id="base"&gt;
-&lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
-         %{version}/en/os/%{arch}&lt;/baseurl&gt;
-&lt;/repo&gt;
-
-&lt;repo id="updates"&gt;
-&lt;baseurl&gt;rhn:///rhel-%{arch}-server-%{version}&lt;/baseurl&gt;
-&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
-&lt;/repo&gt;
-
-&lt;repo id="virtualization"&gt;
-&lt;baseurl&gt;rhn:///rhel-%{arch}-server-vt-%{version}&lt;/baseurl&gt;
-&lt;systemid&gt;systemid-%{version}Server-%{arch}&lt;/systemid&gt;
-&lt;/repo&gt;
-&lt;/repos&gt; </programlisting>
-      </informalexample>
-    </section>
   </section>
 
   <section>
     <title>
-    See Also
+    See also
     </title>
 
     <para>

@@ -436,13 +436,6 @@ name       = everything
 baseurl    = http://download.fedora.redhat.com/pub/epel/$releasever/$basearch/
 gpgkey     = http://download.fedora.redhat.com/pub/epel/RPM-GPG-KEY-EPEL
 gpgcheck   = yes
-
-[updates]
-name       = updates
-baseurl    = rhn:///rhel-$basearch-server-5/
-systemid   = /etc/sysconfig/rhn/systemid-$releaseverServer-$basearch
-gpgkey     = %(baseurl)s/enterprise/$releaseverServer/en/os/$basearch/RPM-GPG-KEY-redhat-release
-gpgcheck   = yes
 """
 REDHAT_SOURCE = \
 """[base-source]

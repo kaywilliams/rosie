@@ -3,6 +3,7 @@
 
 <macro id="name">deploy-standard</macro>
 <macro id='os'>centos</macro>
+<macro id='edition'>server</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>

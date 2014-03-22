@@ -19,7 +19,7 @@
 util.py - various utility functions
 """
 
-SUPPORTED_SCHEMES = ['ftp', 'http', 'https', 'file', 'rhn', 'rhns'] #!
+SUPPORTED_SCHEMES = ['ftp', 'http', 'https', 'file'] #!
 
 #------ URL PATH PROCESSING ------#
 def urlunparse((scheme, netloc, url, params, query, fragment)):
