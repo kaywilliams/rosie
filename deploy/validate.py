@@ -78,9 +78,10 @@ class DeployValidationHandler:
       moduleid = event.__module__.split('.')[-1]
 
       # resolve macros
-      macros = getattr(event, 'macros', {})
+      macros = self.initial_macros
+      macros.update(getattr(event, 'macros', {}))
       macros['%{module}'] = moduleid
-      self.definition.resolve_macros(map=getattr(event, 'macros', {}),
+      self.definition.resolve_macros(map=macros,
                                      placeholder_xpath='/*/%s' % moduleid)
 
       # validate config
