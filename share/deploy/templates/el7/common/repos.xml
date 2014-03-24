@@ -48,7 +48,7 @@
 </macro>
 
 <macro id="rhsm-dir">%{templates-dir}/%{norm-os}/common/rhsm</macro>
-<macro id="rhel-server-updates">%{rhel-beta-updates}</macro>
+<macro id="rhel-server-updates">%{rhel-beta-base}</macro>
 <macro id="rhel-beta-updates">
 <baseurl>https://cdn.redhat.com/content/beta/rhel/everything/7/%{arch}/os</baseurl>
 <sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
