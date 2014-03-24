@@ -1,0 +1,17 @@
+<script id='conditional-post-delete' type='post' hostname='%{deploy-host}'
+        comes-after='test-remove-custom-pkgs check-kernel'>
+<macro id='test-install-post-delete'>false</macro>
+<macro id='test-update-post-delete'>false</macro>
+<macro id='publish-post-delete'>false</macro>
+#!/bin/bash
+set -e
+# conditionally delete a libvirt guest domain and storage
+
+%{source-guestname}
+
+if [[ %{%{module}-post-delete} == true ]]; then
+  /usr/bin/virsh destroy $guestname
+  /usr/bin/virsh undefine $guestname
+  /usr/bin/virsh vol-delete --pool default $guestname.img
+fi
+</script>

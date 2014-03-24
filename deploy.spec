@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.1
-Release: 1%{?dist}
+Release: 43%{?dist}
 Summary: An open platform for managing system and application deployment.
 
 License:   GPL
@@ -33,7 +33,6 @@ Requires: python-lxml
 Requires: python-setuptools
 Requires: rpmdevtools
 Requires: rng-tools
-Requires: rhn-client-tools
 Requires: rpm-build
 Requires: syslinux
 Requires: yum
@@ -60,6 +59,7 @@ application deployment. See http://www.deployproject.org for more information.
 
 %files
 %defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/deploy/deploy.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/deploy
 %{python_sitelib}/*
 %{_bindir}/deploy
@@ -73,6 +73,132 @@ application deployment. See http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sun Mar 23 2014 Deploy Automated Package Builder - 2.1-43
+- rebuilt
+
+* Fri Mar 21 2014 Deploy Automated Package Builder - 2.1-42
+- rebuilt
+
+* Fri Mar 21 2014 Deploy Automated Package Builder - 2.1-41
+- rebuilt
+
+* Thu Mar 20 2014 Deploy Automated Package Builder - 2.1-40
+- rebuilt
+
+* Wed Mar 19 2014 Deploy Automated Package Builder - 2.1-39
+- rebuilt
+
+* Tue Mar 18 2014 Deploy Automated Package Builder - 2.1-38
+- rebuilt
+
+* Tue Mar 18 2014 Deploy Automated Package Builder - 2.1-37
+- rebuilt
+
+* Thu Mar 13 2014 Deploy Automated Package Builder - 2.1-36
+- rebuilt
+
+* Thu Mar 13 2014 Deploy Automated Package Builder - 2.1-35
+- rebuilt
+
+* Thu Mar 13 2014 Deploy Automated Package Builder - 2.1-34
+- rebuilt
+
+* Wed Mar 12 2014 Deploy Automated Package Builder - 2.1-33
+- rebuilt
+
+* Tue Mar 11 2014 Deploy Automated Package Builder - 2.1-32
+- rebuilt
+
+* Mon Mar 10 2014 Deploy Automated Package Builder - 2.1-31
+- rebuilt
+
+* Sat Mar 08 2014 Deploy Automated Package Builder - 2.1-30
+- rebuilt
+
+* Sat Mar 08 2014 Deploy Automated Package Builder - 2.1-29
+- rebuilt
+
+* Fri Mar 07 2014 Deploy Automated Package Builder - 2.1-28
+- rebuilt
+
+* Wed Mar 05 2014 Deploy Automated Package Builder - 2.1-27
+- rebuilt
+
+* Wed Mar 05 2014 Deploy Automated Package Builder - 2.1-26
+- rebuilt
+
+* Wed Mar 05 2014 Deploy Automated Package Builder - 2.1-25
+- rebuilt
+
+* Tue Mar 04 2014 Deploy Automated Package Builder - 2.1-24
+- rebuilt
+
+* Tue Mar 04 2014 Deploy Automated Package Builder - 2.1-23
+- rebuilt
+
+* Tue Mar 04 2014 Deploy Automated Package Builder - 2.1-22
+- rebuilt
+
+* Mon Mar 03 2014 Deploy Automated Package Builder - 2.1-21
+- rebuilt
+
+* Mon Mar 03 2014 Deploy Automated Package Builder - 2.1-20
+- rebuilt
+
+* Mon Mar 03 2014 Deploy Automated Package Builder - 2.1-19
+- rebuilt
+
+* Sun Mar 02 2014 Deploy Automated Package Builder - 2.1-18
+- rebuilt
+
+* Sat Mar 01 2014 Deploy Automated Package Builder - 2.1-17
+- rebuilt
+
+* Sat Mar 01 2014 Deploy Automated Package Builder - 2.1-16
+- rebuilt
+
+* Sat Mar 01 2014 Deploy Automated Package Builder - 2.1-15
+- rebuilt
+
+* Sat Mar 01 2014 Deploy Automated Package Builder - 2.1-14
+- rebuilt
+
+* Sat Mar 01 2014 Deploy Automated Package Builder - 2.1-13
+- rebuilt
+
+* Fri Feb 28 2014 Deploy Automated Package Builder - 2.1-12
+- rebuilt
+
+* Fri Feb 28 2014 Deploy Automated Package Builder - 2.1-11
+- rebuilt
+
+* Fri Feb 28 2014 Deploy Automated Package Builder - 2.1-10
+- rebuilt
+
+* Thu Feb 27 2014 Deploy Automated Package Builder - 2.1-9
+- rebuilt
+
+* Wed Feb 26 2014 Deploy Automated Package Builder - 2.1-8
+- rebuilt
+
+* Tue Feb 25 2014 Deploy Automated Package Builder - 2.1-7
+- rebuilt
+
+* Tue Feb 25 2014 Deploy Automated Package Builder - 2.1-6
+- rebuilt
+
+* Thu Feb 20 2014 Deploy Automated Package Builder - 2.1-5
+- rebuilt
+
+* Wed Feb 19 2014 Deploy Automated Package Builder - 2.1-4
+- rebuilt
+
+* Tue Feb 18 2014 Deploy Automated Package Builder - 2.1-3
+- rebuilt
+
+* Sun Feb 16 2014 Deploy Automated Package Builder - 2.1-2
+- rebuilt
+
 * Fri Sep 13 2013 Kay Williams <kay@deployproject.org> - 2.1-1
 - offline support 
 - support for executing deployment scripts from a remote host
