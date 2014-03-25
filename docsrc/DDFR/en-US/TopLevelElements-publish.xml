@@ -13,9 +13,8 @@
 
     <para>
     The <emphasis>publish</emphasis> top-level element provides information
-    necessary for publishing the final repository, installing the system or
-    application on production client machines, and updating existing production
-    client machines.
+    necessary for publishing the final repository, as well as for installing
+    and updating the system on production client machines.
     </para>
     
     <para>
@@ -36,8 +35,8 @@
   </title>
 
   <para>
-  The following example shows a publish element configured to sync and deliver
-  repository content from a remote web server.
+  The following example shows a publish element configured to sync
+  published content from the build server to a final production server.
   </para>
 
   <informalexample>

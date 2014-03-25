@@ -1,200 +1,347 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="troubleshooting-system-repos" >
-  <title>Troubleshooting</title>
+<section id="customizing-deployment-templates" >
+  <title>Customizing Deployment Templates</title>
 
   <para>
-  As you work with Deploy to create deployment templates and config-rpms, you
-  will occasionally run into errors. When these occur, Deploy halts operation
-  and displays error information to the console. It also records error messages
-  in the Deploy log file, by default <filename>/var/log/deploy.log</filename>.
+  The Deploy model for automated deployment is simple, yet flexible 
+  and extensible. Deployment can occur in a variety of operating environments,
+  for example using virtual machines running on a local host, virtual machines
+  running on remote or cloud-based hosts, physical machines managed by
+  enterprise systems management systems, or unmanaged physical machines 
+  such as consumer desktops.
   </para>
 
   <para>
-  In addition to displaying and logging error messages, Deploy provides
-  assistance for troubleshooting errors that occur during client-side script
-  processing. Client-side scripts include some deployment scripts and
-  config-rpm scripts and triggers. 
+  The model includes three deployment cases, <emphasis>test-install</emphasis>,
+  <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. The first
+  two cases were introduced previously in <xref
+  linkend='testing-system-installation'/> and <xref
+  linkend='testing-system-updates'/>. The <emphasis>publish</emphasis> case
+  will be introduced later under <xref linkend="deployment-scenarios"/>. Each
+  case is represented by an element of the corresponding name in the
+  definition.
+  </para>
+
+  <para>
+  Each deployment element supports a number of options, or sub-elements. These
+  sub-elements are consistent across deployment elements, although the default
+  behavior varies slightly between them in some instances. The sub-elements are
+  described in detail in the chapter on <emphasis>Deployment
+  Elements</emphasis> in the <xref linkend='ddfr'/>.
+  </para>
+  
+  <para>
+  At a high level, deployment sub-elements serve to specify -
+  </para>
+  
+  <itemizedlist>
+  <listitem>
+  <para>
+  Deployment repository location, both file path and a web URL.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Client machine information including hostname, domain and password.  
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Installer options including boot options and a kickstart file.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Deployment specific config-rpms.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Scripts to delete, install, verify, and update client machines.
+  </para>
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  Many of these sub-elements can be reused across definitions, making
+  them ideal candidates to be created as templates.  In fact, because many of
+  the sub-elements can be used in a mix-and-match fashion, a common practice is
+  to save single sub-elements as individual templates. These individual
+  templates can then be included directly in definitions, or
+  nested within composite templates.
+  </para>
+
+  <para>
+  Deploy includes a number of deployment templates in the <xref
+  linkend='templates'/> folder. In the previous section, we discussed two of
+  these templates, the libvirt <filename>test-install.xml</filename> and
+  <filename>test-update.xml</filename> templates.
+  </para>
+
+  <para>
+  This section will cover deployment templates in greater
+  detail. It will also describe how you can customize deployment templates 
+  to meet the needs of individual deployment scenarios.
   </para>
 
   <section>
-  <title>Troubleshooting errors in client-side deployment scripts</title>
+  <title>Exploring deployment templates</title>
 
   <para>
-  When Deploy executes a deployment script using SSH, it first copies
-  the script to the client machine and then executes it from there. To assist
-  with troubleshooting, Deploy leaves copied scripts on the client
-  machine.  They can be located in the folder at
-  <filename>/var/lib/deploy/deploy</filename>.
-  </para>
-  
-  <para>  
-  Each script exists in a separate file, with a filename corresponding to the
-  script's @id attribute. By executing the script from command line on the
-  client machine, you will be able to reproduce and troubleshoot errors.
+  The libvirt deployment template <filename>deploy-base.xml</filename> provides
+  an example for how Deploy can be used to deploy and maintain client systems.
+  This template serves as a base for the <filename>test-install.xml</filename>
+  and <filename>test-update.xml</filename> templates. The
+  <filename>deploy-base.xml</filename> template providing settings and scripts
+  to accomplish the following:
   </para>
 
-  <note>
-  <para>  
-  You can view virtual clients created by the virt-deploy template by typing
-  <command>virt-manager</command> at the command line of the Deploy
-  build machine.
-  </para>  
-  </note>
+  <itemizedlist>
+  <listitem>
+  <para>
+  Specify a domain, <emphasis>local</emphasis>, for client machines (domain).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Automate operating system installation using a kickstart file (kickstart).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Configure client machines to allow SSH access from the Deploy build
+  machine (ssh-config.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Determine whether the client machine should be reinstalled
+  (test-triggers.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Activate, delete, and install a virtual machine running on the Deploy
+  build machine (virt-activate.xml, virt-delete.xml and virt-install.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Verify the client machine installation (verify-install.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Save information about client installation for future use (save-triggers.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Update the client machine (update.xml).
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Determine whether a new kernel has been installed and restart the system as
+  necessary (check-kernel.xml).
+  </para>
+  </listitem>
+  </itemizedlist>
+
+  <para>
+  The <filename>deploy-base.xml</filename> template, shown below, has very
+  little content of its own and is largely composed by including sub-templates:
+  </para>
+
+  <informalexample>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy-base.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  </informalexample>
+
+  <para>
+  The sections below discuss how you can reuse content from the
+  <filename>deploy-base.xml</filename> template and sub-templates, or provide
+  alternate templates, to accommodate additional deployment scenarios.
+  </para>
   </section>
 
   <section>
-  <title>Troubleshooting RPM scriptlet errors</title>
+  <title>Providing a custom kickstart</title>
 
   <para>
-  By default, Deploy halts processing when it detects <emphasis>scriptlet
-  failed</emphasis> errors during RPM package installation on client machines.
-  This error detection occurs for all RPM packages, both Deploy-created
-  packages (config-rpms) and packages created outside of Deploy. Also, error
-  detection occurs during both initial system install and ongoing system
-  updates.
-  </para>
-  
-  <para>
-  Error detection is accomplished using two deployment scripts,
-  <filename>verify-install.xml</filename> and <filename>update.xml</filename>.
-  These scripts are located within the <filename>common</filename> subfolder of
-  the <link linkend='templates'>templates folder</link>. They, or custom
-  variations based on them, are generally recommended for inclusion within all
-  deployment templates.
+  Kickstart files let you automate operating system installation by providing
+  answers to language, network configuration, keyboard, file system
+  configuration, mouse, timezone, root password and other selections.
   </para>
 
   <para>
-  When scriptlet failed errors do occur, as will be somewhat common while you
-  are developing new definitions, the following steps will allow you to save
-  time as you troubleshoot and resolve errors: 
-  </para>
-
-  <orderedlist>
-  <listitem>
-  <para>
-  If you have <emphasis>not</emphasis> previously created a test-update
-  machine, add a <emphasis>test-update</emphasis> element to your definition.
-  See <xref linkend='adding-a-test-update-element'/> for more information. 
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Ensure the sync plugin is enabled, as it is by default. The sync plugin is
-  helpful during troubleshooting. See <xref linkend='building-release-rpm'/>
-  for more information.
-  </para>
-  </listitem>
- 
-  <listitem>
-  <para>
-  Comment out <emphasis>test-install</emphasis> and
-  <emphasis>publish</emphasis> elements, if they exist in your definition.
-  These take time and slow down troubleshooting. You can add them back after
-  errors are resolved.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Comment out the package or packages with failed scriptlet. Generally you will
-  do this by commenting out <emphasis>config-rpm</emphasis> elements, but you
-  may also need to comment out <emphasis>package</emphasis> or
-  <emphasis>requires</emphasis> elements. The goal is to complete an error-free
-  test-update machine installation, from which you can add back troublesome
-  packages as you resolve issues.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Run Deploy to create the test-update machine. Iterate through this step and
-  the previous until you complete an error-free system installation or update.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Uncomment a failed package (see step 4 above).
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Run Deploy again.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  SSH to the test-update system, for example:
-  <synopsis>ssh web-server-centos-6-x86-64-test-update</synopsis>
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Run "<command>yum sync</command>"
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  If the scriptlet failed error is related to a Deploy-created config-rpm, you
-  can locate the problem script in the
-  <filename>/var/lib/deploy/config</filename> folder, in a subfolder named
-  after the config-rpm, e.g.  <emphasis>httpd-config</emphasis>. Within the
-  config-rpm subfolder, files are named by script type, e.g.
-  <emphasis>post-script</emphasis> and <emphasis>postun-script</emphasis>.
-  Trigger scripts are named by trigger type, followed by the name of the
-  trigger, e.g.  <emphasis>triggerin-drupal-script</emphasis>.
-  </para>
-  
-  <para>
-  Errors in trigger scripts can be more difficult to troubleshoot. You will
-  need to search folders in the
-  <filename>/var/lib/deploy/config</filename> folder to locate which
-  config-rpm, if any, provided the errant trigger script.
+  The libvirt deployment template uses <filename>ks.xml</filename> and
+  <filename>ks-post-ssh.xml</filename> templates. The first provides basic
+  kickstart options. The second configures the client for ssh access. Contents
+  of these templates are shown below.
   </para>
 
   <para>
-  Once you have located the error-producing script, you can execute it from the
-  command line by typing
-  <synopsis>./script_name</synopsis> This will allow
-  you to reproduce and troubleshoot the error, ultimately updating the 
-  original config-rpm script element.
+  <emphasis role='strong'><filename>ks.xml</filename></emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  </informalexample>
+
+  <para>
+  <emphasis role='strong'><filename>ks-post-ssh.xml</filename></emphasis>
+  </para>
+
+  <informalexample>
+  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/libvirt/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  </informalexample>
+
+  <para>
+  The two files can be combined within a single kickstart element as follows:
+  </para>
+
+  <informalexample>
+  <programlisting>
+&lt;kickstart>
+  &lt;xi:include href="%{templates-dir}/%{norm-os/common/ks.xml" xpointer="xpointer(/*/node())"/>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpointer="xpointer(/*/node())/>
+&lt;kickstart></programlisting>
+  </informalexample>
+
+  <para>
+  The default <filename>ks.xml</filename> file uses macros (see the DDFR for
+  information on deployment macros) to allow the hostname and root password to
+  be filled in at Deploy runtime. Often, however, you will want to
+  customize additional kickstart options such as timezone, or drive
+  partitioning configuration. To do this, you will need to provide a custom
+  kickstart element. This can be accomplished using several different methods.
+  Perhaps the easiest method, however, is shown in the example
+  <emphasis>test-install</emphasis> element below.
   </para>
 
   <para>
-  If the script that produces the <emphasis>scriptlet failed</emphasis> error
-  is provided by a non config-rpm script, the process is more complex.
-  From the test-update machine, you can list scripts for an rpm
-  by typing the following command: <synopsis>rpm -q --scripts
-  <emphasis>package_name</emphasis></synopsis>
+  In this example, you start with a test-install element, add a password
+  element and XInclude the libvirt deployment template. The XInclude statement
+  is varies from ones you have used previously, however, in that it contains an
+  xpointer attribute.  Xpointer is used to include all elements from the file,
+  <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
+  Next, you add a kickstart element. This element contains kickstart content to
+  suit your needs; in the example below only the timezone has been changed.
+  Finally, to the kickstart element you also include content from the
+  <filename>ks-post-ssh.xml</filename> template. 
   </para>
 
-  <para>
-  This lists all scripts for the package. From there you will need to separate
-  out the relevant script and save as an individual file to perform testing.
-  Updates will need to be applied to the original rpm specfile.
-  </para>
-  </listitem>
+  <informalexample>
+  <programlisting>&lt;test-install>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml" 
+            xpointer="xpointer(./*[name()!='kickstart'])"/>
+&lt;kickstart>
+network --hostname %{fqdn}
+rootpw --iscrypted "%{crypt-password}"
+lang en_US
+zerombr
+bootloader --location=mbr
+clearpart --all --initlabel
+part / --fstype ext4 --size 1 --grow --asprimary
+part swap --recommended
+part /boot --fstype ext3 --size 512 --asprimary
+timezone America/Denver  #change timezone to Denver
+auth --enablemd5 --enableshadow --enablecache
+selinux --enforcing
+reboot
 
-  <listitem>
-  <para>
-  Rerun <command>deploy</command> and <command>yum sync</command> until package
-  updates complete successfully. Repeat for additional failed packages,
-  starting at step 6.
-  </para>
-  </listitem>
+%packages --nobase
+@core
+%end
 
-  <listitem>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpointer="xpointer(/*/node())"/>
+&lt;/kickstart>
+&lt;/test-install></programlisting>
+  </informalexample>
+
   <para>
-  Reverse changes from steps 1-3, as desired.
+  See the DDFR for more information on the <emphasis>kickstart</emphasis>
+  element, including notes on several kickstart options to avoid when using
+  kickstart in combination with Deploy.
   </para>
-  </listitem>
-  </orderedlist>
+
   </section>
-</section>
+
+  <section>
+  <title>Providing custom scripts</title>
+  <para>
+  Deploy allows users to provide scripts for completing various
+  deployment and maintenance actions. These scripts can be written in any 
+  scripting language. 
+  </para>
+
+  <para>
+  The following example shows -
+  </para>
+
+  <itemizedlist>
+  <listitem>
+  <para>
+  Providing a custom <emphasis>install</emphasis> script. In this case
+  we are setting the virtual machine RAM at 2GB and the disk image size at
+  40GB.
+  </para>
+  </listitem>
+  <listitem>
+  <para>
+  Including all elements from the libvirt deployment template,
+  <emphasis>except</emphasis> the <emphasis>install</emphasis> script.
+  </para>
+  </listitem>
+  </itemizedlist>
+  
+  <informalexample>
+  <programlisting>&lt;test-install>
+&lt;script id='install' type='install'>
+#!/bin/bash
+virt-install --name %{fqdn} --ram 2000 \
+             --file /var/lib/libvirt/images/%{fqdn}.img \
+             --file-size 40 \
+             --location %{url} \
+             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
+             --noreboot
+&lt;/script>
+&lt;xi:include href="path/to/libvirt/deploy.xml" 
+            xpointer="xpointer(./*[@id!='virt-install'])"/>
+&lt;/test-install></programlisting>
+  </informalexample>
+
+  <para>
+  See the DDFR for complete information on deployment scripts, including the
+  comes-before and comes-after attributes which allow ordering of script
+  execution.
+  </para>
+
+  </section>
+
+  <section id='install-vm-to-remote-host' >
+  <title>Installing a virtual machine to a remote host</title>
+
+  <para>
+  The libvirt deployment templates makes it easy to create, deploy and maintain
+  virtual machines on the local machine running a libvirt compatible hypervisor
+  (KVM). Your particular deployment scenario, however, may require you to work
+  with virtual machines running on remote hosts with different hypervisors
+  (e.g. VMware, Hyper-V and Amazon Web Services). To support these cases, you
+  will need to create new templates. These templates will be similar to the
+  libvirt deployment templates.
+  </para>
+
+  <para>
+  See the <filename>windows-azure</filename> and
+  <filename>openstack-deploy</filename> folders in the <xref
+  linkend='templates'/> folder for examples.
+  </para>
+  </section>
+  </section>

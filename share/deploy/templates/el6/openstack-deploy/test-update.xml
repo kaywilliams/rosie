@@ -2,5 +2,5 @@
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href='%{templates-dir}/%{norm-os}/openstack/deploy-base.xml'
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/common/poweroff.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/common/conditional-poweroff.xml"/>
 </xml>

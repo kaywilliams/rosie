@@ -1,496 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="using-deployment-templates" >
-  <title>Using Deployment Templates</title>
-  <para>
-  The Deploy model for automated deployment is simple, yet flexible 
-  and extensible. Deployment can occur in a variety of operating environments,
-  for example using virtual machines running on a local host, virtual machines
-  running on remote or cloud-based hosts, physical machines managed by
-  enterprise systems management systems, or unmanaged physical machines 
-  such as consumer desktops.
-  </para>
+<section id="testing-system-updates" >
+  <title>Testing System Updates</title>
 
   <para>
-  The model includes three deployment cases, <emphasis>test-install</emphasis>,
-  <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>. The first
-  two cases were introduced previously in <xref
-  linkend='using-virtual-machines'/>. The <emphasis>publish</emphasis> case
-  will be introduced later under <xref linkend="deployment-scenarios"/>. Each
-  case is represented by an element of the corresponding name in the 
-  definition.
+  Deploy enables <emphasis>update</emphasis> testing using the
+  <emphasis>test-update</emphasis> element. As with
+  <emphasis>test-install</emphasis>, update testing is most easily accomplished
+  using a template, <filename>test-update.xml</filename>, as shown below:
   </para>
 
-  <para>
-  Each deployment element supports a number of options, or sub-elements. These
-  sub-elements are consistent across deployment elements, although the default
-  behavior varies slightly between them in some instances. The sub-elements are
-  described in detail in the chapter on <emphasis>Deployment
-  Elements</emphasis> in the <xref linkend='ddfr'/>.
-  </para>
-  
-  <para>
-  At a high level, deployment sub-elements serve to specify -
-  </para>
-  
-  <itemizedlist>
-  <listitem>
-  <para>
-  Deployment repository location, both file path and a web URL.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Client machine information including hostname, domain and password.  
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Installer options including boot options and a kickstart file.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Deployment specific config-rpms.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Scripts to delete, install, verify, and update client machines.
-  </para>
-  </listitem>
-  </itemizedlist>
+  <informalexample>
+  <programlisting>&lt;test-update>
+  &lt;macro id='test-update-poweroff'>false&lt;/macro>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
+              xpointer="xpointer(./*)"/>
+&lt;/test-update></programlisting>
+  </informalexample>
 
   <para>
-  Many of these sub-elements can be reused across definitions, making
-  them ideal candidates to be created as templates.  In fact, because many of
-  the sub-elements can be used in a mix-and-match fashion, a common practice is
-  to save single sub-elements as individual templates. These individual
-  templates can then be included directly in definitions, or
-  nested within composite templates.
-  </para>
-
-  <para>
-  Deploy includes a number of deployment templates in the <xref
-  linkend='templates'/> folder. In the previous section, we discussed one of
-  these templates, the libvirt deployment template located at 
-  <filename>libvirt/deploy.xml</filename>. 
-  </para>
-
-  <para>
-  This section will cover deployment templates in greater
-  detail. It will also describe how you can customize deployment templates, 
-  or create your own, to meet the needs of individual deployment scenarios.
-  </para>
-
-  <note>
-  <para>
-  Do not modify templates in the <xref linkend='templates'/> folder. Deploy
-  will overwrite your changes on subsequent updates. Instead, copy templates to
-  another location and modify from there.
-  </para>
-  </note>
-
-  <section>
-  <title>Exploring deployment templates</title>
-
-  <para>
-  The libvirt deployment template provides an example for how Deploy can be
-  used to deploy and maintain client systems. This particular template works by
-  providing settings and scripts to accomplish the following:
+  When the <constant>test-update</constant> element shown above is present,
+  Deploy performs the following tasks:
   </para>
 
   <itemizedlist>
   <listitem>
   <para>
-  Specify a domain, <emphasis>local</emphasis>, for client machines (domain).
+  Creates a test-update repository in the test-update folder at 
+  <filename>/var/www/html/deploy/systems/test-update</filename>, by default.
   </para>
   </listitem>
+
   <listitem>
   <para>
-  Automate operating system installation using a kickstart file (kickstart).
+  During the first build cycle after the <emphasis>test-update</emphasis>
+  element has been added, uses scripts in the
+  <filename>test-update.xml</filename> template to create a new machine to use
+  as a baseline for future update testing.  In our web-server example, the
+  hostname will be <emphasis>web-server-centos-6-x86-64-test-update</emphasis>.
+  You can connect to the virtual machine using SSH as follows:
+  </para>
+
+  <programlisting>ssh web-server-centos-6-x86-64-test-update -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</programlisting>
+
+  <para>
+  The <varname>StrictHostKeyChecking</varname> and
+  <varname>UserKnownHostsFile</varname> options prevent SSH from checking and
+  storing the client host key. This is desirable since test-update machines are
+  not guaranteed to be stable.
   </para>
   </listitem>
+
   <listitem>
   <para>
-  Configure client machines to allow SSH access from the Deploy build
-  machine (ssh-config.xml).
+  During subsequent runs, updates packages on the test machine to conform to
+  packages in the system repository.
   </para>
   </listitem>
+
   <listitem>
   <para>
-  Determine whether the client machine should be reinstalled
-  (test-triggers.xml).
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Activate, delete, and install a virtual machine running on the Deploy
-  build machine (virt-activate.xml, virt-delete.xml and virt-install.xml).
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Verify the client machine installation (verify-install.xml).
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Save information about client installation for future use (save-triggers.xml).
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Update the client machine (update.xml).
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Determine whether a new kernel has been installed and restart the system as
-  necessary (check-kernel.xml).
+  Verifies client machine updates, halting process if an error occurs.
+  This allows errors to be resolved prior to publishing changes to the system
+  repository. See the <xref linkend='troubleshooting-system-repos'/> section
+  for help resolving errors.
   </para>
   </listitem>
   </itemizedlist>
 
   <para>
-  The virt-deploy template, shown below, has very little content of its own and
-  is largely composed by including sub-templates.
+  As with test-install, Deploy will reinstall the test-update machine if
+  necessary. This happens much less frequently, however. By default Deploy only
+  reinstalls the test-update machine if it is unable to activate the machine or
+  establish an SSH connection to it.
   </para>
 
   <para>
-  <emphasis role='strong'>libvirt deployment template</emphasis>
-  </para>
-  <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-  </informalexample>
-
-  <para>
-  The sections discuss how you can reuse content from the libvirt deployment
-  template and sub-templates, or provide alternate templates, to accommodate
-  additional deployment scenarios.
-  </para>
-  </section>
-
-  <section>
-  <title>Providing a custom kickstart</title>
-
-  <para>
-  Kickstart files let you automate operating system installation by providing
-  answers to language, network configuration, keyboard, file system
-  configuration, mouse, timezone, root password and other selections.
+  Once development is complete and the system is stable, you may wish to change
+  the value of the <varname>test-update-poweroff</varname> macro to
+  <constant>true</constant>. This will cause the virtual machine to be powered
+  down once testing is complete, freeing up system resources.
   </para>
 
-  <para>
-  The libvirt deployment template uses kickstart templates from the common
-  deploy folder, <filename>deploy/common</filename>. The two templates are
-  <filename>ks.xml</filename> and <filename>ks-post-ssh.xml</filename>. The
-  first provides basic kickstart options. The second configures the client for
-  ssh access. Contents of these templates are shown below.
-  </para>
-
-  <para>
-  <emphasis role='strong'><filename>ks.xml</filename></emphasis>
-  </para>
-
-  <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/common/ks.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-  </informalexample>
-
-  <para>
-  <emphasis role='strong'><filename>ks-post-ssh.xml</filename></emphasis>
-  </para>
-
-  <informalexample>
-  <programlisting><xi:include href="../../../../../share/deploy/templates/el6/libvirt/ks-post-ssh.xml" parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-  </informalexample>
-
-  <para>
-  The two files can be combined within a single kickstart element as follows:
-  </para>
-
-  <informalexample>
-  <programlisting>
-&lt;kickstart>
-&lt;xi:include href="/path/to/ks.xml" xpointer="xpointer(/*/node())"/>
-&lt;xi:include href="/path/to/ks-post-ssh.xml" xpointer="xpointer(/*/node())/>
-&lt;kickstart></programlisting>
-  </informalexample>
-
-  <para>
-  The default <filename>ks.xml</filename> file uses macros (see the DDFR for
-  information on deployment macros) to allow the hostname and root password to
-  be filled in at Deploy runtime. Often, however, you will want to
-  customize additional kickstart options such as timezone, or drive
-  partitioning configuration. To do this, you will need to provide a custom
-  kickstart element. This can be accomplished using several different methods.
-  Perhaps the easiest method, however, is shown in the example
-  <emphasis>test-install</emphasis> element below.
-  </para>
-
-  <para>
-  In this example, you start with a test-install element, add a password
-  element and XInclude the libvirt deployment template. The XInclude statement
-  is varies from ones you have used previously, however, in that it contains an
-  xpointer attribute.  Xpointer is used to include all elements from the file,
-  <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
-  Next, you add a kickstart element. This element contains kickstart content to
-  suit your needs; in the example below only the timezone has been changed.
-  Finally, to the kickstart element you also include content from the
-  <filename>ks-post-ssh.xml</filename> template. 
-  </para>
-
-  <informalexample>
-  <programlisting>&lt;test-install>
-&lt;password>secret&lt;/password>
-&lt;xi:include href="path/to/libvirt/deploy.xml" 
-            xpointer="xpointer(/*/*[name()!='kickstart'])"/>
-&lt;kickstart>
-network --hostname %{fqdn}
-rootpw --iscrypted "%{crypt-password}"
-lang en_US
-zerombr
-bootloader --location=mbr
-clearpart --all --initlabel
-part / --fstype ext4 --size 1 --grow --asprimary
-part swap --recommended
-part /boot --fstype ext3 --size 512 --asprimary
-timezone America/Denver  #change timezone to Denver
-auth --enablemd5 --enableshadow --enablecache
-selinux --enforcing
-reboot
-
-%packages --nobase
-@core
-%{end-%{version}}
-&lt;macro id='end-5'>&lt;/macro>
-&lt;macro id='end-6'>%end&lt;/macro>
-&lt;xi:include href="/path/to/ks-post-ssh.xml" xpointer="xpointer(/*/node())"/>
-&lt;/kickstart>
-&lt;/test-install></programlisting>
-  </informalexample>
-
-  <para>
-  See the DDFR for more information on the <emphasis>kickstart</emphasis>
-  element, including notes on several kickstart options to avoid when using
-  kickstart in combination with Deploy.
-  </para>
-
-  </section>
-
-  <section>
-  <title>Providing custom scripts</title>
-  <para>
-  Deploy allows users to provide scripts for completing various
-  deployment and maintenance actions. These scripts can be written in any shell
-  scripting language. 
-  </para>
-
-  <para>
-  The following example shows -
-  </para>
-
-  <itemizedlist>
-  <listitem>
-  <para>
-  Including the <emphasis>poweroff</emphasis> script. The poweroff script can
-  be used to shutdown a client following successful completion of the
-  <emphasis>update</emphasis> script. This can be useful to conserve system
-  resources between test runs. It does have a disadvantage, however, in that it
-  increases the time required to complete test runs, as machines must be
-  started before testing continues.
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Providing a custom <emphasis>install</emphasis> script. In this case
-  we are setting the virtual machine RAM at 2GB and the disk image size at
-  40GB.
-  </para>
-  </listitem>
-  <listitem>
-  <para>
-  Including all elements from the libvirt deployment 
-  template, <emphasis>except</emphasis> the <emphasis>check-kernel</emphasis>
-  and <emphasis>install</emphasis> scripts. The check-kernel script is
-  unnecessary since we are powering off the client after each run.
-  </para>
-  </listitem>
-  </itemizedlist>
-  
-  <informalexample>
-  <programlisting>&lt;test-install>
-&lt;password>secret&lt;/password>
-&lt;xi:include href="poweroff.xml"/>
-&lt;script id='install' type='install'>
-#!/bin/bash
-virt-install --name %{fqdn} --ram 2000 \
-             --file /var/lib/libvirt/images/%{fqdn}.img \
-             --file-size 40 \
-             --location %{url} \
-             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
-             --noreboot
-&lt;/script>
-&lt;xi:include href="path/to/libvirt/deploy.xml" 
-            xpointer="xpointer(/*/*[@id!='check-kernel' and
-                                    @id!='virt-install'])"/>
-&lt;/test-install></programlisting>
-  </informalexample>
-
-  <para>
-  See the DDFR for complete information on deployment scripts, including the
-  comes-before and comes-after attributes which allow ordering of script
-  execution.
-  </para>
-
-  </section>
-
-  <section id='install-vm-to-remote-host' >
-  <title>Installing a virtual machine to a remote host</title>
-
-  <para>
-  The libvirt deployment template makes it easy to create, deploy and maintain
-  virtual machines on the local Deploy build machine running a lib-virt
-  compatible hypervisor (KVM). Your particular deployment scenario, however,
-  may require you to work with virtual machines running on remote hosts with
-  different hypervisors (e.g. VMware, Hyper-V and Amazon Web Services). To
-  support this case, you will need to create a new composite template. This
-  template will be similar to the libvirt deployment template. In the new
-  template, you will need to adjust the <emphasis>domain</emphasis> element,
-  and provide custom scripts to replace the
-  <emphasis>activate</emphasis>, <emphasis>delete</emphasis>
-  and <emphasis>install</emphasis> scripts.
-  </para>
-
-  <para>
-  For example, a composite template to create, deploy and maintain Amazon
-  Machine Images (AMIs) for the Amazon Web Service (AWS), might look as
-  follows, where <filename>ami-activate.xml</filename>,
-  <filename>ami-delete.xml</filename> and <filename>ami-install.xml</filename>
-  contain custom scripts for managing Amazon Machine Images:
-  </para>
-
-  <para>
-  <emphasis role='strong'><filename>ami/deploy.xml</filename></emphasis>
-  </para>
-  <informalexample>
-  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;xml xmlns:xi="http://www.w3.org/2001/XInclude">
-&lt;!-- install and update an Amazon Machine Image (AMI) -->
-&lt;domain>mydomain.com&lt;/domain>
-&lt;kickstart>
-&lt;xi:include href='../common/ks.xml' xpointer='xpointer(/*/node())'/>
-&lt;xi:include href='../libvirt/ks-post-ssh.xml' xpointer='xpointer(/*/node())'/>
-&lt;/kickstart>
-&lt;xi:include href='../common/ssh-config.xml'/>
-&lt;xi:include href='../common/test-triggers.xml'/>
-&lt;xi:include href='ami-activate.xml'/>
-&lt;xi:include href='ami-delete.xml'/>
-&lt;xi:include href='ami-install.xml'/>
-&lt;xi:include href='../common/verify-install.xml'/>
-&lt;xi:include href='../common/save-triggers.xml'/>
-&lt;xi:include href=’../common/update.xml’/>
-&lt;xi:include href=’../common/check-kernel.xml’/>
-&lt;/xml></programlisting>
-  </informalexample>
-
-
-  </section>
-
-  <section>
-  <title>Integrating with existing management solutions</title>
-  <para>
-  Your organization may have an existing solution for managing system
-  deployment and maintenance. You can enable integration with existing
-  solutions using custom deployment scripts.
-  </para>
-
-  <para>
-  To deploy a single client using an existing deployment solution, the
-  procedure is the same as discussed above under <xref
-  linkend='install-vm-to-remote-host'/>. Specifically, create a new deployment
-  template with appropriate domain element, and custom activate, delete and
-  install scripts.
-  </para>
-  
-  <para>
-  Additionally, if your existing solution also manages system updates, you
-  will either remove the update script from your composite template, or
-  provide a custom update script that starts the appropriate update procedure
-  on your management solution. If the custom script should execute on the
-  Deploy build machine rather than on the installed client, be sure to
-  set the update script's <emphasis>@ssh</emphasis> attribute to false. See the
-  DDFR for more information on script attributes.
-  </para>
-
-  <para>
-  To deploy and update multiple clients based on the same 
-  definition, again you will create a new composite template. In this template,
-  you will do the following: 
-  </para>
-
-  <itemizedlist>
-  <listitem>
-  <para>
-  Provide custom scripts that communication with the management solution to
-  complete all desired actions
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  Disable SSH for all scripts using the <emphasis>ssh</emphasis> element
-  </para>
-  </listitem>
-  
-  <listitem>
-  <para>
-  Provide a custom kickstart file that does not specify a hostname. The
-  hostname will need to be set by dhcp to avoid assigning the same name to
-  multiple systems.
-  </para>
-  </listitem>
-  </itemizedlist>
-  
-  <para>
-  See the example below.
-  </para>
-  
-  <informalexample>
-  <programlisting>&lt;?xml version="1.0" encoding="utf-8"?>
-&lt;xml xmlns:xi="http://www.w3.org/2001/XInclude">
-
-&lt;!-- install and update multiple systems using an external solution -->
-
-<!-- custom kickstart - does not specify hostname -->
-install
-rootpw --iscrypted "%{crypt-password}"
-lang en_US
-zerombr
-bootloader --location=mbr
-clearpart --all --initlabel
-part / --fstype ext4 --size 1 --grow --asprimary
-part swap --recommended
-part /boot --fstype ext3 --size 512 --asprimary
-timezone America/Vancouver
-auth --enablemd5 --enableshadow --enablecache
-selinux --enforcing
-reboot
-
-<!-- disable script execution on client -->
-&lt;ssh>false&lt;/ssh>
-
-<!-- custom scripts -->
-&lt;xi:include href=’activate.xml’/>
-&lt;xi:include href=’delete.xml’/>
-&lt;xi:include href=’install.xml’/>
-&lt;xi:include href=’update.xml’/>
-&lt;/xml></programlisting>
-  </informalexample>
-  </section>
-
-  </section>
+</section>

@@ -13,19 +13,15 @@
     </title>
 
     <para>
-    <emphasis>Test-update</emphasis> is the second Deploy module related
-    to repository testing. It allows testing repository updates. As with
-    <emphasis>test-install</emphasis> this testing occurs prior to publishing
-    the final repository.  The <emphasis>test-update</emphasis> event
-    follows the <emphasis>test-install</emphasis> event in the repository build
-    process.
+    The <emphasis>test-update</emphasis> element allows testing system updates.
+    As with <emphasis>test-install</emphasis> this testing occurs prior to
+    publishing the final repository.
     </para>
 
     <para>
     For complete information on macros, attributes and elements for the
-    test-install top-level element, see the Deployment Elements Common Model at
-    <xref linkend="deployment-elements-common-model"/> for a complete
-    description of syntax, macros, attributes and elements.
+    test-update top-level element, see the Deployment Elements Common Model at
+    <xref linkend="deployment-elements-common-model"/>.
     </para>
 
     <para>
@@ -39,29 +35,64 @@
     Examples
     </title>
 
-    <informalexample>
     <para>
-    The following example configures Deploy to perform a test
-    update to a local virtual machine. See the <emphasis>Deploy User
+    The following examples show configuring Deploy to perform test
+    updates using a local virtual machine. See the <emphasis>Deploy User
     Manual</emphasis> for information on configuring the build machine to
     support virtual machine installations.
     </para>
 
     <para>
-    Similar to the examples shown under <xref
-    linkend="test-install-examples"/>, this example makes use of two files: the
-    main definition, and the libvirt deployment template. The
-    test-update element of the main definition is shown below. The
-    libvirt deployment template is described under <xref
-    linkend="test-install-examples"/>.
+    Similar to the examples shown under <xref linkend="test-install"/>, this
+    example makes use of two files: the main definition, and the libvirt
+    <filename>test-update.xml</filename> template.
+    </para>
+
+    <section>
+    <title>test-update element</title>
+    <para>
+    This test-update element accomplishes the following:
+
+    <itemizedlist>
+    <listitem><para>
+    Sets a macro indicating that the test-update machine should be powered off
+    once test-update completes successfully.  Powering down the test-update
+    machine may be useful once the system is in maintenance mode, as it
+    preserves system resources.
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+    Uses XInclude to include the libvirt <filename>test-update.xml</filename>
+    deployment template.
+    </para>
+    </listitem>
+    </itemizedlist>
     </para>
 
     <programlisting>
 &lt;test-update>
-  &lt;password>mypassword&lt;/password>
-  &lt;xi:include href="path/to/libvirt/deploy.xml" xpointer="xpointer(/*/*)"/>
+  &lt;macro id='test-update-poweroff'>true&lt;/macro>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" xpointer="xpointer(./*)"/>
 &lt;/test-update></programlisting>
-    </informalexample>
+    </section>
+
+    <section>
+    <title>test-update.xml template</title>
+    <para>
+    The libvirt <filename>test-update.xml</filename> template, shown below,
+    provides the configuration necessary to create and maintain a local virtual
+    machine for testing system updates. The template in turn makes use of the
+    <filename>deploy-base.xml</filename> template, which is used across
+    test-install, test-update and publish modules. In addition, it provides a
+    script for conditionally powering off the test-update system after test
+    completion. See <xref linkend='templates'/> for information on locating and
+    using templates.
+    </para>
+
+    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/test-update.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    </section>
   </section>
 
 </section>

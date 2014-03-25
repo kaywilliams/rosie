@@ -64,9 +64,7 @@
     <para>
     A template for deploying systems to local virtual machines. The template
     file is located in the templates folder as
-    <filename>libvirt/deploy.xml</filename>.  It will be used across
-    <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
-    top-level element examples.
+    <filename>libvirt/test-install.xml</filename>.
     </para>
     </listitem>
     
@@ -74,22 +72,24 @@
     </para>
 
     <section>
-    <title>
-    Example - Test-Install Element
-    </title>
+    <title>test-install element</title>
 
     <para>
     This test-install element accomplishes the following:
 
     <itemizedlist>
     <listitem><para>
-    Sets a root password for the client machine.</para>
+    Sets a macro indicating that the test-install machine should be deleted
+    once test-install completes successfully. Deleting the test-install machine
+    is useful once the system is in maintenance mode, as it preserves hard
+    drive space and system resources on the build machine.
+    </para>
     </listitem>
 
     <listitem>
     <para>
-    Uses XInclude to include all top-level elements from the deployment
-    template.
+    Uses XInclude to include the libvirt <filename>test-install.xml</filename>
+    deployment template.
     </para>
     </listitem>
     </itemizedlist>
@@ -97,24 +97,26 @@
 
     <programlisting>
 &lt;test-install>
-  &lt;password>mypassword&lt;/password>
-  &lt;xi:include href="path/to/deploy.xml" xpointer="xpointer(/*/*)"/>
+  &lt;macro id='test-install-post-delete'>true&lt;/macro>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" xpointer="xpointer(./*)"/>
 &lt;/test-install></programlisting>
     </section>
 
-    <section id="deploy.xml">
-    <title>
-    Example - libvirt deployment template
-    </title>
+    <section id="test-install.xml">
+    <title>test-install.xml template</title>
 
     <para>
-    The libvirt deployment template, shown below, provides the configuration
-    necessary to deploy and maintain a local virtual machine. The template
-    in turn makes use of many additional templates. See <xref
+    The libvirt <filename>test-install.xml</filename> template, shown below,
+    provides the configuration necessary to deploy and maintain a local virtual
+    machine. The template in turn makes use of the
+    <filename>deploy-base.xml</filename> template, which is used across
+    test-install, test-update and publish modules. In addition, it provides
+    scripts for testing removal of custom packages, and for conditionally
+    deleting the test system after successful test installation. See <xref
     linkend='templates'/> for information on locating and using templates.
     </para>
 
-    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/test-install.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </section>
 
   </section>

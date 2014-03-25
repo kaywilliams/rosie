@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="troubleshooting-system-repos" >
+  <title>Troubleshooting</title>
+
+  <para>
+  As you work with Deploy to create deployment templates and config-rpms, you
+  will occasionally run into errors. When these occur, Deploy halts operation
+  and displays error information to the console. It also records error messages
+  in the Deploy log file, by default <filename>/var/log/deploy.log</filename>.
+  </para>
+
+  <para>
+  In addition to displaying and logging error messages, Deploy provides
+  assistance for troubleshooting errors that occur during client-side script
+  processing. Client-side scripts include some deployment scripts and
+  config-rpm scripts and triggers. 
+  </para>
+
+  <section>
+  <title>Troubleshooting errors in client-side deployment scripts</title>
+
+  <para>
+  When Deploy executes a deployment script using SSH, it first copies
+  the script to the client machine and then executes it from there. To assist
+  with troubleshooting, Deploy leaves copied scripts on the client
+  machine.  They can be located in the folder at
+  <filename>/var/lib/deploy/deploy</filename>.
+  </para>
+  
+  <para>  
+  Each script exists in a separate file, with a filename corresponding to the
+  script's @id attribute. By executing the script from command line on the
+  client machine, you will be able to reproduce and troubleshoot errors.
+  </para>
+
+  <note>
+  <para>  
+  You can view virtual clients created by the virt-deploy template by typing
+  <command>virt-manager</command> at the command line of the Deploy
+  build machine.
+  </para>  
+  </note>
+  </section>
+
+  <section>
+  <title>Troubleshooting RPM scriptlet errors</title>
+
+  <para>
+  By default, Deploy halts processing when it detects <emphasis>scriptlet
+  failed</emphasis> errors during RPM package installation on client machines.
+  This error detection occurs for all RPM packages, both Deploy-created
+  packages (config-rpms) and packages created outside of Deploy. Also, error
+  detection occurs during both initial system install and ongoing system
+  updates.
+  </para>
+  
+  <para>
+  Error detection is accomplished using two deployment scripts,
+  <filename>verify-install.xml</filename> and <filename>update.xml</filename>.
+  These scripts are located within the <filename>common</filename> subfolder of
+  the <link linkend='templates'>templates folder</link>. They, or custom
+  variations based on them, are generally recommended for inclusion within all
+  deployment templates.
+  </para>
+
+  <para>
+  When scriptlet failed errors do occur, as will be somewhat common while you
+  are developing new definitions, the following steps will allow you to save
+  time as you troubleshoot and resolve errors: 
+  </para>
+
+  <orderedlist>
+  <listitem>
+  <para>
+  If you have <emphasis>not</emphasis> previously created a test-update
+  machine, add a <emphasis>test-update</emphasis> element to your definition.
+  See <xref linkend='testing-system-updates'/> for more information. 
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Ensure the sync plugin is enabled, as it is by default. The sync plugin is
+  helpful during troubleshooting. See <xref linkend='building-release-rpm'/>
+  for more information.
+  </para>
+  </listitem>
+ 
+  <listitem>
+  <para>
+  Comment out <emphasis>test-install</emphasis> and
+  <emphasis>publish</emphasis> elements, if they exist in your definition.
+  These take time and slow down troubleshooting. You can add them back after
+  errors are resolved.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Comment out the package or packages with failed scriptlet. Generally you will
+  do this by commenting out <emphasis>config-rpm</emphasis> elements, but you
+  may also need to comment out <emphasis>package</emphasis> or
+  <emphasis>requires</emphasis> elements. The goal is to complete an error-free
+  test-update machine installation, from which you can add back troublesome
+  packages as you resolve issues.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Run Deploy to create the test-update machine. Iterate through this step and
+  the previous until you complete an error-free system installation or update.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Uncomment a failed package (see step 4 above).
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Run Deploy again.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  SSH to the test-update system, for example:
+  <synopsis>ssh web-server-centos-6-x86-64-test-update -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</synopsis>
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Run "<command>yum sync</command>"
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  If the scriptlet failed error is related to a Deploy-created config-rpm, you
+  can locate the problem script in the
+  <filename>/var/lib/deploy/config</filename> folder, in a subfolder named
+  after the config-rpm, e.g.  <emphasis>httpd-config</emphasis>. Within the
+  config-rpm subfolder, files are named by script type, e.g.
+  <emphasis>post-script</emphasis> and <emphasis>postun-script</emphasis>.
+  Trigger scripts are named by trigger type, followed by the name of the
+  trigger, e.g.  <emphasis>triggerin-drupal-script</emphasis>.
+  </para>
+  
+  <para>
+  Errors in trigger scripts can be more difficult to troubleshoot. You will
+  need to search folders in the
+  <filename>/var/lib/deploy/config</filename> folder to locate which
+  config-rpm, if any, provided the errant trigger script.
+  </para>
+
+  <para>
+  Once you have located the error-producing script, you can execute it from the
+  command line by typing
+  <synopsis>./script_name</synopsis> This will allow
+  you to reproduce and troubleshoot the error, ultimately updating the 
+  original config-rpm script element.
+  </para>
+
+  <para>
+  If the script that produces the <emphasis>scriptlet failed</emphasis> error
+  is provided by a non config-rpm script, the process is more complex.
+  From the test-update machine, you can list scripts for an rpm
+  by typing the following command: <synopsis>rpm -q --scripts
+  <emphasis>package_name</emphasis></synopsis>
+  </para>
+
+  <para>
+  This lists all scripts for the package. From there you will need to separate
+  out the relevant script and save as an individual file to perform testing.
+  Updates will need to be applied to the original rpm specfile.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Rerun <command>deploy</command> and <command>yum sync</command> until package
+  updates complete successfully. Repeat for additional failed packages,
+  starting at step 6.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
+  Reverse changes from steps 1-3, as desired.
+  </para>
+  </listitem>
+  </orderedlist>
+  </section>
+</section>

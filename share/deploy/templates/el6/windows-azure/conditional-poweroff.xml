@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='conditional-poweroff' type='post' hostname='%{deploy-host}'>
+<macro id='test-install-poweroff'>false</macro>
+<macro id='test-update-poweroff'>false</macro>
+<macro id='publish-poweroff'>false</macro>
+#!/bin/sh
+# conditionally poweroff an azure guest machine 
+
+if [[ %{%{module}-poweroff} == true ]]; then
+  azure vm shutdown %{hostname} || exit 0 # shutdown may be already underway
+fi
+</script>

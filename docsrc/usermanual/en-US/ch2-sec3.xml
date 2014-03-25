@@ -111,7 +111,7 @@
   network installation images from the CentOS-compatible repository and
   modifies them to include repository-specific information. Deploy can
   be used to completely automate client installations. The chapters on <xref
-  linkend='testing-system-repos'/> and <xref linkend="deployment-scenarios"/>
+  linkend='automating-system-testing'/> and <xref linkend="deployment-scenarios"/>
   describe this in detail.
   </para>
   </listitem>
@@ -143,7 +143,7 @@
   contains system installation images. Together, the YUM repository and system
   installation images support the complete range of system and application
   deployment and maintenance scenarios. See the chapters on <xref
-  linkend='testing-system-repos'/>, <xref linkend='deployment-scenarios'/> and
+  linkend='automating-system-testing'/>, <xref linkend='deployment-scenarios'/> and
   <xref linkend='package-repos'/> for more information.
   </para>
   </listitem>
@@ -199,7 +199,7 @@
   </para>
 
   <para>
-  See the chapters on <xref linkend='testing-system-repos'/>, <xref
+  See the chapters on <xref linkend='automating-system-testing'/>, <xref
   linkend='deployment-scenarios'/> and <xref
   linkend='package-repos'/> for additional information.
   </para>

@@ -20,7 +20,7 @@
   In Deploy, configuration packages are defined using
   <emphasis>config-rpm</emphasis> elements. This section covers config-rpm
   parent elements, defining config-rpms and creating config-rpm templates.
-  Config-rpm testing is covered in <xref linkend='testing-system-repos'/>.
+  Config-rpm testing is covered in <xref linkend='automating-system-testing'/>.
   </para>
   
   <section>
@@ -49,7 +49,7 @@
     for deployment template authors. It allows them to ensure that
     deployment-environment specific configuration is included within the
     repository. This topic is discussed further in <xref
-    linkend='testing-system-repos'/>, later in this document.
+    linkend='automating-system-testing'/>, later in this document.
     </para>
     </listitem>
     </itemizedlist>

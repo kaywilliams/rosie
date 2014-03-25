@@ -1,145 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="using-virtual-machines" >
-  <title>Using Virtual Machines</title>
+<section id="testing-system-installation" >
+  <title>Testing System Installation</title>
 
   
   <para>
-  A convenient method for testing system repositories is to use a deployment
-  template.  Deployment templates are located in the <xref
-  linkend='templates'/> folder. In the instructions below we will use libvirt
-  deployment templates, <filename>libvirt/test-install.xml</filename> and
-  <filename>test-update.xml</filename>.  These templates allows testing system
-  repositories using virtual machines running on the Deploy build machine.
-  </para>
-  
-  <para>
-  This chapter assumes a basic level of knowledge about using and managing
-  virtual machines on CentOS and Red Hat Enterprise Linux systems. To learn
-  more about virtualization, see the <emphasis>Virtualization Getting Started
-  Guide</emphasis>, <emphasis>Virtualization Host Configuration and Guest
-  Installation Guide</emphasis> and <emphasis>Virtualization Administration
-  Guide</emphasis> included with the Red Hat Enterprise Linux documentation.
+  Deploy enables <emphasis>installation</emphasis> testing using the
+  <emphasis>test-install</emphasis> element. As usual, the easiest way 
+  to complete this element is using a template, in this case the
+  <filename>test-install.xml</filename> template, as shown below:
   </para>
 
-  <para>
-  Before using the instructions in this section, you will need to be running
-  Deploy on a KVM-compatible machine. You will also need to install the
-  <emphasis>deploy-virt-config</emphasis> RPM package. See <xref
-  linkend="configuring-a-build-machine"/> for information on determining
-  whether your machine is KVM-compatible. See the Deploy download page at
-  <ulink
-  url="http://www.deployproject.org/download">http://www.deployproject.org/download</ulink>
-  for information on installing the <emphasis>deploy-virt-config</emphasis>
-  package.
-  </para>
-
-  <para>  
-  Before we continue with the details of using the deploy.xml template,
-  let's take a moment to review the web-server definition we have created so
-  far. This definition includes all the needed information to create a basic
-  web-server system repository based on the CentOS operating system.  For
-  reference, it is included in the <xref linkend='templates'/> folder as
-  <filename>web-server.definition</filename>.
-  </para>
-
-  <para>
-  <emphasis role='strong'>web-server.definition</emphasis>
-  </para>
-  <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/httpd/web-server.definition' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-  </informalexample>
-
-  <para>
-  This definition will serve as a starting point for the examples in the
-  remainder of this chapter.
-  </para>
-
-  <section id='adding-a-test-install-element' >
-  <title>Adding a test-install element</title>
-
-  <para>
-  You can use the libvirt deployment template to test client machine
-  installation by adding a <emphasis>test-install</emphasis> element to
-  <filename>web-server.definition</filename>, specifying a password, and
-  including the template as shown below:
-  </para>
   <informalexample>
   <programlisting>&lt;test-install>
-&lt;password>secret&lt;/password>
-&lt;xi:include href="libvirt/test-install.xml" xpointer="xpointer(/*/*)"/>
+  &lt;macro id='test-install-post-delete>false&lt;/macro>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+              xpointer="xpointer(./*)"/>
 &lt;/test-install></programlisting>
   </informalexample>
 
   <para>
-  Next, run Deploy again as follows:
-  </para>
-
-  <informalexample>
-  <programlisting># deploy web-server.definition</programlisting>
-  </informalexample>
-
-  <para>
-  During this build cycle, Deploy completes the following:
+  When the <constant>test-install</constant> element shown above is present,
+  Deploy performs the following tasks:
   </para>
 
   <itemizedlist>
   <listitem>
   <para>
-  Creates a new repository at 
-  </para>
-  
-  <para>
-  <filename>/var/www/html/deploy/systems/test-install/web-server-centos-6-x86_64</filename>.
+  Creates a test-install repository in the test-install folder at 
+  <filename>/var/www/html/deploy/systems/test-install</filename>, by default.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  Creates a new virtual machine with the hostname
-  <emphasis>web-server-centos-6-x86-64-test-install.local</emphasis> and the
-  root password <emphasis>secret</emphasis>. You can view the virtual machine
-  using the <command>virt-viewer</command> command line utility.
+  Uses scripts in the <filename>test-install.xml</filename> template to install 
+  a new virtual machine running on the local system. In our web-server example,
+  the hostname will be
+  <emphasis>web-server-centos-6-x86-64-test-install</emphasis>. You can connect
+  to the virtual machine using SSH as follows:
   </para>
-  <note>
-  <para>
-  Creates a new virtual machine with the hostname
-  If a password is not provided using the <emphasis>password</emphasis>
-  element, Deploy will generate one. You can locate
-  generated passwords in the <xref linkend='data-file'/>.
-  </para>
-  </note>
-  </listitem>
 
-  <listitem>
+  <programlisting>ssh web-server-centos-6-x86-64-test-install -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</programlisting>
+
   <para>
-  Verifies the client machine installation, halting process if an error
-  occurs. See the <xref linkend='troubleshooting-system-repos'/> section for
-  help resolving errors.
+  The <varname>StrictHostKeyChecking</varname> and
+  <varname>UserKnownHostsFile</varname> options prevent SSH from checking and
+  storing the client host key. This is desirable since test-install machines
+  are created and deleted at will, and their keys are not guaranteed to be
+  stable.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  Saves information about the installation to the client machine. This
-  information is used for performance reasons. It allows Deploy to skip
-  installation testing in future build cycles if no installation-related
-  changes have occurred. 
+  Verifies the client machine installation, halting process if an error occurs.
+  This allows errors to be resolved prior to publishing changes to the system
+  repository. See the <xref linkend='troubleshooting-system-repos'/> section
+  for help resolving errors.
   </para>
   </listitem>
   </itemizedlist>
   
-  <para>
-  If the test installation completes successfully, Deploy continues
-  processing, including synchronizing any repository changes to the
-  final publish location at 
-  </para>
-
-  <para>
-  <filename>/var/www/html/deploy/systems/web-server-centos-6-x86_64</filename>.
-  </para>
-
   <para>
   During subsequent build cycles, Deploy completes the following:
   </para>
@@ -164,72 +87,12 @@
   </para>
   </listitem>
   </itemizedlist>
-  </section>
-
-  <section id='adding-a-test-update-element'>
-  <title>Adding a test-update element</title>
-  <para>
-  Update testing is similar to install testing, you first add a
-  <emphasis>test-update</emphasis> element, and then include the
-  libvirt deployment template.
-  </para>
-
-  <informalexample>
-  <programlisting>&lt;test-update>
-&lt;password>secret&lt;/password>
-&lt;xi:include href="libvirt/test-update.xml" xpointer="xpointer(/*/*)"/>
-&lt;/test-update></programlisting>
-  </informalexample>
 
   <para>
-  During the first build cycle after the <emphasis>test-update</emphasis>
-  element has been added, Deploy creates a new machine to use as a
-  baseline for performing future update testing. It does this following the
-  steps described under <xref linkend='adding-a-test-install-element'/>
-  above. In the update case, however, the repository location is
+  Once development is complete and the system is stable, you may wish to change
+  the value of the <varname>test-install-post-delete</varname> macro to
+  <constant>true</constant>. This will cause the virtual machine to be deleted
+  once testing is complete, freeing up system resources.
   </para>
-  
-  <para> 
-  <filename>/var/www/html/deploy/systems/test-updates/web-server-centos-6-x86_64</filename>
-  </para>
-
-  <para>
-  and the machine name is <emphasis>web-server-centos-6-x86-64-test-update.local</emphasis>.
-  </para>
-
-  <para>
-  During subsequent runs, Deploy updates packages on the test machine to
-  conform to packages in the system repository. As with test-install, 
-  processing is halted if an error occurs.
-  </para>
-
-  <para>
-  As with test-install, Deploy will also reinstall the test machine if
-  necessary. This happens much less frequently, however. By default Deploy only
-  reinstalls the test-update machine if it is unable to activate the machine or
-  establish an SSH connection to it.
-  </para>
-  </section>
-
-  <section>
-  <title>Additional test-install and test-update elements</title>
-
-  <para>
-  The test-install and test-update elements accept a number of additional
-  sub-elements. These can be used to specify an alternate repository location
-  or hostname, to customize installation settings, or to specify deployment
-  configuration or scripts. We will discuss many of these sub-elements in the
-  next section. See the <xref linkend='ddfr'/> chapter on <emphasis>Deployment
-  Elements</emphasis>, however, for complete information.
-  </para>
-
-  <para>
-  In this section you used the <emphasis>test-install</emphasis> and
-  <emphasis>test-update</emphasis> element along with the libvirt deployment
-  template to automate system testing. In the next section we will take a look
-  at the contents of the libvirt deployment template and discuss deployment
-  templates in general.
-  </para>
-  </section>
 
 </section>

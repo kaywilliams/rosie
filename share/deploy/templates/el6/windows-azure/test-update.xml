@@ -4,5 +4,5 @@
             xpointer="xpointer(./*[name()!='script'])"/>
 <xi:include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
             xpointer="xpointer(./*[name()='script' and @id!='check-kernel'])"/>
-<xi:include href="%{templates-dir}/%{norm-os}/windows-azure/poweroff.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/windows-azure/conditional-poweroff.xml"/>
 </xml>

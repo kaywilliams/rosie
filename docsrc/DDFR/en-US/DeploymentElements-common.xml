@@ -1348,7 +1348,8 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Performs tasks that are required prior to running other scripts.
+      Pre scripts are executed first. They perform tasks that are required
+      prior to running other scripts.
       </para>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
@@ -1396,9 +1397,8 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Activates one or more client machines, or determines if client 
-      machines are active. Must return a non-zero exit status if
-      activation fails.
+      Activate scripts handle client machine activation. They must return a
+      non-zero exit status if activation fails.
       </para>
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
@@ -1438,9 +1438,9 @@ $remote-url/%{id}</programlisting>
       <term>test-triggers</term>
       <listitem>
       <para>
-      Tests current trigger values against prior trigger values. Must return a
-      non-zero exit status if a trigger has changed. See also the
-      <xref linkend='triggers'/> element.
+      Test-trigger scripts test current trigger values against prior trigger
+      values. They must return a non-zero exit status if a trigger has changed.
+      See also the <xref linkend='triggers'/> element.
       </para>
 
       <para>
@@ -1494,8 +1494,8 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Deletes or decommissions one or more client machines in preparation
-      for system installation. Must return a non-zero exit status if
+      Delete scripts delete or decommission client machines in preparation
+      for system installation. They must return a non-zero exit status if
       machine deletion fails. Commonly used with the
       <link linkend='deployment-macros'>%{fqdn}</link> module macro.
       </para>
@@ -1509,7 +1509,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      In this example, a bash script is used to destroy and undefine a virtual
+      In this example, a shell script is used to destroy and undefine a virtual
       machine specified using the <varname>%{fqdn}</varname> module macro. The
       command <command>set -e</command> is used at the beginning of the script
       to indicate that if any command in the script fails, the script should
@@ -1540,7 +1540,8 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Performs tasks that are required prior to completing client installation.
+      Pre-install scripts performs tasks that are required prior to completing
+      client installation.
       </para>
 
       <para>
@@ -1582,8 +1583,9 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Installs one or more client machines. Must return a non-zero exit status
-      if installation fails. Commonly used with the <link
+      Install scripts complete activites related to client machine
+      installation. They must return a non-zero exit status if installation
+      fails. Commonly used with the <link
       linkend='deployment-macros'>%{fqdn}</link> and <link
       linkend='deployment-macros'>%{url}</link> module macros.
       </para>
@@ -1636,23 +1638,11 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Performs post-install tasks such as install verification. Must return a
-      non-zero exit status if post-install tasks fail.
+      Post-install scripts are executed immediately following client
+      installation and handle tasks such as install verification. They must
+      return a non-zero exit status if post-install tasks fail.
       </para>
     
-      <para>
-      The script can perform any desired actions to verify system installation.
-      One recommended action is to scan the
-      <filename>/root/install.log</filename> file for "scriptlet failed"
-      errors.  Scriptlet failed errors identify issues in which RPM packages,
-      quite possibly one of the config-rpms (defined using a <xref
-      linkend='config-rpm'/> element), failed to install as expected. See the
-      examples section below for a script that scans for and reports "scriptlet
-      failed" errors. See the <emphasis>Deploy User Manual</emphasis>
-      for information on troubleshooting "scriptlet failed" errors related to
-      the config-rpm.
-      </para>
-
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>verify-install.xml</filename> which is included in the
@@ -1662,10 +1652,10 @@ $remote-url/%{id}</programlisting>
       </para>
       
       <para>
-      The file provides a bash script which uses the <command>grep</command> to
-      scan for scriptlet failed errors in the install.log. If errors are found,
-      the script returns an exit status of '1', indicating that verification
-      failed.
+      The file provides a shell script which uses the <command>grep</command>
+      to scan for scriptlet failed errors in the install.log. If errors are
+      found, the script returns an exit status of '1', indicating that
+      verification failed.
       </para>
 
       <informalexample>
@@ -1688,15 +1678,16 @@ $remote-url/%{id}</programlisting>
       <term>save-triggers</term>
       <listitem>
       <para>
-      Saves trigger values for future use by
-      <constant>test-triggers</constant>-type scripts. Must return a non-zero
+      Save-triggers scripts save trigger values for future use by
+      <constant>test-triggers</constant> scripts. Must return a non-zero
       exit status if trigger save unsuccessful.
       </para>
       <para>
       <emphasis>Example</emphasis> - This example shows the
       <filename>save-triggers.xml</filename> file which is included in the
-      templates folder at <filename>/usr/share/deploy/templates/el6/common</filename>. See
-      <xref linkend="templates"/> for more information on templates.
+      templates folder at
+      <filename>/usr/share/deploy/templates/el6/common</filename>. See <xref
+      linkend="templates"/> for more information on templates.
       </para>
       
       <para>
@@ -1727,35 +1718,32 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Updates an installed client, typically by executing the <command>yum
-      sync</command> or <command>yum update</command> commands, followed by
-      performing update verification as desired.
+      Update scripts perform actions related to updating client machines,
+      typically by executing the <command>yum sync</command> or <command>yum
+      update</command> commands, followed by performing update verification as
+      desired.
       </para>
     
       <para>
-      Update script may also be used for post processing after client updates.
+      Update scripts may also be used for post processing after client updates.
       For example, an update script may be used to test the running system
       kernel and restart the machine if a new kernel version has been
-      installed, as is shown in the example update-script below. Note that
-      while post processing actions such as these could be performed as either
-      <emphasis>update</emphasis> or <emphasis>post</emphasis> scripts, the
-      former is preferable since the latter are executed after both installation
-      and updates.
+      installed, as is shown in the example check-kernel script below. Note
+      that while post processing actions such as these could be performed as
+      either <emphasis>update</emphasis> or <emphasis>post</emphasis> scripts,
+      the former is preferable since the latter are executed after both
+      installation and updates.
       </para>
 
       <para>
-      <emphasis role='bold'>Examples</emphasis> - This example shows a file
-      named <filename>update.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/el6/common. See <xref
+      <emphasis role='bold'>Example 1 - update.xml</emphasis> - This example
+      shows a file named <filename>update.xml</filename> which is included in
+      the template folder at /usr/share/deploy/templates/el6/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
       <para>
-      The file provides a shell script that updates the client using the
-      <command>yum sync</command> command. Thereafter, the script tests for a
-      new kernel, and restarts the client if one is found. The <command>set
-      -e</command> is used to halt processing and return a non-zero exit status
-      if an error occurs at any point within the script.
+      The file includes two elements: config-rpm and script. The <varname>config-rpm</varname> element lists packages that must be installed on the client machine in order for the script to execute. The <varname>script</varname> element provides a script to update the client using the <command>yum sync</command> command.  The <command>set -e</command> is used to halt processing and return a non-zero exit status if an error occurs at any point within the script.
       </para>
 
       <informalexample>
@@ -1770,7 +1758,35 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update.xml" xpointer="xpointer(./*)"/></programlisting>
+      </informalexample>
+
+      <para>
+      <emphasis role='bold'>Example 2 - check-kernel.xml</emphasis> - This
+      example shows a file named <filename>check-kernel.xml</filename> which is
+      included in the template folder at
+      /usr/share/deploy/templates/el6/common. See <xref linkend='templates'/>
+      for more information on templates.
+      </para>
+
+      <para>
+      This script tests to see if the running kernel differs from the 
+      installed kernel, and restarts the client if needed.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/check-kernel.xml'
+parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/></programlisting>
       </informalexample>
       </listitem>
       </varlistentry>
@@ -1782,13 +1798,13 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <listitem>
       <para>
-      Performs tasks that should occur each time the deployment module runs,
-      e.g. when deployment scripts change or when RPM packages are updated in
-      the deployment repository. Post tasks might include performing client
-      updates, restarting clients if the kernel package has been updated, or
-      shutting down a client if its purpose has been accomplished during the
-      course of module execution (e.g. building or testing RPMs). Must return a
-      non-zero exit status if post tasks fail.
+      Post scripts perform tasks that should occur each time the deployment
+      module runs, e.g. when deployment scripts change or when RPM packages are
+      updated in the deployment repository. Post tasks might include performing
+      client updates, restarting clients if the kernel package has been
+      updated, or shutting down a client if its purpose has been accomplished
+      during the course of module execution (e.g. building or testing RPMs).
+      Must return a non-zero exit status if post tasks fail.
       </para>
 
       <para>
@@ -1810,20 +1826,22 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </para>
 
       <para>
-      <emphasis role='bold'>Examples</emphasis> - This example shows a file
-      named <filename>poweroff.xml</filename> which is included in the template
-      folder at /usr/share/deploy/templates/el6/common. See <xref
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>conditional-poweroff.xml</filename> which is included in
+      the template folder at /usr/share/deploy/templates/el6/libvirt. See <xref
       linkend='templates'/> for more information on templates.
       </para>
       
       <para>
-      The file contains a simple bash script with a single command to shut down
-      the client machine.
+      The file contains conditional code to shut down the client machine when a
+      <link linkend='per-module-run-time-macros'>module-level macro</link>, such
+      as <emphasis>test-update-poweroff</emphasis>, is set to "true". In the
+      default case, the script does not execute.
       </para>
 
       <informalexample>
       <programlisting>
-<xi:include href='../../../../../share/deploy/templates/el6/common/poweroff.xml'
+<xi:include href='../../../../../share/deploy/templates/el6/libvirt/conditional-poweroff.xml'
 parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
@@ -1834,7 +1852,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/poweroff.xml"/></programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/></programlisting>
       </informalexample>
       </listitem>
       </varlistentry>

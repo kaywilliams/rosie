@@ -1,109 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<chapter id="testing-system-repos" >
-  <title>Testing System Repositories</title>
+<chapter id="automating-system-testing" >
+  <title>Automating System Testing</title>
 
   <para>
-  Deploy makes it possible to automate testing of both system
-  and package repositories. System repository testing is covered in this
-  chapter, while testing for package repositories is covered later in this
-  document.
+  Deploy makes it easy to automate installation and update testing using
+  customizable deployment templates.
   </para>
   
-  <para>
-  System repository testing is accomplished using the
-  <emphasis>test-install</emphasis> and <emphasis>test-update</emphasis>
-  elements, in combination with deployment templates.  Given differences
-  between installation and update scenarios, separate testing must be conducted
-  for each.
-  </para>
-
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  <emphasis>installation</emphasis> testing using the
-  <emphasis>test-install</emphasis> element. When this element is present,
-  Deploy uses the provided information to perform the following tasks:
-  </para>
-
-  <itemizedlist>
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Create/update a separate repository in the test-install folder,
-  <filename>/var/www/html/deploy/systems/test-install</filename> by default. 
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Perform a clean client machine installation, as needed, using the
-  test-install repository.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Verify the client machine installation.
-  </para>
-  </listitem>
-  </itemizedlist>
-
-  <para>
-  Only if all of the test-install tasks complete successfully does Centos
-   continue with its processing.
-  </para>
-
-  <para>
-  <emphasis role='strong'>Test-update</emphasis>. Deploy enables
-  <emphasis>update</emphasis> testing using the
-  <emphasis>test-update</emphasis> element. When this element is present,
-  Deploy uses the information provided to perform these tasks:
-  </para>
-
-  <itemizedlist>
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Create a new repository for use in performing test updates. This
-  repository is located in the test-update folder,
-  <filename>/var/www/html/deploy/systems/test-update</filename> by default. 
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Update a client machine, if one exists, given changes in the repository. If
-  no client machine exists, perform a clean client machine installation, for
-  use during the next test cycle. Both of these activities are performed using
-  the test-update repository.
-  </para>
-  </listitem>
-
-  <listitem>
-  <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Verify the client machine update.
-  </para>
-  </listitem>
-  </itemizedlist>
-
-  <para>
-  Only if all of the test-update tasks complete successfully does Centos
-   continue with its processing.
-  </para>
-
-  <para>
-  <emphasis role='strong'>Deployment templates</emphasis>.  Deployment
-  templates, like other templates discussed earlier in this document, are
-  subsets of definitions which have been saved in separate
-  documents. These documents can then be included in the body of the main
-  definition using <xref linkend='xinclude'/>.
-  </para>
-
   <para>
   This chapter covers the following:
   </para>
@@ -111,26 +16,52 @@
   <itemizedlist>
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Using virtual machines to test system repository installation and updates.
+  Testing system installation.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
+  Testing system updates.
+  </para>
+  </listitem>
+
+  <listitem>
+  <para>
   Creating custom deployment templates.
   </para>
   </listitem>
 
   <listitem>
   <para>
-  <emphasis role='strong'>Test-install</emphasis>. Deploy enables
-  Troubleshooting system repository deployment issues.
+  Troubleshooting installation and update issues.
   </para>
   </listitem>
   </itemizedlist>
   
+  <para>
+  In this chapter, we will discuss testing installation and updates using
+  virtual machines running on the Deploy build machine.  In doing so, we assume
+  a basic level of knowledge about using and managing libvirt-based virtual
+  machines on CentOS and Red Hat Enterprise Linux systems. To learn more about
+  virtualization, see the <emphasis>Virtualization Getting Started
+  Guide</emphasis>, <emphasis>Virtualization Host Configuration and Guest
+  Installation Guide</emphasis> and <emphasis>Virtualization Administration
+  Guide</emphasis> included with the Red Hat Enterprise Linux documentation.
+  </para>
+
+  <para>
+  Before using the instructions in this section, you will need to be running
+  Deploy on a KVM-compatible machine. You will also need to install the
+  <emphasis>deploy-virt-config</emphasis> RPM package. See <xref
+  linkend="configuring-a-build-machine"/> for information on determining
+  whether your machine is KVM-compatible. See the Deploy download page at
+  <ulink
+  url="http://www.deployproject.org/download">http://www.deployproject.org/download</ulink>
+  for information on installing the <emphasis>deploy-virt-config</emphasis>
+  package.
+  </para>
+
 
   <xi:include href="ch5-sec1.xml" xpointer="element(/1)"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -139,6 +70,9 @@
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="ch5-sec3.xml" xpointer="element(/1)"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="ch5-sec4.xml" xpointer="element(/1)"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
 
 </chapter>

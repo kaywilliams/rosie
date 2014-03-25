@@ -455,7 +455,7 @@ print uuid.uuid1()
     </para>
     </section>
 
-    <section>
+    <section id='per-module-run-time-macros'>
     <title>Per-Module Run-Time Macros</title>
     <para>
     Per-module run-time macros are macros that are

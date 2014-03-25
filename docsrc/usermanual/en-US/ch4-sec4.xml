@@ -143,9 +143,8 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
 &lt;gpgsign&gt;</programlisting>
 
   <para>
-  This concludes our chapters on creating a basic repository and
-  building RPMs for inclusion in the repository. The next chapters will discuss
-  repository testing, deployment and maintenance.
+  This concludes our chapters on creating system repositories The next chapters
+  will discuss system testing, deployment and maintenance.
   </para>
   </section>
 
