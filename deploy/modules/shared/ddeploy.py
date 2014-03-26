@@ -340,17 +340,26 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
       if params['hostname'] == 'localhost':
         # execute script on local machine
-        self.deploydir.mkdirs()
+        for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
+          d.mkdirs(mode=0700)
+          d.chmod(0700)
+          d.chown(0,0)
         cmd.cp(self.deploydir, force=True)
-        (self.deploydir/cmd.basename).chmod(0755)
+        (self.deploydir/cmd.basename).chmod(0700)
         self._local_execute(self.deploydir/cmd.basename, cmd_id=script.id,
                             verbose=script.verbose)
 
       else:
         # create scriptdir
         try:
-          self._ssh_execute('mkdir -p %s' % self.deploydir,  
-                             cmd_id='create scriptdir', params=params)
+          create_script = ("'for d in %s %s %s; do "
+                           "  [[ -d $d ]] || mkdir $d; "
+                           "  chmod 700 $d; "
+                           "  chown root:root $d; "
+                           "done'" 
+                           % (self.VAR_DIR, self.deployroot, self.deploydir))
+          self._ssh_execute( create_script, cmd_id='create scriptdir', 
+                             params=params)
         except SSHScriptFailedError, e:
           raise RemoteFileCreationError(msg=
             "An error occurred creating the script directory '%s' "
@@ -359,7 +368,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
         # copy script
         try:
-          sftp_cmd="cd %s\nput %s\nchmod 750 %s" % (self.deploydir, cmd, 
+          sftp_cmd="cd %s\nput %s\nchmod 700 %s" % (self.deploydir, cmd, 
                                                     cmd.basename)
           self._sftp(sftp_cmd, cmd_id='copy script', params=params)
         except ScriptFailedError, e:

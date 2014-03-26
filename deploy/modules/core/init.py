@@ -46,6 +46,8 @@ class InitEvent(Event):
       if not folder.exists():
         self.log(4, L1("making directory '%s'" % folder))
         folder.mkdirs()
+      folder.chown(0,0)
+      folder.chmod(0700)
 
   def verify_directories_exist(self):
     "output directories exist"

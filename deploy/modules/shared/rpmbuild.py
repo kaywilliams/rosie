@@ -149,8 +149,8 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       # set up homedir - used for signing
       homedir = self.mddir / 'gnupg'
       homedir.rm(recursive=True, force=True)
-      homedir.mkdirs()
-      homedir.chmod(0700)
+      homedir.mkdirs(mode=0700)
+      homedir.chown(0,0)
 
       for key in [self.gpgsign['pubkey'], self.gpgsign['seckey']]:
         self.import_key(homedir, key)

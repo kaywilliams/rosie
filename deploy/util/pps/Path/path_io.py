@@ -46,7 +46,7 @@ class Path_IO(object):
   def rename(self, new):      raise NotImplementedError
   move = rename
   def mkdir(self, mode=0777): raise NotImplementedError
-  def mkdirs(self):
+  def mkdirs(self, mode=0777):
     """
     Algorithm method
 
@@ -56,7 +56,7 @@ class Path_IO(object):
     for i in range(0, len(self.splitall())):
       dirstack = self.splitall()[0:i+1]
       if not dirstack.exists():
-        dirstack.mkdir()
+        dirstack.mkdir(mode=mode)
       elif dirstack.isfile():
         raise PathError(errno.EEXIST, "cannot create directory '%s'" % self)
   def rmdir(self):            raise NotImplementedError

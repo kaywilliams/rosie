@@ -172,6 +172,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                      or self.mainconfig.getpath(
                         '/deploy/log-file/text()', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
+    self.logfile.exists() or self.logfile.touch()
+    self.logfile.chmod(0700)
+    self.logfile.chown(0,0)
+
     try:
       self.logger = make_log(options.logthresh, self.logfile)
     except IOError, e:
@@ -280,6 +284,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
   def _setup_cache(self, options):
     self.CACHE_DIR    = self._get_mainconfig_paths('cache/path') or \
                         DEFAULT_CACHE_DIR
+    self.CACHE_DIR.exists() or self.CACHE_DIR.mkdir()
+    self.CACHE_DIR.chmod(0700)
+    self.CACHE_DIR.chown(0,0)
 
     cache_max_size = self.mainconfig.getxpath('/deploy/cache/max-size/text()',
                                               '30GB')
@@ -302,6 +309,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.data_root = (pps.path(options.data_root) or 
                       pps.path(self.definition_path).dirname)
     self.data_root.exists() or self.data_root.mkdir()
+    self.data_root.chown(0,0)
+    self.data_root.chmod(0700)
 
     # Specify datfile filename format. The datfile is used for
     # storing two types of data: macro default values and event 
@@ -407,6 +416,8 @@ The definition file is located at %s.
 
     self.data_dir = self.datfn.dirname
     self.data_dir.exists() or self.data_dir.mkdir()
+    self.data_dir.chown(0,0)
+    self.data_dir.chmod(0700)
 
     self.definition.resolve_macros(map={'%{data-dir}': self.data_dir})
 

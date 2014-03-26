@@ -127,8 +127,7 @@ set -e
 
 %%{source-guestname}
 
-deploydir="/var/lib/deploy/deploy/%%{id}"
-file=$deploydir/$(basename %(location)s)
+file=%(buildroot)s/$(basename %(location)s)
 wget -q -O $file %(location)s
 chcon -t httpd_sys_content_t $file
 
@@ -143,7 +142,8 @@ virt-install \
              --force \
              --wait=-1 \
              --noreboot
-    """ % {'location': '%%{os-url}/%s' % location}
+    """ % {'location': '%%{os-url}/%s' % location,
+           'buildroot': self.buildroot}
 
     root.resolve_macros(map=self.macros)
 

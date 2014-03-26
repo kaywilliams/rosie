@@ -96,7 +96,10 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     self.rpmsdir   = self.mddir / 'rpms'
 
     self.data_root   = self.VAR_DIR / 'srpms'
-    self.data_root.mkdirs()
+    for d in [ self.VAR_DIR, self.data_root ]:
+      d.exists() or d.mkdir()
+      d.chmod(0700)
+      d.chown(0,0)
 
     if self.version == "5":
       self.build_dir = pps.path('/usr/src/redhat')
@@ -163,7 +166,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     # start with a clean rpmsdir
     self.rpmsdir.rm(recursive=True, force=True)
-    self.rpmsdir.mkdirs()
+    self.rpmsdir.mkdirs(mode=0700)
 
     # initialize builder
     # doing this in a method so dtest can call it directly
@@ -241,7 +244,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
 
     repodata_dir = self.mddir / 'repodata'
-    repodata_dir.mkdirs()
+    repodata_dir.mkdirs(mode=0700)
     
     # download repomd and primary files for use in offline mode
     self.link(repo.url/repo.repomdfile, repodata_dir)
@@ -276,10 +279,10 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     del yb; yb = None
 
   def _get_srpm_from_script(self, script):
-    self.srpmdir.mkdirs()
+    self.srpmdir.mkdirs(mode=0700)
     script_file = self.mddir / 'script'
     script_file.write_text(self.config.getxpath('script/text()').encode('utf8'))
-    script_file.chmod(0750)
+    script_file.chmod(0700)
   
     self._local_execute(script_file)
   

@@ -21,7 +21,7 @@ import re
 from deploy.errors   import (DeployEventError, MissingIdError,
                                    DuplicateIdsError)
 from deploy.event    import Event, CLASS_META
-from deploy.dlogging  import L0
+from deploy.dlogging import L0
 from deploy.util     import pps
 
 from deploy.modules.shared import (MkrpmRpmBuildMixin,
@@ -121,7 +121,7 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin, ExecuteEventMixin):
 
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin): 
-  config_mixin_version = "1.02"
+  config_mixin_version = "1.04"
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -244,7 +244,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
     md5file.dirname.mkdirs()
     md5file.write_lines(lines)
-    md5file.chmod(0640)
+    md5file.chmod(0600)
 
     self.DATA['output'].append(md5file)
 
@@ -255,7 +255,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def get_post(self):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
-    scripts.append('chmod 750 %s' % self.installdir)
+    scripts.append('chmod 700 %s' % self.installdir)
     scripts.append('trap - INT TERM EXIT')
     return self._make_script(scripts, 'post')
   def get_preun(self):
@@ -321,8 +321,15 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       '  cp $file $file.prev',
       'else',
       '  if [ ! -e $file.prev ]; then',
-      '  mkdir -p `dirname $file`',
+      '  for d in %s %s %s; do' % (self.vardir, self.rootinstdir, 
+                                   self.installdir),
+      '    [[ -d $d ]] || mkdir $d',
+      '    chmod 700 $d',
+      '    chown root:root $d',
+      '  done',
       '  touch $file.prev',
+      '  chmod 600 $file.prev',
+      '  chown root:root $file.prev',
       '  fi',
       'fi',
       '', ])
@@ -497,7 +504,7 @@ fi
       file.dirname.mkdirs()
       s = [ x.encode('utf8') for x in s ]
       file.write_lines(s)
-      file.chmod(0750)
+      file.chmod(0700)
       self.DATA['output'].append(file)
 
     return scripts

@@ -127,8 +127,7 @@ class GpgSignSetupEvent(Event):
     secring = homedir/'secring.gpg'
 
     homedir.rm(recursive=True, force=True)
-    homedir.mkdir()
-    homedir.chmod(0700)
+    homedir.mkdir(mode=0700)
 
     name = "%s signing key" % self.build_id
 

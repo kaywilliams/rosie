@@ -122,7 +122,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
       # causes the release rpm to be regenerated each time the url to an input 
       # gpgkey changes, and we want the release rpm to be immune to this class
       # of changes
-      self.local_keydir.mkdirs()
+      self.local_keydir.mkdirs(mode=0700)
+      self.local_keydir.chown(0,0)
       self.keys = []
       for filename, url in self.gpgkeys.iteritems():
         try:
