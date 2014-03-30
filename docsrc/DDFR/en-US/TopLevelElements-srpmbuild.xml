@@ -361,20 +361,10 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       </para>
 
       <para>
-      The <emphasis>template</emphasis> element is optional. Deploy provides a
-      default template, shown in the examples section below. On a system with
-      Deploy installed, the default template can be found in the templates
-      folder at
-      <filename>/usr/share/deploy/templates/%{norm-os}/common/srpmbuild.xml</filename>.
+      The <emphasis>template</emphasis> element is optional. By default, Deploy
+      looks for a template at the location
+      <filename>%{templates-dir}/%{norm-os}/common/srpmbuild.xml</filename>.
       See <xref linkend='templates'/> for additional information on templates. 
-      </para>
-
-      <para>
-      More broadly, by default, Deploy searches for a template with the
-      filename <filename>srpmbuild.xml</filename> located in the default
-      share path <filename>/usr/share/deploy</filename>, a share path
-      specified in the <filename>deploy.conf</filename> file, or a share
-      path specified on the Deploy command line.
       </para>
 
       <para>
@@ -391,9 +381,8 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       <para>
       User-provided srpmbuild templates should provide a unique value for the
       <emphasis>/main/name</emphasis> element of each template. This results in
-      additional srpmbuild machines (one per template). However, it also
-      prevents a single srpmbuild machine from being reinstalled each time an
-      srpm changes.
+      additional srpmbuild machines (one per template); preventing a single
+      srpmbuild machine from being reinstalled each time an srpm changes.
       </para>
       </note>
 

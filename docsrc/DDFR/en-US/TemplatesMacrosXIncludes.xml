@@ -50,8 +50,8 @@
 
   <para>
   Templates can be included within definitions using
-  <varname>%{templates-dir}</varname> and <varname>%{norm-os}</varname> macros,
-  examples are shown through this document.
+  <varname>%{templates-dir}</varname> and <varname>%{norm-os}</varname> <link
+  linkend="macros">macros</link>, examples are shown through this document.
   </para>
 
   <warning>
