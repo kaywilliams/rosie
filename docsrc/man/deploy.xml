@@ -19,7 +19,7 @@
 
 <refnamediv>
 <refname>deploy</refname>
-<refpurpose>a platform for managing system and application deployment</refpurpose>
+<refpurpose>an efficient platform for managing Linux system deployment</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -65,13 +65,22 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
+<arg choice="opt">
+<option>--list-events <replaceable class="parameter">EVENT</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--force-event <replaceable class="parameter">EVENT</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--skip-event <replaceable class="parameter">EVENT</replaceable></option>
+</arg>
 <filename> DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="deploy.1-description"><title>DESCRIPTION</title>
-<para>Deploys the system or application defined in the file at
+<para>Builds the system or application defined in the file at
 DEFINITION.</para>
 </refsect1>
 
@@ -117,16 +126,27 @@ definition file, see the Deploy Definition File Reference at
 <varlistentry>
   <term><option>--force <replaceable class="parameter">MODULE</replaceable></option></term>
   <listitem>
-        <para>Forces a Deploy <replaceable
-        class="parameter">MODULE</replaceable> to execute, even if the module
-        would ordinarily be skipped for optimizations in speed. Forcing a
-        module forces its children recursively. This option can be specified
-        more than once, as in the example below:</para>
+        <para>Forces the events of a <replaceable
+        class="parameter">MODULE</replaceable> to execute, even if the events
+        would ordinarily be skipped for optimizations in speed.  This option
+        can be specified more than once, as in the example below:</para>
 
-<para>--force <replaceable class="parameter">MODULE1</replaceable> --force
-<replaceable class="parameter"> MODULE2</replaceable> --force <replaceable
-class="parameter">MODULE3</replaceable></para>
-<para>See the MODULES section below for more information.</para>
+<para>--force <replaceable class="parameter">MODULE1</replaceable> --force <replaceable class="parameter">MODULE2</replaceable> --force <replaceable class="parameter">MODULE3</replaceable></para>
+<para>See the MODULES and EVENTS sections below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--force-event <replaceable class="parameter">EVENT</replaceable></option></term>
+  <listitem>
+        <para>Forces an <replaceable
+        class="parameter">EVENT</replaceable> to execute, even if it would
+        ordinarily be skipped for optimizations in speed. Forcing an event
+        forces its children recursively. This option can be specified more than
+        once, as in the example below:</para>
+
+<para>--force-event <replaceable class="parameter">EVENT1</replaceable> --force-event <replaceable class="parameter">EVENT2</replaceable> --force-event <replaceable class="parameter">EVENT3</replaceable></para>
+<para>See the EVENTS section below for more information.</para>
   </listitem>
 </varlistentry>
 
@@ -138,10 +158,22 @@ class="parameter">MODULE3</replaceable></para>
     specifing additional directory <replaceable
     class="parameter">PATHs</replaceable> to search.  This option can be
     specified more than once; for example:</para>
-<para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path
-<replaceable class="parameter"> PATH2</replaceable> --lib-path <replaceable
-class="parameter">PATH3</replaceable></para>
+<para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--list-events <replaceable class="parameter">DEFINITION</replaceable></option></term>
+  <listitem>
+    <para>
+    Provides a hierarchical list of events that will execute for the specified
+    definition. 
+    </para>
+
+<para>deploy --list-events <replaceable class="parameter">DEFINITION</replaceable></para>
+
+<para>See the EVENTS section below for more information.</para>
   </listitem>
 </varlistentry>
 
@@ -204,7 +236,7 @@ and not the log file. Level 5 detail is always written to the log file.
     </para>
     <para>--macro <replaceable class="parameter">ID1:VALUE1</replaceable>
     --macro <replaceable class="parameter">ID2:VALUE2</replaceable> --macro
-    <replaceable class="parameter"> ID3:VALUE3</replaceable>
+    <replaceable class="parameter">ID3:VALUE3</replaceable>
     </para>
   </listitem>
 </varlistentry>
@@ -233,24 +265,37 @@ and not the log file. Level 5 detail is always written to the log file.
     <filename>/usr/share/deploy/</filename>. This option can be specified
     more than once, as demonstrated below:</para>
 
-<para>--share-path <replaceable class="parameter">PATH1</replaceable>
---share-path <replaceable class="parameter">PATH2</replaceable> --share-path
-<replaceable class="parameter"> PATH3</replaceable></para>
+<para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term><option>--skip <replaceable class="parameter">MODULE</replaceable></option></term>
   <listitem>
-        <para>Prevents a <replaceable class="parameter">MODULE</replaceable>
-        from executing, even if the module would ordinarily be executed due to
-        changes in input, output or other factors. Skipping a module skips its
-        children recursively. This option can be specified more than once, as
-        in the example below:</para>
-<para>--skip <replaceable class="parameter">MODULE1</replaceable> --skip
-<replaceable class="parameter"> MODULE2</replaceable> --skip <replaceable
-class="parameter">MODULE3</replaceable></para>
-<para>See the MODULES section below for more information.</para>
+        <para>Prevents the events of a <replaceable
+        class="parameter">MODULE</replaceable> from executing, even if the
+        events would ordinarily be executed due to changes in input, output or
+        other factors.  This option can be specified more than once, as in the
+        example below:</para>
+
+<para>--skip <replaceable class="parameter">MODULE1</replaceable> --skip <replaceable class="parameter">MODULE2</replaceable> --skip <replaceable class="parameter">MODULE3</replaceable></para>
+
+<para>See the MODULES and EVENTS sections below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--skip-event <replaceable class="parameter">EVENT</replaceable></option></term>
+  <listitem>
+        <para>Prevents an <replaceable
+        class="parameter">EVENT</replaceable> from executing, even if it would
+        ordinarily be executed due to changes in input, output or other
+        factors. Skipping an event skips its childen recursively. This option
+        can be specified more than once, as in the example below:</para>
+
+<para>--skip-event <replaceable class="parameter">EVENT1</replaceable> --skip-event <replaceable class="parameter">EVENT2</replaceable> --skip-event <replaceable class="parameter">EVENT3</replaceable></para>
+
+<para>See the EVENTS section below for more information.</para>
   </listitem>
 </varlistentry>
 
@@ -287,6 +332,14 @@ MODULE, PATH and DEPLOY_CONF.</para>
 </varlistentry>
 
 <varlistentry>
+  <term>EVENT</term>
+  <listitem>
+        <para>The id of a Deploy event.  See the EVENTS section,
+        below, for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
   <term>PATH</term>
   <listitem>
     <para> A local file path.  Deploy resolves paths relative to the
@@ -299,11 +352,8 @@ MODULE, PATH and DEPLOY_CONF.</para>
 
 <refsect1 id="deploy.1-modules"><title>MODULES</title>
 <para>
-A module performs an individual step in the build process, such as
-downloading software packages, creating packages or creating ISO images. 
-On subsequent builds of the same definition, Deploy automatically
-determines whether a module can be skipped in favor of using cached data from a
-previous build. Users can override the default determination using the
+Modules are blocks of code that implement one or more related events in the
+build process. Users can skip and force all of the events in a module using the
 <command>--skip</command> and <command>--force</command> options.
 </para>
 <para>
@@ -312,6 +362,24 @@ Module names correspond to top-level elements in the DEFINITION.
 <para>
 Developers can write custom Deploy modules and direct Deploy to use them via the <command>--lib-path</command> deploy command
 option.
+</para>
+<para>
+See the EVENTS section below for additional information.
+</para>
+</refsect1>
+
+<refsect1 id="deploy.1-events"><title>EVENTS</title>
+<para>
+Events perform steps in the build process, such as downloading
+software packages, creating packages or creating ISO images.  On subsequent
+builds of the same definition, Deploy automatically determines whether an event
+can be skipped in favor of using cached data from a previous build. Users can
+override the default determination using the <command>--skip-event</command>
+and <command>--force-event</command> options.
+</para>
+<para>
+The <command>--list-events</command> option provides a hierarchical list of
+events for a given definition.
 </para>
 </refsect1>
 

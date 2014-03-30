@@ -146,19 +146,21 @@ class BuildCli:
     parser.add_option_group(module_group)
 
     event_group = OptionGroup(parser, "event options")
-    event_group.add_option('--force-event', metavar='EVENT',
-      action='append',
-      dest='force_events',
-      default=[],)
-    event_group.add_option('--skip-event', metavar='EVENT',
-      action='append',
-      dest='skip_events',
-      default=[],)
     event_group.add_option('--list-events',
       action='store_true',
       default=False,
       dest='list_events',
-      help='list all events in execution order')
+      help='list all events for the specified definition')
+    event_group.add_option('--force-event', metavar='EVENT',
+      action='append',
+      dest='force_events',
+      default=[],
+      help="force an individual event")
+    event_group.add_option('--skip-event', metavar='EVENT',
+      action='append',
+      dest='skip_events',
+      default=[],
+      help="skip an individual event")
     parser.add_option_group(event_group)
  
     opts,args = parser.parse_args(args=sys.argv[1:])
