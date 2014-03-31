@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 2.1
-Release: 47%{?dist}
-Summary: An efficient platform for managing Linux system deployment.
+Version: 2.2
+Release: 1%{?dist}
+Summary: An efficient solution for managing Linux system deployment.
 
 License:   GPL
 Group:     Applications
@@ -41,8 +41,9 @@ Requires: /usr/bin/rpmsign
 Requires: /usr/bin/sudo
 
 %description
-Deploy is an efficient platform for managing Linux system deployment. See
-http://www.deployproject.org for more information. 
+Deploy is an efficient solution to build, test, deploy and maintain CentOS
+and Red Hat Enterprise Linux systems. See http://www.deployproject.org for more
+information. 
 
 %prep
 %setup -q
@@ -73,6 +74,18 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Mon Mar 31 2014 Kay Williams - 2.2-1
+- support for hierarchical template folders
+- restrict access to deploy files and folders
+- support for ssl key authenticated repositories including CDN
+- remove support for RHN repositories
+- preliminary support for Red Hat Enterprise Linux 7
+- add hyphens to rpmid, installdir, srpmid, srpmdir and srpmlast macros
+- allow excluding subpackages from srpms
+- allow using scripts for setting default macro values
+- additional templates and template improvements
+- misc bug fixes, and improvements to documentation and error handling
+
 * Fri Sep 13 2013 Kay Williams <kay@deployproject.org> - 2.1-1
 - offline support 
 - support for executing deployment scripts from a remote host
