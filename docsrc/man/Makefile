@@ -36,8 +36,8 @@ publish:
 	cp -a *.html $(PUBDIR)/en-US; \
 
         # add metadata providing the desired path alias
-	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy"/g' $(PUBDIR)/en-US/deploy.1.html
-	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy.conf"/g' $(PUBDIR)/en-US/deploy.conf.5.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy"\/>/g' $(PUBDIR)/en-US/deploy.1.html
+	sed -i 's/<head>/<head><meta name="pathalias" content="docs\/deploy.conf"\/>/g' $(PUBDIR)/en-US/deploy.conf.5.html
 
         # set permissions
 	chown -R apache:apache $(PUBDIR)/en-US/$d
