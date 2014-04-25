@@ -16,23 +16,12 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
-
-<macro id="rhel-server-base">%{rhel-beta-base}</macro>
-<macro id="rhel-beta-mirror">http://ftp.redhat.com/pub/redhat/rhel/beta/7/%{arch}/os</macro>
-<macro id="rhel-beta-base">
-<baseurl>%{rhel-beta-mirror}</baseurl>
-<gpgkey>%{rhel-beta-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
-<gpgkey>%{rhel-beta-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
-</macro>
-
-<!--
-<macro id="rhel-server-mirror">http://mirror.company.com/rhel/enterprise/6Server/en/os/%{arch}</macro>
+<macro id="rhel-server-mirror">http://mirror.company.com/rhel/enterprise/7Server/en/os/%{arch}</macro>
 <macro id="rhel-server-base">
 <baseurl>%{rhel-server-mirror}</baseurl>
 <gpgkey>%{rhel-server-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
 <gpgkey>%{rhel-server-mirror}/RPM-GPG-KEY-redhat-beta</gpgkey>
 </macro>
--->
 </repo>
 
 <!-- updates repo -->
@@ -48,22 +37,12 @@
 </macro>
 
 <macro id="rhsm-dir">%{templates-dir}/%{norm-os}/common/rhsm</macro>
-<macro id="rhel-server-updates">%{rhel-beta-base}</macro>
-<macro id="rhel-beta-updates">
-<baseurl>https://cdn.redhat.com/content/beta/rhel/everything/7/%{arch}/os</baseurl>
-<sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
-<sslclientcert>%{rhsm-dir}/beta-7.pem</sslclientcert>
-<sslclientkey>%{rhsm-dir}/beta-7-key.pem</sslclientkey>
-</macro>
-
-<!--
 <macro id="rhel-server-updates">
-<baseurl>https://cdn.redhat.com/content/beta/rhel/Server/7/%{arch}/os</baseurl>
+<baseurl>https://cdn.redhat.com/content/rc/rhel/server/7/%{arch}/os</baseurl>
 <sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
 <sslclientcert>%{rhsm-dir}/server-7.pem</sslclientcert>
 <sslclientkey>%{rhsm-dir}/server-7-key.pem</sslclientkey>
 </macro>
--->
 </repo>
 
 <!-- epel repo -->
