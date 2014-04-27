@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: An efficient solution for managing Linux system deployment.
 
 License:   GPL
@@ -74,6 +74,9 @@ information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sun Apr 27 2014 Deploy Automated Package Builder - 2.2-2
+- rebuilt
+
 * Mon Mar 31 2014 Kay Williams - 2.2-1
 - support for hierarchical template folders
 - restrict access to deploy files and folders

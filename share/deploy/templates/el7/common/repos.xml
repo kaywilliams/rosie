@@ -16,7 +16,10 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
+<!--
 <macro id="rhel-server-mirror">http://mirror.company.com/rhel/enterprise/7Server/en/os/%{arch}</macro>
+-->
+<macro id="rhel-server-mirror">http://ftp.redhat.com/redhat/rhel/rc/7/Server/%{arch}/os</macro>
 <macro id="rhel-server-base">
 <baseurl>%{rhel-server-mirror}</baseurl>
 <gpgkey>%{rhel-server-mirror}/RPM-GPG-KEY-redhat-release</gpgkey>
