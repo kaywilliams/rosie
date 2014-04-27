@@ -36,6 +36,11 @@
 <gpgkey>%{centos-mirror}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </macro>
 
+<macro id="rhel-server-updates">
+<baseurl>http://ftp.redhat.com/redhat/rhel/rc/7/Server/%{arch}/os</baseurl>
+</macro>
+
+<!--
 <macro id="rhsm-dir">%{templates-dir}/%{norm-os}/common/rhsm</macro>
 <macro id="rhel-server-updates">
 <baseurl>https://cdn.redhat.com/content/rc/rhel/server/7/%{arch}/os</baseurl>
@@ -43,6 +48,7 @@
 <sslclientcert>%{rhsm-dir}/server-7.pem</sslclientcert>
 <sslclientkey>%{rhsm-dir}/server-7-key.pem</sslclientkey>
 </macro>
+-->
 </repo>
 
 <!-- epel repo -->
