@@ -10,7 +10,7 @@
 <requires>mercurial</requires>
 <requires>mkisofs</requires>
 <requires>pexpect</requires>
-<requires>publican</requires>
+<!--<requires>publican</requires>-->
 <requires>pykickstart</requires>
 <requires>python-devel</requires>
 <requires>python-hashlib</requires>
