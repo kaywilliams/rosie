@@ -104,7 +104,7 @@ class Group(object):
         self.conditional_packages = {}
         self.langonly = None ## what the hell is this?
         self.groupid = None
-        self.display_order = 1024
+        self.display_order = 5
         self.installed = False
         self.toremove = False
 
@@ -319,7 +319,7 @@ class Category(object):
         self.description = ""
         self.translated_name = {}
         self.translated_description = {}
-        self.display_order = 1024
+        self.display_order = 5
         self._groups = {}
 
         if elem:
@@ -413,10 +413,99 @@ class Category(object):
 
         return msg
 
+class Environment(Category):
+    def __init__(self, elem=None):
+        self.name = ""
+        self.environmentid = None
+        self.description = ""
+        self.translated_name = {}
+        self.translated_description = {}
+        self.display_order = 5
+        self._groups = {}
+
+        if elem:
+            self.parse(elem)
+
+    def parse(self, elem):
+        for child in elem:
+            if child.tag == 'id':
+                myid = child.text
+                if self.environmentid is not None:
+                    raise CompsException
+                self.environmentid = myid
+
+            elif child.tag == 'name':
+                text = child.text
+                if text:
+                    text = text.encode('utf8')
+
+                lang = child.attrib.get(lang_attr)
+                if lang:
+                    self.translated_name[lang] = text
+                else:
+                    self.name = text
+
+            elif child.tag == 'description':
+                text = child.text
+                if text:
+                    text = text.encode('utf8')
+
+                lang = child.attrib.get(lang_attr)
+                if lang:
+                    self.translated_description[lang] = text
+                else:
+                    self.description = text
+
+            elif child.tag == 'grouplist':
+                self.parse_group_list(child)
+
+            elif child.tag == 'display_order':
+                self.display_order = parse_number(child.text)
+
+    def add(self, obj):
+        """Add another environment object to this object"""
+
+        for grp in obj.groups:
+            self._groups[grp] = 1
+
+        # name and description translations
+        for lang in obj.translated_name:
+            if not self.translated_name.has_key(lang):
+                self.translated_name[lang] = obj.translated_name[lang]
+
+        for lang in obj.translated_description:
+            if not self.translated_description.has_key(lang):
+                self.translated_description[lang] = obj.translated_description[lang]
+
+    def xml(self):
+        """write out an xml stanza for the group object"""
+        msg ="""
+  <environment>
+   <id>%s</id>
+   <display_order>%s</display_order>\n""" % (self.environmentid, self.display_order)
+
+        msg +="""   <name>%s</name>\n""" % self.name
+        for (lang, val) in self.translated_name.items():
+            msg += """   <name xml:lang="%s">%s</name>\n""" % (lang, val)
+
+        msg += """   <description>%s</description>\n""" % self.description
+        for (lang, val) in self.translated_description.items():
+            msg += """    <description xml:lang="%s">%s</description>\n""" % (lang, val)
+
+        msg += """    <grouplist>\n"""
+        for grp in self.groups:
+            msg += """     <groupid>%s</groupid>\n""" % grp
+        msg += """    </grouplist>\n"""
+        msg += """  </environment>\n"""
+
+        return msg
+
+
 class Comps(object):
     def __init__(self, overwrite_groups=False):
         self._groups = {}
         self._categories = {}
+        self._environments = {}
         self.compscount = 0
         self.overwrite_groups = overwrite_groups
         self.compiled = False # have groups been compiled into avail/installed
@@ -448,9 +537,14 @@ class Comps(object):
         cats.sort(self.__sort_order)
         return cats
 
+    def get_environments(self):
+        envs = self._environments.values()
+        envs.sort(self.__sort_order)
+        return envs
 
     groups = property(get_groups)
     categories = property(get_categories)
+    environments = property(get_environments)
 
 
 
@@ -521,6 +615,13 @@ class Comps(object):
         else:
             self._categories[category.categoryid] = category
 
+    def add_environment(self, environment):
+        if self._environments.has_key(environment.environmentid):
+            thatenv = self._environment[environment.environmentid]
+            thatenv.add(environment)
+        else:
+            self._environments[environment.environmentid] = environment
+
     def add(self, srcfile = None):
         if not srcfile:
             raise CompsException
@@ -545,6 +646,9 @@ class Comps(object):
               if elem.tag == "category":
                  category = Category(elem)
                  self.add_category(category)
+              if elem.tag == "environment":
+                 environment = Environment(elem)
+                 self.add_environment(environment)
           except SyntaxError, e:
             raise CompsException, "comps file is empty/damaged"
         finally:
@@ -592,7 +696,7 @@ class Comps(object):
     def xml(self):
         """returns the xml of the comps files in this class, merged"""
 
-        if not self._groups and not self._categories:
+        if not self._groups and not self._categories and not self._environments:
             return ""
 
         msg = """<?xml version="1.0" encoding="UTF-8"?>
@@ -604,6 +708,8 @@ class Comps(object):
             msg += g.xml()
         for c in self.get_categories():
             msg += c.xml()
+        for e in self.get_environments():
+            msg += e.xml()
 
         msg += """\n</comps>\n"""
 

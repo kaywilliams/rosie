@@ -44,7 +44,7 @@ class PackagesEvent(ShelveMixin):
       provides = ['comps-object', 'user-required-packages', 
                   'user-required-groups', 'excluded-packages'],
       conditionally_requires = ['repos'],
-      version = '1.02'
+      version = '1.03'
     )
 
     self.comps = None
@@ -209,6 +209,20 @@ class PackagesEvent(ShelveMixin):
 
     # add category to comps
     self.comps.add_category(category)
+
+    # create an environment
+    environment = comps.Environment()
+    environment.environmentid  = 'minimal'
+    environment.displayorder   = '5'
+    environment.name           = 'Minimal Install'
+    environment.description    = 'Basic functionality.'
+
+    # add groups
+    for group in self.comps.groups:
+      environment._groups[group.groupid] = 1
+
+    # add environment to comps
+    self.comps.add_environment(environment)
 
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
