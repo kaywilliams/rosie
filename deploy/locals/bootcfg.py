@@ -24,4 +24,9 @@ L_BOOTCFG = LocalsDict({
       'ks-cdrom-path'        : 'cdrom::',
     },
   },
+  "anaconda-19.31.77": {
+    'options': {
+      'ks-cdrom-path'        : 'cdrom:',
+    },
+  },
 })
