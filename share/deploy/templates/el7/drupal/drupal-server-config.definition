@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>drupal</macro>
+<macro id='name'>drupal-server</macro>
 <macro id='os'>centos</macro>
 <macro id='edition'>server</macro>
 <macro id='version'>7</macro>
@@ -42,7 +42,7 @@
             xpointer="xpointer(./*)"/>
 </test-update>
 
-<test-install>
+<test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
 </test-install>

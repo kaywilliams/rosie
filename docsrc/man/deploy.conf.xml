@@ -53,6 +53,32 @@ Deploy installation does not include a deploy.conf file.</para>
 </varlistentry>
 
 <varlistentry>
+  <term><option>disable-module</option></term>
+  <listitem>
+    <para>Name of a core module to disable by default.
+    Multiple enable-module elements are allowed. 
+    Corresponds to the <command>--disable</command> command-line
+    option.</para>
+<programlisting>
+&lt;disable-module&gt;MODULE&lt;/disable-module&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>enable-module</option></term>
+  <listitem>
+    <para>Name of an extension module to enable by default.
+    Multiple enable-module elements are allowed. 
+    Corresponds to the <command>--enable</command> command-line
+    option.</para>
+<programlisting>
+&lt;enable-module&gt;MODULE&lt;/enable-module&gt;
+</programlisting>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
   <term><option>log-file</option></term>
   <listitem>
     <para>Directory and filename <replaceable

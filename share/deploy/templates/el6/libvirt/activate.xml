@@ -13,7 +13,7 @@ file = pps.path(os.path.dirname(os.path.abspath(__file__)))/ 'libvirt-%{module}'
 if file.exists():
   guestname = file.read_text().strip().replace('guestname=', '')
 else:
-  sys.stderr.write("unable to determine guestname - %s does not exist\n" % file)
+  sys.stderr.write("unable to determine guestname\n")
   sys.exit(1)
 
 connection = libvirt.open('qemu:///system')

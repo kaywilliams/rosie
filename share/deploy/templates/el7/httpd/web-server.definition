@@ -37,7 +37,7 @@
 <xi:include href="%{templates-dir}/%{norm-os}/httpd/test/test-web-server-running.xml"/>
 </test-update>
 
-<test-install>
+<test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/%{norm-os}/httpd/test/test-web-server-running.xml"/>

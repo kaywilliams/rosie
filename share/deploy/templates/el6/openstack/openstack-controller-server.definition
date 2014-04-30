@@ -26,22 +26,22 @@
 #   --macro "name:openstack-compute1" \
 #   --macro "install-default:n" \
 #   --macro "install-nova-compute:y" \
-#   --disable-module test-update \ 
-#   --disable-module test-install
+#   --disable test-update \ 
+#   --disable test-install
 # 
 # deploy %{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml \
 #   --macro "name:openstack-compute2" \
 #   --macro "install-default:n" \
 #   --macro "install-nova-compute:y" \
-#   --disable-module test-update \ 
-#   --disable-module test-install
+#   --disable test-update \ 
+#   --disable test-install
 # 
 # deploy %{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml \
 #   --macro "name:openstack-block1" \
 #   --macro "install-default:n" \
 #   --macro "install-cinder:y" \
-#   --disable-module test-update \ 
-#   --disable-module test-install
+#   --disable test-update \ 
+#   --disable test-install
 </script>
 </macro>
 

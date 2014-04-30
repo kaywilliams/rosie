@@ -14,9 +14,9 @@
 </packages>
 
 <packages id='gui'>
-<group>base</group>
-<group>X11</group>
-<group>fonts</group>
-<group>gnome-desktop</group>
+<group repoid='base'>base</group>
+<group repoid='base'>X11</group>
+<group repoid='base'>fonts</group>
+<group repoid='base'>gnome-desktop</group>
 </packages>
 </xml>

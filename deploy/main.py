@@ -478,16 +478,22 @@ The definition file is located at %s.
 
   def _compute_modules(self, options):
     """
-    Compute a list of modules deploy should not load.  Disabling takes priorty
-    over enabling.
+    Compute a list of modules deploy should not load. Order of precedence is
+    options, definition, deploy config
 
     options      : an optparse.Values instance containing the result of
                    parsing command line options
     """
-    enabled  = set(options.enabled_modules)
-    disabled = set(options.disabled_modules)
+    enabled  = set()
+    disabled = set()
 
-    # enable/disable modules from app config
+    # enable/disable modules from deploy config
+    for module in self.mainconfig.xpath('/deploy/enable-module', []):
+      enabled.add(module.text)
+    for module in self.mainconfig.xpath('/deploy/disable-module', []):
+      disabled.add(module.text)
+
+    # enable/disable modules from definition 
     for module in self.definition.xpath('/*/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
@@ -495,11 +501,12 @@ The definition file is located at %s.
       else:
         enabled.add(module.tag)
 
-    # enable/disable modules from main config
-    for module in self.mainconfig.xpath('/deploy/enable-module', []):
-      enabled.add(module.text)
-    for module in self.mainconfig.xpath('/deploy/disable-module', []):
-      disabled.add(module.text)
+    # enable/disable modules from options
+    for module in options.enabled_modules:
+      enabled.add(module)
+      disabled.remove(module)
+    for module in options.disabled_modules:
+      disabled.add(module)
 
     disabled.add('__init__') # hack, kinda; these are loaded automatically
 

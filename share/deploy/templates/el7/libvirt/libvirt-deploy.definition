@@ -27,7 +27,7 @@
             xpointer="xpointer(./packages[@id='core']/*)"/>
 </packages>
 
-<test-install>
+<test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
 </test-install>

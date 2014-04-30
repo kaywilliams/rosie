@@ -6,11 +6,11 @@
 </packages>
 
 <packages id='gui'>
-<group>base</group>
-<group>X11</group>
-<group>fonts</group>
-<group>desktop-platform</group>
-<group>basic-desktop</group>
-<group>general-desktop</group>
+<group repoid='base'>base</group>
+<group repoid='base'>X11</group>
+<group repoid='base'>fonts</group>
+<group repoid='base'>desktop-platform</group>
+<group repoid='base'>basic-desktop</group>
+<group repoid='base'>general-desktop</group>
 </packages>
 </xml>

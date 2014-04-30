@@ -35,7 +35,7 @@
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
 </srpmbuild>
 
-<test-install>
+<test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
 </test-install>

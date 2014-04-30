@@ -135,14 +135,16 @@ class BuildCli:
       dest='skip_modules',
       default=[],
       help="skip execution of a module's events")
-    module_group.add_option('--enable-module', metavar='MODULE',
+    module_group.add_option('--enable', metavar='MODULE',
       action='append',
       dest='enabled_modules',
-      default=[],)
-    module_group.add_option('--disable-module', metavar='MODULE',
+      default=[],
+      help='enable a module')
+    module_group.add_option('--disable', metavar='MODULE',
       action='append',
       dest='disabled_modules',
-      default=[],)
+      default=[],
+      help='disable a module')
     parser.add_option_group(module_group)
 
     event_group = OptionGroup(parser, "event options")

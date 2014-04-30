@@ -60,6 +60,12 @@
 <option>--share-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
+<option>--disable <replaceable class="parameter">MODULE</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--enable <replaceable class="parameter">MODULE</replaceable></option>
+</arg>
+<arg choice="opt">
 <option>--force <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
 <arg choice="opt">
@@ -120,6 +126,30 @@ definition file, see the Deploy Definition File Reference at
     url="http://www.deployproject.org/docs"/> for more information on data
     files and folders.
     </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--disable <replaceable class="parameter">MODULE</replaceable></option></term>
+  <listitem>
+        <para>Disables a <replaceable
+        class="parameter">MODULE</replaceable>. This option
+        can be specified more than once, as in the example below:</para>
+
+<para>--disable <replaceable class="parameter">MODULE1</replaceable> --disable <replaceable class="parameter">MODULE2</replaceable> --disable <replaceable class="parameter">MODULE3</replaceable></para>
+<para>See the MODULES and EVENTS sections below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--enable <replaceable class="parameter">MODULE</replaceable></option></term>
+  <listitem>
+        <para>Enables a <replaceable
+        class="parameter">MODULE</replaceable>. This option
+        can be specified more than once, as in the example below:</para>
+
+<para>--enable <replaceable class="parameter">MODULE1</replaceable> --enable <replaceable class="parameter">MODULE2</replaceable> --enable <replaceable class="parameter">MODULE3</replaceable></para>
+<para>See the MODULES and EVENTS sections below for more information.</para>
   </listitem>
 </varlistentry>
 
