@@ -7,14 +7,6 @@
 <macro id="mercurial-workspace">/root/workspace</macro>
 <macro id="tag">deploy</macro>
 
-<files destdir='/etc/deploy' destname='deploy.conf' content='text'>
-&lt;deploy>
-  &lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>
-  &lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>
-  &lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>
-&lt;/deploy>
-</files>
-
 <files destdir="/etc/profile.d" destname='deploy.sh' content='text'>
 # set environment variables
 if ! echo ${PATH} | /bin/grep -q %{mercurial-workspace}/%{tag}/bin ; then
@@ -24,6 +16,30 @@ if ! echo ${PYTHONPATH} | /bin/grep -q %{mercurial-workspace}/%{tag} ; then
         export PYTHONPATH=%{mercurial-workspace}/%{tag}:${PYTHONPATH}
 fi
 </files>
+
+<script type='post'>
+file='/etc/deploy/deploy.conf'
+
+# create the base file if needed
+if ! [ -f $file ]; then
+mkdir -p $(dirname $file)
+echo "&lt;deploy>
+&lt;/deploy>" > $file
+fi
+
+# add elements as needed
+lib="&lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>"
+share="&lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>"
+tmpl="&lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>"
+
+for elem in $lib $share $tmpl; do 
+  if ! grep -q $elem $file; then
+    sed -i '/&lt;\/deploy>/d' $file
+    echo $elem >> $file
+    echo "&lt;/deploy>" >> $file
+  fi
+done
+</script>
 
 <!-- 
 Ideally we would clone the repository directly in the post script (as we do
