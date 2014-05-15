@@ -134,11 +134,18 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
     self.verifier.failUnless(matched, "no kernel package found")
 
   def _clean_dsdir(self):
+    # clean the depsolve dir if repos have been added or removed, etc.
     for f in self.diff.variables.difference().keys():
       if f.startswith('cvars[\'repos\']'):
         self.dsdir.rm(recursive=True, force=True)
-        break
+        return
 
+    # or if repodata files have changed
+    for f in self.diff.input.difference().keys():
+      for url in [ x.localurl for x in self.cvars['repos'].values()]:
+        if f.startswith(url):
+          self.dsdir.rm(recursive=True, force=True)
+          return
 
 class InvalidPkglistFormatError(DeployEventError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
