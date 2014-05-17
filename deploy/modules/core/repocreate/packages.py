@@ -24,12 +24,12 @@ from deploy.errors    import DeployEventError
 from deploy.errors    import assert_file_has_content
 from deploy.event     import Event
 
-from deploy.modules.shared import comps, ShelveMixin, CompsEventMixin
+from deploy.modules.shared import comps, ShelveMixin
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
-    events      = ['PackagesEvent', 'CompsEvent'],
+    events      = ['PackagesEvent'],
     description = 'defines required packages and groups for the repository',
     group       = 'repocreate',
   )
@@ -42,7 +42,7 @@ class PackagesEvent(ShelveMixin):
       parentid = 'setup-events',
       ptr = ptr,
       provides = ['comps-object', 'user-required-packages', 
-                  'user-required-groups', 'excluded-packages'],
+                  'excluded-packages'],
       conditionally_requires = ['repos'],
       version = '1.03'
     )
@@ -103,8 +103,6 @@ class PackagesEvent(ShelveMixin):
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
       self.config.xpath('package/text()', [])
-    self.cvars['user-required-groups'] = \
-      self.config.xpath('group/text()', []) 
 
     # set packages-* cvars
     self.cvars['packages-ignoremissing'] = \
@@ -122,8 +120,7 @@ class PackagesEvent(ShelveMixin):
 
   def verify_cvars(self):
     "cvars set"
-    for cvar in  ['comps-object', 'user-required-packages', 
-                  'user-required-groups', ]:
+    for cvar in  ['comps-object', 'user-required-packages']:
       self.verifier.failUnlessSet(cvar)
 
 
@@ -179,10 +176,6 @@ class PackagesEvent(ShelveMixin):
 
     core_group = self.comps.return_group('core')
 
-    # add packages
-    for package in self.config.xpath('package', []):
-      core_group.mandatory_packages[package.text] = 1
-
     # make sure a kernel package or equivalent exists for system repos
     if self.type == 'system':
       kfound = False
@@ -236,38 +229,6 @@ class PackagesEvent(ShelveMixin):
 
       if rid not in [ x for x,_ in self.groupfiles ]:
         raise RepoHasNoGroupfileError(gid, rid)
-
-
-class CompsEvent(CompsEventMixin, Event):
-  def __init__(self, ptr, *args, **kwargs):
-    Event.__init__(self,
-      id = 'comps',
-      parentid = 'repocreate',
-      ptr = ptr,
-      provides = ['groupfile', 'comps-object'],
-      requires = ['excluded-packages'], 
-      version = '1.00'
-    )
-
-    if not self.type == 'system':
-      self.enabled = False
-      return
-
-    CompsEventMixin.__init__(self)
-
-  def setup(self):
-    self.diff.setup(self.DATA)
-    CompsEventMixin.setup(self)
-
-  def apply(self): 
-    # set groupfile cvars 
-    self.cvars['groupfile'] = self.compsfile 
-    assert_file_has_content(self.cvars['groupfile']) 
- 
-  def verify_cvar_comps_file(self): 
-    "cvars['groupfile'] exists" 
-    self.verifier.failUnless(self.cvars['groupfile'].exists(), 
-      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
 
 #------ ERRORS ------#

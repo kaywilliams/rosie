@@ -25,7 +25,7 @@ from deploy.errors    import assert_file_has_content, DeployEventError
 from deploy.event     import Event
 from deploy.dlogging import L1
 
-from deploy.modules.shared import DepsolverMixin, ShelveMixin
+from deploy.modules.shared import DepsolverMixin, ShelveMixin, CompsEventMixin
 
 from deploy.util.depsolver.depsolver import DepsolveError
 
@@ -38,16 +38,16 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
 
-class DepsolveEvent(DepsolverMixin, ShelveMixin):
+class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
       ptr = ptr,
-      provides = ['pkglist'],
+      provides = ['pkglist', 'groupfile', 'comps-object'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin
-      version = '1.09'
+      version = '1.10'
     )
 
     DepsolverMixin.__init__(self)
@@ -66,6 +66,7 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     DepsolverMixin.setup(self)
+    CompsEventMixin.setup(self)
 
     self.pkglistfile = self.mddir / 'pkglist'
 
@@ -102,9 +103,18 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
 
     self.DATA['output'].extend([self.dsdir, self.depsolve_repo])
 
+    # generate comps.xml
+    if self.type == 'system':
+      CompsEventMixin.run(self)
+
   def apply(self):
     # set pkglist cvars
     self.cvars['pkglist'] = self.unshelve('pkglist', {})
+    
+    # set groupfile cvars
+    if self.type == 'system':
+      self.cvars['groupfile'] = self.compsfile
+      assert_file_has_content(self.cvars['groupfile'])
 
   def verify_pkglistfile_has_content(self):
     "pkglist file has content"
@@ -113,6 +123,12 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin):
                                "pkglist is empty")
     else:
       self.verifier.fail("pkglist is empty")
+
+  def verify_cvar_comps_file(self):
+    "cvars['groupfile'] exists"
+    if self.type == 'system':
+      self.verifier.failUnless(self.cvars['groupfile'].exists(),
+        "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"

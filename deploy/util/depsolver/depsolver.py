@@ -135,11 +135,10 @@ class DeployYum(yum.YumBase):
     try:
       return yum.YumBase.install(self, po=po, **kwargs)
     except yum.Errors.InstallError, e:
-      if hasattr(po, 'name'): name = po.name
-      elif 'name' in kwargs:  name = kwargs['name']
+      if hasattr(po, 'name'):    name = po.name
+      elif 'name' in kwargs:     name = kwargs['name']
+      elif 'pattern' in kwargs:  name = kwargs['pattern']
       if name: self.install_errors.append(name)
-
-      raise
 
   def teardown(self):
     self.close()

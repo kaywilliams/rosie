@@ -34,6 +34,7 @@ class CompsEventMixin:
   comps_mixin_version = "1.01"
 
   def __init__(self):
+    self.conditionally_requires.add('excluded-packages')
     if not hasattr(self, 'DATA'): self.DATA = {'variables': [],
                                                'output': []}
 

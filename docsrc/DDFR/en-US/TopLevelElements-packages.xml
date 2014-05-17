@@ -30,8 +30,8 @@
       <programlisting>
 &lt;packages&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
-  [&lt;package&gt;TEXT&lt;/package&gt;]*
-  [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
+  [&lt;package&gt;PATTERN&lt;/package&gt;]*
+  [&lt;exclude&gt;PATTERN&lt;/exclude&gt;]*
 &lt;/packages&gt;</programlisting>
   </section>
 
@@ -48,7 +48,7 @@
 
       <listitem>
       <para>
-      PACKAGE pattern to exclude across all repositories. To exclude a
+      Package PATTERN to exclude across all repositories. To exclude a
       package from a specific repository, see the <link 
       linkend='exclude'><varname>repo/exclude</varname></link> element.
       </para>
@@ -58,7 +58,7 @@
       </para>
 
       <para>
-      See <xref linkend='content-package'/> for information on PACKAGE patterns.
+      See <xref linkend='content-package'/> for information on package patterns.
       </para>
 
       </listitem>
@@ -105,7 +105,7 @@
 
       <listitem>
       <para>
-      The name of a required package.
+      PATTERN specifying one or more required packages.
       </para>
 
       <para>
@@ -114,6 +114,10 @@
       role="strong">packages</emphasis> top-level element must have at least
       one <emphasis>packages/group</emphasis> or
       <emphasis>packages/package</emphasis> element.
+      </para>
+
+      <para>
+      See <xref linkend='content-package'/> for information on package patterns.
       </para>
 
       </listitem>
@@ -133,9 +137,9 @@
     linkend='templates'/> for additional information on templates. The "base"
     group of the "base" repository will be included.  Packages from the
     remaining groups will be included, irrespective of the repository in which
-    they are defined.  Additionally, the "createrepo" and "httpd" packages will
-    be included.  Finally, the "system-config-soundcard" package will be
-    excluded from the repository.
+    they are defined.  Additionally, the "createrepo" package will be included,
+    as will any packages beginning with the text "httpd".  Finally, the
+    "system-config-soundcard" package will be excluded from the repository.
     </para>
 
     <informalexample>
@@ -156,7 +160,7 @@
   &lt;group&gt;web-server&lt;/group&gt;
 
   &lt;!-- include these packages --&gt;
-  &lt;package&gt;httpd&lt;/package&gt;
+  &lt;package&gt;httpd*&lt;/package&gt;
   &lt;package&gt;createrepo&lt;/package&gt;
 
   &lt;!-- exclude system-config-soundcard from the system --&gt;

@@ -136,10 +136,36 @@ class DeployDepsolver(Depsolver):
 
     self.install_errors = []
     self.selectGroup('core', enable_group_conditionals=True)
-    missing = set(self.user_required) & set(self.install_errors)
-    if missing:
+
+    toinstall = self.user_required[:]
+    for pattern in toinstall:
+      txmbr = self.install(pattern=pattern)
+      if txmbr:
+        # remove pattern from user_required
+        self.user_required.remove(pattern)
+
+        for p in txmbr:
+          # add package to user_required
+          self.user_required.append(p.name)
+
+          # in case the pattern brings in a newer version of a 
+          # previously added package, remove all but the first
+          # package, i.e. keep only the lowest-versioned package
+          pkgtups = sorted(set([ x.pkgtup for x in self.tsInfo.getNewProvides(
+                                 p.name).keys() ]))
+          if len(pkgtups) > 1:                       
+            n,_,_,v,r = pkgtups[0]
+            self.logger.log(3, L1("using lowest-specified version: %s-%s-%s" 
+                                  % (n,v,r)))
+            for pkgtup in pkgtups[1:]:
+              self.tsInfo.remove(pkgtup)
+
+          # add package to the core group
+          self._comps.return_group('core').mandatory_packages[p.name] = 1
+
+    if self.install_errors:
       raise yum.Errors.InstallError("No packages provide '%s'" % 
-                                    ', '.join(missing))
+                                    ', '.join(self.install_errors))
 
     retcode, errors = self.resolveDeps()
 
