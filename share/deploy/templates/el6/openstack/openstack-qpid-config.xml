@@ -16,9 +16,6 @@ Congifures a messaging queue service for openstack.
 <requires>NetworkManager-wait-online</requires>
 
 <script type='post'>
-#!/bin/sh
-set -e
-
 # Disable Qpid authentication by setting the value of the auth configuration key to no in the /etc/qpid/qpidd.conf file.
 file=/etc/qpidd.conf
 sed -i "/auth=yes/d" $file # eliminate auth=yes if found
@@ -28,11 +25,15 @@ grep -q "auth=no" $file || echo "auth=no" >> $file
 # network interfaces are completely up. See
 # http://qpid.2158936.n2.nabble.com/qpid-listening-socket-after-reboot-td7584509.html
 # for additional information
-service NetworkManager-wait-online start > /dev/null
+if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+  service NetworkManager-wait-online start > /dev/null
+fi
 chkconfig NetworkManager-wait-online on
 
 # Start the Qpid message broker.
-service qpidd restart > /dev/null
+if ! ps aux | grep -q "[/]usr/bin/anaconda"; then
+  service qpidd restart > /dev/null
+fi
 chkconfig qpidd on
 </script>
 </config-rpm>
