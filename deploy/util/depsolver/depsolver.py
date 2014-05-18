@@ -140,6 +140,8 @@ class DeployYum(yum.YumBase):
       elif 'pattern' in kwargs:  name = kwargs['pattern']
       if name: self.install_errors.append(name)
 
+      raise yum.Errors.InstallError("%s: %s" % (e, name))
+
   def teardown(self):
     self.close()
     self.closeRpmDB()

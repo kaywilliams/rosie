@@ -137,6 +137,13 @@ class DeployDepsolver(Depsolver):
     self.install_errors = []
     self.selectGroup('core', enable_group_conditionals=True)
 
+    # ignore install errors for non user-required packages since
+    # some groups have arch specific packages, e.g. s390utils
+    missing = set(self.user_required) & set(self.install_errors)
+    if missing:
+      raise yum.Errors.InstallError("No packages provide '%s'" % 
+                                    ', '.join(missing))
+
     toinstall = self.user_required[:]
     for pattern in toinstall:
       txmbr = self.install(pattern=pattern)
@@ -162,10 +169,6 @@ class DeployDepsolver(Depsolver):
 
           # add package to the core group
           self._comps.return_group('core').mandatory_packages[p.name] = 1
-
-    if self.install_errors:
-      raise yum.Errors.InstallError("No packages provide '%s'" % 
-                                    ', '.join(self.install_errors))
 
     retcode, errors = self.resolveDeps()
 
