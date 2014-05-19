@@ -134,6 +134,38 @@ class DeployDepsolver(Depsolver):
     if self.logger: inscb = TimerCallback(self.logger)
     else:           inscb = None
 
+    toinstall = self.user_required[:]
+
+    for pattern in toinstall:
+
+      # lock packages to a specific version-release if provided - kudos to 
+      # versionlock plugin for showing the way
+      pkgs = self.pkgSack.returnPackages(patterns=[pattern])
+      if (len(pkgs) == 1 and 
+          "%s-%s-%s" % (pkgs[0].name, pkgs[0].version, pkgs[0].release) == 
+          pattern):
+
+        n,a,e,v,r = pkgs[0].pkgtup
+        self.logger.log(4, L1("locking package: %s-%s-%s" % (n,v,r)))
+
+        fn = self.pkgSack.addPackageExcluder
+        fn(None, '1', 'wash.marked')
+        fn(None, '2', 'mark.name.in', [n])
+        fn(None, '3', 'wash.nevr.in', ['%s-%s:%s-%s' % (n,e,v,r)])
+        fn(None, '4', 'exclude.marked')
+
+      # install package
+      txmbr = self.install(pattern=pattern)
+      if txmbr:
+        # remove pattern from user_required
+        self.user_required.remove(pattern)
+
+        for p in txmbr:
+          if not pattern.startswith('-'): # ignore deselect patterns
+            # add package to user_required and core group
+            self.user_required.append(p.name)
+            self._comps.return_group('core').mandatory_packages[p.name] = 1
+
     self.install_errors = []
     self.selectGroup('core', enable_group_conditionals=True)
 
@@ -143,32 +175,6 @@ class DeployDepsolver(Depsolver):
     if missing:
       raise yum.Errors.InstallError("No packages provide '%s'" % 
                                     ', '.join(missing))
-
-    toinstall = self.user_required[:]
-    for pattern in toinstall:
-      txmbr = self.install(pattern=pattern)
-      if txmbr:
-        # remove pattern from user_required
-        self.user_required.remove(pattern)
-
-        for p in txmbr:
-          # add package to user_required
-          self.user_required.append(p.name)
-
-          # in case the pattern brings in a newer version of a 
-          # previously added package, remove all but the first
-          # package, i.e. keep only the lowest-versioned package
-          pkgtups = sorted(set([ x.pkgtup for x in self.tsInfo.getNewProvides(
-                                 p.name).keys() ]))
-          if len(pkgtups) > 1:                       
-            n,_,_,v,r = pkgtups[0]
-            self.logger.log(3, L1("using lowest-specified version: %s-%s-%s" 
-                                  % (n,v,r)))
-            for pkgtup in pkgtups[1:]:
-              self.tsInfo.remove(pkgtup)
-
-          # add package to the core group
-          self._comps.return_group('core').mandatory_packages[p.name] = 1
 
     retcode, errors = self.resolveDeps()
 
