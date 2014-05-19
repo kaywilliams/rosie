@@ -86,7 +86,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     core_group = self.cvars['comps-object'].return_group('core')
     self.cvars.setdefault('user-required-packages', [])
 
-    for v in self.cvars['rpmbuild-data'].values():
+    for v in rpmbuild_data.values():
       core_group.add_package( package=v['rpm-name'],
                               genre=v['packagereq-type'],
                               requires=v['packagereq-requires'],
