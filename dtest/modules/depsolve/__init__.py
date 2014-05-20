@@ -175,10 +175,16 @@ class Test_ConflictingPackages(DepsolveEventTestCase):
 
 class Test_PackagePatterns(DepsolveEventTestCase):
   "Package patterns"
-  _conf = """<packages>
+  _conf = ["""<config-rpms>
+  <config-rpm id='test'>
+  <requires>package1 = 1.0-1</requires>
+  </config-rpm>
+  </config-rpms>
+  """,
+  """
+  <packages>
     <package>package*</package>
-    <package>package1-1.0-1</package>
-  </packages>"""
+  </packages>"""]
 
 
   def _make_repos_config(self):

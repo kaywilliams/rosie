@@ -91,12 +91,15 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
                               genre=v['packagereq-type'],
                               requires=v['packagereq-requires'],
                               default=v['packagereq-default'])
-      if v['rpm-obsoletes']:
-        for package in v['rpm-obsoletes']:
-          self.cvars['comps-object'].remove_package(package)
+      for package in v['rpm-obsoletes']:
+        self.cvars['comps-object'].remove_package(package)
 
       if v['rpm-name'] not in self.cvars['excluded-packages']:
         self.cvars['user-required-packages'].append(v['rpm-name'])
+
+      # add rpm-requires to user-required-packages so that depsolve can
+      # lock package versions if needed
+      self.cvars['user-required-packages'].extend(v['rpm-requires'])
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
@@ -122,16 +125,10 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       data['rpm-version']   = str(info[1])
       data['rpm-release']   = str(info[2])
       data['rpm-arch']      = str(info[4])
-  
-      # get obsoletes - rpmbuild-repo uses these to remove pkgs from comps
-      ts = rpmUtils.transaction.initReadOnlyTransaction()
-      hdr = rpmUtils.miscutils.hdrFromPackage(ts, rpmpath)
-      obsoletes = [ x.DNEVR()[2:] for x in hdr.dsFromHeader('obsoletename') ]
-      del ts
-      del hdr
-  
-      data['rpm-obsoletes'] = obsoletes
-  
+ 
+      data['rpm-requires']  = self.rpminfo['requires']
+      data['rpm-obsoletes'] = self.rpminfo['obsoletes']
+
       return data
 
   def _setup_signing_keys(self):

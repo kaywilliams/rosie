@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import cPickle
+import re
 import rpmUtils
 import yum
 
@@ -138,12 +139,20 @@ class DeployDepsolver(Depsolver):
 
     for pattern in toinstall:
 
-      # lock packages to a specific version-release if provided - kudos to 
-      # versionlock plugin for showing the way
-      pkgs = self.pkgSack.returnPackages(patterns=[pattern])
+      # lock packages to a specific version-release if specified either
+      # as 'name-verion-release' or 'name = version-release' (or variants).
+      # kudos to versionlock plugin for showing the way with PackageExcluders
+      # (note: ideally we would have a general solution to lock versions 
+      # every time a package requires a lower version of a dependent package.
+      # this would be slow as we'd need to redepsolve on each lock. we  
+      # could speed it up by caching locks per package (maybe use yum 
+      # caching in some way for this? for now we'll stick with the low-hanging
+      # fruit solution and consider options (and hope we or yum get smarter)
+      # in the future)
+      p = re.sub(' *==? *', '-', pattern)
+      pkgs = self.pkgSack.returnPackages(patterns=[p])
       if (len(pkgs) == 1 and 
-          "%s-%s-%s" % (pkgs[0].name, pkgs[0].version, pkgs[0].release) == 
-          pattern):
+         '%s-%s-%s' % (pkgs[0].name, pkgs[0].version, pkgs[0].release) == p): 
 
         n,a,e,v,r = pkgs[0].pkgtup
         self.logger.log(4, L1("locking package: %s-%s-%s" % (n,v,r)))

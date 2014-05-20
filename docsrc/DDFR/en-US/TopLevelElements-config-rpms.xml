@@ -281,35 +281,56 @@ FULLNAME repository.
 
         <listitem>
         <para>
-        CAPABILITY that must be
-        available on client machines prior to installation of the config-rpm.
-        Capabilities are provided by RPM packages. They can be specified as the
-        name of a package, or as a file or virtual capability provided by one
-        or more packages. See <xref linkend="common-components"/> for more
-        information on specifying capabilities.
+        CAPABILITY that must be available on client machines prior to
+        installation of the config-rpm.  Capabilities are provided by RPM
+        packages. They can be specified as the name of a package, as a file
+        or virtual capability provided by one or more packages, or as an
+        equation specifying a capability and desired version.
+        </para>
+
+        <para>
+        See <xref linkend='content-capability'/> for more information on
+        specifying CAPABILITY values.
         </para>
 
         <para>
         The <emphasis>requires</emphasis> element can occur zero or more times
         </para>
 
-        <para>
-        See <xref linkend='content-capability'/> for information on CAPABILITY
-        values.
-        </para>
 
-        <para><emphasis role='strong'>Example</emphasis></para>
+        <para><emphasis role='strong'>Examples</emphasis></para>
         <informalexample>
         <programlisting>
-&lt;config-rpm id="samba-config">
-
-&lt;requires>samba&lt;/requires>
-&lt;requires>samba-common&lt;/requires>
-
-...
-
-&lt;/config-rpm></programlisting>
+&lt;requires>java-1.7.0-openjdk&lt;/requires>
+&lt;requires>java-1.7.0-openjdk = 1:1.7.0.55-2.4.7.1.el6_5&lt;/requires></programlisting>
         </informalexample>
+
+        <note>
+        <title>A note on requiring package versions</title>
+        <para>
+        To require a specific package version, you must specify the version
+        using and equation, for example:
+        <programlisting>httpd = 2.2.15-30.el6_5 # works - an equation
+httpd-2.2.15-30.el_6    # does not work</programlisting>
+        </para>
+
+        <para>
+        If the package is versioned using an epoch, the epoch must also
+        be specified, for example:
+        <programlisting>java-1.7.0-openjdk = 1:1.7.0.55-2.4.7.1.el6_5 # works - epoch provided
+java-1.7.0-openjdk = 1.7.0.55-2.4.7.1.el6_5   # does not work
+        </programlisting>
+        </para>
+
+        <para>
+        When in doubt, view the capabilities for the desired package using rpm,
+        as shown below:
+        <programlisting>rpm -q --provides name_of_installed_package 
+rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
+        And choose a value from the resulting list.
+        </para>
+        </note>
+
         </listitem>
       </varlistentry>
 
