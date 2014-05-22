@@ -156,20 +156,21 @@ class DeployDepsolver(Depsolver):
     # consider options as needed/available in the future.
     for pattern in self.user_required | self.rpm_required:
       p = re.sub(r' *==? *([0-9]*:)?', '-', pattern)
-      pkgtups = [ x.pkgtup for x in self.pkgSack.returnPackages(patterns=[p]) ]
-      if len(set(pkgtups)) == 1:
-        n,a,e,v,r = pkgtups[0]
+      nevrs = [ (x.name, x.epoch, x.version, x.release) for x in 
+                 self.pkgSack.returnPackages(patterns=[p]) ]
+      if len(set(nevrs)) == 1:
+        n,e,v,r = nevrs[0]
       else:
         continue
 
       if '%s-%s-%s' % (n,v,r) == p:
-        self.logger.log(4, L1("locking package: %s-%s-%s" % (n,v,r)))
+        self.logger.log(3, L1("locking package: %s-%s-%s" % (n,v,r)))
 
         fn = self.pkgSack.addPackageExcluder
-        fn(None, '1', 'wash.marked')
-        fn(None, '2', 'mark.name.in', [n])
-        fn(None, '3', 'wash.nevr.in', ['%s-%s:%s-%s' % (n,e,v,r)])
-        fn(None, '4', 'exclude.marked')
+        fn(None, '%s1' % n, 'wash.marked')
+        fn(None, '%s2' % n, 'mark.name.in', [n])
+        fn(None, '%s3' % n, 'wash.nevr.in', ['%s-%s:%s-%s' % (n,e,v,r)])
+        fn(None, '%s4' % n, 'exclude.marked')
 
     # install user-required packages
     toinstall = self.user_required.copy()
