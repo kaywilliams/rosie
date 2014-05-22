@@ -102,7 +102,7 @@ class PackagesEvent(ShelveMixin):
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
-      self.config.xpath('package/text()', [])
+      set(self.config.xpath('package/text()', []))
 
     # set packages-* cvars
     self.cvars['packages-ignoremissing'] = \

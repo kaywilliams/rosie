@@ -48,15 +48,20 @@ class DepsolverMixin(object):
   def __init__(self, *args, **kwargs):
     self.requires.update(['comps-object'])
     self.conditionally_requires.update(['user-required-packages', 
-                                        'excluded-packages'])
+                                        'excluded-packages', 'rpmbuild-data'])
     self.depsolve_repo = self.mddir / 'depsolve.repo'
 
   def setup(self):
     self.all_packages = self.cvars['comps-object'].all_packages
-    self.user_required = self.cvars.get('user-required-packages', [])
+    self.user_required = self.cvars.get('user-required-packages', set())
     self.excluded_packages = self.cvars.get('excluded-packages', [])
+
+    self.rpm_required = set() 
+    for v in self.cvars.get('rpmbuild-data', {}).values():
+      self.rpm_required.update(v.get('rpm-requires', []))
+
     self.DATA['variables'].extend(['all_packages', 'user_required',
-                                   'excluded_packages', 
+                                   'excluded_packages', 'rpm_required',
                                    'depsolver_mixin_version'])
 
   def resolve(self):
@@ -64,6 +69,7 @@ class DepsolverMixin(object):
 
     solver = DeployDepsolver(
       user_required = self.user_required,
+      rpm_required = self.rpm_required,
       comps = self.cvars['comps-object'],
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
@@ -111,7 +117,7 @@ class DepsolverMixin(object):
 
 
 class DeployDepsolver(Depsolver):
-  def __init__(self, comps=None, user_required=None, 
+  def __init__(self, comps=None, user_required=[], rpm_required=[],
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):
     Depsolver.__init__(self,
@@ -122,7 +128,8 @@ class DeployDepsolver(Depsolver):
     )
     self._comps = comps
 
-    self.user_required = user_required
+    self.user_required = user_required.copy()
+    self.rpm_required = rpm_required
     self.logger = logger
 
   def setup(self):
@@ -135,26 +142,27 @@ class DeployDepsolver(Depsolver):
     if self.logger: inscb = TimerCallback(self.logger)
     else:           inscb = None
 
-    toinstall = self.user_required[:]
+    # Lock user-required and rpm-required packages to a specific
+    # version-release if specified as 'name-verion-release', 'name =
+    # version-release', or name = epoch:version-release (or variants of the
+    # latter two). This works only for packages/rpms we know about (i.e.
+    # specified in packages, config-rpms and srpmbuild modules). Kudos to
+    # versionlock plugin for showing the way with PackageExcluders. 
+    # Ideally we would have a general solution to lock versions every time a
+    # package requires a lower version of a dependent package. This would be
+    # slow as we'd need to redepsolve on each lock. We could speed it up by
+    # caching locks per package (maybe use yum caching in some way for this?)
+    # For now we'll stick with a solution that handles the common cases and
+    # consider options as needed/available in the future.
+    for pattern in self.user_required | self.rpm_required:
+      p = re.sub(r' *==? *([0-9]*:)?', '-', pattern)
+      pkgtups = [ x.pkgtup for x in self.pkgSack.returnPackages(patterns=[p]) ]
+      if len(set(pkgtups)) == 1:
+        n,a,e,v,r = pkgtups[0]
+      else:
+        continue
 
-    for pattern in toinstall:
-
-      # lock packages to a specific version-release if specified either
-      # as 'name-verion-release' or 'name = version-release' (or variants).
-      # kudos to versionlock plugin for showing the way with PackageExcluders
-      # (note: ideally we would have a general solution to lock versions 
-      # every time a package requires a lower version of a dependent package.
-      # this would be slow as we'd need to redepsolve on each lock. we  
-      # could speed it up by caching locks per package (maybe use yum 
-      # caching in some way for this? for now we'll stick with the low-hanging
-      # fruit solution and consider options (and hope we or yum get smarter)
-      # in the future)
-      p = re.sub(' *==? *', '-', pattern)
-      pkgs = self.pkgSack.returnPackages(patterns=[p])
-      if (len(pkgs) == 1 and 
-         '%s-%s-%s' % (pkgs[0].name, pkgs[0].version, pkgs[0].release) == p): 
-
-        n,a,e,v,r = pkgs[0].pkgtup
+      if '%s-%s-%s' % (n,v,r) == p:
         self.logger.log(4, L1("locking package: %s-%s-%s" % (n,v,r)))
 
         fn = self.pkgSack.addPackageExcluder
@@ -163,18 +171,19 @@ class DeployDepsolver(Depsolver):
         fn(None, '3', 'wash.nevr.in', ['%s-%s:%s-%s' % (n,e,v,r)])
         fn(None, '4', 'exclude.marked')
 
-      # install package
+    # install user-required packages
+    toinstall = self.user_required.copy()
+    for pattern in toinstall:
       txmbr = self.install(pattern=pattern)
       if txmbr:
-        # remove pattern from user_required
         self.user_required.remove(pattern)
 
         for p in txmbr:
           if not pattern.startswith('-'): # ignore deselect patterns
-            # add package to user_required and core group
-            self.user_required.append(p.name)
+            self.user_required.add(p.name)
             self._comps.return_group('core').mandatory_packages[p.name] = 1
 
+    # install core group
     self.install_errors = []
     self.selectGroup('core', enable_group_conditionals=True)
 
@@ -185,6 +194,7 @@ class DeployDepsolver(Depsolver):
       raise yum.Errors.InstallError("No packages provide '%s'" % 
                                     ', '.join(missing))
 
+    # depsolve
     retcode, errors = self.resolveDeps()
 
     if retcode == 1:

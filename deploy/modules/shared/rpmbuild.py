@@ -84,7 +84,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       self.cvars['comps-object'].add_core_group()
 
     core_group = self.cvars['comps-object'].return_group('core')
-    self.cvars.setdefault('user-required-packages', [])
+    self.cvars.setdefault('user-required-packages', set())
 
     for v in rpmbuild_data.values():
       core_group.add_package( package=v['rpm-name'],
@@ -95,11 +95,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
         self.cvars['comps-object'].remove_package(package)
 
       if v['rpm-name'] not in self.cvars['excluded-packages']:
-        self.cvars['user-required-packages'].append(v['rpm-name'])
-
-      # add rpm-requires to user-required-packages so that depsolve can
-      # lock package versions if needed
-      self.cvars['user-required-packages'].extend(v['rpm-requires'])
+        self.cvars['user-required-packages'].add(v['rpm-name'])
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
@@ -117,17 +113,25 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       data['packagereq-default']  = packagereq_default
       data['packagereq-requires'] = packagereq_requires
       data['packagereq-type']     = packagereq_type
-  
-      # set convenience variables for nvra
+ 
+      # read metadata from rpm to handle both config-rpm and srpmbuild cases
       info = rpmUtils.miscutils.splitFilename(rpmpath.basename)
   
       data['rpm-name']      = str(info[0])
       data['rpm-version']   = str(info[1])
       data['rpm-release']   = str(info[2])
       data['rpm-arch']      = str(info[4])
- 
-      data['rpm-requires']  = self.rpminfo['requires']
-      data['rpm-obsoletes'] = self.rpminfo['obsoletes']
+
+      # requires used to lock package versions in depsolve
+      # obsoletes used to remove pkgs from comps
+      ts = rpmUtils.transaction.initReadOnlyTransaction()
+      hdr = rpmUtils.miscutils.hdrFromPackage(ts, rpmpath)
+      data['rpm-requires']  = [ x.DNEVR()[2:] 
+                              for x in hdr.dsFromHeader('requirename') ]
+      data['rpm-obsoletes'] = [ x.DNEVR()[2:] 
+                              for x in hdr.dsFromHeader('obsoletename') ]
+      del ts
+      del hdr
 
       return data
 

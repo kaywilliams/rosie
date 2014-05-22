@@ -27,6 +27,8 @@ from deploy.errors import DeployError
 from dtest      import EventTestCase, ModuleTestSuite, _run_make
 from dtest.core import make_core_suite
 
+REPODIR  = pps.path(__file__).dirname/'../shared'
+
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
   eventid  = 'depsolve'
@@ -175,9 +177,14 @@ class Test_ConflictingPackages(DepsolveEventTestCase):
 
 class Test_PackagePatterns(DepsolveEventTestCase):
   "Package patterns"
+
+  _run_make(REPODIR)
   _conf = ["""<config-rpms>
   <config-rpm id='test'>
   <requires>package1 = 1.0-1</requires>
+  <!-- need to also test a package with epoch, e.g.
+  <requires>java-1.7.0-openjdk = 1:1.7.0.45-2.4.3.3.el6</requires>
+  -->
   </config-rpm>
   </config-rpms>
   """,
@@ -198,6 +205,8 @@ class Test_PackagePatterns(DepsolveEventTestCase):
     self.tb.dispatch.execute(until='depsolve')
     self.failUnless('package2-1.0-1.noarch.rpm' in self.getPkgFiles())
     self.failUnless('package1-1.0-1.noarch.rpm' in self.getPkgFiles())
+    # self.failUnless('java-1.7.0-openjdk-1.7.0.45-2.4.3.3.el6' in 
+    #                  self.getPkgFiles())
     self.failIf('package1-1.0-2.noarch.rpm' in self.getPkgFiles())
 
 
