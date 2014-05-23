@@ -145,6 +145,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder / 'etc/yum.repos.d/%s.repo' % self.name )
+    repofile.rm(force=True) # start clean so publish hardlinking works
 
     lines = []
     # include system repo

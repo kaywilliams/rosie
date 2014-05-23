@@ -81,6 +81,7 @@ class KickstartEventMixin:
 
     # write kickstart
     self.ksfile.dirname.mkdirs()
+    self.ksfile.rm(force=True) # start clean so publish hardlinking works 
     self.ksfile.write_text((self.kstext + '\n').encode('utf8'))
 
     #validate kickstart

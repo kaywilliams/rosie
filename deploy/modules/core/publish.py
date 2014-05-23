@@ -155,7 +155,7 @@ class PublishEvent(Event):
     "Publish the repository"
     self.io.process_files(text="publishing to '%s'" % 
                           self.cvars['publish-setup-options']['localpath'],
-                       callback=self.link_callback)
+                          link=True)
     self.io.chcon(self.cvars['publish-setup-options']['localpath'])
  
   def clean_eventcache(self):

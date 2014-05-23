@@ -174,8 +174,10 @@ EOF""" % (name, pubring, secring)
 
   def write_keys(self, pubtext, sectext):
     if not self.pubkey.exists() or not self.pubkey.read_text() == pubtext:
+      self.pubkey.rm(force=True) # start clean so publish hardlinking works 
       self.pubkey.write_text((pubtext.strip() + '\n').encode('utf8'))
     if not self.seckey.exists() or not self.seckey.read_text() == sectext:
+      self.seckey.rm(force=True) # start clean so publish hardlinking works
       self.seckey.write_text((sectext.strip() + '\n').encode('utf8'))
 
   def validate_keys(self, map):
