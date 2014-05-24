@@ -289,6 +289,20 @@ FULLNAME repository.
         </para>
 
         <para>
+        For requirements specified in the format '<varname>name</varname> =
+        <varname>version</varname>-<varname>release</varname>' or
+        '<varname>name</varname> ==
+        <varname>version</varname>-<varname>release</varname>', Deploy will
+        lock the package to the specified version. As a result, if other
+        packages require older or newer versions of the locked package, Deploy
+        will raise an error during dependency resolution. Locks specified in
+        the <link linkend='packages-package'>packages/package</link> element
+        are established ahead of locks specified in
+        <emphasis>config-rpm/requires</emphasis> elements.  Only the first lock
+        for a package is recognized, all others are silently ignored.
+        </para>
+
+        <para>
         See <xref linkend='content-capability'/> for more information on
         specifying CAPABILITY values.
         </para>

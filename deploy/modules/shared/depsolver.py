@@ -53,12 +53,12 @@ class DepsolverMixin(object):
 
   def setup(self):
     self.all_packages = self.cvars['comps-object'].all_packages
-    self.user_required = self.cvars.get('user-required-packages', set())
+    self.user_required = self.cvars.get('user-required-packages', [])
     self.excluded_packages = self.cvars.get('excluded-packages', [])
 
-    self.rpm_required = set() 
+    self.rpm_required = [] 
     for v in self.cvars.get('rpmbuild-data', {}).values():
-      self.rpm_required.update(v.get('rpm-requires', []))
+      self.rpm_required.extend(v.get('rpm-requires', []))
 
     self.DATA['variables'].extend(['all_packages', 'user_required',
                                    'excluded_packages', 'rpm_required',
@@ -128,7 +128,7 @@ class DeployDepsolver(Depsolver):
     )
     self._comps = comps
 
-    self.user_required = user_required.copy()
+    self.user_required = user_required[:]
     self.rpm_required = rpm_required
     self.logger = logger
 
@@ -154,8 +154,9 @@ class DeployDepsolver(Depsolver):
     # caching locks per package (maybe use yum caching in some way for this?)
     # For now we'll stick with a solution that handles the common cases and
     # consider options as needed/available in the future.
-    for pattern in self.user_required | self.rpm_required:
-      p = re.sub(r' *==? *([0-9]*:)?', '-', pattern)
+    self.locked = {} 
+    for pattern in self.user_required + self.rpm_required:
+      p = self._get_lock_pattern(pattern)
       nevrs = [ (x.name, x.epoch, x.version, x.release) for x in 
                  self.pkgSack.returnPackages(patterns=[p]) ]
       if len(set(nevrs)) == 1:
@@ -163,8 +164,8 @@ class DeployDepsolver(Depsolver):
       else:
         continue
 
-      if '%s-%s-%s' % (n,v,r) == p:
-        self.logger.log(3, L1("locking package: %s-%s-%s" % (n,v,r)))
+      if '%s-%s-%s' % (n,v,r) == p and n not in self.locked:
+        self.logger.log(4, L1("locking %s at version: %s-%s" % (n,v,r)))
 
         fn = self.pkgSack.addPackageExcluder
         fn(None, '%s1' % n, 'wash.marked')
@@ -172,16 +173,26 @@ class DeployDepsolver(Depsolver):
         fn(None, '%s3' % n, 'wash.nevr.in', ['%s-%s:%s-%s' % (n,e,v,r)])
         fn(None, '%s4' % n, 'exclude.marked')
 
+        self.locked[n] = '%s-%s' % (v,r)
+
     # install user-required packages
-    toinstall = self.user_required.copy()
+    toinstall = self.user_required[:]
     for pattern in toinstall:
-      txmbr = self.install(pattern=pattern)
+      try:
+        txmbr = self.install(pattern=pattern)
+      except yum.Errors.InstallError, e:
+        lock_msg = self._get_lock_msg(pattern)
+        if lock_msg:
+          msg = ("unable to install %s%s" % (pattern, lock_msg))
+        else:
+          msg = e
+        raise yum.Errors.InstallError(msg)
       if txmbr:
         self.user_required.remove(pattern)
 
         for p in txmbr:
           if not pattern.startswith('-'): # ignore deselect patterns
-            self.user_required.add(p.name)
+            self.user_required.append(p.name)
             self._comps.return_group('core').mandatory_packages[p.name] = 1
 
     # install core group
@@ -198,10 +209,38 @@ class DeployDepsolver(Depsolver):
     # depsolve
     retcode, errors = self.resolveDeps()
 
+    messages = []
+    for e in errors:
+      m = re.match('.* requires (.*)', e)
+      if m:
+        lock_msg = self._get_lock_msg(m.group(1))
+        if lock_msg:
+          messages.append("%s%s" % (e, lock_msg))
+        else:
+          messages.append(e)
+      else:
+        messages.append(e)
+
     if retcode == 1:
-      raise DepsolveError('\n--> '.join(errors))
+      raise DepsolveError('\n--> '.join(messages))
 
     return [ x.po for x in self.tsInfo.getMembers() ]
+
+  def _get_lock_pattern(self, pattern):
+    return re.sub(r' *==? *([0-9]*:)?', '-', pattern)
+
+  def _get_lock_msg(self, pattern):
+    p = self._get_lock_pattern(pattern)
+    parts = p.split('-')
+    if len(parts) < 3:
+      return None
+
+    n = '-'.join(parts[:-2])
+    if n in self.locked:
+      return ': %s locked at version %s' % (n, self.locked[n])
+    else:
+      return None
+    
 
 class Package:
   def __init__(self, name, arch, remote_path, size, time, checksum):

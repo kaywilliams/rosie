@@ -109,6 +109,16 @@
       </para>
 
       <para>
+      For packages specified in the format
+      <varname>name</varname>-<varname>version</varname>-<varname>release</varname>,
+      Deploy will lock the package to the specified version. As a result, if
+      other packages require older or newer versions of the locked package,
+      Deploy will raise an error during dependency resolution. Locks are
+      established in the order specified in the definition. Only the first lock
+      for a package is recognized, all others are silently ignored.
+      </para>
+
+      <para>
       This element can occur zero or more times. However, when the value of
       <xref linkend="main-type"/> is "system", the <emphasis
       role="strong">packages</emphasis> top-level element must have at least
