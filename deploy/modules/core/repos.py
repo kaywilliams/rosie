@@ -56,7 +56,6 @@ class ReposEvent(RepoEventMixin, Event):
       version = 1.3,
       provides = ['dist-tag', 'anaconda-version',
                   'repos', 'installer-repo', 'base-treeinfo',
-                  'base-treeinfo-text'
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
                   ],
       conditionally_requires = [ 'repos' ]
@@ -131,8 +130,6 @@ class ReposEvent(RepoEventMixin, Event):
 
           # set base-treeinfo control variables
           self.cvars['base-treeinfo'] = treeinfo
-          self.cvars['base-treeinfo-text'] = ( 
-            (self.mddir/repo.id/repo.treeinfofile).read_text().rstrip())
 
           # set anaconda version
           self.cvars['dist-tag'] = DIST_TAG[self.os] 
@@ -166,9 +163,9 @@ class DeployRepoValidationError(DeployEventError):
   message = "%(msg)s"
 
 class InstallerRepoNotFoundError(DeployEventError):
-  message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
-              "given repository. In system mode, at least one operating "
-              "system repository must be specified.")
+  message = ( "Unable to find an 'images/' folder inside any repository. "
+              "In system mode, at least one operating system repository "
+              "must be specified.")
 
 class TreeinfoNotFoundError(DeployEventError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "

@@ -63,7 +63,7 @@ class BaseInfoEvent(Event):
     self.diff.setup(self.DATA)
 
     initrd_in=( self.cvars['installer-repo'].url /
-                self.locals.L_FILES['isolinux']['initrd.img']['path'] )
+                self.locals.L_FILES['pxeboot']['initrd.img']['path'] )
 
     self.io.add_fpath(initrd_in, self.mddir, id='initrd.img')
     self.initrd_out = self.io.list_output(what='initrd.img')[0]
@@ -78,7 +78,7 @@ class BaseInfoEvent(Event):
                        text=None, what='initrd.img')
 
     # extract buildstamp
-    image = self.locals.L_FILES['isolinux']['initrd.img']
+    image = self.locals.L_FILES['pxeboot']['initrd.img']
     self.image = img.MakeImage(self.initrd_out, image['format'], 
                  image.get('zipped', False), 
                  image.get('zip_format', 'gzip'))

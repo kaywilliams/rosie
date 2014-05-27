@@ -33,7 +33,8 @@ L_FILES = LocalsDict({
       'hdstg2.img':   dict(path='%(name)s/base/hdstg2.img'),
     },
     'pxeboot': { # pxeboot images
-      'initrd.img':   dict(path='images/pxeboot/initrd.img'),
+      'initrd.img':   dict(path='images/pxeboot/initrd.img', format=EXT2, 
+                           zipped=True, zip_format='gzip'),
       'vmlinuz':      dict(path='images/pxeboot/vmlinuz'),
     },
   },
@@ -41,6 +42,9 @@ L_FILES = LocalsDict({
     'isolinux': {
       'initrd.img':   dict(format=CPIO, zipped=True, zip_format='gzip'),
     },
+    'pxeboot': {
+      'initrd.img':   dict(format=CPIO, zipped=True, zip_format='gzip'),
+    }
   },
   "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2
     'stage2': {
@@ -91,6 +95,9 @@ L_FILES = LocalsDict({
   },
   "anaconda-13.21.149-1": { # initrd images using LZMA compression
     'isolinux': {
+      'initrd.img':   dict(format=CPIO, zipped=True, zip_format='lzma'),
+    },
+    'pxeboot': {
       'initrd.img':   dict(format=CPIO, zipped=True, zip_format='lzma'),
     },
   },

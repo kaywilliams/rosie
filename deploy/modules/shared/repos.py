@@ -190,7 +190,7 @@ class DeployRepoGroup(DeployRepo):
 
     # classify this repo - does it have installer files?
     if (self.url/
-        self.locals.L_FILES['isolinux']['initrd.img']['path']).exists():
+        self.locals.L_FILES['pxeboot']['initrd.img']['path']).exists():
       self.has_installer_files = True
 
   def __str__(self):

@@ -75,10 +75,10 @@
       linkend='main-type'/> is "system", at least one <emphasis
       role="strong">repo</emphasis> must be defined: an operating system base
       repository.  Base repositories are unique in that they contain install
-      images and isolinux files. These files are located within folders named
-      <filename>images</filename> and <filename>isolinux</filename>,
-      respectively. They are used to create installation images for the system.
-      Base repositories include CentOS and Red Hat Enterprise Linux.
+      image files. These files are located within a folder named
+      <filename>images</filename>. They are used to create installation images
+      for the system.  Base repositories include CentOS and Red Hat Enterprise
+      Linux.
       </para>
       
       <para>
