@@ -19,7 +19,7 @@ selinux --enforcing
 reboot
 
 %packages --nobase
-@core
+*
 %end
 
 %pre

@@ -19,6 +19,6 @@ selinux --enforcing
 reboot
 
 %packages --nobase
-@core
+*
 %end
 </kickstart>

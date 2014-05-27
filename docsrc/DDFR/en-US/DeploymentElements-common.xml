@@ -884,16 +884,15 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    <emphasis role='bold'>%packages section -</emphasis> For Deploy-created
-    repositories, all packages belong to a single group named
-    <emphasis>core</emphasis>. This group can be specified using a packages
-    section as follows:
+    <emphasis role='bold'>%packages section -</emphasis> To install all
+    packages from the repository, use an asterisk in the packages section, as
+    shown below:
     </para>
 
     <informalexample>
     <programlisting>
 %packages --nobase
-@core
+*
 %end
     </programlisting>
     </informalexample>
