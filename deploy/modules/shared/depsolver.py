@@ -189,11 +189,11 @@ class DeployDepsolver(Depsolver):
         raise yum.Errors.InstallError(msg)
       if txmbr:
         self.user_required.remove(pattern)
+        self._comps.remove_package(pattern)
 
         for p in txmbr:
-          if not pattern.startswith('-'): # ignore deselect patterns
-            self.user_required.append(p.name)
-            self._comps.return_group('core').mandatory_packages[p.name] = 1
+          self.user_required.append(p.name)
+          self._comps.return_group('core').mandatory_packages[p.name] = 1
 
     # install core group
     self.install_errors = []

@@ -322,12 +322,13 @@ class Test_ExcludePackages(CompsEventTestCase):
   """<packages>
     <group>core</group>
     <package>httpd</package>
-    <exclude>httpd</exclude> 
+    <exclude>httpd</exclude>
+    <package>authconfig</package>
+    <package>-authconfig</package>
   </packages>"""
 
   def setUp(self):
     CompsEventTestCase.setUp(self)
-    self.event.cvars['excluded-packages'] = ['authconfig'] 
 
   def runTest(self):
     self.execute_predecessors(self.event)

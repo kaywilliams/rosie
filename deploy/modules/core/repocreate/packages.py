@@ -82,11 +82,16 @@ class PackagesEvent(ShelveMixin):
     # track file changes
     self.DATA['input'].extend([gf for _,gf in self.groupfiles])
 
-    # set excluded packages and track
-    self.cvars.setdefault('excluded-packages', [])
-    self.cvars['excluded-packages'].extend(
-        self.config.xpath('exclude/text()', []))
-    self.DATA['variables'].append('cvars[\'excluded-packages\']')
+    # set excluded packages
+    self.cvars['excluded-packages'] = self.config.xpath('exclude/text()', [])
+
+    # set user required packages
+    self.cvars['user-required-packages'] = []
+    for x in self.config.xpath('package/text()', []):
+      if x.startswith('-'):
+        self.cvars['excluded-packages'].append(x[1:])
+      else:
+        self.cvars['user-required-packages'].append(x)
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -99,10 +104,6 @@ class PackagesEvent(ShelveMixin):
 
     # read stored comps object 
     self.cvars['comps-object'] = self.unshelve('comps') 
-
-    # set user-*-* cvars
-    self.cvars['user-required-packages'] = \
-      self.config.xpath('package/text()', [])
 
     # set packages-* cvars
     self.cvars['packages-ignoremissing'] = \
