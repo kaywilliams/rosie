@@ -67,8 +67,15 @@ class KickstartEventMixin:
       return
 
     self.ksver = '%s%s' %  (PYKICKSTART_VERSION_PREFIX[self.os], self.version)
+
+    # add version string to first line of kickstart
+    lines = self.kstext.split('\n')
+    if not lines[0].startswith('#version'):
+      lines.insert(0, '#version %s' % self.ksver)
+      self.kstext='\n'.join(lines)
+
     self.ksfile = self.OUTPUT_DIR / self.ksname
-    self.DATA['variables'].extend(['ksname'])
+    self.DATA['variables'].extend(['ksname', 'kstext'])
 
     # track source for use in error messages
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %

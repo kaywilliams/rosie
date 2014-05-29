@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <kickstart>
 <macro id='timezone'>America/Vancouver</macro>
-#version rhel%{version}
 install
 network --hostname %{hostname}
 rootpw --iscrypted "%{crypt-password}"
