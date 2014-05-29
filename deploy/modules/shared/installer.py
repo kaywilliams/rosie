@@ -185,7 +185,7 @@ class FileDownloadMixin:
     pass
 
   def _download(self):
-    self.io.process_files(what='FileDownloadMixin', cache=True)
+    self.io.process_files(what='FileDownloadMixin', cache=True, link=True)
 
 
 class InvalidImageFormatError(DeployEventError, StandardError):
