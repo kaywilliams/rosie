@@ -123,10 +123,12 @@ class ReposEvent(RepoEventMixin, Event):
           version = treeinfo.get('general', 'version').split('.')[0]
           arch = treeinfo.get('general', 'arch')
 
-          if not [os, version, arch] == [self.os, self.version, self.arch]: 
+          if (not version == 'rawhide' and 
+              not [os, version, arch] == [self.os, self.version, self.arch]): 
             raise InstallerRepoMismatchError(repoid=repo.id, 
-                  repourl=repo.url.touri(), os=self.os,
-                  version=self.version, arch=self.arch)
+                  repourl=repo.url.touri(), tree_os=os, tree_version=version,
+                  tree_arch=arch, os=self.os, version=self.version, 
+                  arch=self.arch)
 
           # set base-treeinfo control variables
           self.cvars['base-treeinfo'] = treeinfo
@@ -172,6 +174,7 @@ class TreeinfoNotFoundError(DeployEventError):
               "at '%(repourl)s' " )
 
 class InstallerRepoMismatchError(DeployEventError):
-  message = ( "The installer repository '%(repoid)s' at '%(repourl)s' does "
-              "not match the specified operating system "
-              "('%(os)s-%(version)s-%(arch)s').")
+  message = ( "The tree information ('%(tree_os)s-%(tree_version)s-"
+              "%(tree_arch)s') for installer repository '%(repoid)s' "
+              "at '%(repourl)s'  does not match the specified operating "
+              "system ('%(os)s-%(version)s-%(arch)s').")
