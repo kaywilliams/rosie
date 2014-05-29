@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- required for xz compressed repodata in fedora 21 -->
+<srpm id='pyliblzma'>
+<repo>
+%{epel-mirror}/%{version}/SRPMS
+</repo>
+</srpm>

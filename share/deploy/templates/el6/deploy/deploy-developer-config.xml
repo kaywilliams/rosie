@@ -12,6 +12,7 @@
 <requires>pexpect</requires>
 <!--<requires>publican</requires>-->
 <requires>pykickstart</requires>
+<requires>pyliblzma</requires>
 <requires>python-devel</requires>
 <requires>python-hashlib</requires>
 <requires>python-lxml</requires>

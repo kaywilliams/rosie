@@ -2,8 +2,8 @@
 
 Name:    deploy
 Version: 2.2
-Release: 2%{?dist}
-Summary: An efficient solution for managing Linux system deployment.
+Release: 1%{?dist}
+Summary: An end-to-end solution for managing Linux system deployment.
 
 License:   GPL
 Group:     Applications
@@ -27,6 +27,7 @@ Requires: mkisofs
 Requires: openssh 
 Requires: pexpect
 Requires: pykickstart
+Requires: pyliblzma
 Requires: python-devel
 Requires: python-hashlib
 Requires: python-lxml
@@ -74,9 +75,6 @@ information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Sun Apr 27 2014 Deploy Automated Package Builder - 2.2-2
-- rebuilt
-
 * Mon Mar 31 2014 Kay Williams - 2.2-1
 - support for hierarchical template folders
 - restrict access to deploy files and folders

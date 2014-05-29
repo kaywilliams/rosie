@@ -151,6 +151,9 @@ class PackagesEvent(ShelveMixin):
         if magic.match(path) == magic.FILE_TYPE_GZIP:
           import gzip
           fp = gzip.open(path)
+        elif magic.match(path) == magic.FILE_TYPE_XZ:
+          import lzma 
+          fp = lzma.LZMAFile(path)
         else:
           fp = open(path)
         groupfiles.setdefault(id, comps.Comps()).add(fp)

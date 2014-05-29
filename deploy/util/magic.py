@@ -55,6 +55,7 @@ LENGTH_LONG  = 4
 # these values are returned by match(), below
 FILE_TYPE_BZIP2    = 'application/x-bzip'
 FILE_TYPE_GZIP     = 'application/x-gzip'
+FILE_TYPE_XZ       = 'application/x-xz'
 FILE_TYPE_SQUASHFS = 'application/x-squashfs'
 FILE_TYPE_EXT2FS   = 'application/x-linux-ext2fs'
 FILE_TYPE_CPIO     = 'application/x-cpio'
@@ -84,6 +85,7 @@ magic = {
   # (offset, type, endianness, value)
   FILE_TYPE_BZIP2:    [(0,    TYPE_STRING, ENDIAN_BIG,    'BZh')],
   FILE_TYPE_GZIP:     [(0,    TYPE_STRING, ENDIAN_BIG,    '\x1f\x8b\x08')],
+  FILE_TYPE_XZ:       [(0,    TYPE_STRING, ENDIAN_BIG,    '\xfd\x37\x7a\x58\x5a\x00')],
   FILE_TYPE_SQUASHFS: [(0,    TYPE_STRING, ENDIAN_BIG,    'hsqs')],
   FILE_TYPE_EXT2FS:   [(1080, TYPE_SHORT,  ENDIAN_LITTLE, 61267L)], # 0xEF53
   FILE_TYPE_CPIO:     [(0,    TYPE_SHORT,  ENDIAN_BIG,    70707L),

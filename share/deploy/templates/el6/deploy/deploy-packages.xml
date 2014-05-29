@@ -23,5 +23,6 @@
 <srpmbuild>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/deploy/pyliblzma-srpm.xml"/>
 </srpmbuild>
 </xml>
