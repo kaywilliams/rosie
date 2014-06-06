@@ -121,15 +121,6 @@
         repository is used and duplicates are silently ignored.
         </para>
 
-        <para>
-        Deploy gives special meaning to repositories with the ids
-        "<emphasis>base</emphasis>" and "<emphasis>updates</emphasis>". These
-        repositories are assumed to be associated with the base operating
-        system.  This special meaning applies only when creating
-        <emphasis>package</emphasis>-type repositories, see the <xref
-        linkend='download'/> element for additional information. 
-        </para>
-
         </listitem>
       </varlistentry>
       </variablelist>
@@ -198,11 +189,8 @@
         </para>
 
         <para>
-        This element is optional. For repositories with the
-        <emphasis>@id</emphasis> attribute set to <emphasis>base</emphasis> or
-        <emphasis>updates</emphasis>, the default value is
-        <constant>TRUE</constant>.  For all other repositories, the default
-        value is <constant>FALSE</constant>.
+        This element is optional. The default value is
+        <constant>FALSE</constant>.
         </para>
 
         <para>
@@ -437,7 +425,8 @@
     <programlisting>
 &lt;repos>
 &lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
+                                      @id='%{os}-%{edition}-updates'])"/>
 &lt;/repos>
     </programlisting>
     </informalexample>
@@ -529,7 +518,7 @@
       <informalexample>
       <programlisting>
 &lt;repos&gt;
-&lt;repo id="base"&gt;
+&lt;repo id="centos-server-base"&gt;
 &lt;baseurl&gt;http://mirror.centos.org/centos/%{version}/os/%{arch}/&lt;/baseurl&gt;
 
 &lt;!-- exclude all xorg-x11-drv packages --&gt;

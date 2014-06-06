@@ -258,7 +258,7 @@ print uuid.uuid1()
     Example 1, the results will be the same as in that example (since
     command-line macros are resolved first).  However, when Deploy is executed
     with no macros specified on the command line, the values for os, version
-    and macro will be "centos", "5" and "x86_64" respectively. In addition,
+    and macro will be "centos", "6" and "x86_64" respectively. In addition,
     because "name" and "id" are defined as macros, they will be available for
     use in other locations within the definition.
     </para>
@@ -277,7 +277,8 @@ print uuid.uuid1()
 
 &lt;macro id="name"&gt;example&lt;macro&gt;
 &lt;macro id="os"&gt;centos&lt;macro&gt;
-&lt;macro id="version"&gt;5&lt;macro&gt;
+&lt;macro id="edition"&gt;server&lt;macro&gt;
+&lt;macro id="version"&gt;6&lt;macro&gt;
 &lt;macro id="arch"&gt;x86_64&lt;macro&gt;
 &lt;macro id="id"&gt;%{name}-%{os}-%{version}-%{arch}&lt;macro&gt;
 
@@ -306,10 +307,10 @@ print uuid.uuid1()
     two groups (core and base), and a nested <emphasis>macro</emphasis>
     placeholder. The nested placeholder selects additional content based on the
     value provided for the <emphasis>version</emphasis> macro. In the default
-    case (version=5), the list of groups for the repository will be "core, base
-    and smb-server".  If the version macro is set to "6", however, either
+    case (version=6), the list of groups for the repository will be "core, base
+    and cifs-file-server".  If the version macro is set to "5", however, either
     manually or using a command-line macro, the list of groups will be "core,
-    base and cifs-file-server".
+    base and smb-server".
     </para>
 
     <informalexample>
@@ -317,7 +318,7 @@ print uuid.uuid1()
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
-&lt;macro id="version"&gt;5&lt;macro&gt;
+&lt;macro id="version"&gt;6&lt;macro&gt;
 &lt;macro id="arch"&gt;i386&lt;macro&gt;
 
 &lt;packages&gt;
@@ -683,8 +684,9 @@ print uuid.uuid1()
 &lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 ...
 &lt;repos&gt;
-&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='base'])"/&gt;
-&lt;xi:include href='repos.xml' xpointer="xpointer(/*/repo[@id='updates'])"/&gt;
+&lt;xi:include href='repos.xml'
+            xpointer="xpointer(/*/repo[@id='%{os}-%{edition}-base' or
+                                       @id='%{os}-%{edition}-updates'])"/&gt;
 &lt;/repos&gt;
 
 &lt;/definition&gt;</programlisting>

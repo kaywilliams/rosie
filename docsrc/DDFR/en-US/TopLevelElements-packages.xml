@@ -145,11 +145,11 @@
     packages from several groups as well as a few individual packages.  A
     template will be used to obtain a minimal set of packages, see <xref
     linkend='templates'/> for additional information on templates. The "base"
-    group of the "base" repository will be included.  Packages from the
-    remaining groups will be included, irrespective of the repository in which
-    they are defined.  Additionally, the "createrepo" package will be included,
-    as will any packages beginning with the text "httpd".  Finally, the
-    "system-config-soundcard" package will be excluded from the repository.
+    group of the "%{os}-%{edition}-base" repository will be included.  Packages
+    from the remaining groups will be included, irrespective of the repository
+    in which they are defined.  Additionally, the "createrepo" package will be
+    included, as will any packages beginning with the text "httpd".  Finally,
+    the "system-config-soundcard" package will be excluded from the repository.
     </para>
 
     <informalexample>
@@ -159,8 +159,8 @@
   &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml
               xpointer="xpointer(./packages[@id='core']/*)"/>
 
-  &lt;!-- include packages from the base group of the "base" repo --&gt;
-  &lt;group id="base"&gt;base&lt;/group&gt;
+  &lt;!-- include packages from the base group of the base repo --&gt;
+  &lt;group repoid="%{os}-%{edition}-base"&gt;base&lt;/group&gt;
 
   &lt;!-- include packages from these groups defined in any repo --&gt;
   &lt;group&gt;base-x&lt;/group&gt;

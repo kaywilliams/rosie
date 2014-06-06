@@ -66,23 +66,20 @@
   </para>
   </section>
 
-  <section id="excluding-package-repositories">
-  <title>Excluding packages</title>
+  <section id="including-external-packages">
+  <title>Including external packages</title>
   <para>
   Packages in your repository will often have dependencies on packages in
-  external repositories. Deploy helps you ensure that your packages will
-  install and update as expected by ensuring that required package are
-  available.
+  external repositories.  As a convenience, Deploy allows you to download
+  packages from external repositories and include them in your repository. As a
+  result, users of your repository will have fewer repositories to track and
+  manage.  You can include packages from external repositories using the
+  <emphasis role='strong'>repo/download</emphasis> element. By default, the
+  value of this element is <emphasis>'false'</emphasis>.
   </para>
 
   <para>
-  As a convenience, Deploy allows you to download packages from external
-  repositories and include them in your repository. As a result, users of your
-  repository will have fewer repositories to track and manage.
-  </para>
-
-  <para>
-  In some cases, however, you will want to exclude packages from external
+  In some cases, you will not want to include packages from external
   repositories:
   </para>
 
@@ -102,32 +99,6 @@
   </para>
   </listitem>
   </itemizedlist>
-
-  <para>
-  You can exclude packages from specific repositories using the <emphasis
-  role='strong'>repo/download</emphasis> element. By default, the value of this
-  element is <emphasis>'false'</emphasis> for repos with the <emphasis
-  role='strong'>@id</emphasis> of <emphasis>'base'</emphasis> or
-  <emphasis>'updates'</emphasis> and <emphasis>'true'</emphasis> for all
-  others.  The effect of this behavior is that packages from operating system
-  repositories will not be included in <emphasis>package</emphasis>-type
-  repositories. They will, however, be used for resolving dependencies.
-  </para>
-
-  <para>
-  <emphasis role='strong'>Example</emphasis> - In this example Deploy
-  will use the <emphasis>'proprietary-repo'</emphasis> to resolve dependencies,
-  but will not download packages from it to your repository.
-  </para>
-
-  <informalexample>
-  <programlisting>&lt;repos>
-&lt;repo id='proprietary-repo'>
-...
-&lt;download>false&lt;/download>
-&lt;/repo>
-&lt;/repos></programlisting>
-  </informalexample>
 
   <para>
   For more information on the <emphasis>download</emphasis> element, and the

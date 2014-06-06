@@ -98,6 +98,7 @@
     <para><informalexample>
       <programlisting>&lt;macro id='name'>web-server&lt;macro>
 &lt;macro id='os'>centos&lt;macro>
+&lt;macro id='edition'>server&lt;macro>
 &lt;macro id='version'>6&lt;macro>
 &lt;macro id='arch'>x86_64&lt;macro>
 &lt;macro id='id'>%{name}-%{os}-%{version}-%{arch}&lt;macro>
@@ -137,7 +138,8 @@
     <informalexample>
     <programlisting>&lt;repos>
 &lt;xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='base' or @id='updates'])"/>
+            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or 
+                                      @id='%{os}-%{edition}-updates'])"/>
 &lt;/repos></programlisting>
     </informalexample>
 
@@ -166,9 +168,10 @@
     </listitem>
     <listitem>
     <para>
-    It uses the attribute <constant>xpointer="xpointer(./repo[@id='base' or
-    @id='updates'])"</constant> to specify an XPath query selecting specific
-    content from the document. 
+    It uses the attribute
+    <constant>xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
+    @id='%{os}-%{edition}-updates'])"</constant> to specify an XPath query
+    selecting specific content from the document. 
     </para>
     </listitem>
     </itemizedlist>
@@ -202,12 +205,8 @@
     <listitem>
     <para>
     Open the <filename>repos.xml</filename> file(s) in the templates folder and
-    modify the centos-mirror macro, where
-    <varname>my.mirror.com</varname> is the new mirror location.
+    modify the baseurl and gpgkey paths to use the new location.
     </para>
-    <informalexample>
-    <programlisting>&lt;macro id='centos-mirror'>http://my.mirror.com/centos&lt;macro></programlisting>
-    </informalexample>
     </listitem>
     </itemizedlist>
     </section>
@@ -279,16 +278,8 @@ umount $TMPDIR</programlisting>
 
       <para>
       Then, modify the repos.xml template to use the repository you have
-      created. Open the <filename>repos.xml</filename> file(s) in the templates
-      folder and modify the <varname>edition</varname> and
-      <varname>rhel-mirror</varname> macros as appropriate.
+      created.
       </para>
-
-      <informalexample>
-      <programlisting>&lt;macro id='edition'>Server&lt;/macro>
-&lt;macro id='rhel-mirror'>http://localhost/mirror/rhel/enterprise/%{version}%{edition}/en/os/%{arch}&lt;/macro></programlisting>
-      </informalexample>
-
       </section>
 
       <section>

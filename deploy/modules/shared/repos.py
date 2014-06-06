@@ -79,11 +79,7 @@ class DeployRepo(YumRepo):
 
   @property
   def download(self):
-    if self.id in ['base', 'updates']:
-      default = 'false'
-    else:
-      default = 'true'
-    return self._boolparse(self.get('download', default))
+    return self._boolparse(self.get('download', 'false'))
 
   def get_rpm_version(self, names):
     # filter list of names if necessary
