@@ -391,20 +391,20 @@ class SrpmBuild(Build):
       rxml.config.Element('repos', parent=self.definition)
       
     parent_repos = {}
-    for repo in self.ptr.config.getxpath('/*/repos'):
+    for repo in self.ptr.config.getxpath('/*/repos', []):
       parent_repos[repo.get('id')] = repo
 
     child_repos = {}
-    for repo in self.definition.getxpath('/*/repos'):
+    for repo in self.definition.getxpath('/*/repos', []):
       child_repos[repo.get('id')] = repo
 
     for id, elem in parent_repos.items():
       if elem not in child_repos.values():
         if id in child_repos:
-          self.definition.getxpath('/*/repos').replace(child_repos[id],
-                                                       elem.copy())
+          self.definition.getxpath('/*/repos', []).replace(child_repos[id],
+                                                           elem.copy())
         else:
-          self.definition.getxpath('/*/repos').append(elem.copy())
+          self.definition.getxpath('/*/repos', []).append(elem.copy())
 
     #resolve macros
     self.definition.resolve_macros(map={
