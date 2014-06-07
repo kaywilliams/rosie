@@ -17,6 +17,6 @@ set -e
 
 <files destdir="/usr/sbin/" destname="check-kernel" mode='750' content='text'>
 <xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml" 
-            xpointer='xpointer(/*/text())'/>
+            xpointer='xpointer(./text())'/>
 </files>
 </config-rpm>

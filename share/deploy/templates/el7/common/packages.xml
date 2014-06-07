@@ -2,8 +2,8 @@
 <xml xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <packages id='core'>
-<group repoid='base'>core</group>
-<group repoid='base'>anaconda-tools</group>
+<group repoid='%{os}-%{edition}-base'>core</group>
+<group repoid='%{os}-%{edition}-base'>anaconda-tools</group>
 <!-- these packages are in anaconda-tools
 <package>authconfig</package>
 <package>chrony</package>
@@ -14,9 +14,9 @@
 </packages>
 
 <packages id='gui'>
-<group repoid='base'>base</group>
-<group repoid='base'>X11</group>
-<group repoid='base'>fonts</group>
-<group repoid='base'>gnome-desktop</group>
+<group repoid='%{os}-%{edition}-base'>base</group>
+<group repoid='%{os}-%{edition}-base'>X11</group>
+<group repoid='%{os}-%{edition}-base'>fonts</group>
+<group repoid='%{os}-%{edition}-base'>gnome-desktop</group>
 </packages>
 </xml>

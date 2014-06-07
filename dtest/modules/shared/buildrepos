@@ -157,6 +157,7 @@ class RepoBuilder(object):
       output_file.add_section(repoid)
       output_file.set(repoid, 'name', repoid)
       output_file.set(repoid, 'baseurl', 'file://%s' % path.abspath())
+      output_file.set(repoid, 'download', 'true')
 
     # write the .repo file
     f = open(repo_file, 'w')

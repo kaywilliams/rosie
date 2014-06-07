@@ -4,6 +4,7 @@
 <macro id="name">srpmbuild</macro>
 <macro id="fullname">RPM Build Virtual Machine</macro>
 <macro id="os">centos</macro>
+<macro id="edition">server</macro>
 <macro id="version">7</macro>
 <macro id="arch">x86_64</macro>
 <macro id="id">%{name}-%{os}-%{version}-%{arch}</macro>
@@ -16,6 +17,12 @@
 <arch>%{arch}</arch>
 <id>%{id}</id>
 </main>
+
+<repos>
+<xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or 
+                                      @id='%{os}-%{edition}-updates'])"/>
+</repos>
 
 <packages>
 <xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"

@@ -201,12 +201,9 @@ class Test_UpdatesDefinition(TestSrpmTestCase):
     #set some convenience variables
     public = definition.getxpath('/*/gpgsign/public/text()', '')
     secret = definition.getxpath('/*/gpgsign/secret/text()', '')
-    parent_repo = self.conf.getxpath('/*/repos/repo[@id="base"]')
-    child_repo = definition.getxpath('/*/repos/repo[@id="base"]')
 
     self.failUnless(len(public) == len(PUBKEY) and
-                    len(secret) == len(SECKEY) and
-                    child_repo == parent_repo)
+                    len(secret) == len(SECKEY))
 
 class Test_Excludes(TestSrpmTestCase):
   "excludes specified subpackages"

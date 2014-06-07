@@ -36,6 +36,7 @@ from deploy.util.rxml import config
 from deploy.main import Build, DIST_TAG
 
 BUILD_ROOT = '/tmp/dtest' # location builds are performed
+EDITION = 'server'
 
 class TestBuild(Build):
   def __init__(self, conf, options=None, args=None):
@@ -155,14 +156,18 @@ class EventTestCase(unittest.TestCase):
   def _make_repos_config(self):
     repos = config.fromstring("""
 <repos xmlns:xi="http://www.w3.org/2001/XInclude">
-<macro id='os'>%s</macro>
-<macro id='version'>%s</macro>
-<macro id='arch'>%s</macro>
-<xi:include href='%s'
-            xpointer="xpointer(./repo[@id='base'])"/>
+<macro id='os'>%(os)s</macro>
+<macro id='edition'>%(edition)s</macro>
+<macro id='version'>%(version)s</macro>
+<macro id='arch'>%(arch)s</macro>
+<xi:include href='%(href)s'
+            xpointer="xpointer(./repo[@id='%(os)s-%(edition)s-base'])"/>
 </repos>
-""" % (self.os, self.version, self.arch, 
-       pps.path('%{templates-dir}/%{norm-os}/common/repos.xml')))
+""" % {'os':      self.os, 
+       'edition': EDITION,
+       'version': self.version, 
+       'arch':    self.arch, 
+       'href':    pps.path('%{templates-dir}/%{norm-os}/common/repos.xml')})
 
     return repos
 

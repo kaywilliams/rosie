@@ -2,6 +2,6 @@
 <!-- required for xz compressed repodata in fedora 21 -->
 <srpm id='pyliblzma'>
 <repo>
-%{epel-mirror}/%{version}/SRPMS
+http://dl.fedoraproject.org/pub/epel/%{version}/SRPMS
 </repo>
 </srpm>

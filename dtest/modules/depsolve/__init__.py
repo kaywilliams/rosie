@@ -341,21 +341,15 @@ class Test_GroupsByRepo(CompsEventTestCase):
     self._add_config({ 
     'el6':
     """<packages>
-      <group repoid="base">core</group>
+      <group repoid="%{os}-%{edition}-base">core</group>
       <group>base</group>
-      <group repoid="base">console-internet</group>
+      <group repoid="%{os}-%{edition}-base">console-internet</group>
     </packages>""",
     'el7':
     """<packages>
-      <group repoid="base">core</group>
+      <group repoid="%{os}-%{edition}-base">core</group>
       <group>base</group>
-      <group repoid="base">web-server</group>
-    </packages>""",
-    'fc19': 
-    """<packages>
-      <group repoid="base">core</group>
-      <group>standard</group>
-      <group repoid="base">web-server</group>
+      <group repoid="%{os}-%{edition}-base">web-server</group>
     </packages>""",
     }[self.norm_os])
 

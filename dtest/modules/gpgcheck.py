@@ -89,7 +89,7 @@ class Test_FailsOnBadKeyUrl(GpgcheckEventTestCase):
       gpgkey.getparent().remove(gpgkey)
 
     # add bad key
-    repo = self.tb.definition.getxpath("./repos/repo[@id='base']")
+    repo = self.tb.definition.getxpath("./repos/repo")
     rxml.config.Element('gpgkey', text='bad', parent=repo)
 
   def runTest(self):
