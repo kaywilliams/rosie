@@ -80,7 +80,7 @@ class RpmbuildRepoEvent(Event):
       rpmbuild_rpms  = DeployRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
                               gpgkey='file://%s' % self.pubkey,
-                              locals=self.locals)
+                              download='true', locals=self.locals)
       #rpmbuild_srpms = DeployRepoGroup(id=self.csid, name=self.csid,
       #                                 baseurl=self.RPMBUILD_SRPMS,
       #                                 locals=self.locals)
