@@ -504,10 +504,14 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
         # attributes
         for string in remaining[macro]['attrib_strings']:
           parent = string.getparent()
-          if string in parent.values(): # ignore previously changed strings
-            id = [ k for k,v in parent.items() if string == v][0]
 
-          # macros is string
+          # ignore previously changed strings
+          if string not in parent.values():
+            continue
+
+          id = [ k for k,v in parent.items() if string == v][0]
+
+          # macro is string
           if isinstance(map[macro], basestring):
             parent.attrib[id] = string.replace(macro, map[macro])
             if string in unresolved_strings: unresolved_strings.remove(string)
