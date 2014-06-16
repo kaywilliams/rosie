@@ -41,15 +41,19 @@
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
+<!-- re-enable once centos 7 is available
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-test.xml"
             xpointer="xpointer(./*)"/>
+-->
 </test-update>
 
 <test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
+<!-- re-enable once centos 7 is available
 <xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-test.xml"
             xpointer="xpointer(./*)"/>
+-->
 </test-install>
 
 </definition>
