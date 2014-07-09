@@ -7,17 +7,17 @@
      and rhel -->
 <repo id="centos-server-base">
 <baseurl>http://mirror.centos.org/centos/%{version}/os/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <repo id="centos-workstation-base">
 <baseurl>http://mirror.centos.org/centos/%{version}/os/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <repo id="centos-desktop-base">
 <baseurl>http://mirror.centos.org/centos/%{version}/os/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <!-- centos update repos -->
@@ -26,17 +26,17 @@
      and rhel -->
 <repo id="centos-server-updates">
 <baseurl>http://mirror.centos.org/centos/%{version}/updates/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <repo id="centos-workstation-updates">
 <baseurl>http://mirror.centos.org/centos/%{version}/updates/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <repo id="centos-desktop-updates">
 <baseurl>http://mirror.centos.org/centos/%{version}/updates/%{arch}</baseurl>
-<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+<gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
 <!-- rhel base repos -->
