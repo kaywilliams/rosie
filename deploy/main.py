@@ -81,7 +81,7 @@ DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
 
 SUPPORTED = ['centos-6-i386', 'centos-6-x86_64', 
              'rhel-6-i386', 'rhel-6-x86_64',
-             'rhel-7-x86_64',
+             'centos-7-x86_64', 'rhel-7-x86_64',
              'fedora-19-i386', 'fedora-19-x86_64']
 
 DIST_TAG = { 
