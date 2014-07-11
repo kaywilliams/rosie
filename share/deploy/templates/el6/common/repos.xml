@@ -79,7 +79,7 @@
 </repo>
 
 <repo id="rhel-desktop-updates">
-<baseurl>https://cdn.redhat.com/content/dist/rhel/desktop/6/6Desktop/%{arch}/os</baseurl>
+<baseurl>https://cdn.redhat.com/content/dist/rhel/client/6/6Client/%{arch}/os</baseurl>
 <macro id="rhsm-dir">%{templates-dir}/%{norm-os}/common/rhsm</macro>
 <sslcacert>%{rhsm-dir}/redhat-uep.pem</sslcacert>
 <sslclientcert>%{rhsm-dir}/desktop-6.pem</sslclientcert>
