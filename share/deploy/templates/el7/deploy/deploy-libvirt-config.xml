@@ -21,10 +21,6 @@
 <requires>/sbin/ifconfig</requires>
 <requires>/usr/bin/virsh</requires>
 
-<files destdir="/etc/modprobe.d" destname="nested-kvm.conf" content="text">
-options kvm-intel nested=y
-</files>
-
 <files destdir="/etc/NetworkManager/dispatcher.d" 
        destname="99-deploy-libvirt-config" mode="755" content="text">
 #!/bin/sh
