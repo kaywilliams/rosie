@@ -2,8 +2,8 @@
 
 Name:    deploy
 Version: 2.2
-Release: 1%{?dist}
-Summary: An end-to-end solution for managing Linux system deployment.
+Release: 9%{?dist}
+Summary: A package-based solution for managing Linux system deployment.
 
 License:   GPL
 Group:     Applications
@@ -42,9 +42,9 @@ Requires: /usr/bin/rpmsign
 Requires: /usr/bin/sudo
 
 %description
-Deploy is an efficient solution to build, test, deploy and maintain CentOS
-and Red Hat Enterprise Linux systems. See http://www.deployproject.org for more
-information. 
+Deploy is a package-based solution to configure, test, deploy and maintain
+CentOS and Red Hat Enterprise Linux systems. See http://www.deployproject.org
+for more information. 
 
 %prep
 %setup -q
@@ -75,7 +75,17 @@ information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Mon Mar 31 2014 Kay Williams - 2.2-1
+* Tue Jul 29 2014 Kay Williams <kay@deployproject.org> - 2.3-1
+- add support for CentOS 7
+- simplify repos.xml template
+- fix macro resolution to handle multiple macros in attribute value
+- add lzml support for xz compressed files (fedora 21)
+- add version string to kickstart if missing
+- performance: link files to publish folder
+- add support for locking package versions
+- add support for package patterns
+
+* Mon Mar 31 2014 Kay Williams <kay@deployproject.org> - 2.2-1
 - support for hierarchical template folders
 - restrict access to deploy files and folders
 - support for ssl key authenticated repositories including CDN
