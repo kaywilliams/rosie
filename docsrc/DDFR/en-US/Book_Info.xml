@@ -6,12 +6,12 @@
 <bookinfo id="book-DDFR-DDFR">
 
 	<title>Deploy Definition File Reference</title>
-        <subtitle>A complete guide to the Deploy Definition File</subtitle>
+        <subtitle>A Complete Guide to the Deploy Definition File</subtitle>
 	<productname>Deploy</productname>
-	<productnumber>2.2</productnumber>
-	<edition>2.2</edition>
+	<productnumber>2.3</productnumber>
+	<edition>2.3</edition>
 	<pubsnumber>0</pubsnumber>
-        <pubdate>April 2014</pubdate>
+        <pubdate>August 2014</pubdate>
 	<corpauthor>
 		<inlinemediaobject>
 			<imageobject>
