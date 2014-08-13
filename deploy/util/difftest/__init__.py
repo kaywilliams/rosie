@@ -86,6 +86,11 @@ class DiffTest:
     self.debug = False # enable to see very verbose printout of diffs
     self.metadata = None
 
+    # create mdfile if it does not exist
+    if not self.mdfile.exists():
+      self.mdfile.touch()
+      self.write_metadata()
+
   def dprint(self, msg):
     if self.debug: print msg
 

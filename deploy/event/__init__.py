@@ -193,9 +193,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def mdfile(self):
     file = self.mddir/'%s.md' % self.id
-    if not file.exists(): file.touch()
-    file.chown(0,0)
-    file.chmod(0700)
     return file
 
   @property

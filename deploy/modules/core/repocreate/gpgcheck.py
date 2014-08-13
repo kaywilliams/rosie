@@ -111,8 +111,11 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
 #------ ERRORS ------#
 class RpmSignatureInvalidError(DeployEventError):
   message = ("The '%(pkg)s' package from the '%(repo)s' repository failed GPG "
-             "key check. The error was '%(error)s'. You may need to list "
-             "additional gpgkeys in your repo definition(s).")
+             "key check. The error was '%(error)s'. \n\nYou may need to list "
+             "additional gpgkeys in the repo element(s) in your definition. "
+             "Alternatively, you can disable GPG key checking using the "
+             "release-rpm element. See the Deploy Definition File Reference "
+             "for additional information.")
 
 class GpgkeyIOError(DeployIOError):
   message = "Cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"

@@ -87,7 +87,7 @@ class EventHandler(DiffHandler):
     self.diffdict.clear()
 
   def mdread(self, metadata, *args, **kwargs):
-    for event in metadata.xpath('/metadata/events/event'):
+    for event in metadata.xpath('/metadata/events/event', []):
       self.events[event.getxpath('@id')] = event.getxpath('version/text()')
 
   def mdwrite(self, root, *args, **kwargs):
