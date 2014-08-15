@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import libvirt
 import subprocess
 import unittest
 
@@ -318,10 +319,11 @@ class Test_Shutdown(TestSrpmTestCase):
     except DeployError:
       pass
 
-    self.failIf(subprocess.call('virsh dominfo %s-%s-%s-%s &> /dev/null'
-                                % (BUILD_MACHINE_NAME, self.os, self.version, 
-                                   self.arch.replace('_', '-')),
-                                shell=True) == 0)
+    connection = libvirt.open('qemu:///system')
+    guestname = "%s-%s-%s-%s" % (BUILD_MACHINE_NAME, self.os, self.version,
+                                 self.arch.replace('_', '-'))
+
+    self.failIf(guestname in connection.listDefinedDomains())
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('srpmbuild')
