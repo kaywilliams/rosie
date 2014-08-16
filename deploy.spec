@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 2.2
-Release: 9%{?dist}
-Summary: A package-based solution for managing Linux system deployment.
+Version: 2.3
+Release: 1%{?dist}
+Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
 Group:     Applications
@@ -42,9 +42,9 @@ Requires: /usr/bin/rpmsign
 Requires: /usr/bin/sudo
 
 %description
-Deploy is a package-based solution to configure, test, deploy and maintain
-CentOS and Red Hat Enterprise Linux systems. See http://www.deployproject.org
-for more information. 
+Deploy is an integrated solution to automate build, test, deployment and
+maintenance for CentOS and Red Hat Enterprise Linux systems. See
+http://www.deployproject.org for more information. 
 
 %prep
 %setup -q
@@ -75,15 +75,16 @@ for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Tue Jul 29 2014 Kay Williams <kay@deployproject.org> - 2.3-1
+* Sat Aug 16 2014 Kay Williams <kay@deployproject.org> - 2.3-1
 - add support for CentOS 7
 - simplify repos.xml template
 - fix macro resolution to handle multiple macros in attribute value
 - add lzml support for xz compressed files (fedora 21)
 - add version string to kickstart if missing
-- performance: link files to publish folder
-- add support for locking package versions
+- performance: hard link files to publish folder
+- add support for locking (pinning) package versions
 - add support for package patterns
+- misc bug fixes, and improvements to documentation and error handling
 
 * Mon Mar 31 2014 Kay Williams <kay@deployproject.org> - 2.2-1
 - support for hierarchical template folders
