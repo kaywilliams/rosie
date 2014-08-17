@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -75,6 +75,9 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sun Aug 17 2014 Kay Williams <kay@deployproject.org> - 2.3-2
+- fix gpgkey publishing for package repos
+
 * Sat Aug 16 2014 Kay Williams <kay@deployproject.org> - 2.3-1
 - add support for CentOS 7
 - simplify repos.xml template

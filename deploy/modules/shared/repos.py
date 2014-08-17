@@ -284,9 +284,13 @@ class RepoEventMixin(Event):
       listfile = repo.url / 'gpgkeys/gpgkey.list'
       if listfile.exists():
         lines = listfile.read_lines()
-        if lines[0].startswith("RPM-GPG-KEY"):
-          repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url, x) 
-                              for x in lines])
+        if lines:
+          if lines[0].startswith("RPM-GPG-KEY"):
+            repo.extend_gpgkey(['%s/gpgkeys/%s' % (repo.url, x) 
+                                for x in lines])
+        else:
+          self.log(1, "Warning: gpgkey list found at '%s', but no "
+            "keys were specified." % listfile)
     # make sure we got at least one repo out of that mess
     if self.type == "system" and not len(self.repos) > 0:
       raise NoReposEnabledError(self.id)

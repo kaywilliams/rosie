@@ -101,15 +101,13 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
       return
 
     self.repos = self.cvars['repos'].values()
-    if 'gpg-signing-keys' in self.cvars: 
-      self.repos = (self.repos +
-              # using a dummy repo since rpmbuild repo not yet created
-               [DeployRepo(id='dummy', 
-                           gpgkey=self.cvars['gpg-signing-keys']['pubkey'])])
+    if 'gpg-signing-keys' in self.cvars:
+      # append a dummy repo since rpmbuild repo not yet created
+      self.repos.append(DeployRepo(id='dummy', 
+                        gpgkey=self.cvars['gpg-signing-keys']['pubkey'],
+                        download='true'))
 
     GPGKeysEventMixin.setup(self) # set self.repos before calling
-
-    self.DATA['variables'].extend(['keydir'])
 
   def run(self):
     self.local_keydir.rm(recursive=True, force=True)

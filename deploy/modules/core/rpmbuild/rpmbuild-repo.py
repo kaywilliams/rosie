@@ -77,6 +77,10 @@ class RpmbuildRepoEvent(Event):
         #self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
         #                  self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
+      # if you make changes here, be sure to sync them up with the
+      # dummy repo in shared/release.py. todo - move rpmbuild repo creation
+      # into rpmbuild/__init__.py; then have this module delete the repo if
+      # rpmbuild-data is empty
       rpmbuild_rpms  = DeployRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
                               gpgkey='file://%s' % self.pubkey,
