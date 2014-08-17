@@ -26,8 +26,8 @@
 <para>Deploy uses an optional configuration file deploy.conf
 located at <filename>/etc/deploy/</filename>. The location of this file
 can be overridden using the <command>-c</command> or
-<command>--config</command> Deploy command line option. The default
-Deploy installation does not include a deploy.conf file.</para>
+<command>--config</command> Deploy command line option.
+</para>
 </refsect1>
 
 <refsect1 id='deploy.conf.5-optional-elements'><title>ELEMENTS</title>
