@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='name'>rackspace-novaclient-config</macro>
+<macro id='os'>centos</macro>
+<macro id='edition'>server</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<repos>
+<xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml' 
+            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
+                                      @id='%{os}-%{edition}-updates'])"/>
+</repos>
+
+<packages>
+<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+            xpointer="xpointer(./packages[@id='core']/*)"/>
+</packages>
+
+<config-rpms>
+<xi:include href="%{templates-dir}/%{norm-os}/rackspace/rackspace-novaclient-config.xml"/>
+</config-rpms>
+
+<test-update>
+<xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" 
+            xpointer="xpointer(./*)"/>
+<script id='test' type='post'>nova image-list</script>
+</test-update>
+
+<test-install enabled="false">
+<xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
+            xpointer="xpointer(./*)"/>
+<script id='test' type='post'>nova image-list</script>
+</test-install>
+
+</definition>
