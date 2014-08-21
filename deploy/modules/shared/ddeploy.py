@@ -85,21 +85,20 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       )
 
     # set ssh host defaults
-    self.deploy_host = self.cvars[self.cvar_root]['deploy-host']
     self.deploy_client = self.cvars[self.cvar_root]['fqdn']
     self.hostname_defaults = { 
-                           'pre': self.deploy_host,
+                           'pre': 'localhost',
                            'test-triggers': self.deploy_client,
-                           'activate': self.deploy_host,
-                           'delete': self.deploy_host,
-                           'pre-install': self.deploy_host, 
-                           'install': self.deploy_host,
+                           'activate': 'localhost',
+                           'delete': 'localhost',
+                           'pre-install': 'localhost', 
+                           'install': 'localhost',
                            'post-install': self.deploy_client, 
                            'save-triggers': self.deploy_client, 
                            'update': self.deploy_client, 
                            'post': self.deploy_client
                            }
-    self.DATA['variables'].extend(['deploy_host', 'deploy_client'])
+    self.DATA['variables'].extend(['deploy_client'])
 
     # setup types - do this before trigger macro resolution
     self.scripts = {} 

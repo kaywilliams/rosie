@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>rackspace-novaclient-config</macro>
+<macro id='name'>rackspace-client-config</macro>
 <macro id='os'>centos</macro>
 <macro id='edition'>server</macro>
 <macro id='version'>6</macro>
@@ -28,19 +28,25 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/%{norm-os}/rackspace/rackspace-novaclient-config.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/rackspace/rackspace-client-config.xml"/>
 </config-rpms>
 
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" 
             xpointer="xpointer(./*)"/>
-<script id='test' type='post'>nova image-list</script>
+<script id='test' type='post' comes-before='conditional-poweroff'>
+source /root/rackspace/rackspace_admin
+nova image-list
+</script>
 </test-update>
 
 <test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
-<script id='test' type='post'>nova image-list</script>
+<script id='test' type='post' comes-before='conditional-poweroff'>
+source /root/rackspace/rackspace_admin
+nova image-list
+</script>
 </test-install>
 
 </definition>

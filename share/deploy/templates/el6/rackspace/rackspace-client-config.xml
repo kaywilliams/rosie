@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id='rackspace-novaclient-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id='rackspace-client-config' xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <description>
 Configures a deploy build system to automate deployment and maintenance of
@@ -22,14 +22,13 @@ for additional information.
             xpointer="xpointer(./repo[@id='epel'])"/>
 
 <requires>python-pip</requires>
-<requires>python-novaclient</requires>
 
 <script type='post'>
-python-pip list | grep -q rackspace-auth-openstack || \
-python-pip install rackspace-auth-openstack
+python-pip list | grep -q rackspace-novaclient || \
+python-pip install rackspace-novaclient
 </script>
 
-<files destdir="/etc/profile.d" destname='rackspace.sh' content='text'
+<files destdir="/root/rackspace" destname='rackspace_admin' content='text'
        mode='600'>
 export OS_USERNAME=%{rackspace-username}
 export OS_TENANT_NAME=%{rackspace-account-number}

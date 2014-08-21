@@ -52,7 +52,6 @@ if ! [ -f $lastmd5 ] || ! diff md5sum $lastmd5 > /dev/null; then
                   --arch $arch \
                   --share-path $rootdir/%{tag}/share/deploy \
                   --log-level $loglevel \
-                  --macro "deploy-host:192.168.123.1"
                   $modules
     mv test.log test.log.$os-$version-$arch
   done

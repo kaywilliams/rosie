@@ -49,7 +49,6 @@
     <programlisting>
 [&lt;ELEMENT>
   [&lt;build-host [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/build-host&gt;]
-  [&lt;deploy-host&gt;TEXT&lt;/deploy-host&gt;]
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
   [&lt;remote-url&gt;[TEXT]&lt;/remote-url&gt;]
   [&lt;os-url&gt;[TEXT]&lt;/os-url&gt;]
@@ -123,17 +122,6 @@
     TEXT of the ssh public key for the build host. Used for configuring
     the client machine to accept ssh connections from the build host. See the
     <xref linkend='kickstart'/> element for an example.
-    </entry>
-    </row>
-
-    <row>
-    <entry id='deploy-host-macro'>
-    %{deploy-host}
-    </entry>
-
-    <entry>
-    Hostname or IP Address for the deployment host machine. Described under
-    the <xref linkend='deploy-host'/> element.
     </entry>
     </row>
 
@@ -467,42 +455,6 @@
       <programlisting>
 &lt;build-host&gt;repos.company.com&lt;/build-host&gt;</programlisting>
       </informalexample>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id='deploy-host'>
-      <term>
-      deploy-host
-      </term>
-
-      <listitem>
-      <para>
-      TEXT value specifying the hostname or ipaddress of the deployment host.
-      This host is used by Deploy for running deployment scripts.  See the
-      <xref linkend='script-hostname'/> attribute of the <xref
-      linkend='deployment-script'/> element for additional information.
-      </para>
-
-      <para>
-      This element is optional. The default value is
-      <constant>localhost</constant>. 
-      </para>
-
-      <para>
-      <emphasis role='bold'>Example</emphasis>
-      </para>
-
-      <para>
-      The section below shows several valid values for the deploy-host element.
-      </para>
-      
-      <informalexample>
-      <programlisting>
-&lt;deploy-host>10.10.1.106&lt;/deploy-host&gt;
-&lt;deploy-host>deploy-host&lt;/deploy-host&gt;
-&lt;deploy-host>deploy-host.company.com&lt;/deploy-host&gt;</programlisting>
-      </informalexample>
-
       </listitem>
     </varlistentry>
 
@@ -1941,7 +1893,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </row>
       <row>
       <entry>pre, activate, delete, pre-install, install</entry>
-      <entry>%{deploy-host}</entry>
+      <entry>localhost</entry>
       </row>
       <row>
       <entry>test-triggers, post-install, save-triggers, post</entry>

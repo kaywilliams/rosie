@@ -1,4 +1,4 @@
-<script id='conditional-post-delete' type='post' hostname='%{deploy-host}'
+<script id='conditional-post-delete' type='post' hostname='localhost'
         comes-after='test-remove-custom-pkgs check-kernel'>
 <macro id='test-install-post-delete'>false</macro>
 <macro id='test-update-post-delete'>false</macro>

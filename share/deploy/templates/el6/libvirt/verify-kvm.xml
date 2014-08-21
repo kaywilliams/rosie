@@ -3,8 +3,6 @@
 <!-- verify kvm subsystem loaded -->
 if ! /sbin/lsmod | /bin/grep kvm -q; then
   echo "Error: the libvirt deployment template requires a kvm subsystem."
-  echo "Alternatively, you can use a %{deploy-host} macro to specify a remote"
-  echo "machine where deployment scripts should be executed."
   exit 1
 fi
 </script>

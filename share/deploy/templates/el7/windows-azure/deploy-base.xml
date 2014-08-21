@@ -4,11 +4,9 @@
 <!-- install and update a Windows Azure virtual machine -->
 <macro id='user'>deploy</macro>
 <macro id='domain'>cloudapp.net</macro>
-<macro id='deploy-host'>localhost</macro>
 
 <!-- template content below -->
 <domain>%{domain}</domain>
-<deploy-host>%{deploy-host}</deploy-host>
 <xi:include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml'/>

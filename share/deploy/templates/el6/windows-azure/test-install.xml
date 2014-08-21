@@ -3,7 +3,7 @@
 <xi:include href='%{templates-dir}/%{norm-os}/windows-azure/deploy-base.xml'
             xpointer="xpointer(./*)"/>
 <xi:include href="%{templates-dir}/%{norm-os}/common/conditional-test-remove-custom-pkgs.xml"/>
-<script id='post-delete' type='post' hostname='%{deploy-host}'
+<script id='post-delete' type='post' hostname='localhost'
         comes-after="conditional-test-remove-custom-pkgs check-kernel">
 <xi:include href="%{templates-dir}/%{norm-os}/windows-azure/delete.xml"
             xpointer="xpointer(./text())"/>

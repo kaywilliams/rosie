@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='conditional-poweroff' type='post' hostname='%{deploy-host}'>
+<script id='conditional-poweroff' type='post' hostname='localhost'>
 <macro id='test-install-poweroff'>false</macro>
 <macro id='test-update-poweroff'>false</macro>
 <macro id='publish-poweroff'>false</macro>
