@@ -35,20 +35,82 @@ class TestInstallSetupEventTestCase(PublishSetupMixinTestCase, EventTestCase):
   eventid  = 'test-install-setup'
 
 
-class TestInstallEventTestCase(DeployMixinTestCase, EventTestCase):
+class TestInstallEventTestCase(EventTestCase):
   moduleid = 'test-install'
   eventid  = 'test-install'
+
+
+class Test_CommentsInScripts(TestInstallEventTestCase):
+  "test comments in script elements"
+  _conf = [
+"""
+<packages><package>kernel</package></packages>
+""",
+"""
+<test-install>
+  <script id='test' type='post'>
+  <!--comment-->
+  echo "test to ensure comments work inside script elements"
+  </script>
+</test-install>
+"""
+]
+
+class Test_HostnameFile(TestInstallEventTestCase):
+  "reads and validates user-provided ssh-host-file"
+  hostname="bad_hostname"
+  _conf = [
+"""
+<packages><package>kernel</package></packages>
+""",
+"""
+<test-install>
+<script id='write-hostfile' type='install'>
+echo "%s" > %%{ssh-host-file}
+</script>
+
+<script id='read-hostfile' type='post'>
+# dummy script to initiate hostfile reading
+</script>
+</test-install>
+""" % hostname
+]
+  
+  def runTest(self):
+    try:
+      self.tb.dispatch.execute(until=self.eventid)
+    except DeployError as e:
+      self.event.ssh_host_file.rm(force=True)
+      self.failUnless("invalid" in str(e).lower() and self.hostname in str(e))
+    else:
+      self.event.ssh_host_file.rm(force=True)
+      self.fail("DeployError not raised")
+
+
+class Test_SshHost(TestInstallEventTestCase):
+  "resolves ssh-host macro"
   _conf = ["""
-  <test-install>
-    <script id='test' type='post'>
-    <!--comment-->
-    echo "test to ensure comments work inside script elements"
-    </script>
-  </test-install>
-  """]
+<packages><package>kernel</package></packages>
+""",
+"""
+<test-install>
+<script id='test' type='pre'>
+echo %{ssh-host}
+</script>
+</test-install>
+"""]
+  
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.eventid)
+    print self.event.io.list_output(what='test')[0].read_text()
+    self.failIf("%{ssh-host}" in 
+                self.event.io.list_output(what='test')[0].read_text())
 
+class TestInstallDeployEventTestCase(DeployMixinTestCase,
+                                     TestInstallEventTestCase):
+   pass                                  
 
-class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
+class Test_ErrorOnDuplicateIds(TestInstallDeployEventTestCase):
   "raises an error if multiple scripts provide the same id"
 
   def runTest(self):
@@ -63,8 +125,9 @@ class Test_ErrorOnDuplicateIds(TestInstallEventTestCase):
     self.failUnlessRaises(DeployError, self.event)
 
 
-class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
-  "test comes-before and comes-after"
+
+class Test_ComesBeforeComesAfter(TestInstallDeployEventTestCase):
+  "comes-before and comes-after resolve correctly"
 
   def runTest(self):
     parent = self.event.config.getxpath('.')
@@ -91,7 +154,7 @@ class Test_ComesBeforeComesAfter(TestInstallEventTestCase):
     self.failUnless('id3' in ids[:test_comes_id] and 
                     'id4' in ids[test_comes_id+1:])
 
-class ReinstallTestInstallEventTestCase(TestInstallEventTestCase):
+class ReinstallTestInstallEventTestCase(TestInstallDeployEventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
     DeployMixinTestCase.setUp(self)
@@ -189,9 +252,12 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(psm_make_suite(TestInstallSetupEventTestCase, os, version, arch))
 
   # deploy
-  suite.addTest(make_extension_suite(TestInstallEventTestCase, os, version,
-                arch, offline=False))
+  suite.addTest(make_extension_suite(TestInstallDeployEventTestCase, os, 
+                version, arch, offline=False))
   suite.addTest(Test_ErrorOnDuplicateIds(os, version, arch))
+  suite.addTest(Test_CommentsInScripts(os, version, arch))
+  suite.addTest(Test_HostnameFile(os, version, arch))
+  suite.addTest(Test_SshHost(os, version, arch))
   suite.addTest(Test_ComesBeforeComesAfter(os, version, arch))
   suite.addTest(Test_ReinstallOnReleaseRpmChange(os, version, arch))
   suite.addTest(Test_ReinstallOnConfigRpmChange(os, version, arch))
@@ -201,6 +267,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_ReinstallOnPostInstallScriptChange(os, version, arch))
   suite.addTest(Test_ReinstallOnSaveTriggersScriptChange(os, version, arch))
   # dummy test to shutoff vm
-  suite.addTest(dm_make_suite(TestInstallEventTestCase, os, version, arch, ))
+  suite.addTest(dm_make_suite(TestInstallDeployEventTestCase, os, version, 
+                              arch))
 
   return suite

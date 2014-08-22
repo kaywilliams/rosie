@@ -113,7 +113,7 @@ options="
 -o TCPKeepAlive=no
 "
 
-rpms=$(ssh %{fqdn} $options find %{build-dir}/RPMS -name "*.rpm")
+rpms=$(ssh %{ssh-host} $options find %{build-dir}/RPMS -name "*.rpm")
 
 for rpm in $rpms; do
   copy=true
@@ -125,7 +125,7 @@ for rpm in $rpms; do
     fi
   done
   if [[ $copy == true ]]; then
-    echo "get $rpm %{rpms-dir}" | sftp -b - $options %{fqdn}
+    echo "get $rpm %{rpms-dir}" | sftp -b - $options %{ssh-host}
   fi
 done
 </script>

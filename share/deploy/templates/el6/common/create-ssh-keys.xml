@@ -6,5 +6,5 @@ set -e
 function create_ssh_keys {
 <xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
 }
-create_ssh_keys %{data-dir} %{fqdn}
+create_ssh_keys %{data-dir} %{ssh-host}
 </script>

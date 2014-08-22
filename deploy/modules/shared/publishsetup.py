@@ -38,6 +38,9 @@ from deploy.util.rxml  import config
 DEFAULT_LOCALROOT = '/var/www/html/deploy'
 DEFAULT_WEBROOT = 'http://%{build-host}/deploy'
 
+__all__ = ['PublishSetupEventMixin', 'validate_hostname', 
+           'InvalidHostnameError']
+
 class PublishSetupEventMixin(Event):
   publish_mixin_version = "1.01"
 
@@ -128,7 +131,6 @@ class PublishSetupEventMixin(Event):
 fi""" % (self.localpath, self.localpath))
 
 
-  #------ Helper Methods ------#
   def get_local(self):
     if self.moduleid in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_LOCALROOT, self.type)
@@ -229,31 +231,10 @@ fi""" % (self.localpath, self.localpath))
     # sensitivity issues
     hostname = hostname.replace('_', '-').lower()
 
-    # validate hostname
-    if len(hostname + self.domain) > 255:
-      message = "'%s' exceeds 255 characters" % hostname
-      raise InvalidHostnameError(message)
-    if hostname.endswith("."): # A single trailing dot is legal
-      hostname = hostname[:-1] # strip trailing dot, if present
+    validate_hostname(hostname, self.domain)
 
-    disallowed = re.compile("[^a-z\d-]")
-    for label in hostname.split("."):
-      if label and not len(label) <= 63: # length is not within proper range
-        message = "'%s' exceeds 63 characters" % label
-        raise InvalidHostnameError(message)
-      if label.startswith("-"):
-        message = "'%s' cannot start with '-'" % label
-        raise InvalidHostnameError(message)
-      if label.endswith("-"): # no bordering hyphens
-        message = "'%s' cannot end with '-'" % label
-        raise InvalidHostnameError(message)
-      if disallowed.search(label): # contains only legal characters
-        message = ( "'%s' contains an invalid character. "
-                    "Valid characters are a-z, 0-9 and '-'." % label )
-        raise InvalidHostnameError(message)
-
-    # if we got through the above, then the hostname is valid
     return hostname
+
 
   def get_domain(self):
     domain = self.config.getxpath('domain/text()', '')
@@ -339,6 +320,9 @@ fi""" % (self.localpath, self.localpath))
     if len(parent) == 0: parent.getparent().remove(parent)
     self.write_datfile(root=root)
 
+
+#------ Helper Methods ------#
+
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like
 def get_ipaddr(ifname='eth0'):
@@ -375,6 +359,32 @@ def get_interfaces():
                socket.inet_ntoa(namestr[i+20:i+24]) )
              for i in range(0, outbytes, roffset) ] )
 
+def validate_hostname(hostname, domain=''):
+  '''
+  Validates a hostname and optional domain. Domain, if provided, 
+  should include a preceding '.'
+  '''
+  if len(hostname + domain) > 255:
+    message = "'%s' exceeds 255 characters" % hostname
+    raise InvalidHostnameError(message)
+  if hostname.endswith("."): # A single trailing dot is legal
+    hostname = hostname[:-1] # strip trailing dot, if present
+
+  disallowed = re.compile("[^a-z\d-]")
+  for label in hostname.split("."):
+    if label and not len(label) <= 63: # length is not within proper range
+      message = "'%s' exceeds 63 characters" % label
+      raise InvalidHostnameError(message)
+    if label.startswith("-"):
+      message = "'%s' cannot start with '-'" % label
+      raise InvalidHostnameError(message)
+    if label.endswith("-"): # no bordering hyphens
+      message = "'%s' cannot end with '-'" % label
+      raise InvalidHostnameError(message)
+    if disallowed.search(label): # contains only legal characters
+      message = ( "'%s' contains an invalid character. "
+                  "Valid characters are a-z, 0-9 and '-'." % label )
+      raise InvalidHostnameError(message)
 
 #------ Error Classes ------#
 class InterfaceIOError(DeployEventError):

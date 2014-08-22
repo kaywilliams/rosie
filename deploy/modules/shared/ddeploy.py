@@ -28,7 +28,8 @@ from deploy.util import resolve
 from deploy.util.pps.Path.error import PathError
 
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
-                                   ScriptFailedError, SSHScriptFailedError)
+                                   ScriptFailedError, SSHScriptFailedError,
+                                   validate_hostname, InvalidHostnameError)
 
 from deploy.util.graph import DirectedNodeMixin
 
@@ -64,12 +65,15 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.cvar_root = '%s-setup-options' % self.moduleid
 
     self.webpath = self.cvars[self.cvar_root]['webpath']
+    self.ssh_host_file = self.datfn.dirname / 'ssh-host' 
 
     # get os_url - same as webpath unless user specified in the definition
     self.os_url = pps.path(self.config.getxpath('os-url/text()', None))
     if not self.os_url:
       self.os_url = self.webpath
-    self.resolve_macros(map={'%{os-url}': self.os_url})
+
+    self.resolve_macros(map={'%{os-url}': self.os_url,
+                             '%{ssh-host-file}': self.ssh_host_file})
 
     # add repomd as input file
     if self.track_repomd:
@@ -85,20 +89,18 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       )
 
     # set ssh host defaults
-    self.deploy_client = self.cvars[self.cvar_root]['fqdn']
     self.hostname_defaults = { 
                            'pre': 'localhost',
-                           'test-triggers': self.deploy_client,
+                           'test-triggers': '%{ssh-host}',
                            'activate': 'localhost',
                            'delete': 'localhost',
                            'pre-install': 'localhost', 
                            'install': 'localhost',
-                           'post-install': self.deploy_client, 
-                           'save-triggers': self.deploy_client, 
-                           'update': self.deploy_client, 
-                           'post': self.deploy_client
+                           'post-install': '%{ssh-host}', 
+                           'save-triggers': '%{ssh-host}', 
+                           'update': '%{ssh-host}', 
+                           'post': '%{ssh-host}'
                            }
-    self.DATA['variables'].extend(['deploy_client'])
 
     # setup types - do this before trigger macro resolution
     self.scripts = {} 
@@ -334,9 +336,14 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       cmd = self.io.list_output(what=script.id)[0]
       self.log(1, L1('running %s script' % script.id))
 
+      # resolve %{ssh-host} macros in script
+      ssh_host = self._resolve_ssh_host_macros(cmd)
+
+      # get SSHParameters
       params = SSHParameters(self, type)
       params['hostname'] = script.hostname or params['hostname']
 
+      # local script
       if params['hostname'] == 'localhost':
         # execute script on local machine
         for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
@@ -348,7 +355,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._local_execute(self.deploydir/cmd.basename, cmd_id=script.id,
                             verbose=script.verbose)
 
+      # ssh script
       else:
+        if params['hostname'] == '%{ssh-host}': 
+          params['hostname'] = ssh_host
+
         # create scriptdir
         try:
           create_script = ("'for d in %s %s %s; do "
@@ -380,6 +391,27 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._ssh_execute(cmd, cmd_id=script.id, params=params, 
                           verbose=script.verbose)
 
+  def _resolve_ssh_host_macros(self, cmd):
+    if self.ssh_host_file.exists():
+      try:
+        ssh_host = self.ssh_host_file.read_text().strip()
+      except Exception as e:
+        message = ("Unable to read hostname file '%s'. The error was '%s'"
+                   % (self.ssh_host_file, e))
+        raise SshHostFileError(msg=message)
+      # validate hostname, unless it is an ipaddress
+      if not re.match(ssh_host, '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'):
+        try:
+          validate_hostname(ssh_host)
+        except InvalidHostnameError as e:
+          message = ("Invalid Hostname in ssh-host-file at '%s'. The error "
+                     "was %s" % (self.ssh_host_file, e))
+          raise SshHostFileError(msg=message)
+    else:
+      ssh_host = self.cvars[self.cvar_root]['fqdn']
+    cmd.write_text(cmd.read_text().replace('%{ssh-host}', ssh_host))
+
+    return ssh_host
 
 class Script(resolve.Item, DirectedNodeMixin):
   def __init__(self, id, hostname, verbose, xpath, csum, comes_before,
@@ -425,8 +457,11 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
+class SshHostFileError(DeployEventError):
+  message = "%(msg)s"
+
 class RemoteFileCreationError(DeployEventError):
-  message = ("%(msg)s")
+  message = "%(msg)s"
 
 class InvalidDistroError(DeployEventError):
   message = ("The repository at '%(system)s' does not appear to be "
