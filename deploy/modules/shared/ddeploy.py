@@ -337,13 +337,17 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self.log(1, L1('running %s script' % script.id))
 
       # resolve %{ssh-host} macros in script
-      ssh_host = self._resolve_ssh_host_macros(cmd)
+      script_text = cmd.read_text()
+      if '%{ssh-host}' in script_text:
+        cmd.write_text(script_text.replace('%{ssh-host}', 
+                       get_ssh_host(self.ssh_host_file,
+                                    self.cvars[self.cvar_root]['fqdn'])))
 
       # get SSHParameters
       params = SSHParameters(self, type)
       params['hostname'] = script.hostname or params['hostname']
 
-      # local script
+      # execute local script
       if params['hostname'] == 'localhost':
         # execute script on local machine
         for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
@@ -355,10 +359,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._local_execute(self.deploydir/cmd.basename, cmd_id=script.id,
                             verbose=script.verbose)
 
-      # ssh script
+      # execute ssh script
       else:
-        if params['hostname'] == '%{ssh-host}': 
-          params['hostname'] = ssh_host
 
         # create scriptdir
         try:
@@ -391,27 +393,27 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._ssh_execute(cmd, cmd_id=script.id, params=params, 
                           verbose=script.verbose)
 
-  def _resolve_ssh_host_macros(self, cmd):
-    if self.ssh_host_file.exists():
+#----- Helper Methods -----#
+def get_ssh_host(ssh_host_file, fqdn):
+  if ssh_host_file.exists():
+    try:
+      ssh_host = ssh_host_file.read_text().strip()
+    except Exception as e:
+      message = ("Unable to read hostname file '%s'. The error was '%s'"
+                 % (ssh_host_file, e))
+      raise SshHostFileError(msg=message)
+    # validate hostname, unless it is an ipaddress
+    if not re.match(ssh_host, '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'):
       try:
-        ssh_host = self.ssh_host_file.read_text().strip()
-      except Exception as e:
-        message = ("Unable to read hostname file '%s'. The error was '%s'"
-                   % (self.ssh_host_file, e))
+        validate_hostname(ssh_host)
+      except InvalidHostnameError as e:
+        message = ("Invalid Hostname in ssh-host-file at '%s'. The error "
+                   "was %s" % (ssh_host_file, e))
         raise SshHostFileError(msg=message)
-      # validate hostname, unless it is an ipaddress
-      if not re.match(ssh_host, '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'):
-        try:
-          validate_hostname(ssh_host)
-        except InvalidHostnameError as e:
-          message = ("Invalid Hostname in ssh-host-file at '%s'. The error "
-                     "was %s" % (self.ssh_host_file, e))
-          raise SshHostFileError(msg=message)
-    else:
-      ssh_host = self.cvars[self.cvar_root]['fqdn']
-    cmd.write_text(cmd.read_text().replace('%{ssh-host}', ssh_host))
+  else:
+    ssh_host = fqdn 
 
-    return ssh_host
+  return ssh_host
 
 class Script(resolve.Item, DirectedNodeMixin):
   def __init__(self, id, hostname, verbose, xpath, csum, comes_before,
@@ -438,7 +440,10 @@ class SSHParameters(DictMixin):
     self.params = {}
     for param,value in ptr.ssh.items():
       if param == 'hostname':
-        self.params[param] = ptr.hostname_defaults[type]
+        self.params['hostname'] = ptr.hostname_defaults[type]
+        if self.params['hostname'] == '%{ssh-host}': 
+           self.params['hostname'] = \
+           get_ssh_host(ptr.ssh_host_file, ptr.cvars[ptr.cvar_root]['fqdn'])
       else:
         self.params[param] = value
 
