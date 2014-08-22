@@ -102,7 +102,6 @@ echo %{ssh-host}
   
   def runTest(self):
     self.tb.dispatch.execute(until=self.eventid)
-    print self.event.io.list_output(what='test')[0].read_text()
     self.failIf("%{ssh-host}" in 
                 self.event.io.list_output(what='test')[0].read_text())
 
