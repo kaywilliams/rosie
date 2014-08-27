@@ -73,8 +73,6 @@ class PublishSetupEventMixin(Event):
     self.fqdn = self.hostname + self.domain 
     self.password = self.get_password()
     self.crypt_password = self.get_cryptpw(self.password)
-    self.ssh = self.config.getbool('ssh/text()', True)
-    self.ssh_passphrase = self.config.getxpath('ssh-passphrase/text()', '')
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
