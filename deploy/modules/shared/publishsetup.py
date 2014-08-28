@@ -102,9 +102,8 @@ class PublishSetupEventMixin(Event):
     # set cvars
     cvars_root = '%s-setup-options' % self.moduleid
     self.cvars[cvars_root] = {}
-    for attribute in ['hostname', 'domain', 'fqdn', 'password', 'ssh',
-                      'ssh_passphrase', 'localpath', 'webpath', 'build_host',
-                      'boot_options']:
+    for attribute in ['hostname', 'domain', 'fqdn', 'password', 'localpath',
+                      'webpath', 'build_host', 'boot_options']:
       self.cvars[cvars_root][attribute.replace('_','-')] = \
                       eval('self.%s' % attribute)
 
