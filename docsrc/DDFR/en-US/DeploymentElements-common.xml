@@ -353,7 +353,7 @@
       <emphasis>@interface</emphasis>: TEXT value specifying the network
       interface name, e.g. "eth1", from which to obtain the
       <varname>%{build-host}</varname> of the repository.  This attribute only
-      has an effect if <emphasis>remote-url/@fqdn</emphasis> is
+      has an effect if <emphasis>@fqdn</emphasis> is
       <constant>FALSE</constant>.
       </para>
       
@@ -618,7 +618,7 @@ $remote-url/%{id}</programlisting>
 
       <informalexample>
       <programlisting>
-&lt;remote-url fqdn="true"&gt;https://%{build-host}/deploy/systems/&lt;/remote-url&gt;</programlisting>
+&lt;remote-url&gt;https://%{build-host}/deploy/systems/&lt;/remote-url&gt;</programlisting>
       </informalexample>
 
       <para>
