@@ -23,9 +23,16 @@ for additional information.
 
 <requires>python-pip</requires>
 
+<!-- required for building rackspace-novaclient dependency 
+     (lxml.etree extension)-->
+<requires>gcc</requires>
+<requires>python-devel</requires>
+<requires>libxslt-devel</requires>
+
 <script type='post'>
 python-pip list | grep -q rackspace-novaclient || \
-python-pip install rackspace-novaclient
+info=`python-pip install rackspace-novaclient` || \
+{ echo $info >&amp;2; exit 1; }
 </script>
 
 <files destdir="/root/rackspace" destname='rackspace_admin' content='text'
