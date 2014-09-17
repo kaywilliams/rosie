@@ -128,7 +128,7 @@ set -e
 %%{source-guestname}
 
 file=%(buildroot)s/$(basename %(location)s)
-wget -q -O $file %(location)s
+curl -s -o $file %(location)s
 chcon -t httpd_sys_content_t $file
 
 virt-install \

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-config'>
 <requires>createrepo</requires>
+<requires>curl</requires>
 <requires>deploy-httpd-config</requires>
 <requires>deploy-libvirt-config</requires>
 <requires>dosfstools</requires>
@@ -24,5 +25,4 @@
 <requires>xz</requires>
 <requires>/usr/bin/make</requires>
 <requires>/usr/bin/rpmsign</requires>
-<requires>/usr/bin/wget</requires>
 </config-rpm>
