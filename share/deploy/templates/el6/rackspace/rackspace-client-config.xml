@@ -20,8 +20,10 @@ for additional information.
 <!-- required for python-pip package -->
 <xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
             xpointer="xpointer(./repo[@id='epel'])"/>
-
 <requires>python-pip</requires>
+
+<!-- required for secure repository access -->
+<requires>mod_ssl</requires>
 
 <!-- required for building rackspace-novaclient dependency 
      (lxml.etree extension)-->
