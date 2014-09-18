@@ -114,6 +114,8 @@ class DeployEventError(DeployError):
         raise TypeError("__init__() takes exactly %d arguments (%d given)"
                         % (len(req_args), req_arg_i))
 
+    else:
+      self.message = args[0]
 
   def __str__(self):
     return self.message % self.map

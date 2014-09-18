@@ -17,8 +17,10 @@
 #
 
 import shelve as Shelve
+import bsddb
 
 from deploy.event import Event
+from deploy.errors import DeployEventError
 
 __all__ = ['ShelveMixin']
 
@@ -42,10 +44,18 @@ class ShelveMixin(Event):
     "use this method in the apply function to restore it"
     if self.shelvefile.exists():
       d = Shelve.open(self.shelvefile)
-      if d.has_key(key):
-        unshelved = d[key]
-      else: unshelved = default
-      d.close
+      try:
+        if d.has_key(key):
+          unshelved = d[key]
+        else: 
+          unshelved = default
+      except bsddb.db.DBPageNotFoundError:
+        # db is corrupt, recover gracefully
+        self.shelvefile.rm(force=True)
+        raise DeployEventError("Deploy detected and repaired a corrupt cache "
+                               "file. Please try again.")
+      finally:
+        d.close
     else:
       unshelved = default
 
