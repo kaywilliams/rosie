@@ -261,8 +261,8 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
   def get_preun(self):
     return self._make_script(self._process_script('preun'), 'preun')
   def get_postun(self):
-    scripts = self._process_script('postun')
-    scripts.append(self._mk_postun())
+    scripts = [self._mk_postun()]
+    scripts.extend(self._process_script('postun'))
     return self._make_script(scripts, 'postun')
   def get_verifyscript(self):
     return self._make_script(self._process_script('verifyscript'), 'verifyscript')
@@ -384,7 +384,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     script += '\n'
     script += ('changed=\"$changed `diff $md5file $md5file.prev | '
                'grep -o \'\/.*\' | '
-               'sed -e \"s|$s||g\" | tr \'\\n\' \' \'`\"\n')
+               'sed -e \"s|^$s||g\" | tr \'\\n\' \' \'`\"\n')
     script += '\n'
 
     file = self.debug_postfile[len(self.rpm.source_folder):]
@@ -463,10 +463,8 @@ if [ -e $mkdirs ]; then
   #second pass to remove dirs from mkdirs file
   for f in `cat $mkdirs`; do
     if [ ! -e $f ] ; then
-      sed -i s!$f\$!!g $mkdirs
+      sed -i "\|^$f$|d" $mkdirs
     fi
-  # third pass to remove empty lines from mkdirs
-  sed -i /$/d $mkdirs
   done
 fi
 

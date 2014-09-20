@@ -432,7 +432,7 @@ rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
         <para>
         <emphasis>@destdir</emphasis>: Controls the location to which this file
         or folder should be installed on client machines. The default value is
-        <filename>%{install-dir}/files</filename>. See <xref
+        <filename>"/"</filename>. See <xref
         linkend="destdir"/> for more information on the destdir attribute.
         </para>
 
