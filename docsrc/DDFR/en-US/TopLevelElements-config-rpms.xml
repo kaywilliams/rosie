@@ -391,6 +391,18 @@ rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
         <para>
         Can occur zero or more times.
         </para>
+
+        <para>
+        Accepts one attribute: <emphasis>@verbose</emphasis>.
+        </para>
+
+        <para>
+        <emphasis>@verbose:</emphasis> BOOLEAN value indicating whether the
+        Standard Output from the script should be displayed as output from
+        Deploy. This attribute is optional. The default value is
+        <constant>FALSE</constant>. See <xref linkend="content-boolean"/> for
+        information on BOOLEAN values.
+        </para>
         </listitem>
       </varlistentry>
 
