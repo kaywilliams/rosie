@@ -144,7 +144,7 @@ EOF""" % (name, pubring, secring)
 
     rngd = pps.path('/sbin/rngd')
 
-    self.logger.log(2, L1('generating GPG Signing Key'))
+    self.logger.log(2, L1('generating GPG signing key'))
     if rngd.exists():
       # use rngd to speed gpgkey generation, slightly less secure, but
       # sufficient for RPM-GPG-KEY scenarios.
