@@ -61,15 +61,6 @@ class SshSetupEvent(Event):
       except shlib.ShExecError:
         pass
 
-    # enable ssh to local machine
-    authkeys = sshdir / 'authorized_keys'
-    if not authkeys.exists(): authkeys.touch()
-    authkeys.chmod(0600)
-
-    pubkey = (keyfile + '.pub').read_text()
-    if not pubkey in authkeys.read_text():
-      authkeys.write_text(authkeys.read_text() + pubkey)
-    
     self._config.resolve_macros(map={'%{build-host-pubkey}': 
                                      (keyfile + '.pub').read_text()})
 
