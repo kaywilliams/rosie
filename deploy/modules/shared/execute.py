@@ -141,9 +141,9 @@ class ExecuteEventMixin:
     ConnectionTimeout - set this to a high value (2 minutes) to prevent
          'Name or service not known' and 'No route to host' errors while
          system is booting.
-    ConnectionAttempts - set this to a high value (2 minutes) also to prevent
-         'Connection refused' errors after the system has booted but before
-         the ssh daemon is up.
+    ConnectionAttempts - set this to a high value (3 - the default is 1)
+         to prevent 'Connection refused' errors after the system has booted
+         but before the ssh daemon is up.
     """
     return ' '.join(["-o", "BatchMode=yes",
                      "-o", "StrictHostKeyChecking=no",
@@ -151,7 +151,7 @@ class ExecuteEventMixin:
                      "-o", "IdentityFile=%s" % key_filename,
                      "-o", "Port=%s" % port,
                      "-o", "ConnectTimeout=120", 
-                     "-o", "ConnectionAttempts=120",
+                     "-o", "ConnectionAttempts=3",
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
                      "-o", "TCPKeepAlive=no",
