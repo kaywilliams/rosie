@@ -17,7 +17,7 @@ virt-install \
   --graphics %{graphics} \
   --disk path=/var/lib/libvirt/images/$guestname.img,size=%{file-size},format=%{image-format} \
   --network network=deploy \
-  --location %{os-url} \
+  --location %{url} \
   --extra-args "%{boot-options} ks=%{url}/ks.cfg" \
   --force \
   --wait=-1 \

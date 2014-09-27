@@ -14,7 +14,7 @@ echo "ensure we're using the latest repo.conf"
 repodir="/etc/yum.repos.d"
 mv $repodir/%{name}.repo $repodir/%{name}.repo.bak 2>/dev/null || \
   true #ignore missing
-curl -s -o $repodir/%{name}.repo %{os-url}/repo.conf        
+curl -s -o $repodir/%{name}.repo %{url}/repo.conf        
 rm -f $repodir/%{name}.repo.bak
 
 echo "echo: run yum command(s), checking output for scriptlet failed errors"

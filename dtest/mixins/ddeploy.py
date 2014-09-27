@@ -142,7 +142,7 @@ virt-install \
              --force \
              --wait=-1 \
              --noreboot
-    """ % {'location': '%%{os-url}/%s' % location,
+    """ % {'location': '%%{url}/%s' % location,
            'buildroot': self.buildroot}
 
     root.resolve_macros(map=self.macros)

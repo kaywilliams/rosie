@@ -51,7 +51,6 @@
   [&lt;build-host [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/build-host&gt;]
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
   [&lt;remote-url&gt;[TEXT]&lt;/remote-url&gt;]
-  [&lt;os-url&gt;[TEXT]&lt;/os-url&gt;]
 
   [&lt;hostname&gt;TEXT&lt;/hostname&gt;]
   [&lt;domain&gt;TEXT&lt;/domain&gt;]
@@ -137,16 +136,6 @@
     </row>
 
     <row>
-    <entry id='os-url-macro'>
-    %{os-url}
-    </entry>
-
-    <entry>
-    Same as %{url} described above, unless otherwise defined using the <xref
-    linkend='os-url'/> element.
-    </entry>
-    </row>
-    <row>
     <entry>
     %{hostname}
     </entry>
@@ -180,15 +169,6 @@
     concatenating the values of the <xref linkend='hostname'/> and <xref
     linkend='domain'/> macros.
     </para>
-
-    <para>
-    Used for establishing an SSH connection to a client machine prior to
-    executing scripts where the <emphasis>@ssh</emphasis> attribute is set to
-    <constant>TRUE</constant>, i.e. <emphasis>post-install</emphasis>,
-    <emphasis>save-trigger</emphasis>, and <emphasis>post</emphasis>-type
-    scripts.
-    </para>
-
     </entry>
     </row>
 
@@ -222,6 +202,46 @@
     <entry>
     Options to be provided to the installer during system boot. Corresponds to
     the value of the <xref linkend='boot-options'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{ssh-host}
+    </entry>
+
+    <entry>
+    <para>
+    Hostname or ipaddress used for establishing an SSH connection to a client
+    machine prior to executing scripts where the <emphasis>@hostname</emphasis>
+    attribute is set to <constant>%{ssh-host}</constant>, i.e.
+    <emphasis>post-install</emphasis>, <emphasis>save-trigger</emphasis>, and
+    <emphasis>post</emphasis>-type scripts.
+    </para>
+   
+    <para>
+    The default value is %{fqdn}. Scripts can override the default value by
+    creating a file in the location specified by %{ssh-host-file}. The file
+    should contain a single value specifying the desired hostname or ipaddress.
+    </para>
+
+    <para>
+    See the <xref linkend='script-hostname'/> attribute of the script element
+    for more information.
+    </para>
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{ssh-host-file}
+    </entry>
+
+    <entry>
+    <para>
+    PATH to a file where Deploy should read the hostname to be used for
+    establishing SSH connections to a client machine.
+    </para>
     </entry>
     </row>
 
@@ -632,23 +652,6 @@ $remote-url/%{id}</programlisting>
       <filename>https://repos.company.com/deploy/systems/samba-server-6-i386</filename>
       </para>
       </listitem>
-    </varlistentry>
-
-    <varlistentry id='os-url'>
-    <term>os-url</term>
-
-    <listitem>
-    <para>
-    Text value specifing a location for accessing an operating system
-    installation tree. 
-    </para>
-
-    <para>
-    This element is optional. The default value is %{url} as described
-    under <xref linkend='remote-url'/>.
-    </para>
-    </listitem>
-
     </varlistentry>
 
     <varlistentry id='hostname'>
@@ -1762,12 +1765,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <para>
       For the <emphasis>publish</emphasis> event, this script is useful for
-      copying published repositories to remote download servers. It
-      can also be used to integrate repositories with enterprise systems
-      management systems, for example to sync repository content with
-      software channels in Red Hat Network or Spacewalk. In scenarios such as
-      these, it is necessary to set the <emphasis>@ssh</emphasis> attribute to
-      a false value.
+      copying published repositories to remote download servers. It can also be
+      used to integrate repositories with enterprise systems management
+      systems, for example to sync repository content with software channels in
+      Red Hat Network or Spacewalk. In scenarios such as these, it is necessary
+      to set the <emphasis>@hostname</emphasis> attribute to the value
+      "localhost".
       </para>
 
       <para>
@@ -1828,14 +1831,67 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </para>
 
       <para>
+      The <emphasis>hostname</emphasis> attribute is optional. The default
+      values vary by script type and are shown in the table below:
+      </para>
+
+      <para>
+      <informaltable>
+      <tgroup cols='2'>
+      <colspec colwidth='35%'/>
+      <tbody valign='top'>
+      <row>
+      <entry><emphasis role='strong'>Script Type</emphasis></entry>
+      <entry><emphasis role='strong'>Default Value</emphasis></entry>
+      </row>
+      <row>
+      <entry>pre, activate, delete, pre-install, install</entry>
+      <entry>localhost</entry>
+      </row>
+      <row>
+      <entry>test-triggers, post-install, save-triggers, post</entry>
+      <entry>%{ssh-host}</entry>
+      </row>
+      </tbody>
+      </tgroup>
+      </informaltable>
+      </para>
+
+      <para>
       If the hostname is <constant>localhost</constant>, the script will be
-      executed on the local machine.
+      executed on the local machine. Otherwise, the script will be executed 
+      on the specified host using SSH.
+      </para>
+
+      <para>
+      The value of %{ssh-host} is determined by first attempting to read a file
+      at the location specified by %{ssh-host-file}. If this file does not
+      exist, the value of %{fqdn} is used. The %{ssh-host-file} provides a
+      mechanism for scripts, typically an install-type script, to specify the
+      client hostname or IP address at runtime. This is useful if the client is
+      not accessible, or not immediately accessible, via DNS. The file can be
+      created by outputting the hostname or IP address to a file at the
+      location specified by the macro, for example:
+
+      <programlisting>
+&lt;script name='install' type='install'>
+...
+ipaddress="address_of_installed_client"
+echo $ipaddress > %{ssh-host-file}
+...
+&lt;/script>
+      </programlisting>
       </para>
       
       <para>
-      Otherwise, the script will be executed on the host machine using SSH. In
-      this case, the specified machine must be configured to accept SSH
-      connections. Deploy supports public key authentication for SSH
+      See the <link linkend="deployment-macros">Deployment Macros</link>
+      section for more information on the %{fqdn}, %{ssh-host} and
+      %{ssh-host-file} macros.
+      </para>
+
+      <para>
+      Hosts specified using the @hostname attribute must be configured to
+      accept SSH connections. Deploy supports public key authentication for SSH
       connections. Before performing the connection, Deploy will check to see
       if SSH has been configured for the root user on the build machine. It
       does this by testing for the existence of a file named
@@ -1878,30 +1934,6 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       the script <xref linkend='script-id'/> attribute.
       </para>
 
-      <para>
-      The <emphasis>hostname</emphasis> attribute is optional. The default
-      values vary by script type and are shown in the table below:
-      </para>
-
-      <informaltable>
-      <tgroup cols='2'>
-      <colspec colwidth='35%'/>
-      <tbody valign='top'>
-      <row>
-      <entry><emphasis role='strong'>Script Type</emphasis></entry>
-      <entry><emphasis role='strong'>Default Value</emphasis></entry>
-      </row>
-      <row>
-      <entry>pre, activate, delete, pre-install, install</entry>
-      <entry>localhost</entry>
-      </row>
-      <row>
-      <entry>test-triggers, post-install, save-triggers, post</entry>
-      <entry>%{fqdn}</entry>
-      </row>
-      </tbody>
-      </tgroup>
-      </informaltable>
       </listitem>
       </varlistentry>
 

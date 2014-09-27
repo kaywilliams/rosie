@@ -37,6 +37,7 @@ class RepomdMixin:
   repomd_mixin_version = "1.00"
 
   def __init__(self, *args, **kwargs):
+    self.provides.add('%s-setup-options' % self.moduleid)
     if self.type == 'system':
       self.requires.add('installer-repo')
 
@@ -56,6 +57,15 @@ class RepomdMixin:
         'productid' in self.cvars['installer-repo'].datafiles):
       self.DATA['variables'].append(
         'cvars[\'installer-repo\'].datafiles[\'productid\'][0].checksum')
+
+    # add repomdfile to setup-options for use by deploy event
+    if self.moduleid in ['test-install', 'test-update']:
+      module = self.moduleid
+    else:
+      module = 'publish'
+    self.cvars.setdefault('%s-setup-options' % module, {})\
+                          ['repomdfile'] = self.repomdfile
+
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True, checksum=None):

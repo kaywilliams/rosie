@@ -49,7 +49,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.requires.add('sshsetup')
     self.requires.add('%s-setup-options' % self.moduleid)
     self.conditionally_requires.update(['rpmbuild-data', 'release-rpm',
-                                        'config-rpms', 'srpmbuild', 
+                                        'config-rpms', 'srpmbuild',
+                                        'treeinfo-text',
                                         '%s-ksname' % self.moduleid,
                                         '%s-ksfile' % self.moduleid])
     self.reinstall = reinstall # forces reinstall on event run
@@ -65,19 +66,15 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.cvar_root = '%s-setup-options' % self.moduleid
 
     self.webpath = self.cvars[self.cvar_root]['webpath']
-    self.ssh_host_file = self.datfn.dirname / 'ssh-host' 
+    self.ssh_host_file = self.datfn.dirname / 'ssh-host-%s' % self.moduleid
 
-    # get os_url - same as webpath unless user specified in the definition
-    self.os_url = pps.path(self.config.getxpath('os-url/text()', None))
-    if not self.os_url:
-      self.os_url = self.webpath
-
-    self.resolve_macros(map={'%{os-url}': self.os_url,
-                             '%{ssh-host-file}': self.ssh_host_file})
+    self.resolve_macros(map={
+      '%{ssh-host-file}': self.ssh_host_file,
+      '%{local-dir}': self.cvars[self.cvar_root]['localpath']})
 
     # add repomd as input file
     if self.track_repomd:
-      self._track_repomdfile()
+      self.DATA['input'].append(self.cvars[self.cvar_root]['repomdfile'])
 
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')
@@ -205,20 +202,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
  
  
   #------ Helper Functions ------#
-  def _track_repomdfile(self):
-    mdfile = 'repodata/repomd.xml'
-    self.repomdfile = self.os_url / mdfile
-    try:
-      self.link(self.repomdfile, self.mddir) # cache for offline support
-    except PathError, e:
-      if e.errno == errno.ENOENT:
-        raise InvalidDistroError(self.os_url, mdfile)
-      else: raise
-    # we should just list self.repomdfile as input, but for some reason
-    # this results in file mode differences between runs. Need to figure
-    # this out later.
-    self.DATA['input'].append(self.mddir/self.repomdfile.basename)
-
   def _get_csum(self, text):
     return hashlib.md5(text).hexdigest()
 
@@ -246,26 +229,16 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       return self._get_csum('')
 
   def _get_kickstart_csum(self):
-    ksname = self.cvars['%s-ksname' % self.moduleid]
-    if ksname and (self.webpath/ksname).exists():
-      try:
-        kstext = (self.webpath/ksname).read_text() # exists() reports true for 
-                                                   # 404 errors
-      except PathError:
-        kstext = ''
+    ksfile = self.cvars['%s-ksfile' % self.moduleid]
+    if ksfile:
+      kstext = ksfile.read_text()
     else:
       kstext = ''
     return self._get_csum(kstext)
 
   def _get_treeinfo_csum(self):
-    tifile = self.os_url / '.treeinfo'
     if not self.type == 'package':
-      try:
-        return self._get_csum(tifile.read_text())
-      except PathError, e:
-        if e.errno == errno.ENOENT:
-          raise InvalidDistroError(self.os_url, tifile)
-        else: raise
+      return self._get_csum(self.cvars['treeinfo-text'])
     else:
       return self._get_csum('')
 
@@ -467,10 +440,6 @@ class SshHostFileError(DeployEventError):
 
 class RemoteFileCreationError(DeployEventError):
   message = "%(msg)s"
-
-class InvalidDistroError(DeployEventError):
-  message = ("The repository at '%(system)s' does not appear to be "
-             "valid. The following file could not be found: '%(missing)s'")
 
 class InvalidTriggerNameError(DeployEventError):
   message = ("Invalid character in trigger name '%(trigger)s'. Valid "
