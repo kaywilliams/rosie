@@ -30,10 +30,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   release_mixin_version = "1.29"
 
   def __init__(self): # call after creating self.DATA
-    try:
-      self.rpmconf = self._config.getxpath('./publish/release-rpm')
-    except rxml.errors.XmlPathError:
-      self.rpmconf = DummyConfig(self._config)
+    self.rpmconf = self.config.getxpath('release-rpm', 
+                                        DummyConfig(self._config))
 
     self.conditionally_requires.add('packages')
     self.conditionally_requires.add('gpg-signing-keys')
@@ -43,11 +41,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             force_release=None):
     self.DATA['variables'].append('release_mixin_version')
-    try:
-      self.DATA['config'].append(self._config.getroottree(
-                                 ).getpath(self.rpmconf))
-    except TypeError:
-      pass # Dummy Config
+    self.DATA['config'].append('release-rpm')
 
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
@@ -91,7 +85,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
       self.plugin_conf_hash = hashlib.sha224('/n'.join(
                               self.plugin_conf_lines)).hexdigest()
       self.DATA['variables'].extend(['plugin_hash', 'plugin_conf_hash'])
-
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
@@ -155,6 +148,9 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
       lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
+      if self.rpmconf.getxpath('updates/@sslverify', None):
+        lines.append('sslverify = %s' % 
+                     self.rpmconf.getbool('updates/@sslverify'))
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()

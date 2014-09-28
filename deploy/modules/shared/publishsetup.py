@@ -210,6 +210,8 @@ fi""" % (self.localpath, self.localpath))
       default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.moduleid)
 
     default = default.replace('%{build-host}', build_host)
+    if self.config.getbool('remote-url/@https', 'False'):
+      default = default.replace('http', 'https', 1)
 
     remote = pps.path(self.config.getxpath('remote-url/text()', default)
     )

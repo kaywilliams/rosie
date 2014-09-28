@@ -316,6 +316,11 @@
     <optional>
     <element name="remote-url">
       <ref name="xml-base"/>
+      <optional>
+        <attribute name='https'>
+          <ref name="value-boolean"/>
+        </attribute>
+      </optional>
       <text/>
     </element>
     </optional>
@@ -364,6 +369,9 @@
         </optional>
         <optional>
         <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
+        <attribute name="sslverify"><ref name="value-boolean"/></attribute>
         </optional>
       </element>
       </optional>
