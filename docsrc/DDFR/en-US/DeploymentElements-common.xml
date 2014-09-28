@@ -50,7 +50,7 @@
 [&lt;ELEMENT>
   [&lt;build-host [fqdn=BOOLEAN] [interface=TEXT]&gt;[TEXT]&lt;/build-host&gt;]
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
-  [&lt;remote-url&gt;[TEXT]&lt;/remote-url&gt;]
+  [&lt;remote-url [https=BOOLEAN] &gt;[TEXT]&lt;/remote-url&gt;]
 
   [&lt;hostname&gt;TEXT&lt;/hostname&gt;]
   [&lt;domain&gt;TEXT&lt;/domain&gt;]
@@ -61,7 +61,7 @@
   [&lt;config-rpm&gt;...&lt;/config-rpm&gt;]*
 
   [&lt;release-rpm>
-    [&lt;updates [sync=boolean] [gpgcheck=boolean] /&gt;]
+    [&lt;updates [sync=BOOLEAN] [gpgcheck=BOOLEAN] [sslverify=BOOLEAN] /&gt;]
   &lt;/release-rpm&gt;]
 
   [&lt;triggers [activate=BOOLEAN] [connect=BOOLEAN]&gt;[TEXT]&lt;/triggers&gt;]
@@ -618,38 +618,37 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      As a security measure, to prevent man-in-the-middle style web server
-      attacks, you may wish to configure the <emphasis>remote-url</emphasis>
-      for SSL-only access.  See your web server documentation for information on
-      configuring SSL. See also Example 5 below for information on specifying
-      an https remote-url. 
-      </para>
-
-      <para>
       This element is optional.
       </para>
 
       <para>
-      <emphasis role='bold'>Example</emphasis> - manual configuration using
-      the <link linkend='deployment-macros'>%{build-host}</link> module macro.
-      In this example, the repository is created on the build machine, but will
-      be accessed over 'https' rather than the default http protocol. 
+      <emphasis role='bold'>Attributes</emphasis>
       </para>
 
+      <para>
+      <emphasis>@https</emphasis>: BOOLEAN value specifying whether the value
+      "https" should be used in the network protocol portion of the remote url,
+      rather than the default value "http". See also the
+      <emphasis>@sslverify</emphasis> attribute of the <link
+      linkend='release-rpm-updates'>release-rpm/updates</link> element.
+      </para>
+      
+      <para>
+      This attribute is optional. The default value is
+      <constant>FALSE</constant>. The attribute is ignored if a TEXT value
+      is provided in the content of the remote-url element.
+      </para>
+
+      <para>
+      <emphasis role='bold'>Examples</emphasis>
+      </para>
+
+      <para>
       <informalexample>
       <programlisting>
-&lt;remote-url&gt;https://%{build-host}/deploy/systems/&lt;/remote-url&gt;</programlisting>
+&lt;remote-url https='true'/>
+&lt;remote-url>http://%{build-host}/my/custom/path&lt;/remote-url></programlisting>
       </informalexample>
-
-      <para>
-      Given a <link linkend='deployment-macros'>%{build-host}</link> value of
-      "repos.company.com" and a repository <varname>%{id}</varname> of
-      "samba-server-6-i386",
-      the resulting %{url} macro value is -
-      </para>
- 
-      <para>
-      <filename>https://repos.company.com/deploy/systems/samba-server-6-i386</filename>
       </para>
       </listitem>
     </varlistentry>
@@ -989,12 +988,6 @@ $remote-url/%{id}</programlisting>
     available for download directly from the repository publish folder.
     </para>
    
-    <para>
-    This element is used when defined within the publish element. It is
-    allowed within the test-install and test-update elements, but silently
-    ignored.
-    </para>
-
     <itemizedlist>
     <listitem>
     <para>
@@ -1073,9 +1066,7 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      Accepts two attributes,
-      <emphasis>@sync</emphasis> and
-      <emphasis>@gpgcheck</emphasis>.
+      <emphasis role='bold'>Attributes</emphasis>
       </para>
 
       <para>
@@ -1101,6 +1092,16 @@ $remote-url/%{id}</programlisting>
       creating the repository. It also controls whether YUM checks
       packages from the repository prior to performing client machine 
       updates. The default value is <constant>TRUE</constant>.
+      </para>
+
+      <para>
+      <emphasis>@sslverify</emphasis>: BOOLEAN value controlling whether YUM
+      should verify the SSL certificate of the build host. Useful for allowing
+      YUM to access the repository when the build host is using a self-signed
+      SSL certificate. See <xref linkend='remote-url'/> for information on
+      specifying https access to the repository.  The default value is
+      <constant>None</constant>, meaning that the value defined in yum.conf is
+      used (by default True).
       </para>
 
       <para>
@@ -2038,7 +2039,7 @@ echo $ipaddress > %{ssh-host-file}
 
 set -e
 file=%{input-dir}/hgtip
-hgtip_curr=`hg identify https://example.com/path/to/hg/source/code/repo`
+hgtip_curr=`hg identify ://example.com/path/to/hg/source/code/repo`
 hgtip_last=`[ -f $file ] &amp;&amp; cat $file || echo ''`
 if [[ $hgtip_curr != $hgtip_last ]]; then
   echo $hgtip_curr > $file
