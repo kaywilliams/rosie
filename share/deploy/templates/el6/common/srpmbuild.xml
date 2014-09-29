@@ -101,19 +101,12 @@ done
 #!/bin/sh
 set -e
 
-options="
--o BatchMode=yes
+opts="
 -o StrictHostKeyChecking=no
 -o UserKnownHostsFile=/dev/null
--o IdentityFile=/root/.ssh/id_rsa
--o ConnectTimeout=120
--o ConnectionAttempts=3
--o ServerAliveCountMax=3
--o ServerAliveInterval=15
--o TCPKeepAlive=no
 "
 
-rpms=$(ssh %{ssh-host} $options find %{build-dir}/RPMS -name "*.rpm")
+rpms=$(ssh %{ssh-host} $opts find %{build-dir}/RPMS -name "*.rpm")
 
 for rpm in $rpms; do
   copy=true
@@ -125,7 +118,7 @@ for rpm in $rpms; do
     fi
   done
   if [[ $copy == true ]]; then
-    echo "get $rpm %{rpms-dir}" | sftp -b - $options %{ssh-host}
+    echo "get $rpm %{rpms-dir}" | sftp -b - $opts %{ssh-host}
   fi
 done
 </script>
