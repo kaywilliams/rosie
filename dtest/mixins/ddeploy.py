@@ -18,6 +18,8 @@
 import re
 import unittest
 
+from lxml import etree
+
 from deploy.util      import pps
 from deploy.util      import rxml
 
@@ -45,56 +47,20 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     if mod is None:
       mod = rxml.config.Element('%s' % self.deploy_module, parent=self.conf)
 
-    # add dummy kickstart element so kickstart event doesn't disable itself
-    # this is technically only necessary when deploy_module == publish
-    self.kickstart_added=False
-    if not mod.getxpath('kickstart', None):
-      rxml.config.Element(name='kickstart', parent=mod, text='dummy')
-      self.kickstart_added=True
-
-    # add dummy script element so deploy event doesn't disable itself
-    # this is technically only necessary when deploy_module == publish
-    self.script_added=False
-    if not mod.xpath('script', []):
-      rxml.config.Element(name='script', parent=mod, text='dummy',
-                          attrib={'id':'dummy', 'type':'post'})
-      self.script_added=True
+    # include deploy.xml
+    mod.append(etree.XML("""
+    <include xmlns="%s" href="%%{templates-dir}/%%{norm-os}/libvirt/deploy.xml"
+                        xpointer="xpointer(./*)"/>
+    """ % rxml.tree.XI_NS))
 
   def setUp(self):
     EventTestCase.setUp(self)
 
-    # get default deploy config
-    self.macros = self.tb.initial_macros 
-
-    self.macros.update({
-              '%{name}'     : self.tb.name,
-              '%{version}'  : self.tb.version,
-              '%{arch}'     : self.tb.arch,
-              '%{id}'       : self.tb.id,
-              '%{file-size}': '6',
-              '%{definition-dir}': self.tb.definition_path.dirname,
-              '%{data-dir}' : self.tb.data_dir,
-              '%{module}'   : self.deploy_module
-              })
-
-    deploy = rxml.config.parse(
-      '%s/../../share/deploy/templates/%s/libvirt/deploy.xml' %  
-      (pps.path(__file__).dirname.abspath(), self.norm_os),
-      xinclude = True,
-      macros = self.macros,
-      ).getroot()
-
-    if self.iso:
-      self._iso_install_script(deploy, self.iso_location)
-
-    deploy.remove_macros()
-
-    # update module
+    # edit the definition after it has been parsed and deploy.xml included
     mod = self.tb.definition.getxpath('/*/%s' % self.deploy_module, None)
 
-    # remove dummy elements added by __init__()
-    self.kickstart_added and mod.remove(mod.getxpath('kickstart'))
-    self.script_added and mod.remove(mod.getxpath('script[@id="dummy"]'))
+    if self.iso:
+      self._iso_install_script(mod, self.iso_location)
 
     if mod.getxpath('password', None) is not None:
       rxml.config.Element(name='password', parent=mod, text='dtest')
@@ -102,9 +68,6 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     if self.deploy_module != 'test-install':
       triggers = rxml.config.Element('triggers', parent=mod)
       triggers.text = 'kickstart install_scripts'
-
-    mod.extend(deploy.xpath("/*/*[name()!='script']"))
-    mod.extend(deploy.xpath("/*/script[@id!='post']"))
 
   def runTest(self):
     if self.deploy_module == 'publish': event = 'deploy'
@@ -117,35 +80,20 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
     updates deploy element with text of a script for performing libvirt 
     installation given the relative path to an iso file
     """
-  
     install_script = root.getxpath('script[@id="install"]')
-    for elem in install_script.getchildren():
-      install_script.remove(elem)
-    install_script.text = """
-#!/bin/sh
-set -e
 
-%%{source-guestname}
+    lines = []
+    for line in install_script.text.split('\n'):
+      # use boot args from image
+      if '--extra-args' in line: continue
 
-file=%(buildroot)s/$(basename %(location)s)
-curl -s -o $file %(location)s
-chcon -t httpd_sys_content_t $file
+      # replace '--location' with '--cdrom'
+      if '--location' in line:
+        line = "--cdrom %%{localroot}/%s \\" % location
+        
+      lines.append(line)
 
-virt-install \
-             --name $guestname \
-             --arch %%{arch} \
-             --ram 1024 \
-             --graphics vnc \
-             --network network=deploy \
-             --disk path=/var/lib/libvirt/images/$guestname.img,size=6 \
-             --cdrom $file \
-             --force \
-             --wait=-1 \
-             --noreboot
-    """ % {'location': '%%{url}/%s' % location,
-           'buildroot': self.buildroot}
-
-    root.resolve_macros(map=self.macros)
+    install_script.text = '\n'.join(lines)
 
 def DeployMixinTest_Teardown(self):
   self._testMethodDoc = "dummy test to delete virtual machine"
