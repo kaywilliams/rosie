@@ -9,6 +9,7 @@
 <requires>isomd5sum</requires>
 <requires>mercurial</requires>
 <requires>mkisofs</requires>
+<requires>openssh-clients</requires>
 <requires>pexpect</requires>
 <!--<requires>publican</requires>-->
 <requires>pykickstart</requires>

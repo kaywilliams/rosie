@@ -76,7 +76,8 @@ class PublishSetupEventMixin(Event):
     self.boot_options = self.get_bootoptions()
 
     # resolve module macros
-    map = {'%{url}':            {'value':  self.webpath},
+    map = {'%{localroot}':      {'value':  self.localpath},
+           '%{webroot}':        {'value':  self.webpath},
            '%{hostname}':       {'conf':  'hostname\' element',
                                  'value':  self.hostname},
            '%{domain}':         {'conf':  'domain\' element',
@@ -88,7 +89,7 @@ class PublishSetupEventMixin(Event):
            '%{boot-options}':   {'conf':  'boot-options\' element',
                                  'value':  self.boot_options},
            }
-    for key in ['%{url}', '%{hostname}', '%{domain}',
+    for key in ['%{localroot}', '%{webroot}', '%{hostname}', '%{domain}',
                 '%{fqdn}', '%{password}', '%{boot-options}']:
       if key in map[key]['value']:
         raise SimpleDeployEventError(

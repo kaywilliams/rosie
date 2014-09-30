@@ -20,6 +20,7 @@
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml' xpointer='xpointer(./*)'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 
 </xml>

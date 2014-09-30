@@ -68,9 +68,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.webpath = self.cvars[self.cvar_root]['webpath']
     self.ssh_host_file = self.datfn.dirname / 'ssh-host-%s' % self.moduleid
 
-    self.resolve_macros(map={
-      '%{ssh-host-file}': self.ssh_host_file,
-      '%{local-dir}': self.cvars[self.cvar_root]['localpath']})
+    self.resolve_macros(map={'%{ssh-host-file}': self.ssh_host_file}),
 
     # add repomd as input file
     if self.track_repomd:

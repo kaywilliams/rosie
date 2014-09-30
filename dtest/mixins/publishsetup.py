@@ -103,8 +103,8 @@ def PublishSetupMixinTest_Config(self):
       if k in ['localpath', 'build_host']:
         continue
       elif k in [ 'webpath']:
-        test = ( self.event.map["%{url}"] == pps.path(self.values[k]) / 
-                                                self.event.build_id )
+        test = ( self.event.map["%{webroot}"] == pps.path(self.values[k]) / 
+                                                 self.event.build_id )
       else:
         test = (eval('self.event.map["%%{%s}"]' % k.replace('_', '-')) 
                 == self.values[k])

@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml>
-<config-rpm id='deploy-client-config'>
-<requires>curl</requires>
-<requires>yum</requires>
-</config-rpm>
-
 <script id='update' type='update'>
 <macro id="yum-update-command">sync</macro>
 #!/bin/bash
 set -e
 
-echo "ensure we're using the latest repo.conf"
-repodir="/etc/yum.repos.d"
-mv $repodir/%{name}.repo $repodir/%{name}.repo.bak 2>/dev/null || \
-  true #ignore missing
-curl -s -o $repodir/%{name}.repo %{url}/repo.conf        
-rm -f $repodir/%{name}.repo.bak
+# run yum command(s), checking output for scriptlet failed errors"
 
-echo "echo: run yum command(s), checking output for scriptlet failed errors"
 # determine whether sync plugin is installed on this system
 if [[ -f /usr/lib/yum-plugins/sync.py ]] ; then
   commands="yum sync -y"
@@ -53,4 +41,3 @@ for information on 'Troubleshooting RPM scriptlet failed errors'." >&amp;2
   exit 1
 fi
 </script>
-</xml>

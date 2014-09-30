@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='update-yum-conf' type='update' comes-before='update' hostname='localhost'>
+# ensure client is using the latest repo.conf
+opts="
+-o StrictHostKeyChecking=no 
+-o UserKnownHostsFile=/dev/null 
+"
+scp $opts %{localroot}/repo.conf root@%{ssh-host}:/etc/yum.repos.d/%{name}.repo
+</script>

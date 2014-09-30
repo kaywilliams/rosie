@@ -17,8 +17,8 @@ virt-install \
   --graphics %{graphics} \
   --disk path=/var/lib/libvirt/images/$guestname.img,size=%{file-size},format=%{image-format} \
   --network network=deploy \
-  --location %{url} \
-  --extra-args "%{boot-options} ks=%{url}/ks.cfg" \
+  --location %{webroot} \
+  --extra-args "%{boot-options} ks=%{webroot}/ks.cfg" \
   --force \
   --wait=-1 \
   --noreboot

@@ -125,13 +125,24 @@
     </row>
 
     <row>
-    <entry id='url-macro'>
-    %{url}
+    <entry id='webroot-macro'>
+    %{webroot}
     </entry>
 
     <entry>
-    URL to the repository on the repository download server. Described
-    under the <xref linkend='remote-url'/> element.
+    URL to the repository on the build host. Described under the <xref
+    linkend='remote-url'/> element.
+    </entry>
+    </row>
+
+    <row>
+    <entry id='localroot-macro'>
+    %{localroot}
+    </entry>
+
+    <entry>
+    Local PATH to the repository on the build host. Described
+    under the <xref linkend='local-dir'/> element.
     </entry>
     </row>
 
@@ -536,6 +547,25 @@
       </para>
 
       <para>
+      The local-dir is also used in determining the value of the
+      <varname>%{localroot}</varname> module macro. The %{localroot} macro
+      provides the complete local path to the repository, as follows, where
+      <varname>$local-dir</varname> is the value from the table above:
+      </para>
+
+      <informalexample>
+      <programlisting>
+$local-dir/%{id}</programlisting>
+      </informalexample>
+
+      <para>
+      The %{localroot} macro is commonly used in <xref
+      linkend="deployment-script"/> elements for copying repository content,
+      e.g. current yum configuration files, to client machines. See  
+      <xref linkend='update'/>-type scripts for an example.
+      </para>
+
+      <para>
       <emphasis role='bold'>Example</emphasis>
       </para>
 
@@ -599,11 +629,10 @@
       </tgroup>
       </informaltable>
       <para>
-      The value of the remote-url is also used in determining the
-      <varname>%{url}</varname> module macro value. The url macro provides the
-      complete web path to the repository. The value of the url macro is as
-      follows, where <varname>$remote-url</varname> is the value from the table
-      above:
+      The remote-url is also used in determining the value of the
+      <varname>%{webroot}</varname> module macro. The %{webroot} macro provides
+      the complete web path to the repository, as follows, where
+      <varname>$remote-url</varname> is the value from the table above:
       </para>
 
       <informalexample>
@@ -612,9 +641,9 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The %{url} macro is commonly used in <xref linkend='deployment-script'/>
-      elements for <emphasis>install</emphasis>-type scripts. See the script
-      element for an example.
+      The %{webroot} macro is commonly used in <xref
+      linkend='deployment-script'/> elements. See <xref
+      linkend='install'/>-type scripts for an example.
       </para>
 
       <para>
@@ -1544,7 +1573,7 @@ $remote-url/%{id}</programlisting>
       installation. They must return a non-zero exit status if installation
       fails. Commonly used with the <link
       linkend='deployment-macros'>%{fqdn}</link> and <link
-      linkend='deployment-macros'>%{url}</link> module macros.
+      linkend='deployment-macros'>%{webroot}</link> module macros.
       </para>
 
       <para>
@@ -1555,14 +1584,14 @@ $remote-url/%{id}</programlisting>
       </para>
       
       <para>
-      The <emphasis>install.xml</emphasis> file provides a bash script
-      which completes the actual machine installation. In this case, the script
+      The <emphasis>install.xml</emphasis> file provides a bash script which
+      completes the actual machine installation. In this case, the script
       executes the <command>virt-install</command> command to create a new
-      virtual machine.  The script uses the <varname>%{fqdn}</varname>
-      module macro to specify a name for the virtual machine, as well as the
-      filename for the machine's image. It uses the <varname>%{url}</varname>
-      macro to specify the location for the installation files, as well as for
-      the kickstart file.  
+      virtual machine.  The script uses the <varname>%{fqdn}</varname> module
+      macro to specify a name for the virtual machine, as well as the filename
+      for the machine's image. It uses the <varname>%{webroot}</varname> macro
+      to specify the location for the installation files, as well as for the
+      kickstart file.  
       </para>
 
       <para>
@@ -1682,25 +1711,47 @@ $remote-url/%{id}</programlisting>
       </para>
     
       <para>
-      Update scripts may also be used for post processing after client updates.
-      For example, an update script may be used to test the running system
-      kernel and restart the machine if a new kernel version has been
-      installed, as is shown in the example check-kernel script below. Note
-      that while post processing actions such as these could be performed as
-      either <emphasis>update</emphasis> or <emphasis>post</emphasis> scripts,
-      the former is preferable since the latter are executed after both
-      installation and updates.
+      <emphasis role='bold'>Example 1 - update-yum-conf.xml</emphasis> - This
+      example shows a file named <filename>update-yum-conf.xml</filename> which
+      is included in the template folder at
+      /usr/share/deploy/templates/el6/common.  See <xref linkend='templates'/>
+      for more information on templates.
       </para>
 
       <para>
-      <emphasis role='bold'>Example 1 - update.xml</emphasis> - This example
+      The script executes on the localhost, and copies the most current yum
+      configuration to the client machine. The
+      <emphasis>@comes-before</emphasis> attribute ensures it runs before the
+      main update script, shown in Example 2.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/update-yum-conf.xml'
+parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update-yum-conf.xml" xpointer="xpointer(./*)"/></programlisting>
+      </informalexample>
+
+      <para>
+      <emphasis role='bold'>Example 2 - update.xml</emphasis> - This example
       shows a file named <filename>update.xml</filename> which is included in
       the template folder at /usr/share/deploy/templates/el6/common. See <xref
       linkend='templates'/> for more information on templates.
       </para>
 
       <para>
-      The file includes two elements: config-rpm and script. The <varname>config-rpm</varname> element lists packages that must be installed on the client machine in order for the script to execute. The <varname>script</varname> element provides a script to update the client using the <command>yum sync</command> command.  The <command>set -e</command> is used to halt processing and return a non-zero exit status if an error occurs at any point within the script.
+      The script updates the client using the <command>yum sync</command>
+      command.  The <command>set -e</command> is used to halt processing and
+      return a non-zero exit status if an error occurs at any point within the
+      script.
       </para>
 
       <informalexample>
@@ -1718,33 +1769,6 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 &lt;xi:include href="%{templates-dir}/%{norm-os}/common/update.xml" xpointer="xpointer(./*)"/></programlisting>
       </informalexample>
 
-      <para>
-      <emphasis role='bold'>Example 2 - check-kernel.xml</emphasis> - This
-      example shows a file named <filename>check-kernel.xml</filename> which is
-      included in the template folder at
-      /usr/share/deploy/templates/el6/common. See <xref linkend='templates'/>
-      for more information on templates.
-      </para>
-
-      <para>
-      This script tests to see if the running kernel differs from the 
-      installed kernel, and restarts the client if needed.
-      </para>
-
-      <informalexample>
-      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/check-kernel.xml'
-parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
-      </informalexample>
-
-      <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
-      </para>
-
-      <informalexample>
-      <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/></programlisting>
-      </informalexample>
       </listitem>
       </varlistentry>
 
@@ -1783,7 +1807,35 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </para>
 
       <para>
-      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      <emphasis role='bold'>Example 1 - check-kernel.xml</emphasis> - This
+      example shows a file named <filename>check-kernel.xml</filename> which is
+      included in the template folder at
+      /usr/share/deploy/templates/el6/common. See <xref linkend='templates'/>
+      for more information on templates.
+      </para>
+
+      <para>
+      This script tests to see if the running kernel differs from the 
+      installed kernel, and restarts the client if needed.
+      </para>
+
+      <informalexample>
+      <programlisting><xi:include href='../../../../../share/deploy/templates/el6/common/check-kernel.xml'
+parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/></programlisting>
+      </informalexample>
+
+      <para>
+      <emphasis role='bold'>Example 2</emphasis> - This example shows a file
       named <filename>conditional-poweroff.xml</filename> which is included in
       the template folder at /usr/share/deploy/templates/el6/libvirt. See <xref
       linkend='templates'/> for more information on templates.
@@ -1811,6 +1863,7 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       <programlisting>
 &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/></programlisting>
       </informalexample>
+
       </listitem>
       </varlistentry>
 

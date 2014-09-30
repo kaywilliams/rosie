@@ -24,7 +24,7 @@ Requires: gnupg
 Requires: gzip 
 Requires: isomd5sum 
 Requires: mkisofs
-Requires: openssh 
+Requires: openssh-clients 
 Requires: pexpect
 Requires: pykickstart
 Requires: pyliblzma

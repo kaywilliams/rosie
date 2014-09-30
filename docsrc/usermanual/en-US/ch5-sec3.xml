@@ -308,8 +308,8 @@ reboot
 virt-install --name %{fqdn} --ram 2000 \
              --file /var/lib/libvirt/images/%{fqdn}.img \
              --file-size 40 \
-             --location %{url} \
-             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
+             --location %{webroot} \
+             --extra-args "%{boot-options} ks=%{webroot}/ks.cfg"\
              --noreboot
 &lt;/script>
 &lt;xi:include href="path/to/libvirt/deploy.xml" 
