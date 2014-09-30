@@ -28,19 +28,37 @@
 </packages>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-local-config.xml"/>
+<config-rpm id='rsnapshot-server-config'>
+<xi:include
+    href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-server-config.xml"
+    xpointer="xpointer(./*)"/>
+
+<files destdir="/etc/cron.d" destname="rsnapshot" content="text">
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+0 */4 *         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot hourly
+50 23 *         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot daily
+40 23 1,8,15,22 * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot weekly
+30 23 1         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot monthly
+</files>
+
+<files destdir="/etc" destname="rsnapshot.conf" content="text">
+# include rsnapshot.conf here
+</files>
+
+</config-rpm>
 </config-rpms>
 
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" 
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml"/>
 </test-update>
 
 <test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml"/>
 </test-install>
 
 </definition>

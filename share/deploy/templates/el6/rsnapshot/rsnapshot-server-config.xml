@@ -1,0 +1,83 @@
+<config-rpm id='rsnapshot-server-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<!-- 
+To use this template, create a a config-rpm element in your containing
+definition that looks something like the following.
+
+If you are backing up remote clients, you will also need to configure the
+remote client systems to allow access from the server. See the
+rsnapshot-client-config file for details.
+
+<config-rpm id='rsnapshot-server-config'>
+<xi:include
+    href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-server-config.xml"
+    xpointer="xpointer(./*)"/>
+
+<files destdir="/etc/cron.d" destname="rsnapshot" content="text">
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+0 */4 *         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot hourly
+50 23 *         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot daily
+40 23 1,8,15,22 * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot weekly
+30 23 1         * * root nice -n 19 ionice -c 3 chrt -p -i 0 rsnapshot monthly
+</files>
+
+<files destdir="/etc" destname="rsnapshot.conf" content="text">
+# include rsnapshot.conf here
+
+# add the following line if you are backing up remote clients and 
+# don't want/need to verify their ssh keys
+ssh_args	-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+</files>
+
+If you are backing up remote clients and *do* want/need to verify 
+their ssh keys, provide public keys using files elements as below
+
+<files destdir="/root/.ssh/rsnapshot">path/to/client1/key.pub</files>
+<files destdir="/root/.ssh/rsnapshot">path/to/client2/key.pub</files>
+</config-rpm>
+-->
+
+<!-- everything here and below is part of the template -->
+<xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+            xpointer="xpointer(./repo[@id='epel'])"/>
+
+<requires>rsnapshot</requires>
+
+<!-- create ssh keys for server to access clients. The public key must be
+     added to /root/.ssh/authorized_keys for client machines; see
+     rsnapshot-client.config.xml for details.
+     -->
+<prep-script>
+#!/bin/sh
+set -e
+function create_ssh_keys {
+<xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
+}
+create_ssh_keys %{data-dir} %{ssh-host}
+</prep-script>
+
+<!-- install ssh keys (created in the prep script) on the server -->
+<files destdir="/root/.ssh" mode="600">%{data-dir}/id_rsa</files>
+<files destdir="/root/.ssh" mode="644">%{data-dir}/id_rsa.pub</files>
+
+<!-- secure the /root/.ssh folder -->
+<script type='post'>
+chmod 700 /root/.ssh
+</script>
+
+<!-- install client public keys in known_hosts file -->
+<script type="post">
+keydir='/root/.ssh/rsnapshots'
+if [ -d $keydir ]; then
+  known="/root/.ssh/known_hosts"
+  touch $known
+  for f in $keydir; do
+    sed -i "/^$f[[:space:]]/d" $known
+    cat $f >> $known
+  done
+fi
+</script>
+
+</config-rpm>

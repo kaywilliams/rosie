@@ -1,7 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <config-rpm id='rsnapshot-client-config' xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-local-config.xml"
-            xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-remote-config.xml"
-            xpointer="xpointer(./*)"/>
+
+<!--first create the rsnapshot server (see rsnapshot-server.definition), then
+     provide a macro in your containing definition, including the the server
+     ssh public key text (see example below) --> 
+<macro id='rsnapshot-server-ssh-pubkey-text'><xi:include href="rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub" parse="text"/></macro>
+
+<!-- add backup server to authorized_keys -->
+<script type='post'>
+sshdir=/root/.ssh
+pubkey="%{rsnapshot-server-ssh-pubkey-text}"
+if [ ! -d $sshdir ]; then
+  mkdir $sshdir
+fi
+if [[ ! -e $sshdir/authorized_keys ]] || \
+   [[ ! `grep "$pubkey" $sshdir/authorized_keys` ]]; then
+  echo $pubkey >> $sshdir/authorized_keys
+fi
+chown -R root:root $sshdir
+chmod 700 $sshdir
+chmod 600 $sshdir/authorized_keys
+</script>
 </config-rpm>
