@@ -1,6 +1,6 @@
 <config-rpm id='rsnapshot-server-config' xmlns:xi="http://www.w3.org/2001/XInclude">
 <!-- 
-To use this template, create a a config-rpm element in your containing
+To use this template, create a config-rpm element in your server definition 
 definition that looks something like the following.
 
 If you are backing up remote clients, you will also need to configure the

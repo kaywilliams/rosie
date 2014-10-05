@@ -1,10 +1,28 @@
 <config-rpm id='rsnapshot-client-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<!--
+To use this template, first create the rsnapshot server (see
+rsnapshot-server.definition). Then create a config-rpm macro in your client
+definition that looks something like the following. 
 
-<!--first create the rsnapshot server (see rsnapshot-server.definition), then
-     provide a macro in your containing definition, including the the server
-     ssh public key text (see example below) --> 
+The rsnapshot-client-config template configures the authorized_keys file on the
+client to accept ssh connections from the server. You may also need to
+configure the client firewall to allow inbound ssh connections from the server.
+
+<config-rpm id='rsnapshot-client-config'>
 <macro id='rsnapshot-server-ssh-pubkey-text'><xi:include href="rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub" parse="text"/></macro>
 
+<xi:include
+    href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-client-config.xml"
+    xpointer="xpointer(./*)"/>
+
+<script type='post'>
+# script that configures the firewall to accept ssh connections from the server
+...
+</script>
+</config-rpm>
+-->
+
+<!-- everything here and below is part of the template -->
 <!-- add backup server to authorized_keys -->
 <script type='post'>
 sshdir=/root/.ssh
