@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='mount-volume' type='post-install' verbose='true'
+        comes-before='verify-install'
+        xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<macro id='rackspace-mount-volume'>false</macro>
+<macro id='rackspace-volume-device'>xvdb</macro>
+<macro id='rackspace-volume-mount-point'>/.snapshot</macro>
+<macro id='rackspace-volume-file-system-format'>ext3</macro>
+
+set -e
+
+source /root/rackspace/rackspace_admin
+
+# mount storage volume
+if [[  %{rackspace-mount-volume} == true ]] ; then
+  mkdir -p %{rackspace-volume-mount-point} 
+  mount /dev/%{rackspace-volume-device}1 %{rackspace-volume-mount-point}
+  echo "/dev/%{rackspace-volume-device} %{rackspace-volume-device} %{rackspace-volume-file-system-format} defaults,noatime,_netdev,nofail 0 2" >> /etc/fstab
+fi
+</script>
