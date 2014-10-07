@@ -6,6 +6,9 @@ set -e
 
 # run yum command(s), checking output for scriptlet failed errors
 
+# ensure release-rpm installed
+yum -q -y install %{name}-release
+
 # determine whether sync plugin is installed on this system
 if [[ -f /usr/lib/yum-plugins/sync.py ]] ; then
   commands="yum sync -y"
