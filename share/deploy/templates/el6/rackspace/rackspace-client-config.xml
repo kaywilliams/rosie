@@ -17,13 +17,16 @@ for additional information.
 <macro id="rackspace-auth-url">https://identity.api.rackspacecloud.com/v2.0/</macro>
 <macro id="rackspace-region-name">DFW</macro>
 
-<!-- required for python-pip package -->
+<!-- epel repo required for python-pip package -->
 <xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
             xpointer="xpointer(./repo[@id='epel'])"/>
-<requires>python-pip</requires>
 
-<!-- required for secure repository access -->
-<requires>mod_ssl</requires>
+<!-- required for rackspace-novaclient -->
+<requires>python-pip</requires>
+<requires>python-argparse</requires>
+<requires>python-prettytable</requires>
+<requires>python-requests</requires>
+<requires>python-six</requires>
 
 <!-- required for building rackspace-novaclient dependency 
      (lxml.etree extension)-->
@@ -31,9 +34,12 @@ for additional information.
 <requires>python-devel</requires>
 <requires>libxslt-devel</requires>
 
+<!-- required for secure repository access -->
+<requires>mod_ssl</requires>
+
 <script type='post'>
-python-pip list | grep -q rackspace-novaclient || \
-info=`python-pip install rackspace-novaclient` || \
+# install rackspace-novaclient
+info=`python-pip install --upgrade rackspace-novaclient` || \
 { echo $info >&amp;2; exit 1; }
 </script>
 
