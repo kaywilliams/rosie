@@ -164,6 +164,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     # set data_dir
     self._get_data_dir(options)
+    if options.list_data_dir:
+      print self.data_dir
+      sys.exit()
 
     # set up real logger - console and file, unless provided as init arg
     self.logfile = ( pps.path(options.logfile)

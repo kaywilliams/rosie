@@ -54,6 +54,9 @@
 <option>--data-root <replaceable class='parameter'>PATH</replaceable></option>
 </arg>
 <arg choice="opt">
+<option>--list-data-dir </option>
+</arg>
+<arg choice="opt">
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
@@ -72,7 +75,7 @@
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
 <arg choice="opt">
-<option>--list-events <replaceable class="parameter">EVENT</replaceable></option>
+<option>--list-events </option>
 </arg>
 <arg choice="opt">
 <option>--force-event <replaceable class="parameter">EVENT</replaceable></option>
@@ -194,7 +197,16 @@ definition file, see the Deploy Definition File Reference at
 </varlistentry>
 
 <varlistentry>
-  <term><option>--list-events <replaceable class="parameter">DEFINITION</replaceable></option></term>
+  <term><option>--list-data-dir </option></term>
+  <listitem>
+    <para>
+    Lists the full path to the definition data folder and exits.
+    </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--list-events </option></term>
   <listitem>
     <para>
     Provides a hierarchical list of events that will execute for the specified
