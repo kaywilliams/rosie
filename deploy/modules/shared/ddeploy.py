@@ -368,6 +368,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 def get_ssh_host(ssh_host_file, fqdn):
   if ssh_host_file.exists():
     try:
+      ssh_host = None # start clean as ssh_host_file contents can change
       ssh_host = ssh_host_file.read_text().strip()
     except Exception as e:
       message = ("Unable to read hostname file '%s'. The error was '%s'"
