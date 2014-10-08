@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='configure-repo-access' type='update' comes-before='update-yum-conf'
+        hostname='localhost' xmlns:xi="http://www.w3.org/2001/XInclude">
+# allow client access to the repository
+echo "&lt;directorymatch \"^%{localroot}/\">
+SSLRequireSSL
+Order Deny,Allow
+Deny from all
+Allow from 127.0.0.1 ::1 %{ssh-host} 
+&lt;/directorymatch>" > /etc/httpd/conf.d/%{id}-%{module}.conf
+service httpd reload > /dev/null
+</script>

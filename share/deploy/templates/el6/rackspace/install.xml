@@ -62,22 +62,4 @@ if [[  %{rackspace-mount-volume} == true ]] ; then
   mount /dev/%{rackspace-volume-device}1 %{rackspace-volume-mount-point};
   echo "/dev/%{rackspace-volume-device}1 %{rackspace-volume-mount-point} %{rackspace-volume-file-system-format} defaults,noatime,_netdev,nofail 0 2" >> /etc/fstab' || exit 1
 fi
-
-# allow client access to the repository
-echo "&lt;directorymatch \"^%{localroot}/\">
-SSLRequireSSL
-Order Deny,Allow
-Deny from all
-Allow from $ipaddress
-&lt;/directorymatch>" > /etc/httpd/conf.d/%{id}-%{module}.conf
-service httpd reload > /dev/null
-
-# download release package
-echo -e "\nDownloading release package..."
-opts="
--o StrictHostKeyChecking=no 
--o UserKnownHostsFile=/dev/null 
-"
-scp $opts %{localroot}/repo.conf root@$ipaddress:/etc/yum.repos.d/%{name}.repo  
-ssh $opts root@$ipaddress yum -q -y install %{name}-release
 </script>

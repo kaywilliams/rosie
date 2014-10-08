@@ -14,6 +14,7 @@
 <xi:include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/allow-repo-access.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 </xml>
