@@ -126,7 +126,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     """
 
     # set up temporary logger - console only
-    self.logger = make_log(options.logthresh)
+    if options.list_data_dir:
+      # don't display log messages if user only wants data dir
+      logthresh = 0
+    else:
+      logthresh = options.logthresh
+    self.logger = make_log(logthresh)
     if callback: callback.set_logger(self.logger)
 
     # set initial debug value from options
