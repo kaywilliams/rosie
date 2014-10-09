@@ -52,13 +52,14 @@ from deploy.util import sync
 from deploy.callback  import (SyncCallback, CachedCopyCallback,
                               LinkCallback, SyncCallbackCompressed)
 from deploy.constants import *
+from deploy.dlogging  import make_log, L0, L1, L2
 from deploy.errors    import (DeployEventErrorHandler, 
                                     DeployEventError,
                                     DeployError,
                                     InvalidOptionError,
                                     InvalidMainConfigPathError,)
+from deploy.options   import DeployOptionParser
 from deploy.event     import Event, CLASS_META
-from deploy.dlogging import make_log, L0, L1, L2
 from deploy.validate  import (DeployValidationHandler,
                                     InvalidEventError)
 
@@ -116,14 +117,24 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     Initialize a Build object
 
     Accepts three parameters:
-      options:   an  optparse.Options  object  with  the  command  line
-                 arguments encountered during command line parsing
-      arguments: a list of arguments not processed by the parser
+      options:   an optparse.Options  object  with  the  command  line
+                 arguments encountered during command line parsing; a
+                 string or list may also be provided - deploy will attempt
+                 to convert to an optparse.Options object
+      arguments: a list of arguments not processed by the parser, specifically
+                 must contain the definition
       callback:  a callback object providing set_debug and set_logger functions
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/deploy')
     """
+    # set arguments - convert to list as needed
+    if not hasattr(arguments, '__iter__'): arguments = [arguments]
+
+    # set options - convert to optparse.Options as needed
+    if not hasattr(options, '__dict__'):
+      if not hasattr(options, '__iter__'): options = options.split()
+      options = DeployOptionParser().parse_args(args=options)[0]
 
     # set up temporary logger - console only
     if options.list_data_dir:
