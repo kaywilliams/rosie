@@ -22,35 +22,22 @@ import os
 import sys
 import unittest
 
+from deploy.options import DeployOptionParser
 from deploy.util import pps
 from deploy.util.pps.cache import CacheHandler
 
 from deploy.util.CleanHelpFormatter import CleanHelpFormatter
 
-opt_defaults = dict(
-  logthresh = 0,
-  logfile = None,
-  libpath   = [],
-  sharepath = [],
-  data_root = None,
-  force_modules = [],
-  skip_modules  = [],
-  force_events  = [],
-  skip_events   = [],
-  skip_test = [],       
-  mainconfigpath = '/etc/deploy/deploy.conf',
-  enabled_modules  = [],
-  disabled_modules = [],
-  list_modules = False,
-  list_events = False,
-  macros = [],
-  no_validate = False,
-  validate_only = False,
-  clear_cache = False,
-  offline = False,
-  debug = True,
-)
+def get_opt_defaults():
+  # get deploy default options
+  opts,_ = DeployOptionParser().parse_args([])
 
+  # override for use with dtest 
+  opts.logthresh = 0
+  opts.debug = True
+
+  # return the result as a dict
+  return vars(opts)
 
 def parse_cmd_args(defaults=None):
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
@@ -113,7 +100,7 @@ def parse_cmd_args(defaults=None):
 def main():
   import imp
 
-  options, args = parse_cmd_args(opt_defaults)
+  options, args = parse_cmd_args(get_opt_defaults())
 
   assert len(args) == 1
   modpath = pps.path(args[0])

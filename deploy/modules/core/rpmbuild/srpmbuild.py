@@ -17,7 +17,6 @@
 #
 import copy
 import lxml
-import optparse
 import re
 import rpm
 import rpmUtils
@@ -28,6 +27,7 @@ from deploy.errors       import (DeployError, DeployEventError,
                                  DuplicateIdsError, MissingIdError)
 from deploy.event        import Event, CLASS_META
 from deploy.main         import Build
+from deploy.options      import DeployOptionParser
 from deploy.util         import magic 
 from deploy.util         import pps 
 from deploy.util         import rxml 
@@ -322,30 +322,20 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
               error=e, idstr='', sep = MSG_MAXWIDTH * '=',)
 
   def _get_build_machine_options(self):
-    parser = optparse.OptionParser()
-    parser.set_defaults(**dict(
-      logthresh = self.logger.threshold,
-      logfile   = self.options.logfile,
-      libpath   = self.options.libpath,
-      sharepath = self.options.sharepath,
-      data_root = self.data_root,
-      force_modules = [],
-      skip_modules  = [],
-      force_events  = ['deploy'],
-      skip_events   = [],
-      mainconfigpath = self.options.mainconfigpath,
-      enabled_modules  = [],
-      disabled_modules = [],
-      list_modules = False,
-      list_events = False,
-      macros = self.options.macros,
-      no_validate = False,
-      validate_only = False,
-      offline = self.options.offline,
-      clear_cache = False,
-      debug = self.options.debug,))
+    # get default deploy options
+    opts,_ = DeployOptionParser().parse_args([])
 
-    opts, _ = parser.parse_args([])
+    # override for use with srpmbuild
+    opts.logthresh = self.logger.threshold
+    opts.logfile = self.options.logfile
+    opts.libpath = self.options.libpath
+    opts.sharepath = self.options.sharepath
+    opts.data_root = self.data_root
+    opts.force_events = ['deploy']
+    opts.mainconfigpath = self.options.mainconfigpath
+    opts.macros = self.options.macros
+    opts.offline = self.options.offline
+    opts.debug = self.options.debug
     
     return opts
 

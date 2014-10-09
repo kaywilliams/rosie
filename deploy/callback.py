@@ -36,6 +36,21 @@ LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'
 LAYOUT_SYNC      = '%(title)-28.28s [%(bar)s] %(curvalue)9.9sB (%(time-elapsed)s)'
 LAYOUT_DEPSOLVE  = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
 
+class DeployCliCallback:
+  """
+  Used by deploy clients, e.g. bin/deploy, for providing command-line logging
+  """
+  def init(self, debug=False, logger=None):
+    self.debug=debug
+    self.logger=logger
+
+  def set_debug(self, debug):
+    self.debug=debug
+
+  def set_logger(self, logger):
+    self.logger=logger
+
+
 class LinkCallback(_SyncCallbackMetered):
   """
   Companion callback class to Event.io.*() methods; this class displays

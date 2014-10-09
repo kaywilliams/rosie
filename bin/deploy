@@ -28,148 +28,22 @@ import os
 import sys
 import traceback
 
-from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
-
-from deploy.errors    import DeployError
+# import deploy from some path in sys.path
+try:
+  import deploy.main
+except ImportError, e:
+  sys.exit("Deploy was unable to load a required python module:\n  * %s\n" % e)
+ 
+from deploy.callback import DeployCliCallback
+from deploy.errors   import DeployError
 from deploy.dlogging import L0
-from deploy.util      import pps
+from deploy.options  import DeployOptionParser
+from deploy.util     import pps
 
-from deploy.util.CleanHelpFormatter import CleanHelpFormatter
-
-class BuildCliCallback:
-  def init(self, debug=False, logger=None):
-    self.debug=debug
-    self.logger=logger
-
-  def set_debug(self, debug):
-    self.debug=debug
-
-  def set_logger(self, logger):
-    self.logger=logger
 
 class BuildCli:
   def __init__(self):
-    parser = OptionParser("usage: %prog [OPTIONS] DEFINITION",
-                          formatter=CleanHelpFormatter(),
-                          description="runs deploy program to complete actions "
-                                      "specified in DEFINITION"
-                          )
- 
-    parser.add_option('--macro', metavar='ID:VALUE',
-      dest='macros',
-      default=[],
-      action='append',
-      help='id:value pair (--macro "id:value") for replacing macros in '
-           'DEFINITION')
-    parser.add_option('--offline',
-      dest='offline',
-      action='store_true',
-      default=False,
-      help=('do not attempt to download remote files; access from cache '
-            'if available'))
-
-    parser.add_option('--debug',
-      dest='debug',
-      action='store_true',
-      default=None,
-      help=SUPPRESS_HELP)
-    parser.add_option('--no-debug',
-      dest='debug',
-      action='store_false',
-      help=SUPPRESS_HELP)
-
-    config_group = OptionGroup(parser, "config options")
-    config_group.add_option('-c', '--config', metavar='PATH',
-      default='/etc/deploy/deploy.conf',
-      dest='mainconfigpath',
-      help="specify path to the deploy config file")
-    config_group.add_option('--no-validate',
-      dest='no_validate',
-      action='store_true',
-      default=False,
-      help="do not validate config/definition files")
-    config_group.add_option('--validate-only',
-      dest='validate_only',
-      default=False,
-      action='store_true',
-      help="validate config/definition files and exit")
-    config_group.add_option('--data-root', metavar='PATH',
-      dest='data_root',
-      default=None,
-      help="specify root directory to create definition data folders")
-    config_group.add_option('--list-data-dir',
-      action='store_true',
-      default=False,
-      dest='list_data_dir',
-      help='list definition data folder and exit')
-    parser.add_option_group(config_group)
-
-    log_group = OptionGroup(parser, "logging options")
-    log_group.add_option('-l', '--log-level', metavar='N',
-      dest='logthresh',
-      type='int',
-      default=3,
-      help="specify a level (0-6) of verbosity for the output log")
-    log_group.add_option('--log-file', metavar='PATH',
-      dest='logfile',
-      default=None,
-      help="specify a file in which to log output")
-    parser.add_option_group(log_group)
-  
-    library_group = OptionGroup(parser, "library options")
-    library_group.add_option('--lib-path', metavar='PATH',
-      action='append',
-      dest='libpath',
-      default=[],
-      help="specify directory containing deploy library files")
-    library_group.add_option('--share-path', metavar='PATH',
-      action='append',
-      dest='sharepath',
-      default=[],
-      help="specify directory containing deploy shared files")
-    parser.add_option_group(library_group)
-  
-    module_group = OptionGroup(parser, "module options")
-    module_group.add_option('--force', metavar='MODULE',
-      action='append',
-      dest='force_modules',
-      default=[],
-      help="force a module's events to execute")
-    module_group.add_option('--skip', metavar='MODULE',
-      action='append',
-      dest='skip_modules',
-      default=[],
-      help="skip execution of a module's events")
-    module_group.add_option('--enable', metavar='MODULE',
-      action='append',
-      dest='enabled_modules',
-      default=[],
-      help='enable a module')
-    module_group.add_option('--disable', metavar='MODULE',
-      action='append',
-      dest='disabled_modules',
-      default=[],
-      help='disable a module')
-    parser.add_option_group(module_group)
-
-    event_group = OptionGroup(parser, "event options")
-    event_group.add_option('--list-events',
-      action='store_true',
-      default=False,
-      dest='list_events',
-      help='list all events for the specified definition')
-    event_group.add_option('--force-event', metavar='EVENT',
-      action='append',
-      dest='force_events',
-      default=[],
-      help="force an individual event")
-    event_group.add_option('--skip-event', metavar='EVENT',
-      action='append',
-      dest='skip_events',
-      default=[],
-      help="skip an individual event")
-    parser.add_option_group(event_group)
- 
+    parser = DeployOptionParser()
     opts,args = parser.parse_args(args=sys.argv[1:])
   
     if len(args) != 1:
@@ -177,13 +51,7 @@ class BuildCli:
       parser.print_help()
       sys.exit(1)
   
-    # import deploy from some path in sys.path
-    try:
-      import deploy.main
-    except ImportError, e:
-      sys.exit("Deploy was unable to load a required python module:\n  * %s\n" % e)
- 
-    cb = BuildCliCallback()
+    cb = DeployCliCallback()
 
     # initialize our builder with opts and make it go!
     try:
