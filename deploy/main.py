@@ -147,158 +147,160 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # set error handler
     self.error_handler = error_handler
 
-    # set up temporary logger - console only
-    if options.list_data_dir:
-      # don't display log messages if user only wants data dir
-      logthresh = 0
-    else:
-      logthresh = options.logthresh
-    self.logger = make_log(logthresh)
-    if self.callback: self.callback.set_logger(self.logger)
-
-    # set initial debug value from options
-    self.debug = False
-    if options.debug is not None:
-      self.debug = options.debug
-    if self.callback: self.callback.set_debug(self.debug)
-
-    # set up configs
     try:
-      self._get_config(options, arguments)
-      self._setup_cache(options)
-      self._get_definition_path(arguments)
-      self._get_data_root(options)
-      self._get_templates_dir()
-      self._get_main_vars(options)
-      self._get_initial_macros(options)
-      self._get_definition(options, arguments)
-    except rxml.errors.XmlError, e:
-      if self.debug: 
-        raise
+      # set up temporary logger - console only
+      if options.list_data_dir:
+        # don't display log messages if user only wants data dir
+        logthresh = 0
       else:
-        raise DeployError(e)
+        logthresh = options.logthresh
+      self.logger = make_log(logthresh)
+      if self.callback: self.callback.set_logger(self.logger)
 
-    # now that we have mainconfig, use it to set debug mode, if specified
-    if self.mainconfig.pathexists('/deploy/debug'):
-      self.debug = self.mainconfig.getbool('/deploy/debug', False)
-    if self.callback: self.callback.set_debug(self.debug)
+      # set initial debug value from options
+      self.debug = False
+      if options.debug is not None:
+        self.debug = options.debug
+      if self.callback: self.callback.set_debug(self.debug)
 
-    # set up initial variables
-    qstr = '/*/main/%s/text()'
+      # set up configs
+      try:
+        self._get_config(options, arguments)
+        self._setup_cache(options)
+        self._get_definition_path(arguments)
+        self._get_data_root(options)
+        self._get_templates_dir()
+        self._get_main_vars(options)
+        self._get_initial_macros(options)
+        self._get_definition(options, arguments)
+      except rxml.errors.XmlError, e:
+        if self.debug: 
+          raise
+        else:
+          raise DeployError(e)
 
-    self.type   = self.definition.getxpath(qstr % 'type', 'system')
-    self.build_id = self.definition.getxpath(qstr % 'id')
+      # now that we have mainconfig, use it to set debug mode, if specified
+      if self.mainconfig.pathexists('/deploy/debug'):
+        self.debug = self.mainconfig.getbool('/deploy/debug', False)
+      if self.callback: self.callback.set_debug(self.debug)
 
-    # set data_dir
-    self._get_data_dir(options)
-    if options.list_data_dir:
-      print self.data_dir
-      sys.exit()
+      # set up initial variables
+      qstr = '/*/main/%s/text()'
 
-    # set up real logger - console and file, unless provided as init arg
-    self.logfile = ( pps.path(options.logfile)
-                     or self.definition.getpath(
-                        '/*/main/log-file/text()', None)
-                     or self.mainconfig.getpath(
-                        '/deploy/log-file/text()', None)
-                     or DEFAULT_LOG_FILE ).expand().abspath()
-    self.logfile.exists() or self.logfile.touch()
-    self.logfile.chmod(0700)
-    self.logfile.chown(0,0)
+      self.type   = self.definition.getxpath(qstr % 'type', 'system')
+      self.build_id = self.definition.getxpath(qstr % 'id')
 
-    try:
-      self.logger = make_log(options.logthresh, self.logfile)
-    except IOError, e:
-      raise DeployError("Error opening log file for writing: %s" % e)
-    if self.callback: self.callback.set_logger(self.logger)
-
-    # set up additional attributes for use by events
-    self._compute_event_attrs(options)
-
-    # change working dir to config dir so relative paths expand properly
-    os.chdir(self.definition.getbase().dirname)
-
-    # set up import_dirs
-    import_dirs = self._compute_import_dirs(options)
-
-    # set up lists of enabled and disabled modules
-    enabled, disabled = self._compute_modules(options)
-
-    # load all enabled modules, register events, set up dispatcher
-    loader = Loader(ptr=self, top=AllEvent(ptr = self), api_ver=API_VERSION,
-                    enabled=enabled, disabled=disabled,
-                    load_extensions=False)
-
-    try:
-      self.dispatch = dispatch.Dispatch(
-                      loader.load(import_dirs, prefix='deploy/modules',))
-      self.disabled_modules = loader.disabled
-      self.enabled_modules  = loader.enabled
-      self.module_map       = loader.module_map
-
-      # add module mappings for pseudo events
-      for modid, module in loader.modules.items():
-        self.module_map.setdefault('all', []).extend(self.module_map[modid])
-        grp = loader.module_info[modid].get('group', '')
-        if grp:
-          self.module_map.setdefault(grp, []).extend(self.module_map[modid])
-
-    except ImportError, e:
-      raise DeployError("Error loading core deploy files: %s" % 
-            traceback.format_exc())
-
-    except InvalidEventError, e:
-      raise DeployError("\n%s" % e)
-
-    # list events, if requested
-    if options.list_events:
-      self.dispatch.pprint()
-      sys.exit()
-
-    # apply --force to modules/events
-    for eventid in self._compute_events(options.force_modules,
-                                        options.force_events):
-      self._set_status(eventid, True, '--force')
-
-    # apply --skip to modules/events
-    for eventid in self._compute_events(options.skip_modules,
-                                        options.skip_events):
-      self._set_status(eventid, False, '--skip')
-
-    # perform validation, if not specified otherwise
-    if not options.no_validate:
-      self.validate_configs()
-      if options.validate_only:
-        print self.definition
+      # set data_dir
+      self._get_data_dir(options)
+      if options.list_data_dir:
+        print self.data_dir
         sys.exit()
 
-    # set up locking
-    self._lock = lock.Lock( 'deploy-%s.pid' % self.build_id )
+      # set up real logger - console and file, unless provided as init arg
+      self.logfile = ( pps.path(options.logfile)
+                       or self.definition.getpath(
+                          '/*/main/log-file/text()', None)
+                       or self.mainconfig.getpath(
+                          '/deploy/log-file/text()', None)
+                       or DEFAULT_LOG_FILE ).expand().abspath()
+      self.logfile.exists() or self.logfile.touch()
+      self.logfile.chmod(0700)
+      self.logfile.chown(0,0)
+
+      try:
+        self.logger = make_log(options.logthresh, self.logfile)
+      except IOError, e:
+        raise DeployError("Error opening log file for writing: %s" % e)
+      if self.callback: self.callback.set_logger(self.logger)
+
+      # set up additional attributes for use by events
+      self._compute_event_attrs(options)
+
+      # change working dir to config dir so relative paths expand properly
+      os.chdir(self.definition.getbase().dirname)
+
+      # set up import_dirs
+      import_dirs = self._compute_import_dirs(options)
+
+      # set up lists of enabled and disabled modules
+      enabled, disabled = self._compute_modules(options)
+
+      # load all enabled modules, register events, set up dispatcher
+      loader = Loader(ptr=self, top=AllEvent(ptr = self), api_ver=API_VERSION,
+                      enabled=enabled, disabled=disabled,
+                      load_extensions=False)
+
+      try:
+        self.dispatch = dispatch.Dispatch(
+                        loader.load(import_dirs, prefix='deploy/modules',))
+        self.disabled_modules = loader.disabled
+        self.enabled_modules  = loader.enabled
+        self.module_map       = loader.module_map
+
+        # add module mappings for pseudo events
+        for modid, module in loader.modules.items():
+          self.module_map.setdefault('all', []).extend(self.module_map[modid])
+          grp = loader.module_info[modid].get('group', '')
+          if grp:
+            self.module_map.setdefault(grp, []).extend(self.module_map[modid])
+
+      except ImportError, e:
+        raise DeployError("Error loading core deploy files: %s" % 
+              traceback.format_exc())
+
+      except InvalidEventError, e:
+        raise DeployError("\n%s" % e)
+
+      # list events, if requested
+      if options.list_events:
+        self.dispatch.pprint()
+        sys.exit()
+
+      # apply --force to modules/events
+      for eventid in self._compute_events(options.force_modules,
+                                          options.force_events):
+        self._set_status(eventid, True, '--force')
+
+      # apply --skip to modules/events
+      for eventid in self._compute_events(options.skip_modules,
+                                          options.skip_events):
+        self._set_status(eventid, False, '--skip')
+
+      # perform validation, if not specified otherwise
+      if not options.no_validate:
+        self.validate_configs()
+        if options.validate_only:
+          print self.definition
+          sys.exit()
+
+      # set up locking
+      self._lock = lock.Lock( 'deploy-%s.pid' % self.build_id )
+
+    except BaseException, e:
+      if self.error_handler:
+        self.error_handler(error=e, callback=self.callback)
+      else: raise
 
   def main(self):
     "Build a repository"
-    if self._lock.acquire():
-      self._log_header()
-      try:
-        self.dispatch.execute(until=None)
-      except (DeployEventError, OfflinePathError), e:
+    try:
+      if self._lock.acquire():
+        self._log_header()
         try:
-          self._handle_Exception(e)
-        except DeployError, e:
-          if self.error_handler:
-            self.error_handler(error=e, callback=self.callback)
-          else: raise
-      except BaseException, e:
-        if self.error_handler:
-          self.error_handler(error=e, callback=self.callback)
-        else: raise
-      finally:
-        self._lock.release()
-      self._log_footer()
-    else:
-      raise DeployError("\nAnother instance of deploy (pid %d) is "
-                              "already modifying '%s'" % 
-                              (self._lock._readlock()[0], self.build_id ))
+          self.dispatch.execute(until=None)
+        except (DeployEventError, OfflinePathError), e:
+            self._handle_Exception(e)
+        finally:
+          self._lock.release()
+        self._log_footer()
+      else:
+        raise DeployError("\nAnother instance of deploy (pid %d) is "
+                                "already modifying '%s'" % 
+                                (self._lock._readlock()[0], self.build_id ))
+    except BaseException, e:
+      if self.error_handler:
+        self.error_handler(error=e, callback=self.callback)
+      else: raise
 
   def _get_config(self, options, arguments):
     """
