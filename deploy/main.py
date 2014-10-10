@@ -149,12 +149,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     try:
       # set up temporary logger - console only
-      if options.list_data_dir:
-        # don't display log messages if user only wants data dir
-        logthresh = 0
-      else:
-        logthresh = options.logthresh
-      self.logger = make_log(logthresh)
+      self.logger = make_log(options.logthresh)
       if self.callback: self.callback.set_logger(self.logger)
 
       # set initial debug value from options
@@ -192,9 +187,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
       # set data_dir
       self._get_data_dir(options)
-      if options.list_data_dir:
-        print self.data_dir
-        sys.exit()
 
       # set up real logger - console and file, unless provided as init arg
       self.logfile = ( pps.path(options.logfile)

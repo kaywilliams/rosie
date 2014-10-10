@@ -74,11 +74,6 @@ class DeployOptionParser(OptionParser):
       dest='data_root',
       default=None,
       help="specify root directory to create definition data folders")
-    config_group.add_option('--list-data-dir',
-      action='store_true',
-      default=False,
-      dest='list_data_dir',
-      help='list definition data folder and exit')
     self.add_option_group(config_group)
 
     log_group = OptionGroup(self, "logging options")

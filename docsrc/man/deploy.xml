@@ -54,9 +54,6 @@
 <option>--data-root <replaceable class='parameter'>PATH</replaceable></option>
 </arg>
 <arg choice="opt">
-<option>--list-data-dir </option>
-</arg>
-<arg choice="opt">
 <option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
 </arg>
 <arg choice="opt">
@@ -193,15 +190,6 @@ definition file, see the Deploy Definition File Reference at
     specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
-  </listitem>
-</varlistentry>
-
-<varlistentry>
-  <term><option>--list-data-dir </option></term>
-  <listitem>
-    <para>
-    Lists the full path to the definition data folder and exits.
-    </para>
   </listitem>
 </varlistentry>
 
