@@ -23,77 +23,27 @@ deploy
 Deploy wrapper
 """
 
-import imp
-import os
 import sys
-import traceback
 
 # import deploy from some path in sys.path
 try:
   import deploy.main
 except ImportError, e:
   sys.exit("Deploy was unable to load a required python module:\n  * %s\n" % e)
- 
-from deploy.callback import DeployCliCallback
-from deploy.errors   import DeployError
-from deploy.dlogging import L0
-from deploy.options  import DeployOptionParser
-from deploy.util     import pps
 
+from deploy.options import DeployOptionParser
 
 class BuildCli:
   def __init__(self):
-    parser = DeployOptionParser()
-    opts,args = parser.parse_args(args=sys.argv[1:])
+    opts,args = DeployOptionParser().parse_args(args=sys.argv[1:])
   
     if len(args) != 1:
       print "Invalid number of arguments (expecting 1, got %d)" % len(args)
       parser.print_help()
       sys.exit(1)
-  
-    cb = DeployCliCallback()
 
     # initialize our builder with opts and make it go!
-    try:
-      builder = deploy.main.Build(opts, args, callback=cb)
-      builder.main()
-    except (KeyboardInterrupt):
-      msg = "\nDeploy halted on user input\n"
-      cb.logger.logfile.file_object.write(msg)
-      sys.exit(msg)
-    except DeployError, e:
-      cb.logger.write(0, '\n') # start on a new line
-      msg = str(e) + '\n'
-      cb.logger.logfile.file_object.write(msg)
-      sys.exit(msg)
-    except Exception, e:
-      tb = traceback.format_exc()
-      cb.logger.logfile.file_object.write(tb)
-      if cb.logger.test(4) or cb.debug: 
-        sys.exit(tb)
-      else:
-        cb.logger.write(0, '\n') # start on a new line
-        if hasattr(cb.logger.logfile.file_object, 'name'):
-          msg = ( 
-            "An unhandled exception has been generated while running "
-            "Deploy. The traceback has been recorded in the log "
-            "file at '%s'. Please report this error by sending a copy "
-            "of your log file, system definition file and any other "
-            "relevant information to bugs@deployproject.org\n\n"
-            "Error message was: %s\n"
-            % (cb.logger.logfile.file_object.name, e))
-          cb.logger.logfile.file_object.write(msg)
-          sys.exit(msg)
-        else:
-          msg = (           
-            "An unhandled exception has been generated while running "
-            "Deploy. Please report this error by sending a copy "
-            "of the error message, your system definition file and any other "
-            "relevant information to bugs@deployproject.org\n\n"
-            "Error message was: %s\n" % tb)
-          sys.exit(msg)
-
-    # else we're done - exit with success
-    sys.exit()
+    builder = deploy.main.Build(opts, args)
+    builder.main()
 
 if __name__ == '__main__': BuildCli()

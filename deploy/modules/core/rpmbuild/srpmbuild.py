@@ -315,7 +315,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
   def _initialize_builder(self):
     try:
-      self.builder = SrpmBuild(self, self._get_build_machine_options(), [])
+      self.builder = SrpmBuild(self, self._get_build_machine_options(), [],
+                                     callback=None, error_handler=None)
     except DeployError, e:
       raise BuildMachineCreationError(
               template='based on \'%s\'' % self.template, 

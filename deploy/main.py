@@ -49,15 +49,17 @@ from deploy.util.pps.search_paths import SearchPathsHandler
 
 from deploy.util import sync
 
-from deploy.callback  import (SyncCallback, CachedCopyCallback,
+from deploy.callback  import (DeployCliCallback, 
+                              SyncCallback, CachedCopyCallback,
                               LinkCallback, SyncCallbackCompressed)
 from deploy.constants import *
 from deploy.dlogging  import make_log, L0, L1, L2
-from deploy.errors    import (DeployEventErrorHandler, 
-                                    DeployEventError,
-                                    DeployError,
-                                    InvalidOptionError,
-                                    InvalidMainConfigPathError,)
+from deploy.errors    import (DeployCliErrorHandler,
+                              DeployEventErrorHandler, 
+                              DeployEventError,
+                              DeployError,
+                              InvalidOptionError,
+                              InvalidMainConfigPathError,)
 from deploy.options   import DeployOptionParser
 from deploy.event     import Event, CLASS_META
 from deploy.validate  import (DeployValidationHandler,
@@ -112,7 +114,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
   the build process.
   """
 
-  def __init__(self, options, arguments, callback=None):
+  def __init__(self, options, arguments, callback=DeployCliCallback(),
+                     error_handler=DeployCliErrorHandler):
     """
     Initialize a Build object
 
@@ -124,6 +127,8 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       arguments: a list of arguments not processed by the parser, specifically
                  must contain the definition
       callback:  a callback object providing set_debug and set_logger functions
+      error_handler: a function to handle errors; errors raised normally
+                 if set to none
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/deploy')
@@ -136,6 +141,12 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       if not hasattr(options, '__iter__'): options = options.split()
       options = DeployOptionParser().parse_args(args=options)[0]
 
+    # set callback
+    self.callback = callback
+
+    # set error handler
+    self.error_handler = error_handler
+
     # set up temporary logger - console only
     if options.list_data_dir:
       # don't display log messages if user only wants data dir
@@ -143,13 +154,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     else:
       logthresh = options.logthresh
     self.logger = make_log(logthresh)
-    if callback: callback.set_logger(self.logger)
+    if self.callback: self.callback.set_logger(self.logger)
 
     # set initial debug value from options
     self.debug = False
     if options.debug is not None:
       self.debug = options.debug
-    if callback: callback.set_debug(self.debug)
+    if self.callback: self.callback.set_debug(self.debug)
 
     # set up configs
     try:
@@ -170,7 +181,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # now that we have mainconfig, use it to set debug mode, if specified
     if self.mainconfig.pathexists('/deploy/debug'):
       self.debug = self.mainconfig.getbool('/deploy/debug', False)
-    if callback: callback.set_debug(self.debug)
+    if self.callback: self.callback.set_debug(self.debug)
 
     # set up initial variables
     qstr = '/*/main/%s/text()'
@@ -199,7 +210,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       self.logger = make_log(options.logthresh, self.logfile)
     except IOError, e:
       raise DeployError("Error opening log file for writing: %s" % e)
-    if callback: callback.set_logger(self.logger)
+    if self.callback: self.callback.set_logger(self.logger)
 
     # set up additional attributes for use by events
     self._compute_event_attrs(options)
@@ -269,10 +280,18 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     if self._lock.acquire():
       self._log_header()
       try:
+        self.dispatch.execute(until=None)
+      except (DeployEventError, OfflinePathError), e:
         try:
-          self.dispatch.execute(until=None)
-        except (DeployEventError, OfflinePathError), e:
           self._handle_Exception(e)
+        except DeployError, e:
+          if self.error_handler:
+            self.error_handler(error=e, callback=self.callback)
+          else: raise
+      except BaseException, e:
+        if self.error_handler:
+          self.error_handler(error=e, callback=self.callback)
+        else: raise
       finally:
         self._lock.release()
       self._log_footer()
@@ -280,7 +299,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       raise DeployError("\nAnother instance of deploy (pid %d) is "
                               "already modifying '%s'" % 
                               (self._lock._readlock()[0], self.build_id ))
-
 
   def _get_config(self, options, arguments):
     """

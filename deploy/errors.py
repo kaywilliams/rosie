@@ -145,6 +145,44 @@ class DuplicateIdsError(DeployEventError):
   message = ("Validation Error: Duplicate ids found while validating "
              "'%(element)s' elements. The duplicate id is '%(id)s'.")
 
+class DeployCliErrorHandler:
+  def __init__(self, error, callback):
+    if isinstance(error, KeyboardInterrupt):
+      msg = "\nDeploy halted on user input\n"
+      callback.logger.logfile.file_object.write(msg)
+      sys.exit(msg)
+    if isinstance(error, DeployError):
+      callback.logger.write(0, '\n') # start on a new line
+      msg = str(error) + '\n'
+      callback.logger.logfile.file_object.write(msg)
+      sys.exit(msg)
+    if isinstance(error, Exception):
+      tb = traceback.format_exc()
+      callback.logger.logfile.file_object.write(tb)
+      if callback.logger.test(4) or callback.debug:
+        sys.exit(tb)
+      else:
+        callback.logger.write(0, '\n') # start on a new line
+        if hasattr(callback.logger.logfile.file_object, 'name'):
+          msg = (
+            "An unhandled exception has been generated while running "
+            "Deploy. The traceback has been recorded in the log "
+            "file at '%s'. Please report this error by sending a copy "
+            "of your log file, system definition file and any other "
+            "relevant information to bugs@deployproject.org\n\n"
+            "Error message was: %s\n"
+            % (callback.logger.logfile.file_object.name, error))
+          callback.logger.logfile.file_object.write(msg)
+          sys.exit(msg)
+        else:
+          msg = (           
+            "An unhandled exception has been generated while running "
+            "Deploy. Please report this error by sending a copy "
+            "of the error message, your system definition file and any other "
+            "relevant information to bugs@deployproject.org\n\n"
+            "Error message was: %s\n" % tb)
+          sys.exit(msg)
+
 class DeployEventErrorHandler:
   def _handle_Exception(self, e, event=''):
     event = event or self.dispatch.currevent.id

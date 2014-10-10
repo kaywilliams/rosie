@@ -41,7 +41,7 @@ EDITION = 'server'
 class TestBuild(Build):
   def __init__(self, conf, options=None, args=None):
     self.conf = conf
-    Build.__init__(self, options, args)
+    Build.__init__(self, options, args, callback=None, error_handler=None)
 
   def _get_config(self, options, arguments):
     self.mainconfig = options.mainconfig
