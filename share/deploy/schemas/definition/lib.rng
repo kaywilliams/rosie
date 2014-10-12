@@ -388,7 +388,7 @@
       <attribute name="activate"><ref name="value-boolean"/></attribute>
       </optional>
       <optional>
-      <attribute name="content"><ref name="value-boolean"/></attribute>
+      <attribute name="connect"><ref name="value-boolean"/></attribute>
       </optional>
       <optional><text/></optional>
       </element>
