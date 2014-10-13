@@ -182,6 +182,8 @@ class DeployCliErrorHandler:
             "relevant information to bugs@deployproject.org\n\n"
             "Error message was: %s\n" % tb)
           sys.exit(msg)
+    else:
+      raise error
 
 class DeployEventErrorHandler:
   def _handle_Exception(self, e, event=''):
