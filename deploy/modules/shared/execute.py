@@ -20,6 +20,7 @@ import fcntl
 import os
 import re
 import select
+import socket
 import subprocess
 import time
 
@@ -44,9 +45,33 @@ class ExecuteEventMixin:
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')
 
-  def _ssh_connect(self, params={}):
-    # dummy command to test if a connection can be established 
-    self._ssh_execute('exit', cmd_id="connect", params=params)
+  def _ssh_connect(self, params):
+    # test if a connection can be established, retry for 120 seconds to allow
+    # time for the remote system to boot and the ssh daemon to get started.
+    timeout = 120
+    sleep = 2
+    total = 0
+    try:
+      s = socket.socket()
+      while True:
+        try:
+          s.connect((params['hostname'], params['port']))
+          break 
+        except socket.error, e:
+          # Catch only "Name or service not known", "Connection refused", or 
+          # "No route to host" errors
+          if e[0] in [ -2, 111, 113]:
+            if total >= timeout:
+              raise
+            else:
+              msg = "%s... will retry for %s seconds" % (e[1], timeout - total)
+              self.log(3, L2(msg))
+              time.sleep(sleep)
+              total += sleep
+          else:
+            raise
+    finally:
+      s.close
 
   def _ssh_execute(self, script, cmd_id=None, params={}, log_format='L2', 
                    **kwargs):
@@ -137,21 +162,11 @@ class ExecuteEventMixin:
       raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
-    """
-    ConnectionTimeout - set this to a high value (2 minutes) to prevent
-         'Name or service not known' and 'No route to host' errors while
-         system is booting.
-    ConnectionAttempts - set this to a high value (120 - one per second)
-         to prevent 'Connection refused' and 'No route to host' errors after
-         the system has booted but before the ssh daemon is up.
-    """
     return ' '.join(["-o", "BatchMode=yes",
                      "-o", "StrictHostKeyChecking=no",
                      "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
                      "-o", "Port=%s" % port,
-                     "-o", "ConnectTimeout=120", 
-                     "-o", "ConnectionAttempts=120",
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
                      "-o", "TCPKeepAlive=no",
