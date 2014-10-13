@@ -385,6 +385,9 @@
       <element name="triggers">
       <ref name="xml-base"/>
       <optional>
+      <attribute name="exists"><ref name="value-boolean"/></attribute>
+      </optional>
+      <optional>
       <attribute name="activate"><ref name="value-boolean"/></attribute>
       </optional>
       <optional>
@@ -402,6 +405,7 @@
       <attribute name='type'>
       <choice>
       <value type="string">pre</value>
+      <value type="string">test-exists</value>
       <value type="string">activate</value>
       <value type="string">test-triggers</value>
       <value type="string">delete</value>

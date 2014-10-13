@@ -86,8 +86,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     # set ssh host defaults
     self.hostname_defaults = { 
                            'pre': 'localhost',
-                           'test-triggers': '%{ssh-host}',
+                           'test-exists': 'localhost',
                            'activate': 'localhost',
+                           'test-triggers': '%{ssh-host}',
                            'delete': 'localhost',
                            'pre-install': 'localhost', 
                            'install': 'localhost',
@@ -268,27 +269,46 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self.reinstall:
       return True
 
-    # can we activate the machine?
-    if self.config.getbool('triggers/@activate', True):
-      try:
-        self._execute('activate')
-      except (ScriptFailedError, SSHScriptFailedError), e:
+    # does the machine exist?
+    try:
+      self._execute('test-exists')
+    except (ScriptFailedError, SSHScriptFailedError), e:
+      if self.config.getbool('triggers/@exists', True):
         self.log(3, L0(e))
-        self.log(1, L1("unable to activate machine, reinstalling..."))
+        self.log(1, L1("test-exists script failed, reinstalling..."))
         return True # reinstall
+      else:
+        raise TestExistsFailedError(msg=
+          "Test-exists script failed:\n\n%s" % e.errtxt)
+
+    # can we activate it?
+    try:
+      self._execute('activate')
+    except (ScriptFailedError, SSHScriptFailedError), e:
+      if self.config.getbool('triggers/@activate', False):
+        self.log(3, L0(e))
+        self.log(1, L1("activation script failed, reinstalling..."))
+        return True # reinstall
+      else:
+        raise ActivationFailedError(msg=
+          "Activation script failed:\n\n%s" % e.errtxt)
 
     # can we get an ssh connection?
-    if self.config.getbool('triggers/@connect', True):
-      params = SSHParameters(self, 'test-triggers')
-      self.log(1, L1('attempting to connect'))
-      try:
-        self._ssh_connect(params=params)
-      except SSHScriptFailedError, e:
+    params = SSHParameters(self, 'test-triggers')
+    self.log(1, L1('attempting to connect'))
+    try:
+      self._ssh_connect(params=params)
+    except SSHScriptFailedError, e:
+      if self.config.getbool('triggers/@connect', False):
         self.log(3, L1(e))
-        self.log(1, L1("unable to connect to machine, reinstalling...")) 
+        self.log(1, L1("unable to connect, reinstalling...")) 
         return True # reinstall
+      else:
+        raise ConnectionFailedError(msg=
+          "An error occurred connecting to remote system '%s':\n\n%s"
+          % (self.get_ssh_host(), e.errtxt))
 
-    # does the trigger type return success?
+    # do test-trigger-type scripts return success?
     if self.types['test-triggers']:
       try:
         self._execute('test-triggers')
@@ -310,9 +330,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       # resolve %{ssh-host} macros in script
       script_text = cmd.read_text()
       if '%{ssh-host}' in script_text:
-        cmd.write_text(script_text.replace('%{ssh-host}', 
-                       get_ssh_host(self.ssh_host_file,
-                                    self.cvars[self.cvar_root]['fqdn'])))
+        cmd.write_text(script_text.replace('%{ssh-host}', self.get_ssh_host()))
 
       # get SSHParameters
       params = SSHParameters(self, type)
@@ -364,28 +382,27 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         self._ssh_execute(cmd, cmd_id=script.id, params=params, 
                           verbose=script.verbose)
 
-#----- Helper Methods -----#
-def get_ssh_host(ssh_host_file, fqdn):
-  if ssh_host_file.exists():
-    try:
-      ssh_host = None # start clean as ssh_host_file contents can change
-      ssh_host = ssh_host_file.read_text().strip()
-    except Exception as e:
-      message = ("Unable to read hostname file '%s'. The error was '%s'"
-                 % (ssh_host_file, e))
-      raise SshHostFileError(msg=message)
-    # validate hostname, unless it is an ipaddress
-    if not re.match(ssh_host, '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'):
+  def get_ssh_host(self):
+    if self.ssh_host_file.exists():
       try:
-        validate_hostname(ssh_host)
-      except InvalidHostnameError as e:
-        message = ("Invalid Hostname in ssh-host-file at '%s'. The error "
-                   "was %s" % (ssh_host_file, e))
+        ssh_host = None # start clean as ssh_host_file contents can change
+        ssh_host = self.ssh_host_file.read_text().strip()
+      except Exception as e:
+        message = ("Unable to read hostname file '%s'. The error was '%s'"
+                   % (self.ssh_host_file, e))
         raise SshHostFileError(msg=message)
-  else:
-    ssh_host = fqdn 
-
-  return ssh_host
+      # validate hostname, unless it is an ipaddress
+      if not re.match(ssh_host, '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'):
+        try:
+          validate_hostname(ssh_host)
+        except InvalidHostnameError as e:
+          message = ("Invalid Hostname in ssh-host-file at '%s'. The error "
+                     "was %s" % (self.ssh_host_file, e))
+          raise SshHostFileError(msg=message)
+    else:
+      ssh_host = self.cvars[self.cvar_root]['fqdn'] 
+  
+    return ssh_host
 
 class Script(resolve.Item, DirectedNodeMixin):
   def __init__(self, id, hostname, verbose, xpath, csum, comes_before,
@@ -414,8 +431,7 @@ class SSHParameters(DictMixin):
       if param == 'hostname':
         self.params['hostname'] = ptr.hostname_defaults[type]
         if self.params['hostname'] == '%{ssh-host}': 
-           self.params['hostname'] = \
-           get_ssh_host(ptr.ssh_host_file, ptr.cvars[ptr.cvar_root]['fqdn'])
+           self.params['hostname'] = ptr.get_ssh_host()
       else:
         self.params[param] = value
 
@@ -433,6 +449,15 @@ class SSHParameters(DictMixin):
 
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
+
+class TestExistsFailedError(DeployEventError):
+  message = "%(msg)s"
+
+class ActivationFailedError(DeployEventError):
+  message = "%(msg)s"
+
+class ConnectionFailedError(DeployEventError):
+  message = "%(msg)s"
 
 class SshHostFileError(DeployEventError):
   message = "%(msg)s"

@@ -14,8 +14,9 @@
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/libvirt-guest-config.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/verify-kvm.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/libvirt/test-exists.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/activate.xml'/>
+<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/delete.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>

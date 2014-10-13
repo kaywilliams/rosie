@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='activate' type='activate'>
-#!/usr/bin/python
-
-import libvirt
-import libvirtmod
-import os
-import sys
-
-from deploy.util import pps
-file = pps.path(os.path.dirname(os.path.abspath(__file__)))/ 'libvirt-%{module}'
-
-if file.exists():
-  guestname = file.read_text().strip().replace('guestname=', '')
-else:
-  sys.stderr.write("unable to determine guestname\n")
-  sys.exit(1)
-
-connection = libvirt.open('qemu:///system')
-try: #vm exists?
-  vm = connection.lookupByName(guestname)
-except libvirt.libvirtError:
-  sys.stderr.write("vm does not exist\n")
-  sys.exit(1)
+<script id='activate' type='activate' 
+        xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="test-exists.xml" xpointer="xpointer(./node())"/>
 state = vm.state(0)[0]
 
 # if vm is active, exit

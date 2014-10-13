@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='test-exists' type='test-exists'>
+set -e
+source /root/rackspace/rackspace_admin
+nova show %{fqdn}
+</script>
