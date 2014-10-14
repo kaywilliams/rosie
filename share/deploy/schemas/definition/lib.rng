@@ -390,9 +390,6 @@
       <optional>
       <attribute name="activate"><ref name="value-boolean"/></attribute>
       </optional>
-      <optional>
-      <attribute name="connect"><ref name="value-boolean"/></attribute>
-      </optional>
       <optional><text/></optional>
       </element>
     </optional>

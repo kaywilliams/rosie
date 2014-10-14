@@ -293,21 +293,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         raise ActivationFailedError(msg=
           "Activation script failed:\n\n%s" % e.errtxt)
 
-    # can we get an ssh connection?
-    params = SSHParameters(self, 'test-triggers')
-    self.log(1, L1('attempting to connect'))
-    try:
-      self._ssh_connect(params=params)
-    except SSHScriptFailedError, e:
-      if self.config.getbool('triggers/@connect', False):
-        self.log(3, L1(e))
-        self.log(1, L1("unable to connect, reinstalling...")) 
-        return True # reinstall
-      else:
-        raise ConnectionFailedError(msg=
-          "An error occurred connecting to remote system '%s':\n\n%s"
-          % (self.get_ssh_host(), e.errtxt))
-
     # do test-trigger-type scripts return success?
     if self.types['test-triggers']:
       try:
