@@ -291,7 +291,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         return True # reinstall
       else:
         raise ActivationFailedError(msg=
-          "Activation script failed:\n\n%s" % e.errtxt)
+          "Activation script failed:\n\n%s" % e)
 
     # do test-trigger-type scripts return success?
     if self.types['test-triggers']:
