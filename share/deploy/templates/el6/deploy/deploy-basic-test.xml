@@ -5,7 +5,7 @@
 
 <macro id='args'/>
 
-<script id='test-deploy-basic' type='update'>
+<script id='test-deploy-basic' type='update' comes-after='update'>
 #!/bin/sh
 deploy /usr/share/deploy/templates/%{norm-os}/httpd/web-server.definition \
   --disable test-install \
