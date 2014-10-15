@@ -58,9 +58,9 @@ class ExecuteEventMixin:
           s.connect((params['hostname'], params['port']))
           break 
         except socket.error, e:
-          # Catch only "Name or service not known", "Connection refused", or 
-          # "No route to host" errors
-          if e[0] in [ -2, 111, 113]:
+          # Catch "Name or service not known", "Connection timed out", 
+          # "Connection refused", or "No route to host" errors
+          if e[0] in [ -2, 110, 111, 113 ]:
             if total >= timeout:
               raise
             else:
