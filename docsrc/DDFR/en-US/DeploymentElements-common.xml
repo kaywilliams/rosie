@@ -64,11 +64,11 @@
     [&lt;updates [sync=BOOLEAN] [gpgcheck=BOOLEAN] [sslverify=BOOLEAN] /&gt;]
   &lt;/release-rpm&gt;]
 
-  [&lt;triggers [activate=BOOLEAN] [connect=BOOLEAN]&gt;[TEXT]&lt;/triggers&gt;]
+  [&lt;triggers [exists=BOOLEAN] [activate=BOOLEAN]&gt;[TEXT]&lt;/triggers&gt;]
 
   [&lt;script 
     id=TEXT 
-    type=[pre|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
+    type=[pre|test-exists|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
     [hostname=TEXT]
     [verbose=BOOLEAN]
     [comes-before=TEXT]
@@ -94,7 +94,7 @@
     <para>
     Install Macros - typically used within installation-related elements such
     as <xref linkend='kickstart'/>, and <xref linkend='install'/> and <xref
-    linkend='delete'/>-type <link linkend='deployment-script'>scripts</link>.
+    linkend='delete'/> <link linkend='deployment-script'>scripts</link>.
     </para>
 
     <informaltable>
@@ -227,7 +227,7 @@
     machine prior to executing scripts where the <emphasis>@hostname</emphasis>
     attribute is set to <constant>%{ssh-host}</constant>, i.e.
     <emphasis>post-install</emphasis>, <emphasis>save-trigger</emphasis>, and
-    <emphasis>post</emphasis>-type scripts.
+    <emphasis>post</emphasis> scripts.
     </para>
    
     <para>
@@ -273,8 +273,8 @@
     </informaltable>
 
     <para>
-    Trigger Macros - typically used within <xref linkend='save-triggers'/> and
-    <xref linkend='test-triggers'/>-type scripts. See also the <xref
+    Trigger Macros - used within <xref linkend='save-triggers'/> and
+    <xref linkend='test-triggers'/> scripts. See also the <xref
     linkend='triggers'/> element.
     </para>
 
@@ -332,14 +332,14 @@
     <row>
     <entry>%{install_scripts_csum}</entry>
     <entry>
-    MD5 hash of all current <constant>install</constant>-type scripts.
+    MD5 hash of all current <constant>install</constant> scripts.
     </entry>
     </row>
 
     <row>
     <entry>%{post_install_scripts_csum}</entry>
     <entry>
-    MD5 hash of all current <constant>post-install</constant>-type scripts.
+    MD5 hash of all current <constant>post-install</constant> scripts.
     </entry>
     </row>
     </tbody>
@@ -562,7 +562,7 @@ $local-dir/%{id}</programlisting>
       The %{localroot} macro is commonly used in <xref
       linkend="deployment-script"/> elements for copying repository content,
       e.g. current yum configuration files, to client machines. See  
-      <xref linkend='update'/>-type scripts for an example.
+      <xref linkend='update'/> scripts for an example.
       </para>
 
       <para>
@@ -643,7 +643,7 @@ $remote-url/%{id}</programlisting>
       <para>
       The %{webroot} macro is commonly used in <xref
       linkend='deployment-script'/> elements. See <xref
-      linkend='install'/>-type scripts for an example.
+      linkend='install'/> scripts for an example.
       </para>
 
       <para>
@@ -809,7 +809,7 @@ $remote-url/%{id}</programlisting>
       <para>
       Provided as a module macro, <link
       linkend="deployment-macros">%{boot-options}</link>, for use within
-      deployment element content, primarily <constant>install</constant>-type
+      deployment element content, primarily <constant>install</constant>
       scripts. See the <xref linkend="deployment-script"/> element below for
       more information.
       </para>
@@ -1164,10 +1164,12 @@ $remote-url/%{id}</programlisting>
 
     <listitem>
       <para>
-      TEXT value providing a space-separated list of
-      trigger names.  The value of this element is made available to <xref
-      linkend='test-triggers'/>-type scripts via the <link
-      linkend="deployment-macros">%{triggers}</link> module macro.
+      Controls execution of installation-related scripts including <xref
+      linkend='delete'/>, <xref linkend='install'/>, <xref
+      linkend='post-install'/> and <xref linkend='save-triggers'/>. Applies to
+      <emphasis>test-update</emphasis> and <emphasis>publish</emphasis>
+      elements only. Silently ignored for <emphasis>test-install</emphasis>;
+      see <xref linkend='test-install'/> for additional information.
       </para>
 
       <para>
@@ -1175,69 +1177,81 @@ $remote-url/%{id}</programlisting>
       events, Deploy executes installation-related scripts (<xref
       linkend='delete'/>, <xref linkend='install'/>, <xref
       linkend='post-install'/> and <xref linkend='save-triggers'/>) only when
-      one of the following conditions is true.
+      one of the following conditions is <constant>True</constant>.
       </para>
 
       <orderedlist>
       <listitem>
       <para>
-      An <xref linkend='activate'/>-type script returns a non-zero
-      exit status.
+      The value of the <emphasis>triggers/@exists</emphasis> attribute is
+      <constant>True</constant> (default) and a <xref linkend='test-exists'/>
+      script returns a non-zero exit status.
       </para>
       </listitem>
 
       <listitem>
       <para>
-      An attempt to connect to the client machine identified by the <link
-      linkend="deployment-macros">%{fqdn}</link> fails.
+      The value of the <emphasis>triggers/@activate</emphasis> attribute is
+      <constant>True</constant> (non-default) and an <xref linkend='activate'/>
+      script returns a non-zero exit status.
       </para>
       </listitem>
 
       <listitem>
       <para>
-      A <xref linkend='test-triggers'/>-type script fails returns a non-zero
-      exit status. Test-triggers-type scripts make use of the macros described
-      under <emphasis>Trigger Macros</emphasis> in <xref
-      linkend='deployment-macros'/>. See <xref
-      linkend='test-triggers'/> for an example.
+      A <xref linkend='test-triggers'/> script returns a non-zero exit status.
+      Test-triggers scripts make use of the macros described under
+      <emphasis>Trigger Macros</emphasis> in <xref
+      linkend='deployment-macros'/>. See <xref linkend='test-triggers'/> for an
+      example.  The TEXT value of the <emphasis>triggers</emphasis> element
+      provides a space-separated list of trigger names.  These are made
+      available to <xref linkend='test-triggers'/> scripts via the <link
+      linkend="deployment-macros">%{triggers}</link> module macro. The default
+      TEXT value is an empty string, "".
       </para>
       </listitem>
       </orderedlist>
 
       <para>
-      The triggers element and its attributes, in conjunction with trigger
-      macros and save-triggers and test-triggers-type scripts, provide control
-      over this behavior. 
+      This element is optional.
       </para>
-
-      <para>
-      This element is optional. The default value is an empty string, "".
-      </para>
-
-      <para>
-      This element applies to <emphasis>publish</emphasis> and
-      <emphasis>test-update</emphasis> only. It is silently ignored for
-      <emphasis>test-install</emphasis>; see <xref linkend='test-install'/> for
-      additional information.
-      </para>
-
       <para>
       <emphasis role='strong'>Attributes</emphasis>
       </para>
 
       <variablelist>
+      <varlistentry id='trigger-exists'>
+      <term>@exists</term>
+      <listitem>
+      <para>
+      BOOLEAN value indicating whether Deploy
+      should execute install-related scripts if a <xref
+      linkend='test-exists'/> script returns a non-zero exit status.
+      </para>
+
+      <para>
+      This is an optional attribute. The default value is
+      <constant>TRUE</constant>.
+      </para>
+
+      <para>
+      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+      </para>
+
+      </listitem>
+      </varlistentry>
       <varlistentry id='trigger-activate'>
       <term>@activate</term>
       <listitem>
       <para>
       BOOLEAN value indicating whether Deploy
       should execute install-related scripts if an <xref
-      linkend='activate'/>-type script returns a non-zero exit status.
+      linkend='activate'/> script returns a non-zero exit status.
       </para>
 
       <para>
       This is an optional attribute. The default value is
-      <constant>TRUE</constant>.
+      <constant>FALSE</constant>.
       </para>
       
       <para>
@@ -1247,26 +1261,6 @@ $remote-url/%{id}</programlisting>
       </listitem>
       </varlistentry>
 
-      <varlistentry id='trigger-connect'>
-      <term>@connect</term>
-      <listitem>
-      <para>
-      BOOLEAN value indicating whether Deploy should execute install-related
-      scripts if an SSH connection to the client machine identified by <link
-      linkend='deployment-macros'>%{fqdn}</link> cannot be established.  
-      </para>
-
-      <para>
-      This is an optional attribute. The default value is
-      <constant>TRUE</constant>.
-      </para>
-
-      <para>
-      See <xref linkend="content-boolean"/> for information on BOOLEAN values.
-      </para>
-
-      </listitem>
-      </varlistentry>
       </variablelist>
 
 
@@ -1319,11 +1313,11 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Type of the script. Valid values are <xref linkend='pre'/>, <xref
-      linkend='activate'/>, <xref linkend='test-triggers'/>, <xref
-      linkend='delete'/>, <xref linkend='pre-install'/>, <xref
-      linkend='install'/>, <xref linkend="post-install"/>, <xref
-      linkend='save-triggers'/>, <xref linkend="update"/> and <xref
-      linkend='post'/>:
+      linkend='test-exists'/>, <xref linkend='activate'/>, <xref
+      linkend='test-triggers'/>, <xref linkend='delete'/>, <xref
+      linkend='pre-install'/>, <xref linkend='install'/>, <xref
+      linkend="post-install"/>, <xref linkend='save-triggers'/>, <xref
+      linkend="update"/> and <xref linkend='post'/>:
       </para>
 
       <variablelist>
@@ -1376,6 +1370,49 @@ $remote-url/%{id}</programlisting>
       </listitem>
       </varlistentry>
 
+      <varlistentry id='test-exists'>
+      <term>
+      test-exists
+      </term>
+
+      <listitem>
+      <para>
+      Test-exist scripts determine if the specified machine already exists.
+      They are used primarily for determining whether install scripts should
+      run. See the <xref linkend='triggers'/> element for additional
+      information.
+      </para>
+      <para>
+      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      named <filename>test-exists.xml</filename> which is included in the
+      template folder at
+      <filename>/usr/share/deploy/templates/el6/libvirt</filename>.  The
+      template contains a Python script that checks for the existence of a
+      virtual machine with a specified guestname. It returns a non-zero value
+      if a virtual machine does not exist.
+      </para>
+      
+      <para>
+      See <xref linkend='templates'/> for more information on templates.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/libvirt/test-exists.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-exists.xml"/></programlisting>
+      </informalexample>
+
+      </listitem>
+      </varlistentry>
+
       <varlistentry id='activate'>
       <term>
       activate
@@ -1386,8 +1423,9 @@ $remote-url/%{id}</programlisting>
       Activate scripts handle client machine activation. They must return a
       non-zero exit status if activation fails.
       </para>
+
       <para>
-      <emphasis role='bold'>Example</emphasis> - This example shows a file
+      <emphasis role='bold'>Example 1</emphasis> - This example shows a file
       named <filename>activate.xml</filename> which is included in the
       template folder at
       <filename>/usr/share/deploy/templates/el6/libvirt</filename>. See
@@ -1396,11 +1434,9 @@ $remote-url/%{id}</programlisting>
       
       <para>
       The template contains the text of a python script. The script attempts to
-      establish a connection to a virtual machine on the build machine. The
-      virtual machine is identified using the <link
-      linkend='deployment-macros'>%{fqdn}</link> macro. If the virtual machine
-      does not exist or cannot be activated, the script returns an exit status
-      of '1'.
+      establish a connection to a virtual machine. If the virtual machine does
+      not exist or cannot be activated, the script returns an exit status of
+      '1'.
       </para>
 
       <informalexample>
@@ -1417,6 +1453,34 @@ $remote-url/%{id}</programlisting>
 &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/activate.xml"/></programlisting>
       </informalexample>
 
+      <para>
+      <emphasis role='bold'>Example 2</emphasis> - This example shows a file
+      named <filename>connect.xml</filename> which is included in the
+      template folder at
+      <filename>/usr/share/deploy/templates/el6/common</filename>. See
+      <xref linkend='templates'/> for more information on templates.
+      </para>
+      
+      <para>
+      The template contains the text of a Python script. The script attempts to
+      establish a connection to the machine identified by the <link
+      linkend='deployment-macros'>%{ssh-host}</link> macro. If a connection
+      cannot be established, the script returns an exit status of '1'.
+      </para>
+
+      <informalexample>
+      <programlisting>
+<xi:include href='../../../../../share/deploy/templates/el6/common/connect.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/> </programlisting>
+      </informalexample>
+
+      <para>
+      The template can be included in a definition using an <link
+      linkend="xincludes">XInclude</link> such as the following:
+      </para>
+      <informalexample>
+      <programlisting>
+&lt;xi:include href="%{templates-dir}/%{norm-os}/common/connect.xml"/></programlisting>
+      </informalexample>
       </listitem>
     </varlistentry>
 
@@ -1541,8 +1605,8 @@ $remote-url/%{id}</programlisting>
       <para>
       The template contains the text of a shell script that creates and saves
       ssh keys. This script type is set as <emphasis>pre-install</emphasis> so
-      that the created keys can be used by install-type scripts for configuring
-      ssh to the client machine. 
+      that the created keys can be used by <xref linkend='install'/> scripts
+      for configuring ssh to the client machine. 
       </para>
 
       <informalexample>
@@ -1921,11 +1985,11 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       The value of %{ssh-host} is determined by first attempting to read a file
       at the location specified by %{ssh-host-file}. If this file does not
       exist, the value of %{fqdn} is used. The %{ssh-host-file} provides a
-      mechanism for scripts, typically an install-type script, to specify the
-      client hostname or IP address at runtime. This is useful if the client is
-      not accessible, or not immediately accessible, via DNS. The file can be
-      created by outputting the hostname or IP address to a file at the
-      location specified by the macro, for example:
+      mechanism for scripts, typically an <xref linkend='install'/> script, to
+      specify the client hostname or IP address at runtime. This is useful if
+      the client is not accessible, or not immediately accessible, via DNS. The
+      file can be created by outputting the hostname or IP address to a file at
+      the location specified by the macro, for example:
 
       <programlisting>
 &lt;script name='install' type='install'>

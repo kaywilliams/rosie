@@ -23,7 +23,7 @@
     Deploy accomplishes installation testing using deployment scripts
     described in the Common Model. Should any of the scripts fail to complete
     successfully, Deploy halts processing prior to running the
-    <emphasis>test-update</emphasis> and <emphasis>publish</emphasis> events.
+    <emphasis>publish</emphasis> event.
     </para>
 
     <para>
