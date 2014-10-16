@@ -49,23 +49,8 @@ their ssh keys, provide public keys using files elements as below
      added to /root/.ssh/authorized_keys for client machines; see
      rsnapshot-client.config.xml for details.
      -->
-<prep-script>
-#!/bin/sh
-set -e
-function create_ssh_keys {
-<xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
-}
-create_ssh_keys %{data-dir} %{ssh-host}
-</prep-script>
-
-<!-- install ssh keys (created in the prep script) on the server -->
-<files destdir="/root/.ssh" mode="600">%{data-dir}/id_rsa</files>
-<files destdir="/root/.ssh" mode="644">%{data-dir}/id_rsa.pub</files>
-
-<!-- secure the /root/.ssh folder -->
-<script type='post'>
-chmod 700 /root/.ssh
-</script>
+<xi:include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
+            xpointer="xpointer(./*)"/>
 
 <!-- install client public keys in known_hosts file -->
 <script type="post">
