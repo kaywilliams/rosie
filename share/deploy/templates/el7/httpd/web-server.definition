@@ -35,13 +35,13 @@
 <test-update>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/httpd/test/test-web-server-running.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/httpd/test-httpd-config.xml"/>
 </test-update>
 
 <test-install enabled="false">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
             xpointer="xpointer(./*)"/>
-<xi:include href="%{templates-dir}/%{norm-os}/httpd/test/test-web-server-running.xml"/>
+<xi:include href="%{templates-dir}/%{norm-os}/httpd/test-httpd-config.xml"/>
 </test-install>
 
 </definition>

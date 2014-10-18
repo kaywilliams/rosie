@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script type='update' id='test-httpd-config' comes-after='update'>
+#!/bin/sh
+
+# test web server running
+[[ `pidof httpd` ]] || (echo 'TEST FAILED: Web server not running'; exit 1)
+
+# test firewall configuration;
+for s in http https; do 
+  firewall-cmd --zone public --list-services | grep -qw $s || \
+  (echo "TEST FAILED: '$s' not listed in 'firewall-cmd --zone public --list-services'"; exit 1)
+done
+</script>

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='httpd-config'>
-<description>
-Configures httpd and related firewall settings
-</description>
-
+<!-- httpd -->
 <requires>httpd</requires>
+<requires>mod_ssl</requires>
+
+<!-- firewall -->
 <requires>firewalld</requires>
+
+<!-- utils -->
 <requires>/usr/bin/ps</requires>
 
 <script type='post'>

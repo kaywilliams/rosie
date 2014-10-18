@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script type='update' id='test-httpd-config' comes-after='update'>
+#!/bin/sh
+
+# test web server running
+[[ `pidof httpd` ]] || (echo 'TEST FAILED: Web server not running'; exit 1)
+
+# test firewall configuration
+for p in 80 443; do
+  service iptables status | grep -qw $p || \
+  (echo "TEST FAILED: '$p' not listed in 'service iptables status'"; exit 1)
+done
+</script>

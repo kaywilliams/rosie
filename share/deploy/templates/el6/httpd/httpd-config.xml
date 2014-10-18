@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='httpd-config'>
+<!-- http -->
 <requires>httpd</requires>
+<requires>mod_ssl</requires>
+
+<!-- firewall -->
 <requires>iptables</requires>
+<requires>system-config-firewall-tui</requires>
+
+<!-- utils -->
 <requires>/bin/ps</requires>
 <requires>/sbin/pidof</requires>
+
 <files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d' 
        mode='750'>
 #!/bin/sh
@@ -11,25 +19,19 @@
 #chkconfig: 2345 07 91
 #description: Iptables configuration for HTTP
 #
-VERSION=%{version}
 FILE=/etc/sysconfig/iptables
 
 case "$1" in
   "start")
 # Enable http traffic through the firewall
 [[ -f $FILE ]] || touch $FILE
-if [[ ! `fgrep -e "--dport 80 " $FILE` ]]; then
-  if [[ $VERSION == 5 ]]
-    then
-      sed -i '1,/REJECT/ {/REJECT/i\
--A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-}' $FILE
-    else # version 6 and future
-      sed -i '1,/REJECT/ {/REJECT/i\
--A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-}' $FILE
+for p in 80 443; do
+  if [[ ! `grep -- "--dport $p " $FILE` ]]; then
+sed -i "1,/REJECT/ {/REJECT/i\
+-A INPUT -m state --state NEW -m tcp -p tcp --dport $p -j ACCEPT
+}" $FILE
   fi
-fi
+done
      ;;
   "stop")
      exit 0
