@@ -23,6 +23,8 @@ configure the client firewall to allow inbound ssh connections from the server.
 -->
 
 <!-- everything here and below is part of the template -->
+<requires>rsync</requires>
+
 <!-- add backup server to authorized_keys -->
 <script type='post'>
 sshdir=/root/.ssh
