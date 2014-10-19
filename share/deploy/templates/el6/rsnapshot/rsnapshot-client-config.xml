@@ -26,16 +26,15 @@ configure the client firewall to allow inbound ssh connections from the server.
 <!-- add backup server to authorized_keys -->
 <script type='post'>
 sshdir=/root/.ssh
-pubkey="%{rsnapshot-server-ssh-pubkey-text}"
-if [ ! -d $sshdir ]; then
-  mkdir $sshdir
-fi
-if [[ ! -e $sshdir/authorized_keys ]] || \
-   [[ ! `grep "$pubkey" $sshdir/authorized_keys` ]]; then
-  echo $pubkey >> $sshdir/authorized_keys
-fi
+authkeys=$sshdir/authorized_keys
+pubkey=`echo "%{rsnapshot-server-ssh-pubkey-text}" | tr -d '\n'`
+
+[[ -d $sshdir ]] || mkdir $sshdir
+[[ -f $authkeys ]] || touch $authkeys
+grep -q "$pubkey" $authkeys || echo $pubkey >> $authkeys
+
 chown -R root:root $sshdir
 chmod 700 $sshdir
-chmod 600 $sshdir/authorized_keys
+chmod 600 $authkeys
 </script>
 </config-rpm>
