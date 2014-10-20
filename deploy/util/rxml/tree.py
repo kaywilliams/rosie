@@ -463,7 +463,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               try:
                 map[macro] = self._get_macro_value(map[macro], defaults_file)
                 waiting.discard(macro)
-              except errors.MacroDefaultsFileNameUnresolved as e:
+              except (errors.MacroDefaultsFileNameUnresolved, 
+                      errors.MacroScriptError) as e:
                 waiting.add(macro)
                 if set(remaining.keys()) == waiting: raise
               continue
