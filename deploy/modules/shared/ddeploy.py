@@ -27,6 +27,8 @@ from deploy.util import resolve
 
 from deploy.util.pps.Path.error import PathError
 
+from deploy.util.rxml import config
+
 from deploy.modules.shared import (InputEventMixin, ExecuteEventMixin,
                                    ScriptFailedError, SSHScriptFailedError,
                                    validate_hostname, InvalidHostnameError)
@@ -183,6 +185,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self._reinstall():
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
         raise DeployError('test fail on reinstall')
+      self._write_install_status_start()
       self._execute('pre')
       self._execute('delete')
       self._execute('pre-install')
@@ -190,6 +193,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._execute('activate')
       self._execute('post-install')
       self._execute('save-triggers')
+      self._write_install_status_complete()
       self._execute('update')
       self._execute('post')
 
@@ -281,6 +285,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         raise TestExistsFailedError(msg=
           "Test-exists script failed:\n\n%s" % e.errtxt)
 
+    # did previous install terminate prior to completion?
+    if self.parse_datfile().getxpath(
+       '/*/%s/install-status/text()' % self.moduleid, None) == "incomplete":
+      self.log(1, L1("previous install terminated prior to completion, reinstalling..."))
+      return True
+
     # can we activate it?
     try:
       self._execute('activate')
@@ -366,6 +376,20 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
         self._ssh_execute(cmd, cmd_id=script.id, params=params, 
                           verbose=script.verbose)
+
+  def _write_install_status_start(self):
+    root = self.parse_datfile()
+    parent = root.getxpath('./%s' % self.moduleid)
+    elem = parent.getxpath('install-status',  
+                           config.uElement('install-status', parent=parent))
+    elem.text = "incomplete"
+    self.write_datfile(root)
+
+  def _write_install_status_complete(self):
+    root = self.parse_datfile()
+    elem = root.getxpath('./%s/install-status' % self.moduleid)
+    elem.text = "complete"
+    self.write_datfile(root)
 
   def get_ssh_host(self):
     if self.ssh_host_file.exists():
