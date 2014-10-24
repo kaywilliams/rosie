@@ -85,7 +85,7 @@ class ExecuteEventMixin:
     except ScriptFailedError, e:
       raise SSHScriptFailedError(id=cmd_id, hostname=hostname, errtxt=e.errtxt)
 
-  def _local_execute(self, cmd, cmd_id=None, verbose=False, **kwargs):
+  def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # using shell=True which gives better error messages for scripts lacking
     # an interpreter directive (i.e. #!/bin/bash).
     _PIPE = subprocess.PIPE

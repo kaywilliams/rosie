@@ -43,7 +43,8 @@ class InputEventMixin(ExecuteEventMixin, Event):
       if text is not None: 
         tmpfile.write_text(text  + '\n')
         tmpfile.chmod(0700)
-        self._local_execute(tmpfile, verbose=s.getbool('@verbose', False))
+        self._local_execute(tmpfile, cmd_id='input-script', 
+                            verbose=s.getbool('@verbose', False))
 
     if self.input_dir.findpaths(type=pps.constants.TYPE_FILE):
       self.DATA.setdefault('input', []).append(self.input_dir)

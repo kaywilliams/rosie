@@ -117,7 +117,8 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin, ExecuteEventMixin):
       file.chmod(0750)
       if script.getbool('@verbose', False):
         self.logger.log(1, L0(self.id))
-      self._local_execute(file, verbose=script.getbool('@verbose', False))
+      self._local_execute(file, cmd_id='prep-script', 
+                          verbose=script.getbool('@verbose', False))
 
 
 class ConfigRpmEventMixin(MkrpmRpmBuildMixin): 
