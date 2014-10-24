@@ -284,7 +284,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     script_file.write_text(self.config.getxpath('script/text()').encode('utf8'))
     script_file.chmod(0700)
   
-    self._local_execute(script_file)
+    self._local_execute(script_file, cmd_id='srpmbuild script')
   
     results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
                                      maxdepth=1)
