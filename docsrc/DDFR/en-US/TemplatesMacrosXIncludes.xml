@@ -175,15 +175,15 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <section>
     <title>Syntax</title>
     <programlisting>
-[&lt;macro id=TEXT [type=("text"|"script")]>TEXT&lt;/macro>]
+[&lt;macro id=TEXT [type=("text"|"script")] [persist="BOOLEAN"]>TEXT&lt;/macro>]
     </programlisting>
     </section>
 
     <section>
     <title>Attributes</title>
     <para>
-    Macro elements accept two attributes, <constant>id</constant> and
-    <constant>type</constant>.
+    Macro elements accept three attributes, <constant>id</constant>, 
+    <constant>type</constant>, and <constant>persist</constant>.
     </para>
 
     <variablelist>
@@ -227,7 +227,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     </para>
     
     <para>
-    Deploy stores script output in the data file. On subsequent runs, Deploy
+    If <emphasis>@persist</emphasis> is TRUE (default), Deploy stores script output in the data file. On subsequent runs, Deploy
     first determines if the script has changed. If so, it executes the script,
     and uses the new value.  If the script has not changed, Deploy retrieves
     and uses the stored value from the data file. 
@@ -244,6 +244,28 @@ print uuid.uuid1()
     </informalexample>
     </listitem>
     </varlistentry>
+
+    <varlistentry>
+    <term>@persist</term>
+
+    <listitem>
+    <para>
+    BOOLEAN value indicating whether the result of <constant>script</constant>
+    macros should be persisted in the data file for use in subsequent builds.
+    </para>
+
+    <para>
+    The <emphasis>@persist</emphasis> attribute is optional. The default value
+    is TRUE. The <emphasis>@persist</emphasis> attribute is ignored for
+    non-script macros.
+    </para>
+
+    <para>
+    See <xref linkend="content-boolean"/> for information on BOOLEAN values.
+    </para>
+    </listitem>
+    </varlistentry>
+    
     </variablelist>
     </section>
     

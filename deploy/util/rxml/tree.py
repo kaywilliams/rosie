@@ -266,16 +266,15 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     definitions take one of two forms:
 
     * <macro id='name'>value</macro>
-    * <macro id='name' type='script'>script</macro>
+    * <macro id='name' type='script' persist='true'>script</macro>
     
     The first provides the macro value as static text. The second allows
     providing a dynamic default value that is initialized by executing the
-    script. The generated value is stored for subsequent use in the
-    'defaults_file' provided as a method attribute.
-
-    Macros can exist at any level of the element. Macro variables use the
-    syntax '%{macroid}'. Macro variables can occur in element nodes and
-    attributes.
+    script. If the persist attribute is provided and the value is True
+    (default), the generated value is stored for subsequent use in the
+    'defaults_file' provided as a method attribute.  Macros can exist at any
+    level of the element. Macro variables use the syntax '%{macroid}'. Macro
+    variables can occur in element nodes and attributes.
 
     Keyword arguments:
     find -- a boolean value indicating whether macro definitions should be
@@ -350,7 +349,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           message = "Macros not allowed in macro ids."
           raise errors.MacroError(self.getroot().base, message, elem)
 
-        valid = ['id', 'type', '{%s}base' % XML_NS ] 
+        valid = ['id', 'type', 'persist', '{%s}base' % XML_NS ] 
         invalid =  set(elem.attrib.keys()) - set(valid)
         if invalid:
           if len(invalid) == 1:
@@ -534,6 +533,31 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     return map
 
   def _get_macro_value(self, macro, defaults_file):
+    if macro.getbool('@persist', True):
+      return self._get_persistent_macro_value(macro, defaults_file)
+    else:
+      return self._get_dynamic_macro_value(macro, defaults_file)
+
+  def _get_dynamic_macro_value(self, macro, defaults_file):
+    # delete stored value if exists
+    defaults_file = self.get_macro_defaults_file(defaults_file)
+    if not defaults_file:
+      raise errors.MacroDefaultsFileNotProvided
+
+    if defaults_file.exists():
+      root = parse(defaults_file).getroot()
+      elem = root.getxpath('./macros/macro[@id="%s"]' % macro.attrib['id'], 
+                           None)
+      if elem is not None: 
+        elem.getparent().remove(elem)
+        XmlTreeElement.write(root, defaults_file)
+
+    # generate new value
+    value = self._generate_new_macro_value(macro, defaults_file) 
+
+    return value
+
+  def _get_persistent_macro_value(self, macro, defaults_file):
     # read defaults_file
     defaults_file = self.get_macro_defaults_file(defaults_file)
     if not defaults_file:
@@ -568,16 +592,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # generate new value
     else:
-      script_file = pps.path(defaults_file.dirname/'.script')
-      script_file.write_text(macro.text.encode('utf8').lstrip())
-      script_file.chmod(0750)
-      try:
-        value = '/n'.join(shlib.execute(script_file))
-      except shlib.ShExecError as e:
-        raise errors.MacroScriptError(macro.getroot().base, macro, 
-                                      script_file, e)
-
-      script_file.rm(force=True)
+      value=self._generate_new_macro_value(macro, defaults_file) 
 
       # save default value
       parent = Element('macro', attrib={'id': macro.attrib['id']}, 
@@ -586,7 +601,21 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       Element('value', text=value, parent=parent)
       XmlTreeElement.write(defaults.getroot(), defaults_file)
 
-    return value 
+    return value
+
+  def _generate_new_macro_value(self, macro, defaults_file):
+    script_file = pps.path(defaults_file.dirname/'.script')
+    script_file.write_text(macro.text.encode('utf8').lstrip())
+    script_file.chmod(0750)
+    try:
+      value = '/n'.join(shlib.execute(script_file))
+    except shlib.ShExecError as e:
+      raise errors.MacroScriptError(macro.getroot().base, macro, 
+                                    script_file, e)
+
+    script_file.rm(force=True)
+
+    return value
 
   def get_macro_defaults_file(self, defaults_file):
     # defaults_file is None
