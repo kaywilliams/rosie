@@ -43,11 +43,10 @@
   </para>
   
   <para>
-  You will also notice that Deploy has created a new <xref
-  linkend='data-file'/>,
-  <filename>web-server-6-i386.dat</filename>, in the same location as you
-  definition. Take care not to delete this file as it contains
-  important information for your system.
+  You will also notice that Deploy has created a <xref linkend='data-file'/> at
+  <filename>web-server-6-i386.dat/web-server-6-i386.dat</filename>, in the same
+  location as you definition. Take care not to delete the data file as it
+  contains important information for your system.
   </para>
 
   <section>

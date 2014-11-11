@@ -53,16 +53,16 @@
 	  <para>
           A file maintained by Deploy to track Deploy-generated input data.
           Data files are created in data folders. Both are named using the
-          <xref linkend='repository-id'/>, with datafiles taking the
-          <filename>.dat</filename> file extension.  For example, given the
-          repository ID "web-server-centos-6-x86_64", Deploy will create a data
-          folder and data file as follows:
+          <xref linkend='repository-id'/> with the <filename>.dat</filename>
+          extension.  For example, given the repository ID
+          "web-server-centos-6-x86_64", Deploy will create a data folder and
+          data file as follows:
           </para>
 
           <informalexample>
           <para>
           <filename>
-          web-server-centos-6-x86_64/web-server-centos-6-x86_64.dat
+          web-server-centos-6-x86_64.dat/web-server-centos-6-x86_64.dat
           </filename>
           </para>
           </informalexample>

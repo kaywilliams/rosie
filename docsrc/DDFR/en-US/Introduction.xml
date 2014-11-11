@@ -81,15 +81,15 @@
     </para>
    
     <para>
-    Data files are created in data folders. Both are named using the build ID,
-    with data files taking the <filename>.dat</filename> file extension. For
-    example, given a definition with a build ID of "samba-server-6-x86_64"
-    (taken from the <emphasis>main/id</emphasis> element), Deploy will create a
-    data folder and data file as follows:
+    Data files are created in data folders. Both are named using the build ID
+    with the <filename>.dat</filename> extension. For example, given a
+    definition with a build ID of "samba-server-6-x86_64" (taken from the
+    <emphasis>main/id</emphasis> element), Deploy will create a data folder and
+    data file as follows:
     </para>
   
     <para><informalexample><programlisting>
-<filename>samba-server-6-x86_64/samba-server-6-x86_64.dat</filename>
+<filename>samba-server-6-x86_64.dat/samba-server-6-x86_64.dat</filename>
     </programlisting></informalexample>
     </para>
 

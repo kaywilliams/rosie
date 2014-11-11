@@ -85,11 +85,10 @@
   </para>
 
   <para>
-  During this step, Deploy also creates a <xref
-  linkend="data-file"/>, if one does not exist, in the same folder
-  as the definition. The file has a .dat extension. This file is
-  used to store Deploy generated input data, such as release numbers for
-  generated RPMs, that should be maintained along with the definition.
+  During this step, Deploy also creates a <xref linkend="data-file"/>, if one
+  does not exist.  This file is used to store Deploy generated input data, such
+  as release numbers for generated RPMs, that should be maintained along with
+  the definition.
   </para>
   </listitem>
 

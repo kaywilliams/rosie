@@ -348,7 +348,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     # generated data (e.g. rpm revision numbers). Set the filename
     # format up outside of the get_definition method so that subclass
     # applications (dtest, srpmbuild) can access it easily.
-    self.datfile_format = ('%s/%%s/%%s.dat' % self.data_root,
+    self.datfile_format = ('%s/%%s.dat/%%s.dat' % self.data_root,
                           ['./main/id/text()', './main/id/text()'])
 
   def _get_templates_dir(self):
@@ -446,6 +446,13 @@ The definition file is located at %s.
     self.datfn = self.definition.get_macro_defaults_file(self.datfile_format)
 
     self.data_dir = self.datfn.dirname
+
+    # move legacy data_dir, if exists, to new one with .dat extension
+    if self.data_dir.endswith(".dat"):
+      legacy_data_dir = self.data_dir[:-len(".dat")]
+      if (legacy_data_dir / self.datfn.basename).exists():
+        legacy_data_dir.move(self.data_dir)
+
     self.data_dir.exists() or self.data_dir.mkdir()
     self.data_dir.chown(0,0)
     self.data_dir.chmod(0700)
