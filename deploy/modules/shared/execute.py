@@ -58,7 +58,8 @@ class ExecuteEventMixin:
       self._remote_execute(cmd, cmd_id=cmd_id, hostname=params['hostname'], 
                            log_format=log_format, **kwargs)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(id=cmd_id, hostname=params['hostname'], 
+      raise SSHScriptFailedError(id=cmd_id, path=script, 
+                                 hostname=params['hostname'], 
                                  errtxt=e.errtxt)
 
   def _sftp(self, cmd, cmd_id=None, params={}, log_format='L2', **kwargs):
@@ -83,7 +84,8 @@ class ExecuteEventMixin:
     try:
       self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(id=cmd_id, hostname=hostname, errtxt=e.errtxt)
+      raise SSHScriptFailedError(id=cmd_id, path=cmd, hostname=hostname, 
+                                 errtxt=e.errtxt)
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # using shell=True which gives better error messages for scripts lacking
@@ -131,7 +133,8 @@ class ExecuteEventMixin:
       if not '\n'.join(errlines):
         # report exit code if no error message is returned
         errlines = ['Error: exit code %s' % proc.returncode]
-      raise ScriptFailedError(id=cmd_id, errtxt='\n'.join(outlines + errlines))
+      raise ScriptFailedError(id=cmd_id, path=cmd, 
+                              errtxt='\n'.join(outlines + errlines))
 
   def _get_ssh_options(self, port, key_filename):
     return ' '.join(["-o", "BatchMode=yes",
@@ -162,19 +165,22 @@ class ExecuteEventMixin:
 
 #------ Errors ------#
 class ScriptFailedError(DeployEventError):
-  def __init__(self, id, errtxt):
+  def __init__(self, id, path, errtxt):
     self.id = id
+    self.path = path
     self.errtxt = errtxt
 
   def __str__(self):
-    return "Error occurred running '%s':\n%s" % (self.id, self.errtxt)
+    return "Error occurred running '%s' script at '%s':\n%s" % (
+            self.id, self.path, self.errtxt)
 
 class SSHScriptFailedError(ScriptFailedError):
-  def __init__(self, id, hostname, errtxt):
+  def __init__(self, id, path, hostname, errtxt):
     self.id = id
+    self.path = path
     self.hostname = hostname
     self.errtxt = errtxt
 
   def __str__(self):
-    return ("Error(s) occurred running '%s' script on '%s':\n"
-            "%s" % (self.id, self.hostname, self.errtxt))
+    return ("Error(s) occurred running '%s' script at '%s' on '%s':\n"
+            "%s" % (self.id, self.path, self.hostname, self.errtxt))
