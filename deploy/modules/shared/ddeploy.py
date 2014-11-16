@@ -165,7 +165,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.deployroot = self.VAR_DIR / 'deploy'
     self.deploydir = self.deployroot / self.build_id
     self.triggerfile = self.deploydir / 'trigger_info' # match type varname
-    self.resolve_macros(map={'%{trigger-file}': self.triggerfile})
+    self.resolve_macros(map={'%{deployment-script-dir}': self.deploydir,
+                             '%{trigger-file}': self.triggerfile})
 
     # setup to create type files - do this after macro resolution
     for scripts in self.types.values():
@@ -180,7 +181,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       for script in scripts:
         self.io.process_files(what=script.id)
 
-    self.do_clean=True # clean the deploydir once per session
+    self.do_clean=True # clean the deploydir once per session - not currently 
+                       # used
 
     if self._reinstall():
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
