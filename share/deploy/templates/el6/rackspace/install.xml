@@ -5,13 +5,6 @@
 <macro id='rackspace-centos-image'>a84b1592-6817-42da-a57c-3c13f3cfc1da</macro>
 <macro id='rackspace-rhel-image'>3a6e29eb-3e17-40ed-9f1e-c6c0fb8fcb76</macro>
 
-<!--
-<macro id='rackspace-mount-data'>
-volumeid-1 xvdb /mnt/point/1 ext3
-volumeid-2 xvdc /mnt/point/2 ext3
-</macro>
--->
-
 source /root/rackspace/rackspace_admin
 
 # ensure hostname doesn't already exist
@@ -35,13 +28,6 @@ else
   rm -f $file
 fi
 
-# calculate block device mappings
-block_device_mappings=`while read -r id dev mnt format; do
-if [[ $id ]]; then
-  echo "--block-device-mapping $dev=$id "
-fi
-done &lt;&lt;&lt; "%{rackspace-volume-data}"`
-
 # install server
 #
 # NOTE: Use %{fqdn) as the rackspace server name to ensure that /etc/hosts and
@@ -52,7 +38,6 @@ nova boot \
 --flavor %{rackspace-instance-flavor} \
 --image %{rackspace-%{os}-image} \
 --key-name $keyname \
-$block_device_mappings \
 %{fqdn} > /dev/null || exit 1
 
 # activate server
@@ -63,15 +48,4 @@ ipaddress=`nova show %{fqdn} | grep -o "accessIPv4[^|]*|[^|]*" | python -c "impo
 
 # store ipaddress for future use
 echo $ipaddress > %{ssh-host-file}
-
-# mount storage volumes
-cmd=""
-while read -r id dev mnt format; do
-  if [[ $id ]]; then
-    cmd="$cmd mkdir -p $mnt; mount /dev/${dev}1 $mnt; echo -e \"/dev/${dev}1 $mnt $format defaults,noatime,_netdev,nofail 0 2\" >> /etc/fstab; "
-  fi
-done &lt;&lt;&lt; "%{rackspace-volume-data}" || exit 1
-
-# execute ssh outside while loop to avoid stdin issues
-ssh -o StrictHostKeyChecking=no $ipaddress $cmd || exit 1
 </script>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<macro id="mount-storage-volumes-config-pkg">mount-storage-volumes-config</macro>
+<config-rpm id='%{mount-storage-volumes-config-pkg}'>
+<requires>pyparted</requires>
+</config-rpm>
+
+<!-- comes-after update-yum-conf so that mount-storage-config package
+     can be installed -->
+<script id='mount-storage-volumes' type='update' verbose='true'
+        comes-after='update-yum-conf'
+        comes-before='update'>
+#!/usr/bin/python
+
+import ConfigParser
+import subprocess
+import sys
+
+# install required packages (i.e. pyparted)
+pkg = "%{mount-storage-volumes-config-pkg}"
+r = subprocess.call('yum -q -y install %s' % pkg, shell=True)
+if r != 0:
+  sys.stderr.write("Error installing %s package" % pkg)
+  sys.exit(1)
+
+# update required packages
+r = subprocess.call('yum -q -y update %s' % pkg, shell=True)
+if r != 0:
+  sys.stderr.write("Error updating %s package" % pkg)
+  sys.exit(1)
+
+import _ped
+import parted
+
+volume_data_file = "%{storage-data-file-%{module}}"
+
+# read config
+config = ConfigParser.SafeConfigParser()
+config.read(volume_data_file)
+
+for s in config.sections(): 
+  devname = config.get(s, 'device')
+  partname = "%s1" % devname
+  mountpoint = config.get(s, 'mountpoint')
+  format = config.get(s, 'format')
+  
+  # partition disk
+  device = parted.getDevice(devname)
+  try:
+    disk = parted.disk.Disk(device=device)
+  except _ped.DiskLabelException:
+    disk = parted.freshDisk(device, 'msdos')
+    disk.commitToDevice()
+ 
+  if not disk.partitions:
+    partition = parted.Partition(disk, 
+                                 type=parted.PARTITION_NORMAL, 
+                                 geometry=disk.getFreeSpaceRegions()[0])
+    constraint = parted.Constraint(exactGeom=partition.geometry)
+    disk.addPartition(partition, constraint)
+    disk.commit()
+    r = subprocess.call('mkfs -q -t %s %s' % (format, partname), shell=True)
+    if r != 0:
+      sys.stderr.write("\nError formatting partition '%s' for '%s' storage "
+                       "volume." % (partname, s))
+      sys.exit(1)
+  
+  # mount partition
+  with open("/proc/mounts") as mounts:
+    found = False
+    for line in mounts.readlines():
+      if partname in line and mountpoint in line: found = True
+    if not found:
+      # create mount dir
+      r = subprocess.call('mkdir -p %s' % mountpoint, shell=True)
+      if r != 0:
+        sys.stderr.write("\nError creating mountpoint '%s' for '%s' storage "
+                         "volume." % (mountpoint, s))
+        sys.exit(1)
+
+      # mount partition
+      r = subprocess.call('mount %s %s' % (partname, mountpoint), shell=True)
+      if r != 0:
+        sys.stderr.write("\nError mounting '%s' at '%s' for '%s' storage "
+                         "volume." % (partname, mountpoint, s))
+        sys.exit(1)
+  
+  # update fstab
+  with open("/etc/fstab") as fstab:
+    found = False
+    for line in fstab.readlines():
+      if partname in line and mountpoint in line: found = True
+    if not found:
+      r = subprocess.call('echo -e "%s %s %s defaults,noatime,_netdev,nofail 0 2" >> /etc/fstab' % (partname, mountpoint, format), shell=True)
+      if r != 0:
+        sys.stderr.write("\nError adding mountpoint '%s' to fstab for '%s' "
+                         "storage volume." % (mountpoint, s))
+        sys.exit(1)
+</script>
+</xml>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='attach-storage-volumes' type='update' verbose='true'
+        comes-after='clean-storage-volume-data'
+        comes-before='configure-repo-access, update-yum-conf'
+        hostname='localhost'
+        xmlns:xi="http://www.w3.org/2001/XInclude">
+#!/usr/bin/python
+
+<xi:include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
+
+server_id = get_server_id()
+curr_volumes = get_curr_volumes(server_id)
+config = read_config()
+
+for name in config.sections():
+  volume_id = create_volume()
+  attach_volume(server_id, volume_id)
+
+copy_config_to_client()
+</script>

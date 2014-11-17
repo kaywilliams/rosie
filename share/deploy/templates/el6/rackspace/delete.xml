@@ -1,100 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='delete' type='delete' verbose='true'>
+<script id='delete' type='delete' verbose='true'
+        xmlns:xi="http://www.w3.org/2001/XInclude">
 #!/usr/bin/python
-import subprocess
-import sys
-import time
 
-import novaclient.auth_plugin
-import novaclient.v1_1.client as nvclient
-
-server = "%{fqdn}"
-ssh_host = "%{ssh-host}"
-mount_volume = "%{rackspace-mount-volume}"
-volume_device= "%{rackspace-volume-device}"
-volume_id= "%{rackspace-volume-id}"
-volume_mountpoint = "%{rackspace-volume-mount-point}"
-
-##### helper function #####
-def detach_volume():
-  # check if volume exists
-  try:
-    volume = nova.volumes.get_server_volume(server.id, volume_id)
-  except novaclient.exceptions.NotFound:
-    return # volume not attached
-
-  # unmount volume
-  if server.status == 'ACTIVE':
-    opts = ("-o StrictHostKeyChecking=no "
-            "-o UserKnownHostsFile=/dev/null")
-
-    # check if volume mounted
-    print "checking if volume mounted" 
-    cmd = "mount | grep -q '^/dev/%s1 '" % volume_device
-    mounted = subprocess.call('ssh %s root@%s %s' % (opts, ssh_host, cmd), shell='true')
-
-    # unmount it
-    print "unmounting volume"
-    if mounted == "0":
-      cmd = "umount /dev/%s1" % volume_device
-      result = subprocess.call('ssh %s root@%s %s' % (opts, ssh_host, cmd), shell='true')
-      if result == 1: # umount failed
-        sys.exit(1)
-
-  # detach volume
-  nova.volumes.delete_server_volume(server.id, volume_id)
-
-  # pool until volume is detached
-  seconds = 0
-  while True:
-    try:
-      nova.volumes.get_server_volume(server.id, volume_id)
-      print "detaching volume... %s seconds" % seconds
-      seconds += 5
-      time.sleep(5)
-    except novaclient.exceptions.NotFound:
-      return # volume detached 
-
-
-##### main process #####
-
-# read authfile
-d={}
-with open("/root/rackspace/rackspace_admin", 'r') as authfile:
-  for line in authfile.readlines():
-     k,v = line.strip().replace('export ', '').split('=')
-     d[k] = v
-auth_plugin = novaclient.auth_plugin.load_plugin('rackspace')
-
-# create client
-nova = nvclient.Client(auth_url=d['OS_AUTH_URL'],
-                       username=d['OS_USERNAME'],
-                       api_key=d['OS_PASSWORD'],
-                       project_id=d['OS_TENANT_NAME'],
-                       region_name=d['OS_REGION_NAME'],
-                       auth_system=d['OS_AUTH_SYSTEM'],
-                       auth_plugin=auth_plugin)
+<xi:include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
 
 # check if server exists
 try:
-  server = nova.servers.find(name=server)
+  server =  nova.servers.find(name=fqdn)
 except novaclient.exceptions.NotFound:
   sys.exit(0) # nothing to delete
 
-# detach volume
-if mount_volume == 'true':
-  detach_volume()
+# read config
+config = ConfigParser.SafeConfigParser()
+config.read(volume_data_file)
+
+# unmount volumes
+# Note - unmounting volumes from a script that runs on localhost
+# since delete scripts can run before the ssh-host address is known
+#
+if server.status == 'ACTIVE':
+  opts = ("-o StrictHostKeyChecking=no "
+          "-o UserKnownHostsFile=/dev/null")
+
+  for s in config.sections(): 
+    devname = config.get(s, 'device')
+    partname = "%s1" % devname
+  
+    # check if volume mounted
+    cmd = "mount | grep -q '^%s '" % partname 
+    r = subprocess.call('ssh %s %s %s' % (opts, ssh_host, cmd), shell='true')
+    if r == 0:
+      # unmount it
+      cmd = "umount %s" % partname 
+      r = subprocess.call('ssh %s %s %s' % (opts, ssh_host, cmd), shell='true')
+      if r != 0: # umount failed
+        sys.stderr.write("\nError unmounting '%s' for '%s' storage volume." %
+                        (partname, s))
+        sys.exit(1)
 
 # delete server
 server.delete()
 
 # poll until server deleted
 seconds = 0
+retry = 0
 while True:
   try:
     nova.servers.get(server.id)
     print "deleting server... %s seconds" % seconds
+
+    # retry delete every 30 seconds
+    if retry >= 30:
+      server.delete()
+      retry = 0
+
     seconds += 5 
+    retry += 5
     time.sleep(5)
   except novaclient.exceptions.NotFound:
     sys.exit(0)
