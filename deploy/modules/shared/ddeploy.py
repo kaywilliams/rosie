@@ -177,7 +177,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     # setup to create type files - do this after macro resolution
     for scripts in self.types.values():
       for script in scripts:
-        self.io.add_xpath(script.xpath, self.mddir, destname=script.id, 
+        self.io.add_xpath(script.xpath, self.mddir, destname=script.id,
                           id=script.id, mode='750', content='text')
 
   def run(self):
@@ -185,6 +185,10 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     for scripts in self.types.values():
       for script in scripts:
+        if self.io.list_output(what=script.id)[0].exists():
+          # force script to be recopied on each run since we do some run-time
+          # postprocessing (i.e. resolve %{ssh-host} macro)
+          self.io.list_output(what=script.id)[0].remove()
         self.io.process_files(what=script.id)
 
     self.do_clean=True # clean the deploydir once per session - not currently 
