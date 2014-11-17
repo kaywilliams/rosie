@@ -24,6 +24,7 @@ from deploy.errors import (DeployError, DeployEventError,
                                  DuplicateIdsError)
 from deploy.util import pps 
 from deploy.util import resolve 
+from deploy.util.graph import GraphCycleError
 
 from deploy.util.pps.Path.error import PathError
 
@@ -126,7 +127,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           resolver.add_node(item)
           self.scripts[id] = item
 
-        self.types[type] = resolver.resolve()
+        try:
+          self.types[type] = resolver.resolve()
+        except GraphCycleError as e:
+          msg = ("Error resolving 'comes-before' and 'comes-after' "
+                 "dependencies in scripts:\n\n%s" % e)
+          raise ScriptGraphCycleError(msg=msg)
 
     # resolve trigger macros
     self.trigger_data = { 
@@ -429,6 +435,9 @@ class Script(resolve.Item, DirectedNodeMixin):
 
     DirectedNodeMixin.__init__(self)
 
+  def __str__(self):
+    return self.id
+
 
 class SSHParameters(DictMixin):
   """
@@ -460,6 +469,9 @@ class SSHParameters(DictMixin):
 
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
+
+class ScriptGraphCycleError(DeployEventError):
+  message = "%(msg)s"
 
 class TestExistsFailedError(DeployEventError):
   message = "%(msg)s"
