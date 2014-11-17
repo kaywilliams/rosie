@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='configure-repo-access' type='update' comes-before='update-yum-conf'
+<script id='configure-repo-access' type='update' 
+        comes-before='update-yum-conf'
         hostname='localhost' xmlns:xi="http://www.w3.org/2001/XInclude">
 # allow client access to the repository
 echo "&lt;directorymatch \"^%{localroot}/\">
