@@ -390,8 +390,9 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       return
 
     unknown = set() # macro references with no corresponding definition
-    waiting = set() # macro references that cannot be resolved until 
-                    # defaults_file name is resolved
+    waiting_for_defaults_file = set() # macro references that cannot be 
+                                      # resolved until defaults_file name is
+                                      # resolved
 
     unresolved_strings = set() #strings with temporary macro resolution errors
     unresolvable_strings = set() #strings with permanent macro resolution errors
@@ -448,9 +449,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           # macro is function
           elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
-            if self._validate_resolved_macro(macro, string, newstring, 
-                unresolved_strings, unresolvable_strings, remaining_strings, 
-                parent):
+            if self._validate_resolved_macro(string, newstring, 
+                unresolved_strings, unresolvable_strings, remaining_strings):
               if string.is_text: parent.text = newstring
               if string.is_tail: parent.tail = newstring
 
@@ -460,12 +460,18 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
             if 'type' in map[macro].attrib and \
                map[macro].attrib['type'] == 'script':
               try:
-                map[macro] = self._get_macro_value(map[macro], defaults_file)
-                waiting.discard(macro)
-              except (errors.MacroDefaultsFileNameUnresolved, 
-                      errors.MacroScriptError) as e:
-                waiting.add(macro)
-                if set(remaining.keys()) == waiting: raise
+                map[macro] = self._get_macro_value(map[macro], defaults_file) 
+                waiting_for_defaults_file.discard(macro)
+              except errors.MacroDefaultsFileNameUnresolved: 
+                waiting_for_defaults_file.add(macro)
+                if set(remaining.keys()) == waiting_for_defaults_file: raise
+              except errors.MacroScriptError:
+                # wait for macros in script text to be resolved before 
+                # raising script errors
+                if map[macro].text in unresolved_strings:
+                  pass
+                else:
+                  raise
               continue
 
             # resolve text values 
@@ -519,9 +525,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           # macro is function
           elif hasattr(map[macro], '__call__'):
             newstring = map[macro](macro, string)
-            if self._validate_resolved_macro(macro, string, newstring, 
-                unresolved_strings, unresolvable_strings, remaining_strings, 
-                parent):
+            if self._validate_resolved_macro(string, newstring, 
+                unresolved_strings, unresolvable_strings, remaining_strings):
               parent.attrib[id] = newstring
          
           # macro is macro elem
@@ -659,9 +664,9 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     XmlTreeElement.write(stored_macros, defaults_file)
 
-  def _validate_resolved_macro(self, macro, currstring, newstring, 
+  def _validate_resolved_macro(self, currstring, newstring, 
                                unresolved_strings, unresolvable_strings, 
-                               remaining_strings, elem):
+                               remaining_strings):
     if currstring == newstring: # fail
       if len(set(re.findall(MACRO_REGEX, currstring))) == 1:
         # macro is last remaining macro in the string, mark it as unresolvable 
