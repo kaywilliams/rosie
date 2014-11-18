@@ -126,6 +126,7 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
     <summary>myrpm summary</summary>
     <description>myrpm description</description>
     <license>MIT</license>
+    <provides>myprovides</provides>
     <files destdir="/etc/testdir">%(working-dir)s/file1</files>
     <files destdir="/etc/testdir" destname="file4">
            %(working-dir)s/file2</files>

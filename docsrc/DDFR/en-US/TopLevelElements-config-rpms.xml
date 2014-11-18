@@ -96,6 +96,7 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
     [&lt;repo&gt;...&lt;/repo&gt;]*
 
     [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
+    [&lt;provides&gt;CAPABILITY&lt;/provides&gt;]*
     [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
 
     [&lt;prep-script [verbose=FALSE]&gt;TEXT&lt;/prep-script&gt;]*
@@ -344,6 +345,33 @@ rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
         And choose a value from the resulting list.
         </para>
         </note>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="config-rpms-provides" >
+        <term>
+        provides
+        </term>
+
+        <listitem>
+        <para>
+        CAPABILITY, or "virtual package", provided by the RPM. Useful for
+        specifying a capability provided by this RPM, which may be provided by
+        one or more additional RPMs. For example, multiple RPMs may provide
+        "iptables-configuration" and these RPMs may be required, without
+        knowing the individual RPM names, by specifying a requirement on
+        "iptables-configuration".
+        </para>
+
+        <para>
+        Can occur zero or more times.
+        </para>
+
+        <para>
+        See <xref linkend="content-capability"/> for more information on
+        CAPABILITY values.
+        </para>
 
         </listitem>
       </varlistentry>

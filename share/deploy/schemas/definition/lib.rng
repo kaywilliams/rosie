@@ -47,6 +47,7 @@
     </optional>
 
     <ref name="element-requires"/>
+    <ref name="element-provides"/>
     <ref name="element-obsoletes"/>
 
     <zeroOrMore>
@@ -173,6 +174,15 @@
   <define name="element-obsoletes">
     <zeroOrMore>
       <element name="obsoletes">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
+    </zeroOrMore>
+  </define>
+
+  <define name="element-provides">
+    <zeroOrMore>
+      <element name="provides">
         <ref name="xml-base"/>
         <text/>
       </element>

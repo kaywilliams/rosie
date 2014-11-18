@@ -207,7 +207,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def setup(self, name=None, version=None, arch=None, desc=None, 
             summary=None, license=None, author=None, email=None, 
-            requires=[], provides=[], obsoletes=[], force_release=None, 
+            requires=None, provides=None, obsoletes=None, force_release=None, 
             rpmconf=None):
 
     # container for info that should be tracked in variables
@@ -221,15 +221,15 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
       author  = author,
       email = email,
       license = license or 'GPLv2',
-      requires = requires,
-      provides = provides,
-      obsoletes = obsoletes,
+      requires = requires or [],
+      provides = provides or [],
+      obsoletes = obsoletes or [],
       )
 
     rpmconf = rpmconf or self.config
     self.rpminfo['obsoletes'].extend(rpmconf.xpath('obsoletes/text()', []))
     self.rpminfo['provides'].extend([ x for x in self.rpminfo['obsoletes']])
-    self.rpminfo['requires'].extend(rpmconf.xpath('provides/text()', []))
+    self.rpminfo['provides'].extend(rpmconf.xpath('provides/text()', []))
     self.rpminfo['requires'].extend(rpmconf.xpath('requires/text()', []))
 
     self.force_release = force_release
