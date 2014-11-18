@@ -260,7 +260,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     self.remove(child)
 
   def resolve_macros(self, find=False, map={}, placeholder_xpath='.',
-                     defaults_file=None):
+                     ignore_script_macros=False, defaults_file=None):
     """
     Processes macro definitions and resolves macro variables.  Macro
     definitions take one of two forms:
@@ -300,6 +300,10 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     be searched for macro placeholders. If not provided, the current
     element will be searched. If the xpath does not return an element,
     resolve macros will return silently.
+
+    ignore_script_macros -- boolean value indicating whether script macros
+    should be processed. Useful for resolving macros before the defaults_file
+    name is known, i.e. when it relies on another macro.
 
     defaults_file -- string or tuple containing information for a file used for
     storing and retrieving default values. A few notes regarding the
@@ -459,18 +463,22 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
             # resolve script values
             if 'type' in map[macro].attrib and \
                map[macro].attrib['type'] == 'script':
+              if ignore_script_macros:
+                del map[macro]
+                continue
               try:
                 map[macro] = self._get_macro_value(map[macro], defaults_file) 
                 waiting_for_defaults_file.discard(macro)
-              except errors.MacroDefaultsFileNameUnresolved: 
+              except errors.MacroDefaultsFileNameUnresolved:
                 waiting_for_defaults_file.add(macro)
                 if set(remaining.keys()) == waiting_for_defaults_file: raise
               except errors.MacroScriptError:
-                # wait for macros in script text to be resolved before 
-                # raising script errors
-                if map[macro].text in unresolved_strings:
-                  pass
+                if re.findall(MACRO_REGEX, map[macro].text):
+                  # macros in script text, wait for them to be resolved  
+                  if map[macro].text in unresolvable_strings:
+                    raise
                 else:
+                  # no macro in script text- raise the error
                   raise
               continue
 
@@ -538,6 +546,14 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     return map
 
   def _get_macro_value(self, macro, defaults_file):
+    # validate defaults file which is needed even for dynamic script macros,
+    # currently, as we create and execute the script file in the 
+    # defaults file folder
+    defaults_file = self.get_macro_defaults_file(defaults_file)
+    if not defaults_file:
+      raise errors.MacroDefaultsFileNotProvided
+
+    # resolve the macro
     if macro.getbool('@persist', True):
       return self._get_persistent_macro_value(macro, defaults_file)
     else:
@@ -545,10 +561,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
   def _get_dynamic_macro_value(self, macro, defaults_file):
     # delete stored value if exists
-    defaults_file = self.get_macro_defaults_file(defaults_file)
-    if not defaults_file:
-      raise errors.MacroDefaultsFileNotProvided
-
     if defaults_file.exists():
       root = parse(defaults_file).getroot()
       elem = root.getxpath('./macros/macro[@id="%s"]' % macro.attrib['id'], 
@@ -564,10 +576,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
   def _get_persistent_macro_value(self, macro, defaults_file):
     # read defaults_file
-    defaults_file = self.get_macro_defaults_file(defaults_file)
-    if not defaults_file:
-      raise errors.MacroDefaultsFileNotProvided
-
     if defaults_file.exists():
       root = parse(defaults_file).getroot()
     else:
@@ -694,7 +702,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     f = codecs.open(file, encoding='utf-8', mode='w')
     f.write(self.unicode())
  
-  def xinclude(self, macros={}, macro_defaults_file=None):
+  def xinclude(self, macros={}, ignore_script_macros=False, 
+                     macro_defaults_file=None):
     """
     XInclude processor with integrated support for macro resolution
     """
@@ -703,6 +712,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # resolve macros
     macros = self.resolve_macros(find=True, map=macros, 
+                                 ignore_script_macros=ignore_script_macros,
                                  defaults_file=macro_defaults_file) 
 
     while True:
@@ -711,7 +721,9 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       if not elems:
         # resolve macros one last time after xincludes are processed
         # to catch any late-defined macros
-        self.resolve_macros(map=macros, defaults_file=macro_defaults_file)
+        self.resolve_macros(map=macros,
+                            ignore_script_macros=ignore_script_macros,
+                            defaults_file=macro_defaults_file)
         break
 
       # process xincludes
@@ -850,7 +862,8 @@ def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
 
 def parse(file, parser=PARSER, base_url=None, xinclude=False, 
                 resolve_macros=False, macros={}, 
-                remove_macros=False, macro_defaults_file=None):
+                remove_macros=False, ignore_script_macros=False,
+                macro_defaults_file=None):
 
   if isinstance(file, basestring) and pps.path(file).isdir():
     raise IOError("cannot read '%s': Is a directory" % file)
@@ -872,6 +885,7 @@ def parse(file, parser=PARSER, base_url=None, xinclude=False,
   elif resolve_macros:
     roottree.getroot().resolve_macros(find=True,
                                       map=macros, 
+                                      ignore_script_macros=ignore_script_macros,
                                       defaults_file=macro_defaults_file)
 
   if remove_macros:

@@ -360,12 +360,13 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                                 })
 
   def _get_main_vars(self, options):
-    # read definition one time without processing xincludes to
+    # read definition one time without processing xincludes or script macros to
     # get name, os, version, arch and id elems. this lets us resolve norm_os
     # early and provide it as a global macro
     try:
       definition = rxml.config.parse(self.definition_path, 
-                                     resolve_macros=True, 
+                                     resolve_macros=True,
+                                     ignore_script_macros=True,
                                      macros=get_initial_macros(options),
                                      ).getroot()
     except (IOError, rxml.errors.XmlSyntaxError), e:
