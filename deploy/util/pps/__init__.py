@@ -99,18 +99,39 @@ def path(string, search_paths={}, search_path_ignore=[], *args, **kwargs):
       macro_tuples.append( [ (macro, v) for v in values ] )
 
     for item in itertools.product(*macro_tuples):
-      new_string = string[:] # copy string
-      for macro, value in item:
-        new_string = new_string.replace(macro, value)
-      if new_string in search_path_ignore:
-        continue
-      pathobj = __path(new_string, *args, **kwargs)
-      if pathobj.exists():
-        return pathobj
+      new_strings = [ (string[:], '') ] # initial (string, ending) tuple
+      _add_strings_with_unbalanced_endings(string, new_strings, ending='')
+      for new_string, ending in new_strings:
+        for macro, value in item:
+          new_string = new_string.replace(macro, value)
+        if new_string in search_path_ignore:
+          continue
+        pathobj = __path(new_string, *args, **kwargs)
+        if pathobj.exists():
+          return pathobj + ending
     
   # if no macros, or if macros could not be resolved, return a path with the
   # initial string
   return __path(string, *args, **kwargs)
+
+def _add_strings_with_unbalanced_endings(string, new_strings, ending):
+  """ 
+  If string ends with the character '")] or } and it does not have a matching
+  beginning character, strip the ending character recursively and return a list
+  of tuples with base strings and stripped endings. This allows us to handle
+  paths that are part of arbitrary scripts, e.g. "$(cat
+  %{templates-dir}/%{norm-os}/some/path)"
+  """
+  if (string.endswith("'") and string.count("'")%2 != 0 or
+      string.endswith('"') and string.count('"')%2 != 0 or
+      string.endswith(')') and string.count('(') - string.count(')') != 0 or
+      string.endswith(']') and string.count('[') - string.count(']') != 0 or
+      string.endswith('}') and string.count('{') - string.count('}') != 0):
+    ending = string[-1] + ending
+    new_strings.append( (string[:-1], ending) )
+    _add_strings_with_unbalanced_endings(string[:-1], new_strings, ending)
+
+  return new_strings
 
 def __path(string, *args, **kwargs):
   i = string.find(':')
