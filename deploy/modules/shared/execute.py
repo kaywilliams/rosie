@@ -122,7 +122,7 @@ class ExecuteEventMixin:
           if re.search(r"Warning: Permanently added '[^ ]+' \(RSA\) to the "
                         "list of known hosts.\r", errline):
             continue
-          errlines.append(errline) 
+          errlines.append(errline)
       else:
         break
 
@@ -158,9 +158,7 @@ class ExecuteEventMixin:
       return data.rstrip('\n')
     except IOError, e:
       if e.errno != errno.EAGAIN:
-        raise e
-      else:
-        return ''
+        raise
 
 
 #------ Errors ------#
@@ -171,7 +169,7 @@ class ScriptFailedError(DeployEventError):
     self.errtxt = errtxt
 
   def __str__(self):
-    return "Error occurred running '%s' script at '%s':\n%s" % (
+    return "Error occurred running '%s' script at '%s':\n\n%s" % (
             self.id, self.path, self.errtxt)
 
 class SSHScriptFailedError(ScriptFailedError):
@@ -182,5 +180,5 @@ class SSHScriptFailedError(ScriptFailedError):
     self.errtxt = errtxt
 
   def __str__(self):
-    return ("Error(s) occurred running '%s' script at '%s' on '%s':\n"
+    return ("Error(s) occurred running '%s' script at '%s' on '%s':\n\n"
             "%s" % (self.id, self.path, self.hostname, self.errtxt))
