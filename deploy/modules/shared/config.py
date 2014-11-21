@@ -85,8 +85,7 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
 
   return new_events
 
-class ConfigRpmSetupEventMixin(RepoSetupEventMixin, ExecuteEventMixin):
-
+class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = '%s-rpm-setup' % self.rpmid,
@@ -106,22 +105,9 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin, ExecuteEventMixin):
     }
 
     RepoSetupEventMixin.__init__(self)
-    ExecuteEventMixin.__init__(self)
-
-  def setup(self):
-    # TODO make prep-scripts fit with our overall test-run-clean model?
-    # TODO document
-    for script in self.config.xpath('prep-script', []):
-      file=self.mddir / 'prep-script' 
-      file.write_text(script.text)
-      file.chmod(0750)
-      if script.getbool('@verbose', False):
-        self.logger.log(1, L0(self.id))
-      self._local_execute(file, cmd_id='prep-script', 
-                          verbose=script.getbool('@verbose', False))
 
 
-class ConfigRpmEventMixin(MkrpmRpmBuildMixin): 
+class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin): 
   config_mixin_version = "1.04"
 
   def __init__(self, ptr, *args, **kwargs):
@@ -134,6 +120,17 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       config_base = self.config_base,
     )
  
+    # Add rpm requires, provides and obsoletes to event. This allows event
+    # ordering to mimic rpm ordering. Needed for prep scripts (in 
+    # ConfigRpmSetupEventMixin) to provide content for use for later rpms, and
+    # may as well have setup and main events follow the same order.
+    self.conditionally_requires.update(
+      ['%s-rpm' % x for x in self.config.xpath('./requires/text()', [])])
+    self.provides.update(
+      ['%s-rpm' % x for x in self.config.xpath('./provides/text()', [])])
+    self.provides.update(
+      ['%s-rpm' % x for x in self.config.xpath('./obsoletes/text()', [])])
+
     self.conditionally_requires.add('packages')
     self.options = ptr.options # options not exposed as shared event attr
 
@@ -144,6 +141,7 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
       'output':    [],
     }
 
+    ExecuteEventMixin.__init__(self)
     MkrpmRpmBuildMixin.__init__(self)
 
   def validate(self):
@@ -172,15 +170,15 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
 
   def setup(self, **kwargs):
     self.DATA['variables'].append('config_mixin_version')
+    ExecuteEventMixin.setup(self)
 
-    name = self.config.getxpath('name/text()', self.rpmid)
     desc = self.config.getxpath('description/text()', 
        "The %s package provides configuration files and scripts for "
        "the %s repository." % (self.rpmid, self.fullname))
-    summary = self.config.getxpath('summary/text()', name) 
+    summary = self.config.getxpath('summary/text()', self.rpmid) 
     license = self.config.getxpath('license/text()', 'GPLv2')
 
-    MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary, 
+    MkrpmRpmBuildMixin.setup(self, name=self.rpmid, desc=desc, summary=summary, 
                              license=license, 
                              requires = ['coreutils', 'diffutils', 'findutils',
                                          'grep', 'sed'])
@@ -188,14 +186,27 @@ class ConfigRpmEventMixin(MkrpmRpmBuildMixin):
     self.vardir      = getattr(self, 'test_lib_dir', self.VAR_DIR)
     self.scriptdir   = self.build_folder/'scripts'
     self.rootinstdir = self.vardir / 'config' 
-    self.installdir  = self.rootinstdir/name
+    self.installdir  = self.rootinstdir/self.rpmid
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
     # resolve module macros
-    self.resolve_macros(map={'%{rpm-id}': name,
+    self.resolve_macros(map={'%{rpm-id}': self.rpmid,
                              '%{install-dir}': self.installdir})
+
+    # execute prep-scripts in setup (i.e. on every run), allowing output to
+    # be used reliably in file and script elems by this and other config-rpms
+    for script in self.config.xpath('prep-script', []):
+      file=self.mddir / 'prep-script' 
+      file.write_text(script.text)
+      file.chmod(0750)
+      # print the run message early if scripts are set to verbose
+      if script.getbool('@verbose', False):
+        self.logger.log(1, L0(self.id))
+        self.suppress_run_message = True
+      self._local_execute(file, cmd_id='prep-script', 
+                          verbose=script.getbool('@verbose', False))
 
     # add files for synchronization to the build folder
     self.io.add_xpath('files', self.srcfiledir, allow_text=True) 
