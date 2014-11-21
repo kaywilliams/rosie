@@ -221,16 +221,22 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     If <emphasis>@type</emphasis> is <constant>script</constant> the element
     provides a script used to determine the element value. Deploy first saves
     the script to a temporary file named <filename>.script</filename> located
-    in in the <emphasis>data folder</emphasis>. See the section on <xref
+    in the <emphasis>data folder</emphasis>. See the section on <xref
     linkend="datfile"/> for more information on data folders. Deploy then
     executes the script and uses the output as the value for the macro.
     </para>
     
     <para>
-    If <emphasis>@persist</emphasis> is TRUE (default), Deploy stores script output in the data file. On subsequent runs, Deploy
-    first determines if the script has changed. If so, it executes the script,
-    and uses the new value.  If the script has not changed, Deploy retrieves
-    and uses the stored value from the data file. 
+    If <emphasis>@persist</emphasis> is TRUE (default), Deploy stores script
+    output in the data file. On subsequent runs, Deploy first determines if the
+    script has changed. If so, it executes the script, and uses the new value.
+    If the script has not changed, Deploy retrieves and uses the stored value
+    from the data file. 
+    </para>
+
+    <para>
+    Following is an example of a script macro that creates and persists a
+    unique identifier:
     </para>
     
     <informalexample>
@@ -366,10 +372,10 @@ print uuid.uuid1()
     <title>Global Run-Time Macros</title>
     <para>
     Global run-time macros are defined by Deploy during the build process and
-    applied across all Deploy modules. Deploy provides four global run-time
+    applied across all Deploy modules. Deploy provides five global run-time
     macros: <varname>%{templates-dir}</varname>,
-    <varname>%{norm-os}</varname>, <varname>%{definition-dir}</varname> and
-    <varname>%{data-dir}</varname>.
+    <varname>%{norm-os}</varname>, <varname>%{definition-dir}</varname>, 
+    <varname>%{data-dir}</varname> and <varname>%{temp-dir}</varname>.
     </para>
 
     <variablelist>
@@ -460,14 +466,30 @@ print uuid.uuid1()
     <listitem>
     <para>
     The folder location of the <xref linkend='datfile'/>. Useful for scripts to
-    store and retrieve runtime-generated, per-build-ID data such as machine
-    hostnames and ssh keys.
+    store and retrieve persisted, runtime-generated, per-build data such as
+    machine hostnames and ssh keys.
     </para>
 
     <para>
     The <emphasis>%{data-dir}</emphasis> macro is not supported within XInclude
     attributes including <emphasis>href</emphasis> and
     <emphasis>xpointer</emphasis>.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry>
+    <term>
+    %{temp-dir}
+    </term>
+    <listitem>
+    <para>
+    A per-build temporary folder located at
+    <filename>/tmp/deploy.%{id}</filename>. Useful for <link
+    linkend='config-rpms-prep-script'>prep-scripts</link> across multiple
+    config-rpms to build up files for inclusion in a final <link
+    linkend='config-rpm'>config-rpm</link>. Deploy creates an empty %{temp-dir}
+    at the beginning of each build, and removes it at the end.
     </para>
     </listitem>
     </varlistentry>

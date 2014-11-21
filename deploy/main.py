@@ -166,6 +166,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         self._get_data_root(options)
         self._get_templates_dir()
         self._get_main_vars(options)
+        self._setup_temp_dir()
         self._get_initial_macros(options)
         self._get_definition(options, arguments)
       except rxml.errors.XmlError, e:
@@ -183,7 +184,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
       qstr = '/*/main/%s/text()'
 
       self.type   = self.definition.getxpath(qstr % 'type', 'system')
-      self.build_id = self.definition.getxpath(qstr % 'id')
 
       # set data_dir
       self._get_data_dir(options)
@@ -284,6 +284,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
             self._handle_Exception(e)
         finally:
           self._lock.release()
+          self.temp_dir.rm(recursive=True, force=True)
         self._log_footer()
       else:
         raise DeployError("\nAnother instance of deploy (pid %d) is "
@@ -374,8 +375,10 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     for elem in ['name', 'os', 'version', 'arch', 'id']:
       try:
+        if elem == 'id': varname = 'build_id'
+        else: varname = elem
         exec ("self.%s = definition.getxpath('./main/%s/text()')" 
-              % (elem, elem))
+              % (varname, elem))
       except rxml.errors.XmlPathError, e:
         msg = ("ERROR: Validation of %s failed. Missing required 'main/%s' "
                "element." % (definition.getroot().getbase(), elem))
@@ -388,6 +391,11 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
              (self.os, self.version, self.arch, SUPPORTED))
       raise DeployError(msg)
 
+  def _setup_temp_dir(self):
+    self.temp_dir = pps.path("/tmp/deploy.%s" % self.build_id)
+    self.temp_dir.rm(force=True, recursive=True)
+    self.temp_dir.mkdir()
+
   def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
     map = get_initial_macros(options)
@@ -396,13 +404,14 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     map.setdefault('%{os}',      self.os)
     map.setdefault('%{version}', self.version)
     map.setdefault('%{arch}',    self.arch)
-    map.setdefault('%{id}',      self.id)
+    map.setdefault('%{id}',      self.build_id)
 
     self.norm_os = '%s%s' % (DIST_TAG[self.os], self.version)
     map.setdefault('%{norm-os}', self.norm_os)
 
     map.setdefault('%{templates-dir}', rxml.tree.resolve_search_path_macro)
     map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
+    map.setdefault('%{temp-dir}', self.temp_dir)
 
     self.initial_macros = map
 
