@@ -55,7 +55,7 @@ class TestBuild(Build):
     self.os      = self.conf.getxpath('./main/os/text()')
     self.version = self.conf.getxpath('./main/version/text()')
     self.arch    = self.conf.getxpath('./main/arch/text()')
-    self.id      = self.conf.getxpath('./main/id/text()')
+    self.build_id = self.conf.getxpath('./main/id/text()')
 
   def _get_definition_path(self, *args):
     self.definition_path = pps.path(self.conf.base)
@@ -72,7 +72,7 @@ class EventTestCase(unittest.TestCase):
     self.os = os 
     self.version = version
     self.arch = arch
-    self.id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch)
+    self.build_id = "%s-%s-%s-%s" % (self.name, self.os, self.version, self.arch)
     # some tests need norm_os prior to initializing the TestBuild object
     self.norm_os = "%s%s" % (DIST_TAG[self.os], self.version)
     # pretend we read from a config file in the modules directory
@@ -146,7 +146,7 @@ class EventTestCase(unittest.TestCase):
     config.Element('os',       text=self.os, parent=main)
     config.Element('version',  text=self.version, parent=main)
     config.Element('arch',     text=self.arch, parent=main)
-    config.Element('id',       text=self.id, parent=main) 
+    config.Element('id',       text=self.build_id, parent=main) 
     config.Element('fullname', text='%{name} event test', parent=main)
     config.Element('type',     text=getattr(self, '_type', 'system'), 
                                parent=main)

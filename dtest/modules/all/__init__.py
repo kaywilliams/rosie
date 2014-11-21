@@ -233,7 +233,8 @@ text %%{case6} tail
 
     self.conf = config.parse(StringIO(xml), xinclude=True, remove_macros=True,
                              macro_defaults_file='%s/%s/%s.dat' 
-                             % (self.options.data_root, self.id, self.id)
+                             % (self.options.data_root, self.build_id, 
+                                self.build_id)
                             ).getroot()
 
   def setUp(self): pass
