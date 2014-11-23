@@ -32,6 +32,7 @@ from deploy.util         import magic
 from deploy.util         import pps 
 from deploy.util         import rxml 
 
+from deploy.util.difftest.filesdiff import ChecksumDiffTuple
 from deploy.util.pps.constants import TYPE_NOT_DIR
 
 from deploy.modules.shared import (ExecuteEventMixin, ShelveMixin, 
@@ -114,6 +115,11 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
  
   def setup(self):
     self.diff.setup(self.DATA)
+
+    # use checksums to better handle runtime-generated files (e.g. by 
+    # srpmbuild scripts)
+    self.diff.input.tupcls = ChecksumDiffTuple
+
     RpmBuildMixin.setup(self)
  
     # add config content to variables diff

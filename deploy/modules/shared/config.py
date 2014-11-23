@@ -30,6 +30,7 @@ from deploy.modules.shared import (MkrpmRpmBuildMixin,
                                          Trigger, 
                                          TriggerContainer)
 
+from deploy.util.difftest.filesdiff import ChecksumDiffTuple
 from deploy.util.rxml.tree import MACRO_REGEX
 
 
@@ -169,7 +170,14 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
         raise ConfigRpmEventError(message=message)
 
   def setup(self, **kwargs):
+    self.diff.setup(self.DATA)
+
+    # use checksums to better handle runtime-generated files (e.g. by 
+    # prep-scripts)
+    self.diff.input.tupcls = ChecksumDiffTuple
+
     self.DATA['variables'].append('config_mixin_version')
+
     ExecuteEventMixin.setup(self)
 
     desc = self.config.getxpath('description/text()', 

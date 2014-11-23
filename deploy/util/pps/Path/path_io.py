@@ -260,8 +260,6 @@ class Path_IO(object):
     finally:
       fo.close()
 
-  @cached()
-  @cached(globally=True)
   def checksum(self, type='sha256', hex=True):
     "Compute a checksum using mod (sha or md5).  Return the (hex)digest"
     if type == 'sha': type = 'sha1'

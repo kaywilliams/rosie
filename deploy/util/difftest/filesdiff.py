@@ -70,16 +70,16 @@ class DiffTuple:
 
   def __init__(self, path=None, abspath=None):
     self.path = pps.path(path)
-    if abspath: abspath = pps.path(abspath)
-    else: abspath = self.path
+    if abspath: self.abspath = pps.path(abspath)
+    else: self.abspath = self.path
 
     self.size  = None
     self.mtime = None
     self.mode  = None
 
-    if abspath:
+    if self.abspath:
       try:
-        st = abspath.stat()
+        st = self.abspath.stat()
         self.size  = st.st_size
         self.mtime = st.st_mtime
         self.mode  = st.st_mode
@@ -149,6 +149,29 @@ class DiffTuple:
     ##if D: print self.path, self, other
 
     return D
+
+class ChecksumDiffTuple(DiffTuple):
+  """
+  Use csum rather than size and time for diffing local paths
+  """
+
+  attrib = DiffTuple.attrib + [('csum', str)]
+
+  def __init__(self, path=None, abspath=None):
+    DiffTuple.__init__(self, path, abspath)
+
+    self.csum = None
+
+    if self.abspath:
+      try:
+        if isinstance(self.abspath, pps.Path.local._LocalPath):
+          self.csum = self.abspath.checksum()
+          self.size = None
+          self.mtime = None
+      except pps.Path.error.PathError:
+        pass
+    else:
+      pass
 
 
 class FilesDiffDict(dict):
