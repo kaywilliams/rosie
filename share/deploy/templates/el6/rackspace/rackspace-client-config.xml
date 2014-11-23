@@ -24,6 +24,7 @@ for additional information.
 <!-- required for rackspace-novaclient -->
 <requires>python-pip</requires>
 <requires>python-argparse</requires>
+<requires>python-distribute</requires>
 <requires>python-prettytable</requires>
 <requires>python-requests</requires>
 <requires>python-six</requires>
