@@ -93,6 +93,11 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
         
       lines.append(line)
 
+    # ensure image is unmounted after install
+    lines.append("\n")
+    lines.append("mount=`mount | grep %%{localroot}/%s | cut -d' ' -f3`" % location)
+    lines.append("for m in $mount; do umount $m; done")
+
     install_script.text = '\n'.join(lines)
 
 def DeployMixinTest_Teardown(self):
