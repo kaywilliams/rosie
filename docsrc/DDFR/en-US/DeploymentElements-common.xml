@@ -1200,7 +1200,8 @@ $remote-url/%{id}</programlisting>
       <para>
       The value of the <emphasis>triggers/@exists</emphasis> attribute is
       <constant>True</constant> (default) and a <xref linkend='test-exists'/>
-      script returns a non-zero exit status.
+      script either returns a non-zero exit status or writes output to the
+      standard error file descriptor.
       </para>
       </listitem>
 
@@ -1208,13 +1209,15 @@ $remote-url/%{id}</programlisting>
       <para>
       The value of the <emphasis>triggers/@activate</emphasis> attribute is
       <constant>True</constant> (non-default) and an <xref linkend='activate'/>
-      script returns a non-zero exit status.
+      script either returns a non-zero exit status or writes output to the
+      standard error file descriptor.
       </para>
       </listitem>
 
       <listitem>
       <para>
-      A <xref linkend='test-triggers'/> script returns a non-zero exit status.
+      A <xref linkend='test-triggers'/> script either returns a non-zero exit
+      status or writes output to the standard error file descriptor.
       Test-triggers scripts make use of the macros described under
       <emphasis>Trigger Macros</emphasis> in <xref
       linkend='deployment-macros'/>. See <xref linkend='test-triggers'/> for an
@@ -1239,9 +1242,9 @@ $remote-url/%{id}</programlisting>
       <term>@exists</term>
       <listitem>
       <para>
-      BOOLEAN value indicating whether Deploy
-      should execute install-related scripts if a <xref
-      linkend='test-exists'/> script returns a non-zero exit status.
+      BOOLEAN value indicating whether Deploy should execute install-related
+      scripts if a <xref linkend='test-exists'/> script returns a non-zero exit
+      status or writes output to the standard error file descriptor.
       </para>
 
       <para>
@@ -1259,9 +1262,9 @@ $remote-url/%{id}</programlisting>
       <term>@activate</term>
       <listitem>
       <para>
-      BOOLEAN value indicating whether Deploy
-      should execute install-related scripts if an <xref
-      linkend='activate'/> script returns a non-zero exit status.
+      BOOLEAN value indicating whether Deploy should execute install-related
+      scripts if an <xref linkend='activate'/> script returns a non-zero exit
+      status or writes output to the standard error file descriptor.
       </para>
 
       <para>
@@ -1446,8 +1449,9 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Activate scripts handle client machine activation. They must return a
-      non-zero exit status if activation fails.
+      Activate scripts handle client machine activation. Deploy halts
+      processing if an activate script either returns a non-zero exit status or
+      writes output to the standard error file descriptor.
       </para>
 
       <para>
@@ -1515,8 +1519,9 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Test-trigger scripts test current trigger values against prior trigger
-      values. They must return a non-zero exit status if a trigger has changed.
-      See also the <xref linkend='triggers'/> element.
+      values. Deploy halts processing is a test-trigger script either returns a
+      non-zero exit status or writes output to the standard error file
+      descriptor.  See also the <xref linkend='triggers'/> element.
       </para>
 
       <para>
@@ -1570,10 +1575,11 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Delete scripts delete or decommission client machines in preparation
-      for system installation. They must return a non-zero exit status if
-      machine deletion fails. Commonly used with the
-      <link linkend='deployment-macros'>%{fqdn}</link> module macro.
+      Delete scripts delete or decommission client machines in preparation for
+      system installation. Deploy halts processing if a delete script either
+      returns a non-zero exit status or writes output to the standard error
+      file descriptor.  Commonly used with the <link
+      linkend='deployment-macros'>%{fqdn}</link> module macro.
       </para>
 
       <para>
@@ -1660,8 +1666,9 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Install scripts complete activites related to client machine
-      installation. They must return a non-zero exit status if installation
-      fails. Commonly used with the <link
+      installation. Deploy halts processing if an install script either returns
+      a non-zero exit status or writes output to the standard error file
+      descriptor.  Commonly used with the <link
       linkend='deployment-macros'>%{fqdn}</link> and <link
       linkend='deployment-macros'>%{webroot}</link> module macros.
       </para>
@@ -1715,8 +1722,9 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Post-install scripts are executed immediately following client
-      installation and handle tasks such as install verification. They must
-      return a non-zero exit status if post-install tasks fail.
+      installation and handle tasks such as install verification. Deploy halts
+      processing if a post-install script either returns a non-zero exit status
+      or writes output to the standard error file descriptor.
       </para>
     
       <para>
@@ -1755,8 +1763,9 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Save-triggers scripts save trigger values for future use by
-      <constant>test-triggers</constant> scripts. Must return a non-zero
-      exit status if trigger save unsuccessful.
+      <constant>test-triggers</constant> scripts. Deploy halts processing if a
+      save-triggers script either returns a non-zero exit status or writes
+      output to the standard error file descriptor.
       </para>
       <para>
       <emphasis>Example</emphasis> - This example shows the
@@ -1875,7 +1884,8 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       client updates, restarting clients if the kernel package has been
       updated, or shutting down a client if its purpose has been accomplished
       during the course of module execution (e.g. building or testing RPMs).
-      Must return a non-zero exit status if post tasks fail.
+      Deploy halts processing if a post-script either returns a non-zero exit
+      status or writes output to the standard error file descriptor.
       </para>
 
       <para>

@@ -15,16 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import errno
-import fcntl
-import os
-import re
-import select
-import socket
-import subprocess
-import time
+import sys
 
-from decimal import Decimal
+from subprocess import Popen, PIPE
+from threading  import Thread
+
+from StringIO import StringIO
 
 from deploy.dlogging import L2, MSG_MAXWIDTH
 from deploy.errors import DeployEventError
@@ -44,6 +40,17 @@ class ExecuteEventMixin:
 
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')
+
+  def _get_ssh_options(self, port, key_filename):
+    return ' '.join(["-o", "BatchMode=yes",
+                     "-o", "StrictHostKeyChecking=no",
+                     "-o", "UserKnownHostsFile=/dev/null",
+                     "-o", "IdentityFile=%s" % key_filename,
+                     "-o", "Port=%s" % port,
+                     "-o", "ServerAliveCountMax=3",
+                     "-o", "ServerAliveInterval=15",
+                     "-o", "TCPKeepAlive=no",
+                     ])
 
   def _ssh_execute(self, script, cmd_id=None, params={}, log_format='L2', 
                    **kwargs):
@@ -88,78 +95,57 @@ class ExecuteEventMixin:
                                  errtxt=e.errtxt)
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
+    # Thanks to J.F. Sebastian from http://stackoverflow.com/questions/12270645/can-you-make-a-python-subprocess-output-stdout-and-stderr-as-usual-but-also-cap
+    fout, ferr = StringIO(), StringIO()
+
+    # log script header
+    if verbose or self.logger.test(4): 
+      self.logger.log_header(0, "%s event - '%s' script output" %
+                            (self.id, cmd_id or cmd))
+
+    # execute script
     # using shell=True which gives better error messages for scripts lacking
-    # an interpreter directive (i.e. #!/bin/bash).
-    _PIPE = subprocess.PIPE
-    proc = subprocess.Popen(cmd, stdin=_PIPE, stdout=_PIPE, stderr=_PIPE,
-                            close_fds=True, shell=True)
+    # an interpreter directive (i.e. #!/bin/bash) (?)
+    exitcode = teed_call([cmd], stdout=fout, stderr=ferr, verbose=verbose,
+                         shell=True)
 
-    self.make_async(proc.stdout)
-    self.make_async(proc.stderr)
-
-    outlines = []
-    errlines = []
-    header_logged = False
-
-    while True:
-      select.select([proc.stdout, proc.stderr], [], [], 0.0)
-      outline = self.read_async(proc.stdout)
-      errline = self.read_async(proc.stderr)
-      if outline != '' or errline != '' or proc.poll() is None:
-        if outline:
-          outlines.append(outline)
-          if verbose or self.logger.test(4): 
-            if not header_logged:
-              self.logger.log_header(0, "%s event - '%s' script output" %
-                                    (self.id, cmd_id or cmd))
-              header_logged = True
-            self.log(0, outline)
-        if errline:
-          # Kludge to remove misleading ssh known hosts warning from output.
-          # We are doing this because ssh doesn't provide a clean way to 
-          # disable just this warning without turning off ALL warnings, many
-          # others of which are useful
-          if re.search(r"Warning: Permanently added '[^ ]+' \(RSA\) to the "
-                        "list of known hosts.\r", errline):
-            continue
-          errlines.append(errline)
-      else:
-        break
-
-    if header_logged:
+    # log script footer
+    if verbose or self.logger.test(4): 
       self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
 
-    if proc.returncode:
-      if not '\n'.join(errlines):
-        # report exit code if no error message is returned
-        errlines = ['Error: exit code %s' % proc.returncode]
-      raise ScriptFailedError(id=cmd_id, path=cmd, 
-                              errtxt='\n'.join(outlines + errlines))
+    # process results
+    errtxt = ferr.getvalue()
+    if exitcode or errtxt:
+      if not errtxt: errtxt = 'Error: exit code %s' % exitcode
+      raise ScriptFailedError(id=cmd_id, path=cmd, errtxt=errtxt)
 
-  def _get_ssh_options(self, port, key_filename):
-    return ' '.join(["-o", "BatchMode=yes",
-                     "-o", "StrictHostKeyChecking=no",
-                     "-o", "UserKnownHostsFile=/dev/null",
-                     "-o", "IdentityFile=%s" % key_filename,
-                     "-o", "Port=%s" % port,
-                     "-o", "ServerAliveCountMax=3",
-                     "-o", "ServerAliveInterval=15",
-                     "-o", "TCPKeepAlive=no",
-                     ])
 
-  # Helper function to add the O_NONBLOCK flag to a file descriptor
-  def make_async(self, fd):
-    fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) | os.O_NONBLOCK)
-  
-  # Helper function to read some data from a file descriptor, ignoring EAGAIN errors
-  def read_async(self, fd):
-    try:
-      data = fd.read()
-      return data.rstrip('\n')
-    except IOError, e:
-      if e.errno != errno.EAGAIN:
-        raise
+def tee(infile, *files):
+    """Print `infile` to `files` in a separate thread."""
+    def fanout(infile, *files):
+        for line in iter(infile.readline, ''):
+            for f in files:
+                if f: f.write(line)
+        infile.close()
+    t = Thread(target=fanout, args=(infile,)+files)
+    t.daemon = True
+    t.start()
+    return t
 
+def teed_call(cmd_args, **kwargs):    
+    stdout, stderr, verbose = [kwargs.pop(s, None) for s in 
+                               'stdout', 'stderr', 'verbose']
+    p = Popen(cmd_args,
+              stdout=PIPE if stdout is not None else None,
+              stderr=PIPE if stderr is not None else None,
+              **kwargs)
+    threads = []
+    if stdout is not None: threads.append(tee(p.stdout, stdout,
+                                              sys.stdout if verbose else None))
+    if stderr is not None: threads.append(tee(p.stderr, stderr, 
+                                              sys.stderr if verbose else None))
+    for t in threads: t.join() # wait for IO completion
+    return p.wait()
 
 #------ Errors ------#
 class ScriptFailedError(DeployEventError):
@@ -169,7 +155,7 @@ class ScriptFailedError(DeployEventError):
     self.errtxt = errtxt
 
   def __str__(self):
-    return "Error occurred running '%s' script at '%s':\n\n%s" % (
+    return "Error(s) occurred running '%s' script at '%s':\n\n%s" % (
             self.id, self.path, self.errtxt)
 
 class SSHScriptFailedError(ScriptFailedError):

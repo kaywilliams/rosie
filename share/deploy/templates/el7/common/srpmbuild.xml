@@ -77,20 +77,20 @@ yum sync -y -q || (echo 'yum sync failed' >&amp;2; exit 1)
 if [[ $? != 0 ]]; then echo 'setup failed' >&amp;2; exit 1 ; fi
 
 # install srpm
-rpm -Uvh --nodeps %{srpm}
+rpm --quiet -Uvh --nodeps %{srpm} 2>&amp;1
 if [[ $? != 0 ]]; then echo 'srpm install failed: %{srpm}' >&amp;2; exit 1 ; fi
 
 # rebuild srpm
-rpmbuild -bs --target %{arch} --define='dist el%{version}' %{spec} 
+rpmbuild --quiet -bs --target %{arch} --define='dist el%{version}' %{spec} 2>&amp;1 
 if [[ $? != 0 ]]; then echo 'srpm build failed: %{spec}' >&amp;2; exit 1; fi
 
 # build rpm
-rpmbuild -ba --target %{arch} --define='dist .el%{version}' %{spec}
+rpmbuild --quiet -ba --target %{arch} --define='dist .el%{version}' %{spec} 2>&amp;1
 if [[ $? != 0 ]]; then echo 'rpm build failed: %{spec}' >&amp;2; exit 1; fi
 
 # validate rpm
 for f in `find %{build-dir}/RPMS -type f -name "*.rpm"`; do 
-  rpmlint $f
+  rpmlint $f 2>&amp;1
   if [[ $? == 66 ]]; then 
     echo 'rpmlint badness threshold exceeded: $f' >&amp;2; exit 1; 
   fi

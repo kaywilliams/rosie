@@ -21,5 +21,5 @@ virt-install \
   --extra-args "%{boot-options} ks=%{webroot}/ks.cfg" \
   --force \
   --wait=-1 \
-  --noreboot
+  --noreboot 2>&amp;1
 </script>

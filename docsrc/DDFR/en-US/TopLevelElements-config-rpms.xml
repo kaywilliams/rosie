@@ -417,6 +417,11 @@ rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
         </para>
 
         <para>
+        Deploy halts processing if a prep-script either returns a non-zero
+        exit status or writes output to the standard error file descriptor.
+        </para>
+
+        <para>
         Can occur zero or more times.
         </para>
 

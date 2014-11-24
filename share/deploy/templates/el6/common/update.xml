@@ -7,20 +7,20 @@ set -e
 # run yum command(s), checking output for scriptlet failed errors
 
 # ensure release-rpm installed
-yum -q -y install %{name}-release
+if ! rpm --quiet -q %{name}-release; then yum -q -y install %{name}-release; fi
 
 # determine whether sync plugin is installed on this system
 if [[ -f /usr/lib/yum-plugins/sync.py ]] ; then
-  commands="yum sync -y"
+  commands="yum -q -y sync"
 else
-  commands="yum groupinstall core -y, yum update -y"
+  commands="yum -q -y groupinstall core, yum -q -y update"
 fi
 
 OLDIFS=$IFS
 IFS=','
 for command in $commands; do
   IFS=$OLDIFS
-  output=`$command`
+  output=`$command 2>&amp;1`
   while read -r line
   do
     echo $line
@@ -38,7 +38,7 @@ if [[ ${#failed} > 0 ]]; then
 echo -e "
 ERROR: Scriptlet failed errors ocurred installing the following packages:\n
 ${failed#"${failed%%[![:space:]]*}"}\n
-See YUM output above for scriptlet failed errors. The failed packages have
+See YUM output above for scriptlet failed errors. The failed package(s) have
 been uninstalled to prevent system inconsistencies. See the Deploy User Manual
 for information on 'Troubleshooting RPM scriptlet failed errors'." >&amp;2
   exit 1
