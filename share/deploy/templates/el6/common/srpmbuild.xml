@@ -103,7 +103,6 @@ set -e
 
 opts="
 -o StrictHostKeyChecking=no
--o UserKnownHostsFile=/dev/null
 "
 
 rpms=$(ssh %{ssh-host} $opts find %{build-dir}/RPMS -name "*.rpm")

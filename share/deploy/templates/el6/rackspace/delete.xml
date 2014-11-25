@@ -20,8 +20,7 @@ config.read(volume_data_file)
 # since delete scripts can run before the ssh-host address is known
 #
 if server.status == 'ACTIVE':
-  opts = ("-o StrictHostKeyChecking=no "
-          "-o UserKnownHostsFile=/dev/null")
+  opts = ("-o StrictHostKeyChecking=no")
 
   for s in config.sections(): 
     devname = config.get(s, 'device')

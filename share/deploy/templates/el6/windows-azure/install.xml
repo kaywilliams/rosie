@@ -17,7 +17,6 @@ echo "creating %{hostname}"
 
 opts="
 -o StrictHostKeyChecking=no 
--o UserKnownHostsFile=/dev/null 
 "
 
 echo "installing ssh key"

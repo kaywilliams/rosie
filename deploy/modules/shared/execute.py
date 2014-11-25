@@ -44,7 +44,6 @@ class ExecuteEventMixin:
   def _get_ssh_options(self, port, key_filename):
     return ' '.join(["-o", "BatchMode=yes",
                      "-o", "StrictHostKeyChecking=no",
-                     "-o", "UserKnownHostsFile=/dev/null",
                      "-o", "IdentityFile=%s" % key_filename,
                      "-o", "Port=%s" % port,
                      "-o", "ServerAliveCountMax=3",
