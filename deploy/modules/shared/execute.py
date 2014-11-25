@@ -95,20 +95,21 @@ class ExecuteEventMixin:
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # Thanks to J.F. Sebastian from http://stackoverflow.com/questions/12270645/can-you-make-a-python-subprocess-output-stdout-and-stderr-as-usual-but-also-cap
-    fout = StringIO()
+    fout = StringIO() # stdout and stderr
+    ferr = StringIO() # stderr only
 
     # execute script
     # using shell=True which gives better error messages for scripts lacking
     # an interpreter directive (i.e. #!/bin/bash) (?)
-    exitcode = teed_call([cmd], stdout=fout, stderr=fout, verbose=verbose,
+    exitcode = teed_call([cmd], stdout=fout, stderr=ferr, verbose=verbose,
                          shell=True)
 
     # process results
     output = fout.getvalue()
-    if exitcode:
+    errors =  ferr.getvalue()
+    if exitcode or errors:
       if not output: output = 'Error: exit code %s' % exitcode
       raise ScriptFailedError(id=cmd_id, path=cmd, errtxt=output)
-
 
 def tee(infile, *files):
     """Print `infile` to `files` in a separate thread."""
@@ -122,7 +123,7 @@ def tee(infile, *files):
     t.start()
     return t
 
-def teed_call(cmd_args, **kwargs):    
+def teed_call(cmd_args, **kwargs):
     stdout, stderr, verbose = [kwargs.pop(s, None) for s in 
                                'stdout', 'stderr', 'verbose']
     p = Popen(cmd_args,
@@ -132,7 +133,7 @@ def teed_call(cmd_args, **kwargs):
     threads = []
     if stdout is not None: threads.append(tee(p.stdout, stdout,
                                               sys.stdout if verbose else None))
-    if stderr is not None: threads.append(tee(p.stderr, stderr, 
+    if stderr is not None: threads.append(tee(p.stderr, stdout, stderr, 
                                               sys.stderr if verbose else None))
     for t in threads: t.join() # wait for IO completion
     return p.wait()
