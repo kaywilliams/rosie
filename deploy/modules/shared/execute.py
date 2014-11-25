@@ -95,6 +95,8 @@ class ExecuteEventMixin:
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # Thanks to J.F. Sebastian from http://stackoverflow.com/questions/12270645/can-you-make-a-python-subprocess-output-stdout-and-stderr-as-usual-but-also-cap
+    # Note - but still the order of stdout and stderr messages is not always
+    # correct, and this varies by system (i.e. physical vs. cloud system)?
     fout = StringIO() # stdout and stderr
     ferr = StringIO() # stderr only
 
