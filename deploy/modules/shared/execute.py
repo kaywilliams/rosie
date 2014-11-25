@@ -96,28 +96,19 @@ class ExecuteEventMixin:
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # Thanks to J.F. Sebastian from http://stackoverflow.com/questions/12270645/can-you-make-a-python-subprocess-output-stdout-and-stderr-as-usual-but-also-cap
-    fout, ferr = StringIO(), StringIO()
-
-    # log script header
-    if verbose or self.logger.test(4): 
-      self.logger.log_header(0, "%s event - '%s' script output" %
-                            (self.id, cmd_id or cmd))
+    fout = StringIO()
 
     # execute script
     # using shell=True which gives better error messages for scripts lacking
     # an interpreter directive (i.e. #!/bin/bash) (?)
-    exitcode = teed_call([cmd], stdout=fout, stderr=ferr, verbose=verbose,
+    exitcode = teed_call([cmd], stdout=fout, stderr=fout, verbose=verbose,
                          shell=True)
 
-    # log script footer
-    if verbose or self.logger.test(4): 
-      self.logger.log(0, "%s" % '=' * MSG_MAXWIDTH)
-
     # process results
-    errtxt = ferr.getvalue()
-    if exitcode or errtxt:
-      if not errtxt: errtxt = 'Error: exit code %s' % exitcode
-      raise ScriptFailedError(id=cmd_id, path=cmd, errtxt=errtxt)
+    output = fout.getvalue()
+    if exitcode:
+      if not output: output = 'Error: exit code %s' % exitcode
+      raise ScriptFailedError(id=cmd_id, path=cmd, errtxt=output)
 
 
 def tee(infile, *files):
