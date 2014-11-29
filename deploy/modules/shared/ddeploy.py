@@ -186,8 +186,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     for scripts in self.types.values():
       for script in scripts:
         if self.io.list_output(what=script.id)[0].exists():
-          # force script to be recopied on each run since we do some run-time
-          # postprocessing (i.e. resolve %{ssh-host} macro)
+          # force script to be recopied on each run to support per-script 
+          # post-processing (i.e. %{script-id} and %{ssh-host} macro resolution)
           self.io.list_output(what=script.id)[0].remove()
         self.io.process_files(what=script.id)
 
@@ -334,10 +334,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       cmd = self.io.list_output(what=script.id)[0]
       self.log(1, L1('running %s script' % script.id))
 
-      # resolve %{ssh-host} macros in script
+      # resolve per-script macros
       script_text = cmd.read_text()
-      if '%{ssh-host}' in script_text:
-        cmd.write_text(script_text.replace('%{ssh-host}', self.get_ssh_host()))
+      map = { '%{script-id}': script.id,
+              '%{ssh-host}': self.get_ssh_host() }
+      for k,v in map.items():
+        script_text = script_text.replace(k,v)
+      cmd.write_text(script_text)
 
       # get SSHParameters
       params = SSHParameters(self, type)

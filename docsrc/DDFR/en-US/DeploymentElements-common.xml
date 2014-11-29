@@ -218,6 +218,19 @@
 
     <row>
     <entry>
+    %{script-id}
+    </entry>
+
+    <entry>
+    <para>
+    Value of the @id attribute for the current script element.  See the <xref
+    linkend='script-id'/> attribute of the script element for more information.
+    </para>
+    </entry>
+    </row>
+
+    <row>
+    <entry>
     %{ssh-host}
     </entry>
 
@@ -1316,7 +1329,10 @@ $remote-url/%{id}</programlisting>
       </para>
 
       <para>
-      The script element allows six attributes: <xref linkend='script-id'/>, <xref linkend='script-type'/>, <xref linkend='script-hostname'/>, <xref linkend='script-verbose'/>, <xref linkend='script-comes-before'/> and <xref linkend='script-comes-after'/>.
+      The script element allows six attributes: <xref linkend='script-id'/>,
+      <xref linkend='script-type'/>, <xref linkend='script-hostname'/>, <xref
+      linkend='script-verbose'/>, <xref linkend='script-comes-before'/> and
+      <xref linkend='script-comes-after'/>.
       </para>
 
       <para>
@@ -1328,7 +1344,8 @@ $remote-url/%{id}</programlisting>
       <term>@id</term>
       <listitem>
       <para>
-      TEXT value serving as an identifier for the script.
+      TEXT value serving as an identifier for the script. Corresponds to the
+      <link linkend="deployment-macros">%{script-id}</link> module macro.
       </para>
 
       <para>
