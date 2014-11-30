@@ -99,7 +99,8 @@ def read_config():
   return config
 
 def copy_config_to_client():
-  opts = ("-o StrictHostKeyChecking=no ")
+  opts = ("-o BatchMode=yes "
+          "-o UserKnownHostsFile=%{ssh-host-key-file}")
   r = subprocess.call('scp %(opts)s  %(file)s %(host)s:%(file)s' % 
                      {'opts': opts,
                       'file': volume_data_file, 

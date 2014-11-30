@@ -15,15 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import errno 
 import hashlib
 import re
+import socket
 
 from deploy.dlogging import L0, L1
 from deploy.errors import (DeployError, DeployEventError,
                                  DuplicateIdsError)
-from deploy.util import pps 
-from deploy.util import resolve 
+from deploy.util import pps
+from deploy.util import resolve
+from deploy.util import shlib
 from deploy.util.graph import GraphCycleError
 
 from deploy.util.pps.Path.error import PathError
@@ -70,8 +71,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     self.webpath = self.cvars[self.cvar_root]['webpath']
     self.ssh_host_file = self.datfn.dirname / 'ssh-host-%s' % self.moduleid
+    self.ssh_host_key_file = (self.datfn.dirname /
+                              'ssh-host-key-%s' % self.moduleid)
 
-    self.resolve_macros(map={'%{ssh-host-file}': self.ssh_host_file}),
+    self.resolve_macros(map={'%{ssh-host-file}': self.ssh_host_file,
+                             '%{ssh-host-key-file}': self.ssh_host_key_file})
 
     # add repomd as input file
     if self.track_repomd:
@@ -96,7 +100,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                            'pre-install': 'localhost', 
                            'install': 'localhost',
                            'post-install': '%{ssh-host}', 
-                           'save-triggers': '%{ssh-host}', 
+                           'save-triggers': '%{ssh-host}',
                            'update': '%{ssh-host}', 
                            'post': '%{ssh-host}'
                            }
@@ -115,6 +119,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           if id in self.scripts:
             raise DuplicateIdsError(element='script', id=id)
           hostname = script.getxpath('@hostname', None)
+          known_hosts_file = script.getxpath('@known-hosts-file',
+                                             self.ssh_host_key_file) 
           verbose = script.getbool('@verbose', False)
           xpath = 'script[@id="%s"]' % id
           csum = self._get_script_csum(xpath)
@@ -122,8 +128,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
             reqs = script.getxpath('@%s' % x, '')
             exec ("%s = [ s.strip() for s in reqs.replace(',', ' ').split() ]"
                    % x.replace('-', '_'))
-          item = Script(id, hostname, verbose, xpath, csum, comes_before,
-                        comes_after)
+          item = Script(id, hostname, known_hosts_file, verbose, xpath, csum,
+                        comes_before, comes_after)
           resolver.add_node(item)
           self.scripts[id] = item
 
@@ -200,9 +206,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._write_install_status_start()
       self._execute('pre')
       self._execute('delete')
+      self._delete_ssh_host_key_file()
       self._execute('pre-install')
       self._execute('install')
       self._execute('activate')
+      self._write_ssh_host_key_file()
       self._execute('post-install')
       self._execute('save-triggers')
       self._write_install_status_complete()
@@ -212,6 +220,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     else:
       self._execute('pre')
       self._execute('activate')
+      self._write_ssh_host_key_file()
       self._execute('update')
       self._execute('post')
  
@@ -315,6 +324,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         raise ActivationFailedError(msg=
           "Activation script failed:\n\n%s" % e)
 
+    # write ssh-host-pubkey-file
+    self._write_ssh_host_key_file()
+
     # do test-trigger-type scripts return success?
     if self.types['test-triggers']:
       try:
@@ -345,6 +357,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       # get SSHParameters
       params = SSHParameters(self, type)
       params['hostname'] = script.hostname or params['hostname']
+      if '%{ssh-host}' in params['hostname']:
+        params['hostname'] = self.get_ssh_host()
+      params['known_hosts_file'] = script.known_hosts_file
 
       # execute local script
       if params['hostname'] == 'localhost':
@@ -360,6 +375,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
       # execute ssh script
       else:
+        # ensure known_hosts_file exists
+        if not pps.path(script.known_hosts_file).exists():
+          msg = ("Error validating attributes for the '%s' script:\n\n"
+                 "The known-hosts-file '%s' could not be found."
+                 % (script.id, script.known_hosts_file))
+          raise MissingKnownHostsFileError(msg=msg)
 
         # create scriptdir
         try:
@@ -372,10 +393,17 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           self._ssh_execute( create_script, cmd_id='create scriptdir', 
                              params=params)
         except SSHScriptFailedError, e:
-          raise RemoteFileCreationError(msg=
-            "An error occurred creating the script directory '%s' "
-            "on the remote system '%s':\n\n%s"
-            % (self.VAR_DIR, params['hostname'], e.errtxt))
+          if "Host key verification failed" in e.errtxt:
+            raise HostKeyVerificationFailed(msg=
+              "An error occurred executing the '%s' script. Unable to verify "
+              "the hostname '%s' using the known-hosts-file '%s':\n\n%s"
+              % (script.id, params['hostname'], params['known_hosts_file'],
+                 e.errtxt))
+          else:
+            raise RemoteFileCreationError(msg=
+              "An error occurred creating the script directory '%s' on '%s' "
+              "[exit code %s]:\n\n%s"
+              % (self.VAR_DIR, params['hostname'], e.exitcode, e.errtxt))
 
         # copy script
         try:
@@ -384,8 +412,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           self._sftp(sftp_cmd, cmd_id='copy script', params=params)
         except ScriptFailedError, e:
           raise RemoteFileCreationError(msg=
-            "An error occurred copying '%s' script to the remote system '%s'. "
-            "%s" % (cmd, params['hostname'], e.errtxt))
+            "An error occurred copying '%s' script to '%s' "
+            "[exit code %s]:\n\n%s"
+            % (cmd, params['hostname'], e.exitcode, e.errtxt))
  
         # execute script
         cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
@@ -405,6 +434,31 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     elem = root.getxpath('./%s/install-status' % self.moduleid)
     elem.text = "complete"
     self.write_datfile(root)
+
+  def _delete_ssh_host_key_file(self):
+    self.ssh_host_key_file.rm(force=True)
+
+  def _write_ssh_host_key_file(self):
+    if self.type == 'package':
+      return
+
+    if self.ssh_host_key_file.exists():
+      return
+
+    # get namelist (fqdn, ipaddr)
+    fqdn = self.cvars[self.cvar_root]['fqdn']
+    ssh_host = self.get_ssh_host()
+    
+    if fqdn == ssh_host:
+      ipaddr = socket.gethostbyname(fqdn)
+    else:
+      ipaddr = ssh_host
+    
+    namelist = '%s,%s' % (fqdn, ipaddr)
+   
+    # write file
+    key = shlib.execute('ssh-keyscan %s' % namelist)[0]
+    self.ssh_host_key_file.write_text(key+'\n')
 
   def get_ssh_host(self):
     if self.ssh_host_file.exists():
@@ -429,10 +483,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     return ssh_host
 
 class Script(resolve.Item, DirectedNodeMixin):
-  def __init__(self, id, hostname, verbose, xpath, csum, comes_before,
-               comes_after):
+  def __init__(self, id, hostname, known_hosts_file, verbose, xpath, csum, 
+               comes_before, comes_after):
     self.id = id
     self.hostname = hostname
+    self.known_hosts_file = known_hosts_file
     self.verbose = verbose 
     self.xpath = xpath
     self.csum = csum
@@ -457,8 +512,6 @@ class SSHParameters(DictMixin):
     for param,value in ptr.ssh.items():
       if param == 'hostname':
         self.params['hostname'] = ptr.hostname_defaults[type]
-        if self.params['hostname'] == '%{ssh-host}': 
-           self.params['hostname'] = ptr.get_ssh_host()
       else:
         self.params[param] = value
 
@@ -486,10 +539,10 @@ class TestExistsFailedError(DeployEventError):
 class ActivationFailedError(DeployEventError):
   message = "%(msg)s"
 
-class ConnectionFailedError(DeployEventError):
+class SshHostFileError(DeployEventError):
   message = "%(msg)s"
 
-class SshHostFileError(DeployEventError):
+class HostKeyVerificationFailed(DeployEventError):
   message = "%(msg)s"
 
 class RemoteFileCreationError(DeployEventError):
@@ -498,3 +551,6 @@ class RemoteFileCreationError(DeployEventError):
 class InvalidTriggerNameError(DeployEventError):
   message = ("Invalid character in trigger name '%(trigger)s'. Valid "
              "characters are a-z, A-Z, 0-9 and _.")
+
+class MissingKnownHostsFileError(DeployEventError):
+  message = "%(msg)s"

@@ -41,10 +41,10 @@ class ExecuteEventMixin:
   def setup(self, **kwargs):
     self.DATA['variables'].append('execute_mixin_version')
 
-  def _get_ssh_options(self, port, key_filename):
+  def _get_ssh_options(self, port, key_filename, known_hosts_file):
     return ' '.join(["-o", "BatchMode=yes",
-                     "-o", "StrictHostKeyChecking=no",
                      "-o", "IdentityFile=%s" % key_filename,
+                     "-o", "UserKnownHostsFile=%s" % known_hosts_file,
                      "-o", "Port=%s" % port,
                      "-o", "ServerAliveCountMax=3",
                      "-o", "ServerAliveInterval=15",
@@ -54,8 +54,9 @@ class ExecuteEventMixin:
   def _ssh_execute(self, script, cmd_id=None, params={}, log_format='L2', 
                    **kwargs):
     cmd = "/usr/bin/ssh %s %s@%s %s" % (
-          self._get_ssh_options(params['port'], params['key_filename']),
-          params['username'], params['hostname'], script)
+          self._get_ssh_options(params['port'], params['key_filename'],
+                                params['known_hosts_file']),
+                                params['username'], params['hostname'], script)
     cmd_id = cmd_id or pps.path(script).basename
 
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
@@ -65,13 +66,15 @@ class ExecuteEventMixin:
                            log_format=log_format, **kwargs)
     except ScriptFailedError, e:
       raise SSHScriptFailedError(id=cmd_id, path=script, 
-                                 hostname=params['hostname'], 
+                                 hostname=params['hostname'],
+                                 exitcode=e.exitcode,
                                  errtxt=e.errtxt)
 
   def _sftp(self, cmd, cmd_id=None, params={}, log_format='L2', **kwargs):
     cmd = 'echo -e "%s" | /usr/bin/sftp -b - %s %s@%s' % (
-          cmd, self._get_ssh_options(params['port'], params['key_filename']), 
-          params['username'], params['hostname'])
+          cmd, self._get_ssh_options(params['port'], params['key_filename'], 
+                                     params['known_hosts_file']),
+                                     params['username'], params['hostname'])
     cmd_id = cmd_id or 'sftp' 
 
     self.log(4, eval('%s' % log_format)("executing \'%s\' on host" % cmd))
@@ -91,7 +94,7 @@ class ExecuteEventMixin:
       self._local_execute(cmd, cmd_id=cmd_id, **kwargs)
     except ScriptFailedError, e:
       raise SSHScriptFailedError(id=cmd_id, path=cmd, hostname=hostname, 
-                                 errtxt=e.errtxt)
+                                 exitcode=e.exitcode, errtxt=e.errtxt)
 
   def _local_execute(self, cmd, cmd_id, verbose=False, **kwargs):
     # Thanks to J.F. Sebastian from http://stackoverflow.com/questions/12270645/can-you-make-a-python-subprocess-output-stdout-and-stderr-as-usual-but-also-cap
@@ -111,7 +114,8 @@ class ExecuteEventMixin:
     errors =  ferr.getvalue()
     if exitcode or errors:
       if not output: output = 'Error: exit code %s' % exitcode
-      raise ScriptFailedError(id=cmd_id, path=cmd, errtxt=output)
+      raise ScriptFailedError(id=cmd_id, path=cmd, 
+                              exitcode=exitcode, errtxt=output)
 
 def tee(infile, *files):
     """Print `infile` to `files` in a separate thread."""
@@ -142,22 +146,26 @@ def teed_call(cmd_args, **kwargs):
 
 #------ Errors ------#
 class ScriptFailedError(DeployEventError):
-  def __init__(self, id, path, errtxt):
+  def __init__(self, id, path, exitcode, errtxt):
     self.id = id
     self.path = path
+    self.exitcode = exitcode
     self.errtxt = errtxt
 
   def __str__(self):
-    return "Error(s) occurred running '%s' script at '%s':\n\n%s" % (
-            self.id, self.path, self.errtxt)
+    return ("Error(s) occurred running '%s' script at '%s' "
+            "[exit code %s]:\n\n%s"
+            % (self.id, self.path, self.exitcode, self.errtxt))
 
 class SSHScriptFailedError(ScriptFailedError):
-  def __init__(self, id, path, hostname, errtxt):
+  def __init__(self, id, path, hostname, exitcode, errtxt):
     self.id = id
     self.path = path
     self.hostname = hostname
+    self.exitcode = exitcode
     self.errtxt = errtxt
 
   def __str__(self):
-    return ("Error(s) occurred running '%s' script at '%s' on '%s':\n\n"
-            "%s" % (self.id, self.path, self.hostname, self.errtxt))
+    return ("Error(s) occurred running '%s' script at '%s' on '%s' "
+            "[exit code %s]:\n\n%s"
+            % (self.id, self.path, self.hostname, self.exitcode, self.errtxt))

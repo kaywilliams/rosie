@@ -17,10 +17,11 @@ config.read(volume_data_file)
 
 # unmount volumes
 # Note - unmounting volumes from a script that runs on localhost
-# since delete scripts can run before the ssh-host address is known
+# since delete scripts can run before the ssh-client address is known
 #
 if server.status == 'ACTIVE':
-  opts = ("-o StrictHostKeyChecking=no")
+  opts = ("-o BatchMode=yes "
+          "-o UserKnownHostsFile=%{ssh-host-key-file} ")
 
   for s in config.sections(): 
     devname = config.get(s, 'device')

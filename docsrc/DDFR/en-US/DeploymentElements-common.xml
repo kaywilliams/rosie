@@ -70,6 +70,7 @@
     id=TEXT 
     type=[pre|test-exists|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
     [hostname=TEXT]
+    [known-hosts-file=PATH]
     [verbose=BOOLEAN]
     [comes-before=TEXT]
     [comes-after=TEXT]
@@ -236,7 +237,7 @@
 
     <entry>
     <para>
-    Hostname or ipaddress used for establishing an SSH connection to a client
+    Hostname or ipaddress used for establishing an SSH connection to the client
     machine prior to executing scripts where the <emphasis>@hostname</emphasis>
     attribute is set to <constant>%{ssh-host}</constant>, i.e.
     <emphasis>post-install</emphasis>, <emphasis>save-trigger</emphasis>, and
@@ -263,8 +264,56 @@
 
     <entry>
     <para>
-    PATH to a file where Deploy should read the hostname to be used for
-    establishing SSH connections to a client machine.
+    PATH to a file in the data folder where Deploy reads the hostname for
+    establishing SSH connections to the client machine.
+    </para>
+
+    <para>
+    The value of this macro is as follows:
+    </para>
+
+    <programlisting>
+%{data-dir}/ssh-host-%{module}</programlisting>
+
+    <para>
+    See the %{ssh-host} macro for additional information. See also the sections
+    on <link linkend='datfile'>data files</link> and <link
+    linkend='macros'>macros</link>.
+    </para>
+
+    </entry>
+    </row>
+
+    <row>
+    <entry>
+    %{ssh-host-key-file}
+    </entry>
+
+    <entry>
+    <para>
+    PATH to a file in the data folder where Deploy stores the SSH public key
+    for the client machine. Deploy automatically creates and updates this file
+    following client system installations.
+    </para>
+    
+    <para>
+    The value of this macro is as follows:
+    </para>
+
+    <programlisting>
+%{data-dir}/ssh-host-key-%{module}</programlisting>
+
+    <para>
+    Scripts can use this file to verify the client when communicating directly
+    via SSH. Search "UserKnownHostsFile" in this document to see several
+    examples.
+    </para>
+
+    <para>
+    See the <xref linkend='script-known-hosts-file'/> attribute of the script
+    element for more information. See also the sections on <link
+    linkend='datfile'>data files</link> and <link
+    linkend='macros'>macros</link>.
     </para>
     </entry>
     </row>
@@ -2097,6 +2146,27 @@ echo $ipaddress > %{ssh-host-file}
       </para>
       </note>
 
+      </listitem>
+      </varlistentry>
+
+      <varlistentry id="script-known-hosts-file">
+      <term>@known-hosts-file</term>
+      <listitem>
+      <para>
+      PATH to a file containing a public key for verifying the host specified
+      in the @hostname attribute. Used only when the script is executed via
+      SSH, i.e. <link linkend='script-hostname'>@hostname</link> is a value
+      other than <constant>localhost</constant>.
+      </para>
+
+      <para>
+      This attribute is optional. The default value is
+      <constant>%{ssh-host-key-file}.</constant>
+      </para>
+
+      <para>
+      See <xref linkend="content-path"/> for more information on PATH values
+      </para>
       </listitem>
       </varlistentry>
 

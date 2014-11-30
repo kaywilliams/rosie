@@ -8,7 +8,8 @@
 set -e
 
 opts="
--o StrictHostKeyChecking=no 
+-o BatchMode=yes
+-o UserKnownHostsFile=%{ssh-host-key-file}
 "
 scp $opts root@%{ssh-host}:/etc/sysconfig/iptables $(dirname "$0")
 

@@ -430,6 +430,10 @@
       </optional>
 
       <optional>
+      <attribute name="known-hosts-file"><text/></attribute>
+      </optional>
+
+      <optional>
       <attribute name='verbose'><ref name="value-boolean"/></attribute>
       </optional>
 
