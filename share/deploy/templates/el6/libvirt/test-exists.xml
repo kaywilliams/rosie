@@ -20,5 +20,5 @@ try: #vm exists?
   vm = connection.lookupByName(guestname)
 except libvirt.libvirtError:
   sys.stderr.write("vm does not exist\n")
-  sys.exit(1)
+  sys.exit(3)
 </script>

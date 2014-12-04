@@ -7,7 +7,7 @@ FAIL=0
 
 # create function to handle trigger failures
 fail () {
-FAIL=1
+FAIL=3
 echo "$1 changed" >&amp;2
 }
 

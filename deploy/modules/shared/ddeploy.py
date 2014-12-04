@@ -298,13 +298,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     try:
       self._execute('test-exists')
     except (ScriptFailedError, SSHScriptFailedError), e:
-      if self.config.getbool('triggers/@exists', True):
-        self.log(3, L0(e))
-        self.log(1, L1("test-exists script failed, reinstalling..."))
+      if self.config.getbool('triggers/@exists', True) and e.exitcode == 3:
+        self.log(4, e)
+        self.log(1, L1("test-exists script returned exit code 3, "
+                       "reinstalling..."))
         return True # reinstall
       else:
-        raise TestExistsFailedError(msg=
-          "Test-exists script failed:\n\n%s" % e.errtxt)
+        raise
 
     # did previous install terminate prior to completion?
     if self.parse_datfile().getxpath(
@@ -316,13 +316,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     try:
       self._execute('activate')
     except (ScriptFailedError, SSHScriptFailedError), e:
-      if self.config.getbool('triggers/@activate', False):
-        self.log(3, L0(e))
-        self.log(1, L1("activation script failed, reinstalling..."))
+      if self.config.getbool('triggers/@activate', False) and e.exitcode == 3:
+        self.log(4, e)
+        self.log(1, L1("activation script returned exit code 3, "
+                       "reinstalling..."))
         return True # reinstall
       else:
-        raise ActivationFailedError(msg=
-          "Activation script failed:\n\n%s" % e)
+        raise
 
     # write ssh-host-pubkey-file
     self._write_ssh_host_key_file()
@@ -332,9 +332,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       try:
         self._execute('test-triggers')
       except ScriptFailedError, e:
-        self.log(3, L1(e))
-        self.log(1, L1("test-trigger script failed, reinstalling..."))
-        return True # reinstall
+        if e.exitcode == 3:
+          self.log(3, L1(e))
+          self.log(1, L1("test-trigger returned exit code 3, reinstalling..."))
+          return True # reinstall
+        else:
+          raise
 
     # everything looks good
     return False # don't reinstall
@@ -531,12 +534,6 @@ class SSHParameters(DictMixin):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
 class ScriptGraphCycleError(DeployEventError):
-  message = "%(msg)s"
-
-class TestExistsFailedError(DeployEventError):
-  message = "%(msg)s"
-
-class ActivationFailedError(DeployEventError):
   message = "%(msg)s"
 
 class SshHostFileError(DeployEventError):

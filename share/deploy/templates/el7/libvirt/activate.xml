@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='activate' type='activate' xmlns:xi="http://www.w3.org/2001/XInclude">
+<script id='activate' type='activate' 
+        xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href="test-exists.xml" xpointer="xpointer(./node())"/>
 state = vm.state(0)[0]
 
@@ -9,9 +10,8 @@ if state == 1:
 
 # if vm is idle blocked on resource, warn but exit success
 if state == 2:
-  sys.stdout.write("warning: domain is active, but currently idle waiting "
-                   "for system resources\n")
-  sys.exit(0)
+  sys.stdout.write("vm is idle blocked on system resources\n")
+  sys.exit(1)
 
 # if vm is paused or suspended, attempt to resume it
 elif state == 3:
@@ -35,7 +35,7 @@ elif state == 5:
     sys.exit(0)
   except libvirt.libvirtError, e:
     sys.stderr.write("vm is shut off and failed to start [%s]\n" % e)
-    sys.exit(1)
+    sys.exit(3) # reinstall
     
 # if vm is crashed, print an error and exit
 elif state == 6:

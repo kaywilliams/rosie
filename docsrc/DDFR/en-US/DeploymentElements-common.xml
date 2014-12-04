@@ -1262,8 +1262,7 @@ $remote-url/%{id}</programlisting>
       <para>
       The value of the <emphasis>triggers/@exists</emphasis> attribute is
       <constant>True</constant> (default) and a <xref linkend='test-exists'/>
-      script either returns a non-zero exit status or writes output to the
-      standard error file descriptor.
+      script returns exit code <constant>3</constant>.
       </para>
       </listitem>
 
@@ -1271,17 +1270,15 @@ $remote-url/%{id}</programlisting>
       <para>
       The value of the <emphasis>triggers/@activate</emphasis> attribute is
       <constant>True</constant> (non-default) and an <xref linkend='activate'/>
-      script either returns a non-zero exit status or writes output to the
-      standard error file descriptor.
+      script returns exit code <constant>3</constant>.
       </para>
       </listitem>
 
       <listitem>
       <para>
-      A <xref linkend='test-triggers'/> script either returns a non-zero exit
-      status or writes output to the standard error file descriptor.
-      Test-triggers scripts make use of the macros described under
-      <emphasis>Trigger Macros</emphasis> in <xref
+      A <xref linkend='test-triggers'/> script returns exit code
+      <constant>3</constant>.  Test-triggers scripts make use of the macros
+      described under <emphasis>Trigger Macros</emphasis> in <xref
       linkend='deployment-macros'/>. See <xref linkend='test-triggers'/> for an
       example.  The TEXT value of the <emphasis>triggers</emphasis> element
       provides a space-separated list of trigger names.  These are made
@@ -1291,6 +1288,14 @@ $remote-url/%{id}</programlisting>
       </para>
       </listitem>
       </orderedlist>
+
+      <para>
+      Deploy gives special meaning to the exit code <constant>3</constant> in
+      these scripts. It interprets this code as <constant>'reinstall
+      required'</constant>. Using a special code allows script authors to
+      distinguish between intentional and unexpected script errors, thus
+      avoiding unwanted system reinstallation.
+      </para>
 
       <para>
       This element is optional.
@@ -1305,8 +1310,8 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       BOOLEAN value indicating whether Deploy should execute install-related
-      scripts if a <xref linkend='test-exists'/> script returns a non-zero exit
-      status or writes output to the standard error file descriptor.
+      scripts if a <xref linkend='test-exists'/> script returns exit code
+      <constant>3</constant>. 
       </para>
 
       <para>
@@ -1325,8 +1330,8 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       BOOLEAN value indicating whether Deploy should execute install-related
-      scripts if an <xref linkend='activate'/> script returns a non-zero exit
-      status or writes output to the standard error file descriptor.
+      scripts if an <xref linkend='activate'/> script returns exit code
+      <constant>3</constant>.
       </para>
 
       <para>
@@ -1367,6 +1372,15 @@ $remote-url/%{id}</programlisting>
       linkend="deployment-macros">%{deployment-script-dir}</link> module macro
       and the <xref linkend='script-hostname'/> attribute for additional
       information on target hosts and script execution.
+      </para>
+
+      <para>
+      Deploy halts processing if a script either returns a non-zero exit code
+      or writes output to the standard error file descriptor. In the latter
+      case, this is done to assist script authors with error handling and
+      debugging. In certain cases, Deploy gives special meaning to exit code
+      <constant>3</constant>.  See the <xref linkend='triggers'/> element for
+      additional information.
       </para>
 
       <para>
@@ -1474,9 +1488,11 @@ $remote-url/%{id}</programlisting>
       <para>
       Test-exist scripts determine if the specified machine already exists.
       They are used primarily for determining whether install scripts should
-      run. See the <xref linkend='triggers'/> element for additional
-      information.
+      run, and should return exit code <constant>3</constant> if the machine
+      does not exists.  See the <xref linkend='triggers'/> element for
+      additional information.
       </para>
+
       <para>
       <emphasis role='bold'>Example</emphasis> - This example shows a file
       named <filename>test-exists.xml</filename> which is included in the
@@ -1515,9 +1531,10 @@ $remote-url/%{id}</programlisting>
 
       <listitem>
       <para>
-      Activate scripts handle client machine activation. Deploy halts
-      processing if an activate script either returns a non-zero exit status or
-      writes output to the standard error file descriptor.
+      Activate scripts handle client machine activation.  These scripts should
+      return exit code <constant>3</constant> if the machine could not be
+      activated and reinstall is required. See the <xref linkend='triggers'/>
+      element for additional information.
       </para>
 
       <para>
@@ -1531,8 +1548,8 @@ $remote-url/%{id}</programlisting>
       <para>
       The template contains the text of a python script. The script attempts to
       establish a connection to a virtual machine. If the virtual machine does
-      not exist or cannot be activated, the script returns an exit status of
-      '1'.
+      not exist or cannot be activated, the script returns exit code
+      <constant>3</constant>.
       </para>
 
       <informalexample>
@@ -1561,7 +1578,8 @@ $remote-url/%{id}</programlisting>
       The template contains the text of a Python script. The script attempts to
       establish a connection to the machine identified by the <link
       linkend='deployment-macros'>%{ssh-host}</link> macro. If a connection
-      cannot be established, the script returns an exit status of '1'.
+      cannot be established, the script returns exit code
+      <constant>1</constant>.
       </para>
 
       <informalexample>
@@ -1585,9 +1603,8 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Test-trigger scripts test current trigger values against prior trigger
-      values. Deploy halts processing is a test-trigger script either returns a
-      non-zero exit status or writes output to the standard error file
-      descriptor.  See also the <xref linkend='triggers'/> element.
+      values and return exit code <constant>3</constant> if the values differ.
+      See the <xref linkend='triggers'/> element for additional information.
       </para>
 
       <para>
@@ -1614,8 +1631,8 @@ $remote-url/%{id}</programlisting>
       trigger values and makes them available via the %{release_rpm},
       %{config_rpms}, %{kickstart}, %{treeinfo}, %{install_scripts} and
       %{post_install_scripts} macros.  If any of the current triggers differs
-      from the corresponding saved trigger, the script returns an exit status
-      of '1'.
+      from the corresponding saved trigger, the script returns exit code 
+      <constant>3</constant>.
       </para>
 
       <informalexample>
@@ -1642,9 +1659,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Delete scripts delete or decommission client machines in preparation for
-      system installation. Deploy halts processing if a delete script either
-      returns a non-zero exit status or writes output to the standard error
-      file descriptor.  Commonly used with the <link
+      system installation. Commonly used with the <link
       linkend='deployment-macros'>%{fqdn}</link> module macro.
       </para>
 
@@ -1661,8 +1676,7 @@ $remote-url/%{id}</programlisting>
       machine specified using the <varname>%{fqdn}</varname> module macro. The
       command <command>set -e</command> is used at the beginning of the script
       to indicate that if any command in the script fails, the script should
-      return a non-zero exit status.  Typically bash scripts return the exit
-      status of the last command executed in the script.
+      halt processing.
       </para>
 
       <informalexample>
@@ -1732,9 +1746,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Install scripts complete activites related to client machine
-      installation. Deploy halts processing if an install script either returns
-      a non-zero exit status or writes output to the standard error file
-      descriptor.  Commonly used with the <link
+      installation. Commonly used with the <link
       linkend='deployment-macros'>%{fqdn}</link> and <link
       linkend='deployment-macros'>%{webroot}</link> module macros.
       </para>
@@ -1788,9 +1800,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Post-install scripts are executed immediately following client
-      installation and handle tasks such as install verification. Deploy halts
-      processing if a post-install script either returns a non-zero exit status
-      or writes output to the standard error file descriptor.
+      installation and handle tasks such as install verification.
       </para>
     
       <para>
@@ -1804,8 +1814,8 @@ $remote-url/%{id}</programlisting>
       <para>
       The file provides a shell script which uses the <command>grep</command>
       to scan for scriptlet failed errors in the install.log. If errors are
-      found, the script returns an exit status of '1', indicating that
-      verification failed.
+      found, the script returns exit code <constant>1</constant>, indicating
+      that verification failed.
       </para>
 
       <informalexample>
@@ -1829,9 +1839,7 @@ $remote-url/%{id}</programlisting>
       <listitem>
       <para>
       Save-triggers scripts save trigger values for future use by
-      <constant>test-triggers</constant> scripts. Deploy halts processing if a
-      save-triggers script either returns a non-zero exit status or writes
-      output to the standard error file descriptor.
+      <constant>test-triggers</constant> scripts.
       </para>
       <para>
       <emphasis>Example</emphasis> - This example shows the
@@ -1914,9 +1922,8 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
 
       <para>
       The script updates the client using the <command>yum sync</command>
-      command.  The <command>set -e</command> is used to halt processing and
-      return a non-zero exit status if an error occurs at any point within the
-      script.
+      command.  The <command>set -e</command> is used to halt processing
+      if an error occurs at any point within the script.
       </para>
 
       <informalexample>
@@ -1950,8 +1957,6 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       client updates, restarting clients if the kernel package has been
       updated, or shutting down a client if its purpose has been accomplished
       during the course of module execution (e.g. building or testing RPMs).
-      Deploy halts processing if a post-script either returns a non-zero exit
-      status or writes output to the standard error file descriptor.
       </para>
 
       <para>
