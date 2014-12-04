@@ -15,7 +15,6 @@
 <xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/windows-azure/activate.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/delete.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/windows-azure/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>

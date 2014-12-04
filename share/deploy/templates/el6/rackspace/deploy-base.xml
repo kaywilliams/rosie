@@ -17,7 +17,6 @@
 <xi:include href='%{templates-dir}/%{norm-os}/rackspace/activate.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/delete.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>

@@ -16,7 +16,6 @@
 <xi:include href='%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/openstack-deploy/activate.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/delete.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/openstack-deploy/install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>

@@ -123,6 +123,8 @@ for rpm in $rpms; do
 done
 </script>
 
+<xi:include href='%{templates-dir}/%{norm-os}/libvirt/delete.xml'/>
+
 <macro id='file-size'>10</macro>
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
             xpointer="xpointer(./*[name()!='kickstart'])"/>
