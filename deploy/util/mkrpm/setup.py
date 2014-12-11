@@ -173,6 +173,8 @@ class BdistRpm(bdist_rpm.bdist_rpm):
     ('config-files-noreplace=', None, "configuration files with noreplace"),
     ('doc-dirs=', None, "directories to be added as documentation directories"),
     ('ghost-files', None, "files that will be installed as ghost files"),
+    ('pre-trans=', None, "path to pre_trans script file"),
+    ('post-trans=', None, "path to post_trans script"),
     ('trigger-configs', None, "config files for triggers"),
   ])
 
@@ -183,6 +185,8 @@ class BdistRpm(bdist_rpm.bdist_rpm):
     self.doc_dirs = None
     self.ghost_files = None
     self.trigger_configs = None
+    self.pre_trans=None
+    self.post_trans=None
 
   def finalize_options(self):
     bdist_rpm.bdist_rpm.finalize_options(self)
@@ -191,6 +195,9 @@ class BdistRpm(bdist_rpm.bdist_rpm):
     self.ensure_string_list('doc_dirs')
     self.ensure_string_list('ghost_files')
     self.ensure_string_list('trigger_configs')
+
+    if self.pre_trans: assert os.path.isfile(self.pre_trans)
+    if self.post_trans: assert os.path.isfile(self.post_trans)
 
     if self.trigger_configs:
       for file in self.trigger_configs:
@@ -274,7 +281,9 @@ class BdistRpm(bdist_rpm.bdist_rpm):
       ('clean', 'clean_script', "rm -rf $RPM_BUILD_ROOT"),
       ('verifyscript', 'verify_script', None),
       ('pre', 'pre_install', None),
+      ('pretrans', 'pre_trans', None),
       ('post', 'post_install', None),
+      ('posttrans', 'post_trans', None),
       ('preun', 'pre_uninstall', None),
       ('postun', 'post_uninstall', None),
     ]

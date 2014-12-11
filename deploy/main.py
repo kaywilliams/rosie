@@ -77,7 +77,8 @@ from deploy.event.loader import Loader
 API_VERSION = 5.0
 
 DEFAULT_CACHE_DIR = pps.path('/var/cache/deploy')
-DEFAULT_VAR_DIR = pps.path('/var/lib/deploy')
+DEFAULT_LOCAL_ROOT = pps.path('/var/lib/deploy')
+DEFAULT_CLIENT_LOCAL_ROOT = pps.path('/var/lib/deploy-client')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
 DEFAULT_TEMPLATE_DIRS = [ pps.path('/usr/share/deploy/templates') ]
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
@@ -166,7 +167,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         self._get_data_root(options)
         self._get_templates_dir()
         self._get_main_vars(options)
-        self._setup_temp_dir()
         self._get_initial_macros(options)
         self._get_definition(options, arguments)
       except rxml.errors.XmlError, e:
@@ -281,10 +281,9 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
         try:
           self.dispatch.execute(until=None)
         except (DeployEventError, OfflinePathError), e:
-            self._handle_Exception(e)
+          self._handle_Exception(e)
         finally:
           self._lock.release()
-          self.temp_dir.rm(recursive=True, force=True)
         self._log_footer()
       else:
         raise DeployError("\nAnother instance of deploy (pid %d) is "
@@ -391,11 +390,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
              (self.os, self.version, self.arch, SUPPORTED))
       raise DeployError(msg)
 
-  def _setup_temp_dir(self):
-    self.temp_dir = pps.path("/tmp/deploy.%s" % self.build_id)
-    self.temp_dir.rm(force=True, recursive=True)
-    self.temp_dir.mkdir()
-
   def _get_initial_macros(self, options):
     # setup global macros using values from options, if provided 
     map = get_initial_macros(options)
@@ -411,7 +405,6 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
 
     map.setdefault('%{templates-dir}', rxml.tree.resolve_search_path_macro)
     map.setdefault('%{definition-dir}', pps.path(self.definition_path).dirname)
-    map.setdefault('%{temp-dir}', self.temp_dir)
 
     self.initial_macros = map
 
@@ -580,10 +573,7 @@ The definition file is located at %s.
     self.bugurl      = self.definition.getxpath(qstr % 'bug-url', 
                                                   'No bug url provided')
 
-    # set up other directories
-    self.VAR_DIR      = self.mainconfig.getpath(
-                        '/deploy/libdir/path/text()',
-                        DEFAULT_VAR_DIR).expand().abspath()
+    # set up share directories
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed(self._get_mainconfig_paths('share-path')))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
@@ -611,6 +601,11 @@ The definition file is located at %s.
     except:
       pass
     self.cvars['selinux-enabled'] = selinux_enabled
+
+    # set up root paths for local data
+    self.LOCAL_ROOT = pps.path(options.local_root or DEFAULT_LOCAL_ROOT)
+    self.CLIENT_LOCAL_ROOT = pps.path(options.client_local_root or 
+                                      DEFAULT_CLIENT_LOCAL_ROOT)
 
     # Expose options object for events (e.g. srpmbuild) that run parallel
     # instances of the Build object
@@ -654,12 +649,13 @@ The definition file is located at %s.
       setattr(ptr, k, v)
   
     # set up other directories
-    ptr.VAR_DIR      = self.VAR_DIR
     ptr.CACHE_DIR    = self.CACHE_DIR
+    ptr.LOCAL_ROOT     = self.LOCAL_ROOT
+    ptr.CLIENT_LOCAL_ROOT = self.CLIENT_LOCAL_ROOT
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
     ptr.TEMPLATE_DIRS  = self.template_dirs # needed by srpmbuild
-  
+
     ptr.datfn         = self.datfn # dat filename
     ptr.cache_handler = self.cache_handler
 

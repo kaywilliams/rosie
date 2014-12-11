@@ -65,6 +65,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   def setup(self): 
     InputEventMixin.setup(self)
     ExecuteEventMixin.setup(self)
+
     self.DATA['variables'].extend(['deploy_mixin_version'])
 
     self.cvar_root = '%s-setup-options' % self.moduleid
@@ -171,14 +172,10 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       if not re.match('^[a-zA-Z0-9_]+$', trigger):
         raise InvalidTriggerNameError(trigger)
 
-    self.resolve_macros(map={'%{triggers}': triggers,
-                             '%{custom-pkgs}': self._get_custom_pkgs()})
-
-    self.deployroot = self.VAR_DIR / 'deploy'
-    self.deploydir = self.deployroot / self.build_id
-    self.triggerfile = self.deploydir / 'trigger_info' # match type varname
-    self.resolve_macros(map={'%{deployment-script-dir}': self.deploydir,
-                             '%{trigger-file}': self.triggerfile})
+    self.resolve_macros(map={
+      '%{triggers}': triggers,
+      '%{trigger-file}': '%{script-data-dir}/trigger_info',
+      '%{custom-pkgs}': self._get_custom_pkgs()})
 
     # setup to create type files - do this after macro resolution
     for scripts in self.types.values():
@@ -196,9 +193,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           # post-processing (i.e. %{script-id} and %{ssh-host} macro resolution)
           self.io.list_output(what=script.id)[0].remove()
         self.io.process_files(what=script.id)
-
-    self.do_clean=True # clean the deploydir once per session - not currently 
-                       # used
 
     if self._reinstall():
       if hasattr(self, 'test_fail_on_reinstall'): #set by test cases
@@ -223,7 +217,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._write_ssh_host_key_file()
       self._execute('update')
       self._execute('post')
- 
+
  
   #------ Helper Functions ------#
   def _get_csum(self, text):
@@ -298,7 +292,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     try:
       self._execute('test-exists')
     except (ScriptFailedError, SSHScriptFailedError), e:
-      if self.config.getbool('triggers/@exists', True) and e.exitcode == 3:
+      if self.config.getbool('triggers/@exists', True) and e.returncode == 3:
         self.log(4, e)
         self.log(1, L1("test-exists script returned exit code 3, "
                        "reinstalling..."))
@@ -316,7 +310,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     try:
       self._execute('activate')
     except (ScriptFailedError, SSHScriptFailedError), e:
-      if self.config.getbool('triggers/@activate', False) and e.exitcode == 3:
+      if self.config.getbool('triggers/@activate', False) and e.returncode == 3:
         self.log(4, e)
         self.log(1, L1("activation script returned exit code 3, "
                        "reinstalling..."))
@@ -332,7 +326,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       try:
         self._execute('test-triggers')
       except ScriptFailedError, e:
-        if e.exitcode == 3:
+        if e.returncode == 3:
           self.log(3, L1(e))
           self.log(1, L1("test-trigger returned exit code 3, reinstalling..."))
           return True # reinstall
@@ -367,14 +361,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       # execute local script
       if params['hostname'] == 'localhost':
         # execute script on local machine
-        for d in [ self.VAR_DIR, self.deployroot, self.deploydir ]:
-          d.mkdirs(mode=0700)
-          d.chmod(0700)
-          d.chown(0,0)
-        cmd.cp(self.deploydir, force=True)
-        (self.deploydir/cmd.basename).chmod(0700)
-        self._local_execute(self.deploydir/cmd.basename, cmd_id=script.id,
-                            verbose=script.verbose)
+        self._local_execute(cmd, script_id=script.id, verbose=script.verbose)
 
       # execute ssh script
       else:
@@ -384,45 +371,10 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                  "The known-hosts-file '%s' could not be found."
                  % (script.id, script.known_hosts_file))
           raise MissingKnownHostsFileError(msg=msg)
-
-        # create scriptdir
-        try:
-          create_script = ("'for d in %s %s %s; do "
-                           "  [[ -d $d ]] || mkdir $d; "
-                           "  chmod 700 $d; "
-                           "  chown root:root $d; "
-                           "done'" 
-                           % (self.VAR_DIR, self.deployroot, self.deploydir))
-          self._ssh_execute( create_script, cmd_id='create scriptdir', 
-                             params=params)
-        except SSHScriptFailedError, e:
-          if "Host key verification failed" in e.errtxt:
-            raise HostKeyVerificationFailed(msg=
-              "An error occurred executing the '%s' script. Unable to verify "
-              "the hostname '%s' using the known-hosts-file '%s':\n\n%s"
-              % (script.id, params['hostname'], params['known_hosts_file'],
-                 e.errtxt))
-          else:
-            raise RemoteFileCreationError(msg=
-              "An error occurred creating the script directory '%s' on '%s' "
-              "[exit code %s]:\n\n%s"
-              % (self.VAR_DIR, params['hostname'], e.exitcode, e.errtxt))
-
-        # copy script
-        try:
-          sftp_cmd="cd %s\nput %s\nchmod 700 %s" % (self.deploydir, cmd, 
-                                                    cmd.basename)
-          self._sftp(sftp_cmd, cmd_id='copy script', params=params)
-        except ScriptFailedError, e:
-          raise RemoteFileCreationError(msg=
-            "An error occurred copying '%s' script to '%s' "
-            "[exit code %s]:\n\n%s"
-            % (cmd, params['hostname'], e.exitcode, e.errtxt))
  
         # execute script
-        cmd = str(self.deploydir/cmd.basename) # now cmd is remote file
-        self._ssh_execute(cmd, cmd_id=script.id, params=params, 
-                          verbose=script.verbose)
+        self._remote_execute(cmd, script_id=script.id, params=params, 
+                                      verbose=script.verbose)
 
   def _write_install_status_start(self):
     root = self.parse_datfile()
@@ -445,9 +397,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     if self.type == 'package':
       return
 
-    if self.ssh_host_key_file.exists():
-      return
-
     # get namelist (fqdn, ipaddr)
     fqdn = self.cvars[self.cvar_root]['fqdn']
     ssh_host = self.get_ssh_host()
@@ -457,11 +406,28 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     else:
       ipaddr = ssh_host
     
-    namelist = '%s,%s' % (fqdn, ipaddr)
+    namelist = ','.join([fqdn, fqdn.split('.')[0], ipaddr])
    
-    # write file
-    key = shlib.execute('ssh-keyscan %s' % namelist)[0]
-    self.ssh_host_key_file.write_text(key+'\n')
+    # write file - only do this if the file does not exist to prevent host
+    # spoofing
+    if not self.ssh_host_key_file.exists():
+      key = shlib.execute('ssh-keyscan %s' % namelist)[0]
+      self.ssh_host_key_file.write_text(key+'\n')
+
+    # update root user known_hosts file
+    known_hosts_file = pps.path('/root/.ssh/known_hosts')
+    if known_hosts_file.exists():
+      currlines = known_hosts_file.read_lines()
+    else:
+      currlines = []
+
+    newlines = []
+    for l in currlines:
+      if not l.startswith(namelist):
+        newlines.append(l)
+    newlines.append(self.ssh_host_key_file.read_text())
+
+    known_hosts_file.write_lines(newlines)
 
   def get_ssh_host(self):
     if self.ssh_host_file.exists():
@@ -537,12 +503,6 @@ class ScriptGraphCycleError(DeployEventError):
   message = "%(msg)s"
 
 class SshHostFileError(DeployEventError):
-  message = "%(msg)s"
-
-class HostKeyVerificationFailed(DeployEventError):
-  message = "%(msg)s"
-
-class RemoteFileCreationError(DeployEventError):
   message = "%(msg)s"
 
 class InvalidTriggerNameError(DeployEventError):

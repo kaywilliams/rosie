@@ -306,8 +306,10 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
   def get_clean(self):        return None
   def get_install(self):      return None
   def get_post(self):         return None
+  def get_posttrans(self):    return None
   def get_postun(self):       return None
   def get_pre(self):          return None
+  def get_pretrans(self):     return None
   def get_prep(self):         return None
   def get_preun(self):        return None
   def get_verifyscript(self): return None
@@ -394,30 +396,34 @@ class RpmBuildObject:
     if self.obsoletes: spec.set(B, 'obsoletes', ' '.join(self.obsoletes))
 
     # get the various script types
-    build   = self.ptr.get_build()
-    clean   = self.ptr.get_clean()
-    install = self.ptr.get_install()
-    post    = self.ptr.get_post()
-    postun  = self.ptr.get_postun()
-    pre     = self.ptr.get_pre()
-    prep    = self.ptr.get_prep()
-    preun   = self.ptr.get_preun()
-    verify  = self.ptr.get_verifyscript()
+    build     = self.ptr.get_build()
+    clean     = self.ptr.get_clean()
+    install   = self.ptr.get_install()
+    post      = self.ptr.get_post()
+    posttrans = self.ptr.get_posttrans()
+    postun    = self.ptr.get_postun()
+    pre       = self.ptr.get_pre()
+    prep      = self.ptr.get_prep()
+    pretrans  = self.ptr.get_pretrans()
+    preun     = self.ptr.get_preun()
+    verify    = self.ptr.get_verifyscript()
 
     triggers = self.ptr.get_triggers()
 
     ghost = self.ptr.get_ghost_files()
 
     # add to bdist_rpm
-    if build:   spec.set(B, 'build_script',   build)
-    if clean:   spec.set(B, 'clean_script',   clean)
-    if install: spec.set(B, 'install_script', install)
-    if post:    spec.set(B, 'post_install',   post)
-    if postun:  spec.set(B, 'post_uninstall', postun)
-    if pre:     spec.set(B, 'pre_install',    pre)
-    if prep:    spec.set(B, 'prep_script',    prep)
-    if preun:   spec.set(B, 'pre_uninstall',  preun)
-    if verify:  spec.set(B, 'verify_script',  verify)
+    if build:     spec.set(B, 'build_script',   build)
+    if clean:     spec.set(B, 'clean_script',   clean)
+    if install:   spec.set(B, 'install_script', install)
+    if post:      spec.set(B, 'post_install',   post)
+    if posttrans: spec.set(B, 'post_trans',     posttrans)
+    if postun:    spec.set(B, 'post_uninstall', postun)
+    if pre:       spec.set(B, 'pre_install',    pre)
+    if prep:      spec.set(B, 'prep_script',    prep)
+    if pretrans:  spec.set(B, 'pre_trans',      pretrans)
+    if preun:     spec.set(B, 'pre_uninstall',  preun)
+    if verify:    spec.set(B, 'verify_script',  verify)
 
     if triggers:
       trigcfg = self.build_folder / 'triggers.cfg'

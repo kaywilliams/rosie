@@ -96,8 +96,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.rpmsdir   = self.mddir / 'rpms'
 
-    self.data_root   = self.VAR_DIR / 'srpms'
-    for d in [ self.VAR_DIR, self.data_root ]:
+    self.data_root   = self.LOCAL_ROOT / 'srpms'
+    for d in [ self.LOCAL_ROOT, self.data_root ]:
       d.exists() or d.mkdir()
       d.chmod(0700)
       d.chown(0,0)
@@ -120,6 +120,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     # srpmbuild scripts)
     self.diff.input.tupcls = ChecksumDiffTuple
 
+    ExecuteEventMixin.setup(self)
     RpmBuildMixin.setup(self)
  
     # add config content to variables diff
@@ -289,8 +290,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     script_file = self.mddir / 'script'
     script_file.write_text(self.config.getxpath('script/text()').encode('utf8'))
     script_file.chmod(0700)
-  
-    self._local_execute(script_file, cmd_id='srpmbuild script')
+ 
+    self._local_execute(script_file, script_id='srpmbuild script')
   
     results = self.srpmdir.findpaths(glob='%s-*.src.rpm' % self.srpmid, 
                                      maxdepth=1)
@@ -338,6 +339,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     opts.libpath = self.options.libpath
     opts.sharepath = self.options.sharepath
     opts.data_root = self.data_root
+    opts.local_root = self.LOCAL_ROOT
     opts.force_events = ['deploy']
     opts.mainconfigpath = self.options.mainconfigpath
     opts.macros = self.options.macros

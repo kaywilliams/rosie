@@ -117,6 +117,7 @@ def main():
   dtest.BUILD_ROOT.mkdirs()
 
   options.data_root = options.buildroot + '/data'
+  options.local_root = options.buildroot + '/local'
   pps.path(options.data_root).mkdirs()
 
   # use options as a convenient mechanism for passing additional attributes

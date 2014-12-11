@@ -191,10 +191,10 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
                              requires = ['coreutils', 'diffutils', 'findutils',
                                          'grep', 'sed'])
 
-    self.vardir      = getattr(self, 'test_lib_dir', self.VAR_DIR)
+    self.clientdir   = getattr(self, 'test_client_dir', self.CLIENT_LOCAL_ROOT)
     self.scriptdir   = self.build_folder/'scripts'
-    self.rootinstdir = self.vardir / 'config' 
-    self.installdir  = self.rootinstdir/self.rpmid
+    self.configdir   = self.clientdir/'config' 
+    self.installdir  = self.configdir/self.rpmid
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
@@ -213,7 +213,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
       if script.getbool('@verbose', False):
         self.logger.log(1, L0(self.id))
         self.suppress_run_message = True
-      self._local_execute(file, cmd_id='prep-script', 
+      self._local_execute(file, script_id='prep-script', 
                           verbose=script.getbool('@verbose', False))
 
     # add files for synchronization to the build folder
@@ -268,6 +268,8 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
 
     self.DATA['output'].append(md5file)
 
+  def get_pretrans(self):
+    return self._make_script(self._process_script('pretrans'), 'pretrans')
   def get_pre(self):
     scripts = [self._mk_pre()]
     scripts.extend(self._process_script('pre'))
@@ -284,6 +286,10 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     scripts = [self._mk_postun()]
     scripts.extend(self._process_script('postun'))
     return self._make_script(scripts, 'postun')
+  def get_posttrans(self):
+    scripts = [self._mk_posttrans()]
+    scripts.extend(self._process_script('posttrans'))
+    return self._make_script(scripts, 'posttrans')
   def get_verifyscript(self):
     return self._make_script(self._process_script('verifyscript'), 'verifyscript')
 
@@ -341,7 +347,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
       '  cp $file $file.prev',
       'else',
       '  if [ ! -e $file.prev ]; then',
-      '  for d in %s %s %s; do' % (self.vardir, self.rootinstdir, 
+      '  for d in %s %s %s; do' % (self.clientdir, self.configdir,
                                    self.installdir),
       '    [[ -d $d ]] || mkdir $d',
       '    chmod 700 $d',
@@ -448,7 +454,7 @@ for f in $files; do
       fi
 
       # find md5files for other deploy managed rpms
-      other=`find %(rootinstdir)s -name md5sums | grep -v %(md5file)s` || true
+      other=`find %(configdir)s -name md5sums | grep -v %(md5file)s` || true
 
       # process files
       md5files="$new $other"
@@ -499,9 +505,18 @@ fi
         'relpath':      '/' / self.filerelpath,
         'installdir':   self.installdir,
         'name':         self.rpm.name,
-        'rootinstdir':  self.rootinstdir,
+        'configdir':    self.configdir,
         'md5file':      self.md5file,
       }
+
+    return script
+
+  def _mk_posttrans(self):
+    # TODO - remove in the future once legacy clients are likely updated
+    script = """
+legacydir=/var/lib/deploy/config/%s
+[[ -d $legacydir ]] && rm -rf $legacydir || true
+""" % self.installdir.basename
 
     return script
 
