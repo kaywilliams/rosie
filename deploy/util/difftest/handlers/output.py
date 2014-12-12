@@ -52,7 +52,7 @@ class OutputHandler(DiffHandler):
     parent = rxml.config.uElement('output', parent=root)
     # write to metadata file
     paths = set()
-    for file in [ pps.path(x) for x in self.odata ]:
+    for file in [ pps.path(x) for x in set(self.odata) ]:
       if not file.exists():
         raise pps.Path.PathError(errno.ENOENT, file)
       for f in file.findpaths(type=pps.constants.TYPE_NOT_DIR):

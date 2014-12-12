@@ -48,14 +48,14 @@ class InputHandler(DiffHandler):
 
   def mdwrite(self, root, *args, **kwargs):
     parent = rxml.config.Element('input', parent=root)
-    for datum in self.idata:
+    for datum in set(self.idata):
       for ifile in pps.path(datum).findpaths(type=pps.constants.TYPE_NOT_DIR):
         parent.append((self.newinput.get(ifile) or
                        self.tupcls(ifile)).toxml())
 
   def diff(self):
     self.newinput = {}
-    for datum in self.idata:
+    for datum in set(self.idata):
       ifiles = pps.path(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)
       if not ifiles: raise ValueError('No file(s) found at %s' % datum)
       for ifile in ifiles:
