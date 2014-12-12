@@ -199,6 +199,8 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
+    self.DATA['variables'].append('clientdir')
+
     # resolve module macros
     self.resolve_macros(map={'%{rpm-id}': self.rpmid,
                              '%{install-dir}': self.installdir})

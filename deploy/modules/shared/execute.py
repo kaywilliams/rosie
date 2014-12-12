@@ -35,8 +35,8 @@ class ExecuteEventMixin:
     # this method need to be safe for calling by the main event and 
     # multiple mixins (e.g. DeployEventMixin, InputEventMixin)
 
-    if not 'execute_mixin_version' in self.DATA['variables']:
-      self.DATA['variables'].append('execute_mixin_version')
+    self.DATA['variables'].extend(['execute_mixin_version', 'LOCAL_ROOT',
+                                   'CLIENT_LOCAL_ROOT'])
 
     # for optimizing per-event directory cleaning
     if not getattr(self, 'cleaned_hosts', None):

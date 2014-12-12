@@ -102,6 +102,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       d.chmod(0700)
       d.chown(0,0)
 
+    self.DATA['variables'].append('data_root')
+
     if self.version == "5":
       self.build_dir = pps.path('/usr/src/redhat')
     else:
