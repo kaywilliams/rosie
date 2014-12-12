@@ -103,12 +103,11 @@ class IOObject(object):
       if xpath is not None:
         if allow_text and e.errno == errno.ENOENT: # file not found
           suggest = ("If you are providing text rather than a file, add the "
-                     "attribute 'content=\"text\"' to the '%s' "
-                     "element. " % xpath)
+                     "attribute 'content=\"text\"' to the element.")
         else:
           suggest = ""
-        raise XpathInputFileError(message=e, file=f, suggest=suggest, 
-                                  xpath=xpath)
+        raise XpathInputFileError(message=e, suggest=suggest, 
+              elem=str(self.ptr._config.getxpath(xpath)).strip())
       else:
         raise InputFileError(message=e, file=f)
 
@@ -361,8 +360,8 @@ class InvalidConfigError(DeployEventError):
   message = ("%(message)s")  
 
 class XpathInputFileError(DeployEventError):
-  message = ("Error downloading the specified file or folder '%(file)s'.\n\n"
-             "Check that the '%(xpath)s' element is correct.\n\n"
+  message = ("Error downloading the specified file or folder:\n\n"
+             "%(elem)s\n\n"
              "%(suggest)s\n\n"
              "%(message)s.")
 
