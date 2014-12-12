@@ -26,6 +26,7 @@ from deploy.util     import pps
 
 from deploy.modules.shared import (MkrpmRpmBuildMixin,
                                          ExecuteEventMixin,
+                                         LocalExecute,
                                          RepoSetupEventMixin,
                                          Trigger, 
                                          TriggerContainer)
@@ -202,8 +203,13 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.DATA['variables'].append('clientdir')
 
     # resolve module macros
-    self.resolve_macros(map={'%{rpm-id}': self.rpmid,
-                             '%{install-dir}': self.installdir})
+    self.local_execute_obj = LocalExecute(self) 
+    self.resolve_macros(
+         map={'%{rpm-id}': self.rpmid,
+              '%{install-dir}': self.installdir,
+              '%{script-dir}': self.local_execute_obj.scriptdir,
+              '%{script-data-dir}': self.local_execute_obj.datadir
+              })
 
     # execute prep-scripts in setup (i.e. on every run), allowing output to
     # be used reliably in file and script elems by this and other config-rpms
