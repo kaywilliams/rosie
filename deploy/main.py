@@ -450,8 +450,8 @@ The definition file is located at %s.
 
     self.data_dir = self.datfn.dirname
 
-    # move legacy data_dir, if exists, to new one with .dat extension
-    if self.data_dir.endswith(".dat"):
+    # if data dir doesn't exists, move legacy data_dir, if exists
+    if not self.data_dir and self.data_dir.endswith(".dat"):
       legacy_data_dir = self.data_dir[:-len(".dat")]
       if (legacy_data_dir / self.datfn.basename).exists():
         legacy_data_dir.move(self.data_dir)
