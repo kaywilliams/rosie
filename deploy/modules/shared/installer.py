@@ -62,7 +62,7 @@ class ImageModifyMixin:
     image_path = self.image_locals['path'] % self.cvars['distribution-info']
 
     self.diff.setup(self.DATA)
-    self.DATA['variables'].extend(['path', 'image_modify_mixin_version'])
+    self.DATA['variables'].update(['path', 'image_modify_mixin_version'])
 
     # other image input files
     for dst, src in self.cvars['%s-content' % self.id].items():
@@ -91,7 +91,7 @@ class ImageModifyMixin:
       pass
     self.io.add_fpath(ip, self.path.dirname, id='ImageModifyMixin')
   def _create_image(self):
-    self.DATA['output'].append(self.path)
+    self.DATA['output'].add(self.path)
 
   def add_image(self):
     self._add_image()
@@ -178,7 +178,7 @@ class FileDownloadMixin:
                         (self.OUTPUT_DIR/linfix).dirname,
                         id='FileDownloadMixin')
 
-    self.DATA.setdefault('variables', []).extend(
+    self.DATA.setdefault('variables', set()).update(
                          ['OUTPUT_DIR', 'cvars[\'distribution-info\']'])
 
   def apply(self):

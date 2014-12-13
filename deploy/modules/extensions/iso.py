@@ -60,17 +60,17 @@ class PkgorderEvent(Event):
     )
 
     self.DATA =  {
-      'input':     [],
-      'output':    []
+      'input':    set(),
+      'output':   set() 
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.DATA['input'].append(self.cvars['repomd-file'])
+    self.DATA['input'].add(self.cvars['repomd-file'])
 
     self.pkgorderfile = self.mddir/'pkgorder'
-    self.DATA['output'].append(self.pkgorderfile)
+    self.DATA['output'].add(self.pkgorderfile)
 
   def run(self):
     # delete prior pkgorder file, if exists
@@ -127,10 +127,10 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
     self.splittrees = self.mddir/'split-trees'
 
     self.DATA =  {
-      'config':    ['.'],
-      'variables': ['cvars[\'srpms\']'],
-      'input':     [],
-      'output':    [],
+      'config':    set(['.']),
+      'variables': set(['cvars[\'srpms\']']),
+      'input':     set(),
+      'output':    set(),
     }
 
     BootOptionsMixin.__init__(self) # requires DATA
@@ -139,8 +139,8 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
 
-    self.DATA['variables'].append('cvars[\'treeinfo-text\']')
-    self.DATA['input'].append(self.cvars['pkgorder-file'])
+    self.DATA['variables'].add('cvars[\'treeinfo-text\']')
+    self.DATA['input'].add(self.cvars['pkgorder-file'])
 
     # note: el5 anaconda boot options seems to be broken in a couple of ways
     # * mediacheck runs even when not specified
@@ -197,14 +197,14 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
                              "size of '%s' (%d) > %s" % (iso, isosize, s))
 
   def _extend_diffdata(self, set):
-    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
+    self.DATA['output'].update([self.splittrees/set, self.isodir/set])
 
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set in self.newsets_expanded:
       newset = self.newsets[self.newsets_expanded.index(expanded_set)]
       (self.splittrees/set).rename(self.splittrees/newset)
-      self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
+      self.DATA['output'].update([self.splittrees/set, self.isodir/set])
       if newset in self.r:
         self.r.remove(newset) # don't create iso tree; it already exists
 
@@ -257,5 +257,5 @@ class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
       if i == 1: # reset mtime on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
 
-    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
+    self.DATA['output'].update([self.splittrees/set, self.isodir/set])
 

@@ -45,9 +45,9 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
     )
 
     self.DATA = {
-      'variables': ["cvars['rpmsdir']", "cvars['rpms']"],
-      'input':     [],
-      'output':    [],
+      'variables': set(["cvars['rpmsdir']", "cvars['rpms']"]),
+      'input':     set(),
+      'output':    set(),
     }
 
   def setup(self):
@@ -55,7 +55,7 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
 
     self.rpmdb_dir = self.mddir / 'rpmdb'
     if getattr(self, 'cvars[\'gpgcheck-enabled\']', True):
-      self.DATA['variables'].append('cvars[\'gpgcheck-enabled\']')
+      self.DATA['variables'].add('cvars[\'gpgcheck-enabled\']')
       GPGKeysEventMixin.setup(self)
 
   def run(self):

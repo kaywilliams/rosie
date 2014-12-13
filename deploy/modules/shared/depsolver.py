@@ -60,7 +60,7 @@ class DepsolverMixin(object):
     for v in self.cvars.get('rpmbuild-data', {}).values():
       self.rpm_required.extend(v.get('rpm-requires', []))
 
-    self.DATA['variables'].extend(['all_packages', 'user_required',
+    self.DATA['variables'].update(['all_packages', 'user_required',
                                    'excluded_packages', 'rpm_required',
                                    'depsolver_mixin_version'])
 

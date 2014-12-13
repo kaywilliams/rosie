@@ -53,10 +53,10 @@ class DownloadEvent(ShelveMixin, Event):
     self._validarchs = getArchList(ARCH_MAP[self.arch])
 
     self.DATA = {
-      'variables': ['packagepath'],
-      'packages':  [],
-      'input':     [],
-      'output':    [],
+      'variables': set(['packagepath']),
+      'packages':  set(),
+      'input':     set(),
+      'output':    set(),
     }
 
     ShelveMixin.__init__(self)
@@ -65,7 +65,7 @@ class DownloadEvent(ShelveMixin, Event):
     self.diff.setup(self.DATA)
 
     self.rpmsdir = self.mddir//self.packagepath
-    self.DATA['variables'].append('rpmsdir')
+    self.DATA['variables'].add('rpmsdir')
 
     # setup for downloads
     last_pkgs = self.unshelve('pkglist', {})

@@ -56,9 +56,9 @@ class RpmbuildRepoEvent(Event):
     #self.RPMBUILD_SRPMS = self.mddir/self.csid
 
     self.DATA = {
-      'input':     [],
-      'output':    [],
-      'variables': [],
+      'input':     set(),
+      'output':    set(),
+      'variables': set(),
     }
 
   def setup(self):
@@ -66,7 +66,7 @@ class RpmbuildRepoEvent(Event):
 
     if 'gpg-signing-keys' in self.cvars:
       self.pubkey = self.cvars['gpg-signing-keys']['pubkey']
-      self.DATA['input'].append(self.cvars['gpg-signing-keys']['pubkey'])
+      self.DATA['input'].add(self.cvars['gpg-signing-keys']['pubkey'])
     else:
       self.pubkey = ''
 
@@ -115,7 +115,7 @@ class RpmbuildRepoEvent(Event):
         repo.repocontent.clear()
         for pxml in repo.datafiles['primary']:
           repo.repocontent.update(pxml.href, clear=False)
-        self.DATA['output'].append(repo.localurl/'repodata')
+        self.DATA['output'].add(repo.localurl/'repodata')
 
   def apply(self):
     if self.cvars['rpmbuild-data']:

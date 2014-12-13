@@ -129,9 +129,8 @@ class IOObject(object):
       # add file content to diff tracking
       if not hasattr(self.ptr, 'file_content'): self.ptr.file_content = {}
       self.ptr.file_content[dst.relpathfrom(self.ptr.mddir)] = src
-      if 'file_content[\'%s\']' % dst not in self.ptr.diff.variables.vdata:
-        self.ptr.diff.variables.vdata.append('file_content[\'%s\']' %
-                                              dst.relpathfrom(self.ptr.mddir))
+      self.ptr.diff.variables.vdata.add('file_content[\'%s\']' %
+                                         dst.relpathfrom(self.ptr.mddir))
 
     else: # content == 'file'
       # absolute paths will not be affected by this join
@@ -140,16 +139,14 @@ class IOObject(object):
       # make sure the source file is a valid file
       self.validate_input_file(src, xpath=xpath, allow_text=allow_text)
 
-      if src not in self.ptr.diff.input.idata:
-        self.ptr.diff.input.idata.append(src)
+      self.ptr.diff.input.idata.add(src)
 
     for s,d in self.compute_dst(src, dst, content):
       m = self.compute_mode(s, mode, content)
 
       # this should really be in process_items, but it causes problems with
       # test cases - look at again in the future....
-      if d not in self.ptr.diff.output.odata:
-        self.ptr.diff.output.odata.append(d)
+      self.ptr.diff.output.odata.add(d)
 
       td = TransactionData(s,d,m, content, xpath)
 

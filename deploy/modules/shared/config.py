@@ -100,10 +100,10 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
     )
 
     self.DATA = {
-      'input':     [],
-      'config':    [],
-      'variables': [],
-      'output':    [],
+      'input':     set(),
+      'config':    set(),
+      'variables': set(),
+      'output':    set(),
     }
 
     RepoSetupEventMixin.__init__(self)
@@ -137,10 +137,10 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.options = ptr.options # options not exposed as shared event attr
 
     self.DATA = {
-      'input':     [],
-      'config':    ['.'],
-      'variables': [],
-      'output':    [],
+      'input':     set(),
+      'config':    set(['.']),
+      'variables': set(),
+      'output':    set(),
     }
 
     ExecuteEventMixin.__init__(self)
@@ -177,7 +177,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     # prep-scripts)
     self.diff.input.tupcls = ChecksumDiffTuple
 
-    self.DATA['variables'].append('config_mixin_version')
+    self.DATA['variables'].add('config_mixin_version')
 
     ExecuteEventMixin.setup(self)
 
@@ -200,7 +200,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
-    self.DATA['variables'].append('clientdir')
+    self.DATA['variables'].add('clientdir')
 
     # resolve module macros
     self.local_execute_obj = LocalExecute(self) 
@@ -274,7 +274,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     md5file.write_lines(lines)
     md5file.chmod(0600)
 
-    self.DATA['output'].append(md5file)
+    self.DATA['output'].add(md5file)
 
   def get_pretrans(self):
     return self._make_script(self._process_script('pretrans'), 'pretrans')
@@ -546,7 +546,7 @@ legacydir=/var/lib/deploy/config/%s
       s = [ x.encode('utf8') for x in s ]
       file.write_lines(s)
       file.chmod(0700)
-      self.DATA['output'].append(file)
+      self.DATA['output'].add(file)
 
     return scripts
 

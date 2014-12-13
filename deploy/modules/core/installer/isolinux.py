@@ -40,10 +40,10 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     )
 
     self.DATA = {
-      'config':    ['.'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [],
-      'output':    [],
+      'config':    set(['.']),
+      'variables': set(['cvars[\'anaconda-version\']']),
+      'input':     set(),
+      'output':    set(),
     }
 
     FileDownloadMixin.__init__(self)

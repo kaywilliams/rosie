@@ -45,10 +45,10 @@ class ProductImageEvent(Event, ImageModifyMixin):
     )
 
     self.DATA = {
-      'config':    ['.'],
-      'variables': ['cvars[\'anaconda-version\']',],
-      'input':     [],
-      'output':    [],
+      'config':    set(['.']),
+      'variables': set(['cvars[\'anaconda-version\']']),
+      'input':     set(), 
+      'output':    set(),
     }
 
     ImageModifyMixin.__init__(self, 'product.img')
@@ -61,12 +61,12 @@ class ProductImageEvent(Event, ImageModifyMixin):
     Event.error(self, e)
 
   def setup(self):
-    self.DATA['input'].append(self.cvars['buildstamp-file'])
+    self.DATA['input'].add(self.cvars['buildstamp-file'])
 
     # Diff installclass text, strip leading and trailing whitespace first
     # since this is lost when reading strings back from metadata
     self.installclass = self.locals.L_INSTALLCLASS.strip()
-    self.DATA['variables'].append('installclass')
+    self.DATA['variables'].add('installclass')
 
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['product.img']

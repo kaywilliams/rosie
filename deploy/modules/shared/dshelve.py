@@ -28,8 +28,8 @@ __all__ = ['ShelveMixin']
 class ShelveMixin(Event):
   def __init__(self, *args, **kwargs):
     self.shelve_mixin_version = '1.01'
-    self.DATA.setdefault('output', [])
-    self.DATA.setdefault('variables', []).append('shelve_mixin_version')
+    self.DATA.setdefault('output', set())
+    self.DATA.setdefault('variables', set()).add('shelve_mixin_version')
     self.shelvefile = self.mddir/ '%s.shelve' % self.id
      
   def shelve(self, key, value):
@@ -37,7 +37,7 @@ class ShelveMixin(Event):
     d = Shelve.open(self.shelvefile)
     d[key] = value
     if self.shelvefile not in self.DATA['output']:
-      self.DATA['output'].append(self.shelvefile)
+      self.DATA['output'].add(self.shelvefile)
     d.close()
 
   def unshelve(self, key, default=None):

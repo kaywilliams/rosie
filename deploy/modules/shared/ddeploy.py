@@ -66,7 +66,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     InputEventMixin.setup(self)
     ExecuteEventMixin.setup(self)
 
-    self.DATA['variables'].extend(['deploy_mixin_version'])
+    self.DATA['variables'].update(['deploy_mixin_version'])
 
     self.cvar_root = '%s-setup-options' % self.moduleid
 
@@ -80,7 +80,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
     # add repomd as input file
     if self.track_repomd:
-      self.DATA['input'].append(self.cvars[self.cvar_root]['repomdfile'])
+      self.DATA['input'].add(self.cvars[self.cvar_root]['repomdfile'])
 
     # ssh setup
     keyfile=pps.path('/root/.ssh/id_rsa')
@@ -157,7 +157,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                                                     '@type="update" or '
                                                     '@type="post"]'),
       }
-    self.DATA['variables'].append('trigger_data')
+    self.DATA['variables'].add('trigger_data')
 
     for key in self.trigger_data:
       self.resolve_macros(map={'%%{%s}' % key: self.trigger_data[key]})

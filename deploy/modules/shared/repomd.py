@@ -50,12 +50,12 @@ class RepomdMixin:
 
     self.repomdfile = self.OUTPUT_DIR / 'repodata/repomd.xml'
 
-    self.DATA['variables'].append('repomd_mixin_version')
+    self.DATA['variables'].add('repomd_mixin_version')
   
   def setup(self):
     if (self.type == 'system' and 
         'productid' in self.cvars['installer-repo'].datafiles):
-      self.DATA['variables'].append(
+      self.DATA['variables'].add(
         'cvars[\'installer-repo\'].datafiles[\'productid\'][0].checksum')
 
     # add repomdfile to setup-options for use by deploy event
@@ -134,5 +134,5 @@ class RepomdMixin:
     repo._url = self.OUTPUT_DIR
     repo.read_repomd()
     for f in repo.iterdatafiles(all='true'):
-      self.DATA['output'].append(self.OUTPUT_DIR/f.href)
-    self.DATA['output'].append(self.repomdfile)
+      self.DATA['output'].add(self.OUTPUT_DIR/f.href)
+    self.DATA['output'].add(self.repomdfile)

@@ -57,8 +57,8 @@ class PublishSetupEvent(PublishSetupEventMixin, Event):
     )
 
     self.DATA = {
-      'variables': [],
-      'config': [],
+      'variables': set(),
+      'config':    set(),
     }
 
     PublishSetupEventMixin.__init__(self)
@@ -85,10 +85,10 @@ class ReleaseRpmEvent(ReleaseRpmEventMixin, Event):
     )
 
     self.DATA = {
-      'variables': [],
-      'config':    [], # set by ReleaseRpmEventMixin
-      'input':     [],
-      'output':    [],
+      'variables': set(),
+      'config':    set(), # set by ReleaseRpmEventMixin
+      'input':     set(),
+      'output':    set(),
     }
 
     ReleaseRpmEventMixin.__init__(self) 
@@ -134,11 +134,11 @@ class PublishEvent(Event):
     )
 
     self.DATA =  {
-      'variables': ['cvars[\'publish-setup-options\'][\'localpath\']',
+      'variables': set(['cvars[\'publish-setup-options\'][\'localpath\']',
                     'cvars[\'publish-content\']',
-                    'cvars[\'selinux-enabled\']'],
-      'input':     [],
-      'output':    [],
+                    'cvars[\'selinux-enabled\']']),
+      'input':     set(),
+      'output':    set(),
     }
 
   def setup(self):
@@ -187,10 +187,10 @@ class DeployEvent(DeployEventMixin, Event):
     )
 
     self.DATA =  {
-      'variables': [],
-      'config':    ['.'],
-      'input':     [],
-      'output':    [],
+      'variables': set(),
+      'config':    set(['.']),
+      'input':     set(),
+      'output':    set(),
     }
 
     self.default_install_triggers = []

@@ -39,9 +39,9 @@ class RepomdEvent(RepomdMixin, Event):
     )
 
     self.DATA = {
-      'variables': ["cvars['rpms']", "cvars['rpmsdir']"],
-      'input':     [],
-      'output':    [],
+      'variables': set(["cvars['rpms']", "cvars['rpmsdir']"]),
+      'input':     set(),
+      'output':    set(),
     }
 
     RepomdMixin.__init__(self)
@@ -53,9 +53,9 @@ class RepomdEvent(RepomdMixin, Event):
     self.io.add_fpath(self.cvars['rpmsdir'], self.OUTPUT_DIR)
 
     if self.cvars['groupfile']:
-      self.DATA['input'].append(self.cvars['groupfile'])
+      self.DATA['input'].add(self.cvars['groupfile'])
 
-    self.DATA['variables'].extend(['repomdfile']) # provided by repomd mixin
+    self.DATA['variables'].add('repomdfile') # provided by repomd mixin
 
   def run(self):
     (self.OUTPUT_DIR / self.cvars['rpmsdir'].basename).rm(force=True)

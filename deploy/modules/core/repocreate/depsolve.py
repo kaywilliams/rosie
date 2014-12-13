@@ -55,10 +55,10 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
     self.dsdir = self.mddir / 'depsolve'
 
     self.DATA = {
-      'config':    ['.'],
-      'variables': [],
-      'input':     [],
-      'output':    [],
+      'config':    set(['.']),
+      'variables': set(),
+      'input':     set(),
+      'output':    set(),
     }
 
     ShelveMixin.__init__(self)
@@ -75,11 +75,11 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
       for attr in ['baseurl', 'mirrorlist', 'exclude',
                    'include', 'enabled']:
         if getattr(repo, attr):
-          self.DATA['variables'].append('cvars[\'repos\'][\'%s\'].%s'
+          self.DATA['variables'].add('cvars[\'repos\'][\'%s\'].%s'
                                         % (repoid, attr))
 
       for subrepo in repo.subrepos.values():
-        self.DATA['input'].append(repo.localurl/subrepo._relpath/'repodata')
+        self.DATA['input'].add(repo.localurl/subrepo._relpath/'repodata')
 
   def run(self):
     # create pkglist
@@ -101,7 +101,7 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
     self.log(1, L1("writing pkglist"))
     self.shelve('pkglist', pkgs_by_repo)
 
-    self.DATA['output'].extend([self.dsdir, self.depsolve_repo])
+    self.DATA['output'].update([self.dsdir, self.depsolve_repo])
 
     # generate comps.xml
     if self.type == 'system':

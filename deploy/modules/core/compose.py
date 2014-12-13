@@ -41,9 +41,9 @@ class ComposeEvent(Event):
     )
 
     self.DATA =  {
-      'variables': [],
-      'input':     [],
-      'output':    [],
+      'variables': set(),
+      'input':     set(),
+      'output':    set(),
     }
 
   def setup(self):

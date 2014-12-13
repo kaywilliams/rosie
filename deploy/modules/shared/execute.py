@@ -36,7 +36,7 @@ class ExecuteEventMixin:
     # this method need to be safe for calling by the main event and 
     # multiple mixins (e.g. DeployEventMixin, InputEventMixin)
 
-    self.DATA['variables'].extend(['execute_mixin_version', 'LOCAL_ROOT',
+    self.DATA['variables'].update(['execute_mixin_version', 'LOCAL_ROOT',
                                    'CLIENT_LOCAL_ROOT'])
 
     # for optimizing per-build directory cleaning/creation
@@ -133,8 +133,9 @@ class RemoteExecute(Execute):
     hostname = params['hostname']
 
     # setup
+    cmd = ''
     if hostname not in self.ptr.cvars['visited-script-hosts']:
-      cmd = "rm -rf %s; " % self.scriptdir
+      cmd += "rm -rf %s; " % self.scriptdir
       cmd += ("for d in %s; do "
               "[ -d \$d ] || mkdir -m 700 \$d && chown root:root \$d; "
               "done" % ' '.join(self.dirlist))

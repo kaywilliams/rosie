@@ -64,10 +64,10 @@ class ReposEvent(RepoEventMixin, Event):
     RepoEventMixin.__init__(self)
 
     self.DATA = {
-      'variables': [], # stuff added in .setup_repos()
-      'config':    ['.'],
-      'input':     [],
-      'output':    [],
+      'variables': set(), # stuff added in .setup_repos()
+      'config':    set(['.']),
+      'input':     set(),
+      'output':    set(),
     }
 
   def setup(self):

@@ -83,12 +83,12 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
                                 'arch:%s' % self.arch])
 
     self.DATA = {
-      'input':     [],
-      'config':    [], # handle config using variables since 
+      'input':     set(),
+      'config':    set(), # handle config using variables since 
                        # srpmlast macro causes script content
                        # to change across runs
-      'variables': [],
-      'output':    [],
+      'variables': set(),
+      'output':    set(),
     }
   
     self.srpmfile = ''
@@ -102,7 +102,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       d.chmod(0700)
       d.chown(0,0)
 
-    self.DATA['variables'].append('data_root')
+    self.DATA['variables'].add('data_root')
 
     if self.version == "5":
       self.build_dir = pps.path('/usr/src/redhat')
@@ -127,7 +127,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
  
     # add config content to variables diff
     self.confvar = str(self.config).strip()
-    self.DATA['variables'].append('confvar')
+    self.DATA['variables'].add('confvar')
 
     # resolve macros
     srpmlast = self.unshelve('srpmlast', 'None') 
@@ -164,7 +164,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
                       self.config.getxpath('template/text()', default)))
                       )
     self.io.validate_input_file(self.template)
-    self.DATA['input'].append(self.template)
+    self.DATA['input'].add(self.template)
 
     if not self.template:
       raise DefinitionNotFoundError
@@ -311,12 +311,12 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
       raise SrpmBuildEventError(message=message)
     else:
       self.srpmfile = results[0]
-      self.DATA['input'].append(self.srpmfile)
+      self.DATA['input'].add(self.srpmfile)
 
   def _process_srpm(self):
     self.io.process_files(cache=True)
     if self.srpmfile: # srpm provided by script
-      self.DATA['output'].append(self.srpmfile)
+      self.DATA['output'].add(self.srpmfile)
     else: # srpm provided by path or repo
       self.srpmfile = self.io.list_output(what='srpm')[0]
 

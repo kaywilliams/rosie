@@ -312,7 +312,7 @@ class RepoEventMixin(Event):
           "unexpected behavior." % (r, mg))
 
     self.repoids = self.repos.keys()
-    self.DATA['variables'].append('repoids')
+    self.DATA['variables'].add('repoids')
 
     return self.repos
 
@@ -392,7 +392,7 @@ class RepoEventMixin(Event):
         dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
         (dst.dirname).mkdirs()
         src.cp(dst.dirname, force=True, preserve=True)
-        self.DATA['output'].append(dst)
+        self.DATA['output'].add(dst)
 
       # sync repo datafiles and treeinfo
       self.io.process_files(what='%s-repodata' % repo.id, cache=True,
@@ -418,7 +418,7 @@ class GPGKeysEventMixin:
   gpgkeys_mixin_version = "1.01"
 
   def setup(self):
-    self.DATA['variables'].append('gpgkeys_mixin_version')
+    self.DATA['variables'].add('gpgkeys_mixin_version')
 
     urls = set()
     for repo in (getattr(self, 'repos', None) or self.cvars['repos'].values()):
@@ -472,7 +472,7 @@ class GPGKeysEventMixin:
     for filename, url in gpgkeys.values():
       self.gpgkeys[filename] = url
 
-    self.DATA['variables'].append('keyids') 
+    self.DATA['variables'].add('keyids') 
 
   def _get_gpgkey_uid(self, text):
     homedir = self.mddir/'homedir'

@@ -29,9 +29,9 @@ class InputEventMixin(ExecuteEventMixin, Event):
     ExecuteEventMixin.setup(self)
     self.input_dir = self.mddir / 'input'
     self.input_dir.mkdirs()
-    self.DATA.setdefault('variables', []).extend(['input_mixin_version',
-                                                  'input_dir'])
-    self.DATA.setdefault('config', []).append('input-script')
+    self.DATA.setdefault('variables', set()).update(['input_mixin_version',
+                                                     'input_dir'])
+    self.DATA.setdefault('config', set()).add('input-script')
 
     # resolve macros
     self.resolve_macros(map={'%{input-dir}': self.input_dir})
@@ -48,7 +48,7 @@ class InputEventMixin(ExecuteEventMixin, Event):
                             verbose=s.getbool('@verbose', False))
 
     if self.input_dir.findpaths(type=pps.constants.TYPE_FILE):
-      self.DATA.setdefault('input', []).append(self.input_dir)
+      self.DATA.setdefault('input', set()).add(self.input_dir)
 
   def run(self):
-    self.DATA.setdefault('output', []).append(self.input_dir)
+    self.DATA.setdefault('output', set()).add(self.input_dir)

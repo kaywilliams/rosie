@@ -40,8 +40,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             force_release=None):
-    self.DATA['variables'].append('release_mixin_version')
-    self.DATA['config'].append('release-rpm')
+    self.DATA['variables'].add('release_mixin_version')
+    self.DATA['config'].add('release-rpm')
 
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
@@ -69,7 +69,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary,
                              requires=requires, force_release=force_release)
 
-    self.DATA['variables'].extend(['masterrepo', 'webpath', 'local_keydir', 
+    self.DATA['variables'].update(['masterrepo', 'webpath', 'local_keydir', 
                                    'remote_keydir', 'keylist'])
 
     # setup yum plugin (unless disabled or non-system repo)
@@ -84,7 +84,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                                  x in self.locals.L_YUM_PLUGIN['config'] ]
       self.plugin_conf_hash = hashlib.sha224('/n'.join(
                               self.plugin_conf_lines)).hexdigest()
-      self.DATA['variables'].extend(['plugin_hash', 'plugin_conf_hash'])
+      self.DATA['variables'].update(['plugin_hash', 'plugin_conf_hash'])
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
@@ -125,7 +125,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                      "%s" % (url, e))
           raise GPGKeyError(message=message)
         self.keys.append(filename)
-        self.DATA['output'].append(self.local_keydir / filename)
+        self.DATA['output'].add(self.local_keydir / filename)
 
     # generate repofile
     self._generate_repofile()
@@ -160,7 +160,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
       pubfile = self.OUTPUT_DIR / 'repo.conf'
       repofile.cp(pubfile, force=True, preserve=True)
 
-      self.DATA['output'].extend([repofile, pubfile])
+      self.DATA['output'].update([repofile, pubfile])
 
   def _include_sync_plugin(self):
     # config
@@ -185,7 +185,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
     # create gpgkey list for use by yum sync plugin
     listfile = self.local_keydir / self.keylist
     listfile.write_lines(self.keys)
-    self.DATA['output'].append(listfile)
+    self.DATA['output'].add(listfile)
 
     # convert keys to remote urls for use in repofile
     remotekeys = set([ self.remote_keydir / x for x in self.keys])

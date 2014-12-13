@@ -51,9 +51,9 @@ class DiscinfoEvent(Event):
     self.difile = self.OUTPUT_DIR/'.discinfo'
 
     self.DATA =  {
-      'variables': ['fullname', 'arch', 'packagepath', 'difile',
-                    'cvars[\'anaconda-version\']'],
-      'output':    [self.difile]
+      'variables': set(['fullname', 'arch', 'packagepath', 'difile',
+                        'cvars[\'anaconda-version\']']),
+      'output':    set()
     }
 
   def setup(self):
@@ -73,7 +73,7 @@ class DiscinfoEvent(Event):
     self.difile.dirname.mkdirs()
     discinfo.write(self.difile, **app_vars)
     self.difile.chmod(0644)
-    self.DATA['output'].append(self.difile)
+    self.DATA['output'].add(self.difile)
 
   def verify_discinfo_file_exists(self):
     ".discinfo file exists"
@@ -98,15 +98,15 @@ class TreeinfoEvent(Event):
     self.tifile = self.OUTPUT_DIR/'.treeinfo'
 
     self.DATA =  {
-      'variables': ['name', 'version', 'packagepath', 'arch', 'tifile'],
-      'output':    [self.tifile],
+      'variables': set(['name', 'version', 'packagepath', 'arch', 'tifile']),
+      'output':    set(),
     }
 
   def setup(self):
     inputs = []
     for (software_store, file) in self.cvars.get('treeinfo-checksums', []):
       inputs.append(software_store / file)
-    self.DATA['input'] = inputs
+    self.DATA['input'] = set(inputs)
     self.diff.setup(self.DATA)
 
   def run(self):
@@ -144,6 +144,8 @@ class TreeinfoEvent(Event):
     self.tifile.write_lines(lines)
     self.tifile.chmod(0644)
 
+    self.DATA['output'].add(self.tifile)
+
   def apply(self):
     if self.tifile.exists():
       self.cvars['treeinfo-text'] = self.tifile.read_text().strip()
@@ -167,10 +169,10 @@ class BuildstampEvent(Event):
     self.bsfile = self.mddir/'.buildstamp'
 
     self.DATA = {
-      'variables': ['fullname', 'version', 'packagepath', 'arch', 'bugurl',
+      'variables': (['fullname', 'version', 'packagepath', 'arch', 'bugurl',
                     'cvars[\'anaconda-version\']',
-                    'cvars[\'base-info\']'],
-      'output':    [self.bsfile],
+                    'cvars[\'base-info\']']),
+      'output':    set(),
     }
 
   def setup(self):
@@ -187,6 +189,7 @@ class BuildstampEvent(Event):
     self.bsfile.dirname.mkdirs()
     buildstamp.write(self.bsfile, **app_vars)
     self.bsfile.chmod(0644)
+    self.DATA['output'].add(self.bsfile)
 
   def apply(self):
     self.cvars['buildstamp-file'] = self.bsfile

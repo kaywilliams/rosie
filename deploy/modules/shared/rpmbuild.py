@@ -59,7 +59,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     return [ x['rpm-path'] for x in self.rpms ]
 
   def setup(self):
-    self.DATA.setdefault('variables', []).append('rpmbuild_mixin_version')
+    self.DATA.setdefault('variables', set()).add('rpmbuild_mixin_version')
     self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
     self._setup_signing_keys()
 
@@ -67,7 +67,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     self._sign_rpms()
     self._cache_rpmdata()
 
-    self.DATA['output'].extend(self.rpm_paths)
+    self.DATA['output'].update(self.rpm_paths)
 
   def apply(self):
     rpmbuild_data = self.unshelve('rpmbuild_data', '')
@@ -140,7 +140,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       self.gpgsign = self.cvars['gpg-signing-keys'] # convenience variable
       self.pubtext = self.gpgsign['pubkey'].read_text().rstrip()
       self.sectext = self.gpgsign['seckey'].read_text().rstrip()
-      self.DATA['variables'].extend(['pubtext', 'sectext', 
+      self.DATA['variables'].update(['pubtext', 'sectext', 
                                      'gpgsign[\'passphrase\']'])
 
   def _sign_rpms(self):
@@ -237,8 +237,9 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     self.source_folder = self.build_folder / 'source'
 
     self.diff.setup(self.DATA)
-    self.DATA.setdefault('variables', []).extend(['mkrpmbuild_mixin_version', 
-                                                  'rpminfo', 'force_release'])
+    self.DATA.setdefault('variables', set()).update(
+                         ['mkrpmbuild_mixin_version', 
+                          'rpminfo', 'force_release'])
 
     RpmBuildMixin.setup(self) # deals with gpg signing
 
@@ -269,7 +270,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
       raise RpmBuildFailedException(message=str(e))
 
     self._save_release(release)
-    self.DATA['output'].append(self.rpm.build_folder)
+    self.DATA['output'].add(self.rpm.build_folder)
 
     self.rpms = [ self._get_rpmbuild_data(R.rpm_path) ]
     RpmBuildMixin.run(self)

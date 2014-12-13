@@ -51,8 +51,8 @@ class PublishSetupEventMixin(Event):
 
     if not hasattr(self, 'DATA'): self.DATA = {}
     for key in ['input', 'config', 'variables', 'output']:
-      self.DATA.setdefault(key, [])
-    self.DATA['variables'].append('publish_mixin_version')
+      self.DATA.setdefault(key, set())
+    self.DATA['variables'].add('publish_mixin_version')
 
   def setup(self):
     self.datfile = self.parse_datfile()
@@ -109,14 +109,14 @@ class PublishSetupEventMixin(Event):
                       eval('self.%s' % attribute)
 
     # set DATA 
-    self.DATA['config'].append('local-dir')
-    self.DATA['variables'].append('localpath')
-    self.DATA['config'].append('build-host')
-    self.DATA['config'].append('remote-url')
-    self.DATA['config'].append('hostname')
-    self.DATA['variables'].append('domain')
-    self.DATA['variables'].append('fqdn')
-    self.DATA['config'].append('boot-options')
+    self.DATA['config'].add('local-dir')
+    self.DATA['variables'].add('localpath')
+    self.DATA['config'].add('build-host')
+    self.DATA['config'].add('remote-url')
+    self.DATA['config'].add('hostname')
+    self.DATA['variables'].add('domain')
+    self.DATA['variables'].add('fqdn')
+    self.DATA['config'].add('boot-options')
 
     self.__write_datfile()
     self.cache_handler.pkl_dump(self.pkldata, pklkey)

@@ -38,10 +38,10 @@ class FilesEvent(Event):
     )
 
     self.DATA =  {
-      'variables': [],
-      'config':    ['.'],
-      'input':     [],
-      'output':    [],
+      'variables': set(),
+      'config':    set(['.']),
+      'input':     set(),
+      'output':    set(),
     }
 
   def setup(self):

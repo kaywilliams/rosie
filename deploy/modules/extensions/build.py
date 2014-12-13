@@ -99,10 +99,10 @@ class BuildEvent(DeployEventMixin, Event):
     )
 
     self.DATA =  {
-      'config':    [], # populated by mixin
-      'input':     [], # ditto
-      'output':    [], # ditto
-      'variables': [], # populated in setup
+      'config':    set(), # populated by mixin
+      'input':     set(), # ditto
+      'output':    set(), # ditto
+      'variables': set(), # populated in setup
     }
 
     DeployEventMixin.__init__(self)

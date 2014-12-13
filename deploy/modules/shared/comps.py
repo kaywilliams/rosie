@@ -35,10 +35,10 @@ class CompsEventMixin:
 
   def __init__(self):
     self.conditionally_requires.add('excluded-packages')
-    if not hasattr(self, 'DATA'): self.DATA = {'variables': [],
-                                               'output': []}
+    if not hasattr(self, 'DATA'): self.DATA = {'variables': set(),
+                                               'output': set()}
 
-    self.DATA['variables'].append('comps_mixin_version')
+    self.DATA['variables'].add('comps_mixin_version')
 
   def setup(self):
     self.compsfile = self.mddir/'comps.xml'
@@ -51,11 +51,11 @@ class CompsEventMixin:
     # track changes to comps file content
     self.comps_hash = hashlib.sha224(
                       self.cvars['comps-object'].xml()).hexdigest()
-    self.DATA['variables'].append('comps_hash')
+    self.DATA['variables'].add('comps_hash')
 
     # track changes to excluded packages
     if 'excluded-packages' in self.cvars:
-      self.DATA['variables'].append('cvars[\'excluded-packages\']')
+      self.DATA['variables'].add('cvars[\'excluded-packages\']')
 
   def run(self):
     # remove excluded packages
@@ -66,7 +66,7 @@ class CompsEventMixin:
     self.log(1, L1("writing comps.xml"))
     self.compsfile.write_text(self.cvars['comps-object'].xml())
     self.compsfile.chmod(0644)
-    self.DATA['output'].append(self.compsfile)
+    self.DATA['output'].add(self.compsfile)
 
 
 #------ COMPS HELPER METHODS ------#

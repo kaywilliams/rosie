@@ -33,10 +33,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
   def __init__(self, *args, **kwargs):
 
     self.DATA =  {
-      'config':    [],
-      'input':     [],
-      'output':    [],
-      'variables': [],
+      'config':    set(),
+      'input':     set(),
+      'output':    set(),
+      'variables': set(),
     }
 
     ReleaseRpmEventMixin.__init__(self)
@@ -50,7 +50,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
                                         'publish-ksfile'])
     self.provides.remove('rpmbuild-data') # these release rpms should not
                                           # be included in the core repository
-    self.DATA['variables'].append('testpublish_mixin_version')
+    self.DATA['variables'].add('testpublish_mixin_version')
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -88,7 +88,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
                        files_cb=self.link_callback, 
                        files_text=self.log(4, L2(
                          "gathering release-rpm content")))
-    self.DATA['variables'].append('release')
+    self.DATA['variables'].add('release')
 
     # kickstart
     if self.cvars['publish-ksfile']:
@@ -108,7 +108,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
     ReleaseRpmEventMixin.run(self)
     ReleaseRpmEventMixin.apply(self)
     self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages', force=True, preserve=True)
-    self.DATA['output'].append(self.OUTPUT_DIR/'Packages'/
+    self.DATA['output'].add(self.OUTPUT_DIR/'Packages'/
                                self.rpm.rpm_path.basename)
     if not "%s-release" % self.name in  self.cvars['comps-object'].all_packages:
       raise RuntimeError("release pkg not found")

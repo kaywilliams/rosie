@@ -42,10 +42,10 @@ class BootisoEvent(Event, BootOptionsMixin):
     )
 
     self.DATA = {
-      'config':    ['.'],
-      'input':     [],
-      'output':    [],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'config':    set(['.']),
+      'input':     set(),
+      'output':    set(),
+      'variables': set(['cvars[\'anaconda-version\']']),
     }
 
     BootOptionsMixin.__init__(self)
@@ -84,7 +84,7 @@ class BootisoEvent(Event, BootOptionsMixin):
                   % (self.bootiso, self.bootoptions.disc_label, self.isodir))
     shlib.execute('/usr/bin/implantisomd5 --supported-iso "%s"' % self.bootiso)
     ibin.utime((ibin_st.st_atime, ibin_st.st_mtime))
-    self.DATA['output'].append(self.bootiso)
+    self.DATA['output'].add(self.bootiso)
 
   def apply(self):
     self.cvars.setdefault('treeinfo-checksums', set()).add(

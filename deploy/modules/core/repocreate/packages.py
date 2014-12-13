@@ -50,10 +50,10 @@ class PackagesEvent(ShelveMixin):
     self.comps = None
 
     self.DATA = {
-      'variables': ['fullname'],
-      'config':    ['.'],
-      'input':     [],
-      'output':    []
+      'variables': set(['fullname']),
+      'config':    set(['.']),
+      'input':     set(),
+      'output':    set()
     }
 
     ShelveMixin.__init__(self)
@@ -74,13 +74,13 @@ class PackagesEvent(ShelveMixin):
     self.groupfiles = self._get_groupfiles()
 
     # track changes in repo/groupfile relationships
-    self.DATA['variables'].append('groupfiles')
+    self.DATA['variables'].add('groupfiles')
 
     # track changes in repo type
-    self.DATA['variables'].append('type')
+    self.DATA['variables'].add('type')
 
     # track file changes
-    self.DATA['input'].extend([gf for _,gf in self.groupfiles])
+    self.DATA['input'].update([gf for _,gf in self.groupfiles])
 
     # set excluded packages
     self.cvars['excluded-packages'] = self.config.xpath('exclude/text()', [])

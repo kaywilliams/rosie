@@ -33,11 +33,11 @@ class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
 
   def __init__(self, *args, **kwargs):
-    if not hasattr(self, 'DATA'): self.DATA = {'config': [],
-                                               'variables': [],
-                                               'output': []}
-    self.DATA['config'].append('kickstart')
-    self.DATA['variables'].append('kickstart_mixin_version')
+    if not hasattr(self, 'DATA'): self.DATA = {'config': set(),
+                                               'variables': set(),
+                                               'output': set()}
+    self.DATA['config'].add('kickstart')
+    self.DATA['variables'].add('kickstart_mixin_version')
 
     self.provides.update([ 
       '%s-ksname' % self.moduleid, 
@@ -75,7 +75,7 @@ class KickstartEventMixin:
       self.kstext='\n'.join(lines)
 
     self.ksfile = self.OUTPUT_DIR / self.ksname
-    self.DATA['variables'].extend(['ksname', 'kstext'])
+    self.DATA['variables'].update(['ksname', 'kstext'])
 
     # track source for use in error messages
     self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
@@ -102,7 +102,7 @@ class KickstartEventMixin:
                      self.version)))
       pass
 
-    self.DATA['output'].append(self.ksfile)
+    self.DATA['output'].add(self.ksfile)
 
   def apply(self):
     self.cvars['%s-ksname' % self.moduleid] = self.ksname 

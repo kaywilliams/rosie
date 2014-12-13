@@ -52,10 +52,10 @@ class GpgSignSetupEvent(Event):
     )
 
     self.DATA = {
-      'config':    ['.'],
-      'input':     [],
-      'variables': [],
-      'output':    []
+      'config':    set(['.']),
+      'input':     set(),
+      'variables': set(),
+      'output':    set()
     }
 
   def setup(self):
@@ -72,13 +72,13 @@ class GpgSignSetupEvent(Event):
      self.get_keys_from_datfile() or 
      self.create_keys())
 
-    self.DATA['variables'].extend(['pubtext', 'sectext', 'pubkey', 'seckey',
+    self.DATA['variables'].update(['pubtext', 'sectext', 'pubkey', 'seckey',
                                    'passphrase'])
 
   def run(self):
     self.write_keys(self.pubtext, self.sectext)
     self.validate_keys(map = { self.pubkey: 'public', self.seckey: 'secret' })
-    self.DATA['output'].extend([self.pubkey, self.seckey])
+    self.DATA['output'].update([self.pubkey, self.seckey])
 
   def apply(self):
     self.cvars['gpg-signing-keys'] = { 'pubkey': self.pubkey,

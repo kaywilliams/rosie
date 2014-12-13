@@ -47,9 +47,9 @@ class BaseInfoEvent(Event):
     )
 
     self.DATA = {
-      'input':     [],
-      'output':    [],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'input':     set(),
+      'output':    set(),
+      'variables': set(['cvars[\'anaconda-version\']']),
     }
 
   def error(self, e):
@@ -68,7 +68,7 @@ class BaseInfoEvent(Event):
     self.io.add_fpath(initrd_in, self.mddir, id='initrd.img')
     self.initrd_out = self.io.list_output(what='initrd.img')[0]
     self.buildstamp_out = self.mddir/'.buildstamp'
-    self.DATA['output'].append(self.buildstamp_out)
+    self.DATA['output'].add(self.buildstamp_out)
 
   def run(self):
     self.log(2, L1("reading buildstamp file from base repository"))

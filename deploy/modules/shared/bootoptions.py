@@ -25,7 +25,7 @@ class BootOptionsMixin(object):
     self.bootoptions = BootOptionsDummy(self)
 
     self.boot_options_mixin_version = '1.01'
-    self.DATA['variables'].append('boot_options_mixin_version')
+    self.DATA['variables'].add('boot_options_mixin_version')
 
 class BootOptionsDummy(object):
   def __init__(self, ptr):
@@ -49,7 +49,7 @@ class BootOptionsDummy(object):
 
     self.boot_args.extend(args)
 
-    self.ptr.DATA['variables'].extend(['bootoptions.boot_args',
+    self.ptr.DATA['variables'].update(['bootoptions.boot_args',
                                        'bootoptions.disc_label'])
 
   def modify(self, dst, cfgfile=None):
@@ -87,13 +87,13 @@ class BootOptionsDummy(object):
         args.append('%s=cdrom' % 
                     self.ptr.locals.L_BOOTCFG['options']['method'])
     if include_method == 'web':
-      self.ptr.DATA['variables'].append('webpath')
+      self.ptr.DATA['variables'].add('webpath')
       if self.ptr.webpath is not None:
         args.append('%s=%s' % (self.ptr.locals.L_BOOTCFG['options']['method'],
                                   self.ptr.webpath))
 
   def _process_ks(self, include_ks, args):
-    self.ptr.DATA['variables'].append('cvars[\'publish-ksname\']')
+    self.ptr.DATA['variables'].add('cvars[\'publish-ksname\']')
     ksname = self.ptr.cvars['publish-ksname']
     if self.ptr.cvars['publish-ksfile']:
       if include_ks == 'cdrom':
@@ -102,6 +102,6 @@ class BootOptionsDummy(object):
                     self.ptr.locals.L_BOOTCFG['options']['ks-cdrom-path'],
                     ksname))
       if include_ks == 'web':
-        self.ptr.DATA['variables'].append('webpath')
+        self.ptr.DATA['variables'].add('webpath')
         args.append('%s=%s/%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
                                   self.ptr.webpath, ksname))
