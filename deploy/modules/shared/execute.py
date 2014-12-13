@@ -23,7 +23,8 @@ from deploy.util import shlib
 
 
 __all__ = ['ExecuteEventMixin',
-           'ScriptFailedError', 'SSHScriptFailedError', ]
+           'ScriptFailedError', 'SSHScriptFailedError',
+           'LocalExecute', 'RemoteExecute']
 
 class ExecuteEventMixin:
   execute_mixin_version = "1.00"
@@ -38,11 +39,7 @@ class ExecuteEventMixin:
     self.DATA['variables'].extend(['execute_mixin_version', 'LOCAL_ROOT',
                                    'CLIENT_LOCAL_ROOT'])
 
-    # for optimizing per-event directory cleaning
-    if not getattr(self, 'cleaned_hosts', None):
-      self.cleaned_hosts = []
-    
-    # for optimizing per-build directory creation
+    # for optimizing per-build directory cleaning/creation
     self.cvars.setdefault('visited-script-hosts', [])
 
     if not getattr(self, 'local_base', None):
@@ -111,11 +108,9 @@ class LocalExecute(Execute):
     Execute.__init__(self, ptr, local_root=ptr.LOCAL_ROOT)
 
   def execute(self, script, script_id, verbose=False):
-    # setup
-    if 'localhost' not in self.ptr.cleaned_hosts:
-      self.scriptdir.rm(recursive=True, force=True)
-      self.ptr.cleaned_hosts.append('localhost')
+    # make dirs as needed 
     if 'localhost' not in self.ptr.cvars['visited-script-hosts']:
+      self.scriptdir.rm(recursive=True, force=True)
       for d in self.dirlist:
         d.exists() or d.mkdir(0700) and d.chown(0,0)
       self.ptr.cvars['visited-script-hosts'].append('localhost')
@@ -138,12 +133,9 @@ class RemoteExecute(Execute):
     hostname = params['hostname']
 
     # setup
-    cmd = ''
-    if hostname not in self.ptr.cleaned_hosts:
-      cmd += "rm -rf %s; " % self.scriptdir
-      self.ptr.cleaned_hosts.append(hostname)
     if hostname not in self.ptr.cvars['visited-script-hosts']:
-      cmd += ( "for d in %s; do "
+      cmd = "rm -rf %s; " % self.scriptdir
+      cmd += ("for d in %s; do "
               "[ -d \$d ] || mkdir -m 700 \$d && chown root:root \$d; "
               "done" % ' '.join(self.dirlist))
       self.ptr.cvars['visited-script-hosts'].append(hostname)
@@ -176,7 +168,8 @@ class RemoteExecute(Execute):
       cmd = self._get_ssh_cmd(tmpfile, params)
       self._execute(cmd, script_id, ssh=True, verbose=verbose)
     except ScriptFailedError, e:
-      raise SSHScriptFailedError(e.id, tmpfile, hostname, e.returncode, e.both)
+      raise SSHScriptFailedError(e.script_id, tmpfile, hostname, e.returncode,
+                                 e.both)
 
   def _get_ssh_options(self, port, key_filename, known_hosts_file):
     return ' '.join(["-o", "BatchMode=yes",
