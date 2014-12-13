@@ -2,6 +2,7 @@
 <script id='test-triggers' type='test-triggers'>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
+LEGACY_FILE=/var/lib/deploy/deploy/%{id}/trigger_info
 
 FAIL=0
 
@@ -12,11 +13,14 @@ echo "$1 changed" >&amp;2
 }
 
 # get last trigger variables
-if [[ -f $TRIGGER_INFO ]]; then
+if [ -f $TRIGGER_INFO ]; then
+  source $TRIGGER_INFO
+elif [ -f $LEGACY_FILE ] ; then
+  mv $LEGACY_FILE $TRIGGER_INFO
   source $TRIGGER_INFO
 else
   FAIL=1
-  echo "missing trigger information" >&amp;2
+  echo "missing trigger information file '$TRIGGER_INFO'" >&amp;2
 fi
 
 # set current trigger variables
