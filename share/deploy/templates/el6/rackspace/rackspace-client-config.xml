@@ -24,7 +24,6 @@ for additional information.
 <!-- required for rackspace-novaclient -->
 <requires>python-pip</requires>
 <requires>python-argparse</requires>
-<requires>python-distribute</requires>
 <requires>python-prettytable</requires>
 <requires>python-requests</requires>
 <requires>python-six</requires>
@@ -40,8 +39,10 @@ for additional information.
 
 <script type='post'>
 # install rackspace-novaclient
-info=`python-pip install --upgrade rackspace-novaclient` || \
+for pkg in distribute setuptools rackspace-novaclient; do 
+  info=`python-pip install --upgrade $pkg` || \
 { echo $info >&amp;2; exit 1; }
+done
 </script>
 
 <files destdir="/root/rackspace" destname='rackspace_admin' content='text'
