@@ -7,6 +7,7 @@
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='test-install-enabled'>false</macro>
 
 <main>
 <name>%{name}</name>
@@ -27,7 +28,7 @@
             xpointer="xpointer(./packages[@id='core']/*)"/>
 </packages>
 
-<test-install enabled="false">
+<test-install enabled="%{test-install-enabled}">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
 </test-install>

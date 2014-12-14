@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <definition xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id='name'>rackspace-client-config</macro>
+<macro id='name'>rackspace-client</macro>
 <macro id='os'>centos</macro>
 <macro id='edition'>server</macro>
 <macro id='version'>6</macro>
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='test-install-enabled'>false</macro>
 
 <main>
 <name>%{name}</name>
@@ -40,10 +41,10 @@ nova image-list
 </script>
 </test-update>
 
-<test-install enabled="false">
+<test-install enabled="%{test-install-enabled}">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
-<script id='test' type='post' comes-before='conditional-poweroff'>
+<script id='test' type='update' comes-after='update'>
 source /root/rackspace/rackspace_admin
 nova image-list
 </script>

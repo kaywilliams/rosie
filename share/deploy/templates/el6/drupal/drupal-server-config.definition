@@ -43,7 +43,7 @@
             xpointer="xpointer(./*)"/>
 </test-update>
 
-<test-install enabled="false">
+<test-install enabled="%{test-install-enabled}">
 <xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
             xpointer="xpointer(./*)"/>
 </test-install>
