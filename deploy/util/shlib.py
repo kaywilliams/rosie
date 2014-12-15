@@ -80,7 +80,7 @@ def call(cmd_args, **kwargs):
   * both - interleaved output and error text
 
   If the return returncode was non-zero, raises a ShCalledProcessError, with
-  the attributes 'returncode', 'output', 'errors', and 'both'.
+  the attributes 'output', 'errors', and 'both'.
   """
 
   verbose = kwargs.pop('verbose', True)
