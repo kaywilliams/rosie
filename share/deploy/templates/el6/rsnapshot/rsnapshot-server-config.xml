@@ -1,4 +1,4 @@
-<config-rpm id='rsnapshot-server-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id='rsnapshot-server-config'>
 <!-- 
 To use this template, create a config-rpm element in your server definition 
 definition that looks something like the following.
@@ -8,9 +8,9 @@ remote client systems to allow access from the server. See the
 rsnapshot-client-config file for details.
 
 <config-rpm id='rsnapshot-server-config'>
-<xi:include
+<include
     href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-server-config.xml"
-    xpointer="xpointer(./*)"/>
+    xpath="./*"/>
 
 <files destdir="/etc/cron.d" destname="rsnapshot" content="text">
 SHELL=/bin/bash
@@ -40,8 +40,8 @@ their ssh keys, provide public keys using files elements as below
 -->
 
 <!-- everything here and below is part of the template -->
-<xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='epel'])"/>
+<include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+         xpath="./repo[@id='epel']"/>
 
 <requires>rsnapshot</requires>
 
@@ -49,8 +49,8 @@ their ssh keys, provide public keys using files elements as below
      added to /root/.ssh/authorized_keys for client machines; see
      rsnapshot-client.config.xml for details.
      -->
-<xi:include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
+         xpath="./*"/>
 
 <!-- install client public keys in known_hosts file -->
 <script type="post">

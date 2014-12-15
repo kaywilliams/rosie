@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id='rackspace-client-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id='rackspace-client-config'>
 
 <description>
 Configures a deploy build system to automate deployment and maintenance of
@@ -18,8 +18,8 @@ for additional information.
 <macro id="rackspace-region-name">DFW</macro>
 
 <!-- epel repo required for python-pip package -->
-<xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='epel'])"/>
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
 
 <!-- required for rackspace-novaclient -->
 <requires>python-pip</requires>

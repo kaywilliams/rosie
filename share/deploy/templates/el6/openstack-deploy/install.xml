@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='install' type='install'
-        xmlns:xi="http://www.w3.org/2001/XInclude">
+<script id='install' type='install'>
 <macro id='image-is-public'>false</macro>
 <macro id='instance-flavor'>1</macro>
 # create image using virt-install
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'
-            xpointer='xpointer(./node())'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'
+         xpath='./node()'/>
 
 %{source-guestname}
 source /root/keystonerc_admin

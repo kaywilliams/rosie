@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml>
 
 <!-- install and update a Windows Azure virtual machine -->
 <macro id='user'>deploy</macro>
@@ -7,19 +7,19 @@
 
 <!-- template content below -->
 <domain>%{domain}</domain>
-<xi:include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/windows-azure-guest-config.xml'
-            xpointer="xpointer(./*)"/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/activate.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/configure-endpoints.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml'/>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/windows-azure-guest-config.xml'
+         xpath="./*"/>
+<include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/activate.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/configure-endpoints.xml'/>
 
 </xml>

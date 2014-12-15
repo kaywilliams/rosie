@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id='drupal-config' xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id='drupal-config'>
 
 <macro id='password'>Test1!</macro>
 <macro id='dbtype'>pgsql</macro><!-- valid values are 'pgsql' or 'mysql' -->
 <macro id='dbuser'>postgres</macro>
 <macro id='sitename'>drupal</macro>
 
-<xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='epel'])"/>
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
 
 <requires>httpd</requires>
 <requires>drupal7</requires>

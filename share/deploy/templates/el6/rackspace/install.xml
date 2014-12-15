@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='install' type='install' verbose='true'
-        xmlns:xi="http://www.w3.org/2001/XInclude">
+<script id='install' type='install' verbose='true'>
 <macro id='rackspace-instance-flavor'>performance1-1</macro>
 <macro id='rackspace-centos-image'>a84b1592-6817-42da-a57c-3c13f3cfc1da</macro>
 <macro id='rackspace-rhel-image'>3a6e29eb-3e17-40ed-9f1e-c6c0fb8fcb76</macro>

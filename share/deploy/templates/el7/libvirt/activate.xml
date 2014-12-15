@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='activate' type='activate' 
-        xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="test-exists.xml" xpointer="xpointer(./node())"/>
+<script id='activate' type='activate'>
+<include href="test-exists.xml" xpath="./node()"/>
 state = vm.state(0)[0]
 
 # if vm is active, exit

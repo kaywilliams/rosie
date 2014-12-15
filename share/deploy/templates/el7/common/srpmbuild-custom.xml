@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition schema-version="1.0">
 
 <macro id="name">srpmbuild-custom</macro>
 <macro id="fullname">Custom RPM Build Virtual Machine</macro>
 
-<xi:include href="srpmbuild.xml"
-            xpointer="xpointer(./*[name()!='publish'])"/>
+<include href="srpmbuild.xml"
+         xpath="./*[name()!='publish']"/>
 
 <publish>
 <script id='update' type='update'>
@@ -25,9 +25,9 @@ if rpm -q docbook-style-xsl; then
   rpm -e docbook-style-xsl --noscripts --nodeps 
 fi
 </script>
-<xi:include href="srpmbuild.xml"
-            xpointer="xpointer(./publish/*[name()!='script'])"/>
-<xi:include href="srpmbuild.xml"
-            xpointer="xpointer(./publish/script[@id!='update'])"/>
+<include href="srpmbuild.xml"
+         xpath="./publish/*[name()!='script']"/>
+<include href="srpmbuild.xml"
+         xpath="./publish/script[@id!='update']"/>
 </publish>
 </definition>

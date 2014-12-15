@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='delete' type='delete' verbose='true'
-        xmlns:xi="http://www.w3.org/2001/XInclude">
+<script id='delete' type='delete' verbose='true'>
 #!/usr/bin/python
 
-<xi:include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
+<include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
 
 # check if server exists
 try:

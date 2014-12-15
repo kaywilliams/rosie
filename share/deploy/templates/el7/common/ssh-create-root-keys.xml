@@ -1,5 +1,4 @@
-<config-rpm id='ssh-create-root-keys' 
-            xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id='ssh-create-root-keys'>
 <requires>openssh</requires>
 <requires>openssl</requires>
 
@@ -8,7 +7,7 @@
 #!/bin/sh
 set -e
 function create_ssh_keys {
-<xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
+<include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
 }
 create_ssh_keys %{data-dir} %{ssh-host}
 </prep-script>

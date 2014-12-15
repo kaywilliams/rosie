@@ -28,7 +28,6 @@ from deploy.util import shlib
 
 from deploy.util.rxml import errors
 
-XI_NS = "http://www.w3.org/2001/XInclude"
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 RE_NS = "http://exslt.org/regular-expressions"
 MACRO_REGEX = '%{(?:(?!%{).)*?}' # match inner macros (e.g. '%{version}' in 
@@ -61,8 +60,6 @@ class XmlTreeObject(object):
     for k,v in self.nsmap.items():
       if v == XML_NS: # use consistent 'xml' prefix for xml namespace
         string = string.replace('xmlns:%s' % k, 'xmlns:xml')
-      elif v == XI_NS: # strip xinclude namespace
-        string = string.replace('xmlns:%s="%s" ' % (k, v), '')
       else: # used for repomd files - todo handle using custom elem class  
         string = string.replace('%s:' % k, '').replace(':%s' % k, '')
     return string
@@ -702,10 +699,11 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
     f = codecs.open(file, encoding='utf-8', mode='w')
     f.write(self.unicode())
  
-  def xinclude(self, macros={}, ignore_script_macros=False, 
-                     macro_defaults_file=None):
+  def include(self, macros={}, ignore_script_macros=False, 
+                    macro_defaults_file=None):
     """
-    XInclude processor with integrated support for macro resolution
+    stripped-down xinclude processor with integrated support for macro
+    resolution
     """
 
     hrefs = {} # cache of previously included files
@@ -716,37 +714,37 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                                  defaults_file=macro_defaults_file) 
 
     while True:
-      elems = self.xpath('//xi:include', [], namespaces=({'xi': XI_NS}))
+      elems = self.xpath('//include', [])
 
       if not elems:
-        # resolve macros one last time after xincludes are processed
+        # resolve macros one last time after includes are processed
         # to catch any late-defined macros
         self.resolve_macros(map=macros,
                             ignore_script_macros=ignore_script_macros,
                             defaults_file=macro_defaults_file)
         break
 
-      # process xincludes
+      # process includes
       for elem in elems:
         if elem.getparent() is None: parent = self
         else: parent = elem.getparent()
-        if elem.tag == "{%s}include" % XI_NS:
+        if elem.tag == "include":
 
           # validate
-          if not 'href' in elem.attrib and not 'xpointer' in elem.attrib:
-            raise errors.XIncludeError(message='Element must include at least '
-                                       'one href or xpointer attribute',
+          if not 'href' in elem.attrib and not 'xpath' in elem.attrib:
+            raise errors.IncludeError(message='Element must include at least '
+                                       'one href or xpath attribute',
                                        elem=elem)
 
           for key in elem.attrib:
-            if key not in ['href', 'xpointer', 'parse', '{%s}base' % XML_NS ]:
-              raise errors.XIncludeError(message="Unknown or unsupported "
+            if key not in ['href', 'xpath', 'parse', '{%s}base' % XML_NS ]:
+              raise errors.IncludeError(message="Unknown or unsupported "
                                          "attribute '%s'" % key, elem=elem)
 
 
           # process local includes
-          if 'xpointer' in elem.attrib and not 'href' in elem.attrib:
-            self._process_xpointer(source=self, parent=parent, target=elem)
+          if 'xpath' in elem.attrib and not 'href' in elem.attrib:
+            self._process_xpath(source=self, parent=parent, target=elem)
             continue
 
           # process remote includes
@@ -757,7 +755,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
             href = (base.dirname / href).normpath()
 
             if base == href:
-              raise errors.XIncludeError(message='The file contains a '
+              raise errors.IncludeError(message='The file contains a '
                                                  'recursive include to '
                                                  'itself' , elem=elem)
 
@@ -769,7 +767,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                 try:
                   text = href.read_text()
                 except (pps.Path.error.PathError), e:
-                  raise errors.XIncludeError(e, elem)
+                  raise errors.IncludeError(e, elem)
               hrefs[href] = text # cache for future use
 
               parent.replace(elem, text)
@@ -781,42 +779,42 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
               else:
                 try:
                   root = parse(href, parser=elem.getroottree().parser,
-                               xinclude=True,
+                               include=True,
                                macros = macros,
                                macro_defaults_file=self.get_macro_defaults_file(
                                                    macro_defaults_file),
                                base_url=href).getroot()
                 except (IOError), e:
-                  raise errors.XIncludeError(e, elem)
+                  raise errors.IncludeError(e, elem)
               hrefs[href] = root # cache for future use
 
-              if 'xpointer' in elem.attrib:
-                self._process_xpointer(source=root, parent=parent, target=elem)
+              if 'xpath' in elem.attrib:
+                self._process_xpath(source=root, parent=parent, target=elem)
               else: # insert entire xml document
                 elem.addprevious(root.copy())
 
                 parent.remove(elem)
 
-  def _process_xpointer(self, source, parent, target):
+  def _process_xpath(self, source, parent, target):
     source = source.copy()
-    xpath = re.sub(r'xpointer\((.*)\)$', r'\1', target.attrib['xpointer'])
+    xpath = target.attrib['xpath']
     try:
       results = etree.ElementBase.xpath(source, xpath)
       if not hasattr(results, '__iter__'): # xpath can return bool and numeric
                                            # values, e.g
-                                           # xpointer(./repo/@id='epel') returns
+                                           # xpath(./repo/@id='epel') returns
                                            # bool. s/b (./repo[@id='epel']) 
-        raise errors.XIncludeError(message='Xpointer does not return text or '
+        raise errors.IncludeError(message='Xpointer does not return text or '
                                            'XML content',
                                    elem=target)
       list = [ x for x in results
                if isinstance(x, etree._Element) or 
                   isinstance(x, basestring) ]
     except etree.XPathError, e:
-      raise errors.XIncludeXpathError(message=e, elem=target)
+      raise errors.IncludeXpathError(message=e, elem=target)
 
     if not list:
-      raise errors.XIncludeError(message='No results found', elem=target)
+      raise errors.IncludeError(message='No results found', elem=target)
     else:
       parent.replace(target, list)
 
@@ -832,8 +830,7 @@ def Element(name, attrib=None, nsmap=None, parent=None, text=None,
   nsmap = nsmap or {}
   if not nsmap and hasattr(parent, 'nsmap'):
     nsmap = parent.nsmap
-  nsmap.update({ 'xml' : XML_NS,
-                 'xi'  : XI_NS })
+  nsmap.update({ 'xml' : XML_NS })
 
   elem = parser.makeelement(name, attrib=attrib or {}, nsmap=nsmap)
   elem.text = text or ''
@@ -860,7 +857,7 @@ def uElement(name, attrib=None, nsmap=None, parent=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def parse(file, parser=PARSER, base_url=None, xinclude=False, 
+def parse(file, parser=PARSER, base_url=None, include=False, 
                 resolve_macros=False, macros={}, 
                 remove_macros=False, ignore_script_macros=False,
                 macro_defaults_file=None):
@@ -878,9 +875,9 @@ def parse(file, parser=PARSER, base_url=None, xinclude=False,
     if isinstance(elem, etree.CommentBase):
       elem.getparent().remove(elem)
  
-  # process xincludes
-  if xinclude:
-    roottree.getroot().xinclude(macros=macros, 
+  # process includes
+  if include:
+    roottree.getroot().include(macros=macros, 
                                 macro_defaults_file=macro_defaults_file)
   elif resolve_macros:
     roottree.getroot().resolve_macros(find=True,
@@ -891,7 +888,7 @@ def parse(file, parser=PARSER, base_url=None, xinclude=False,
   if remove_macros:
     roottree.getroot().remove_macros(defaults_file=macro_defaults_file)
 
-  # remove unused namespaces (i.e. XInclude)
+  # remove unused namespaces (i.e. xml)
   etree.cleanup_namespaces(roottree)
 
   return roottree

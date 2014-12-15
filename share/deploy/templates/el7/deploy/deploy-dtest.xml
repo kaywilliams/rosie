@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml>
 
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/> 
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-remote-client-config.xml"/> 
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/> 
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-remote-client-config.xml"/> 
 
 <script id='test-deploy-developer' verbose='true' type='post' comes-after='install-config' comes-before='poweroff'>
 

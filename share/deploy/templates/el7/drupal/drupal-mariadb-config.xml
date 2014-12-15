@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id='drupal-mariadb-config' xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/%{norm-os}/mariadb/mariadb-server-config.xml"
-            xpointer="xpointer(./*)"/>
+<config-rpm id='drupal-mariadb-config'>
+<include href="%{templates-dir}/%{norm-os}/mariadb/mariadb-server-config.xml"
+         xpath="./*"/>
 <requires>php-mariadb</requires>
 <!--
 mariadb -u root -e "create database if not exists drupal;"

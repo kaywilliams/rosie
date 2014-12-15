@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm xmlns:xi="http://www.w3.org/2001/XInclude" id='deploy-developer-workspace-config'>
+<config-rpm id='deploy-developer-workspace-config'>
 <requires>mercurial</requires>
 <requires>NetworkManager</requires>
 <requires>systemd-units</requires>

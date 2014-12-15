@@ -22,25 +22,24 @@ from deploy.util import pps
 
 class XmlError(Exception): pass
 
-class XIncludeError(XmlError):
+class IncludeError(XmlError):
   def __init__(self, message, elem):
     self.file = elem.base
     self.line = elem.sourceline
-    self.elem = elem.tostring(lineno=True, with_tail=False).replace(
-                'xmlns:xi="http://www.w3.org/2001/XInclude" ', '')
+    self.elem = elem.tostring(lineno=True, with_tail=False)
     self.message = message
 
   def __str__(self):
-    msg = ("Error processing XInclude at line %s in %s. %s:\n\n"
+    msg = ("Error processing include at line %s in %s. %s:\n\n"
            "%s" % (self.line, self.file, self.message, self.elem))
     return msg
 
-class XIncludeXpathError(XIncludeError):
+class IncludeXpathError(IncludeError):
   def __init__(self, message, elem):
-    XIncludeError.__init__(self, message, elem)
+    IncludeError.__init__(self, message, elem)
 
   def __str__(self):
-    msg = ("Error processing XInclude at line %s in %s. %s in xpointer:\n\n"
+    msg = ("Error processing include at line %s in %s. %s in xpath:\n\n"
            "%s" % (self.line, self.file, self.message, self.elem))
     return msg
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition>
 
 <macro id='name'>openstack-controller</macro>
 <macro id='os'>centos</macro>
@@ -45,7 +45,7 @@
 </script>
 </macro>
 
-<xi:include
+<include
   href='%{templates-dir}/%{norm-os}/openstack/openstack-server-template.xml'
-  xpointer="xpointer(./*[name()!='main'])"/>
+  xpath="./*[name()!='main']"/>
 </definition>

@@ -40,10 +40,10 @@ class PublishSetupMixinTestCase(EventTestCase):
 
     # update packages
     pkgcontent=etree.XML("""
-    <packages xmlns:xi='%s'>
-      <xi:include href="%%{templates-dir}/%%{norm-os}/common/packages.xml"
-                  xpointer="xpointer(./packages[@id='core']/*)"/>
-    </packages>""" % rxml.tree.XI_NS)
+    <packages>
+      <include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+               xpath="./packages[@id='core']/*"/>
+    </packages>""")
     packages = self.conf.getxpath('/*/packages', None)
     if packages is None:
       packages = rxml.config.Element('packages', parent=self.conf)

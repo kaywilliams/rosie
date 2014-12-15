@@ -62,8 +62,8 @@ class TestBuild(Build):
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
-    self.definition.xinclude(macros=self.initial_macros, 
-                             macro_defaults_file=self.datfile_format)
+    self.definition.include(macros=self.initial_macros, 
+                            macro_defaults_file=self.datfile_format)
     self.definition.remove_macros(defaults_file=self.datfile_format)
 
 class EventTestCase(unittest.TestCase):
@@ -155,13 +155,13 @@ class EventTestCase(unittest.TestCase):
 
   def _make_repos_config(self):
     repos = config.fromstring("""
-<repos xmlns:xi="http://www.w3.org/2001/XInclude">
+<repos>
 <macro id='os'>%(os)s</macro>
 <macro id='edition'>%(edition)s</macro>
 <macro id='version'>%(version)s</macro>
 <macro id='arch'>%(arch)s</macro>
-<xi:include href='%(href)s'
-            xpointer="xpointer(./repo[@id='%(os)s-%(edition)s-base'])"/>
+<include href='%(href)s'
+         xpath="./repo[@id='%(os)s-%(edition)s-base']"/>
 </repos>
 """ % {'os':      self.os, 
        'edition': EDITION,

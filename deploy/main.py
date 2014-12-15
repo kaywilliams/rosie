@@ -360,7 +360,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
                                 })
 
   def _get_main_vars(self, options):
-    # read definition one time without processing xincludes or script macros to
+    # read definition one time without processing includes or script macros to
     # get name, os, version, arch and id elems. this lets us resolve norm_os
     # early and provide it as a global macro
     try:
@@ -419,7 +419,7 @@ class Build(DeployEventErrorHandler, DeployValidationHandler, object):
     self.logger.log(3, "Reading '%s'" % self.definition_path)
 
     try:
-      dt = rxml.config.parse(self.definition_path, xinclude=True,
+      dt = rxml.config.parse(self.definition_path, include=True,
                              macros=self.initial_macros,
                              remove_macros=True, 
                              macro_defaults_file=self.datfile_format)
@@ -432,7 +432,7 @@ issues:
 * The element is missing from the definition.
 * The element contains one or more macro placeholders that cannot be resolved
   prior to performing xinclusion. If this is the case you will need to
-  restructure the main/id element to remove reliance on xincluded content.
+  restructure the main/id element to remove reliance on included content.
 
 See the Deploy Definition File Reference for more information on the main/id
 element.

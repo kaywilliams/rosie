@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpms xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-mariadb-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-client-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-cinder-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-glance-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-qpid-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-openvswitch-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/openstack/openstack-neutron-config.xml"/>
+<config-rpms>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-mariadb-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-keystone-client-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-cinder-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-glance-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-qpid-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-nova-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-openvswitch-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/openstack/openstack-neutron-config.xml"/>
 
 <config-rpm id='openstack-server-config'>
 <description>
@@ -22,7 +22,7 @@ Configures a single server openstack installation.
 </repo>
 
 <!-- include epel repo -->
-<xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='epel'])"/>
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
 </config-rpm>
 </config-rpms>

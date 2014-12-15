@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
-            xpointer="xpointer(./*[name()!='script'])"/>
-<xi:include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
-            xpointer="xpointer(./*[name()='script' and @id!='check-kernel'])"/>
-<xi:include href="%{templates-dir}/%{norm-os}/windows-azure/conditional-poweroff.xml"/>
+<xml>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
+         xpath="./*[name()!='script']"/>
+<include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
+         xpath="./*[name()='script' and @id!='check-kernel']"/>
+<include href="%{templates-dir}/%{norm-os}/windows-azure/conditional-poweroff.xml"/>
 </xml>

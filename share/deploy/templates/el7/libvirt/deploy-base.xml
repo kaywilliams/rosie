@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml>
 
 <!-- install and update a libvirt vm on the local machine -->
 <domain>deploy</domain>
 <kickstart>
-<xi:include href='%{templates-dir}/%{norm-os}/common/ks.xml'
-            xpointer='xpointer(./node())'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml'
-            xpointer='xpointer(./node())'/>
+<include href='%{templates-dir}/%{norm-os}/common/ks.xml'
+         xpath='./node()'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml'
+         xpath='./node()'/>
 </kickstart>
-<xi:include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/libvirt-guest-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/verify-kvm.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/test-exists.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/activate.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/libvirt-guest-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/verify-kvm.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/test-exists.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/activate.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 
 </xml>

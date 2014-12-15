@@ -70,7 +70,7 @@ class TestSrpmTestCase(EventTestCase):
     if not template_file.exists():
       pps.path('%%{templates-dir}/%s/common/srpmbuild.xml' % self.norm_os).cp(
                template_file.dirname)
-      root = rxml.config.parse(template_file, xinclude=True, macros={
+      root = rxml.config.parse(template_file, include=True, macros={
                                '%{name}': BUILD_MACHINE_NAME,
                                '%{os}': self.os,
                                '%{version}': self.version,
@@ -299,7 +299,7 @@ class Test_Shutdown(TestSrpmTestCase):
     template_file.rm(force=True) 
     pps.path('%%{templates-dir}/%s/common/srpmbuild.xml' % self.norm_os).cp(
              template_file.dirname)
-    root = rxml.config.parse(template_file, xinclude=True, macros={
+    root = rxml.config.parse(template_file, include=True, macros={
                              '%{name}': BUILD_MACHINE_NAME,
                              '%{os}': self.os,
                              '%{version}': self.version,

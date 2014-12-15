@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml>
 <!-- set per-module storage-data-files for use across define, attach and mount
      storage scripts-->
 <macro id="storage-data-file-test-update">%{deployment-script-dir}/storage-volume-data-test-update</macro>
@@ -11,19 +11,19 @@
 <release-rpm><updates sslverify='False'/></release-rpm>
 
 <!-- install and update a rackspace cloud server -->
-<xi:include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/test-exists.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/activate.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/clean-storage-volume-data.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/rackspace/mount-storage-volumes.xml' xpointer='xpointer(./*)'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/configure-repo-access.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
-<xi:include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/test-exists.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/activate.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/clean-storage-volume-data.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes.xml'/>
+<include href='%{templates-dir}/%{norm-os}/rackspace/mount-storage-volumes.xml' xpath='./*'/>
+<include href='%{templates-dir}/%{norm-os}/common/configure-repo-access.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 </xml>

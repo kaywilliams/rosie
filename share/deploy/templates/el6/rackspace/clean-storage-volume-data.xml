@@ -1,9 +1,8 @@
 <script id='clean-storage-volume-data' type='update'
-        comes-before='attach-storage-volumes' hostname='localhost'
-        xmlns:xi="http://www.w3.org/2001/XInclude">
+        comes-before='attach-storage-volumes' hostname='localhost'>
 #!/usr/bin/python
 
-<xi:include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
+<include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
 
 if os.path.exists(volume_data_file):
   os.remove(volume_data_file)

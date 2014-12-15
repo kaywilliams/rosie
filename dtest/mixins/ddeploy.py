@@ -49,15 +49,14 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
 
     # include deploy.xml
     mod.append(etree.XML("""
-    <include xmlns="%s" href="%%{templates-dir}/%%{norm-os}/libvirt/deploy.xml"
-             xpointer="xpointer(./*)"/>
-    """ % rxml.tree.XI_NS))
+    <include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
+             xpath="./*"/>
+    """))
 
     # include deploy.xml
     mod.append(etree.XML("""
-    <include xmlns="%s" 
-             href="%%{templates-dir}/%%{norm-os}/libvirt/delete.xml"/>
-    """ % rxml.tree.XI_NS))
+    <include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"/>
+    """))
 
   def setUp(self):
     EventTestCase.setUp(self)

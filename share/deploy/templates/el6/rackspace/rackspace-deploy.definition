@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition>
 
 <macro id='name'>rackspace-deploy</macro>
 <macro id='os'>centos</macro>
@@ -18,24 +18,24 @@
 </main>
 
 <repos>
-<xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml' 
-            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
-                                      @id='%{os}-%{edition}-updates'])"/>
+<include href='%{templates-dir}/%{norm-os}/common/repos.xml' 
+         xpath="./repo[@id='%{os}-%{edition}-base' or
+                       @id='%{os}-%{edition}-updates']"/>
 </repos>
 
 <packages>
-<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-            xpointer="xpointer(./packages[@id='core']/*)"/>
+<include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+         xpath="./packages[@id='core']/*"/>
 </packages>
 
 <test-update>
-<xi:include href="%{templates-dir}/%{norm-os}/rackspace/test-update.xml" 
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/rackspace/test-update.xml" 
+         xpath="./*"/>
 </test-update>
 
 <test-install enabled="%{test-install-enabled}">
-<xi:include href="%{templates-dir}/%{norm-os}/rackspace/test-install.xml" 
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/rackspace/test-install.xml" 
+         xpath="./*"/>
 </test-install>
 
 </definition>

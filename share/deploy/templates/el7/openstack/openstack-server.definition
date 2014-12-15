@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definition xmlns:xi="http://www.w3.org/2001/XInclude">
+<definition>
 
 <macro id='name'>openstack-server</macro>
 <macro id='os'>centos</macro>
@@ -18,14 +18,14 @@
 </main>
 
 <repos>
-<xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
-                                      @id='%{os}-%{edition}-updates'])"/>
+<include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+         xpath="./repo[@id='%{os}-%{edition}-base' or
+                       @id='%{os}-%{edition}-updates']"/>
 </repos>
 
 <packages>
-<xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-            xpointer="xpointer(./packages[@id='core']/*)"/>
+<include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+         xpath="./packages[@id='core']/*"/>
 
 <!--delete these after debugging-->
 <package>screen</package>
@@ -33,19 +33,19 @@
 <package>openstack-packstack</package>
 </packages>
 
-<xi:include href='%{templates-dir}/%{norm-os}/openstack/openstack-server-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/openstack/openstack-server-config.xml'/>
 
 <test-update>
 <password>openstack</password>
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml"
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml"
+         xpath="./*"/>
 </test-update>
 
 <!--
 <test-install enabled="%{test-install-enabled}">
 <password>openstack</password>
-<xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+         xpath="./*"/>
 </test-install>
 -->
 </definition>

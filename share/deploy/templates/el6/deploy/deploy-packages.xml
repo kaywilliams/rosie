@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xml schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<xml schema-version="1.0">
 <macro id="gpgsign-public"/>
 <macro id="gpgsign-secret"/>
 
@@ -9,20 +9,20 @@
 </gpgsign>
 
 <config-rpms>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
 <config-rpm id='deploy-httpd-config'>
-<xi:include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"
-            xpointer="xpointer(./*)"/>
+<include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"
+         xpath="./*"/>
 </config-rpm>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
 </config-rpms>
 
 <srpmbuild>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
-<xi:include href="%{templates-dir}/%{norm-os}/deploy/pyliblzma-srpm.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
+<include href="%{templates-dir}/%{norm-os}/deploy/pyliblzma-srpm.xml"/>
 </srpmbuild>
 </xml>

@@ -176,12 +176,11 @@ class KickstartEventTestCase(EventTestCase):
   def __init__(self, os, version, arch, *args, **kwargs):
     EventTestCase.__init__(self, os, version, arch)
 
-    xinclude = rxml.config.fromstring("""
-<include xmlns='http://www.w3.org/2001/XInclude'
-         href='%s/../../share/deploy/templates/%s/common/ks.xml'/>
+    include = rxml.config.fromstring("""
+<include href='%s/../../share/deploy/templates/%s/common/ks.xml'/>
 """ % (pps.path(__file__).dirname.abspath(), self.norm_os))
 
-    self.conf.getxpath('publish').append(xinclude)
+    self.conf.getxpath('publish').append(include)
 
   def setUp(self):
     EventTestCase.setUp(self)

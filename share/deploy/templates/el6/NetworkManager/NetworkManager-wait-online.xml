@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-rpm id="NetworkManager-wait-online"
-            xmlns:xi="http://www.w3.org/2001/XInclude">
+<config-rpm id="NetworkManager-wait-online">
 <description>
 Provides NetworkManager-wait-online service for el6.
 </description>

@@ -37,32 +37,32 @@ class AllEventTestCase(EventTestCase):
   _type = 'package'
 
 # start the abuse...
-class Test_XIncludeResolution(AllEventTestCase):
-  "test xinclude resolution"
+class Test_IncludeResolution(AllEventTestCase):
+  "test include resolution"
 
   def __init__(self, os, version, arch):
     EventTestCase.__init__(self, os, version, arch)
     config_rpms = config.fromstring("""
-<config-rpms xmlns:xi='%s' xml:base='%s'>
+<config-rpms xml:base='%s'>
 
 <config-rpm id='test'>
 
-<!--case 1: local xpointer to elem-->
-<xi:include xpointer="xpointer(//config-rpm[@id='target']/files)"/>
+<!--case 1: local xpath to elem-->
+<include xpath="//config-rpm[@id='target']/files"/>
 
-<!--case 2: local xpointer to text-->
+<!--case 2: local xpath to text-->
 <files destdir='/case2'>
-<xi:include xpointer="xpointer(//config-rpm[@id='target']/files/text())"/>
+<include xpath="//config-rpm[@id='target']/files/text()"/>
 </files>
 
 <!--case 3: include remote text file-->
 <files content='text' destdir='/case3' destname='file.txt'>
-<xi:include href="file.txt" parse="text"/>
+<include href="file.txt" parse="text"/>
 </files>
 
 <!--case 4: tail after include elem-->
 <files content='text' destdir='/case4' destname='file.txt'>
-<xi:include href="file.txt" parse="text"/>
+<include href="file.txt" parse="text"/>
 tail text
 </files>
 
@@ -73,32 +73,32 @@ tail text
 
 <!--case 6: nested includes-->
 <config-rpm id='case6'>
-<xi:include xpointer="xpointer(//config-rpm[@id='case6a']/*)"/>
+<include xpath="//config-rpm[@id='case6a']/*"/>
 </config-rpm>
 <config-rpm id='case6a'>
 <files content='text' destdir='/case6' destname='file.txt'>
-<xi:include xpointer="xpointer(//config-rpm[@id='case6b']/files/text())"/>i
+<include xpath="//config-rpm[@id='case6b']/files/text()"/>i
 </files>
 </config-rpm>
 <config-rpm id='case6b'>
 <files destdir='/test' destname='test'>case 6</files>
 </config-rpm>
 
-<!--local xinclude target-->
+<!--local include target-->
 <config-rpm id='target'>
 <files destdir='/case1'>test</files>
 </config-rpm>
 
 </config-rpms>
-  """ % (tree.XI_NS, pps.path(__file__).abspath()), xinclude=True)
+  """ % pps.path(__file__).abspath(), include=True)
 
     publish = config.fromstring("""
-<publish xmlns:xi='%s'>
-<!--case 7: remote xml file with xpointer-->
-<xi:include href='%%{templates-dir}/%%{norm-os}/libvirt/deploy.xml'
-            xpointer='xpointer(/*/*)'/>
+<publish>
+<!--case 7: remote xml file with xpath-->
+<include href='%{templates-dir}/%{norm-os}/libvirt/deploy.xml'
+         xpath='./*'/>
 </publish>
-  """ % tree.XI_NS)
+  """)
 
     self.conf.extend([config_rpms, publish])
 
@@ -231,7 +231,7 @@ text %%{case6} tail
            'version':  version,
            'arch':     arch}
 
-    self.conf = config.parse(StringIO(xml), xinclude=True, remove_macros=True,
+    self.conf = config.parse(StringIO(xml), include=True, remove_macros=True,
                              macro_defaults_file='%s/%s/%s.dat' 
                              % (self.options.data_root, self.build_id, 
                                 self.build_id)
@@ -313,7 +313,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('all')
 
   suite.addTest(make_core_suite(AllEventTestCase, os, version, arch))
-  suite.addTest(Test_XIncludeResolution(os, version, arch))
+  suite.addTest(Test_IncludeResolution(os, version, arch))
   suite.addTest(Test_MacroResolution(os, version, arch))
   suite.addTest(Test_MacroFailsOnCircularReference(os, version, arch))
 
