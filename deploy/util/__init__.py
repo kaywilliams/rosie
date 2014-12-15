@@ -41,6 +41,7 @@ __all__ = [
   "listfmt",
   "logger",
   "mkrpm",
+  "migrate",
   "pkgorder",
   "pps",
   "progressbar",
