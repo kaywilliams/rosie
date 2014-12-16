@@ -57,7 +57,7 @@ def migrate(command, paths, backup):
     commit(modified, content, backup)
 
 def remove_namespace(l):
-  return re.sub(r' xmlns:xi=\'http://www.w3.org/2001/XInclude\'', '', l)
+  return re.sub(r' xmlns:xi=["\']http://www.w3.org/2001/XInclude["\']', '', l)
 
 def remove_tag_prefix(l):
   return re.sub(r'<xi:include', '<include', l)
