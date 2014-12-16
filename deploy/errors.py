@@ -3,8 +3,12 @@ import re
 import sys
 import traceback 
 
+from lxml import etree
+
 from deploy.util     import shlib
 from deploy.util     import pps
+
+from deploy.util.rxml.tree import XML_NS
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
@@ -137,13 +141,45 @@ class ShLibError(DeployEventError):
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class MissingIdError(DeployEventError):
-  message = ("Validation Error: Missing 'id' attribute while validating "
-             "'%(element)s' elements.")
+class IdError(DeployEventError):
+  def __init__(self, elems):
+    if isinstance(elems, etree.ElementBase):
+      elems = [ elems ]
 
-class DuplicateIdsError(DeployEventError):
-  message = ("Validation Error: Duplicate ids found while validating "
-             "'%(element)s' elements. The duplicate id is '%(id)s'.")
+    self.tagname = elems[0].tag
+    self.id = elems[0].get('id', None)
+
+    lines = []
+    lastbase = None
+    for e in elems:
+      base = e.getbase()
+      if base != lastbase:
+        lines.append('')
+        lines.append('%s:' % e.getbase())
+      e.attrib.pop('{%s}base' % XML_NS, None)
+
+      lines.append(re.match(r'<[^>]+>', str(e).strip()).group())
+      
+      lastbase = base
+
+    self.errstr = '\n'.join(lines)
+
+class MissingIdError(IdError):
+  def __init__(self, elems):
+    IdError.__init__(self, elems)
+
+  def __str__(self):
+    return ("Validation Error: Missing 'id' attribute while validating "
+            "'%s' elements:\n%s" % (self.tagname, self.errstr))
+
+class DuplicateIdsError(IdError):
+  def __init__(self, elems):
+    IdError.__init__(self, elems)
+
+  def __str__(self):
+    return ("Validation Error: Duplicate ids '%s' found while validating "
+            "'%s' elements:\n%s"
+            % (self.id, self.tagname, self.errstr))
 
 class DeployCliErrorHandler:
   def __init__(self, error, callback):

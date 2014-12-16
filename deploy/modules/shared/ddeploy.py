@@ -118,7 +118,8 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         for script in scripts:
           id = script.getxpath('@id') # id required in schema
           if id in self.scripts:
-            raise DuplicateIdsError(element='script', id=id)
+            elems = self.config.xpath('script[@id="%s"]' % id)
+            raise DuplicateIdsError(elems)
           hostname = script.getxpath('@hostname', None)
           known_hosts_file = script.getxpath('@known-hosts-file',
                                              self.ssh_host_key_file) 

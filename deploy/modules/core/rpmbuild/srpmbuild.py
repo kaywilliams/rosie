@@ -455,13 +455,14 @@ def get_module_info(ptr, *args, **kwargs):
     # convert user provided id to a valid class name
     id = config.getxpath('@id', None)
     if id == None:
-      raise MissingIdError(element='srpm')
+      raise MissingIdError(config)
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 
     # ensure unique srpm ids
     if id in srpmids:
-      raise DuplicateIdsError(element='srpm', id=id)
+      raise DuplicateIdsError(ptr.definition.xpath('./srpmbuild/srpm[@id="%s"]'
+                                                    % id))
 
     # create new class
     exec """%s = SrpmBuildRpmEvent('%s', 

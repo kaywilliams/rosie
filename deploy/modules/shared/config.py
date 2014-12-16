@@ -46,7 +46,7 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
     # convert user provided id to a valid class name
     rpmid = config.getxpath('@id', None)
     if rpmid == None: 
-      raise MissingIdError(element=modname)
+      raise MissingIdError(config)
     name = re.sub('[^0-9a-zA-Z_]', '', rpmid).capitalize()
     setup_name = '%sConfigRpmSetupEvent' % name
     base_name = '%sConfigRpmEvent' % name
@@ -56,7 +56,8 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
 
     # check for dups
     if rpmid in config_rpm_ids:
-      raise DuplicateIdsError(element=element_name, id=rpmid)
+      raise DuplicateIdsError(ptr.definition.xpath('%s[@id="%s"]'
+                                                    % (xpath, rpmid)))
 
     # create new classes
     exec """%s = config.ConfigRpmSetupEvent('%s', 
