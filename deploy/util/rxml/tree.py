@@ -735,6 +735,12 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
             raise errors.IncludeError(message='Element must include at least '
                                        'one href or xpath attribute',
                                        elem=elem)
+          if ('parse' in elem.attrib and 
+              elem.attrib['parse'] not in ['xml', 'text']):
+            raise errors.IncludeError(
+              message="'parse' attribute value must be either 'text' or 'xml', "
+                      "not '%s'" % elem.attrib['parse'], elem=elem)
+
 
           for key in elem.attrib:
             if key not in ['href', 'xpath', 'parse', '{%s}base' % XML_NS ]:
