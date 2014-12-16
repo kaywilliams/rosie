@@ -16,10 +16,8 @@
 <include href='%{templates-dir}/%{norm-os}/windows-azure/activate.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
 <include href='%{templates-dir}/%{norm-os}/windows-azure/install.xml'/>
-<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 <include href='%{templates-dir}/%{norm-os}/windows-azure/configure-endpoints.xml'/>
-
 </xml>
