@@ -3,8 +3,12 @@
 #!/usr/bin/python
 import glob
 import os
+import socket
+import smtplib
 import sys
 import yum
+
+from email.mime.text import MIMEText
 
 from subprocess import call, Popen, PIPE, STDOUT
 
@@ -52,6 +56,21 @@ if running_kernel != latest_kernel:
     sys.exit("ERROR: check-kernel has determined that the latest kernel '%s' is not the default boot kernel. Uninstall earlier kernel versions manually, and restart the machine." % ('-'.join([v,r])))
 
   else:
-    print "Running kernel differs from installed - restarting machine"
-    call(['/sbin/shutdown', '-r', 'now'])
+    fqdn = socket.getfqdn()
+    from_addr = 'root@%s' % fqdn
+    to_addr = 'root'
+    msg = MIMEText(
+          "Running kernel differs from installed kernel - restart "
+          "machine to use the latest kernel.\n\n"
+          "running kernel:    %s\n"
+          "installed kernel:  %s"
+          % ('%s-%s' % (running_kernel[3], running_kernel[4]),
+             '%s-%s' % (latest_kernel[3], latest_kernel[4])))
+    msg['Subject'] = 'reboot required - %s' % fqdn
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+
+    server = smtplib.SMTP('localhost')
+    server.sendmail(from_addr, to_addr, msg.as_string())
+    server.quit()
 </script>
