@@ -4,7 +4,8 @@
 <macro id='test-update-post-delete'>false</macro>
 <macro id='publish-post-delete'>false</macro>
 #!/usr/bin/python
-# conditionally delete a rackspace server and storage
+
+import sys
 
 if '%{%{module}-post-delete}' != 'true':
   sys.exit(0)

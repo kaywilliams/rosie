@@ -40,7 +40,7 @@ for additional information.
 
 <script type='post'>
 # install rackspace-novaclient
-for pkg in distribute setuptools pbr rackspace-novaclient; do 
+for pkg in distribute setuptools rackspace-novaclient; do 
   info=`python-pip install --upgrade $pkg` || \
 { echo $info >&amp;2; exit 1; }
 done
