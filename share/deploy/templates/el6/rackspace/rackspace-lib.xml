@@ -1,0 +1,70 @@
+<xml>
+import ConfigParser
+import os
+import string
+import subprocess
+import sys
+import time
+
+import novaclient
+import novaclient.auth_plugin
+import novaclient.v1_1.client as nova_client
+
+SSH_OPTS = ("-o BatchMode=yes "
+            "-o UserKnownHostsFile=%{ssh-host-key-file}")
+
+# read authfile
+d={}
+with open("/root/rackspace/rackspace_admin", 'r') as authfile:
+  for line in authfile.readlines():
+     k,v = line.strip().replace('export ', '').split('=')
+     d[k] = v
+auth_plugin = novaclient.auth_plugin.load_plugin('rackspace')
+
+# create nova client
+nova = nova_client.Client(auth_url=d['OS_AUTH_URL'],
+                       username=d['OS_USERNAME'],
+                       api_key=d['OS_PASSWORD'],
+                       project_id=d['OS_TENANT_NAME'],
+                       region_name=d['OS_REGION_NAME'],
+                       auth_system=d['OS_AUTH_SYSTEM'],
+                       auth_plugin=auth_plugin)
+
+# create nova_volume client
+nova_volume = nova_client.Client(auth_url=d['OS_AUTH_URL'],
+                       username=d['OS_USERNAME'],
+                       api_key=d['OS_PASSWORD'],
+                       project_id=d['OS_TENANT_NAME'],
+                       region_name=d['OS_REGION_NAME'],
+                       auth_system=d['OS_AUTH_SYSTEM'],
+                       auth_plugin=auth_plugin,
+                       service_type='volume')
+
+##### helper functions #####
+def get_server_id():
+  return nova.servers.find(name='%{fqdn}').id
+
+def get_curr_volumes(server_id):
+  return nova.volumes.get_server_volumes(server_id)
+
+def validate():
+  # note - we require a device name rather than allowing rackspace to auto
+  # select one because later scripts that run on the client system (partition,
+  # format, mount) need to know the device name, and it is easy to share
+  # between scripts using a macro
+  required_opts = ['name', 'size', 'type', 'device', 'format', 'mountpoint']
+  for opt in required_opts:
+    if opt not in globals():
+      sys.stderr.write("Required option '%s' not specified for storage "
+                       "volume '%s'\n" % (opt, s))
+      sys.exit(1)
+
+  # disallow device names from /dev/xvdq onward as these fail without error
+  valid_chars = string.ascii_lowercase[1:16]
+  if not (device.startswith('/dev/xvd') and device[-1] in valid_chars):
+    sys.stderr.write("Invalid device name '%s'. Device names must start "
+                     "with '/dev/xvd' and end with a letter between 'b' and "
+                     "'p', e.g. '/dev/xvdb'.\n" % device)
+    sys.exit(1)
+
+</xml>

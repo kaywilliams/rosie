@@ -1,55 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
 <xml>
-<macro id="mount-storage-volumes-config-pkg">mount-storage-volumes-config</macro>
-<config-rpm id='%{mount-storage-volumes-config-pkg}'>
-<requires>pyparted</requires>
-</config-rpm>
-
-<!-- comes-after update-yum-conf so that mount-storage-config package
-     can be installed -->
-<script id='mount-storage-volumes' type='update' verbose='true'
-        comes-after='update-yum-conf'
-        comes-before='update'>
-#!/usr/bin/python
-
+<!-- including scripts must specify the following script attributes
+     type='update'
+     comes-before='update'
+     comes-after='update-yum-conf'
+     verbose='true'
+     -->
 import ConfigParser
 import subprocess
 import sys
 
-# install required packages (i.e. pyparted)
-pkg = "%{mount-storage-volumes-config-pkg}"
-r = subprocess.call('if ! rpm --quiet -q %(p)s; then yum -e 0 -q -y install %(p)s; fi' % {'p': pkg}, shell=True)
+# install required packages
+pkg = "pyparted"
+
+r = subprocess.call('if ! rpm --quiet -q %(p)s; then yum -e 0 -q -y install %(p)s; fi' % {'p': pkg}, shell=True) 
 if r != 0:
-  sys.stderr.write("Error installing %s package" % pkg)
-  sys.exit(1)
+  sys.stderr.write("Error installing %s package." % pkg)
+  sys.exit(r)
 
 # update required packages
 r = subprocess.call('yum -q -y update %s' % pkg, shell=True)
 if r != 0:
-  sys.stderr.write("Error updating %s package" % pkg)
-  sys.exit(1)
+  sys.stderr.write("Error installing %s package." % pkg)
+  sys.exit(r)
 
 import _ped
 import parted
 
-volume_data_file = "%{storage-data-file-%{module}}"
-
-# read config
-config = ConfigParser.SafeConfigParser()
-config.read(volume_data_file)
-
-for s in config.sections(): 
-  devname = config.get(s, 'device')
-  partname = "%s1" % devname
-  mountpoint = config.get(s, 'mountpoint')
-  format = config.get(s, 'format')
+def mount():
+  partname = "%s1" % device
   
   # partition disk
-  device = parted.getDevice(devname)
+  d = parted.getDevice(device)
   try:
-    disk = parted.disk.Disk(device=device)
+    disk = parted.disk.Disk(device=d)
   except _ped.DiskLabelException:
-    disk = parted.freshDisk(device, 'msdos')
+    disk = parted.freshDisk(d, 'msdos')
     disk.commitToDevice()
  
   if not disk.partitions:
@@ -63,7 +48,7 @@ for s in config.sections():
     if r != 0:
       sys.stderr.write("\nError formatting partition '%s' for '%s' storage "
                        "volume." % (partname, s))
-      sys.exit(1)
+      sys.exit(r)
   
   # mount partition
   with open("/proc/mounts") as mounts:
@@ -76,14 +61,14 @@ for s in config.sections():
       if r != 0:
         sys.stderr.write("\nError creating mountpoint '%s' for '%s' storage "
                          "volume." % (mountpoint, s))
-        sys.exit(1)
+        sys.exit(r)
 
       # mount partition
       r = subprocess.call('mount %s %s' % (partname, mountpoint), shell=True)
       if r != 0:
         sys.stderr.write("\nError mounting '%s' at '%s' for '%s' storage "
                          "volume." % (partname, mountpoint, s))
-        sys.exit(1)
+        sys.exit(r)
   
   # update fstab
   with open("/etc/fstab") as fstab:
@@ -95,6 +80,5 @@ for s in config.sections():
       if r != 0:
         sys.stderr.write("\nError adding mountpoint '%s' to fstab for '%s' "
                          "storage volume." % (mountpoint, s))
-        sys.exit(1)
-</script>
+        sys.exit(r)
 </xml>

@@ -1,0 +1,14 @@
+<script id='conditional-post-delete' type='post' hostname='localhost'
+        comes-after='test-remove-custom-pkgs check-kernel' verbose='true'>
+<macro id='test-install-post-delete'>false</macro>
+<macro id='test-update-post-delete'>false</macro>
+<macro id='publish-post-delete'>false</macro>
+#!/usr/bin/python
+# conditionally delete a rackspace server and storage
+
+if '%{%{module}-post-delete}' != 'true':
+  sys.exit(0)
+
+<include href="%{templates-dir}/%{norm-os}/rackspace/delete.xml"
+         xpath="./node()"/>
+</script>

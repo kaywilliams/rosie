@@ -2,61 +2,77 @@
 <script id='delete' type='delete' verbose='true'>
 #!/usr/bin/python
 
-<include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
+<include href="%{templates-dir}/%{norm-os}/rackspace/storage-lib.xml"
+         xpath="./node()"/>
 
+def delete_server(server):
+  server.delete()
+  
+  # poll until server deleted
+  seconds = 0
+  retry = 0
+  while True:
+    try:
+      nova.servers.get(server.id)
+      print "deleting server... %s seconds" % seconds
+  
+      # retry delete every 30 seconds
+      if retry >= 30:
+        server.delete()
+        retry = 0
+  
+      seconds += 5 
+      retry += 5
+      time.sleep(5)
+    except novaclient.exceptions.NotFound:
+      break
+
+def unmount_volumes(server, server_volumes):
+  # Note - unmounting volumes from a script that runs on localhost
+  # since delete scripts can run before the ssh-client address is known
+  #
+  if server.status == 'ACTIVE':
+    partitions = [ '%s1' % v.device for v in server_volumes ]
+  
+    opts = ("-o BatchMode=yes "
+            "-o UserKnownHostsFile='%{ssh-host-key-file}' " 
+            "-o ConnectTimeout=2")
+  
+    for v in server_volumes:
+      partname = "%s1" % v.device
+  
+      # check if volume mounted
+      cmd = "mount | grep -q '^%s '" % partname 
+      r = subprocess.call('ssh %s %s %s' % (opts, '%{ssh-host}', cmd), shell='true')
+      if r == 0:
+        # unmount it
+        cmd = "umount %s" % partname
+        r = subprocess.call('ssh %s %s %s' % (opts, '%{ssh-host}', cmd), shell='true')
+        if r != 0: # umount failed
+          sys.stderr.write("\nError unmounting '%s' for volume id '%s'." %
+                          (partname, v.id))
+          sys.exit(r)
+
+
+##### main process #####
 # check if server exists
 try:
-  server =  nova.servers.find(name=fqdn)
+  server =  nova.servers.find(name='%{fqdn}')
 except novaclient.exceptions.NotFound:
   sys.exit(0) # nothing to delete
 
-# read config
-config = ConfigParser.SafeConfigParser()
-config.read(volume_data_file)
+# get server volumes
+server_volumes = nova.volumes.get_server_volumes(server.id)
 
 # unmount volumes
-# Note - unmounting volumes from a script that runs on localhost
-# since delete scripts can run before the ssh-client address is known
-#
-if server.status == 'ACTIVE':
-  opts = ("-o BatchMode=yes "
-          "-o UserKnownHostsFile=%{ssh-host-key-file} ")
-
-  for s in config.sections(): 
-    devname = config.get(s, 'device')
-    partname = "%s1" % devname
-  
-    # check if volume mounted
-    cmd = "mount | grep -q '^%s '" % partname 
-    r = subprocess.call('ssh %s %s %s' % (opts, ssh_host, cmd), shell='true')
-    if r == 0:
-      # unmount it
-      cmd = "umount %s" % partname 
-      r = subprocess.call('ssh %s %s %s' % (opts, ssh_host, cmd), shell='true')
-      if r != 0: # umount failed
-        sys.stderr.write("\nError unmounting '%s' for '%s' storage volume." %
-                        (partname, s))
-        sys.exit(1)
+unmount_volumes(server, server_volumes)
 
 # delete server
-server.delete()
+delete_server(server)
 
-# poll until server deleted
-seconds = 0
-retry = 0
-while True:
-  try:
-    nova.servers.get(server.id)
-    print "deleting server... %s seconds" % seconds
-
-    # retry delete every 30 seconds
-    if retry >= 30:
-      server.delete()
-      retry = 0
-
-    seconds += 5 
-    retry += 5
-    time.sleep(5)
-  except novaclient.exceptions.NotFound:
-    sys.exit(0)
+# delete volumes, but only in the test-install case
+if "%{module}" == "test-install":
+  for v in server_volumes:
+    detach_volume(server.id, v)
+    delete_volume(v)
 </script>

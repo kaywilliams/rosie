@@ -1,9 +1,0 @@
-<script id='clean-storage-volume-data' type='update'
-        comes-before='attach-storage-volumes' hostname='localhost'>
-#!/usr/bin/python
-
-<include href="%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes-lib.py" parse="text"/>
-
-if os.path.exists(volume_data_file):
-  os.remove(volume_data_file)
-</script>

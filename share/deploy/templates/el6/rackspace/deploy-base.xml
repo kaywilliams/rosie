@@ -2,9 +2,9 @@
 <xml>
 <!-- set per-module storage-data-files for use across define, attach and mount
      storage scripts-->
-<macro id="storage-data-file-test-update">%{deployment-script-dir}/storage-volume-data-test-update</macro>
-<macro id="storage-data-file-test-install">%{deployment-script-dir}/storage-volume-data-test-install</macro>
-<macro id="storage-data-file-publish">%{deployment-script-dir}/storage-volume-data-publish</macro>
+<macro id="storage-data-file-test-update">%{script-dir}/storage-volume-data-test-update</macro>
+<macro id="storage-data-file-test-install">%{script-dir}/storage-volume-data-test-install</macro>
+<macro id="storage-data-file-publish">%{script-dir}/storage-volume-data-publish</macro>
 
 <!-- require ssl access to repositories -->
 <remote-url https='True'/>
@@ -18,11 +18,7 @@
 <include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
-<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<include href='%{templates-dir}/%{norm-os}/rackspace/clean-storage-volume-data.xml'/>
-<include href='%{templates-dir}/%{norm-os}/rackspace/attach-storage-volumes.xml'/>
-<include href='%{templates-dir}/%{norm-os}/rackspace/mount-storage-volumes.xml' xpath='./*'/>
 <include href='%{templates-dir}/%{norm-os}/common/configure-repo-access.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update.xml'/>

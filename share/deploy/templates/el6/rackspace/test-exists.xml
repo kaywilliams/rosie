@@ -2,5 +2,7 @@
 <script id='test-exists' type='test-exists'>
 set -e
 source /root/rackspace/rackspace_admin
-nova show %{fqdn}
+if ! nova show %{fqdn}; then
+  exit 3
+fi
 </script>
