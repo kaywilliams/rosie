@@ -141,13 +141,16 @@ class ShLibError(DeployEventError):
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class IdError(DeployEventError):
+class ConfigError(DeployEventError):
+  """ accepts an elem or list of elements and sets two variables:
+  * elems -  list of elements
+  * errstr - a string containing start tags for the elements, grouped by the
+             file containing the element
+  """
+
   def __init__(self, elems):
     if isinstance(elems, etree.ElementBase):
       elems = [ elems ]
-
-    self.tagname = elems[0].tag
-    self.id = elems[0].get('id', None)
 
     lines = []
     lastbase = None
@@ -163,6 +166,15 @@ class IdError(DeployEventError):
       lastbase = base
 
     self.errstr = '\n'.join(lines)
+
+
+class IdError(ConfigError):
+  def __init__(self, elems):
+    ConfigError.__init__(self, elems)
+
+    self.tagname = elems[0].tag
+    self.id = elems[0].get('id', None)
+
 
 class MissingIdError(IdError):
   def __init__(self, elems):
