@@ -425,20 +425,15 @@
       </choice>
       </attribute>
 
-      <optional>
-      <attribute name="hostname"><text/></attribute>
-      </optional>
-
-      <optional>
-      <attribute name="known-hosts-file"><text/></attribute>
-      </optional>
+      <optional><attribute name='comes-before'/></optional>
+      <optional><attribute name='comes-after'/></optional>
+      <optional><attribute name="hostname"/></optional>
+      <optional><attribute name="known-hosts-file"/></optional>
+      <optional><attribute name="modules"/></optional>
 
       <optional>
       <attribute name='verbose'><ref name="value-boolean"/></attribute>
       </optional>
-
-      <optional><attribute name='comes-before'/></optional>
-      <optional><attribute name='comes-after'/></optional>
       <text/>
       </element>
     </zeroOrMore>

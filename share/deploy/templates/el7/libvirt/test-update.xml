@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<test-update>
-<include href='%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml'
-         xpath="./*"/>
-<include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/>
-</test-update>

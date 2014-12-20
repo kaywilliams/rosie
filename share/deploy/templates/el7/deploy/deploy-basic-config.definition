@@ -40,7 +40,7 @@
 <macro id='file-size'>20</macro>
 
 <test-update>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 <!-- re-enable once centos 7 is available
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-test.xml"
@@ -49,7 +49,7 @@
 </test-update>
 
 <test-install enabled="%{test-install-enabled}">
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 <!-- re-enable once centos 7 is available
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-test.xml"

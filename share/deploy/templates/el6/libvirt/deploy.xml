@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml>
-<include href='%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml'
-         xpath="./*"/>
+
+<!-- install and update a libvirt vm on the local machine -->
+<domain>deploy</domain>
+<kickstart>
+<include href='%{templates-dir}/%{norm-os}/common/ks.xml'
+         xpath='./node()'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml'
+         xpath='./node()'/>
+</kickstart>
+<include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/libvirt-guest-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/verify-kvm.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/test-exists.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/activate.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/delete.xml'/>
+<include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 <include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/>
+<include href="%{templates-dir}/%{norm-os}/common/conditional-test-remove-custom-pkgs.xml"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/conditional-post-delete.xml"/>
 </xml>

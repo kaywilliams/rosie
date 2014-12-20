@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='conditional-poweroff' type='post' hostname='localhost'>
+<script id='conditional-poweroff' type='post' hostname='localhost'
+        modules='test-update'>
 # do nothing as rackspace does not support api access for stopping servers
 exit 0
 </script>

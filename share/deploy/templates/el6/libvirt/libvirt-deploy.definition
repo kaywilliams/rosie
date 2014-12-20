@@ -29,12 +29,12 @@
 </packages>
 
 <test-install enabled="%{test-install-enabled}">
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
          xpath="./*"/>
 </test-install>
 
 <test-update>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" 
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
          xpath="./*"/>
 </test-update>
 

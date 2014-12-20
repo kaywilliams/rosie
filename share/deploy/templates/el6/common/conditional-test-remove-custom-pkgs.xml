@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='conditional-test-remove-custom-pkgs' type='post' verbose='true' 
-        comes-before="check-kernel, poweroff"> 
+        comes-before="check-kernel, poweroff" modules='test-install'> 
 <macro id='test-remove-custom-pkgs'>false</macro>
 #!/bin/sh
 

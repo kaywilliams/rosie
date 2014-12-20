@@ -37,14 +37,14 @@
 
 <test-update>
 <password>openstack</password>
-<include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 </test-update>
 
 <!--
 <test-install enabled="%{test-install-enabled}">
 <password>openstack</password>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 </test-install>
 -->

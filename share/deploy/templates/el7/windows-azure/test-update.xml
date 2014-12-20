@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xml>
-<include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
-         xpath="./*[name()!='script']"/>
-<include href='%{templates-dir}/%{norm-os}/windows-azure/deploy.xml'
-         xpath="./*[name()='script' and @id!='check-kernel']"/>
-<include href="%{templates-dir}/%{norm-os}/windows-azure/conditional-poweroff.xml"/>
-</xml>

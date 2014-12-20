@@ -39,12 +39,12 @@
 
 
 <test-update>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 </test-update>
 
 <test-install enabled='false'>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>
 </test-install>
 

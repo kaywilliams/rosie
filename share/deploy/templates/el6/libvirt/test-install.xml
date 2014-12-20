@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<test-install>
-<include href='%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml'
-         xpath="./*"/>
-<include href='%{templates-dir}/%{norm-os}/libvirt/delete.xml'/>
-<include href="%{templates-dir}/%{norm-os}/common/conditional-test-remove-custom-pkgs.xml"/>
-<include href="%{templates-dir}/%{norm-os}/libvirt/conditional-post-delete.xml"/>
-</test-install>

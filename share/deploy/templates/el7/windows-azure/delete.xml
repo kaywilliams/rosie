@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<script id='delete' type='delete'>
+<script id='delete' type='delete' modules='test-install'>
 #!/bin/bash
 set -e
 # destroy vm, if active

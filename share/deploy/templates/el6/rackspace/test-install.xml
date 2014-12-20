@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xml>
-<include href='%{templates-dir}/%{norm-os}/rackspace/deploy-base.xml'
-         xpath="./*"/>
-<include href='%{templates-dir}/%{norm-os}/rackspace/delete.xml'/>
-<include href="%{templates-dir}/%{norm-os}/common/conditional-test-remove-custom-pkgs.xml"/>
-<include href="%{templates-dir}/%{norm-os}/rackspace/conditional-post-delete.xml"/>
-</xml>

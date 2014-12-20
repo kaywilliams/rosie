@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xml>
-<include href='%{templates-dir}/%{norm-os}/openstack/deploy-base.xml'
-         xpath="./*"/>
-<include href="%{templates-dir}/%{norm-os}/common/conditional-poweroff.xml"/>
-</xml>

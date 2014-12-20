@@ -33,7 +33,7 @@
 </config-rpms>
 
 <test-update>
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" 
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
          xpath="./*"/>
 <script id='test' type='post' comes-before='conditional-poweroff'>
 source /root/rackspace/rackspace_admin
@@ -42,7 +42,7 @@ nova image-list
 </test-update>
 
 <test-install enabled="%{test-install-enabled}">
-<include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" 
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
          xpath="./*"/>
 <script id='test' type='update' comes-after='update'>
 source /root/rackspace/rackspace_admin

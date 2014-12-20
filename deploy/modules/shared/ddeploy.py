@@ -21,7 +21,7 @@ import socket
 
 from deploy.dlogging import L0, L1
 from deploy.errors import (DeployError, DeployEventError,
-                                 DuplicateIdsError)
+                           DuplicateIdsError, ConfigError)
 from deploy.util import pps
 from deploy.util import resolve
 from deploy.util import shlib
@@ -60,6 +60,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.reinstall = reinstall # forces reinstall on event run
     self.track_repomd = track_repomd # used by test-install to prevent
                                      # reinstall on repomd changes
+    self.cvars.setdefault('deployment-modules', []).append(self.moduleid)
     ExecuteEventMixin.__init__(self)
 
   def setup(self): 
@@ -116,6 +117,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
         resolver = resolve.Resolver()
 
         for script in scripts:
+          modules = script.get('modules',
+                               self.moduleid).replace(',', ' ').split()
+          for m in modules:
+            if m not in self.cvars['deployment-modules']:
+              raise InvalidModuleError(m, script)
+          if self.moduleid not in modules:
+            continue
           id = script.getxpath('@id') # id required in schema
           if id in self.scripts:
             elems = self.config.xpath('script[@id="%s"]' % id)
@@ -125,12 +133,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
                                              self.ssh_host_key_file) 
           verbose = script.getbool('@verbose', False)
           xpath = 'script[@id="%s"]' % id
-          csum = self._get_script_csum(xpath)
           for x in ['comes-before', 'comes-after']:
             reqs = script.getxpath('@%s' % x, '')
             exec ("%s = [ s.strip() for s in reqs.replace(',', ' ').split() ]"
                    % x.replace('-', '_'))
-          item = Script(id, hostname, known_hosts_file, verbose, xpath, csum,
+          item = Script(id, hostname, known_hosts_file, verbose, xpath,
                         comes_before, comes_after)
           resolver.add_node(item)
           self.scripts[id] = item
@@ -148,15 +155,17 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       CUSTOM_PKGS_CSUM:          self._get_custom_pkgs_csum(),
       KICKSTART_CSUM:            self._get_kickstart_csum(),
       TREEINFO_CSUM:             self._get_treeinfo_csum(),
-      INSTALL_SCRIPTS_CSUM:      self._get_script_csum('script[ '
-                                                   '@type="pre" or '
-                                                   '@type="pre-install" or '
-                                                   '@type="install"]'),
-      POST_INSTALL_SCRIPTS_CSUM: self._get_script_csum('script[ '
-                                                    '@type="post-install" or '
-                                                    '@type="save-triggers" or '
-                                                    '@type="update" or '
-                                                    '@type="post"]'),
+      INSTALL_SCRIPTS_CSUM:      self._get_script_csum(
+                                 [ s.xpath for s in 
+                                   self.types['pre'] +
+                                   self.types['pre-install'] +
+                                   self.types['install'] ] ),
+      POST_INSTALL_SCRIPTS_CSUM: self._get_script_csum(
+                                 [ s.xpath for s in 
+                                   self.types['post-install'] +
+                                   self.types['save-triggers'] +
+                                   self.types['update'] +
+                                   self.types['post'] ] ),
       }
     self.DATA['variables'].add('trigger_data')
 
@@ -261,10 +270,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     else:
       return self._get_csum('')
 
-  def _get_script_csum(self, xpath):
+  def _get_script_csum(self, xpaths):
     text = ''
-    for script in self.config.xpath(xpath, []):
-      text = text + script.getxpath('text()', '')
+    for xpath in sorted(xpaths):
+      for script in self.config.xpath(xpath, []):
+        text = text + script.getxpath('text()', '')
     return self._get_csum(text) 
 
   def _get_custom_pkgs(self):
@@ -453,14 +463,13 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     return ssh_host
 
 class Script(resolve.Item, DirectedNodeMixin):
-  def __init__(self, id, hostname, known_hosts_file, verbose, xpath, csum, 
+  def __init__(self, id, hostname, known_hosts_file, verbose, xpath, 
                comes_before, comes_after):
     self.id = id
     self.hostname = hostname
     self.known_hosts_file = known_hosts_file
     self.verbose = verbose 
     self.xpath = xpath
-    self.csum = csum
     resolve.Item.__init__(self, id, 
                           conditionally_comes_before=comes_before,
                           conditionally_comes_after=comes_after)
@@ -505,6 +514,15 @@ class ScriptGraphCycleError(DeployEventError):
 
 class SshHostFileError(DeployEventError):
   message = "%(msg)s"
+
+class InvalidModuleError(ConfigError):
+  def __init__(self, module, elem):
+    self.module = module
+    ConfigError.__init__(self, elem)
+
+  def __str__(self):
+    return ("Validation Error: invalid module name '%s' while validating "
+            "the following element:\n%s" % (self.module, self.errstr))
 
 class InvalidTriggerNameError(DeployEventError):
   message = ("Invalid character in trigger name '%(trigger)s'. Valid "
