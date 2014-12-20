@@ -46,6 +46,8 @@ TREEINFO_CSUM = 'treeinfo_csum'
 INSTALL_SCRIPTS_CSUM = 'install_scripts_csum'
 POST_INSTALL_SCRIPTS_CSUM = 'post_install_scripts_csum'
 
+DEPLOYMENT_MODULES = [ 'test-install', 'test-update', 'publish' ]
+
 class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
   deploy_mixin_version = "1.02"
 
@@ -60,7 +62,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.reinstall = reinstall # forces reinstall on event run
     self.track_repomd = track_repomd # used by test-install to prevent
                                      # reinstall on repomd changes
-    self.cvars.setdefault('deployment-modules', []).append(self.moduleid)
     ExecuteEventMixin.__init__(self)
 
   def setup(self): 
@@ -120,7 +121,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           modules = script.get('modules',
                                self.moduleid).replace(',', ' ').split()
           for m in modules:
-            if m not in self.cvars['deployment-modules']:
+            if m not in DEPLOYMENT_MODULES:
               raise InvalidModuleError(m, script)
           if self.moduleid not in modules:
             continue

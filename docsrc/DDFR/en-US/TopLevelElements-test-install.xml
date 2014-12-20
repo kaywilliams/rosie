@@ -64,7 +64,7 @@
     <para>
     A template for deploying systems to local virtual machines. The template
     file is located in the templates folder as
-    <filename>libvirt/test-install.xml</filename>.
+    <filename>libvirt/deploy.xml</filename>.
     </para>
     </listitem>
     
@@ -88,7 +88,7 @@
 
     <listitem>
     <para>
-    Uses XInclude to include the libvirt <filename>test-install.xml</filename>
+    Uses XInclude to include the libvirt <filename>deploy.xml</filename>
     deployment template.
     </para>
     </listitem>
@@ -98,25 +98,23 @@
     <programlisting>
 &lt;test-install>
   &lt;macro id='test-install-post-delete'>true&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml" xpointer="xpointer(./*)"/>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpointer="xpointer(./*)"/>
 &lt;/test-install></programlisting>
     </section>
 
-    <section id="test-install.xml">
-    <title>test-install.xml template</title>
+    <section id="deploy.xml">
+    <title>deploy.xml template</title>
 
     <para>
-    The libvirt <filename>test-install.xml</filename> template, shown below,
-    provides the configuration necessary to deploy and maintain a local virtual
-    machine. The template in turn makes use of the
-    <filename>deploy-base.xml</filename> template, which is used across
-    test-install, test-update and publish modules. In addition, it provides
-    scripts for testing removal of custom packages, and for conditionally
-    deleting the test system after successful test installation. See <xref
-    linkend='templates'/> for information on locating and using templates.
+    The libvirt <filename>deploy.xml</filename> template, shown below, provides
+    the configuration necessary to deploy and maintain a local virtual machine.
+    In addition, it provides module-specific scripts for performing actions
+    such as testing removal of custom packages, deleting the test systems after
+    successful completion, etc. See <xref linkend='templates'/> for information
+    on locating and using templates.
     </para>
 
-    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/test-install.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </section>
 
   </section>

@@ -69,11 +69,12 @@
   [&lt;script 
     id=TEXT 
     type=[pre|test-exists|activate|test-triggers|delete|pre-install|install|post-install|save-triggers|update|post]
-    [hostname=TEXT]
-    [known-hosts-file=PATH]
-    [verbose=BOOLEAN]
     [comes-before=TEXT]
     [comes-after=TEXT]
+    [hostname=TEXT]
+    [known-hosts-file=PATH]
+    [modules=TEXT]
+    [verbose=BOOLEAN]
     &gt;TEXT
   &lt;/script&gt;]*
 
@@ -2046,6 +2047,36 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </listitem>
       </varlistentry>
 
+      <varlistentry id="script-comes-before">
+      <term>@comes-before</term>
+      <listitem>
+      <para>
+      TEXT value providing a space or comma-separated
+      list of scripts, identified by their <xref linkend='script-id'/> values,
+      that should execute following this script.
+      </para>
+
+      <para>
+      This attribute is optional. The default value is an empty string.
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry id="script-comes-after">
+      <term>@comes-after</term>
+      <listitem>
+      <para>
+      TEXT value providing a space or comma-separated
+      list of scripts, identified by their <xref linkend='script-id'/> values,
+      that should execute following preceding this script.
+      </para>
+
+      <para>
+      This attribute is optional. The default value is an empty string.
+      </para>
+      </listitem>
+      </varlistentry>
+
       <varlistentry id="script-hostname">
       <term>@hostname</term>
       <listitem>
@@ -2175,6 +2206,21 @@ echo $ipaddress > %{ssh-host-file}
       </listitem>
       </varlistentry>
 
+      <varlistentry id="script-modules">
+      <term>@modules</term>
+      <listitem>
+      <para>
+      TEXT value providing a space or comma-separated
+      list of modules in which this script should execute.
+      </para>
+
+      <para>
+      This attribute is optional. The default value is "test-install,
+      test-update, publish".
+      </para>
+      </listitem>
+      </varlistentry>
+
       <varlistentry id="script-verbose">
       <term>@verbose</term>
       <listitem>
@@ -2194,27 +2240,6 @@ echo $ipaddress > %{ssh-host-file}
       </listitem>
       </varlistentry>
 
-      <varlistentry id="script-comes-before">
-      <term>@comes-before</term>
-      <listitem>
-      <para>
-      TEXT value providing a space or comma-separated
-      list of scripts, identified by their <xref linkend='script-id'/> values,
-      that should execute following this script.
-      </para>
-      </listitem>
-      </varlistentry>
-
-      <varlistentry id="script-comes-after">
-      <term>@comes-after</term>
-      <listitem>
-      <para>
-      TEXT value providing a space or comma-separated
-      list of scripts, identified by their <xref linkend='script-id'/> values,
-      that should execute following preceding this script.
-      </para>
-      </listitem>
-      </varlistentry>
       </variablelist>
       </listitem>
     </varlistentry>

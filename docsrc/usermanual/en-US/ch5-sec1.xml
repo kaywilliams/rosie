@@ -9,13 +9,13 @@
   Deploy enables <emphasis>installation</emphasis> testing using the
   <emphasis>test-install</emphasis> element. As usual, the easiest way 
   to complete this element is using a template, in this case the
-  <filename>test-install.xml</filename> template, as shown below:
+  <filename>deploy.xml</filename> template, as shown below:
   </para>
 
   <informalexample>
   <programlisting>&lt;test-install>
   &lt;macro id='test-install-post-delete>false&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-install.xml"
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
               xpointer="xpointer(./*)"/>
 &lt;/test-install></programlisting>
   </informalexample>
@@ -35,22 +35,15 @@
 
   <listitem>
   <para>
-  Uses scripts in the <filename>test-install.xml</filename> template to install 
+  Uses scripts in the <filename>deploy.xml</filename> template to install 
   a new virtual machine running on the local system. In our web-server example,
   the hostname will be
   <emphasis>web-server-centos-6-x86-64-test-install</emphasis>. You can connect
   to the virtual machine using SSH as follows:
   </para>
 
-  <programlisting>ssh web-server-centos-6-x86-64-test-install -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</programlisting>
+  <programlisting>ssh web-server-centos-6-x86-64-test-install</programlisting>
 
-  <para>
-  The <varname>StrictHostKeyChecking</varname> and
-  <varname>UserKnownHostsFile</varname> options prevent SSH from checking and
-  storing the client host key. This is desirable since test-install machines
-  are created and deleted at will, and their keys are not guaranteed to be
-  stable.
-  </para>
   </listitem>
 
   <listitem>

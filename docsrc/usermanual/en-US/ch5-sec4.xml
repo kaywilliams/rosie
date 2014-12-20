@@ -130,7 +130,7 @@
   <listitem>
   <para>
   SSH to the test-update system, for example:
-  <synopsis>ssh web-server-centos-6-x86-64-test-update -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</synopsis>
+  <synopsis>ssh web-server-centos-6-x86-64-test-update</synopsis>
   </para>
   </listitem>
 

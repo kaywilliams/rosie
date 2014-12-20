@@ -45,7 +45,7 @@
     <para>
     Similar to the examples shown under <xref linkend="test-install"/>, this
     example makes use of two files: the main definition, and the libvirt
-    <filename>test-update.xml</filename> template.
+    <link linkend="deploy.xml">deploy.xml</link> template.
     </para>
 
     <section>
@@ -64,8 +64,8 @@
 
     <listitem>
     <para>
-    Uses XInclude to include the libvirt <filename>test-update.xml</filename>
-    deployment template.
+    Uses XInclude to include the libvirt <link
+    linkend="deploy.xml">deploy.xml</link> deployment template.
     </para>
     </listitem>
     </itemizedlist>
@@ -74,24 +74,8 @@
     <programlisting>
 &lt;test-update>
   &lt;macro id='test-update-poweroff'>true&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml" xpointer="xpointer(./*)"/>
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpointer="xpointer(./*)"/>
 &lt;/test-update></programlisting>
-    </section>
-
-    <section>
-    <title>test-update.xml template</title>
-    <para>
-    The libvirt <filename>test-update.xml</filename> template, shown below,
-    provides the configuration necessary to create and maintain a local virtual
-    machine for testing system updates. The template in turn makes use of the
-    <filename>deploy-base.xml</filename> template, which is used across
-    test-install, test-update and publish modules. In addition, it provides a
-    script for conditionally powering off the test-update system after test
-    completion. See <xref linkend='templates'/> for information on locating and
-    using templates.
-    </para>
-
-    <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/test-update.xml' parse="text" xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
     </section>
   </section>
 

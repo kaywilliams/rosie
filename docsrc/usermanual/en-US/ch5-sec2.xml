@@ -8,13 +8,13 @@
   Deploy enables <emphasis>update</emphasis> testing using the
   <emphasis>test-update</emphasis> element. As with
   <emphasis>test-install</emphasis>, update testing is most easily accomplished
-  using a template, <filename>test-update.xml</filename>, as shown below:
+  using a template, <filename>deploy.xml</filename>, as shown below:
   </para>
 
   <informalexample>
   <programlisting>&lt;test-update>
   &lt;macro id='test-update-poweroff'>false&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-update.xml"
+  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
               xpointer="xpointer(./*)"/>
 &lt;/test-update></programlisting>
   </informalexample>
@@ -36,20 +36,14 @@
   <para>
   During the first build cycle after the <emphasis>test-update</emphasis>
   element has been added, uses scripts in the
-  <filename>test-update.xml</filename> template to create a new machine to use
+  <filename>deploy.xml</filename> template to create a new machine to use
   as a baseline for future update testing.  In our web-server example, the
   hostname will be <emphasis>web-server-centos-6-x86-64-test-update</emphasis>.
   You can connect to the virtual machine using SSH as follows:
   </para>
 
-  <programlisting>ssh web-server-centos-6-x86-64-test-update -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</programlisting>
+  <programlisting>ssh web-server-centos-6-x86-64-test-update</programlisting>
 
-  <para>
-  The <varname>StrictHostKeyChecking</varname> and
-  <varname>UserKnownHostsFile</varname> options prevent SSH from checking and
-  storing the client host key. This is desirable since test-update machines are
-  not guaranteed to be stable.
-  </para>
   </listitem>
 
   <listitem>

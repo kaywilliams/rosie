@@ -53,11 +53,6 @@ class DeployMixinTestCase(PublishSetupMixinTestCase):
              xpath="./*"/>
     """))
 
-    # include deploy.xml
-    mod.append(etree.XML("""
-    <include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"/>
-    """))
-
   def setUp(self):
     EventTestCase.setUp(self)
 
@@ -126,10 +121,13 @@ def prepare_deploy_elem_to_remove_vm(elem):
   next run
   """
   for script in elem.xpath('script[@id!="create-guestname" and '
-                                 '@id!="delete"]'):
+                                  '@id!="delete"]'):
     elem.remove(script)
   elem.getxpath('script[@id="delete"]').attrib['type'] = 'post'
   elem.getxpath('script[@id="delete"]').attrib['hostname'] = 'localhost'
+  elem.getxpath('script[@id="delete"]').attrib['modules'] = ('test-install, '
+                                                             'test-update, '
+                                                             'publish')
 
   return elem
 

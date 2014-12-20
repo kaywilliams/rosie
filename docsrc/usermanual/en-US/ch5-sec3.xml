@@ -79,9 +79,8 @@
 
   <para>
   Deploy includes a number of deployment templates in the <xref
-  linkend='templates'/> folder. In the previous section, we discussed two of
-  these templates, the libvirt <filename>test-install.xml</filename> and
-  <filename>test-update.xml</filename> templates.
+  linkend='templates'/> folder. In the previous section, we discussed one of
+  these, the libvirt <filename>deploy.xml</filename> template.
   </para>
 
   <para>
@@ -94,11 +93,9 @@
   <title>Exploring deployment templates</title>
 
   <para>
-  The libvirt deployment template <filename>deploy-base.xml</filename> provides
-  an example for how Deploy can be used to deploy and maintain client systems.
-  This template serves as a base for the <filename>test-install.xml</filename>
-  and <filename>test-update.xml</filename> templates. The
-  <filename>deploy-base.xml</filename> template providing settings and scripts
+  The libvirt deployment template <filename>deploy.xml</filename> provides an
+  example for how Deploy can be used to deploy and maintain client systems.
+  The <filename>deploy.xml</filename> template providing settings and scripts
   to accomplish the following:
   </para>
 
@@ -155,17 +152,17 @@
   </itemizedlist>
 
   <para>
-  The <filename>deploy-base.xml</filename> template, shown below, has very
+  The <filename>deploy.xml</filename> template, shown below, has very
   little content of its own and is largely composed by including sub-templates:
   </para>
 
   <informalexample>
-  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy-base.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
+  <programlisting><xi:include href='../../../../../share/deploy/templates/el6/libvirt/deploy.xml' parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
   </informalexample>
 
   <para>
   The sections below discuss how you can reuse content from the
-  <filename>deploy-base.xml</filename> template and sub-templates, or provide
+  <filename>deploy.xml</filename> template and sub-templates, or provide
   alternate templates, to accommodate additional deployment scenarios.
   </para>
   </section>
@@ -239,7 +236,7 @@
 
   <informalexample>
   <programlisting>&lt;test-install>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy-base.xml" 
+&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
             xpointer="xpointer(./*[name()!='kickstart'])"/>
 &lt;kickstart>
 network --hostname %{fqdn}
