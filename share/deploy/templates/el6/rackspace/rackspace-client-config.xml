@@ -39,11 +39,12 @@ for additional information.
 <requires>mod_ssl</requires>
 
 <script type='post'>
+# upgrade setuptools
+info=`easy_install -U setuptools` || { echo $info >&amp;2; exit 1; }
+
 # install rackspace-novaclient
-for pkg in setuptools rackspace-novaclient; do 
-  info=`python-pip install --upgrade $pkg` || \
+info=`python-pip install --upgrade rackspace-novaclient` || \
 { echo $info >&amp;2; exit 1; }
-done
 </script>
 
 <files destdir="/root/rackspace" destname='rackspace_admin' content='text'
