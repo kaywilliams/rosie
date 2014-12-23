@@ -19,7 +19,7 @@ import copy
 import re
 
 from deploy.errors   import (DeployEventError, MissingIdError,
-                                   DuplicateIdsError)
+                             DuplicateIdsError, ConfigError)
 from deploy.event    import Event, CLASS_META
 from deploy.dlogging import L0
 from deploy.util     import pps
@@ -151,11 +151,16 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.io.validate_destnames([ path for path in 
       self.config.xpath(('files'), [] ) ])
 
-    # rpmbuild behaves badly with unclosed macros in scripts, resulting in a
-    # confusing error about installed but unpackaged files (which occurs
-    # because rpmbuild fails to find the %files element)
     for elem in self.config.xpath('*[name()="script" or name()="trigger"]', []):
       text = copy.deepcopy(elem.text)
+
+      # error on empty content
+      if not text:
+        raise EmptyScriptContentError(elem)
+
+      # rpmbuild behaves badly with unclosed macros in scripts, resulting in a
+      # confusing error about installed but unpackaged files (which occurs
+      # because rpmbuild fails to find the %files element)
       count = 0 
       while True:
         inner_macros = re.findall(MACRO_REGEX, text)
@@ -166,10 +171,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
           break
 
       if not count == elem.text.count('%{'):
-        message = ("ERROR: the following %s element contains a macro "
-                   "placeholder with unbalanced braces '%%{}':\n\n%s"
-                   % (elem.tag, elem))
-        raise ConfigRpmEventError(message=message)
+        raise InvalidMacroError(elem)
 
   def setup(self, **kwargs):
     self.diff.setup(self.DATA)
@@ -581,9 +583,22 @@ class ConfigRpmEvent(type):
 
 
 # -------- Error Classes --------#
-class ConfigRpmEventError(DeployEventError): 
-  message = "%(message)s"
+class EmptyScriptContentError(ConfigError):
+  def __init__(self, elem):
+    ConfigError.__init__(self, elem)
 
+  def __str__(self):
+    return ("Validation Error: the following element has no content:\n%s"
+            % self.errstr)
+
+class InvalidMacroError(ConfigError):
+  def __init__(self, elem):
+    ConfigError.__init__(self, elem, full=True)
+
+  def __str__(self):
+    return ("Validation Error: the following element contains a macro "
+            "placeholder with unbalanced braces '%%{}':\n%s"
+            % self.errstr)
 
 # -------- init methods called by new_rpm_events -------- #
 def init_config_setup_event(self, ptr, *args, **kwargs):
