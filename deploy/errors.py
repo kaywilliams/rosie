@@ -142,13 +142,20 @@ class ShLibError(DeployEventError):
               "Error message was: [errno %(errno)d] %(desc)s" )
 
 class ConfigError(DeployEventError):
-  """ accepts an elem or list of elements and sets two variables:
+  """Base class for formatting element text in error messages.
+
+  Accepts two arguments:
+  * elems - elem or list of elements. Required.
+  * full  - whether the error text should contain just the start tag, or the 
+            full element content. Defaults to False (start tag only).
+
+  Sets two variables:
   * elems -  list of elements
-  * errstr - a string containing start tags for the elements, grouped by the
+  * errstr - a string containing text for the elements, grouped by the
              file containing the element
   """
 
-  def __init__(self, elems):
+  def __init__(self, elems, full=False):
     if isinstance(elems, etree.ElementBase):
       elems = [ elems ]
 
@@ -161,7 +168,10 @@ class ConfigError(DeployEventError):
         lines.append('%s:' % e.getbase())
       e.attrib.pop('{%s}base' % XML_NS, None)
 
-      lines.append(re.match(r'<[^>]+>', str(e).strip()).group())
+      if full: # full elem
+        lines.append(str(e).strip())
+      else:
+        lines.append(re.match(r'<[^>]+>', str(e).strip()).group())
       
       lastbase = base
 
