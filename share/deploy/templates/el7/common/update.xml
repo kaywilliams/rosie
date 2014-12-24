@@ -9,7 +9,7 @@ import sys
 import yum
 
 # using shlib.call() as it allows capturing interleaved output and error text 
-<include href="shlib.py" parse="text"/>
+<include href="%{templates-dir}/%{norm-os}/common/shlib.py" parse="text"/>
 
 # run yum command(s), checking output for scriptlet failed errors
 
