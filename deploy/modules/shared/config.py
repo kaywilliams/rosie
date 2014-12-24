@@ -203,6 +203,8 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     self.srcfiledir  = self.source_folder // self.filerelpath
     self.md5file     = self.installdir/'md5sums'
 
+    self.cvars.setdefault('config-dir', self.configdir)
+
     self.DATA['variables'].add('clientdir')
 
     # resolve module macros

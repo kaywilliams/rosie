@@ -77,8 +77,12 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     self.ssh_host_key_file = (self.datfn.dirname /
                               'ssh-host-key-%s' % self.moduleid)
 
-    self.resolve_macros(map={'%{ssh-host-file}': self.ssh_host_file,
-                             '%{ssh-host-key-file}': self.ssh_host_key_file})
+    macros={'%{ssh-host-file}': self.ssh_host_file,
+            '%{ssh-host-key-file}': self.ssh_host_key_file}
+    if self.cvars.get('config-dir', None):
+      macros['%{config-dir}'] = self.cvars['config-dir']
+
+    self.resolve_macros(map=macros)
 
     # add repomd as input file
     if self.track_repomd:
