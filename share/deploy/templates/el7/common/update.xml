@@ -1,46 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='update' type='update'>
 <macro id="yum-update-command">sync</macro>
-#!/bin/bash
-set -e
+#!/usr/bin/python
+
+import os
+import re
+import sys
+import yum
+
+# using shlib.call() as it allows capturing interleaved output and error text 
+<include href="shlib.py" parse="text"/>
 
 # run yum command(s), checking output for scriptlet failed errors
 
 # ensure release-rpm installed
-if ! rpm --quiet -q %{name}-release; then yum -q -y install %{name}-release; fi
+if not yum.YumBase().rpmdb.searchNevra(name='%{name}-release'):
+  try:
+    call('yum -q -y install %{name}-release', shell=True, verbose=True)
+  except ShCalledProcessError as e:
+    sys.exit(e.returncode)
 
-# determine whether sync plugin is installed on this system
-if [[ -f /usr/lib/yum-plugins/sync.py ]] ; then
-  commands="yum -q -y sync"
-else
-  commands="yum -q -y groupinstall core, yum -q -y update"
-fi
+# determine commands to run 
+if os.path.exists('/usr/lib/yum-plugins/sync.py'):
+  commands = ['yum -q -y sync']
+else:
+  commands = [ 'yum -q -y groupinstall core', 'yum -q -y update' ]
 
-OLDIFS=$IFS
-IFS=','
-for command in $commands; do
-  IFS=$OLDIFS
-  output=`$command 2>&amp;1`
-  while read -r line
-  do
-    echo $line
-    if [[ $line == *"scriptlet failed"* ]]; then
-      pkg=$(echo $line | sed -n "s/[^(]*(\([^)]*\).*/\1/p")
-      if [[ "%{custom-pkgs}" == *$pkg* ]]; then
-        failed="$failed $pkg"
-      fi
-    fi
-  done &lt; &lt;(echo "$output")
-done
+# run commands
+for cmd in commands:
+  try:
+    _,_,both = call(cmd, shell=True, verbose=False)
 
-if [[ ${#failed} > 0 ]]; then
-  yum erase $failed -q -y --cacheonly --disableplugin sync
-echo -e "
-ERROR: Scriptlet failed errors ocurred installing the following packages:\n
-${failed#"${failed%%[![:space:]]*}"}\n
-See YUM output above for scriptlet failed errors. The failed package(s) have
-been uninstalled to prevent system inconsistencies. See the Deploy User Manual
-for information on 'Troubleshooting RPM scriptlet failed errors'." >&amp;2
-  exit 1
-fi
+  # handle regular errors
+  except ShCalledProcessError as e:
+    sys.exit(e.returncode)
+
+  # check for scriptlet failed errors
+  else:
+    failed = []
+    errlines = []
+    pkgs = "%{custom-pkgs}".split()
+    for l in both.split('\n'):
+      if 'scriptlet failed' in l:
+        errlines.append(l)
+        pkg = re.search(r'\((.*)\)', l).group(1)
+        if pkg in pkgs:
+          failed.append(pkg)
+
+    # handle scriptlet failed errors
+    if failed:
+      try:
+        call("yum erase %s -y --cacheonly --disableplugin sync"
+             % ' '.join(failed), shell=True, verbose=False)
+      except ShCalledProcessError as e:
+        sys.exit(e.returncode)
+      else:
+        sys.stderr.write('%s\n' % both)
+        sys.stderr.write('%s\n' % '\n'.join(errlines))
+        sys.stderr.write("""
+ERROR: Scriptlet failed errors ocurred during package installation. The
+failed package(s) have been uninstalled to prevent system inconsistencies:
+
+%s
+
+Issue the following commands as the root user to troubleshoot:
+
+#####
+#connect to remote client
+ssh %{ssh-host}
+
+# reinstall failed packages
+yum -y sync # or yum -y install $pkg
+
+# view and troubleshoot failed scripts
+cd %{config-dir}
+
+# exit the remote session
+exit
+#####
+
+See the Deploy User Manual for additional information on 'Troubleshooting 
+RPM scriptlet failed errors'.
+"""
+% "\n".join(failed))
+        sys.exit(1)
 </script>
