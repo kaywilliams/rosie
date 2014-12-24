@@ -333,6 +333,19 @@
     </row>
 
     <row>
+    <entry id='config-dir'>
+    %{config-dir}
+    </entry>
+
+    <entry>
+    Folder location where <xref linkend='config-rpm'/> data and scripts are
+    stored on client systems, specifically
+    <filename>/var/lib/deploy-client/config</filename>.  Used by update scripts
+    for providing informative messages for config-rpm scriptlet failed errors.
+    </entry>
+    </row>
+
+    <row>
     <entry id='deployment-script-dir-macro'>
     %{deployment-script-dir}
     </entry>
