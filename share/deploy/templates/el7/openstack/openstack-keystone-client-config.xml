@@ -25,9 +25,8 @@ export OS_TENANT_NAME=admin
 export OS_PASSWORD=%{keystone-admin-password}
 export OS_AUTH_URL=http://%{keystone-host}:35357/v2.0/
 " >> /root/.bash_profile
-</script>
 
-<script type='verifyscript'>
+# verify
 source /root/keystonerc_admin
 keystone token-get
 keystone user-list

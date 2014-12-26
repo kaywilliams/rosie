@@ -303,8 +303,6 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     scripts = [self._mk_posttrans()]
     scripts.extend(self._process_script('posttrans'))
     return self._make_script(scripts, 'posttrans')
-  def get_verifyscript(self):
-    return self._make_script(self._process_script('verifyscript'), 'verifyscript')
 
   def get_triggers(self):
     triggers = TriggerContainer()

@@ -106,7 +106,7 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
       (PATH|TEXT)
      &lt;/files&gt;]*
 
-    [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")&gt;
+    [&lt;script type=("post"|"pre"|"preun"|"postun")&gt;
       TEXT
      &lt;/script&gt;]*
 
@@ -563,11 +563,11 @@ rpm -q --provides -p path/to/uninstalled_file.rpm</programlisting>
         </para>
 
         <para>
-        <emphasis>@type</emphasis>: Specifies the type of RPM script; must
-        be one of "pre", "post", "preun", "postun" or "verifyscript". This
-        attribute is required. For more information on defining scripts in
-        RPM spec files, see the Fedora project's <emphasis>"RPM Guide"</emphasis>
-        by Eric Foster-Johnson.
+        <emphasis>@type</emphasis>: Specifies the type of RPM script; must be
+        one of "pre", "post", "preun" or "postun". This attribute is required.
+        For more information on defining scripts in RPM spec files, see the
+        Fedora project's <emphasis>"RPM Guide"</emphasis> by Eric
+        Foster-Johnson.
         </para>
 
         <para>

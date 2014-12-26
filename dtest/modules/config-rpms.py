@@ -136,7 +136,6 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
     <script type="pre">echo pre</script>
     <script type="preun">echo preun</script>
     <script type="postun">echo postun</script>
-    <script type="verifyscript">echo verifyscript</script>
     <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
     <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
     <trigger trigger="python" type="triggerpostun" 
