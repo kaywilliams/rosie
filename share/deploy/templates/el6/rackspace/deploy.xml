@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml>
-<!-- set per-module storage-data-files for use across define, attach and mount
-     storage scripts-->
-<macro id="storage-data-file-test-update">%{script-dir}/storage-volume-data-test-update</macro>
-<macro id="storage-data-file-test-install">%{script-dir}/storage-volume-data-test-install</macro>
-<macro id="storage-data-file-publish">%{script-dir}/storage-volume-data-publish</macro>
-
 <!-- require ssl access to repositories -->
 <remote-url https='True'/>
 <release-rpm><updates sslverify='False'/></release-rpm>
