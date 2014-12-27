@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='update' type='update'>
-<macro id="yum-update-command">sync</macro>
 #!/usr/bin/python
 
 import os
