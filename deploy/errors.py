@@ -10,6 +10,7 @@ from deploy.util     import pps
 
 from deploy.util.rxml.tree import XML_NS
 
+REGEX_ID = re.compile('^[a-zA-Z0-9-_]+$')
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
@@ -159,6 +160,8 @@ class ConfigError(DeployEventError):
     if isinstance(elems, etree.ElementBase):
       elems = [ elems ]
 
+    self.elems = elems
+
     lines = []
     lastbase = None
     for e in elems:
@@ -177,14 +180,12 @@ class ConfigError(DeployEventError):
 
     self.errstr = '\n'.join(lines)
 
-
 class IdError(ConfigError):
   def __init__(self, elems):
     ConfigError.__init__(self, elems)
 
-    self.tagname = elems[0].tag
-    self.id = elems[0].get('id', None)
-
+    self.tagname = self.elems[0].tag
+    self.id = self.elems[0].get('id', None)
 
 class MissingIdError(IdError):
   def __init__(self, elems):
@@ -193,6 +194,15 @@ class MissingIdError(IdError):
   def __str__(self):
     return ("Validation Error: Missing 'id' attribute while validating "
             "'%s' elements:\n%s" % (self.tagname, self.errstr))
+
+class InvalidIdError(IdError):
+  def __init__(self, elems):
+    IdError.__init__(self, elems)
+
+  def __str__(self):
+    return ("Validation Error: Invalid id '%s' found while validating '%s' "
+            "elements. Valid characters are a-z, A-Z, 0-9, _ and -:\n%s"
+            % (self.id, self.tagname, self.errstr))
 
 class DuplicateIdsError(IdError):
   def __init__(self, elems):

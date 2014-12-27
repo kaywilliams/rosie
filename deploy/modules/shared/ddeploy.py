@@ -21,7 +21,8 @@ import socket
 
 from deploy.dlogging import L0, L1
 from deploy.errors import (DeployError, DeployEventError,
-                           DuplicateIdsError, ConfigError)
+                           DuplicateIdsError, ConfigError,
+                           REGEX_ID, InvalidIdError)
 from deploy.util import pps
 from deploy.util import resolve
 from deploy.util import shlib
@@ -130,9 +131,14 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           if self.moduleid not in modules:
             continue
           id = script.getxpath('@id') # id required in schema
+
+          # validate
+          if not REGEX_ID.match(id):
+            raise InvalidIdError(script) 
           if id in self.scripts:
             elems = self.config.xpath('script[@id="%s"]' % id)
             raise DuplicateIdsError(elems)
+
           hostname = script.getxpath('@hostname', None)
           known_hosts_file = script.getxpath('@known-hosts-file',
                                              self.ssh_host_key_file) 
