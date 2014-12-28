@@ -1,27 +1,15 @@
-<xml>
-<!-- including scripts must specify the following script attributes
-     type='update'
-     comes-before='update'
-     comes-after='update-yum-conf'
-     verbose='true'
-     -->
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpm id='mount-config'>
+<description>configuration for formatting and mounting partitions</description>
+<requires>pyparted</requires>
+
+<files destdir='/usr/sbin' destname='partition-and-mount' content='text'
+       mode='700'>
+#!/usr/bin/python
+
 import ConfigParser
 import subprocess
 import sys
-
-# install required packages
-pkg = "pyparted"
-
-r = subprocess.call('if ! rpm --quiet -q %(p)s; then yum -e 0 -q -y install %(p)s; fi' % {'p': pkg}, shell=True) 
-if r != 0:
-  sys.stderr.write("Error installing %s package." % pkg)
-  sys.exit(r)
-
-# update required packages
-r = subprocess.call('yum -q -y update %s' % pkg, shell=True)
-if r != 0:
-  sys.stderr.write("Error installing %s package." % pkg)
-  sys.exit(r)
 
 import _ped
 import parted
@@ -81,4 +69,11 @@ def mount():
         sys.stderr.write("\nError adding mountpoint '%s' to fstab for '%s' "
                          "storage volume." % (mountpoint, s))
         sys.exit(r)
-</xml>
+
+if __name__ == '__main__':
+  for pair in sys.argv[1:]:
+    k,v = pair.split('=')
+    exec '%s = "%s"' % (k,v) in globals()
+  mount()
+</files>
+</config-rpm>

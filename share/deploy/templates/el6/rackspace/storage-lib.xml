@@ -93,7 +93,9 @@ def delete_volume(volume_id):
     except novaclient.exceptions.NotFound:
       break
 
-def attach():
+def attach(args):
+  for pair in args.split():
+    exec '%s' % pair in globals()
   validate()
   server_id = get_server_id()
   curr_volumes = get_curr_volumes(server_id)
