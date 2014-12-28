@@ -254,7 +254,8 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
 
   def generate(self):
     for what in ['files', 'triggers']:
-      self.io.process_files(cache=True, what=what)
+      self.io.process_files(cache=True, callback=self.link_callback,
+                            text='gathering files', what=what)
 
     self._generate_files_checksums()
     self.files =  [ x[len(self.srcfiledir):]
