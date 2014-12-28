@@ -7,23 +7,27 @@ import re
 import sys
 import yum
 
+from rpmUtils import miscutils
+
 # using shlib.call() as it allows capturing interleaved output and error text 
 <include href="%{templates-dir}/%{norm-os}/common/shlib.py" parse="text"/>
 
 # run yum command(s), checking output for scriptlet failed errors
+opts = "-d 0 -e 0 -q -y"
 
 # ensure release-rpm installed
-if not yum.YumBase().rpmdb.searchNevra(name='%{name}-release'):
-  try:
-    call('yum -q -y install %{name}-release', shell=True, verbose=True)
-  except ShCalledProcessError as e:
-    sys.exit(e.returncode)
+try:
+  call('yum %s install %{name}-release' % opts, shell=True, verbose=False)
+except ShCalledProcessError as e:
+  sys.stderr.write('%s\n' % both)
+  sys.exit(e.returncode)
 
 # determine commands to run 
 if os.path.exists('/usr/lib/yum-plugins/sync.py'):
-  commands = ['yum -q -y sync']
+  commands = ['yum %s sync' % opts]
 else:
-  commands = [ 'yum -q -y groupinstall core', 'yum -q -y update' ]
+  commands = [ 'yum %s groupinstall core' % opts,
+               'yum %s update' % opts ]
 
 # run commands
 for cmd in commands:
@@ -32,6 +36,7 @@ for cmd in commands:
 
   # handle regular errors
   except ShCalledProcessError as e:
+    sys.stderr.write('%s\n' % both)
     sys.exit(e.returncode)
 
   # check for scriptlet failed errors
@@ -43,44 +48,41 @@ for cmd in commands:
       if 'scriptlet failed' in l:
         errlines.append(l)
         pkg = re.search(r'\((.*)\)', l).group(1)
+        script = re.search(r'%(.*)\(', l).group(1)
         if pkg in pkgs:
-          failed.append(pkg)
+          failed.append((pkg,script))
 
     # handle scriptlet failed errors
     if failed:
       try:
         call("yum erase %s -y --cacheonly --disableplugin sync"
-             % ' '.join(failed), shell=True, verbose=False)
+             % ' '.join([x[0] for x in failed]), shell=True, verbose=False)
       except ShCalledProcessError as e:
+        sys.stderr.write('%s\n' % both)
         sys.exit(e.returncode)
       else:
-        sys.stderr.write('%s\n' % both)
-        sys.stderr.write('%s\n' % '\n'.join(errlines))
+        sys.stderr.write('%s' % both)
+        sys.stderr.write('-' * 10)
+
+        if len(failed) == 1:
+          pkgname = miscutils.splitFilename(failed[0][0])[0]
+          scriptname = failed[0][1]
+        else:
+          pkgname = "&lt;pkg>"
+          scriptname = "&lt;script>" 
         sys.stderr.write("""
 ERROR: Scriptlet failed errors ocurred during package installation. The
 failed package(s) have been uninstalled to prevent system inconsistencies:
 
 %s
 
-Issue the following commands as the root user to troubleshoot:
+The following commands may assist with troubleshooting. See the Deploy User
+Manual for additional information:
 
-#####
-#connect to remote client
-ssh %{ssh-host}
-
-# reinstall failed packages
-yum -y sync # or yum -y install $pkg
-
-# view and troubleshoot failed scripts
-cd %{config-dir}
-
-# exit the remote session
-exit
-#####
-
-See the Deploy User Manual for additional information on 'Troubleshooting 
-RPM scriptlet failed errors'.
+# ssh %{ssh-host}
+# yum -y install %s 
+# vi %{config-dir}/%s/%s\
 """
-% "\n".join(failed))
+% ("\n".join([x[0] for x in failed]), pkgname, pkgname, scriptname))
         sys.exit(1)
 </script>

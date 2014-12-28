@@ -111,7 +111,7 @@ class ConfigRpmSetupEventMixin(RepoSetupEventMixin):
 
 
 class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin): 
-  config_mixin_version = "1.04"
+  config_mixin_version = "1.05"
 
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
@@ -343,7 +343,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
 
       # link file to debug folder for installation by the rpm for 
       # easier user debugging
-      self.link(file, self.debugdir/'%s-script' % file.basename)
+      self.link(file, self.debugdir/'%s' % file.basename)
 
     return triggers
 
@@ -545,7 +545,7 @@ legacydir=/var/lib/deploy/config/%s
       s = scripts[:]
       s.insert(0, 'set -e\n')
       s.insert(0, '#!/bin/bash\n')
-      file =  self.debugdir/'%s-script' % script_type
+      file =  self.debugdir/'%s' % script_type
       file.dirname.mkdirs()
       s = [ x.encode('utf8') for x in s ]
       file.write_lines(s)
