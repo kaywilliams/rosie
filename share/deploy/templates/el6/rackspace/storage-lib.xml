@@ -50,7 +50,7 @@ def attach_volume(server_id, volume_id):
                           server_id, volume_id).device:
         break # attached
       else:
-        sys.stderr.write("The '%s' volume did not attach to '%s'. The "
+        sys.stderr.write("The volume '%s' did not attach to '%s'. The "
                          "current status is '%s'.\n" % (name, '%{fqdn}', status))
         sys.exit(1)
 
