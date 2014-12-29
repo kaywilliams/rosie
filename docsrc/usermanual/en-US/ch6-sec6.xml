@@ -61,7 +61,7 @@
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 
 &lt;main>...&lt;/main>
 

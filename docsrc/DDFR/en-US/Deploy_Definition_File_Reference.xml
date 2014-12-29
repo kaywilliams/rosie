@@ -11,7 +11,7 @@
               xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
-  <xi:include href="TemplatesMacrosXIncludes.xml"
+  <xi:include href="TemplatesMacrosIncludes.xml"
               xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude"/>
 

@@ -424,9 +424,9 @@
     <informalexample>
     <programlisting>
 &lt;repos>
-&lt;xi:include href='%{templates-dir}/%{norm-os}/common/repos.xml'
-            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or
-                                      @id='%{os}-%{edition}-updates'])"/>
+&lt;include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+         xpath="./repo[@id='%{os}-%{edition}-base' or
+                       @id='%{os}-%{edition}-updates']"/>
 &lt;/repos>
     </programlisting>
     </informalexample>

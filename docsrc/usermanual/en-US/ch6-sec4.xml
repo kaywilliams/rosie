@@ -47,8 +47,8 @@
 ...
 &lt;script id='create-virtual-machine-image' type='update' ssh='false'>
 # reuse content from the virt-install.xml template to create the vm image
-&lt;xi:include href='templates/deploy/virt-install.xml' 
-            xpointer='xpointer(/script/text())'/>
+&lt;include href='%{templates-dir}/%{norm-os}/deploy/deploy.xml'
+         xpath='/script/text()'/>
 
 # copy the created image to a production location
 rsync -a --delete -e ssh \

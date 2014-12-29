@@ -175,7 +175,7 @@ templates/
 
   <informalexample>
   <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 &lt;main>
 &lt;name>application&lt;/name>
 &lt;arch>x86_64&lt;/arch>
@@ -190,9 +190,9 @@ templates/
 &lt;/srpmbuild>
 
 &lt;config-rpms>
-&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario1-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario2-config.xml"/>
-&lt;xi:include href="../../../../../share/deploy/templates/el6/scenario3-config.xml"/>
+&lt;include href="templates/scenario1-config.xml"/>
+&lt;include href="templates/scenario2-config.xml"/>
+&lt;include href="templates/scenario3-config.xml"/>
 &lt;/config-rpms>
 
 &lt;files>

@@ -1004,11 +1004,11 @@ $remote-url/%{id}</programlisting>
     </informalexample>
 
     <para>
-    The template can be included in a definition using an <link linkend='xincludes'>XInclude</link> such as the following:
+    The template can be included in a definition as shown below:
     </para>
     <informalexample>
     <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ks.xml"/&gt;
+&lt;include href="%{templates-dir}/%{norm-os}/common/ks.xml"/&gt;
     </programlisting>
     </informalexample>
 
@@ -1028,15 +1028,15 @@ $remote-url/%{id}</programlisting>
     </informalexample>
 
     <para>
-    The template can be included in a kickstart element as follows:
+    The template can be included in a kickstart element as shown below:
     </para>
     <informalexample>
     <programlisting>
 &lt;kickstart>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ks.xml"
-               xpointer="xpointer(./node())"/>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml"/>
-               xpointer="xpointer(./node())"/>
+&lt;include href="%{templates-dir}/%{norm-os}/common/ks.xml"
+         xpath="./node()"/>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml"/>
+         xpath="./node()"/>
 &lt;/kickstart>
     </programlisting>
     </informalexample>
@@ -1087,12 +1087,12 @@ $remote-url/%{id}</programlisting>
     <para>
     <emphasis role='bold'>Example 2</emphasis> - The example below shows
     including content from the <filename>ssh-config.xml</filename> template,
-    shown above, within a definition using XInclude.
+    shown above, within a definition.
     </para>
 
     <informalexample>
     <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/ssh-config.xml"/&gt;</programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/ssh-config.xml"/&gt;</programlisting>
     </informalexample>
 
     </listitem>
@@ -1379,7 +1379,7 @@ $remote-url/%{id}</programlisting>
 
       <para>
       Deploy reads the script from the script element and resolves macros and
-      xincludes. It then writes the script to a file named <xref
+      include elements. It then writes the script to a file named <xref
       linkend='script-id'/> in the %{deployment-script-dir} of the target
       host.  Finally, it executes the script on the target host with root
       privileges.  See the <link
@@ -1482,12 +1482,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below: 
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/create-guestname.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1527,12 +1526,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/test-exists.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/test-exists.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1572,12 +1570,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/activate.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/activate.xml"/></programlisting>
       </informalexample>
 
       <para>
@@ -1602,12 +1599,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/connect.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/connect.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1655,12 +1651,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/test-triggers.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/test-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1698,13 +1693,12 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/delete.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1741,12 +1735,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -1796,12 +1789,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
-      <programlisting>&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/install.xml"/></programlisting>
+      <programlisting>&lt;include href="%{templates-dir}/%{norm-os}/libvirt/install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1837,13 +1829,12 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/verify-install.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/verify-install.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1874,12 +1865,11 @@ $remote-url/%{id}</programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
-      <programlisting>&lt;xi:include href="%{templates-dir}/%{norm-os}/common/save-triggers.xml"/></programlisting>
+      <programlisting>&lt;include href="%{templates-dir}/%{norm-os}/common/save-triggers.xml"/></programlisting>
       </informalexample>
       </listitem>
     </varlistentry>
@@ -1918,13 +1908,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update-yum-conf.xml" xpointer="xpointer(./*)"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/update-yum-conf.xml"/></programlisting>
       </informalexample>
 
       <para>
@@ -1946,13 +1935,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/update.xml" xpointer="xpointer(./*)"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/update.xml"/></programlisting>
       </informalexample>
 
       </listitem>
@@ -2010,13 +1998,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/></programlisting>
       </informalexample>
 
       <para>
@@ -2040,13 +2027,12 @@ parse='text' xmlns:xi="http://www.w3.org/2001/XInclude"/></programlisting>
       </informalexample>
 
       <para>
-      The template can be included in a definition using an <link
-      linkend="xincludes">XInclude</link> such as the following:
+      The template can be included in a definition as shown below:
       </para>
 
       <informalexample>
       <programlisting>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/></programlisting>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/conditional-poweroff.xml"/></programlisting>
       </informalexample>
 
       </listitem>

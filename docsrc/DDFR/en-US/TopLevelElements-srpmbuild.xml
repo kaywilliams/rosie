@@ -392,7 +392,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
       build machines on the local system. In most cases the default template is
       sufficient. Users wishing to customize the default template should create
       a new file and include desired segments of the default template using
-      XIncludes. See the examples section below for more information.
+      include elements. See the examples section below for more information.
       </para>
       
       <para>
@@ -509,14 +509,14 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
     <section>
     <title>Example 2 - Creating a custom template</title>
     <para>
-    This example shows creating a custom template, using XInclude to reuse
-    portions of the default template (shown below).  On a system with Deploy
-    installed, this file can be found at
+    This example shows creating a custom template, using include elements to
+    reuse portions of the default template (shown below).  On a system with
+    Deploy installed, this file can be found at
     <filename>/usr/share/deploy/templates/%{norm-os}/common/srpmbuild-custom.xml</filename>.
     </para>
 
     <para>
-    See <xref linkend="xincludes"/> for more information on XIncludes.
+    See <xref linkend="include"/> for more information on include elements.
     </para>
 
     <para>

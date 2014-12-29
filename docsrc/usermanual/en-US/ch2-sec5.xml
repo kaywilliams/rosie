@@ -110,6 +110,20 @@
         </listitem>
       </varlistentry>
 
+      <varlistentry id='include-element'>
+        <term>
+        include element
+        </term>
+
+        <listitem>
+          <para>
+          An element that allows reusing content from external documents. See
+          the <xref linkend='ddfr'/> for general information on using include
+          elements within definitions.
+          </para>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="release-rpm">
         <term>release-rpm</term>
 
@@ -206,22 +220,6 @@
         <filename>/usr/share/deploy/templates/</filename>. See  
         <xref linkend='working-with-templates'/> for additional information.
         </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id='xinclude'>
-        <term>
-        XML Inclusions (XIncludes)
-        </term>
-
-        <listitem>
-          <para>
-          A standard method of reusing content within and across XML documents,
-          sponsored by the World Wide Web Consortium (W3C). See <ulink
-          url="http://www.w3.org/TR/xinclude/"/> for complete information on
-          the W3C standard. See also the <xref linkend='ddfr'/> for general
-          information on using XML Inclusions (XIncludes) within definitions.
-          </para>
         </listitem>
       </varlistentry>
 

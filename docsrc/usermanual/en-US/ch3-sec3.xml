@@ -22,7 +22,7 @@
     prefer. The tags &lt;definition&gt; and &lt;/definition&gt; encapsulate all
     additional elements and attributes. The example below shows a basic web
     server definition.  It is taken from the file at
-    <filename>%{templates-dir}/el6/httpd/web-server.definition</filename>.
+    <filename>/usr/share/deploy/templates/el6/httpd/web-server.definition</filename>.
     </para>
 
     <para><informalexample>
@@ -34,18 +34,6 @@
     as an XML file. This line is not required, but it is a good practice to
     include it for compatibility with future XML format changes.
     </para>
-
-    <para>
-    Likewise, the attribute
-    <constant>xmlns:xi="http://www.we.org/2001/XInclude"</constant> is not
-    required on the "&lt;definition>" element. It is strongly recommended,
-    however, as it allows the use of XIncludes within the document. XIncludes
-    are a convenient mechanism for reusing content across multiple definitions,
-    and most definitions will make heavy use of them. XIncludes are discussed
-    in more detail in the <ulink
-    url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
-    Reference (DDFR)</ulink>.
-    </para>   
   </section>
 
   <section>
@@ -137,9 +125,9 @@
 
     <informalexample>
     <programlisting>&lt;repos>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-            xpointer="xpointer(./repo[@id='%{os}-%{edition}-base' or 
-                                      @id='%{os}-%{edition}-updates'])"/>
+&lt;include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='%{os}-%{edition}-base' or 
+                       @id='%{os}-%{edition}-updates']"/>
 &lt;/repos></programlisting>
     </informalexample>
 
@@ -150,11 +138,8 @@
     <itemizedlist>
     <listitem>
     <para>
-    It uses the element <varname>xi:include</varname> to include content from
-    an external document. The use of this element requires that the
-    <varname>xmlns:xi="http://www.w3.org/2001/XInclude"</varname> attribute has
-    been set previously in the definition, as discussed under <xref
-    linkend='creating-a-definition'/> 
+    It includes content from an external document using the <xref
+    linkend='include-element'/>.
     </para>
     </listitem>
     <listitem>
@@ -181,7 +166,7 @@
     linkend='working-with-templates'/>.  In addition, the <ulink
     url='http://www.deployproject.org/docs/DDFR'>Deploy Definition File
     Reference (DDFR)</ulink> contains a chapter on Templates, Macros
-    and XIncludes.
+    and Include Elements.
     </para>
 
   <section>
@@ -388,8 +373,8 @@ mv xxx-key.pem %{edition}-%{version}-key.pem
     <informalexample>
     <programlisting>
 &lt;packages>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-              xpointer="xpointer(./packages[@id='core']/*)"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+           xpath="./packages[@id='core']/*"/>
 &lt;/packages></programlisting>
     </informalexample>
     </para>
@@ -404,8 +389,8 @@ mv xxx-key.pem %{edition}-%{version}-key.pem
     <para><informalexample>
       <programlisting>
 &lt;packages>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml"
-              xpointer="xpointer(./packages[@id='core' or @id='gui']/*)"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+           xath="./packages[@id='core' or @id='gui']/*"/>
 &lt;/packages></programlisting>
     </informalexample></para>
 

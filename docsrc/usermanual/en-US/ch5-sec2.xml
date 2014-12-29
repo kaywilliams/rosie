@@ -14,8 +14,8 @@
   <informalexample>
   <programlisting>&lt;test-update>
   &lt;macro id='test-update-poweroff'>false&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
-              xpointer="xpointer(./*)"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
+           xpath="./*"/>
 &lt;/test-update></programlisting>
   </informalexample>
 

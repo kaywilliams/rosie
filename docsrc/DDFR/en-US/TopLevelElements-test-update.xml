@@ -64,8 +64,8 @@
 
     <listitem>
     <para>
-    Uses XInclude to include the libvirt <link
-    linkend="deploy.xml">deploy.xml</link> deployment template.
+    Includes the libvirt <link linkend="deploy.xml">deploy.xml</link>
+    deployment template.
     </para>
     </listitem>
     </itemizedlist>
@@ -74,7 +74,7 @@
     <programlisting>
 &lt;test-update>
   &lt;macro id='test-update-poweroff'>true&lt;/macro>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpointer="xpointer(./*)"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpath="./*"/>
 &lt;/test-update></programlisting>
     </section>
   </section>

@@ -127,18 +127,23 @@ Passphrase: The quick brown fox jumped over the lazy dog.</programlisting>
   <section>
   <title>Creating the gpgsign element</title>
   <para>
-  The final step for providing signing keys manually is to add a <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting the content of the public and secret key files directly into the definition (see the <emphasis>gpgsign</emphasis> section in the Deploy Definition File Reference for an example), or by using <xref linkend='xinclude'/> as in the example below.
+  The final step for providing signing keys manually is to add a
+  <emphasis>gpgsign</emphasis> element. You can do this by copying and pasting
+  the content of the public and secret key files directly into the definition
+  (see the <emphasis>gpgsign</emphasis> section in the Deploy Definition File
+  Reference for an example), or by using include elements as in the example
+  below.
   </para>
 
   <para>
-  To use XInclude, first copy the public and secret key files to a location
-  relative to the definition, e.g. to the same folder. Then add 
-  a <emphasis>gpgsign</emphasis> element as follows:
+  To use include elements, first copy the public and secret key files to a
+  location relative to the definition, e.g. to the same folder. Then add a
+  <emphasis>gpgsign</emphasis> element as follows:
   </para>
 
   <programlisting>&lt;gpgsign&gt;
-  &lt;public&gt;&lt;xi:include href="RPM-GPG-KEY-mykey" parse="text"&gt;&lt;public&gt;
-  &lt;secret&gt;&lt;xi:include href="RPM-GPG-KEY-mykey-secret" parse="text"&gt;&lt;/secret&gt;
+  &lt;public&gt;&lt;include href="RPM-GPG-KEY-mykey" parse="text"&gt;&lt;public&gt;
+  &lt;secret&gt;&lt;include href="RPM-GPG-KEY-mykey-secret" parse="text"&gt;&lt;/secret&gt;
   &lt;passphrase&gt;The quick brown fox jumped over the lazy dog.&lt;/passphrase&gt;
 &lt;gpgsign&gt;</programlisting>
 

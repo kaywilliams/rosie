@@ -156,8 +156,8 @@
     <programlisting>
 &lt;packages&gt;
   &lt;!-- include a minimal set of packages from the packages.xml template -->
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/common/packages.xml
-              xpointer="xpointer(./packages[@id='core']/*)"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/common/packages.xml
+           xpath="./packages[@id='core']/*"/>
 
   &lt;!-- include packages from the base group of the base repo --&gt;
   &lt;group repoid="%{os}-%{edition}-base"&gt;base&lt;/group&gt;

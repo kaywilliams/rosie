@@ -494,14 +494,15 @@ fi
     definitions. This can be accomplished by saving the config-rpm
     definition to a separate file, referred to as a
     <emphasis>template</emphasis>, and inserting the template within a
-    definition using <xref linkend='xinclude'/>.
+    definition using an <xref linkend='include-element'/>.
     </para>
 
     <para>
-    The following example shows a file named <filename>httpd-config.xml</filename>,
-    which is a compilation of the individual examples of this section. For
-    reference, the <filename>httpd-config.xml</filename> file is also included in the
-    Deploy <xref linkend='templates'/> folder.
+    The following example shows a file named
+    <filename>httpd-config.xml</filename>, which is a compilation of the
+    individual examples of this section. For reference, the
+    <filename>httpd-config.xml</filename> file is also included in the Deploy
+    <xref linkend='templates'/> folder.
     </para>
 
     <informalexample>
@@ -510,19 +511,19 @@ fi
     </informalexample>
 
     <para>
-    This file can be inserted within a definition using XInclude
+    This file can be inserted within a definition using an include element 
     as shown below:
     </para>
 
     <informalexample>
     <programlisting>&lt;config-rpms>
-&lt;xi:include href="../../../../../share/deploy/templates/el6/httpd-config.xml"/>
+&lt;include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"/>
 &lt;/config-rpms></programlisting>
     </informalexample>
 
     <para>
-    See the <xref linkend='ddfr'/> for more information and examples regarding
-    <emphasis>XIncludes</emphasis>.
+    See the <xref linkend='ddfr'/> for more information and examples regarding 
+    include elements.
     </para>
   </section>
 </section>

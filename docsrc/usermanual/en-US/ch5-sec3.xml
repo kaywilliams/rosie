@@ -206,8 +206,8 @@
   <informalexample>
   <programlisting>
 &lt;kickstart>
-  &lt;xi:include href="%{templates-dir}/%{norm-os/common/ks.xml" xpointer="xpointer(/*/node())"/>
-  &lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpointer="xpointer(/*/node())/>
+  &lt;include href="%{templates-dir}/%{norm-os/common/ks.xml" xpath="./node()"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpath="./node()"/>
 &lt;kickstart></programlisting>
   </informalexample>
 
@@ -224,8 +224,8 @@
 
   <para>
   In this example, you start with a test-install element, add a password
-  element and XInclude the libvirt deployment template. The XInclude statement
-  is varies from ones you have used previously, however, in that it contains an
+  element and include the libvirt deployment template. The include element
+  varies from ones you have used previously, however, in that it contains an
   xpointer attribute.  Xpointer is used to include all elements from the file,
   <emphasis>except</emphasis> elements named <emphasis>kickstart</emphasis>.
   Next, you add a kickstart element. This element contains kickstart content to
@@ -236,8 +236,8 @@
 
   <informalexample>
   <programlisting>&lt;test-install>
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
-            xpointer="xpointer(./*[name()!='kickstart'])"/>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
+      xpath="./*[name()!='kickstart']"/>
 &lt;kickstart>
 network --hostname %{fqdn}
 rootpw --iscrypted "%{crypt-password}"
@@ -257,7 +257,7 @@ reboot
 @core
 %end
 
-&lt;xi:include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpointer="xpointer(/*/node())"/>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpath="./node()"/>
 &lt;/kickstart>
 &lt;/test-install></programlisting>
   </informalexample>
@@ -309,8 +309,8 @@ virt-install --name %{fqdn} --ram 2000 \
              --extra-args "%{boot-options} ks=%{webroot}/ks.cfg"\
              --noreboot
 &lt;/script>
-&lt;xi:include href="path/to/libvirt/deploy.xml" 
-            xpointer="xpointer(./*[@id!='virt-install'])"/>
+&lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
+            xpath="./*[@id!='virt-install']"/>
 &lt;/test-install></programlisting>
   </informalexample>
 

@@ -4,12 +4,12 @@
 <chapter id="templates-macros-and-xincludes">
 
   <title>
-  Templates, Macros and XIncludes
+  Templates, Macros and Include Elements
   </title>
 
   <para>
   To assist with definition creation and reuse, Deploy supports
-  Templates, Macros and XIncludes.
+  templates, macros and include elements.
   </para>
   
   <para>
@@ -18,15 +18,14 @@
   </para>
 
   <para>
-  Macros and XIncludes assist with content substitution.  These two methods
-  overlap in some areas, and provide unique functionality in others.
+  Macros and include elements assist with content substitution.  These two
+  methods overlap in some areas, and provide unique functionality in others.
   </para>
   
   <para>
-  Used together, these three features offer a great deal of convenience and
-  flexibility for creating definitions. They will be shown in many examples in
-  the remainder of this document, as well as in other Deploy documentation
-  and example files.
+  Used together, these three features offer convenience and flexibility in 
+  creating definitions. They will be shown in many examples in the remainder of
+  this document, as well as in other Deploy documentation and example files.
   </para>
 
   <section id="templates">
@@ -142,7 +141,7 @@ deploy --macro "os:centos" --macro "version:6" --macro "arch:i386" path/to/defin
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition schema-version="1.0"&gt;
 
 &lt;main&gt;
 &lt;name&gt;example&lt;name&gt;
@@ -301,7 +300,7 @@ print uuid.uuid1()
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition schema-version="1.0"&gt;
 
 &lt;macro id="name"&gt;example&lt;macro&gt;
 &lt;macro id="os"&gt;centos&lt;macro&gt;
@@ -344,7 +343,7 @@ print uuid.uuid1()
     <informalexample>
     <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 
 &lt;macro id="version"&gt;6&lt;macro&gt;
 &lt;macro id="arch"&gt;i386&lt;macro&gt;
@@ -471,9 +470,9 @@ print uuid.uuid1()
     </para>
 
     <para>
-    The <emphasis>%{data-dir}</emphasis> macro is not supported within XInclude
-    attributes including <emphasis>href</emphasis> and
-    <emphasis>xpointer</emphasis>.
+    The <emphasis>%{data-dir}</emphasis> macro is not supported within the
+    <emphasis>href</emphasis> and <emphasis>xpointer</emphasis> attributes of
+    <link linkend="include">include</link> elements.
     </para>
     </listitem>
     </varlistentry>
@@ -540,20 +539,18 @@ print uuid.uuid1()
 
   </section>
   
-  <section id="xincludes">
+  <section id="include">
     <title>
-    XIncludes
+    Include Elements
     </title>
   
     <para>
-    XML Inclusions (XIncludes) are an industry standard sponsored by the World
-    Wide Web Consortium (W3C). This section provides a brief overview and an
-    example of using XIncludes in definitions. More information on
-    XInclude is available from <ulink url="http://www.w3.org/TR/xinclude/"/>
+    Deploy supports a simplified version of XML Inclusions. This section
+    provides a brief overview and examples.
     </para>
     
     <para>
-    Similar to macros, XIncludes allow content reuse in definitions.
+    Similar to macros, include elements allow content reuse in definitions.
     There are two important differences between the two mechanisms,
     however:
     </para>
@@ -562,96 +559,113 @@ print uuid.uuid1()
 
       <listitem>
       <para>
-      XIncludes can be used to include content from external files. Macros
-      cannot.
+      Include elements can be used to include content from external files.
+      Macros cannot.
       </para>
       </listitem>
 
       <listitem>
       <para>
       Macros can be used within attribute text, e.g.  <varname>&lt;repo
-      id="centos-%{version}-%{arch}"&gt;</varname>. XIncludes cannot.
+      id="centos-%{version}-%{arch}"&gt;</varname>. Include elements cannot.
       </para>
       </listitem>
 
     </itemizedlist>
 
-    <formalpara  id="xinclude-namespace-declaration">
-    <title>XInclude Namespace Declaration</title>
-
     <para>
-    XIncludes require the use of an XML namespace declaration in the containing
-    document. This is commonly accomplished by adding an xmlns attribute within
-    the repo element as follows: 
+    Include elements can be nested, e.g.
+    <filename>repository1.definition</filename> can include content from
+    <filename>document2.xml</filename>, which can further include content from
+    <filename>document3.xml</filename>.
     </para>
-    </formalpara>
-    
-    <informalexample>
+
+    <section>
+    <title>
+    Syntax
+    </title>
+
     <programlisting>
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-    </programlisting>
-    </informalexample> 
-    
-    <para>
-    As a matter of practice, we recommend including this namespace declaration
-    in every XML file you create for use with Deploy. This will allow the
-    addition of XIncludes at any time, without causing potentially confusing
-    errors in definition processing.
-    </para>
+&lt;include href=PATH [parse=(text|xml)] [xpath=XPATH]/></programlisting>
+    </section>
+
+    <section>
+    <title>Attributes</title>
 
     <para>
-    XIncludes can be nested, e.g. <filename>repository1.definition</filename>
-    can include content from <filename>document2.xml</filename>, which can
-    further include content from <filename>document3.xml</filename>. Each
-    document that contains an XInclude, e.g.
-    <filename>repository1.definition</filename> and
-    <filename>document2.xml</filename>, must also include the namespace
-    definition. 
+    Include elements support three attributes: href, parse and xpath.
     </para>
 
-    <formalpara>
-    <title>XInclude Limitations</title>
-    <para>
-    Deploy supports a limited implementation of the XInclude specification. In particular:
-    </para>
-    </formalpara>
-    
-    <orderedlist>
-    <listitem>
-    <para>
-    It does not support <emphasis>fallbacks</emphasis>.
-    </para>
-    </listitem>
-    <listitem>
-    <para>
-    It supports only the <emphasis>xpointer()</emphasis> scheme.
-    </para>
-    </listitem>
-    </orderedlist>
+    <variablelist>
+    <varlistentry id="include-href">
+      <term>
+      href
+      </term>
+
+      <listitem>
+      <para>
+      PATH of the file to include. See <xref linkend="content-path"/> for
+      information on PATH values.
+      </para>
+
+      <para>
+      The href attribute is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="include-parse">
+      <term>
+      parse
+      </term>
+
+      <listitem>
+      <para>
+      Specifies whether the file is to be parsed as "text" or "xml"
+      </para>
+
+      <para>
+      The parse attribute is optional. The default value is "xml".
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="include-xpath">
+      <term>
+      xpath
+      </term>
+
+      <listitem>
+      <para>
+      XPATH query identifying a portion of the file to be included.  Ignored if
+      the parse attribute is set to "text". See internet resources on "XML Path
+      Language" and "XPath" for query syntax and information.
+      </para>
+
+      <para>
+      The xpath attribute is optional. By default the entire file is included.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+    </section>
 
     <section>
     <title>Examples</title>
     <para>
-    XInclude offers a number of features, more than we will cover in this
-    document. The examples below do illustrate, however, several common
-    scenarios for using XIncludes in definitions.
+    The examples below illustrate several common scenarios for using include
+    elements in definitions.
     </para>
 
-    <formalpara id="xinclude-text-document-example"> 
+    <formalpara id="include-text-document-example"> 
       <title>
       Example 1 - Including an external <emphasis>text</emphasis> document.
       </title>
       <para>
-      The example below uses XInclude to include content from a text
-      file named <filename>file.txt</filename>. The
-      name of the XInclude element is <varname>xi:include</varname>.
-      Technically <emphasis>xi:</emphasis> is the prefix, as established in 
-      <xref linkend="xinclude-namespace-declaration"/>, to the element named
-      <emphasis>include</emphasis>. For simplicity throughout the remainder of
-      this document, however, we will refer to it as the
-      <varname>xi:include</varname> element. The <varname>href</varname>
-      attribute identifies the path of the file for inclusion, in this case a
-      file named file.txt in the same folder as the definition. The
+      The example below includes content from a text file named
+      <filename>file.txt</filename>.  The <varname>href</varname> attribute
+      identifies the path of the file for inclusion, in this case a file named
+      file.txt in the same folder as the definition. The
       <varname>parse</varname> attribute indicates that the file to be included
       is in <emphasis>text</emphasis> format, rather than XML (the default).
       </para>
@@ -660,14 +674,14 @@ print uuid.uuid1()
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 ...
-&lt;xi:include href="file.txt" parse="text" /&gt;
+&lt;include href="file.txt" parse="text" /&gt;
 ...
 &lt;/definition&gt;</programlisting>
       </informalexample>
 
-    <formalpara id="xinclude-xml-document-example"> 
+    <formalpara id="include-xml-document-example"> 
       <title>
       Example 2 - Including an external <emphasis>XML</emphasis> document.
       </title>
@@ -682,14 +696,14 @@ print uuid.uuid1()
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 ...
-&lt;xi:include href="repos.xml"/&gt;
+&lt;include href="repos.xml"/&gt;
 ...
 &lt;/definition&gt;</programlisting>
       </informalexample>
 
-    <formalpara id="xinclude-xml-segment-example">
+    <formalpara id="include-xml-segment-example">
       <title>
       Example 3 - Including segments of <emphasis>XML</emphasis> documents.
       </title>
@@ -699,19 +713,11 @@ print uuid.uuid1()
       <filename>repos.xml</filename> document contains definitions for several
       input repositories. Two of these will be included in the
       <filename>example.definition </filename> using
-      <varname>xi:include</varname> elements. The <varname>xpointer</varname>
-      attributes of the <varname>xi:include</varname> elements identify the
+      <varname>include</varname> elements. The <varname>xpath</varname>
+      attribute of the <varname>include</varname> element identifies the
       segments for inclusion.
       </para>
       </formalpara>
-
-      <note>
-      <para>
-      On a system with the Deploy RPM installed, the <filename>
-      repos.xml</filename> document can be found in the examples folder at
-      <filename>/usr/share/deploy/templates/el6/</filename>.
-      </para>
-      </note>
 
       <para><emphasis role="strong">repos.xml</emphasis></para>
       <informalexample>
@@ -725,12 +731,12 @@ print uuid.uuid1()
       <informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;definition xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;definition&gt;
 ...
 &lt;repos&gt;
-&lt;xi:include href='repos.xml'
-            xpointer="xpointer(/*/repo[@id='%{os}-%{edition}-base' or
-                                       @id='%{os}-%{edition}-updates'])"/&gt;
+&lt;include href='%{templates-dir}/%{norm-os}/common/repos.xml'
+         xpath="./repo[@id='%{os}-%{edition}-base' or
+                       @id='%{os}-%{edition}-updates']"/&gt;
 &lt;/repos&gt;
 
 &lt;/definition&gt;</programlisting>
