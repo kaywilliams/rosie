@@ -5,11 +5,12 @@ rsnapshot-server.definition). Then create a config-rpm macro in your client
 definition that looks something like the following. 
 
 The rsnapshot-client-config template configures the authorized_keys file on the
-client to accept ssh connections from the server. You may also need to
-configure the client firewall to allow inbound ssh connections from the server.
+client to accept ssh connections from the rsnapshot user (typically root). You
+may also need to configure the client firewall to allow inbound ssh connections
+from the server.
 
 <config-rpm id='rsnapshot-client-config'>
-<macro id='rsnapshot-server-ssh-pubkey-text'><include href="rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub" parse="text"/></macro>
+<macro id='rsnapshot-user-pubkey-text'><include href="rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub" parse="text"/></macro>
 
 <include
     href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-client-config.xml"
@@ -29,7 +30,7 @@ configure the client firewall to allow inbound ssh connections from the server.
 <script type='post'>
 sshdir=/root/.ssh
 authkeys=$sshdir/authorized_keys
-pubkey=`echo "%{rsnapshot-server-ssh-pubkey-text}" | tr -d '\n'`
+pubkey=`echo "%{rsnapshot-user-pubkey-text}" | tr -d '\n'`
 
 [[ -d $sshdir ]] || mkdir $sshdir
 [[ -f $authkeys ]] || touch $authkeys
