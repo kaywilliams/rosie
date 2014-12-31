@@ -430,26 +430,27 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     
     namelist = ','.join([fqdn, fqdn.split('.')[0], ipaddr])
    
-    # write file - only do this if the file does not exist to prevent host
-    # spoofing
-    if not self.ssh_host_key_file.exists():
+    # write file - do this only if the file does not exist or the namelist
+    # has changed - to prevent host spoofing
+    if (not self.ssh_host_key_file.exists() or 
+        not self.ssh_host_key_file.read_text().startswith(namelist)):
       key = shlib.execute('ssh-keyscan %s' % namelist)[0]
       self.ssh_host_key_file.write_text(key+'\n')
 
-    # update root user known_hosts file
-    known_hosts_file = pps.path('/root/.ssh/known_hosts')
-    if known_hosts_file.exists():
-      currlines = known_hosts_file.read_lines()
-    else:
-      currlines = []
+      # update root user known_hosts file
+      known_hosts_file = pps.path('/root/.ssh/known_hosts')
+      if known_hosts_file.exists():
+        currlines = known_hosts_file.read_lines()
+      else:
+        currlines = []
 
-    newlines = []
-    for l in currlines:
-      if not l.startswith(namelist):
-        newlines.append(l)
-    newlines.append(self.ssh_host_key_file.read_text())
+      newlines = []
+      for l in currlines:
+        if not l.startswith(namelist):
+          newlines.append(l)
+      newlines.append(self.ssh_host_key_file.read_text())
 
-    known_hosts_file.write_lines(newlines)
+      known_hosts_file.write_lines(newlines)
 
   def get_ssh_host(self):
     if self.ssh_host_file.exists():
