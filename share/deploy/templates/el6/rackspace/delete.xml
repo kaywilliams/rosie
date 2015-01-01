@@ -2,8 +2,11 @@
 <script id='delete' type='delete' modules="test-install" verbose='true'>
 #!/usr/bin/python
 
-<include href="%{templates-dir}/%{norm-os}/rackspace/storage-lib.xml"
-         xpath="./node()"/>
+import sys
+
+sys.path.insert(0, "%{templates-dir}/%{norm-os}/rackspace")
+
+from rackspace_lib import *
 
 def delete_server(server):
   server.delete()
