@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpm id='mount-utils'>
+<description>provides mount-partition and mount-bind utilities</description>
+
+<requires>/bin/mount</requires>
+<requires>pyparted</requires>
+
+<files destdir='/usr/lib/python2.6/site-packages' destname='mount_utils.py'
+       content='text' mode='755'>
+#!/usr/bin/python
+
+import subprocess
+import sys
+
+import _ped
+import parted
+
+def partition(device, format):
+  partname = "%s1" % device
+  
+  # get device 
+  try:
+    d = parted.getDevice(device)
+  except _ped.IOException as e:
+    sys.stderr.write("\nError creating partition '%s' for device '%s':\n"
+                     "%s\n\n" % (partname, device, e))
+    sys.exit(1)
+
+  # get disk 
+  try:
+    disk = parted.disk.Disk(device=d)
+  except _ped.DiskLabelException:
+    disk = parted.freshDisk(d, 'msdos')
+    disk.commitToDevice()
+
+  # partition
+  if not disk.partitions:
+    partition = parted.Partition(disk, 
+                                 type=parted.PARTITION_NORMAL, 
+                                 geometry=disk.getFreeSpaceRegions()[0])
+    constraint = parted.Constraint(exactGeom=partition.geometry)
+    disk.addPartition(partition, constraint)
+    disk.commit()
+    r = subprocess.call('mkfs -q -t %s %s' % (format, partname), shell=True)
+    if r != 0:
+      sys.stderr.write("\nError formatting partition '%s' for device '%s'"
+                        % (partname, device))
+      sys.exit(r)
+
+  return partname
+  
+def mount(name, mountpoint, format='none', bind=False):
+  # get list of current mount points
+  proc = subprocess.Popen('mount', shell=True,
+                                   stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+  stdout, stderr = proc.communicate()
+  if proc.returncode != 0:
+    sys.stderr.write(stderr)
+    sys.exit(proc.returncode)
+
+  mounts = stdout.split('\n')
+
+  # process mounts
+  found = False
+  for line in mounts:
+    if name in line and mountpoint in line: found = True
+  if not found:
+    # create mount dir
+    r = subprocess.call('mkdir -p %s' % mountpoint, shell=True)
+    if r != 0:
+      sys.stderr.write("\nError creating mountpoint '%s' for '%s'."
+                       % (mountpoint, name))
+      sys.exit(r)
+
+    # mount partition
+    r = subprocess.call('mount %s %s %s' % ('--bind' if bind else '',
+                                            name, mountpoint), shell=True)
+    if r != 0:
+      sys.stderr.write("\nError mounting '%s' at '%s'." % (name, mountpoint))
+      sys.exit(r)
+  
+  # update fstab
+  with open("/etc/fstab") as fstab:
+    found = False
+    for line in fstab.readlines():
+      if name in line and mountpoint in line: found = True
+    if not found:
+      if bind:
+        txt = "%s %s %s bind 0 0" % (name, mountpoint, format)
+      else:
+        txt = ("%s %s %s defaults,noatime,_netdev,nofail 0 2"
+               % (name, mountpoint, format))
+      r = subprocess.call('echo -e "%s" >> /etc/fstab' % txt, shell=True)
+      if r != 0:
+        sys.stderr.write("\nError adding mountpoint '%s' to fstab for '%s'."
+                          % (mountpoint, name))
+        sys.exit(r)
+</files>
+
+<files destdir='/usr/sbin' destname='mount-partition' content='text'
+       mode='755'>
+#!/usr/bin/python
+
+import sys
+import optparse
+
+from mount_utils import *
+from optparse import OptionParser
+
+if __name__ == '__main__':
+  usage = """usage: %prog DEVICE FORMAT MOUNTPOINT
+
+Creates a single partition on DEVICE in the specified FORMAT, as needed. Then
+creates or updates the mount and fstab entry as specified by MOUNTPOINT.
+
+device        name of the device, e.g. 'dev/xvdb'
+format        format for the filesystem, e.g. 'ext3'
+mountpoint    dir to mount file system, e.g. '/my/dir'"""
+
+  parser = optparse.OptionParser(usage=usage)
+
+  _, args = parser.parse_args()
+
+  if len(args) != 3:
+    parser.error('incorrect number of arguments')
+
+  device = args[0]
+  format = args[1]
+  mountpoint = args[2]
+
+  partname = partition(device, format)
+  mount(partname, mountpoint, format=format)
+</files>
+
+<files destdir='/usr/sbin' destname='mount-bind' content='text'
+       mode='755'>
+#!/usr/bin/python
+
+import sys
+import optparse
+
+from mount_utils import *
+from optparse import OptionParser
+
+if __name__ == '__main__':
+  usage = """usage: %prog DIR MOUNTPOINT
+
+Binds a DIR to the specified MOUNTPOINT and creates a related fstab entry.
+
+dir           name of an existing dir, e.g. '/orig/dir'
+mountpoint    name of the mounted dir, e.g. '/mounted/as/dir'"""
+
+  parser = optparse.OptionParser(usage=usage)
+
+  _, args = parser.parse_args()
+
+  if len(args) != 2:
+    parser.error('incorrect number of arguments')
+
+  dir = args[0]
+  mountpoint = args[1]
+
+  mount(dir, mountpoint, bind=True)
+</files>
+</config-rpm>
