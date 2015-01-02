@@ -19,7 +19,7 @@ opts = "-d 0 -e 0 -q -y"
 try:
   call('yum %s install %{name}-release' % opts, shell=True, verbose=False)
 except ShCalledProcessError as e:
-  sys.stderr.write('%s\n' % both)
+  sys.stderr.write('%s\n' % e.both)
   sys.exit(e.returncode)
 
 # determine commands to run 
@@ -36,7 +36,7 @@ for cmd in commands:
 
   # handle regular errors
   except ShCalledProcessError as e:
-    sys.stderr.write('%s\n' % both)
+    sys.stderr.write('%s\n' % e.both)
     sys.exit(e.returncode)
 
   # check for scriptlet failed errors
@@ -61,18 +61,15 @@ for cmd in commands:
         sys.stderr.write('%s\n' % both)
         sys.exit(e.returncode)
       else:
-        sys.stderr.write('%s' % both)
-        sys.stderr.write('-' * 10)
-
         if len(failed) == 1:
           pkgname = miscutils.splitFilename(failed[0][0])[0]
           scriptname = failed[0][1]
         else:
           pkgname = "&lt;pkg>"
-          scriptname = "&lt;script>" 
-        sys.stderr.write("""
-ERROR: Scriptlet failed errors ocurred during package installation. The
-failed package(s) have been uninstalled to prevent system inconsistencies:
+          scriptname = "&lt;script>"
+
+        sys.stderr.write("""\
+Scriptlet failed errors ocurred during package installation.  The failed package(s) have been uninstalled to prevent system inconsistencies:
 
 %s
 
@@ -81,8 +78,11 @@ Manual for additional information:
 
 # ssh %{ssh-host}
 # yum -y install %s 
-# vi %{config-dir}/%s/%s\
-"""
-% ("\n".join([x[0] for x in failed]), pkgname, pkgname, scriptname))
+# vi %{config-dir}/%s/%s
+
+YUM error output below:
+
+%s"""
+% ("\n".join([x[0] for x in failed]), pkgname, pkgname, scriptname, both))
         sys.exit(1)
 </script>
