@@ -14,12 +14,15 @@ def create_keys(dir, user=None):
       (user and 
        len(seckey.read_text().split()) == 3 and
        seckey.read_text().split()[2] != user)):
-  
+
     # create key
+    seckey.dirname.mkdirs(mode=0700)
     seckey.rm(force=True)
     pubkey.rm(force=True)
-    subprocess.call('ssh-keygen -q -t rsa -b 2048 -N "" -f %s' % seckey,
-                    shell=True)
+    r = subprocess.call('ssh-keygen -q -t rsa -b 2048 -N "" -f %s' % seckey,
+                        shell=True)
+    if r != 0:
+      sys.exit(r)
 
     # replace user
     if user:
