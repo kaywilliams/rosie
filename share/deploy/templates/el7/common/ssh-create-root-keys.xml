@@ -4,12 +4,17 @@
 
 <!-- create ssh keys -->
 <prep-script>
-#!/bin/sh
-set -e
-function create_ssh_keys {
-<include href="%{templates-dir}/%{norm-os}/common/create-ssh-keys.sh" parse='text'/>
-}
-create_ssh_keys %{data-dir} %{ssh-host}
+#!/usr/bin/python
+
+import sys
+from deploy.util import pps
+
+lib = pps.path('%{templates-dir}/%{norm-os}/common/ssh_lib.py')
+sys.path.insert(0, lib.dirname)
+
+from ssh_lib import *
+
+create_keys('%{data-dir}', 'root')
 </prep-script>
 
 <!-- install ssh keys (created in the prep script) -->
