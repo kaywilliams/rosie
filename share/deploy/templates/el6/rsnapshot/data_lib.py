@@ -1,49 +1,51 @@
-from deploy.util import pps
 
-INC_FILE = 'include'
-KEY_FILE = 'known_hosts'
+from deploy.util      import pps
+import json
 
-SCRIPT_INFIX = 'scripts'
-
-ETC_DIR = pps.path('/etc')
+ETC_DIR = '/etc'
+JSON_EXT = '.json'
 
 CONF_FILE        = 'rsnapshot.conf'
-SCRIPT_DIR       = 'rsnapshot.d/%s' % SCRIPT_INFIX
-KNOWN_HOSTS_FILE = 'rsnapshot.d/%s' % KEY_FILE
+SCRIPT_DIR       = 'rsnapshot.d/scripts'
+KNOWN_HOSTS_FILE = 'rsnapshot.d/known_hosts'
 
 
 class RsnapshotDataWriter:
-  def __init__(self, dataroot):
-    self.dataroot = pps.path(dataroot)
+  def __init__(self, dataroot, deploy_module, rsnapshot_module):
+    self.data = {}
+    self.file = pps.path('%s/%s/%s%s' % (dataroot, deploy_module, 
+                                         rsnapshot_module, JSON_EXT))
 
-    self.incfile = dataroot / INC_FILE
-    self.keyfile = dataroot / KEY_FILE
-    self.scriptdir = dataroot / SCRIPT_INFIX
+  def add_host(self, hostfile):
+    host = pps.path(hostfile).read_text().rstrip()
+    self.data.setdefault('hosts', []).append(host)
 
+  def add_conf(self, text):
+    self.data.setdefault('conf', []).append(text)
 
-    self.SCRIPT_DIR = ETC_DIR / SCRIPT_DIR
-    self.KNOWN_HOSTS_FILE = ETC_DIR / KNOWN_HOSTS_FILE
+  def add_script(self, name, text):
+    self.data.setdefault('scripts', {})[name] = text
 
-    # setup
-    self.dataroot.rm(recursive=True, force=True)
-    for d in [ self.dataroot, self.scriptdir ]:
-      d.mkdirs(mode=0700)
-      d.chown(0,0)
+  def add_user(self, user, pubkey):
+    self.data['user'] = pubkey
 
-  def write_key(self, keyfile):
-    keyfile = pps.path(keyfile)
-    self.keyfile.write_text(keyfile.read_text().rstrip() + '\n', append=True)
+  def add_restore_root(self, restore_root):
+    self.data.setdefault('restore_roots', []).append(restore_root)
 
-  def write_conf(self, text):
-    self.incfile.write_text(text, append=True)
-
-  def write_script(self, name, text):
-    (self.scriptdir / name).write_text(text)
+  def write_data(self):
+    if self.data:
+      self.file.dirname.mkdirs(mode=0700)
+      self.file.write_text(json.dumps(self.data, sort_keys=True, indent=0))
+      self.file.chmod(0700)
 
 
 class RsnapshotDataComposer:
-  def __init__(self, userroot, composeroot, baseconf):
-    userroot = pps.path(userroot)
+  def __init__(self, dataroot, deploy_module, composeroot, baseconf):
+    data = []
+    for file in pps.path('%s/%s' % (dataroot, deploy_module)).findpaths(
+                         mindepth=1, maxdepth=1, type=pps.constants.TYPE_FILE,
+                         glob='*%s' % JSON_EXT):
+      data.append(json.loads(file.read_text()))
     composeroot = pps.path(composeroot)
 
     for d in [ composeroot, composeroot / SCRIPT_DIR ]:
@@ -52,18 +54,23 @@ class RsnapshotDataComposer:
 
     # write conf
     txt = baseconf
-    for f in userroot.findpaths(INC_FILE, mindepth=2, maxdepth=2):
-      txt = txt + '\n' + f.read_text()
+    includes = []
+    for i in [ x.get('conf', []) for x in data ]:
+      includes.extend(i)
+    txt = txt + '\n'.join(includes).rstrip() + '\n'
     (composeroot / CONF_FILE).write_text(txt)
     
     # write known_hosts
     txt = ''
-    for f in userroot.findpaths(KEY_FILE, mindepth=2, maxdepth=2):
-      txt = txt + f.read_text()
+    hosts = []
+    for i in [ x.get('hosts', []) for x in data ]:
+      hosts.extend(i)
+    txt = txt + '\n'.join(hosts).rstrip() + '\n'
     (composeroot / KNOWN_HOSTS_FILE ).write_text(txt)
 
-    # assemble rsnapshot.d files 
-    for d in userroot.findpaths(SCRIPT_INFIX, mindepth=2, maxdepth=2,
-                                              type=pps.constants.TYPE_DIR):
-        for i in d.listdir():
-          i.cp(composeroot / SCRIPT_DIR, recursive=True)
+    # write rsnapshot.d files
+    scripts = {} 
+    for i in [ x.get('scripts', {}) for x in data ]:
+      scripts.update(i)
+    for f,t in scripts.items():
+      pps.path(composeroot / SCRIPT_DIR / f).write_text(t)
