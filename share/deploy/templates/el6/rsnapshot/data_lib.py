@@ -11,10 +11,9 @@ KNOWN_HOSTS_FILE = 'rsnapshot.d/known_hosts'
 
 
 class RsnapshotDataWriter:
-  def __init__(self, dataroot, deploy_module, rsnapshot_module):
+  def __init__(self, dataroot, module):
     self.data = {}
-    self.file = pps.path('%s/%s/%s%s' % (dataroot, deploy_module, 
-                                         rsnapshot_module, JSON_EXT))
+    self.file = pps.path('%s/%s%s' % (dataroot, module, JSON_EXT))
 
   def add_host(self, hostfile):
     host = pps.path(hostfile).read_text().rstrip()
@@ -37,40 +36,3 @@ class RsnapshotDataWriter:
       self.file.dirname.mkdirs(mode=0700)
       self.file.write_text(json.dumps(self.data, sort_keys=True, indent=0))
       self.file.chmod(0700)
-
-
-class RsnapshotDataComposer:
-  def __init__(self, dataroot, deploy_module, composeroot, baseconf):
-    data = []
-    for file in pps.path('%s/%s' % (dataroot, deploy_module)).findpaths(
-                         mindepth=1, maxdepth=1, type=pps.constants.TYPE_FILE,
-                         glob='*%s' % JSON_EXT):
-      data.append(json.loads(file.read_text()))
-    composeroot = pps.path(composeroot)
-
-    for d in [ composeroot, composeroot / SCRIPT_DIR ]:
-      d.mkdirs(mode=0700)
-      d.chown(0,0)
-
-    # write conf
-    txt = baseconf
-    includes = []
-    for i in [ x.get('conf', []) for x in data ]:
-      includes.extend(i)
-    txt = txt + '\n'.join(includes).rstrip() + '\n'
-    (composeroot / CONF_FILE).write_text(txt)
-    
-    # write known_hosts
-    txt = ''
-    hosts = []
-    for i in [ x.get('hosts', []) for x in data ]:
-      hosts.extend(i)
-    txt = txt + '\n'.join(hosts).rstrip() + '\n'
-    (composeroot / KNOWN_HOSTS_FILE ).write_text(txt)
-
-    # write rsnapshot.d files
-    scripts = {} 
-    for i in [ x.get('scripts', {}) for x in data ]:
-      scripts.update(i)
-    for f,t in scripts.items():
-      pps.path(composeroot / SCRIPT_DIR / f).write_text(t)

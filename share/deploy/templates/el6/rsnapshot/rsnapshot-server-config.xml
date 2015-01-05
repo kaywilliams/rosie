@@ -40,6 +40,8 @@ their ssh keys, provide public keys using files elements as below
 -->
 
 <!-- everything here and below is part of the template -->
+<macro id="rsnapshot-local-datadir">%{install-dir}/data</macro>
+
 <include href='%{templates-dir}/%{norm-os}/common/repos.xml'
          xpath="./repo[@id='epel']"/>
 
@@ -52,17 +54,10 @@ their ssh keys, provide public keys using files elements as below
 <include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
          xpath="./*"/>
 
-<!-- install client public keys in known_hosts file -->
-<script type="post">
-keydir='/root/.ssh/rsnapshots'
-if [ -d $keydir ]; then
-  known="/root/.ssh/known_hosts"
-  touch $known
-  for f in $keydir; do
-    sed -i "/^$f[[:space:]]/d" $known
-    cat $f >> $known
-  done
-fi
-</script>
+<files destdir='%{rsnapshot-local-datadir}' mode='750'>%{templates-dir}/%{norm-os}/rsnapshot/compose</files>
+<files destdir='%{rsnapshot-local-datadir}'>%{rsnapshot-dataroot}</files>
 
+<script type='post'>
+%{rsnapshot-local-datadir}/compose --dir %{rsnapshot-local-datadir}
+</script>
 </config-rpm>
