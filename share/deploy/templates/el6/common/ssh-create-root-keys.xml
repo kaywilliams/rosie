@@ -14,7 +14,7 @@ sys.path.insert(0, lib.dirname)
 
 from ssh_lib import *
 
-create_keys('%{data-dir}', 'root')
+create_keys('%{data-dir}', 'root@%{id}')
 </prep-script>
 
 <!-- install ssh keys (created in the prep script) -->
