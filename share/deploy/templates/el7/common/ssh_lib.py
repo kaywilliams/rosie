@@ -9,13 +9,8 @@ def create_keys(dir, user=None):
   seckey = pps.path('%s/id_rsa' % dir)
   pubkey = pps.path('%s/id_rsa.pub' % dir)
 
-  if (not seckey.exists() or
-      not pubkey.exists() or
-      (user and 
-       len(seckey.read_text().split()) == 3 and
-       seckey.read_text().split()[2] != user)):
-
-    # create key
+  # create key
+  if not seckey.exists() or not pubkey.exists():
     seckey.dirname.mkdirs(mode=0700)
     seckey.rm(force=True)
     pubkey.rm(force=True)
@@ -24,8 +19,12 @@ def create_keys(dir, user=None):
     if r != 0:
       sys.exit(r)
 
-    # replace user
-    if user:
-      cols = pubkey.read_text().split()
-      cols[2] = user 
-      pubkey.write_text(' '.join(cols) + '\n')
+  # replace user
+  fields = pubkey.read_text().rstrip().split()
+  if user:
+    if len(fields) == 2:
+      fields.append(user)
+      pubkey.write_text(' '.join(fields) + '\n')
+    if fields[2] != user:
+      fields[2] = user
+      pubkey.write_text(' '.join(fields) + '\n')
