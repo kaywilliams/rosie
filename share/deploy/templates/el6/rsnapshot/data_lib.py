@@ -25,11 +25,8 @@ class RsnapshotDataWriter:
   def add_script(self, name, text):
     self.data.setdefault('scripts', {})[name] = text
 
-  def add_user(self, user, pubkey):
-    self.data['user'] = pubkey
-
-  def add_restore_root(self, restore_root):
-    self.data.setdefault('restore_roots', []).append(restore_root)
+  def add_authkey(self, keyfile):
+    self.data.setdefault('authkeys', []).append(pps.path(keyfile).read_text())
 
   def write_data(self):
     if self.data:

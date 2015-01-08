@@ -26,18 +26,28 @@ from the server.
 <!-- everything here and below is part of the template -->
 <requires>rsync</requires>
 
-<!-- add backup server to authorized_keys -->
+<!-- create ssh keys for restoring from rsnapshot server -->
+<include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
+         xpath="./*"/>
+
+<!-- config ssh to/from backup server -->
 <script type='post'>
 sshdir=/root/.ssh
-authkeys=$sshdir/authorized_keys
-pubkey=`echo "%{rsnapshot-user-pubkey-text}" | tr -d '\n'`
-
 [[ -d $sshdir ]] || mkdir $sshdir
-[[ -f $authkeys ]] || touch $authkeys
-grep -q "$pubkey" $authkeys || echo $pubkey >> $authkeys
-
-chown -R root:root $sshdir
 chmod 700 $sshdir
-chmod 600 $authkeys
+
+# add server user to authorized_keys
+file=$sshdir/authorized_keys
+key="%{rsnapshot-user-pubkey-text}"
+[[ -f $file ]] || touch $file
+grep -q "$key" $file || echo $key >> $file
+chmod 600 $file
+
+# add server client to known_hosts
+file=$sshdir/known_hosts
+key="%{rsnapshot-server-host-key-text}"
+[[ -f $file ]] || touch $file
+grep -q "$key" $file || echo $key >> $file
+chmod 644 $file
 </script>
 </config-rpm>

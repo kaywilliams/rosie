@@ -4,6 +4,8 @@ import json
 import optparse
 import os
 import shutil
+import subprocess
+import sys
 
 ETC_DIR = '/etc'
 JSON_EXT = '.json'
@@ -60,11 +62,30 @@ def configure(dataroot):
         fo.write(t)
       os.chmod(fn, 0755)
 
+  # add authorized keys
+  authkeys = []
+  for i in [ x.get('authkeys', []) for x in data ]:
+    authkeys.extend(i)
+  sshdir = '/root/.ssh'
+  keyfile = os.path.join(sshdir, 'authorized_keys')
+  if not os.path.exists(sshdir):
+    os.mkdir(sshdir, 0700)
+  with open(keyfile) as fo:
+    lines = fo.readlines()
+  for k in authkeys:
+    if not k in lines:
+      raise RuntimeError(k)
+      with open(keyfile, 'a') as fo:
+        fo.write(k)
+  if os.path.exists(keyfile):
+    os.chmod(keyfile, 0600)
+
+
 if __name__ == '__main__':
   description = """\
-Searches for files in the current directory, or specified directory, for a 
-base rsnapshot.conf file and '.json' files. Uses these files to configure 
-rsnapshot backup and restore."""
+Searches for a base rsnapshot.conf and '.json' files, and uses these to
+configure backup and restore. Searches for files in the current directory if
+not specified."""
   parser = optparse.OptionParser(description=description)
   parser.add_option("-d", "--dir", dest="dataroot", default='./',
                     help="directory to search for rsnapshot data files")
