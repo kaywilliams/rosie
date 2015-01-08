@@ -1,5 +1,6 @@
 import ConfigParser
 import os
+import re
 import string
 import subprocess
 import sys
@@ -40,6 +41,9 @@ nova_volume = nova_client.Client(auth_url=d['OS_AUTH_URL'],
                        service_type='volume')
 
 ##### helper functions #####
+def clean_name(name):
+  return re.sub(r'-publish$', '', name)
+
 def get_server_id(fqdn):
   return nova.servers.find(name=fqdn).id
 
@@ -61,6 +65,7 @@ def validate_device(device):
     sys.exit(1)
 
 def create_volume(name, size, type):
+  name = clean_name(name) 
   volumes = nova_volume.volumes.findall(display_name=name)
 
   if len(volumes) == 0: # create volume
@@ -78,10 +83,9 @@ def create_volume(name, size, type):
   return volume.id
 
 def attach_volume(server_id, volume_id, device, name, fqdn):
-  # note - create_server_volume fails without error on device names q and above,
-  # e.g. /dev/xvdp works, /dev/xvdq does not
-  attach = False
+  name = clean_name(name)
 
+  attach = False
   try:
     curr_device = nova.volumes.get_server_volume(server_id, volume_id).device
     if curr_device != device:
@@ -124,7 +128,7 @@ def detach_volume(server_id, volume_id):
       break
     else:
       print ("detaching '%s' volume from '%s'... %s seconds" %
-            (name, device, seconds))
+            (volume_id, device, seconds))
       seconds += 2
       time.sleep(2)
 
@@ -151,6 +155,7 @@ def delete_volume(volume_id):
       break
 
 def attach(fqdn, name, size, type, device):
+  name = clean_name(name)
   validate_device(device)
   server_id = get_server_id(fqdn)
   curr_volumes = get_curr_volumes(server_id)
