@@ -41,7 +41,7 @@ HYPERLINK = re.compile('<a .*href=\"(?P<url>[^\"]*)\".*>')
 class HttpPath_Walk(RemotePath_Walk):
 
   def listdir(self, glob=None, nglob=None, all=False, sort='name'):
-    fo = self.open()
+    fo = self._open()
 
     try:
       if not self.isdir(): raise PathError(20, self)
