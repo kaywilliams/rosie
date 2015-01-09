@@ -60,7 +60,6 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def setup(self):
     self.DATA.setdefault('variables', set()).add('rpmbuild_mixin_version')
-    self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
     self._setup_signing_keys()
 
   def run(self):
@@ -209,6 +208,8 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
             summary=None, license=None, author=None, email=None, 
             requires=None, provides=None, obsoletes=None, force_release=None, 
             rpmconf=None):
+
+    self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
 
     # container for info that should be tracked in variables
     # release should not go here since it is incremented in run
