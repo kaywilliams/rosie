@@ -17,6 +17,7 @@
 #
 
 from deploy.util import magic
+from deploy.util import pps
 from deploy.util import rxml 
 
 from deploy.constants import KERNELS
@@ -24,7 +25,7 @@ from deploy.errors    import DeployEventError
 from deploy.errors    import assert_file_has_content
 from deploy.event     import Event
 
-from deploy.modules.shared import comps, ShelveMixin
+from deploy.modules.shared import comps, ShelveMixin, RpmBuildMixin
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -35,7 +36,7 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
 
-class PackagesEvent(ShelveMixin):
+class PackagesEvent(RpmBuildMixin, ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
@@ -57,6 +58,7 @@ class PackagesEvent(ShelveMixin):
     }
 
     ShelveMixin.__init__(self)
+    RpmBuildMixin.__init__(self)
 
   def validate(self):
     if (self.type == "system" and 
@@ -68,6 +70,7 @@ class PackagesEvent(ShelveMixin):
       raise NoPackagesOrGroupsSpecifiedError(message=message)
 
   def setup(self):
+    RpmBuildMixin.setup(self)
     self.diff.setup(self.DATA)
 
     self.repos = self.cvars.get('repos', {})
@@ -82,25 +85,33 @@ class PackagesEvent(ShelveMixin):
     # track file changes
     self.DATA['input'].update([gf for _,gf in self.groupfiles])
 
-    # set excluded packages
+    # setup excluded packages
     self.cvars['excluded-packages'] = self.config.xpath('exclude/text()', [])
 
-    # set user required packages
+    # setup packages
     self.cvars['user-required-packages'] = []
-    for x in self.config.xpath('package/text()', []):
-      if x.startswith('-'):
-        self.cvars['excluded-packages'].append(x[1:])
+    for x in self.config.xpath("package", []):
+      if x.get('dir', None):
+        self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text,
+                                  dest=self.mddir / 'rpms', type='rpm')
       else:
-        self.cvars['user-required-packages'].append(x)
+        if x.text.startswith('-'):
+          self.cvars['excluded-packages'].append(x.text[1:])
+        else:
+          self.cvars['user-required-packages'].append(x.text)
 
   def run(self):
-    self.io.clean_eventcache(all=True)
+    rpmfiles = self.io.process_files(cache=True, callback=self.link_callback)
+    self.rpms = [ self._get_rpmbuild_data(f) for f in rpmfiles ]
+    RpmBuildMixin.run(self)
 
     self._generate_comps()
     self.shelve('comps', self.comps)
 
   def apply(self):
     if not self.unshelve('comps', None): return
+
+    RpmBuildMixin.apply(self)
 
     # read stored comps object 
     self.cvars['comps-object'] = self.unshelve('comps') 

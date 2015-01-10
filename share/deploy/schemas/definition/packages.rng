@@ -30,6 +30,7 @@
         <zeroOrMore>
         <element name="package">
           <ref name='xml-base'/>
+          <optional><attribute name="dir"/></optional>
           <text/>
         </element>
         </zeroOrMore>

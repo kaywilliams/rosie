@@ -33,10 +33,9 @@ from deploy.util         import pps
 from deploy.util         import rxml 
 
 from deploy.util.difftest.filesdiff import ChecksumDiffTuple
-from deploy.util.pps.constants import TYPE_NOT_DIR
 
 from deploy.modules.shared import (ExecuteEventMixin, ShelveMixin, 
-                                   RpmBuildMixin) 
+                                   RpmBuildMixin, RpmNotFoundError) 
 from deploy.modules.shared.repos import DeployRepo
 
 from fnmatch import fnmatch
@@ -219,27 +218,10 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     RpmBuildMixin.run(self)
 
   def _get_srpm_from_path(self, path):
-    if path.endswith('.src.rpm'): # add the file
-      if not path.exists(): 
-        raise SrpmNotFoundError(name=self.srpmid, path=path)
-      self.io.add_fpath(path, self.srpmdir, id='srpm') 
-    else: # add the most current matching srpm
-      paths = path.findpaths(type=TYPE_NOT_DIR, mindepth=1, maxdepth=1, 
-                             glob='%s*' % self.srpmid)
-      if not paths: 
-        raise SrpmNotFoundError(name=self.srpmid, path=path)
-      while len(paths) > 1:
-        path1 = paths.pop()
-        path2 = paths.pop()
-        _,v1,r1,e1,_  = rpmUtils.miscutils.splitFilename(path1.basename)
-        _,v2,r2,e2,_  = rpmUtils.miscutils.splitFilename(path2.basename)
-        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
-        if result < 1: # path2 is newer, return it to the list
-          paths.insert(0, path2)
-        else: # path1 is newer, or they are the same
-          paths.insert(0, path1)
+    if path.isdir():
+      path = path / self.srpmid
 
-      self.io.add_fpath(paths[0], self.srpmdir, id='srpm')
+    self._setup_rpm_from_path(path, dest=self.srpmdir, type='srpm')
 
   def _get_srpm_from_repo(self, baseurl):
     # cache repodata to mddir and have yum read it from there
@@ -497,8 +479,9 @@ class DefinitionNotFoundError(SrpmBuildEventError):
              "Deploy documentation for information on specifying SRPM "
              "build machine definition templates.\n")
 
-class SrpmNotFoundError(SrpmBuildEventError):
-  message = "No srpm '%(name)s' found at '%(path)s'\n"
+class SrpmNotFoundError(RpmNotFoundError, SrpmBuildEventError):
+  def __init__(self, name, path):
+    RpmNotFoundError(name, path, type='srpm')
 
 class BuildMachineCreationError(SrpmBuildEventError):
   message = ("Error creating or updating SRPM build machine.\n%(sep)s\n"

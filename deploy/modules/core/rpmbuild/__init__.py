@@ -38,6 +38,3 @@ class RpmBuildEvent(Event):
       provides = ['rpmbuild-data',],
       suppress_run_message = True 
     )
-
-  def setup(self):
-    self.cvars['rpmbuild-data'] = {}

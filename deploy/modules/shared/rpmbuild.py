@@ -27,9 +27,9 @@ import rpmUtils
 from deploy.util import mkrpm
 from deploy.util import pps
 
+from deploy.dlogging  import L1
 from deploy.errors    import DeployEventError
 from deploy.event     import Event
-from deploy.dlogging import L1
 
 from deploy.util.rxml import config
 
@@ -37,7 +37,10 @@ from deploy.modules.shared import comps
 from deploy.modules.shared import ShelveMixin
 
 __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger', 
-           'TriggerContainer',] 
+           'TriggerContainer', 'RpmNotFoundError'] 
+
+RPM_EXT = {'rpm':  '.rpm',
+           'srpm': '.src.rpm' }
 
 class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
@@ -69,9 +72,9 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     self.DATA['output'].update(self.rpm_paths)
 
   def apply(self):
-    rpmbuild_data = self.unshelve('rpmbuild_data', '')
+    rpmbuild_data = self.unshelve('rpmbuild_data', {})
     for key in rpmbuild_data:
-      self.cvars['rpmbuild-data'][key] = rpmbuild_data[key]
+      self.cvars.setdefault('rpmbuild-data', {})[key] = rpmbuild_data[key]
 
       #restore absolute path to rpm
       path = self.METADATA_DIR / rpmbuild_data[key]['rpm-path']
@@ -99,6 +102,47 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
       self.verifier.failUnlessExists(rpm_path)
+
+  def  _setup_rpm_from_path(self, path, dest, type):
+    assert type in ['rpm', 'srpm']
+    path = pps.path(path).abspath()
+
+    # add the file
+    if path.endswith(RPM_EXT[type]):
+      if not path.exists():
+        raise RpmNotFoundError(name=path.basename, dir=path.dirname, type=type)
+      self.io.add_fpath(path, dest, id=type)
+
+    # add the highest (evr) matching srpm
+    else:
+      paths = path.dirname.findpaths(type=pps.constants.TYPE_NOT_DIR, 
+                             mindepth=1, maxdepth=1,
+                             glob='%s*' % path.basename)
+      if not paths:
+        raise RpmNotFoundError(name=path.basename, dir=path.dirname, type=type)
+      while len(paths) > 1:
+        path1 = paths.pop()
+        path2 = paths.pop()
+        _,v1,r1,e1,a1  = rpmUtils.miscutils.splitFilename(path1.basename)
+        _,v2,r2,e2,a2  = rpmUtils.miscutils.splitFilename(path2.basename)
+
+        # compare
+        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
+        assert result in [-1, 0, 1]
+        if result == -1: # path2 is newer, return it to the list
+          paths.insert(0, path2)
+        elif result == 0: # paths are the same, keep the best arch
+          for arch in self.validarchs:
+            if a1 == arch:
+              paths.insert(0, path1)
+              break 
+            elif a2 == arch:
+              paths.insert(0, path2)
+              break
+        elif result == 1: # path1 is newer
+          paths.insert(0, path1)
+
+      self.io.add_fpath(paths[0], dest, id=type)
 
   def _get_rpmbuild_data(self, rpmpath, 
                          packagereq_type='mandatory', 
@@ -192,7 +236,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
          # store relative path to rpm
          path=item['rpm-path'].relpathfrom(self.METADATA_DIR)
          rpmbuild_data[item['rpm-name']]['rpm-path'] = path
-    self.shelve('rpmbuild_data', rpmbuild_data)
+      self.shelve('rpmbuild_data', rpmbuild_data)
 
 
 class MkrpmRpmBuildMixin(RpmBuildMixin):
@@ -528,6 +572,14 @@ class Trigger(dict):
         lines.append('%s = %s' % (key, value))
     return '\n'.join(lines)
 
+class RpmNotFoundError(DeployEventError):
+  def __init__(self, name, dir, type):
+    self.name = name
+    self.dir = dir
+    self.type = type
+
+  def __str__(self):
+    return "No %s '%s' found at '%s'\n" % (self.type, self.name, self.dir)
 
 class RpmBuildError(DeployEventError):
   message="%(message)s"
