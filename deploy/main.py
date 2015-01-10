@@ -30,6 +30,7 @@ import imp
 import lxml 
 import os
 import re
+import rpmUtils
 import sys
 import textwrap
 import traceback
@@ -637,6 +638,7 @@ The definition file is located at %s.
     di['os']                = self.os
     di['version']           = self.version
     di['arch']              = self.arch
+    di['validarchs']        = rpmUtils.arch.getArchList(ARCH_MAP[self.arch])
     di['norm_os']           = self.norm_os
     di['type']              = self.type
     di['build_id']          = self.build_id

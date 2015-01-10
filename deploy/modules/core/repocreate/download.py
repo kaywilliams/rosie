@@ -18,12 +18,8 @@
 import stat 
 import time
 
-from rpmUtils.arch import getArchList
-
-
 from deploy.errors    import DeployEventError 
 from deploy.event     import Event
-from deploy.main      import ARCH_MAP 
 from deploy.util      import rxml
 
 from deploy.modules.shared import ShelveMixin
@@ -49,8 +45,6 @@ class DownloadEvent(ShelveMixin, Event):
       requires = ['pkglist', 'repos'],
       conditionally_requires = ['groupfile'],
     )
-
-    self._validarchs = getArchList(ARCH_MAP[self.arch])
 
     self.DATA = {
       'variables': set(['packagepath']),

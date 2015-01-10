@@ -53,7 +53,7 @@ class DownloadEventTestCase(EventTestCase):
     for rpm in self.event.io.list_output():
       self.failUnlessExists(rpm)
       _,_,_,_,a = self._deformat(rpm)
-      self.failUnless(a in self.event._validarchs)
+      self.failUnless(a in self.event.validarchs)
 
 class Test_PackagesDownloaded(DownloadEventTestCase):
   "Test to see that all packages are downloaded"
