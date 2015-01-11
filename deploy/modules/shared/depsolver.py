@@ -155,7 +155,6 @@ class DeployDepsolver(Depsolver):
     # For now we'll stick with a solution that handles the common cases and
     # consider options as needed/available in the future.
     self.locked = {}
-    raise RuntimeError(self.user_required + self.rpm_required)
     for pattern in self.user_required + self.rpm_required:
       p = self._get_lock_pattern(pattern)
       nevrs = [ (x.name, x.epoch, x.version, x.release) for x in 
