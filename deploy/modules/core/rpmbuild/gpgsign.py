@@ -43,8 +43,8 @@ def get_module_info(ptr, *args, **kwargs):
 class GpgSignSetupEvent(Event):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
-      id = 'gpgsign',
-      parentid = 'rpmbuild',
+      id = 'gpgsign-setup',
+      parentid = 'setup-events',
       ptr = ptr,
       version = '1.01',
       provides = ['gpg-signing-keys', 'os-content',],

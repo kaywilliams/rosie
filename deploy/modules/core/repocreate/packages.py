@@ -76,6 +76,9 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
     self.repos = self.cvars.get('repos', {})
     self.groupfiles = self._get_groupfiles()
 
+    self.rpmsdir = self.mddir / 'rpms'
+    self.rpmsdir.mkdirs()
+
     # track changes in repo/groupfile relationships
     self.DATA['variables'].add('groupfiles')
 
@@ -93,7 +96,7 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
     for x in self.config.xpath("package", []):
       if x.get('dir', None):
         self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text,
-                                  dest=self.mddir / 'rpms', type='rpm')
+                                  dest=self.rpmsdir, type='rpm')
       else:
         if x.text.startswith('-'):
           self.cvars['excluded-packages'].append(x.text[1:])
@@ -101,8 +104,9 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
           self.cvars['user-required-packages'].append(x.text)
 
   def run(self):
-    rpmfiles = self.io.process_files(cache=True, callback=self.link_callback)
-    self.rpms = [ self._get_rpmbuild_data(f) for f in rpmfiles ]
+    self.io.process_files(cache=True, callback=self.link_callback, what='rpm')
+    self.rpms = [ self._get_rpmbuild_data(f)
+                  for f in self.io.list_output(what='rpm') ]
     RpmBuildMixin.run(self)
 
     self._generate_comps()

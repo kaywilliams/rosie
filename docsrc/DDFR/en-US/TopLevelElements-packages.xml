@@ -30,7 +30,7 @@
       <programlisting>
 &lt;packages&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
-  [&lt;package&gt;PATTERN&lt;/package&gt;]*
+  [&lt;package [dir=PATH]&gt;PATTERN&lt;/package&gt;]*
   [&lt;exclude&gt;PATTERN&lt;/exclude&gt;]*
 &lt;/packages&gt;</programlisting>
   </section>
@@ -130,6 +130,20 @@
       See <xref linkend='content-package'/> for information on package patterns.
       </para>
 
+      <para>
+      The package element accepts one attribute:
+      <emphasis>@dir</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@dir</emphasis>: A directory PATH, local or URL, from which to
+      obtain the specified package. When the @dir attribute is provided, Deploy
+      uses modified behavior for package selection. Specifically, it treats the
+      PATTERN as a regular expression, searching the directory for matching
+      files and selecting the best match using a combination of package name,
+      architecture, and most current epoch, version and revision. In this case,
+      only a single package may be specified.
+      </para>
       </listitem>
     </varlistentry>
     </variablelist>

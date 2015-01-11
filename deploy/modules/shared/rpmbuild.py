@@ -36,11 +36,12 @@ from deploy.util.rxml import config
 from deploy.modules.shared import comps 
 from deploy.modules.shared import ShelveMixin
 
-__all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'Trigger', 
+RPM_EXT = {'rpm' : '.rpm',
+           'srpm': '.src.rpm'}
+
+__all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'RPM_EXT', 'Trigger', 
            'TriggerContainer', 'RpmNotFoundError'] 
 
-RPM_EXT = {'rpm':  '.rpm',
-           'srpm': '.src.rpm' }
 
 class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
@@ -105,44 +106,58 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def  _setup_rpm_from_path(self, path, dest, type):
     assert type in ['rpm', 'srpm']
+
+    # get validarchs
+    if type == 'rpm':  validarchs = self.validarchs
+    if type == 'srpm': validarchs = ['src']
+
+    # get list of matching rpms/srpms
     path = pps.path(path).abspath()
+    paths = path.dirname.findpaths(
+                           type=pps.constants.TYPE_NOT_DIR, 
+                           mindepth=1, maxdepth=1,
+                           regex=r'.*/%s.*%s' %
+                           (path.basename.replace(RPM_EXT[type], ''),
+                            RPM_EXT[type].replace('.', '\.')))
 
-    # add the file
-    if path.endswith(RPM_EXT[type]):
-      if not path.exists():
-        raise RpmNotFoundError(name=path.basename, dir=path.dirname, type=type)
-      self.io.add_fpath(path, dest, id=type)
+    # convert to a convenient structure for processing
+    paths = [ (p, rpmUtils.miscutils.splitFilename(p.basename)) for p in paths ]
 
-    # add the highest (evr) matching srpm
-    else:
-      paths = path.dirname.findpaths(type=pps.constants.TYPE_NOT_DIR, 
-                             mindepth=1, maxdepth=1,
-                             glob='%s*' % path.basename)
-      if not paths:
-        raise RpmNotFoundError(name=path.basename, dir=path.dirname, type=type)
-      while len(paths) > 1:
-        path1 = paths.pop()
-        path2 = paths.pop()
-        _,v1,r1,e1,a1  = rpmUtils.miscutils.splitFilename(path1.basename)
-        _,v2,r2,e2,a2  = rpmUtils.miscutils.splitFilename(path2.basename)
+    # eliminate non-matching names and archs
+    for p,tup in paths[:]:
+      n,v,r,e,a = tup 
+      if (path.basename in n and path.basename != n or 
+          a not in validarchs):
+        paths.remove((p,tup))
 
-        # compare
-        result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
-        assert result in [-1, 0, 1]
-        if result == -1: # path2 is newer, return it to the list
-          paths.insert(0, path2)
-        elif result == 0: # paths are the same, keep the best arch
-          for arch in self.validarchs:
-            if a1 == arch:
-              paths.insert(0, path1)
-              break 
-            elif a2 == arch:
-              paths.insert(0, path2)
-              break
-        elif result == 1: # path1 is newer
-          paths.insert(0, path1)
+    # get current version (EVR)
+    while len(paths) > 1:
+      path1, tup1 = paths.pop()
+      path2, tup2 = paths.pop()
+      n1,v1,r1,e1,a1  = tup1
+      n2,v2,r2,e2,a2  = tup2 
 
-      self.io.add_fpath(paths[0], dest, id=type)
+      # compare EVR
+      result = rpmUtils.miscutils.compareEVR((e1,v1,r1),(e2,v2,r2))
+      assert result in [-1, 0, 1]
+      if result == -1: # path2 is newer, return it to the list
+        paths.insert(0, (path2, tup2))
+      elif result == 0: # versions are the same
+        # keep the best arch
+        for arch in validarchs:
+          if a1 == arch:
+            paths.insert(0, (path1, tup1))
+            break 
+          elif a2 == arch:
+            paths.insert(0, (path2, tup2))
+            break
+      elif result == 1: # path1 is newer
+        paths.insert(0, (path1, tup2))
+        
+    if not paths:
+      raise RpmNotFoundError(name=path.basename, dir=path.dirname, type=type)
+
+    self.io.add_fpath(paths[0][0], dest, id=type)
 
   def _get_rpmbuild_data(self, rpmpath, 
                          packagereq_type='mandatory', 

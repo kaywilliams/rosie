@@ -16,12 +16,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from dtest      import EventTestCase, ModuleTestSuite
+from dtest      import EventTestCase, ModuleTestSuite, _run_make
 from dtest.core import make_core_suite
 
 from deploy.util import rxml
+from deploy.util import pps 
 
 from deploy.constants import KERNELS
+
+REPODIR  = pps.path(__file__).dirname/'shared'
 
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'
@@ -77,11 +80,27 @@ class Test_IncludePackages(PackagesEventTestCase):
     self.tb.dispatch.execute(until=self.event.id)
     self.failUnless('httpd' in self.event.cvars['user-required-packages'])
 
+class Test_IncludeFile(PackagesEventTestCase):
+  _conf = """<packages>
+    <package dir='%s/repo1/RPMS/'>package1</package>
+  </packages>""" % REPODIR
+
+  _run_make(REPODIR)
+
+  def __init__(self, os, version, arch, conf=None):
+    PackagesEventTestCase.__init__(self, os, version, arch, conf=conf)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event.id)
+    self.failUnless('package1-1.0-2.noarch.rpm'
+                    in [ x.basename for x in self.event.rpmsdir.listdir() ])
+
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('packages')
 
   suite.addTest(make_core_suite(PackagesEventTestCase, os, version, arch))
   suite.addTest(Test_IncludePackages(os, version, arch))
+  suite.addTest(Test_IncludeFile(os, version, arch))
 
   return suite

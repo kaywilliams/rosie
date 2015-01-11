@@ -35,7 +35,7 @@ from deploy.util         import rxml
 from deploy.util.difftest.filesdiff import ChecksumDiffTuple
 
 from deploy.modules.shared import (ExecuteEventMixin, ShelveMixin, 
-                                   RpmBuildMixin, RpmNotFoundError) 
+                                   RpmBuildMixin, RPM_EXT, RpmNotFoundError) 
 from deploy.modules.shared.repos import DeployRepo
 
 from fnmatch import fnmatch
@@ -218,7 +218,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     RpmBuildMixin.run(self)
 
   def _get_srpm_from_path(self, path):
-    if path.isdir():
+    if not path.endswith(RPM_EXT['srpm']):
       path = path / self.srpmid
 
     self._setup_rpm_from_path(path, dest=self.srpmdir, type='srpm')
