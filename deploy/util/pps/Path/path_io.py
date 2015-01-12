@@ -187,6 +187,8 @@ class Path_IO(object):
       else:
         d = dst
       if callback and hasattr(callback, '_start'):
+        if not self.stat().st_size: # force stat to be populated
+          self._set_stat(self._mkstat(populate=True))
         callback._start(self.stat().st_size, self.basename)
       self._copy(d, **kwargs)
       if callback and hasattr(callback, '_end'):
