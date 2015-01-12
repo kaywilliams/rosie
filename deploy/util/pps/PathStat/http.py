@@ -42,7 +42,8 @@ class HttpPathStat(PathStat):
     is None *and* one of the fields that is relevant to http
     """
     item = self._stat[key]
-    if item is None and item in ['st_atime', 'st_mtime', 'st_mode', 'st_size']:
+    if item is None and key in [stat.ST_ATIME, stat.ST_MTIME, stat.ST_MODE,
+                                stat.ST_SIZE]:
       self.stat()
     else:
       return item
