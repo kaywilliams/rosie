@@ -243,15 +243,15 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
           raise RpmBuildError(message=message)
 
   def _cache_rpmdata(self):
+    rpmbuild_data = {}
     if self.rpms:
-      rpmbuild_data = {}
       for item in copy.deepcopy(self.rpms):
          rpmbuild_data[item['rpm-name']] = item
 
          # store relative path to rpm
          path=item['rpm-path'].relpathfrom(self.METADATA_DIR)
          rpmbuild_data[item['rpm-name']]['rpm-path'] = path
-      self.shelve('rpmbuild_data', rpmbuild_data)
+    self.shelve('rpmbuild_data', rpmbuild_data)
 
 
 class MkrpmRpmBuildMixin(RpmBuildMixin):
