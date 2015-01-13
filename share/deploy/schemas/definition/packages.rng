@@ -11,37 +11,10 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <optional>
-        <attribute name="ignoremissing"><ref name="value-boolean"/></attribute>
-        </optional>
-        <optional>
-        <attribute name="excludedocs"><ref name="value-boolean"/></attribute>
-        </optional>
-        <optional>
-        <attribute name="default"><ref name="value-boolean"/></attribute>
-        </optional>
-
         <interleave>
-
-        <zeroOrMore>
-        <ref name="element-group"/>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <element name="package">
-          <ref name='xml-base'/>
-          <optional><attribute name="dir"/></optional>
-          <text/>
-        </element>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <element name="exclude">
-          <ref name='xml-base'/>
-          <text/>
-        </element>
-        </zeroOrMore>
-
+        <ref name="element-packages-group"/>
+        <ref name="element-packages-exclude"/>
+        <ref name="element-packages-package"/>
         </interleave>
 
       </element>
@@ -50,24 +23,5 @@
   </start>
 
   <include href="lib.rng"/>
-
-  <define name="element-group">
-    <element name="group">
-      <ref name='xml-base'/>
-
-      <optional>
-      <attribute name="repoid"/>
-      </optional>
-      <optional>
-      <attribute name="optional"><ref name="value-boolean"/></attribute>
-      </optional>
-      <optional>
-      <attribute name="default"><ref name="value-boolean"/></attribute>
-      </optional>
-
-      <text/>
-
-    </element>
-  </define>
 
 </grammar>

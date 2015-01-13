@@ -199,7 +199,8 @@ def remove_input_files(dir):
 #------ Convenience Imports ------#
 
 # done at end since some sub-modules rely on helper functions defined above
-from dtest.mixins.ddeploy       import *
+from dtest.mixins.ddeploy      import *
+from dtest.mixins.packages     import *
 from dtest.mixins.publishsetup import *
 from dtest.mixins.rpmbuild     import *
 

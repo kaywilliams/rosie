@@ -30,6 +30,13 @@ from dtest.mixins import (psm_make_suite,
                           PublishSetupMixinTestCase,
                           MkrpmRpmBuildMixinTestCase, RpmCvarsTestCase,
                           DeployMixinTestCase, dm_make_suite)
+from dtest.mixins import PackagesMixinTestCase, packages_mixin_make_suite
+
+
+class PublishPackagesEventTestCase(PackagesMixinTestCase, EventTestCase):
+  moduleid = 'publish'
+  eventid  = 'publish-packages'
+
 
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
@@ -221,6 +228,12 @@ class PublishEventTestCase(PublishSetupMixinTestCase, EventTestCase):
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('publish')
+
+  # publish-packages
+  suite.addTest(make_core_suite(PublishPackagesEventTestCase,
+                                      os, version, arch))
+  suite.addTest(packages_mixin_make_suite(PublishPackagesEventTestCase,
+                                          os, version, arch))
 
   # publish-setup
   suite.addTest(make_core_suite(PublishSetupEventTestCase, os, version, arch))

@@ -23,6 +23,7 @@ from deploy.dlogging  import L1
 from deploy.modules.shared import config
 from deploy.modules.shared import DeployEventMixin
 from deploy.modules.shared import KickstartEventMixin
+from deploy.modules.shared import PackagesEventMixin 
 from deploy.modules.shared import PublishSetupEventMixin 
 from deploy.modules.shared import ReleaseRpmEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin 
@@ -33,7 +34,8 @@ TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['PublishSetupEvent', 'ReleaseRpmEvent', 'KickstartEvent',
+    events      = ['PublishPackagesEvent', 'PublishSetupEvent',
+                   'ReleaseRpmEvent', 'KickstartEvent',
                    'PublishEvent', 'DeployEvent'],
     description = 'publishes repository to a web accessible location',
   )
@@ -44,6 +46,18 @@ def get_module_info(ptr, *args, **kwargs):
 
   return module_info
 
+class PublishPackagesEvent(PackagesEventMixin, Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'publish-packages',
+      parentid = 'setup-events',
+      ptr = ptr,
+      version = 1.00,
+      comes_before = ['packages'],
+      suppress_run_message=True,
+    )
+
+    PackagesEventMixin.__init__(self)
 
 class PublishSetupEvent(PublishSetupEventMixin, Event):
   def __init__(self, ptr, *args, **kwargs):

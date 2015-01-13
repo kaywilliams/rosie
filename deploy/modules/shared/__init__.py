@@ -25,6 +25,7 @@ from deploy.modules.shared.execute      import *
 from deploy.modules.shared.installer    import *
 from deploy.modules.shared.input        import * # requires execute
 from deploy.modules.shared.kickstart    import *
+from deploy.modules.shared.packages     import *
 from deploy.modules.shared.publishsetup import *
 from deploy.modules.shared.repomd       import *
 from deploy.modules.shared.repos        import *

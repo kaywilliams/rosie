@@ -299,6 +299,36 @@
     </zeroOrMore>
   </define>
 
+  <!-- package elements -->
+  <define name="element-packages-group">
+    <zeroOrMore>
+    <element name="group">
+      <ref name='xml-base'/>
+      <optional><attribute name="repoid"/> </optional>
+      <text/>
+    </element>
+    </zeroOrMore>
+  </define>
+
+  <define name="element-packages-package">
+    <zeroOrMore>
+    <element name="package">
+      <ref name='xml-base'/>
+      <optional><attribute name="dir"/></optional>
+      <text/>
+    </element>
+    </zeroOrMore>
+  </define>
+
+  <define name="element-packages-exclude">
+    <zeroOrMore>
+    <element name="exclude">
+      <ref name='xml-base'/>
+      <text/>
+    </element>
+    </zeroOrMore>
+  </define>
+
   <!-- deploy elements -->
   <define name="content-deploy-elements">
 
@@ -361,6 +391,10 @@
       <text/>
     </element>
     </optional>
+
+    <ref name="element-packages-group"/>
+    <ref name="element-packages-exclude"/>
+    <ref name="element-packages-package"/>
 
     <zeroOrMore><ref name="element-config-rpm"/></zeroOrMore>
 

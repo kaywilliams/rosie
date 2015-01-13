@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import copy
 import cPickle
 import re
 import rpmUtils
@@ -53,8 +54,8 @@ class DepsolverMixin(object):
 
   def setup(self):
     self.all_packages = self.cvars['comps-object'].all_packages
-    self.user_required = self.cvars.get('user-required-packages', [])
-    self.excluded_packages = self.cvars.get('excluded-packages', [])
+    self.user_required = self.cvars.get('user-required-packages', set())
+    self.excluded_packages = self.cvars.get('excluded-packages', set())
 
     self.rpm_required = [] 
     for v in self.cvars.get('rpmbuild-data', {}).values():
@@ -128,7 +129,7 @@ class DeployDepsolver(Depsolver):
     )
     self._comps = comps
 
-    self.user_required = user_required[:]
+    self.user_required = copy.copy(user_required)
     self.rpm_required = rpm_required
     self.logger = logger
 
@@ -155,7 +156,11 @@ class DeployDepsolver(Depsolver):
     # For now we'll stick with a solution that handles the common cases and
     # consider options as needed/available in the future.
     self.locked = {}
-    for pattern in self.user_required + self.rpm_required:
+
+    patterns = copy.copy(self.user_required)
+    patterns.update(self.rpm_required)
+
+    for pattern in patterns:
       p = self._get_lock_pattern(pattern)
       nevrs = [ (x.name, x.epoch, x.version, x.release) for x in 
                  self.pkgSack.returnPackages(patterns=[p]) ]
@@ -176,7 +181,7 @@ class DeployDepsolver(Depsolver):
         self.locked[n] = '%s-%s' % (v,r)
 
     # install user-required packages
-    toinstall = self.user_required[:]
+    toinstall = copy.copy(self.user_required)
     for pattern in toinstall:
       try:
         txmbr = self.install(pattern=pattern)
@@ -192,7 +197,7 @@ class DeployDepsolver(Depsolver):
         self._comps.remove_package(pattern)
 
         for p in txmbr:
-          self.user_required.append(p.name)
+          self.user_required.add(p.name)
           self._comps.return_group('core').mandatory_packages[p.name] = 1
 
     # install core group

@@ -28,6 +28,12 @@ from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, PublishSetupMixinTestCase, 
                           DeployMixinTestCase, dm_make_suite)
+from dtest.mixins import PackagesMixinTestCase, packages_mixin_make_suite
+
+
+class TestUpdatePackagesEventTestCase(PackagesMixinTestCase, EventTestCase):
+  moduleid = 'test-update'
+  eventid  = 'test-update-packages'
 
 
 class TestUpdateSetupEventTestCase(PublishSetupMixinTestCase, EventTestCase):
@@ -42,6 +48,13 @@ class TestUpdateEventTestCase(DeployMixinTestCase, EventTestCase):
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-update')
+
+  # packages
+  # only running these in publish on an ongoing basis to decrease test time
+  # suite.addTest(make_extension_suite(TestUpdatePackagesEventTestCase,
+  #                                     os, version, arch))
+  # suite.addTest(packages_mixin_make_suite(TestUpdatePackagesEventTestCase,
+  #                                         os, version, arch))
 
   # setup
   suite.addTest(make_extension_suite(TestUpdateSetupEventTestCase, os, version, arch))

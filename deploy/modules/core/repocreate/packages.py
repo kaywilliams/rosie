@@ -17,15 +17,12 @@
 #
 
 from deploy.util import magic
-from deploy.util import pps
-from deploy.util import rxml 
 
 from deploy.constants import KERNELS
 from deploy.errors    import DeployEventError
-from deploy.errors    import assert_file_has_content
 from deploy.event     import Event
 
-from deploy.modules.shared import comps, ShelveMixin, RpmBuildMixin
+from deploy.modules.shared import comps, ShelveMixin, PackagesEventMixin
 
 def get_module_info(ptr, *args, **kwargs):
   return dict(
@@ -36,15 +33,14 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
 
-class PackagesEvent(RpmBuildMixin, ShelveMixin):
+class PackagesEvent(PackagesEventMixin, ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'packages',
       parentid = 'setup-events',
       ptr = ptr,
-      provides = ['comps-object', 'user-required-packages', 
-                  'excluded-packages'],
-      conditionally_requires = ['repos'],
+      provides = ['comps-object'],
+      conditionally_requires = ['repos', 'user-required-groups'],
       version = '1.03'
     )
 
@@ -52,32 +48,31 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
 
     self.DATA = {
       'variables': set(['fullname']),
-      'config':    set(['.']),
+      'config':    set(), # added in PackagesEventMixin
       'input':     set(),
       'output':    set()
     }
 
+    PackagesEventMixin.__init__(self)
     ShelveMixin.__init__(self)
-    RpmBuildMixin.__init__(self)
 
-  def validate(self):
-    if (self.type == "system" and 
-        len(self.config.xpath(['package', 'group'], [])) == 0):
+  def setup(self):
+    self.diff.setup(self.DATA)
+
+    PackagesEventMixin.setup(self)
+
+    # validate
+    if (self.type == "system" and not
+       (self.cvars['user-required-packages'] or 
+        self.cvars['user-required-groups'])):
       message = ("The definition specifies a system repository but no "
                  "packages or groups have been listed in the packages "
                  "element. Please specify groups and/or packages and try "
                  "again.")
       raise NoPackagesOrGroupsSpecifiedError(message=message)
 
-  def setup(self):
-    RpmBuildMixin.setup(self)
-    self.diff.setup(self.DATA)
-
     self.repos = self.cvars.get('repos', {})
     self.groupfiles = self._get_groupfiles()
-
-    self.rpmsdir = self.mddir / 'rpms'
-    self.rpmsdir.mkdirs()
 
     # track changes in repo/groupfile relationships
     self.DATA['variables'].add('groupfiles')
@@ -88,51 +83,18 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
     # track file changes
     self.DATA['input'].update([gf for _,gf in self.groupfiles])
 
-    # setup excluded packages
-    self.cvars['excluded-packages'] = self.config.xpath('exclude/text()', [])
-
-    # setup packages
-    self.cvars['user-required-packages'] = []
-    for x in self.config.xpath("package", []):
-      if x.get('dir', None):
-        self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text,
-                                  dest=self.rpmsdir, type='rpm')
-      else:
-        if x.text.startswith('-'):
-          self.cvars['excluded-packages'].append(x.text[1:])
-        else:
-          self.cvars['user-required-packages'].append(x.text)
-
   def run(self):
-    self.io.process_files(cache=True, callback=self.link_callback, what='rpm')
-    self.rpms = [ self._get_rpmbuild_data(f)
-                  for f in self.io.list_output(what='rpm') ]
-    RpmBuildMixin.run(self)
-
+    PackagesEventMixin.run(self)
     self._generate_comps()
     self.shelve('comps', self.comps)
 
   def apply(self):
-    if not self.unshelve('comps', None): return
+    PackagesEventMixin.apply(self)
 
-    RpmBuildMixin.apply(self)
+    if not self.unshelve('comps', None): return
 
     # read stored comps object 
     self.cvars['comps-object'] = self.unshelve('comps') 
-
-    # set packages-* cvars
-    self.cvars['packages-ignoremissing'] = \
-      self.config.getbool('@ignoremissing', False)
-    self.cvars['packages-default'] = \
-      self.config.getbool('@default', False)
-    self.cvars['packages-excludedocs'] = \
-      self.config.getbool('@excludedocs', False)
-
-  # output verification
-  def verify_comps_xpath(self):
-    "user-specified comps xpath query"
-    self.verifier.failUnless(len(self.io.list_output(what='comps.xml')) < 2,
-      "more than one user-specified comps file; using the first one only")
 
   def verify_cvars(self):
     "cvars set"
@@ -177,10 +139,10 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
 
     self.comps = comps.Comps()
 
-    if 'core' not in self.config.xpath('group', []):
+    if 'core' not in [ x.text for x in self.cvars['user-required-groups'] ]:
       self.comps.add_core_group()
 
-    for group in self.config.xpath('group', []):
+    for group in self.cvars['user-required-groups']:
       added = False
       for repoid, gf in groupfiles.items():
         if ( group.getxpath('@repoid', None) is None or
@@ -238,9 +200,10 @@ class PackagesEvent(RpmBuildMixin, ShelveMixin):
 
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
-    for group in self.config.xpath('group[@repoid]', []):
-      rid = group.getxpath('@repoid')
-      gid = group.getxpath('text()')
+    for group in [ x for x in self.cvars['user-required-groups'] 
+                  if x.get('repoid', None) ]:
+      rid = group.get('repoid')
+      gid = group.text
       try:
         self.repos[rid]
       except KeyError:

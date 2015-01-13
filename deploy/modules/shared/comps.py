@@ -59,7 +59,7 @@ class CompsEventMixin:
 
   def run(self):
     # remove excluded packages
-    for pkg in self.cvars.get('excluded-packages', []):
+    for pkg in self.cvars.get('excluded-packages', set()):
       self.cvars['comps-object'].remove_package(pkg)
 
     # write comps.xml

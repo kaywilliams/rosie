@@ -25,13 +25,15 @@ from deploy.modules.shared import config
 from deploy.modules.shared import (DeployEventMixin, KICKSTART_CSUM, 
                                    INSTALL_SCRIPTS_CSUM, 
                                    POST_INSTALL_SCRIPTS_CSUM)
+from deploy.modules.shared import PackagesEventMixin
 from deploy.modules.shared import TestPublishEventMixin
 from deploy.modules.shared import MkrpmRpmBuildMixin
 
 def get_module_info(ptr, *args, **kwargs):
   module_info = dict(
     api         = 5.0,
-    events      = ['TestUpdateSetupEvent', 'TestUpdateEvent'],
+    events      = ['TestUpdatePackagesEvent', 'TestUpdateSetupEvent',
+                   'TestUpdateEvent'],
     description = 'performs test updates on client systems',
   )
   modname = __name__.split('.')[-1]
@@ -40,6 +42,20 @@ def get_module_info(ptr, *args, **kwargs):
   module_info['events'].extend(new_rpm_events)
 
   return module_info
+
+
+class TestUpdatePackagesEvent(PackagesEventMixin, Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'test-update-packages',
+      parentid = 'setup-events',
+      ptr = ptr,
+      version = 1.00,
+      comes_before = ['packages'],
+      suppress_run_message=True,
+    )
+
+    PackagesEventMixin.__init__(self)
 
 
 class TestUpdateSetupEvent(TestPublishEventMixin, Event):

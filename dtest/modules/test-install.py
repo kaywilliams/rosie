@@ -28,6 +28,12 @@ from dtest.core import make_extension_suite
 
 from dtest.mixins import (psm_make_suite, PublishSetupMixinTestCase, 
                           DeployMixinTestCase, dm_make_suite)
+from dtest.mixins import PackagesMixinTestCase, packages_mixin_make_suite
+
+
+class TestInstallPackagesEventTestCase(PackagesMixinTestCase, EventTestCase):
+  moduleid = 'test-install'
+  eventid  = 'test-install-packages'
 
 
 class TestInstallSetupEventTestCase(PublishSetupMixinTestCase, EventTestCase):
@@ -245,6 +251,13 @@ class Test_ReinstallOnSaveTriggersScriptChange(ReinstallTestInstallEventTestCase
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('test-install')
+
+  # packages
+  # only running these in publish on an ongoing basis to decrease test time
+  # suite.addTest(make_extension_suite(TestInstallPackagesEventTestCase,
+  #                                     os, version, arch))
+  # suite.addTest(packages_mixin_make_suite(TestInstallPackagesEventTestCase,
+  #                                         os, version, arch))
 
   # setup
   suite.addTest(make_extension_suite(TestInstallSetupEventTestCase, os, version, arch))
