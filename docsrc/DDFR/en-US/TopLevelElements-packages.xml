@@ -41,29 +41,6 @@
     </title>
 
     <variablelist>
-    <varlistentry id="packages-exclude">
-      <term>
-      exclude
-      </term>
-
-      <listitem>
-      <para>
-      Package PATTERN to exclude across all repositories. To exclude a
-      package from a specific repository, see the <link 
-      linkend='exclude'><varname>repo/exclude</varname></link> element.
-      </para>
-
-      <para>
-      This element can occur zero or more times.
-      </para>
-
-      <para>
-      See <xref linkend='content-package'/> for information on package patterns.
-      </para>
-
-      </listitem>
-    </varlistentry>
-
     <varlistentry id="packages-group">
       <term>
       group
@@ -144,6 +121,38 @@
       architecture, and most current epoch, version and revision. In this case,
       only a single package may be specified.
       </para>
+
+      <note>
+      <para>
+      Packages obtained from a directory, rather than from a package
+      repository, bypass the standard gpgcheck process. In this case, the
+      downloaded packages are treated as other Deploy-created RPM packages, and
+      automatically signed with the <link linkend='gpgsign'>gpgsign</link> key.
+      </para>
+      </note>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="packages-exclude">
+      <term>
+      exclude
+      </term>
+
+      <listitem>
+      <para>
+      Package PATTERN to exclude across all repositories. To exclude a
+      package from a specific repository, see the <link 
+      linkend='exclude'><varname>repo/exclude</varname></link> element.
+      </para>
+
+      <para>
+      This element can occur zero or more times.
+      </para>
+
+      <para>
+      See <xref linkend='content-package'/> for information on package patterns.
+      </para>
+
       </listitem>
     </varlistentry>
     </variablelist>

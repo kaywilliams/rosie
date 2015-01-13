@@ -58,7 +58,11 @@
   
   [&lt;boot-options&gt;TEXT&lt;/boot-options&gt;]
   [&lt;kickstart&gt;TEXT&lt;/kickstart&gt;]
-  [&lt;config-rpm&gt;...&lt;/config-rpm&gt;]*
+  [&lt;config-rpm.../>]*
+
+  [&lt;group.../>]*
+  [&lt;package.../>]*
+  [&lt;exclude.../>]*
 
   [&lt;release-rpm>
     [&lt;updates [sync=BOOLEAN] [gpgcheck=BOOLEAN] [sslverify=BOOLEAN] /&gt;]
@@ -1043,16 +1047,43 @@ $remote-url/%{id}</programlisting>
     </listitem>
     </varlistentry>
 
+    <varlistentry id='deploy-group'>
+    <term>group</term>
+    <listitem>
+    <para>
+    <xref linkend='packages-group'/> element as described in <xref
+    linkend='packages'/>.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='deploy-package'>
+    <term>package</term>
+    <listitem>
+    <para>
+    <xref linkend='packages-package'/> element as described in <xref
+    linkend='packages'/>.
+    </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id='deploy-exclude'>
+    <term>exclude</term>
+    <listitem>
+    <para>
+    <xref linkend='packages-exclude'/> element as described in <xref
+    linkend='packages'/>.
+    </para>
+    </listitem>
+    </varlistentry>
+
     <varlistentry id='deploy-config-rpm'>
     <term>config-rpm</term>
 
     <listitem>
     <para>
     <xref linkend='config-rpm'/> element as described in <xref
-    linkend="config-rpms"/>. The config-rpm element is supported within
-    deployment elements to facilitate creation and distribution of deployment
-    templates. See <xref linkend="templates"/> for more information on
-    templates.
+    linkend="config-rpms"/>.
     </para>
 
     <para>
