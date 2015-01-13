@@ -70,7 +70,8 @@ class PackagesEventMixin(RpmBuildMixin):
           self.cvars['user-required-packages'].add(x.text)
 
   def run(self):
-    self.io.process_files(cache=True, callback=self.link_callback, what='rpm')
+    self.io.process_files(cache=True, callback=self.link_callback, text=None,
+                          what='rpm')
     self.rpms = [ self._get_rpmbuild_data(f)
                   for f in self.io.list_output(what='rpm') ]
     RpmBuildMixin.run(self)
