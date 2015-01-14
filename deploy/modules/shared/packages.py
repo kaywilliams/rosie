@@ -28,7 +28,6 @@ class PackagesEventMixin(RpmBuildMixin):
   packages_mixin_version = '1.03'
 
   def __init__(self):
-    # self.comes_before.add('packages') # add to deploy module events
     self.provides.update(['user-required-packages', 'excluded-packages',
                           'user-required-groups'])
 

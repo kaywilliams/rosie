@@ -51,7 +51,7 @@ class TestUpdatePackagesEvent(PackagesEventMixin, Event):
       parentid = 'setup-events',
       ptr = ptr,
       version = 1.00,
-      comes_before = ['packages'],
+      conditionally_comes_before = ['packages'],
       suppress_run_message=True,
     )
 
