@@ -20,11 +20,20 @@ search_paths.py - a handler for setting default search_paths for use during
 pps path initialization.
 """
 
-from functools import wraps
+import errno
+import itertools 
+import re
 
 import deploy.util
 
+from functools import wraps
+from os import strerror as os_strerror
+
 from deploy.util.pps import path as _orig_path
+
+MACRO_PATTERN = re.compile('%{(?:(?!%{).)*?}') # match inner macros - nested
+                                               # macros not allowed in search
+                                               # paths for now
 
 class SearchPathsHandler(object):
   """
@@ -47,6 +56,7 @@ class SearchPathsHandler(object):
     self.search_paths = search_paths
 
     self.wrap_path()
+    self.wrap_error()
 
   def wrap_path(self):
     "wrap deploy.util.pps.path function to set this instance's search_paths "
@@ -58,15 +68,123 @@ class SearchPathsHandler(object):
     "restore original deploy.util.pps.path function"
     setattr(deploy.util.pps, 'path', _orig_path)
 
+  def wrap_error(self):
+    "wrap deploy.util.pps.Path.PathError.__init__ function to provide "
+    "informative 'file not found' errors"
+    obj = deploy.util.pps.Path.PathError
+    setattr(obj, '__init__', self.error_wrapper(getattr(obj, '__init__')))
+
   def path_wrapper(self, fn):
     @wraps(fn)
-    def wrapped(string, *args, **kwargs):
+    def wrapped(string, search_paths = {}, search_path_ignore = [], 
+                *args, **kwargs):
+      """
+      Evaluates two arguments:
+       * search_paths - a dict of search paths in 'placeholder: string or list'
+         format, for example:
+
+         { '%{templates-dir}' : '/usr/share/deploy/templates' }
+         { '%{templates-dir}' : [ '/etc/deploy/templates',
+                                  '/usr/share/deploy/templates' ] }
+
+         Checks if one or more placeholder is in the provided string. If
+         so, iterates through a list of (placeholder, value) combinations,
+         testing the resulting string at each pass to see if a file of that
+         name file. If a match is found, processing stops and a Path with the
+         resulting string is returned. Else, a Path to the original string is
+         returned.
+
+       * search_path_ignore - a string or list of strings to ignore when
+         resolving search paths. If a resolved string matches an item in the
+         list, it is ignored and the search for a match continues.
+      """
+
       if isinstance(string, deploy.util.pps.Path.BasePath):
         return string
-      else:
-        if 'search_paths' in kwargs:
-          kwargs['search_paths'].update(self.search_paths)
-        else:
-          kwargs['search_paths'] = self.search_paths
-        return fn(string, *args, **kwargs)
+      elif string is None:
+        return None
+
+      search_paths.update(self.search_paths)
+
+      # attempt to resolve macros, if found
+      found_macros = []
+      for macro in (MACRO_PATTERN.findall(string) or []):
+        if macro in search_paths: found_macros.append(macro)
+
+      if found_macros:
+        if isinstance(search_path_ignore, basestring): 
+          search_path_ignore=[ search_path_ignore ]
+        search_path_ignore = [ str(x) for x in search_path_ignore ]
+
+        macro_tuples = [] 
+        for macro in found_macros:
+          values = search_paths[macro]
+          if isinstance(values, basestring): values = [ values ]
+          macro_tuples.append( [ (macro, v) for v in values ] )
+
+        for item in itertools.product(*macro_tuples):
+          new_strings = [ (string[:], '') ] # initial (string, ending) tuple
+          _add_strings_with_unbalanced_endings(string, new_strings, ending='')
+          for new_string, ending in new_strings:
+            for macro, value in item:
+              new_string = new_string.replace(macro, value)
+            if new_string in search_path_ignore:
+              continue
+            pathobj = deploy.util.pps._path(new_string, *args, **kwargs)
+            if pathobj.exists():
+              pathobj.search_paths = search_paths
+              return pathobj + ending
+          
+      # if no macros, or if macros could not be resolved, return a path
+      # with the initial string, with the search_paths attribute set
+      path = fn(string, *args, **kwargs)
+      path.search_paths = search_paths
+      return path
     return wrapped
+
+  def error_wrapper(self, fn):
+    @wraps(fn)
+    def wrapped(self, errno, *args, **kwargs):
+      filename = kwargs.pop('filename')
+      strerror = kwargs.pop('strerror')
+      if (isinstance(filename, deploy.util.pps.Path.BasePath) and
+          errno == errno.ENOENT): # file not found
+          strerr = get_search_path_errors(filename)
+      return fn(self, errno, filename, strerror, *args, **kwargs)
+    return wrapped
+
+def _add_strings_with_unbalanced_endings(string, new_strings, ending):
+  """ 
+  If string ends with the character '")] or } and it does not have a matching
+  beginning character, strip the ending character recursively and return a list
+  of tuples with base strings and stripped endings. This allows us to handle
+  paths that are part of arbitrary scripts, e.g. "$(cat
+  %{templates-dir}/%{norm-os}/some/path)"
+  """
+  if (string.endswith("'") and string.count("'")%2 != 0 or
+      string.endswith('"') and string.count('"')%2 != 0 or
+      string.endswith(')') and string.count('(') - string.count(')') != 0 or
+      string.endswith(']') and string.count('[') - string.count(']') != 0 or
+      string.endswith('}') and string.count('{') - string.count('}') != 0):
+    ending = string[-1] + ending
+    new_strings.append( (string[:-1], ending) )
+    _add_strings_with_unbalanced_endings(string[:-1], new_strings, ending)
+
+  return new_strings
+
+def get_search_path_errors(path):
+  "check path for search_path errors and returns an error string if found"
+  message = "%s: %s" % (os_strerror(errno.ENOENT), path)
+  if hasattr(path, 'search_paths'):
+    lines = []
+    for k,v in path.search_paths.items():
+      if k in path:
+        lines.append('\n\n%s:' % k)
+        lines.extend([ path.replace(k, x) for x in v ])
+    if lines:
+      message += ". The following paths were searched:"
+      message += '\n'.join(lines)
+  else: 
+    message += ":"
+  
+  return message 

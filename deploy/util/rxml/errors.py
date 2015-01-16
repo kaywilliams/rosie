@@ -23,15 +23,16 @@ from deploy.util import pps
 class XmlError(Exception): pass
 
 class IncludeError(XmlError):
-  def __init__(self, message, elem):
+  def __init__(self, message, elem, colon=True):
     self.file = elem.base
     self.line = elem.sourceline
     self.elem = elem.tostring(lineno=True, with_tail=False)
     self.message = message
+    self.colon = ':' if colon is True else ''
 
   def __str__(self):
-    msg = ("Error processing include at line %s in %s. %s:\n\n"
-           "%s" % (self.line, self.file, self.message, self.elem))
+    msg = ("Error processing include at line %s in %s. %s%s\n\n"
+           "%s" % (self.line, self.file, self.message, self.colon, self.elem))
     return msg
 
 class IncludeXpathError(IncludeError):

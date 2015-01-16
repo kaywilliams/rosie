@@ -28,6 +28,8 @@ from deploy.util import shlib
 
 from deploy.util.rxml import errors
 
+from deploy.util.pps.search_paths import get_search_path_errors
+
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 RE_NS = "http://exslt.org/regular-expressions"
 MACRO_REGEX = '%{(?:(?!%{).)*?}' # match inner macros (e.g. '%{version}' in 
@@ -757,8 +759,13 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
           if 'href' in elem.attrib:
             # get absolute href
             base = pps.path(elem.base or '.')
-            href = pps.path(elem.attrib['href'], search_path_ignore=[base])
-            href = (base.dirname / href).normpath()
+            orig = pps.path(elem.attrib['href'], search_path_ignore=[base])
+            href = (base.dirname / orig).normpath()
+            
+            # check if file exists
+            if not href.exists():
+              raise errors.IncludeError(get_search_path_errors(orig),
+                                        elem, colon=False)
 
             if base == href:
               raise errors.IncludeError(message='The file contains a '

@@ -16,9 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-import itertools 
-import re
-
 """
 PPS - Python Pathing System (boring name, will be more creative later!)
 
@@ -49,91 +46,19 @@ indexing method.  See the modules themselves for more information on the
 purpose and function of these classes.
 """
 
-def path(string, search_paths={}, search_path_ignore=[], *args, **kwargs):
+def path(string, *args, **kwargs):
   """Factory function to create a Path object of the correct type from a
   string.  NOTE - if you want to create a (local) path without a scheme that
   contains ':', use pps.Path.local.path() instead.
-  
-  Accepts two arguments:
-   * search_paths - a dict of search paths in 'placeholder: string or list'
-     format, for example:
-
-     { '%{templates-dir}' : '/usr/share/deploy/templates' }
-     { '%{templates-dir}' : [ '/etc/deploy/templates',
-                              '/usr/share/deploy/templates' ] }
-
-     PPS checks if one or more placeholder is in the provided string. If so,
-     it iterates through a list of (placeholder, value) combinations, testing
-     the resulting string at each pass to see if a file of that name file.
-     If a match is found, processing stops and a Path with the resulting string
-     is returned. Else, a Path to the original string is returned.
-
-   * search_path_ignore - a string or list of strings to ignore when resolving
-     search paths. If a resolved string matches an item in the list, it is
-     ignored and the search for a match continues.
-
-  Calling applications can use the SearchPathsHandler, see search_paths.py,
-  to wrap the path function providing a default list of search paths.
   """
   if isinstance(string, Path.BasePath):
     return string
   elif string is None:
     return None
 
-  # attempt to resolve macros, if found
-  MACRO_REGEX = '%{(?:(?!%{).)*?}' # match inner macros - nested macros
-                                   # not allowed in search paths for now
-  found_macros = []
-  for macro in re.findall(MACRO_REGEX, string):
-    if macro in search_paths: found_macros.append(macro)
+  return _path(string, *args, **kwargs)
 
-  if found_macros:
-    if isinstance(search_path_ignore, basestring): 
-      search_path_ignore=[ search_path_ignore ]
-    search_path_ignore = [ str(x) for x in search_path_ignore ]
-
-    macro_tuples = [] 
-    for macro in found_macros:
-      values = search_paths[macro]
-      if isinstance(values, basestring): values = [ values ]
-      macro_tuples.append( [ (macro, v) for v in values ] )
-
-    for item in itertools.product(*macro_tuples):
-      new_strings = [ (string[:], '') ] # initial (string, ending) tuple
-      _add_strings_with_unbalanced_endings(string, new_strings, ending='')
-      for new_string, ending in new_strings:
-        for macro, value in item:
-          new_string = new_string.replace(macro, value)
-        if new_string in search_path_ignore:
-          continue
-        pathobj = __path(new_string, *args, **kwargs)
-        if pathobj.exists():
-          return pathobj + ending
-    
-  # if no macros, or if macros could not be resolved, return a path with the
-  # initial string
-  return __path(string, *args, **kwargs)
-
-def _add_strings_with_unbalanced_endings(string, new_strings, ending):
-  """ 
-  If string ends with the character '")] or } and it does not have a matching
-  beginning character, strip the ending character recursively and return a list
-  of tuples with base strings and stripped endings. This allows us to handle
-  paths that are part of arbitrary scripts, e.g. "$(cat
-  %{templates-dir}/%{norm-os}/some/path)"
-  """
-  if (string.endswith("'") and string.count("'")%2 != 0 or
-      string.endswith('"') and string.count('"')%2 != 0 or
-      string.endswith(')') and string.count('(') - string.count(')') != 0 or
-      string.endswith(']') and string.count('[') - string.count(']') != 0 or
-      string.endswith('}') and string.count('{') - string.count('}') != 0):
-    ending = string[-1] + ending
-    new_strings.append( (string[:-1], ending) )
-    _add_strings_with_unbalanced_endings(string[:-1], new_strings, ending)
-
-  return new_strings
-
-def __path(string, *args, **kwargs):
+def _path(string, *args, **kwargs):
   i = string.find(':')
   if i > 0:
     scheme = string[:i].lower()

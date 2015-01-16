@@ -80,6 +80,6 @@ def transform(e, file=None):
     print file #!
     raise e #!
 
-  return PathError(no, strerror=msg or os.strerror(no),
-                       filename=file or e.filename,
+  return PathError(no, filename=file or e.filename, 
+                       strerror=msg or os.strerror(no),
                        exception=e)
