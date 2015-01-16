@@ -15,6 +15,7 @@
 <include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/delete.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-etc-hosts.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/configure-repo-access.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>

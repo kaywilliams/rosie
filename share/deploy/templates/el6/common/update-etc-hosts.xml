@@ -1,0 +1,30 @@
+<script id='update-etc-hosts' type='save-triggers' hostname='localhost'>
+#!/usr/bin/python
+
+import sys
+
+from deploy.util import pps
+
+hostsfile = pps.path('/etc/hosts')
+bakfile   = hostsfile + '.bak'
+bakfile.rm(force=True)
+hostsfile.cp(bakfile) # remove after debugging
+
+comment = '# deploy managed'
+
+if '{ssh-host}' == '{fqdn}':
+  sys.exit(0) # no need for hosts file entry
+
+lines = hostsfile.read_lines()
+
+newlines = []
+for line in lines:
+  if '%{hostname}' in line:
+    if comment in line:
+      continue # remove line
+  newlines.append(line)
+
+newlines.append('%{ssh-host}\t%{hostname} %{fqdn} %s' % comment)
+
+hostsfile.write_lines(newlines)
+</script>
