@@ -20,7 +20,7 @@ search_paths.py - a handler for setting default search_paths for use during
 pps path initialization.
 """
 
-import errno
+from errno import ENOENT
 import itertools 
 import re
 
@@ -144,12 +144,12 @@ class SearchPathsHandler(object):
 
   def error_wrapper(self, fn):
     @wraps(fn)
-    def wrapped(self, errno, *args, **kwargs):
-      filename = kwargs.pop('filename')
-      strerror = kwargs.pop('strerror')
+    def wrapped(self, errno, filename=None, strerror=None, *args, **kwargs):
       if (isinstance(filename, deploy.util.pps.Path.BasePath) and
-          errno == errno.ENOENT): # file not found
-          strerr = get_search_path_errors(filename)
+          errno == ENOENT): # file not found
+          if not strerror: strerror = ''
+          strerror = (strerror + ' ' + get_search_path_errors(filename)
+                     ).lstrip()
       return fn(self, errno, filename, strerror, *args, **kwargs)
     return wrapped
 
@@ -174,7 +174,7 @@ def _add_strings_with_unbalanced_endings(string, new_strings, ending):
 
 def get_search_path_errors(path):
   "check path for search_path errors and returns an error string if found"
-  message = "%s: %s" % (os_strerror(errno.ENOENT), path)
+  message = "%s: %s" % (os_strerror(ENOENT), path)
   if hasattr(path, 'search_paths'):
     lines = []
     for k,v in path.search_paths.items():
@@ -187,4 +187,4 @@ def get_search_path_errors(path):
   else: 
     message += ":"
   
-  return message 
+  return message
