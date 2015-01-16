@@ -446,7 +446,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
 
       newlines = []
       for l in currlines:
-        if not l.startswith(namelist):
+        if not fqdn in l:
           newlines.append(l)
       newlines.append(self.ssh_host_key_file.read_text())
 
