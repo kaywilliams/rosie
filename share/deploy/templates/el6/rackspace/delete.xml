@@ -13,19 +13,20 @@ def delete_server(server):
   
   # poll until server deleted
   seconds = 0
-  retry = 0
   while True:
     try:
-      nova.servers.get(server.id)
-      print "deleting server... %s seconds" % seconds
-  
-      # retry delete every 30 seconds
-      if retry >= 30:
-        server.delete()
-        retry = 0
+      server = nova.servers.get(server.id)
+      if str(server.status) == "ERROR":
+        sys.stderr.write(server.fault['message'])
+        sys.exit(1)
+      if getattr(server, 'OS-EXT-STS:task_state') != 'deleting':
+        sys.stderr.write('Deletion failed: current status is %s.' %
+                          server.status)
+        sys.exit(1)
+
+      sys.stdout.write("deleting server... %s seconds\n" % seconds)
   
       seconds += 5 
-      retry += 5
       time.sleep(5)
     except novaclient.exceptions.NotFound:
       break
