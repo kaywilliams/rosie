@@ -138,9 +138,7 @@ class PackagesEvent(PackagesEventMixin, ShelveMixin):
         fp and fp.close()
 
     self.comps = comps.Comps()
-
-    if 'core' not in [ x.text for x in self.cvars['user-required-groups'] ]:
-      self.comps.add_core_group()
+    self.comps.add_core_group()
 
     for group in self.cvars['user-required-groups']:
       added = False
