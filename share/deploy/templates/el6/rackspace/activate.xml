@@ -24,13 +24,13 @@ while true; do
     break
   elif [[ $state == building ]] ; then
     # don't timeout if the system is building
-    echo "attempting to activate: $state... ${progress}% complete after $time seconds"
+    echo "$state... ${progress}% complete after $time seconds"
     time=`expr $time + $sleep`
     sleep $sleep
   else
     if [ "$wait" -lt "$timeout" ] ; then
       remaining=`expr $timeout - $wait`
-      echo "attempting to activate: $state... ${progress}% complete, will retry for $remaining seconds"
+      echo "$state... ${progress}% complete, will retry for $remaining seconds"
       wait=`expr $wait + $sleep`
       sleep $sleep
     else 
