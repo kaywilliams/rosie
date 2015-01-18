@@ -6,10 +6,6 @@ import sys
 from deploy.util import pps
 
 hostsfile = pps.path('/etc/hosts')
-bakfile   = hostsfile + '.bak'
-bakfile.rm(force=True)
-hostsfile.cp(bakfile) # remove after debugging
-
 comment = '# deploy managed'
 
 if '{ssh-host}' == '{fqdn}':
