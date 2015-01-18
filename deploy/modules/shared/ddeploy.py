@@ -434,8 +434,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     # has changed - to prevent host spoofing
     if (not self.ssh_host_key_file.exists() or 
         not self.ssh_host_key_file.read_text().startswith(namelist)):
-      key = shlib.execute('ssh-keyscan %s' % namelist)[0]
-      self.ssh_host_key_file.write_text(key+'\n')
+      fields = shlib.execute('ssh-keyscan %s' % ipaddr)[0].split()
+      key = '%s %s\n' % (namelist, ' '.join(fields[1:]))
+      self.ssh_host_key_file.write_text(key)
 
       # update root user known_hosts file
       known_hosts_file = pps.path('/root/.ssh/known_hosts')
@@ -448,7 +449,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       for l in currlines:
         if not fqdn in l:
           newlines.append(l)
-      newlines.append(self.ssh_host_key_file.read_text())
+      newlines.append(key)
 
       known_hosts_file.write_lines(newlines)
 
