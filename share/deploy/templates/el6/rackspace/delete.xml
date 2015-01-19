@@ -27,9 +27,6 @@ def delete_server(server):
         sys.exit(1)
 
       task_state = getattr(server, 'OS-EXT-STS:task_state')
-      # TODO - delete or comment the following two lines after debugging
-      vm_state = getattr(server, 'OS-EXT-STS:vm_state')
-      print server.status, server.progress, task_state, vm_state
       if task_state != 'deleting':
         # wait one cycle as sometimes it takes a few seconds for the 
         # task_state to register deleting
