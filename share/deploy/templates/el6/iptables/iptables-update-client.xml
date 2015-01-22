@@ -1,0 +1,13 @@
+<xml>
+<requires>iptables-update</requires>
+<script type = 'post'>
+# run iptables-update to add firewall rules
+iptables-update
+</script>
+<script type = 'postun'>
+# run iptables-update to remove firewall rules
+if [[ $1 == 0 ]]; then
+  iptables-update
+fi
+</script>
+</xml>

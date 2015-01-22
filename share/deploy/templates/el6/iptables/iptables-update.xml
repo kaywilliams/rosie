@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='iptables-update'>
+<description>
+manages iptables accept rules using user-provided files located at 
+/etc/sysconfig/iptables-update.d
+</description>
+
+<!--
+Client rpms need to 
+* include content from iptables-update-client.xml
+* add a file to the /etc/sysconfig/iptables-update.d folder
+  - the file should be named using the %{rpm-id} macro 
+  - the file contains the rules to be added
+
+See the file at %{templates-dir}/%{norm-os}/httpd/httpd-config.xml for an
+example.
+-->
+
+<requires>iptables</requires>
+<requires>system-config-firewall-tui</requires>
+<requires>/bin/ps</requires>
+
+<files destdir='/usr/sbin' mode='750'>
+%{templates-dir}/%{norm-os}/iptables/iptables-update
+</files>
+
+<script type='post'>
+iptables-update
+</script>
+
+</config-rpm>

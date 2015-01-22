@@ -1,0 +1,22 @@
+iptables-update is a composable solution for managing firewall rules. It reads
+rules from data files in /etc/sysconfig/iptables.d and updates
+/etc/sysconfig/iptables with additions and removals. Upon completion, it runs
+'service iptables reload'.
+
+templates/el6/iptables/iptables-update
+* adds and removes iptables rules using /etc/sysconfig/iptables-update.d
+* provides a firstboot service for handling clean install under anaconda
+
+templates/el6/iptables/iptables-update-client.xml
+* template for clients (e.g. templates/el6/httpd/httpd-config.xml) to require
+the iptables-update utility, install firewall rules, and run iptables-update
+on package updates and removal. See the template for additional iformation.
+
+templates/el6/iptables/iptables-update-test.xml
+* template for testing iptables-update operation
+
+templates/el6/iptables/iptables-update.xml
+* template for installing the iptables-update utility.
+
+templates/el6/iptables/iptables-update.definition
+* template for testing iptabtes-update installation and updates.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpms>
 <!--drupal-->
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
 <include href='%{templates-dir}/%{norm-os}/httpd/httpd-config.xml'/>
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"/> 
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-%{dbtype}-config.xml"/>

@@ -30,6 +30,7 @@
 </packages>
 
 <config-rpms>
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
 <include href='%{templates-dir}/%{norm-os}/httpd/httpd-config.xml'/>
 </config-rpms>
 

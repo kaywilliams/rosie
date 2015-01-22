@@ -1,0 +1,131 @@
+#!/usr/bin/python
+
+import optparse
+import os
+import subprocess
+import sys
+
+FILE = "/etc/sysconfig/iptables"
+DATA_DIR = "/etc/sysconfig/iptables-update.d"
+COMMENT = "# The following line is managed by iptables-update"
+
+FIRSTBOOT_SERVICE = 'iptables-update-firstboot'
+FIRSTBOOT_FILE = os.path.join('/etc/rc.d/init.d', FIRSTBOOT_SERVICE)
+FIRSTBOOT_TEXT = """\
+#!/bin/sh
+#
+#iptables-update-firstboot-script Iptables Configuration Script
+#
+#chkconfig: 2345 07 91
+#description: Firstboot script to run iptables-update
+#
+
+case "$1" in
+  "start")
+     /usr/sbin/iptables-update
+
+     if (($? == 0)); then
+       # disable and delete firstboot script
+       chkconfig %s off
+       rm -f %s
+     fi
+     ;;
+  "stop")
+     exit 0
+     ;;
+esac""" % (FIRSTBOOT_SERVICE, FIRSTBOOT_FILE)
+
+def main():
+  # /etc/sysconfig/iptables doesn't exist yet if we're running under anaconda,
+  # so create a service to run iptables-update on firstboot
+  if anaconda_running():
+    configure_firstboot()
+    return
+
+  # read iptables file
+  if not os.path.exists(FILE):
+    sys.stderr.write("Error: missing file '%s'\n" % FILE)
+    sys.exit(1)
+    
+  with open(FILE, 'rb') as fo:
+    iptables_lines = [ l.strip() for l in fo.readlines() ]
+
+  if not iptables_lines:
+    sys.stderr.write("Error: empty file '%s'\n" % FILE)
+    sys.exit(1)
+
+  # remove prior managed rules
+  new_lines = []
+  reject_index = None
+  managed = False
+  for line in iptables_lines:
+
+    if line == COMMENT:
+      # skip line and set managed variable to indicate following line
+      # should also be skipped
+      managed = True
+      continue
+
+    if managed == True:
+      # skip line and reset the managed variable
+      managed = False
+      continue
+
+    if "REJECT" in line:
+      # track the first reject rule so we can get its index later
+      reject_index = line
+
+    new_lines.append(line)
+
+  if not reject_index:
+    sys.stderr.write("Error: REJECT rule not found in file '%s'\n"
+                     % FILE)
+    sys.exit(1)
+
+  # add current rules
+  index = new_lines.index(reject_index) - 1
+
+  if os.path.isdir(DATA_DIR):
+    data_files = os.listdir(DATA_DIR)
+  else:
+    data_files = []
+
+  for f in data_files:
+    with open(os.path.join(DATA_DIR, f), 'rb') as fo:
+      rules = [ l.strip() for l in fo.readlines() ]
+      for rule in rules:
+        if not rule in new_lines:
+          new_lines.insert(index, COMMENT)
+          new_lines.insert(index + 1, rule)
+          index += 2
+
+  # write file
+  with open(FILE, 'wb') as fo:
+    fo.write('\n'.join(new_lines) + '\n')
+
+  # reload iptables rules
+  subprocess.check_call('service iptables reload', shell=True,
+                        stdout=open(os.devnull, 'wb'))
+
+def anaconda_running():
+  output = subprocess.Popen('ps o cmd -e', shell=True, stdout=subprocess.PIPE
+                           ).communicate()[0]
+
+  if "/usr/bin/anaconda" in output:
+    return True
+
+def configure_firstboot():
+  with open(FIRSTBOOT_FILE, 'wb') as fo:
+    fo.write(FIRSTBOOT_TEXT)
+  os.chmod(FIRSTBOOT_FILE, 0755)
+
+  # configure to run at startup
+  subprocess.check_call('chkconfig --add %s' % FIRSTBOOT_SERVICE, shell=True)
+
+if __name__ == "__main__":
+  description = """\
+Adds and removes iptables rules using files from /etc/sysconfig/iptables.d"""
+  parser = optparse.OptionParser(description=description)
+
+  opts, args = parser.parse_args()
+  main()

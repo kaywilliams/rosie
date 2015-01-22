@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+<!-- include httpd-config template -->
+<include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"/>
+
+<!-- test against the live iptables rules -->
+<script id='test-iptables-config' type='update' comes-after='update'>
+#!/bin/sh
+
+# test in deploy since iptables not active under anaconda
+for p in 80 443; do
+  service iptables status | grep -qw $p || \
+  (echo "TEST FAILED: '$p' not listed in 'service iptables status'"; exit 1)
+done
+</script>
+</xml>

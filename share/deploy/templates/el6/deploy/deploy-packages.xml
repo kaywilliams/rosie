@@ -13,6 +13,7 @@
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-standard-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
 <config-rpm id='deploy-httpd-config'>
 <include href="%{templates-dir}/%{norm-os}/httpd/httpd-config.xml"
          xpath="./*"/>

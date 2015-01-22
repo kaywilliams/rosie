@@ -3,40 +3,15 @@
 <!-- http -->
 <requires>httpd</requires>
 <requires>mod_ssl</requires>
-
-<!-- firewall -->
-<requires>iptables</requires>
-<requires>system-config-firewall-tui</requires>
-
-<!-- utils -->
-<requires>/bin/ps</requires>
 <requires>/sbin/pidof</requires>
 
-<files content='text' destname='iptables-httpd' destdir='/etc/rc.d/init.d' 
-       mode='750'>
-#!/bin/sh
-#
-#chkconfig: 2345 07 91
-#description: Iptables configuration for HTTP
-#
-FILE=/etc/sysconfig/iptables
-
-case "$1" in
-  "start")
-# Enable http traffic through the firewall
-[[ -f $FILE ]] || touch $FILE
-for p in 80 443; do
-  if [[ ! `grep -- "--dport $p " $FILE` ]]; then
-sed -i "1,/REJECT/ {/REJECT/i\
--A INPUT -m state --state NEW -m tcp -p tcp --dport $p -j ACCEPT
-}" $FILE
-  fi
-done
-     ;;
-  "stop")
-     exit 0
-     ;;
-esac
+<!-- for use with iptables-update -->
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update-client.xml'
+         xpath='./*'/>
+<files destname='%{rpm-id}' destdir='/etc/sysconfig/iptables-update.d'
+       content='text'>
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
 </files>
 
 <script type = 'post'>
@@ -45,15 +20,5 @@ if [[ -z `pidof httpd` ]] ; then
   service httpd start > /dev/null
 fi
 chkconfig --level 345 httpd on
-
-# Enable http traffic through the firewall
-if [[ $changed =  *\ /etc/rc.d/init.d/iptables-httpd\ * ]]; then
-  chkconfig --add iptables-httpd
-  # /etc/sysconfig/iptables doesn't exist yet if we're running under anaconda
-  if ! ps aux | grep "[/]usr/bin/anaconda"; then
-    service iptables-httpd start
-    service iptables restart > /dev/null
-  fi
-fi
 </script>
 </config-rpm>
