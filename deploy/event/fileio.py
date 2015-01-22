@@ -84,10 +84,11 @@ class IOObject(object):
     # method called by events to ensure destname is provided for text content;
     # expects a list of path-like elements
     for path in xpaths: #allow python to raise an error of no paths provided
-      if path.getxpath('@content', None) and not path.getxpath('@destname', None):
+      if path.getxpath('@content', None) and not path.getxpath('@destname',
+                                                               None):
         raise InvalidConfigError(message=(
-          "Missing 'destname' attribute at '%s':"
-          "\n %s" % (self.ptr._config.getroottree().getpath(path), path)))
+          "Error in file '%s'. Missing 'destname' attribute:\n\n"
+                                          "%s" % (path.getbase(), path)))
 
   def validate_input_file(self, f, allow_text=False, xpath=None):
     # method called by add_item() to ensure the source is a valid file
