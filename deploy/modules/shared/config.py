@@ -375,8 +375,10 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     return script
 
   def _mk_post(self):
-    """Makes a post scriptlet that installs each <file> to the given
-    destination, backing up any existing files to .rpmsave"""
+    """Makes a post scriptlet that installs current files and removes obsolete
+    files"""
+
+    # install files, backing up existing files with the .rpmsave extension
     script = ''
     # move support files as needed
     script += 'files="%s"' % '\n      '.join(self.files)
@@ -432,12 +434,6 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     script += 'changed=\'$changed\'" %s\n' % file
     script += 'fi\n'
     script += '\n'
-    script += '\n#------ Start of User Scripts ------#\n'
-    return script
-
-  def _mk_postun(self):
-    """Makes a postun scriptlet that uninstalls obsolete <files> and
-    restores backups from .rpmsave, if present."""
 
     sources = []
     for support_file in self.srcfiledir.findpaths(
@@ -447,13 +443,11 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
 
       sources.append(dst)
 
-    script = """
-files="%(files)s"
-s=%(relpath)s
-mkdirs=%(installdir)s/mkdirs
+    # remove obsolete files and restore backups from .rpmsave, if present
+    script += """
 for f in $files; do
   if [ ! -e $s/$f ]; then # file missing from source folder
-    if [ -e $f ]; then    #file exists on disk
+    if [ -e $f ]; then    # file exists on disk
 
       # find md5file for the current version of this rpm
       new=''
@@ -465,8 +459,8 @@ for f in $files; do
         done
       fi
 
-      # find md5files for other deploy managed rpms
-      other=`find %(configdir)s -name md5sums | grep -v %(md5file)s` || true
+      # find md5files for other deploy-managed rpms
+      other=`find %(configdir)s -name md5sums | grep -v $md5file` || true
 
       # process files
       md5files="$new $other"
@@ -508,18 +502,21 @@ fi
 
 # remove md5sums.prev file   
 rm -f %(installdir)s/md5sums.prev
-
-# remove per-system folder uninstall
-if [ $1 -eq 0 ]; then
-  rm -rf %(installdir)s
-fi
-""" % { 'files':        '\n      '.join(sources),
-        'relpath':      '/' / self.filerelpath,
-        'installdir':   self.installdir,
+""" % { 'installdir':   self.installdir,
         'name':         self.rpm.name,
         'configdir':    self.configdir,
-        'md5file':      self.md5file,
       }
+
+    script += '\n#------ Start of User Scripts ------#\n'
+    return script
+
+  def _mk_postun(self):
+    # remove uninstall folder
+    script = """
+if [ $1 -eq 0 ]; then
+  rm -rf %s
+fi
+""" % self.installdir
 
     return script
 
