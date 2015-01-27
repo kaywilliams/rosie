@@ -243,7 +243,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     # copies of user-provided scripts and triggers go here for easier 
     # user debugging
     self.debugdir    = self.source_folder // self.installdir
-    self.debug_postfile = self.debugdir/'post-script'
+    self.debug_postfile = self.debugdir/'post'
 
   def run(self):
     MkrpmRpmBuildMixin.run(self)
@@ -255,7 +255,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
   def generate(self):
     for what in ['files', 'triggers']:
       self.io.process_files(cache=True, callback=self.link_callback,
-                            text='gathering files', what=what)
+                            text=None, what=what)
 
     self._generate_files_checksums()
     self.files =  [ x[len(self.srcfiledir):]
@@ -435,55 +435,38 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
     script += 'fi\n'
     script += '\n'
 
-    sources = []
-    for support_file in self.srcfiledir.findpaths(
-                        type=pps.constants.TYPE_NOT_DIR):
-      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
-      dst = '/' / src.relpathfrom('/' / self.filerelpath)
-
-      sources.append(dst)
-
-    # remove obsolete files and restore backups from .rpmsave, if present
     script += """
+# remove obsolete files and restore backups from .rpmsave
+files=$(diff --changed-group-format='%%>' --unchanged-group-format='' $md5file $md5file.prev | cut -d' ' -f2)
 for f in $files; do
-  if [ ! -e $s/$f ]; then # file missing from source folder
-    if [ -e $f ]; then    # file exists on disk
+  if [ -e $f ]; then  # file exists on disk
 
-      # find md5file for the current version of this rpm
-      new=''
-      if rpm -q %(name)s --quiet; then
-        for file in `rpm -ql %(name)s`; do
-          if [[ `basename $file` == md5sums ]] && [ -e $file ] ; then
-            new=$file
-          fi
-        done
-      fi
+    # don't remove file if it exists in another deploy-managed rpm
+    md5files=`find %(configdir)s -name md5sums | grep -v $md5file` || true
 
-      # find md5files for other deploy-managed rpms
-      other=`find %(configdir)s -name md5sums | grep -v $md5file` || true
-
-      # process files
-      md5files="$new $other"
-      remove="true"
-      for md5file in $md5files 
-      do
-        while read line; do
-          row=($line)
-          if [[ ${row[1]} == $f ]]; then #file in new or other rpm
-            remove="false"
-          fi
-        done < $md5file
-      done
-      if [[ $remove == true ]]; then
-        if [ -e $f.rpmsave ]; then
-          mv -f $f.rpmsave $f
-        else
-          rm -f $f
+    remove="true"
+    for md5file in $md5files 
+    do
+      while read line; do
+        row=($line)
+        if [[ ${row[1]} == $f ]]; then #file in other rpm
+          remove="false"
         fi
+      done < $md5file
+    done
+
+    # remove files
+    if [[ $remove == true ]]; then
+      if [ -e $f.rpmsave ]; then
+        mv -f $f.rpmsave $f
+      else
+        rm -f $f
       fi
     fi
   fi
 done
+
+# remove empty dirs
 [[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;
 if [ -e $mkdirs ]; then
   #first pass to remove empty dirs
@@ -500,7 +483,7 @@ if [ -e $mkdirs ]; then
   done
 fi
 
-# remove md5sums.prev file   
+# remove md5sums.prev file
 rm -f %(installdir)s/md5sums.prev
 """ % { 'installdir':   self.installdir,
         'name':         self.rpm.name,
