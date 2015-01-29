@@ -30,7 +30,7 @@ def configure(dataroot):
     includes.extend(i)
   with open(os.path.join(dataroot, CONF_FILE)) as fo:
     txt = fo.read()
-  txt = txt + '\n'.join(includes).rstrip() + '\n'
+  txt = txt + '\n'.join([x.rstrip() for x in includes]) + '\n'
   with open(os.path.join(ETC_DIR, CONF_FILE), 'wb') as fo:
     fo.write(txt)
   
@@ -48,13 +48,14 @@ def configure(dataroot):
       fo.write(txt)
 
   # write script files
+  scriptdir = os.path.join(ETC_DIR, SCRIPT_DIR)
+  if os.path.exists(scriptdir):
+    shutil.rmtree(scriptdir)
+
   scripts = {} 
   for i in [ x.get('scripts', {}) for x in data ]:
     scripts.update(i)
   if scripts:
-    scriptdir = os.path.join(ETC_DIR, SCRIPT_DIR)
-    if os.path.exists(scriptdir):
-      shutil.rmtree(scriptdir)
     os.makedirs(scriptdir)
     for f,t in scripts.items():
       fn = os.path.join(scriptdir,f)
