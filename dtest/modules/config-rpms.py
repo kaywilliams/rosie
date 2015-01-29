@@ -132,9 +132,10 @@ class ConfigRpmInputsEventTestCase(ConfigRpmEventTestCase):
            %(working-dir)s/file2</files>
     <files destdir="/etc/testdir" destname="file5" content="text">text</files>
     <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
-    <script type="post">echo post</script>
     <script type="pre">echo pre</script>
     <script type="preun">echo preun</script>
+    <script type="post">echo post</script>
+    <script type="posttrans">echo posttrans</script>
     <script type="postun">echo postun</script>
     <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
     <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
