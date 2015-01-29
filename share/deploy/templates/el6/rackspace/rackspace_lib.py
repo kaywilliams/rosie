@@ -124,11 +124,12 @@ def detach_volume(server_id, volume_id):
   # poll until volume is detached
   seconds = 0
   while True:
-    if nova_volume.volumes.get(volume_id).status == 'available':
+    volume = nova_volume.volumes.get(volume_id)
+    if volume.status == 'available':
       break
     else:
       print ("detaching '%s' volume from '%s'... %s seconds" %
-            (volume_id, device, seconds))
+            (volume_id, volume.device, seconds))
       seconds += 2
       time.sleep(2)
 
