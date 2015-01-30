@@ -19,8 +19,10 @@ def delete_server(server):
     try:
       server = nova.servers.get(server.id)
 
-      if str(server.status) == "DELETED":
-        sys.exit(0)
+      # wait to exit until server can no longer be found, handled under the
+      # task_state check below
+      # if str(server.status) == "DELETED":
+      #   sys.exit(0)
 
       if str(server.status) == "ERROR":
         sys.stderr.write(server.fault['message'])
@@ -33,8 +35,9 @@ def delete_server(server):
         if retry &lt; max_retries:
           retry += 1
         else:
-          sys.stderr.write('Deletion failed: current status is %s.' %
-                            server.status)
+          sys.stderr.write("Deletion failed: task state is %s and current "
+                           "status is %s." %
+                            task_state, server.status)
           sys.exit(1)
 
       sys.stdout.write("deleting... %s seconds\n" % seconds)
