@@ -12,8 +12,10 @@
 <include href='%{templates-dir}/%{norm-os}/rackspace/test-exists.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/activate.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-write-host-key.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/delete.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-delete-host-key.xml'/>
 <include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-etc-hosts.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>

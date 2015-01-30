@@ -221,11 +221,9 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       self._write_install_status_start()
       self._execute('pre')
       self._execute('delete')
-      self._delete_ssh_host_key_file()
       self._execute('pre-install')
       self._execute('install')
       self._execute('activate')
-      self._write_ssh_host_key_file()
       self._execute('post-install')
       self._execute('save-triggers')
       self._write_install_status_complete()
@@ -235,7 +233,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     else:
       self._execute('pre')
       self._execute('activate')
-      self._write_ssh_host_key_file()
       self._execute('update')
       self._execute('post')
 
@@ -340,9 +337,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
       else:
         raise
 
-    # write ssh-host-pubkey-file
-    self._write_ssh_host_key_file()
-
     # do test-trigger-type scripts return success?
     if self.types['test-triggers']:
       try:
@@ -411,47 +405,6 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     elem = root.getxpath('./%s/install-status' % self.moduleid)
     elem.text = "complete"
     self.write_datfile(root)
-
-  def _delete_ssh_host_key_file(self):
-    self.ssh_host_key_file.rm(force=True)
-
-  def _write_ssh_host_key_file(self):
-    if self.type == 'package':
-      return
-
-    # get namelist (fqdn, ipaddr)
-    fqdn = self.cvars[self.cvar_root]['fqdn']
-    ssh_host = self.get_ssh_host()
-    
-    if fqdn == ssh_host:
-      ipaddr = socket.gethostbyname(fqdn)
-    else:
-      ipaddr = ssh_host
-    
-    namelist = ','.join([fqdn, fqdn.split('.')[0], ipaddr])
-   
-    # write file - do this only if the file does not exist or the namelist
-    # has changed - to prevent host spoofing
-    if (not self.ssh_host_key_file.exists() or 
-        not self.ssh_host_key_file.read_text().startswith(namelist)):
-      fields = shlib.execute('ssh-keyscan %s' % ipaddr)[0].split()
-      key = '%s %s\n' % (namelist, ' '.join(fields[1:]))
-      self.ssh_host_key_file.write_text(key)
-
-      # update root user known_hosts file
-      known_hosts_file = pps.path('/root/.ssh/known_hosts')
-      if known_hosts_file.exists():
-        currlines = known_hosts_file.read_lines()
-      else:
-        currlines = []
-
-      newlines = []
-      for l in currlines:
-        if not fqdn in l:
-          newlines.append(l)
-      newlines.append(key)
-
-      known_hosts_file.write_lines(newlines)
 
   def get_ssh_host(self):
     if self.ssh_host_file.exists():
