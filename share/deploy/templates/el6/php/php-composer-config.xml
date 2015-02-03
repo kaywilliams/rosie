@@ -7,7 +7,7 @@
 if [ ! -d %{composer-dir} ]; then
   mkdir -p %{composer-dir}
   cd %{composer-dir}
-  curl -sS https://getcomposer.org/installer | php
+  curl -sS https://getcomposer.org/installer | php >/dev/null || exit 1
 fi
 </script>
 <files destdir="/etc/profile.d" destname='php-composer.sh' content='text'>
