@@ -19,6 +19,6 @@ fi
 <files content='text' destdir='/etc/cron.daily' destname='php-composer-update' 
        mode='777'>
 cd %{composer-dir}
-%{composer-dir}/composer.phar update
+%{composer-dir}/composer.phar -q update
 </files>
 </config-rpm>
