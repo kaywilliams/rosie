@@ -2,7 +2,7 @@
 <macro id='composer-dir'>/usr/share/composer</macro>
 <requires>php-composer-config</requires>
 <script type='post'>
-%{composer-dir}/composer.phar global require drush/drush:6.* \
+%{composer-dir}/composer.phar -q global require drush/drush:6.* \
   --working-dir %{composer-dir}
 ln -sf %{composer-dir}/vendor/bin/drush /usr/bin/drush 
 </script>
