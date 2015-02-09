@@ -36,7 +36,7 @@ from deploy.util.rxml.tree import MACRO_REGEX
 
 
 def make_config_rpm_events(ptr, modname, element_name, globals):
-  config_rpm_ids = getattr(ptr, 'cvars[\'config-rpm-ids\']', [])
+  config_rpm_elems = getattr(ptr, 'cvars[\'config-rpm-elems\']', {})
   new_events = []
   xpath   = '/*/%s/%s' % (modname, element_name)
 
@@ -55,9 +55,12 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
     config_base = '%s[@id="%s"]' % (xpath, rpmid)
 
     # check for dups
-    if rpmid in config_rpm_ids:
-      raise DuplicateIdsError(ptr.definition.xpath('%s[@id="%s"]'
-                                                    % (xpath, rpmid)))
+    if rpmid in config_rpm_elems:
+      if config == config_rpm_elems[rpmid]:
+        continue # elem exactly matches a previous elem, ignore
+      else:
+        raise DuplicateIdsError(ptr.definition.xpath('%s[@id="%s"]'
+                                                      % (xpath, rpmid)))
 
     # create new classes
     exec """%s = config.ConfigRpmSetupEvent('%s', 
@@ -79,12 +82,12 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
                         base_name, base_name, rpmid, config_base) in globals
 
     # update lists with new classname
-    config_rpm_ids.append(rpmid)
+    config_rpm_elems[rpmid] = config 
     for name in [setup_name, base_name]:
       new_events.append(name)
 
   # update cvars rpm-event-ids
-  ptr.cvars['config-rpm-ids'] = config_rpm_ids
+  ptr.cvars['config-rpm-elems'] = config_rpm_elems
 
   return new_events
 

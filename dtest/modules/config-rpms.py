@@ -49,8 +49,8 @@ class Test_ErrorOnDuplicateIds(ConfigRpmEventTestCase):
   "raises an error if multiple rpms provide the same id"
   _conf = """
   <config-rpms>
-  <config-rpm id="config"/>
-  <config-rpm id="config"/>
+  <config-rpm id="config">test1</config-rpm>
+  <config-rpm id="config">test2</config-rpm>
   </config-rpms>
   """
 
