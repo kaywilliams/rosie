@@ -136,8 +136,11 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
           if not REGEX_ID.match(id):
             raise InvalidIdError(script) 
           if id in self.scripts:
-            elems = self.config.xpath('script[@id="%s"]' % id)
-            raise DuplicateIdsError(elems)
+            if script == self.config.getxpath(self.scripts[id].xpath):
+              continue # elem exactly matches a previous elem, ignore
+            else:
+              elems = self.config.xpath('script[@id="%s"]' % id)
+              raise DuplicateIdsError(elems)
 
           hostname = script.getxpath('@hostname', None)
           known_hosts_file = script.getxpath('@known-hosts-file',

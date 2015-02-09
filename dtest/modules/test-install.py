@@ -120,10 +120,10 @@ class Test_ErrorOnDuplicateIds(TestInstallDeployEventTestCase):
 
   def runTest(self):
     parent = self.event.config.getxpath('.')
-    script = rxml.config.Element('script', parent=parent, text='echo test', 
+    script = rxml.config.Element('script', parent=parent, text='echo test1', 
                                  attrib={'id':   'test',
                                         'type': 'post'})
-    script = rxml.config.Element('script', parent=parent, text='echo test',
+    script = rxml.config.Element('script', parent=parent, text='echo test2',
                                  attrib={'id':   'test',
                                         'type': 'post'})
     self.execute_predecessors(self.event)

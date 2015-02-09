@@ -429,7 +429,7 @@ def get_module_info(ptr, *args, **kwargs):
     description = 'modules that accept SRPMs and build RPMs',
   )
 
-  srpmids = getattr(ptr, 'cvars[\'srpmids\']', [])
+  srpm_elems = getattr(ptr, 'cvars[\'srpm-elems\']', {})
 
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
@@ -442,9 +442,12 @@ def get_module_info(ptr, *args, **kwargs):
     name = '%sSrpmBuildEvent' % name.capitalize()
 
     # ensure unique srpm ids
-    if id in srpmids:
-      raise DuplicateIdsError(ptr.definition.xpath('./srpmbuild/srpm[@id="%s"]'
-                                                    % id))
+    if id in srpm_elems:
+      if config == srpm_elems[id]:
+        continue # elem exactly matches a previous elem, ignore
+      else:
+        raise DuplicateIdsError(ptr.definition.xpath(
+                                './srpmbuild/srpm[@id="%s"]' % id))
 
     # create new class
     exec """%s = SrpmBuildRpmEvent('%s', 
@@ -454,14 +457,14 @@ def get_module_info(ptr, *args, **kwargs):
                          }
                         )""" % (name, name, id) in globals()
 
-    # update srpmids with new id
-    srpmids.append(id)
+    # update srpm_elems with new id
+    srpm_elems[id] = config
 
     # update module info with new classname
     module_info['events'].append(name)
 
-  # update cvars srpmids
-  ptr.cvars['srpmids'] = srpmids
+  # update cvars srpm-elems
+  ptr.cvars['srpm-elems'] = srpm_elems
 
   return module_info
 

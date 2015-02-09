@@ -87,8 +87,8 @@ class Test_ErrorOnDuplicateIds(TestSrpmTestCase):
   "raises an error if multiple srpms provide the same id"
   _conf = """
   <srpmbuild>
-  <srpm id="test"/>
-  <srpm id="test"/>
+  <srpm id="test">test1</srpm>
+  <srpm id="test">test2</srpm>
   </srpmbuild>
   """
 

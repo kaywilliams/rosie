@@ -116,8 +116,7 @@
 
       <listitem>
       <para>
-      A unique one-word <varname>ID</varname> specifying the name of the
-      SRPM. 
+      TEXT value providing an identifier for the SRPM. 
       </para>
 
       <para>
