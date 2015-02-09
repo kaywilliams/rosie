@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-mysql-config'>
-<include href="%{templates-dir}/%{norm-os}/mysql/mysql-server-config.xml"
-         xpath="./*"/>
+<requires>mysql-server-config</requires>
 <requires>php-mysql</requires>
 <!--
 mysql -u root -e "create database if not exists drupal;"

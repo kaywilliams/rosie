@@ -1,0 +1,21 @@
+<script id='drupal-test' type='update' comes-after='update'>
+#!/usr/bin/python
+
+import pycurl
+import sys
+
+from StringIO import StringIO
+
+buffer = StringIO()
+
+c=pycurl.Curl()
+c.setopt(c.URL, '%{ssh-host}')
+c.setopt(c.WRITEFUNCTION, buffer.write)
+c.perform()
+c.close()
+
+body=buffer.getvalue()
+if 'error' in body.lower():
+  sys.stderr.write("Error found in Drupal home page. View http://%{ssh-host} for details\n")
+  sys.exit(1)
+</script>

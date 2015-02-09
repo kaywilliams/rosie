@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-config'>
 
-<macro id='password'>Test1!</macro>
-<macro id='dbtype'>pgsql</macro><!-- valid values are 'pgsql' or 'mysql' -->
-<macro id='dbuser'>postgres</macro>
-<macro id='sitename'>drupal</macro>
+<macro id='drupal-admin-password'>Test1!</macro>
+<macro id='drupal-sitename'>drupal</macro>
+<macro id='drupal-db-type'>pgsql</macro><!-- 'pgsql' or 'mysql' -->
+<macro id='drupal-db-user'>drupal</macro>
+<macro id='drupal-db-password'>%{drupal-admin-password}</macro>
 
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
 
 <requires>httpd</requires>
 <requires>drupal7</requires>
-<requires>drupal-%{dbtype}-config</requires>
+<requires>drupal-%{drupal-db-type}-config</requires>
 <requires>drush-config</requires>
-<requires>/usr/sbin/setsebool</requires>
 
 <script type='post'>
-# create drupal site
-cd /usr/share/drupal7/sites
-if ! drush core-status | grep "Database name" ; then
-  drush -y -q si standard \
-    --account-pass=%{password} \
-    --db-url=%{dbtype}://%{dbuser}@localhost/%{sitename} \
-    --db-su=%{dbuser} \
-    --site-name=%{sitename}
-fi
-
 # allow public access
 sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
-
-# configure selinux
-if [[ `getsebool httpd_can_network_connect | grep off` ]]; then
-  setsebool -P httpd_can_network_connect 1
-fi
-if [[ `getsebool httpd_can_sendmail | grep off` ]]; then
-  setsebool -P httpd_can_sendmail 1
-fi
 
 # configure web server
 sed -i "s|^DocumentRoot.*|DocumentRoot \"/usr/share/drupal7\"|" /etc/httpd/conf/httpd.conf
 service httpd restart > /dev/null
+
+# create drupal site if one does not exist
+cd /usr/share/drupal7/sites
+
+# test drush core-status in a separate step so that that the script exits
+# with an error if the command fails
+drush core-status &amp;>/dev/null || drush core-status
+
+# create new site
+if ! drush core-status | grep -q "Database name" ; then
+  drush core-status >&amp;2
+  drush -y -q si standard \
+    --account-pass=%{drupal-admin-password} \
+    --db-url=%{drupal-db-type}://%{drupal-db-user}@localhost/%{drupal-sitename} \
+    --db-su=postgres \
+    --site-name=%{drupal-sitename}
+  service httpd restart > /dev/null
+fi
 </script>
 </config-rpm>

@@ -9,10 +9,11 @@
 <macro id='id'>%{name}</macro>
 
 <!-- drupal macros -->
-<macro id='password'>Test1!</macro>
-<macro id='dbtype'>pgsql</macro>
-<macro id='dbuser'>postgres</macro>
-<macro id='sitename'>drupal</macro>
+<macro id='drupal-admin-password'>Test1!</macro>
+<macro id='drupal-db-type'>pgsql</macro>
+<macro id='drupal-db-user'>drupal</macro>
+<macro id='drupal-db-password'>%{drupal-admin-password}</macro>
+<macro id='drupal-sitename'>drupal</macro>
 
 <main>
 <name>%{name}</name>
