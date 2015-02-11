@@ -75,7 +75,6 @@ def configure(dataroot):
     lines = fo.readlines()
   for k in authkeys:
     if not k in lines:
-      raise RuntimeError(k)
       with open(keyfile, 'a') as fo:
         fo.write(k)
   if os.path.exists(keyfile):
