@@ -9,5 +9,4 @@
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-%{drupal-db-type}-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/drupal/drush-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/php/php-composer-config.xml"/>
-<include href="%{templates-dir}/%{norm-os}/drupal/drupal-test.xml"/>
 </config-rpms>

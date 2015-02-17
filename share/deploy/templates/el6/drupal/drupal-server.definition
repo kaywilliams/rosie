@@ -8,6 +8,9 @@
 <macro id='arch'>x86_64</macro>
 <macro id='id'>%{name}</macro>
 
+<!-- deployment macros -->
+<macro id='test-install-enabled'>false</macro>
+
 <!-- drupal macros -->
 <macro id='drupal-admin-password'>Test1!</macro>
 <macro id='drupal-db-type'>pgsql</macro>
@@ -40,13 +43,15 @@
 </config-rpms>
 
 <test-update>
-<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
-         xpath="./*"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpath="./*"/>
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-server-scripts.xml"
+         xpath="./*"/> 
 </test-update>
 
 <test-install enabled="%{test-install-enabled}">
-<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
-         xpath="./*"/>
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpath="./*"/>
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-server-scripts.xml"
+         xpath="./*"/> 
 </test-install>
 
 </definition>
