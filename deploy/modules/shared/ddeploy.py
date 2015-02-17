@@ -70,6 +70,7 @@ class DeployEventMixin(InputEventMixin, ExecuteEventMixin):
     ExecuteEventMixin.setup(self)
 
     self.DATA['variables'].update(['deploy_mixin_version'])
+    self.DATA['config'].update(['script', 'triggers'])
 
     self.cvar_root = '%s-setup-options' % self.moduleid
 

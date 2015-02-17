@@ -202,7 +202,7 @@ class DeployEvent(DeployEventMixin, Event):
 
     self.DATA =  {
       'variables': set(),
-      'config':    set(['.']),
+      'config':    set(),
       'input':     set(),
       'output':    set(),
     }
