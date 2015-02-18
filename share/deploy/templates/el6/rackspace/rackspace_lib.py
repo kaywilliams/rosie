@@ -137,7 +137,7 @@ def delete_server(server, delete_volumes, ssh_host_key_file, ssh_host):
   # delete server
   _delete_server(server)
   
-  # delete volumes, but only in the test-install case
+  # delete volumes
   if delete_volumes:
     for v in server_volumes:
       detach_volume(server.id, v)
@@ -145,10 +145,12 @@ def delete_server(server, delete_volumes, ssh_host_key_file, ssh_host):
 
 def _delete_server(server):
   def log_deleting(seconds, task_state, status):
-      sys.stdout.write("deleting... %s seconds (task state: %s, status: %s)\n"
-                       % (seconds, task_state, status))
-      seconds += 5 
-      time.sleep(5)
+    sys.stdout.write("deleting... %s seconds (task state: %s, status: %s)\n"
+                     % (seconds, task_state, status))
+    seconds += 5 
+    time.sleep(5)
+
+    return seconds
 
   server.delete()
   
@@ -169,13 +171,14 @@ def _delete_server(server):
         sys.exit(1)
 
       if str(server.status) == "DELETED":
-        # wait to exit until server can no longer be found
-        log_deleting(seconds, task_state, server.status)
+        # wait to exit until server has disappeared
+        seconds = log_deleting(seconds, task_state, server.status)
         continue
 
       if task_state is None and str(server.status) == "ACTIVE":
-        # wait as it takes a few seconds for the task_state to register deleting
-        log_deleting(seconds, task_state, server.status)
+        # wait as it takes a few seconds 1) for the task_state to register
+        # deleting, and 2) for the server to disappear after deleted.
+        seconds = log_deleting(seconds, task_state, server.status)
         continue
 
       if task_state != 'deleting':
@@ -184,7 +187,7 @@ def _delete_server(server):
                          % (server.name, task_state, server.status))
         sys.exit(1)
 
-      log_deleting(seconds, task_state, server.status)
+      seconds = log_deleting(seconds, task_state, server.status)
   
     except novaclient.exceptions.NotFound:
       break
