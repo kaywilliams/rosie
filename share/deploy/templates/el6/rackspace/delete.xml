@@ -8,7 +8,7 @@ sys.path.insert(0, "%{templates-dir}/%{norm-os}/rackspace")
 
 from rackspace_lib import *
 
-DELETE_VOLUME = '%{modules}' == 'test-install'
+DELETE_VOLUME = '%{module}' == 'test-install'
 SSH_HOST_KEY_FILE = '%{ssh-host-key-file}'
 SSH_HOST = '%{ssh-host}'
 
