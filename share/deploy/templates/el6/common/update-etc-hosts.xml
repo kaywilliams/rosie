@@ -1,4 +1,4 @@
-<script id='update-etc-hosts' type='save-triggers' hostname='localhost'>
+<script id='update-etc-hosts' type='save-triggers' hostname='localhost' verbose='true'>
 #!/usr/bin/python
 
 import sys
@@ -15,9 +15,10 @@ lines = hostsfile.read_lines()
 
 newlines = []
 for line in lines:
-  if '%{hostname}' in line:
-    if comment in line:
-      continue # remove line
+  if (len(line.split()) > 1 and 
+      line.split()[1] == '%{hostname}' and
+      comment in line):
+    continue # remove line
   newlines.append(line)
 
 newlines.append('%{ssh-host}\t%{hostname} %{fqdn} %s' % comment)
