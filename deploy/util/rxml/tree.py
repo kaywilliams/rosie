@@ -719,11 +719,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
       elems = self.xpath('//include', [])
 
       if not elems:
-        # resolve macros one last time after includes are processed
-        # to catch any late-defined macros
-        self.resolve_macros(map=macros,
-                            ignore_script_macros=ignore_script_macros,
-                            defaults_file=macro_defaults_file)
         break
 
       # process includes
@@ -807,6 +802,11 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                 elem.addprevious(root.copy())
 
                 parent.remove(elem)
+
+        # resolve macros after each include elem is processed
+        self.resolve_macros(map=macros,
+                            ignore_script_macros=ignore_script_macros,
+                            defaults_file=macro_defaults_file)
 
   def _process_xpath(self, source, parent, target):
     source = source.copy()
