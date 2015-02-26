@@ -135,7 +135,7 @@ fi""" % (self.localpath, self.localpath))
     else:
       default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.type, self.moduleid)
 
-    local = pps.path(self.config.getpath('local-dir/text()', default))
+    local = self.config.getpath('local-dir/text()', default)
     return local / self.build_id
   
   def get_build_host(self):
@@ -148,7 +148,7 @@ fi""" % (self.localpath, self.localpath))
     ifname = self._get_ifname()
     build_host = self._get_ipaddr(ifname)
 
-    if self.config.getbool('build-host/@fqdn', 'False'):
+    if self.config.getbool('build-host/@fqdn', False):
       build_host = self._get_fqdn(build_host, ifname)
 
     return build_host
@@ -211,7 +211,7 @@ fi""" % (self.localpath, self.localpath))
       default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.moduleid)
 
     default = default.replace('%{build-host}', build_host)
-    if self.config.getbool('remote-url/@https', 'False'):
+    if self.config.getbool('remote-url/@https', False):
       default = default.replace('http', 'https', 1)
 
     remote = pps.path(self.config.getxpath('remote-url/text()', default)
