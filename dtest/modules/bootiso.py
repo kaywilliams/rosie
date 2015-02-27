@@ -52,18 +52,6 @@ class _BootisoEventTestCase(BootOptionsMixinTestCase, BootisoEventTestCase):
     self.testArgs(self.image, filename='isolinux.cfg', defaults=self.do_defaults)
 
 
-class Test_BootOptionsDefault(_BootisoEventTestCase):
-  "default boot args and config-specified args in isolinux.cfg"
-  _conf = _BootisoEventTestCase._conf + [
-    "<publish>"
-    "  <boot-options>ro root=LABEL=/</boot-options>"
-    "</publish>",
-  ]
-
-  def setUp(self):
-    _BootisoEventTestCase.setUp(self)
-    self.do_defaults = True
-
 class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
   "installs from boot.iso"
 
@@ -78,14 +66,28 @@ class Test_InstallFromBootiso(DeployMixinTestCase, BootisoEventTestCase):
     BootisoEventTestCase.setUp(self)
     DeployMixinTestCase.setUp(self)
 
+# run this test after test-install since it alters boot options 
+class Test_BootOptionsDefault(_BootisoEventTestCase):
+  "default boot args and config-specified args in isolinux.cfg"
+  _conf = _BootisoEventTestCase._conf + [
+    "<publish>"
+    "  <boot-options>ro root=LABEL=/</boot-options>"
+    "</publish>",
+  ]
+
+  def setUp(self):
+    _BootisoEventTestCase.setUp(self)
+    self.do_defaults = True
+
 
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('bootiso')
 
   # bootiso
   suite.addTest(make_extension_suite(BootisoEventTestCase, os, version, arch))
-  suite.addTest(Test_BootOptionsDefault(os, version, arch))
   suite.addTest(Test_InstallFromBootiso(os, version, arch))
+  # dummy test to shutoff vm
   suite.addTest(dm_make_suite(Test_InstallFromBootiso, os, version, arch))
+  suite.addTest(Test_BootOptionsDefault(os, version, arch))
 
   return suite

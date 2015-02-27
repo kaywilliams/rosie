@@ -49,11 +49,7 @@ class IsoEventTestCase(EventTestCase):
   </iso>
   """, 
   """<packages><package>kernel</package></packages>""",
-  """
-  <publish>
-    <boot-options>ro root=LABEL=/</boot-options>
-  </publish>
-  """]
+  ]
 
 
 class IsoEventBootOptionsTestCase(BootOptionsMixinTestCase, IsoEventTestCase):
@@ -104,9 +100,7 @@ class Test_IsoContent(IsoEventTestCase):
     <set>500 MB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
-  """<publish>
-    <boot-options>ro root=LABEL=/</boot-options>
-  </publish>"""]
+  ]
 
   def runTest(self):
     self.tb.dispatch.execute(until='iso')
@@ -136,25 +130,7 @@ class Test_SetsChanged(IsoEventBootOptionsTestCase):
     <set>500 MiB</set>
   </iso>""",
   """<packages><package>kernel</package></packages>""",
-  """<publish>
-    <boot-options>ro root=LABEL=/</boot-options>
-  </publish>"""]
-
-class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
-  "default boot args and config-specified args in isolinux.cfg"
-  _conf = [
-  """<iso>
-    <set>CD</set>
-    <set>500 MB</set>
-  </iso>""",
-  """<packages><package>kernel</package></packages>""",
-  """<publish>
-    <boot-options>ro root=LABEL=/</boot-options>
-  </publish>"""]
-
-  def setUp(self):
-    IsoEventBootOptionsTestCase.setUp(self)
-    self.do_defaults = True
+  ]
 
 # Note - this test could be made faster if we provided a general method
 # for modifing the isolinux configuration, which by default waits 60 seconds
@@ -178,6 +154,24 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
     DeployMixinTestCase.setUp(self)
 
 
+# run this test after test-install since it alters boot options 
+class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
+  "default boot args and config-specified args in isolinux.cfg"
+  _conf = [
+  """<iso>
+    <set>CD</set>
+    <set>500 MB</set>
+  </iso>""",
+  """<packages><package>kernel</package></packages>""",
+  """<publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>"""]
+
+  def setUp(self):
+    IsoEventBootOptionsTestCase.setUp(self)
+    self.do_defaults = True
+
+
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('iso')
 
@@ -189,9 +183,9 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_SizeParser())
   suite.addTest(Test_IsoContent(os, version, arch))
   suite.addTest(Test_SetsChanged(os, version, arch))
-  suite.addTest(Test_BootOptionsDefault(os, version, arch))
   suite.addTest(Test_InstallFromIso(os, version, arch))
   # dummy test to shutoff vm
   suite.addTest(dm_make_suite(Test_InstallFromIso, os, version, arch, ))
+  suite.addTest(Test_BootOptionsDefault(os, version, arch))
 
   return suite
