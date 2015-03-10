@@ -22,6 +22,5 @@
 
 <srpmbuild>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
-<include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
 </srpmbuild>
 </xml>

@@ -2,7 +2,6 @@
 <xml>
 
 <!-- install and update a libvirt vm on the local machine -->
-<domain>deploy</domain>
 <kickstart>
 <include href='%{templates-dir}/%{norm-os}/common/ks.xml'
          xpath='./node()'/>
@@ -23,6 +22,7 @@
 <include href='%{templates-dir}/%{norm-os}/common/ssh-delete-host-key.xml'/>
 <include href='%{templates-dir}/%{norm-os}/libvirt/install.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/verify-install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-etc-hosts.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update.xml'/>

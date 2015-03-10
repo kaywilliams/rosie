@@ -38,7 +38,6 @@
 </config-rpms>
 
 <srpmbuild>
-<include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
 <include href="%{templates-dir}/%{norm-os}/deploy/pyliblzma-srpm.xml"/>
 </srpmbuild>
 

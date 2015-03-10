@@ -36,10 +36,6 @@
          xpath="./config-rpms/*[@id='deploy-httpd-config']"/>
 </config-rpms>
 
-<srpmbuild>
-<include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
-</srpmbuild>
-
 <test-update>
 <include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
          xpath="./*"/>

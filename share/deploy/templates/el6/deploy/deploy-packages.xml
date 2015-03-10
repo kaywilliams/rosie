@@ -23,7 +23,6 @@
 
 <srpmbuild>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-srpm.xml"/>
-<include href="%{templates-dir}/%{norm-os}/deploy/dnsmasq-srpm.xml"/>
 <include href="%{templates-dir}/%{norm-os}/deploy/pyliblzma-srpm.xml"/>
 </srpmbuild>
 </xml>
