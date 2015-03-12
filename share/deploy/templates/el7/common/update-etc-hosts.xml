@@ -1,0 +1,28 @@
+<script id='update-etc-hosts' type='install' comes-after='install' 
+        hostname='localhost' verbose='true'>
+#!/usr/bin/python
+
+import sys
+
+from deploy.util import pps
+
+hostsfile = pps.path('/etc/hosts')
+comment = '# deploy managed'
+
+if '{ssh-host}' == '{fqdn}':
+  sys.exit(0) # no need for hosts file entry
+
+lines = hostsfile.read_lines()
+
+newlines = []
+for line in lines:
+  if (len(line.split()) > 1 and 
+      line.split()[1] == '%{hostname}' and
+      comment in line):
+    continue # remove line
+  newlines.append(line)
+
+newlines.append('%{ssh-host}\t%{hostname} %{fqdn} %s' % comment)
+
+hostsfile.write_lines(newlines)
+</script>
