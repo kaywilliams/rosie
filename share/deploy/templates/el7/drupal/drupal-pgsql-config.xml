@@ -1,42 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-pgsql-config'>
-<requires>postgresql</requires>
-<requires>postgresql-server</requires>
+<macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
+<macro id='drupal-db-restore-file'>%{drupal-sitename}</macro>
+
+<requires>pgsql-server-config</requires>
 <requires>php-pgsql</requires>
+
+<!--
+Execute config logic in a runonce service since postgresql-setup initdb can't
+run in a chroot (i.e. under anaconda).
+-->
+<requires>systemd-units</requires>
+
 <script type='post'>
-# start pgsql service
-hbafile="/var/lib/pgsql/data/pg_hba.conf"
-chkconfig postgresql on
-if ! [ -e $hbafile ]; then
-  service postgresql initdb > /dev/null
-  sed -r -i  "/local.*all.*all[[:space:]]+/s/ident/trust/" $hbafile
-  sed -r -i  "/host.*all.*all.*127.0.0.1\/32[[:space:]]+/s/ident/trust/" $hbafile
-  sed -r -i  "/host.*all.*all.*::1\/128[[:space:]]+/s/ident/trust/" $hbafile
+# enable the drupal-pgsql-config run-once service if running under anaconda,
+# else run it directly
+if pgrep anaconda; then
+  systemctl -q enable drupal-pgsql-config.service
+else
+  systemctl -q start drupal-pgsql-config.service
 fi
-pidof postmaster > /dev/null || service postgresql start > /dev/null
+</script>
+
+<files destdir="/etc/systemd/system"
+       destname="drupal-pgsql-config.service"
+       mode="755" content="text">
+[Unit]
+Description=first boot service to configure drupal-pgsql
+Requires=postgresql-server-config.service
+After=postgresql-server-config.service
+
+[Service]
+Type=oneshot
+ExecStart=%{install-dir}/files/drupal-pgsql-config.sh
+ExecStartPost=/bin/systemctl disable drupal-pgsql-config.service
+
+[Install]
+WantedBy=multi-user.target
+</files>
+
+<files destname='drupal-pgsql-config.sh' mode='755' content='text'>
+#!/bin/sh -
+set -e
 
 # create drupal database
 <!-- To populate the database with existing data, include this config-rpm
      within another, and have the outer config-rpm first copy a pgsql backup
-     file to the /var/lib/pgsql/backups folder with the filename 'drupal'.
-     Backup files can be created using the pg_dump utility.
-
-     The outer config-rpm can copy data to the backups folder using one of two
-     methods. The easiest is to use a files element such as the following:
-     <files destdir='/var/lib/pgsql/backups
-     destname='drupal'>/path/to/backup/file</files>. This method distributes
-     initial data to the system by including it directly in the rpm. 
+     file to the folder and filename specified by %{drupal-db-restore-dir} and
+     %{drupal-db-restore-file}.  Backup files can be created using the pg_dump
+     utility.
      
-     The second method is to use a script element, e.g. <script
-     type='post'>your script here</script>, to copy data directly to the
-     installed machine. The script should be specified prior to
-     including this config-rpm.
+     The restore file is typically created using a script element, e.g. <script
+     type='post'>your script here</script>, which copies data from a backup
+     server or device to the installed machine. The script should be specified
+     prior to including this config-rpm.
 -->
-if ! su postgres -c "psql -l" | grep %{sitename} >/dev/null; then
-  su postgres -c "createdb %{sitename} -E UTF8 -T template0"
-  if [[ -f "/var/lib/pgsql/backups/%{sitename}" ]]; then 
-    su postgres -c "psql %{sitename} &lt; /var/lib/pgsql/backups/%{sitename}"
+if ! su - postgres -c "psql -l" | grep '^ %{drupal-sitename}\b' >/dev/null; then
+  su - postgres -c "psql -q -c \"create user %{drupal-db-user} with password '%{drupal-db-password}' createdb nocreaterole nosuperuser;\""
+  su - postgres -c "createdb -E UTF8 -T template0 -O %{drupal-db-user} %{drupal-sitename}"
+  if [[ -f "%{drupal-db-restore-dir}/%{drupal-db-restore-file}" ]]; then 
+    su - postgres -c "psql %{drupal-sitename} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
   fi
 fi
-</script>
+</files>
 </config-rpm>

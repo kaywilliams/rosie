@@ -1,44 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-config'>
 
-<macro id='password'>Test1!</macro>
-<macro id='dbtype'>pgsql</macro><!-- valid values are 'pgsql' or 'mariadb' -->
-<macro id='dbuser'>postgres</macro>
-<macro id='sitename'>drupal</macro>
+<macro id='drupal-admin-password'>Test1!</macro>
+<macro id='drupal-sitename'>drupal</macro>
+<macro id='drupal-db-type'>pgsql</macro><!-- 'pgsql' or 'mysql' -->
+<macro id='drupal-db-user'>drupal</macro>
+<macro id='drupal-db-password'>%{drupal-admin-password}</macro>
 
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
+%{%{os}-repos}
+<macro id="centos-repos"/>
+<macro id="rhel-repos">
+<!-- needed for php-mbstring  -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml" 
+         xpath="./repo[@id='rhel-optional']"/>
+</macro>
+    
 
 <requires>httpd</requires>
 <requires>drupal7</requires>
-<requires>drupal-%{dbtype}-config</requires>
+<requires>drupal-%{drupal-db-type}-config</requires>
 <requires>drush-config</requires>
-<requires>/usr/sbin/setsebool</requires>
+
+<!--
+Execute config logic in a runonce service since postgresql-setup initdb can't
+run in a chroot (i.e. under anaconda).
+-->
+<requires>systemd-units</requires>
 
 <script type='post'>
-# create drupal site
-cd /usr/share/drupal7/sites
-if ! drush core-status | grep "Database name" ; then
-  drush -y -q si standard \
-    --account-pass=%{password} \
-    --db-url=%{dbtype}://%{dbuser}@localhost/%{sitename} \
-    --db-su=%{dbuser} \
-    --site-name=%{sitename}
+# enable the drupal-config run-once service if running under anaconda,
+# else run it directly
+if pgrep anaconda; then
+  systemctl -q enable drupal-config.service
+else
+  systemctl -q start drupal-config.service
 fi
+</script>
+
+<files destdir="/etc/systemd/system"
+       destname="drupal-config.service"
+       mode="755" content="text">
+[Unit]
+Description=first boot service to configure drupal-config
+Requires=drupal-pgsql-config.service
+After=drupal-pgsql-config.service
+
+[Service]
+Type=oneshot
+ExecStart=%{install-dir}/files/drupal-config.sh
+ExecStartPost=/bin/systemctl disable drupal-config.service
+
+[Install]
+WantedBy=multi-user.target
+</files>
+
+<files destname='drupal-config.sh' mode='755' content='text'>
+#!/bin/sh -
+set -e
 
 # allow public access
+sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/drupal7.conf
 sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
-
-# configure selinux
-if [[ `getsebool httpd_can_network_connect | grep off` ]]; then
-  setsebool -P httpd_can_network_connect 1
-fi
-if [[ `getsebool httpd_can_sendmail | grep off` ]]; then
-  setsebool -P httpd_can_sendmail 1
-fi
 
 # configure web server
 sed -i "s|^DocumentRoot.*|DocumentRoot \"/usr/share/drupal7\"|" /etc/httpd/conf/httpd.conf
-service httpd restart > /dev/null
-</script>
+
+# load drupal configuration in apache
+if pidof httpd; then
+  info=`systemctl reload httpd 2>&amp;1` || (status=$?; echo $info; exit $status)
+else
+  info=`systemctl start httpd 2>&amp;1` || (status=$?; echo $info; exit $status)
+fi
+
+# create drupal site if one does not exist
+cd /usr/share/drupal7/sites
+
+# test drush core-status in a separate step so that that the script exits
+# with an error if the command fails
+info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
+
+# create new site
+if ! drush core-status | grep -q "Database name" ; then
+  drush -y -q si standard \
+    --account-pass=%{drupal-admin-password} \
+    --db-url=%{drupal-db-type}://%{drupal-db-user}@localhost/%{drupal-sitename} \
+    --db-su=postgres \
+    --site-name=%{drupal-sitename}
+  service httpd reload > /dev/null
+fi
+</files>
 </config-rpm>

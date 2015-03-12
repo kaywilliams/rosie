@@ -14,6 +14,7 @@ if ! [ -e $hbafile ]; then
   sed -r -i  "/host.*all.*all.*127.0.0.1\/32[[:space:]]+/s/ident/trust/" $hbafile
   sed -r -i  "/host.*all.*all.*::1\/128[[:space:]]+/s/ident/trust/" $hbafile
 fi
+pgrep anaconda || exit 0
 pidof postmaster > /dev/null || service postgresql start > /dev/null
 </script>
 </config-rpm>

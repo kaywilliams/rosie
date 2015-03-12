@@ -1,0 +1,35 @@
+<script id='drupal-test' type='update' comes-after='update'>
+#!/usr/bin/python
+
+import pycurl
+import sys
+import time
+
+from StringIO import StringIO
+
+# it takes a few seconds after first install for drupal config services
+# postgres, drush, etc., to complete execution and the web server to come up
+RETRY_ATTEMPTS = 1
+RETRY_TIME = 2 # seconds
+
+buffer = StringIO()
+
+count = 0
+while True:
+  c=pycurl.Curl()
+  c.setopt(c.URL, '%{ssh-host}')
+  c.setopt(c.WRITEFUNCTION, buffer.write)
+  c.perform()
+  c.close()
+  
+  body=buffer.getvalue()
+  if 'error' in body.lower():
+    if count >= RETRY_ATTEMPTS:
+      sys.stderr.write("Error found in Drupal home page. View "
+                       "http://%{ssh-host} for details\n")
+      sys.exit(1)
+    else:
+      time.sleep(RETRY_TIME)
+      count += 1
+  break
+</script>

@@ -17,6 +17,7 @@
 
 <script type='post'>
 # allow public access
+sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/drupal7.conf
 sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
 
 # configure web server

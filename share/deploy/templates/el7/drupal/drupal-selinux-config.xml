@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='drupal-selinux-config'>
+
+<requires>/usr/sbin/setsebool</requires>
+<requires>/usr/sbin/getenforce</requires>
+
+<script type='post'>
+# configure selinux
+if [[ `getenforce` != Disabled ]]; then
+  if [[ `getsebool httpd_can_network_connect | grep off` ]]; then
+    setsebool -P httpd_can_network_connect 1
+  fi
+  if [[ `getsebool httpd_can_sendmail | grep off` ]]; then
+    setsebool -P httpd_can_sendmail 1
+  fi
+fi
+</script>
+</config-rpm>
