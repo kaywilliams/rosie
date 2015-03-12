@@ -6,7 +6,7 @@
 [[ `pidof httpd` ]] || (echo 'TEST FAILED: Web server not running'; exit 1)
 
 # test firewall configuration;
-for s in http https; do 
+for s in httpd-config-http httpd-config-https; do 
   firewall-cmd --zone public --list-services | grep -qw $s || \
   (echo "TEST FAILED: '$s' not listed in 'firewall-cmd --zone public --list-services'"; exit 1)
 done

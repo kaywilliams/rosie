@@ -1,30 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='httpd-config'>
-<!-- httpd -->
+
+<macro id='httpd-config-services'>%{rpm-id}-http %{rpm-id}-https</macro>
+
 <requires>httpd</requires>
 <requires>mod_ssl</requires>
-
-<!-- firewall -->
 <requires>firewalld</requires>
+<requires>systemd</requires>
 
-<!-- utils -->
-<requires>/usr/bin/ps</requires>
+<files destdir='/usr/lib/firewalld/services' destname='%{rpm-id}-http.xml'
+       content='text' mode='640'>
+&lt;?xml version="1.0" encoding="utf-8"?>
+&lt;service>
+ &lt;short>%{rpm-id}-http&lt;/short>
+ &lt;description>Service required for the %{rpm-id} rpm&lt;/description>
+ &lt;port protocol="tcp" port="80"/>
+&lt;/service>
+</files>
+
+<files destdir='/usr/lib/firewalld/services' destname='%{rpm-id}-https.xml'
+       content='text' mode='640'>
+&lt;?xml version="1.0" encoding="utf-8"?>
+&lt;service>
+ &lt;short>%{rpm-id}-https&lt;/short>
+ &lt;description>Service required for the %{rpm-id} rpm&lt;/description>
+ &lt;port protocol="tcp" port="443"/>
+&lt;/service>
+</files>
 
 <script type='post'>
 # configure httpd to start at system boot
 systemctl -q enable httpd
 
-# configure persistent firewall rules
+# configure firewall 
 file=/etc/firewalld/zones/public.xml
 [ -f $file ] || cp /usr/lib/firewalld/zones/public.xml $file
 sed -i "/&lt;\/zone>/d" $file
-grep -qw http $file || echo '  &lt;service name="http"/>' >> $file
-grep -qw https $file || echo '  &lt;service name="https"/>' >> $file
+for s in %{httpd-config-services}; do
+  grep -qw $s $file || echo "&lt;service name=\"$s\"/>" >> $file
+done
 echo "&lt;/zone>" >> $file
 
 # start http and reload firewall rules
-if ! ps aux | grep "[/]sbin/anaconda"; then
+if ! pgrep anaconda; then
   systemctl start httpd
+  firewall-cmd -q --reload
+fi
+</script>
+
+<script type='postun'>
+# remove firewall services
+if [[ $1 == 0 ]]; then
+  sed -i "/%{rpm-id}-http/d" /etc/firewalld/zones/public.xml
+  sed -i "/%{rpm-id}-https/d" /etc/firewalld/zones/public.xml
   firewall-cmd -q --reload
 fi
 </script>
