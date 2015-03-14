@@ -23,7 +23,7 @@ try:
       # "Connection refused", or "No route to host" errors
       if e[0] in [ -2, 110, 111, 113]:
         if total >= timeout:
-          msg = ('unable to connect to host in %s second timeout: \n%s'
+          msg = ('unable to connect to %{ssh-host} in %s second timeout: \n%s'
                   % (timeout, e))
           sys.stderr.write(msg)
           sys.exit(1)
