@@ -35,11 +35,9 @@ systemctl -q enable httpd
 # configure firewall 
 file=/etc/firewalld/zones/public.xml
 [ -f $file ] || cp /usr/lib/firewalld/zones/public.xml $file
-sed -i "/&lt;\/zone>/d" $file
 for s in %{httpd-config-services}; do
-  grep -qw $s $file || echo "&lt;service name=\"$s\"/>" >> $file
+  grep -qw $s $file || sed -i "\$i&lt;service name=\"$s\"/>" $file
 done
-echo "&lt;/zone>" >> $file
 
 # start http and reload firewall rules
 if ! pgrep anaconda; then
@@ -50,7 +48,7 @@ fi
 
 <script type='postun'>
 # remove firewall services
-if [[ $1 == 0 ]]; then
+if [ $1 -eq 0 ]; then
   sed -i "/%{rpm-id}-http/d" /etc/firewalld/zones/public.xml
   sed -i "/%{rpm-id}-https/d" /etc/firewalld/zones/public.xml
   firewall-cmd -q --reload
