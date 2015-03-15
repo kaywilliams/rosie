@@ -3,10 +3,12 @@
 <summary>libvirt configuration for deploy</summary>
 <license>GPLv2</license>
 
+<requires>avahi-config</requires>
 <requires>libvirt</requires>
 <requires>qemu-kvm</requires>
 <requires>virt-install</requires>
 <requires>virt-manager</requires>
 <requires>virt-viewer</requires>
 <requires>/usr/bin/virsh</requires>
+
 </config-rpm>

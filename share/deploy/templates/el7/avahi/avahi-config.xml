@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="avahi-config">
+<summary>avahi configuration</summary>
+<license>GPLv2</license>
+
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<requires>avahi</requires>
+<requires>firewalld</requires>
+<requires>nss-mdns</requires>
+
+<!-- epel needed for nss-mdns -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<!-- allow avahi traffic through the firewall -->
+<script type='post'>
+set -e
+
+# configure firewall
+
+# copy service file
+service_dir=/usr/lib/firewalld/services
+service_name=%{rpm-id}-mdns
+cp $service_dir/mdns.xml $service_dir/$service_name.xml
+
+# edit zone file
+zone_file=/etc/firewalld/zones/public.xml
+[ -f $zone_file ] || cp /usr/lib/firewalld/zones/public.xml $zone_file
+grep -qw $service_name $zone_file || sed -i "\$i&lt;service name=\"$service_name\"/>" $zone_file
+
+# reload firewall rules
+pgrep anaconda || firewall-cmd -q --reload
+</script>
+
+<script type='postun'>
+# remove firewall services
+if [ $1 -eq 0 ]; then
+  rm -f /usr/lib/firewalld/services/%{rpm-id}-mdns.xml
+  sed -i "/%{rpm-id}-mdns/d" /etc/firewalld/zones/public.xml
+  firewall-cmd -q --reload
+fi
+</script>
+</config-rpm>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id="avahi-config">
+<summary>avahi configuration</summary>
+<license>GPLv2</license>
+
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<requires>avahi</requires>
+<requires>nss-mdns</requires>
+
+<!-- epel needed for nss-mdns -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<!-- allow avahi traffic through the firewall -->
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update-client.xml'
+         xpath='./*'/>
+<files destname='%{rpm-id}' destdir='/etc/sysconfig/iptables-update.d'
+       content='text'>
+-A INPUT -m state --state NEW -m udp -p udp --dport 5353 -j ACCEPT
+</files>
+</config-rpm>

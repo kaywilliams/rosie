@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config-rpm id='libvirt-guest-config'>
-<requires>NetworkManager</requires>
-</config-rpm>
+<xml>
+<include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
+<include href='%{templates-dir}/%{norm-os}/avahi/avahi-config.xml'/>
+</xml>

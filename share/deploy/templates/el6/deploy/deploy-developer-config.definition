@@ -33,6 +33,7 @@
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-developer-workspace-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
 <include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
+<include href='%{templates-dir}/%{norm-os}/avahi/avahi-config.xml'/>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-packages.xml"
          xpath="./config-rpms/*[@id='deploy-httpd-config']"/>
 </config-rpms>

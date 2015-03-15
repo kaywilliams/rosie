@@ -21,11 +21,4 @@ virt-install \
   --force \
   --wait=-1 \
   --noreboot 2>&amp;1
-
-# get ipaddress
-macaddress=`virsh dumpxml $guestname | sed -n "s|.*&lt;mac address='\(.*\)'/>|\1|p"`
-ipaddress=`arp -an | while read line; do echo $line | sed -n "s/.*(\(.*\)).*$macaddress.*/\1/p"; done`
-
-# store ipaddress for future use
-echo $ipaddress > %{ssh-host-file}
 </script>

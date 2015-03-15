@@ -19,6 +19,7 @@
          xpath="./*"/>
 </config-rpm>
 <include href="%{templates-dir}/%{norm-os}/deploy/deploy-libvirt-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/avahi/avahi-config.xml"/>
 </config-rpms>
 
 <srpmbuild>
