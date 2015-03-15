@@ -39,6 +39,22 @@
 <gpgkey>http://mirror.centos.org/centos/%{version}/os/%{arch}/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
 </repo>
 
+<!-- centos-extras -->
+<repo id="centos-server-extras">
+<baseurl>http://mirror.centos.org/centos/%{version}/extras/%{arch}</baseurl>
+<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</repo>
+
+<repo id="centos-workstation-extras">
+<baseurl>http://mirror.centos.org/centos/%{version}/extras/%{arch}</baseurl>
+<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</repo>
+
+<repo id="centos-desktop-extras">
+<baseurl>http://mirror.centos.org/centos/%{version}/extras/%{arch}</baseurl>
+<gpgkey>http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-%{version}</gpgkey>
+</repo>
+
 <!-- rhel base repos -->
 <repo id="rhel-server-base">
 <macro id="rhel-server-mirror">http://mirror.company.com/rhel/enterprise/7Server/en/os/%{arch}</macro>
