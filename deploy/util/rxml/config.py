@@ -337,7 +337,7 @@ def _make_path(element, path, fallback=None, multiple=True):
 
     # get the base for resolving relative paths
     base = strings[i].getparent().getbase() or pps.path('.')
-    strings[i] = (base.dirname / strings[i]).normpath()
+    strings[i] = (base.dirname / strings[i].strip()).normpath()
 
   if multiple: return strings
   else: return strings[0]
