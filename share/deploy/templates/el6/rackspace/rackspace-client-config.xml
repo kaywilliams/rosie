@@ -21,12 +21,6 @@ for additional information.
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
 
-<!-- add centos-extras repo for python-urllib3, required by python-requests
-     python-urllib3 is supposed to be included in el6.7, which is not yet
-     released -->
-<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
-         xpath="./repo[@id='%{os}-%{edition}-extras']"/>
-
 <repo id='rdo-icehouse'>
 <baseurl>https://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/</baseurl>
 <gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-RDO-Icehouse</gpgkey>
