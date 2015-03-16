@@ -61,8 +61,6 @@ class ReposEvent(RepoEventMixin, Event):
       conditionally_requires = [ 'repos' ]
     )
 
-    RepoEventMixin.__init__(self)
-
     self.DATA = {
       'variables': set(), # stuff added in .setup_repos()
       'config':    set(['.']),
@@ -70,33 +68,35 @@ class ReposEvent(RepoEventMixin, Event):
       'output':    set(),
     }
 
+    RepoEventMixin.__init__(self)
+
   def setup(self):
     self.diff.setup(self.DATA)
 
-    updates  = self.cvars.get('repos', RepoContainer())
+    RepoEventMixin.setup(self)
 
     try:
       if self.config.pathexists('.'):
-        updates.add_repos(ReposFromXml(self.config.getxpath('.'),
-                                       cls=DeployRepoGroup,
-                                       ignore_duplicates=True,
-                                       locals=self.locals),
-                          ignore_duplicates=True)
+        self.repos.add_repos(ReposFromXml(self.config.getxpath('.'),
+                                          cls=DeployRepoGroup,
+                                          ignore_duplicates=True,
+                                          locals=self.locals),
+                             ignore_duplicates=True)
 
       for filexml in self.config.xpath('repofile/text()', []):
         fn = self.io.abspath(filexml)
         assert_file_has_content(fn)
         try:
-          updates.add_repos(ReposFromFile(fn, cls=DeployRepoGroup,
-                                              ignore_duplicates=True,
-                                              locals=self.locals),
-                            ignore_duplicates=True)
+          self.repos.add_repos(ReposFromFile(fn, cls=DeployRepoGroup,
+                                             ignore_duplicates=True,
+                                             locals=self.locals),
+                               ignore_duplicates=True)
         except RepoFileParseError, e:
           raise DeployRepoFileParseError(e.args[0])
     except RepoValidationError, e:
       raise DeployRepoValidationError(msg=e) 
 
-    self.setup_repos(updates)
+    self.setup_repos(self.repos)
     self.read_repodata()
 
   def run(self):

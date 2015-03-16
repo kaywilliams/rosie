@@ -393,7 +393,6 @@ class RepoContainer(dict):
       else:
         raise RepoDuplicateIdsError(id=repo.id)
 
-    
     self[repo.id].update(**kwargs)
 
   def add_repos(self, repocontainer, **kwargs):

@@ -59,189 +59,35 @@ __all__ = ['RepoSetupEventMixin', 'RepoEventMixin', 'GPGKeysEventMixin',
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class DeployRepo(YumRepo):
-  keyfilter = ['id']
-  treeinfofile = '.treeinfo'
-
-  def __init__(self, **kwargs):
-    YumRepo.__init__(self, **kwargs)
-    self.localurl = None
-
-  def _boolparse(self, s):
-    if s.lower() in BOOLEANS_FALSE:
-      return False
-    elif s.lower() in BOOLEANS_TRUE:
-      return True
-    elif s is None:
-      return None
-    else:
-      raise ValueError("invalid boolean value '%s'" % s)
-
-  @property
-  def download(self):
-    return self._boolparse(self.get('download', 'false'))
-
-  def get_rpm_version(self, names):
-    # filter list of names if necessary
-    names = [ n for n in names if self.repocontent.has_package(n) ]
-    if not names: return (None, None)
-
-    scan = re.compile('(?:.*/)?(' + '|'.join(names) + ')-(.*)(\..*\..*$)')
-    assert_file_readable(self.pkgsfile, PkgsfileIOError,
-                         names=listfmt.format(names,
-                                              sep=', ', pre='\'',
-                                              post='\'', last=' or '))
-    for rpm in self.pkgsfile.read_lines():
-      match = scan.match(rpm)
-      if match:
-        try:
-          return match.groups()[0:2]
-        except (AttributeError, IndexError):
-          pass
-    return (None, None)
-
-  def _xform_uri(self, p):
-    return YumRepo._xform_uri(self, pps.path(p))
-
-
-class DeployRepoGroup(DeployRepo):
-  def __init__(self, locals=None, **kwargs):
-    DeployRepo.__init__(self, **kwargs)
-
-    self._repos = None
-    self.locals = locals
-    self.has_installer_files = False
-
-  def _populate_repos(self):
-    "Find all the repos we contain and classify ourself"
-    self._repos = RepoContainer()
-
-    # check validity of mirrorlist
-    try:
-      self.url # prepopulates url's mirrorgroup cache, raises below error
-    except pps.lib.mirror.MirrorlistFormatInvalidError, e:
-      raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
-
-    cls = DeployRepo
-
-    # first make sure we can access the repomdfile location (e.g. no network or
-    # permissions errors)
-    repomd = self.url/self.repomdfile
-    if not hasattr(repomd, 'cache_handler') or \
-       not repomd.cache_handler.offline: # skip this test in offline mode
-      try:
-        repomd.stat()
-      except pps.Path.error.PathError, e:
-        if e.errno != errno.ENOENT: # report errors other than "does not exist"
-          try:
-            # convert mirror paths to regular urls
-            uri = self.url.touri()
-          except pps.Path.error.PathError:
-            # touri might fail as it automatically tries to download headers
-            uri = self.url
-          raise InputFileError(message=e.strerror, 
-                               file=uri/self.repomdfile)
-
-    # get directory listing so we can figure out information about this repo
-    # find all subrepos
-    repos = []
-
-    if (self.url/self.repomdfile).exists():
-      updates = {}
-      for k,v in self.items():
-        if k not in ['id']:
-          updates[k] = v
-      R = cls(id=self.id, **updates)
-      R._relpath = pps.path('.')
-      self._repos.add_repo(R, ignore_duplicates=True)
-
-    else:
-      for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
-                                  nglob=NOT_REPO_GLOB):
-
-        if not (d/self.repomdfile).exists(): continue 
-          
-        updates = {}
-        for k,v in self.items():
-          if k not in ['id', 'mirrorlist', 'baseurl']:
-            updates[k] = v
-        if hasattr(self.url, 'mirrorgroup'):
-        # it doesn't make sense for a subrepo to have a mirrorlist; however,
-        # we can fake it by converting all the mirror items into a baseurl
-        # list!
-          updates['baseurl'] = \
-            '\n'.join([ x/d.basename for x,e in self.url.mirrorgroup if e ])
-        else:
-          updates['baseurl'] = self.url / d.basename
-        R = cls(id='%s-%s' % (self.id, d.basename), **updates)
-        R._relpath = d.basename
-        self._repos.add_repo(R, ignore_duplicates=True)
-
-    if len(self._repos) == 0:
-      raise RepodataNotFoundError(self.id, self.url.touri())
-
-    # set up $yumvar replacement for all subrepos
-    for R in self._repos.values():
-      R.vars = self.vars
-
-    # classify this repo - does it have installer files?
-    if (self.url/
-        self.locals.L_FILES['pxeboot']['initrd.img']['path']).exists():
-      self.has_installer_files = True
-
-  def __str__(self):
-    return self.tostring(pretty=True)
-
-  def tostring(self, **kwargs):
-    return self.subrepos.tostring(**kwargs)
-
-  def lines(self, **kwargs):
-    baseurls = [ pps.path(x) for x in (kwargs.get('baseurl') or '').split() ]
-    l = []
-    for repo in self.subrepos.values():
-      if baseurls:
-        kwargs['baseurl'] = '\n'.join([ b/repo._relpath for b in baseurls ])
-      l.extend(repo.lines(**kwargs))
-      l.append('')
-    return l
-
-  def read_repomd(self):
-    for subrepo in self.subrepos.values():
-      try:
-        subrepo.read_repomd()
-      except PathError, e:
-        raise RepomdFileReadError("An error occurred reading repository "
-                                  "metadata. %s" % e)
-      for k,v in subrepo.datafiles.items():
-        new = copy.copy(v)
-        new.href = subrepo._relpath/v.href
-        self.datafiles.setdefault(k, []).append(new)
-
-  @property
-  def subrepos(self):
-    if not self._repos:
-      self._populate_repos()
-    return self._repos
-
 
 class RepoSetupEventMixin(Event):
   """Uses ReposFromXml to add repos to the repos cvar. Creates repos cvar if
      it does not exist"""
+  repo_setup_mixin_version = "1.00"
+
   def __init__(self):
     self.provides = set(['repos'])
+    
+    if not hasattr(self, 'DATA'): self.DATA = {'variables': set()}
+    self.DATA['variables'].add('repo_setup_mixin_version')
 
   def apply(self):
-    if self.config.xpath('repo', []):
-      (self.cvars.setdefault('repos', RepoContainer()).
-                             add_repos(ReposFromXml(self.config.getxpath('.'),
-                                                    ignore_duplicates=True,
-                                                    cls=DeployRepoGroup,
-                                                    locals=self.locals),
-                                       ignore_duplicates=True))
+    self.repos = self.cvars.setdefault('repos', RepoContainer())
+    self.repos.add_repos(ReposFromXml(self.config,
+                                      ignore_duplicates=True,
+                                      cls=DeployRepoGroup,
+                                      locals=self.locals),
+                         ignore_duplicates=True)
 
 class RepoEventMixin(Event):
-  def __init__(self, *args, **kwargs):
-    self.repos = RepoContainer()
+  repo_mixin_version = "1.00"
+
+  def __init__(self):
+    if not hasattr(self, 'DATA'): self.DATA = {'variables': set()}
+    self.DATA['variables'].add('repo_mixin_version')
+
+  def setup(self):
+    self.repos = self.cvars.setdefault('repos', RepoContainer())
 
   def validate(self):
     # if mode == system, repos config must contain at least one repo or repofile
@@ -491,6 +337,172 @@ class GPGKeysEventMixin:
                         '/bin/grep uid | sed "s/uid[ ]*//"' % homedir)
 
     return uid[0]
+
+class DeployRepo(YumRepo):
+  keyfilter = ['id']
+  treeinfofile = '.treeinfo'
+
+  def __init__(self, **kwargs):
+    YumRepo.__init__(self, **kwargs)
+    self.localurl = None
+
+  def _boolparse(self, s):
+    if s.lower() in BOOLEANS_FALSE:
+      return False
+    elif s.lower() in BOOLEANS_TRUE:
+      return True
+    elif s is None:
+      return None
+    else:
+      raise ValueError("invalid boolean value '%s'" % s)
+
+  @property
+  def download(self):
+    return self._boolparse(self.get('download', 'false'))
+
+  def get_rpm_version(self, names):
+    # filter list of names if necessary
+    names = [ n for n in names if self.repocontent.has_package(n) ]
+    if not names: return (None, None)
+
+    scan = re.compile('(?:.*/)?(' + '|'.join(names) + ')-(.*)(\..*\..*$)')
+    assert_file_readable(self.pkgsfile, PkgsfileIOError,
+                         names=listfmt.format(names,
+                                              sep=', ', pre='\'',
+                                              post='\'', last=' or '))
+    for rpm in self.pkgsfile.read_lines():
+      match = scan.match(rpm)
+      if match:
+        try:
+          return match.groups()[0:2]
+        except (AttributeError, IndexError):
+          pass
+    return (None, None)
+
+  def _xform_uri(self, p):
+    return YumRepo._xform_uri(self, pps.path(p))
+
+
+class DeployRepoGroup(DeployRepo):
+  def __init__(self, locals=None, **kwargs):
+    DeployRepo.__init__(self, **kwargs)
+
+    self._repos = None
+    self.locals = locals
+    self.has_installer_files = False
+
+  def _populate_repos(self):
+    "Find all the repos we contain and classify ourself"
+    self._repos = RepoContainer()
+
+    # check validity of mirrorlist
+    try:
+      self.url # prepopulates url's mirrorgroup cache, raises below error
+    except pps.lib.mirror.MirrorlistFormatInvalidError, e:
+      raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
+
+    cls = DeployRepo
+
+    # first make sure we can access the repomdfile location (e.g. no network or
+    # permissions errors)
+    repomd = self.url/self.repomdfile
+    if not hasattr(repomd, 'cache_handler') or \
+       not repomd.cache_handler.offline: # skip this test in offline mode
+      try:
+        repomd.stat()
+      except pps.Path.error.PathError, e:
+        if e.errno != errno.ENOENT: # report errors other than "does not exist"
+          try:
+            # convert mirror paths to regular urls
+            uri = self.url.touri()
+          except pps.Path.error.PathError:
+            # touri might fail as it automatically tries to download headers
+            uri = self.url
+          raise
+          raise InputFileError(message=e.strerror, 
+                               file=uri/self.repomdfile)
+
+    # get directory listing so we can figure out information about this repo
+    # find all subrepos
+    repos = []
+
+    if (self.url/self.repomdfile).exists():
+      updates = {}
+      for k,v in self.items():
+        if k not in ['id']:
+          updates[k] = v
+      R = cls(id=self.id, **updates)
+      R._relpath = pps.path('.')
+      self._repos.add_repo(R, ignore_duplicates=True)
+
+    else:
+      for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
+                                  nglob=NOT_REPO_GLOB):
+
+        if not (d/self.repomdfile).exists(): continue 
+          
+        updates = {}
+        for k,v in self.items():
+          if k not in ['id', 'mirrorlist', 'baseurl']:
+            updates[k] = v
+        if hasattr(self.url, 'mirrorgroup'):
+        # it doesn't make sense for a subrepo to have a mirrorlist; however,
+        # we can fake it by converting all the mirror items into a baseurl
+        # list!
+          updates['baseurl'] = \
+            '\n'.join([ x/d.basename for x,e in self.url.mirrorgroup if e ])
+        else:
+          updates['baseurl'] = self.url / d.basename
+        R = cls(id='%s-%s' % (self.id, d.basename), **updates)
+        R._relpath = d.basename
+        self._repos.add_repo(R, ignore_duplicates=True)
+
+    if len(self._repos) == 0:
+      raise RepodataNotFoundError(self.id, self.url.touri())
+
+    # set up $yumvar replacement for all subrepos
+    for R in self._repos.values():
+      R.vars = self.vars
+
+    # classify this repo - does it have installer files?
+    if (self.url/
+        self.locals.L_FILES['pxeboot']['initrd.img']['path']).exists():
+      self.has_installer_files = True
+
+  def __str__(self):
+    return self.tostring(pretty=True)
+
+  def tostring(self, **kwargs):
+    return self.subrepos.tostring(**kwargs)
+
+  def lines(self, **kwargs):
+    baseurls = [ pps.path(x) for x in (kwargs.get('baseurl') or '').split() ]
+    l = []
+    for repo in self.subrepos.values():
+      if baseurls:
+        kwargs['baseurl'] = '\n'.join([ b/repo._relpath for b in baseurls ])
+      l.extend(repo.lines(**kwargs))
+      l.append('')
+    return l
+
+  def read_repomd(self):
+    for subrepo in self.subrepos.values():
+      try:
+        subrepo.read_repomd()
+      except PathError, e:
+        raise RepomdFileReadError("An error occurred reading repository "
+                                  "metadata. %s" % e)
+      for k,v in subrepo.datafiles.items():
+        new = copy.copy(v)
+        new.href = subrepo._relpath/v.href
+        self.datafiles.setdefault(k, []).append(new)
+
+  @property
+  def subrepos(self):
+    if not self._repos:
+      self._populate_repos()
+    return self._repos
+
 
 class ReposDiffTuple(DiffTuple):
   attrib = DiffTuple.attrib + [('csum', str)]
