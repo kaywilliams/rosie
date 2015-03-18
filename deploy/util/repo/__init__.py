@@ -9,21 +9,21 @@ def ReposFromXml(tree, cls=BaseRepo, original=None,
   of existing repos."""
   repos = RepoContainer()
   repos.update(original or {})
-
   for repoxml in tree.getchildren():
     if repoxml.tag != 'repo': continue
-    kwargs['id'] =  repoxml.getxpath('@id')
+    args = kwargs.copy()
+    args['id'] =  repoxml.getxpath('@id')
     for attr in set([ i.tag for i in repoxml.getchildren() ]):
       if attr in [ 'gpgkey', 'baseurl', 'mirrorlist',
                    'sslcacert', 'sslclientkey', 'sslclientcert' ]:
         # use rxml.config getpath to provide correctly resolved paths, then
         # join the results of multiple elements with the same name
-        kwargs[attr] = ' '.join(tree.getpaths('%s/%s/text()'
+        args[attr] = ' '.join(tree.getpaths('%s/%s/text()'
           % (tree.getroottree().getpath(repoxml), attr), [])).strip()
       else:
         # just join the results of multiple elements with the same name
-        kwargs[attr] = ' '.join(repoxml.xpath('%s/text()' % attr, [])).strip()
-    repos.add_repo(cls(**kwargs), 
+        args[attr] = ' '.join(repoxml.xpath('%s/text()' % attr, [])).strip()
+    repos.add_repo(cls(**args), 
                    ignore_duplicates=ignore_duplicates)
 
   return repos
