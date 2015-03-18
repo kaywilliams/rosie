@@ -34,6 +34,8 @@ class MountableImageHandler:
     self.base = base
     self._mount = None
     self._type = None # type string as used by mount to determine filesystem type
+    self.udisks2 = udisks2_active()
+
   def getsize(self):
     return self._mount.du(bytes=True)
 
@@ -42,7 +44,8 @@ class MountableImageHandler:
 
   def open(self, mode=MODE_WRITE, point=None):
 
-    if self.base.udisks2:
+
+    if self.udisks2:
       shlib.execute('systemctl stop udisks2')
 
     if not point:
@@ -80,7 +83,7 @@ class MountableImageHandler:
       else:
         break
     
-    if self.base.udisks2:
+    if self.udisks2:
       shlib.execute('systemctl start udisks2')
     release_mount_point(self._mount)
     self._mount = None
@@ -146,13 +149,7 @@ class MountableImageHandler:
 def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2, 
                        **kwargs):
 
-  # udisks2 thwarts our efforts to mount disks at specified locations,
-  # determine if it is active, so that we can disable it temporarily as needed
-  try:
-    shlib.execute('systemctl status udisks2')
-    udisks2 = True
-  except shlib.ShExecError:
-    udisks2 = False
+  udisks2 = udisks2_active()
 
   file = pps.path(file)
   if not file.isfile():
@@ -172,3 +169,14 @@ def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2,
   image.udisks2 = udisks2
   image.handler = cls(image)
   return image
+
+def udisks2_active():
+  # udisks2 thwarts our efforts to mount disks at specified locations,
+  # determine if it is active, so that we can disable it temporarily as needed
+  try:
+    shlib.execute('systemctl status udisks2')
+    udisks2 = True
+  except shlib.ShExecError:
+    udisks2 = False
+
+  return udisks2
