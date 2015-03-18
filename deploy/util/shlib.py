@@ -100,7 +100,8 @@ def call(cmd_args, **kwargs):
   both = fboth.getvalue()
 
   if returncode != 0:
-    raise ShCalledProcessError(cmd_args, returncode, output, errors, both)
+    raise ShCalledProcessError(cmd_args, returncode, output, errors, both,
+                               verbose)
 
   return output, errors, both
 
@@ -136,13 +137,20 @@ def execute(cmd, verbose=False):
   return stdout
 
 class ShCalledProcessError(StandardError):
-  def __init__(self, cmd, returncode, output, errors, both, message=None):
+  def __init__(self, cmd, returncode, output, errors, both, verbose=True,
+               message=None):
     self.returncode = returncode
     self.output = output
     self.errors = errors
     self.both = both
-    self.message = message or (
-      "Command '%s' returned non-zero exit status '%s'" % (cmd, returncode))
+    msg = ("Command '%s' returned non-zero exit status '%s'" %
+          (cmd, returncode))
+    if verbose: # output and error were already printed to stdout/stderr
+      msg = msg + '\n'
+    else: # output and errors have not been printed; do it now
+      msg = msg + ':\n\n%s' % both
+      
+    self.message = message or msg
 
   def __str__(self):
     return self.message
