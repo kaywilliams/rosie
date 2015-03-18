@@ -20,4 +20,29 @@
        content='text'>
 -A INPUT -m state --state NEW -m udp -p udp --dport 5353 -j ACCEPT
 </files>
+
+<!-- disable bridged traffic from being processed by firewalls - see
+     http://wiki.libvirt.org/page/Net.bridge-nf-call_and_sysctl.conf -->
+<files destdir='/etc/udev/rules.d' destname='61-bridge-nf.rules'
+       content='text'>
+ACTION=="add", SUBSYSTEM=="net", RUN+="/etc/sysconfig/network-scripts/bridge_nf_disable"
+</files>
+
+<files destdir='/etc/sysconfig/network-scripts' destname='bridge_nf_disable'
+       mode='755' content='text'>
+#!/bin/sh
+if [[ $INTERFACE == virbr0 ]]; then
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-ip6tables=0
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-iptables=0
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-arptables=0
+fi
+</files>
+<script type='post'>
+# set bridge_firewall rules for running systems
+if ip link show | grep -q virbr0; then
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-ip6tables=0
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-iptables=0
+  /sbin/sysctl -q -w net.bridge.bridge-nf-call-arptables=0
+fi
+</script>
 </config-rpm>
