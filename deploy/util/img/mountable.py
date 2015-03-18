@@ -150,13 +150,13 @@ def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2,
   # determine if it is active, so that we can disable it temporarily as needed
   try:
     shlib.execute('systemctl status udisks2')
-    self.udisks2 = True
+    udisks2 = True
   except shlib.ShExecError:
-    self.udisks2 = False
+    udisks2 = False
 
   file = pps.path(file)
   if not file.isfile():
-    if self.udisks2:
+    if udisks2:
       shlib.execute('systemctl stop udisks2')
     if size % 512 != 0:
       numblks = (size/512) + 1
@@ -165,9 +165,10 @@ def MakeMountableImage(cls, fsmaker, file, zipped=False, size=1*1024**2,
     shlib.execute('/bin/dd if=/dev/zero of="%s" bs=512 count=%s' % 
                  (file, numblks))
     shlib.execute(fsmaker)
-    if self.udisks2:
+    if udisks2:
       shlib.execute('systemctl start udisks2')
 
   image = Image(file, zipped=zipped)
+  image.udisks2 = udisks2
   image.handler = cls(image)
   return image
