@@ -617,6 +617,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
   def _generate_new_macro_value(self, macro, defaults_file):
     script_file = pps.path(defaults_file.dirname/'.script')
+    if not script_file.dirname.exists():
+      script_file.dirname.mkdirs()
     script_file.write_text(macro.text.encode('utf8').lstrip())
     script_file.chmod(0750)
     try:
