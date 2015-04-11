@@ -124,7 +124,7 @@ class SearchPathsHandler(object):
 
         for item in itertools.product(*macro_tuples):
           new_strings = [ (string[:], '') ] # initial (string, ending) tuple
-          _add_strings_with_unbalanced_endings(string, new_strings, ending='')
+          _add_strings_with_special_endings(string, new_strings, ending='')
           for new_string, ending in new_strings:
             for macro, value in item:
               new_string = new_string.replace(macro, value)
@@ -153,22 +153,24 @@ class SearchPathsHandler(object):
       return fn(self, errno, filename, strerror, *args, **kwargs)
     return wrapped
 
-def _add_strings_with_unbalanced_endings(string, new_strings, ending):
+def _add_strings_with_special_endings(string, new_strings, ending):
   """ 
   If string ends with the character '")] or } and it does not have a matching
   beginning character, strip the ending character recursively and return a list
-  of tuples with base strings and stripped endings. This allows us to handle
-  paths that are part of arbitrary scripts, e.g. "$(cat
-  %{templates-dir}/%{norm-os}/some/path)"
+  of tuples with base strings and stripped endings. Similarly handle strings
+  ending with separator characters - period, comma, colon and semicolon. This
+  allows us to handle paths that are part of arbitrary scripts, e.g. "$(cat
+  %{templates-dir}/%{norm-os}/some/path)". 
   """
-  if (string.endswith("'") and string.count("'")%2 != 0 or
+  if (string[-1] in ['.', ',', ';', ':'] or
+      string.endswith("'") and string.count("'")%2 != 0 or
       string.endswith('"') and string.count('"')%2 != 0 or
       string.endswith(')') and string.count('(') - string.count(')') != 0 or
       string.endswith(']') and string.count('[') - string.count(']') != 0 or
       string.endswith('}') and string.count('{') - string.count('}') != 0):
     ending = string[-1] + ending
     new_strings.append( (string[:-1], ending) )
-    _add_strings_with_unbalanced_endings(string[:-1], new_strings, ending)
+    _add_strings_with_special_endings(string[:-1], new_strings, ending)
 
   return new_strings
 
