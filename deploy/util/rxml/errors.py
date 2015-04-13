@@ -90,10 +90,12 @@ class MacroError(XmlError):
   def __init__(self, file, message, elem, tail=False):
     self.file = pps.path(file)
     self.message = message
+    if not self.message.endswith('/n'):
+      self.message + ' '
     self.elem = elem.tostring(lineno=True, with_tail=tail)
 
   def __str__(self):
-    msg = ("\nERROR: Unable to resolve macros in '%s'. %s The unresolved "
+    msg = ("\nERROR: Unable to resolve macros in '%s'. %sThe unresolved "
            "section is:\n\n%s\n" % (self.file, self.message, self.elem))
 
     return msg

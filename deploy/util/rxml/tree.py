@@ -338,7 +338,7 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
 
     # locate and remove macro definitions
     if find:
-      for elem in etree.ElementBase.xpath(self, '//macro'): 
+      for elem in etree.ElementBase.xpath(self, '//macro'):
         # ignore parent macros (until later loops)
         if [ x for x in elem.iterchildren('macro') ]:
           continue
@@ -407,7 +407,6 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                        etree.tostring(search_elem))).difference(unknown):
         remaining[macro] = {'attrib_strings': [],
                             'text_strings': [],}
-
       if not remaining:
         break
 
@@ -472,7 +471,8 @@ class XmlTreeElement(etree.ElementBase, XmlTreeObject):
                 waiting_for_defaults_file.add(macro)
                 if set(remaining.keys()) == waiting_for_defaults_file: raise
               except errors.MacroScriptError:
-                if re.findall(MACRO_REGEX, map[macro].text):
+                if set(re.findall(MACRO_REGEX,
+                                  map[macro].text)).difference(unknown):
                   # macros in script text, wait for them to be resolved  
                   if map[macro].text in unresolvable_strings:
                     raise
@@ -915,7 +915,6 @@ def fromstring(s, **kwargs):
 
 
 #-----------MACRO RESOLVER FUNCTIONS-----------#
-
 def resolve_search_path_macro(placeholder, string):
   """
   Function that can be provided in a macro map (see 
@@ -935,6 +934,16 @@ def resolve_search_path_macro(placeholder, string):
   """
   substring = string.replace(string.split(placeholder)[0], '').split()[0]
   replaced = pps.path(substring, search_path_ignore=[string.getparent().base])
-  string = string.replace(substring, replaced)
 
+  # fail if substring has only one placeholder and it was not resolved;
+  # in the future we may not want to fail but this will require changes to 
+  # pps to properly determine whether strings beginning with placeholders
+  # are absolute paths or not; perhaps search paths should be a superclass
+  # of mirror paths, needs investigation
+  if substring == replaced and len(re.findall(MACRO_REGEX, replaced)) == 1:
+    message = '\n\n%s\n\n' % get_search_path_errors(replaced)
+    raise errors.MacroError(string.getparent().getroot().base, message,
+                            string.getparent())
+
+  string = string.replace(substring, replaced)
   return string
