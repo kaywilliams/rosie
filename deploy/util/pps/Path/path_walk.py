@@ -52,8 +52,17 @@ class Path_Walk(object):
     if not self.isdir():
       return
 
-    for x in self._walk(maxdepth, topdown, follow):
-      yield x
+    yielded_dirs = set()
+
+    for dirs, nondirs, level in self._walk(maxdepth, topdown, follow):
+      # only yield a dir once to prevent infinite loops, e.g. with symlinks
+      for d in dirs[:]:
+        if d in yielded_dirs:
+          dirs.remove(d) 
+        else:
+          yielded_dirs.add(d)
+
+      yield dirs, nondirs, level
 
   def _walk(self, maxdepth=None, topdown=True, follow=True, level=0):
     if maxdepth and maxdepth <= level: return
