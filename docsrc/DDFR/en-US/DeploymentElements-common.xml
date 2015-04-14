@@ -684,7 +684,8 @@ $local-dir/%{id}</programlisting>
       </para>
 
       <para>
-      This element is optional. The default values are listed in the following
+      Remote-url is an optional element. If multiple elements are specified,
+      the first is selected. The default values are listed in the following
       table, where <varname>%{build-host}</varname> is taken from the value of
       the <xref linkend='build-host'/> element and  %{type} is the value of
       <xref linkend='main-type'/>. 
@@ -835,8 +836,9 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    This element is optional. The default value is an empty string. A period
-    character "." is prefixed to the provided text if it does not exist, e.g.
+    Domain is an optional element. If multiple elements are specified, the
+    first is selected. The default value is an empty string. A period character
+    "." is prefixed to the provided text if it does not exist, e.g.
     <emphasis>local</emphasis> is converted to <emphasis>.local</emphasis>.
     </para>
     
@@ -988,8 +990,9 @@ $remote-url/%{id}</programlisting>
     </para>
  
     <para>
-    Kickstart is an optional element. If not provided, users will be prompted
-    for information at the time of client installation.
+    Kickstart is an optional element. If multiple elements are specified, the
+    first is selected. If not provided, users will be prompted for information
+    at the time of client installation.
     </para>
 
     <para>
@@ -1260,8 +1263,14 @@ $remote-url/%{id}</programlisting>
       </para>
 
       </listitem>
+
     </varlistentry>
     </variablelist>
+
+    <para>
+    Release-rpm is an optional element. If multiple elements are specified,
+    the first is selected.
+    </para>
 
     <para>
     Examples
