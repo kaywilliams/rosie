@@ -2,6 +2,7 @@
 #!/usr/bin/python
 
 import socket
+import sys
 
 from deploy.util import pps
 from deploy.util import shlib 
@@ -11,8 +12,13 @@ fqdn = '%{fqdn}'
 ssh_host = '%{ssh-host}'
 ssh_host_key_file = pps.path('%{ssh-host-key-file}')
  
-if fqdn == ssh_host: 
-  ipaddr = socket.gethostbyname(fqdn) 
+if fqdn == ssh_host:
+  try:
+    ipaddr = socket.gethostbyname(fqdn)
+  except socket.gaierror, e:
+    sys.stderr.write('error obtaining an IP Address for %s: \n\n%s' %
+                    (fqdn, e))
+    sys.exit(1)
 else: 
   ipaddr = ssh_host 
  
