@@ -935,11 +935,7 @@ def resolve_search_path_macro(placeholder, string):
   substring = string.replace(string.split(placeholder)[0], '').split()[0]
   replaced = pps.path(substring, search_path_ignore=[string.getparent().base])
 
-  # fail if substring has only one placeholder and it was not resolved;
-  # in the future we may not want to fail but this will require changes to 
-  # pps to properly determine whether strings beginning with placeholders
-  # are absolute paths or not; perhaps search paths should be a superclass
-  # of mirror paths, needs investigation
+  # fail if substring has only one placeholder and it was not resolved
   if substring == replaced and len(re.findall(MACRO_REGEX, replaced)) == 1:
     message = '\n\n%s\n\n' % get_search_path_errors(replaced)
     raise errors.MacroError(string.getparent().getroot().base, message,
