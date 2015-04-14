@@ -1,9 +1,12 @@
+import atexit
 import os
+import psutil
 import re
 import sys
 import traceback 
 
 from lxml import etree
+from signal import signal, SIGTERM
 
 from deploy.util     import shlib
 from deploy.util     import pps
@@ -213,8 +216,18 @@ class DuplicateIdsError(IdError):
             "'%s' elements:\n%s"
             % (self.id, self.tagname, self.errstr))
 
+def kill_proc_tree():
+  parent = psutil.Process(os.getpid())
+  for child in parent.get_children(recursive=True):
+    child.kill()
+
 class DeployCliErrorHandler:
   def __init__(self, error, callback):
+    # ensure subprocesses go away when Python exits
+    atexit.register(kill_proc_tree)
+    signal(SIGTERM, lambda signum, stack_frame: sys.exit(1))
+
+    # error processing
     if isinstance(error, KeyboardInterrupt):
       msg = "\nDeploy halted on user input\n"
       callback.logger.logfile.file_object.write(msg)
