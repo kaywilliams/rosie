@@ -353,7 +353,7 @@
     </element>
     </optional>
 
-    <optional>
+    <zeroOrMore>
     <element name="remote-url">
       <ref name="xml-base"/>
       <optional>
@@ -363,7 +363,7 @@
       </optional>
       <text/>
     </element>
-    </optional>
+    </zeroOrMore>
 
     <optional>
       <element name="boot-options">
@@ -376,21 +376,21 @@
       <ref name="xml-base"/>
       <text/>
     </element></optional>
-    <optional><element name="domain">
+    <zeroOrMore><element name="domain">
       <ref name="xml-base"/>
       <text/>
-    </element></optional>
+    </element></zeroOrMore>
     <optional><element name="password">
       <ref name="xml-base"/>
       <text/>
     </element></optional>
 
-    <optional>
+    <zeroOrMore>
     <element name="kickstart">
       <ref name="xml-base"/>
       <text/>
     </element>
-    </optional>
+    </zeroOrMore>
 
     <ref name="element-packages-group"/>
     <ref name="element-packages-exclude"/>
@@ -398,7 +398,7 @@
 
     <zeroOrMore><ref name="element-config-rpm"/></zeroOrMore>
 
-    <optional>
+    <zeroOrMore>
     <element name="release-rpm">
       <ref name="xml-base"/>
       <optional>
@@ -421,7 +421,7 @@
       </optional>
 
     </element>
-    </optional>
+    </zeroOrMore>
 
     <ref name="element-input-script"/>
 
