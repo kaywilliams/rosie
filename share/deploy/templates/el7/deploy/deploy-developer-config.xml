@@ -16,6 +16,7 @@
 <requires>python-devel</requires>
 <requires>python-hashlib</requires>
 <requires>python-lxml</requires>
+<requires>python-psutil</requires>
 <requires>python-setuptools</requires>
 <requires>rng-tools</requires>
 <requires>rpm-build</requires>

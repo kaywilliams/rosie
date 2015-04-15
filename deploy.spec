@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 2.3
-Release: 21%{?dist}
+Release: 2%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -31,6 +31,7 @@ Requires: pyliblzma
 Requires: python-devel
 Requires: python-hashlib
 Requires: python-lxml
+Requires: python-psutil
 Requires: python-setuptools
 Requires: rpmdevtools
 Requires: rng-tools
@@ -75,63 +76,6 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
-* Sun Sep 21 2014 Deploy Automated Package Builder - 2.3-21
-- rebuilt
-
-* Sat Sep 20 2014 Deploy Automated Package Builder - 2.3-20
-- rebuilt
-
-* Fri Sep 19 2014 Deploy Automated Package Builder - 2.3-19
-- rebuilt
-
-* Thu Sep 18 2014 Deploy Automated Package Builder - 2.3-18
-- rebuilt
-
-* Wed Sep 17 2014 Deploy Automated Package Builder - 2.3-17
-- rebuilt
-
-* Tue Sep 16 2014 Deploy Automated Package Builder - 2.3-16
-- rebuilt
-
-* Tue Sep 16 2014 Deploy Automated Package Builder - 2.3-15
-- rebuilt
-
-* Sat Sep 13 2014 Deploy Automated Package Builder - 2.3-14
-- rebuilt
-
-* Fri Aug 29 2014 Deploy Automated Package Builder - 2.3-13
-- rebuilt
-
-* Sat Aug 23 2014 Deploy Automated Package Builder - 2.3-12
-- rebuilt
-
-* Fri Aug 22 2014 Deploy Automated Package Builder - 2.3-11
-- rebuilt
-
-* Fri Aug 22 2014 Deploy Automated Package Builder - 2.3-10
-- rebuilt
-
-* Fri Aug 22 2014 Deploy Automated Package Builder - 2.3-9
-- rebuilt
-
-* Wed Aug 20 2014 Deploy Automated Package Builder - 2.3-8
-- rebuilt
-
-* Tue Aug 19 2014 Deploy Automated Package Builder - 2.3-7
-- rebuilt
-
-* Tue Aug 19 2014 Deploy Automated Package Builder - 2.3-6
-- rebuilt
-
-* Tue Aug 19 2014 Deploy Automated Package Builder - 2.3-5
-- rebuilt
-
-* Mon Aug 18 2014 Deploy Automated Package Builder - 2.3-4
-- rebuilt
-
-* Mon Aug 18 2014 Deploy Automated Package Builder - 2.3-3
-- rebuilt
-
 * Sun Aug 17 2014 Kay Williams <kay@deployproject.org> - 2.3-2
 - fix gpgkey publishing for package repos
 

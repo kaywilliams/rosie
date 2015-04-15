@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- used for killing child processes on deploy termination  -->
+<srpm id='python-psutil'>
+<repo>
+http://dl.fedoraproject.org/pub/epel/%{version}/SRPMS
+</repo>
+</srpm>
