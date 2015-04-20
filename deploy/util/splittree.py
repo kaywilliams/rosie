@@ -53,6 +53,7 @@ class Timber:
     self.discsize = parse_size(discsize)
     if self.discsize < si.parse('100MiB'):
       raise ValueError, "Minimum disc size for iso generation is 100 MiB"
+    self.discsize = ( 99 * self.discsize ) / 100 # allow for file size rounding
     self.dosrc = dosrc
     self.name = None
     self.pkgorder = None
