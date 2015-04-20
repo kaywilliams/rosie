@@ -33,22 +33,21 @@ from dtest.mixins import (BootOptionsMixinTestCase, DeployMixinTestCase,
 class PkgorderEventTestCase(EventTestCase):
   moduleid = 'iso'
   eventid  = 'pkgorder'
+  _type = 'system'
   _conf = [
   """<iso><set>CD</set></iso>""",
-  """<packages><package>kernel</package></packages>"""
   ]
 
 #------ iso ------#
 class IsoEventTestCase(EventTestCase):
   moduleid = 'iso'
   eventid  = 'iso'
+  _type = 'system'
   _conf = ["""
   <iso>
     <set>CD</set>
     <set>500 MB</set>
-  </iso>
-  """, 
-  """<packages><package>kernel</package></packages>""",
+  </iso>""",
   ]
 
 
@@ -94,13 +93,15 @@ class Test_SizeParser(unittest.TestCase):
 
 class Test_IsoContent(IsoEventTestCase):
   "iso content matches split tree content"
-  _conf = [
+
+  def setUp(self):
+    self._add_config(
   """<iso>
     <set>CD</set>
     <set>500 MB</set>
-  </iso>""",
-  """<packages><package>kernel</package></packages>""",
-  ]
+  </iso>"""
+  )
+    IsoEventTestCase.setUp(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until='iso')
@@ -124,24 +125,29 @@ class Test_IsoContent(IsoEventTestCase):
 
 class Test_SetsChanged(IsoEventBootOptionsTestCase):
   "iso sets change"
-  _conf = [
+
+  def setUp(self):
+    self._add_config(
   """<iso>
     <set>640MB</set>
     <set>500 MiB</set>
-  </iso>""",
-  """<packages><package>kernel</package></packages>""",
-  ]
+  </iso>"""
+  )
+    IsoEventTestCase.setUp(self)
 
 # Note - this test could be made faster if we provided a general method
 # for modifing the isolinux configuration, which by default waits 60 seconds
 # for the user to manually select the installation type.
 class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
   "installs successfully from iso"
-  _conf = [
+
+  def setUp(self):
+    self._add_config(
   """<iso>
     <set>CD</set>
-  </iso>""",
-  ]
+  </iso>"""
+  )
+    IsoEventTestCase.setUp(self)
 
   def __init__(self, os, version, arch, *args, **kwargs):
     IsoEventTestCase.__init__(self, os, version, arch)
@@ -157,17 +163,19 @@ class Test_InstallFromIso(DeployMixinTestCase, IsoEventTestCase):
 # run this test after test-install since it alters boot options 
 class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
   "default boot args and config-specified args in isolinux.cfg"
-  _conf = [
+
+  def setUp(self):
+    self._add_config(
   """<iso>
     <set>CD</set>
     <set>500 MB</set>
-  </iso>""",
-  """<packages><package>kernel</package></packages>""",
-  """<publish>
-    <boot-options>ro root=LABEL=/</boot-options>
-  </publish>"""]
+  </iso>""")
 
-  def setUp(self):
+    self._add_config(
+    """<publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>""")
+
     IsoEventBootOptionsTestCase.setUp(self)
     self.do_defaults = True
 
