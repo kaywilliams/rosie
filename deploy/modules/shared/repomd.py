@@ -59,11 +59,7 @@ class RepomdMixin:
         'cvars[\'installer-repo\'].datafiles[\'productid\'][0].checksum')
 
     # add repomdfile to setup-options for use by deploy event
-    if self.moduleid in ['test-install', 'test-update']:
-      module = self.moduleid
-    else:
-      module = 'publish'
-    self.cvars.setdefault('%s-setup-options' % module, {})\
+    self.cvars.setdefault('%s-setup-options' % self.publish_module, {})\
                           ['repomdfile'] = self.repomdfile
 
 

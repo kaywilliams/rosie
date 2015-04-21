@@ -33,10 +33,11 @@ class RepomdEvent(RepomdMixin, Event):
       version = 1.01,
       parentid = 'repocreate',
       ptr = ptr,
-      provides = ['os-content', 'repomd-file', 'treeinfo-checksums'],
-      requires = ['rpms', 'rpmsdir'],
-      conditionally_requires = ['checked-rpms', 'groupfile'],
+      provides = ['os-content', 'treeinfo-checksums'],
+      requires = ['rpms', 'rpmsdir', 'groupfile'],
+      conditionally_requires = ['checked-rpms'],
     )
+    self.publish_module = 'publish'
 
     self.DATA = {
       'variables': set(["cvars['rpms']", "cvars['rpmsdir']"]),
@@ -48,12 +49,16 @@ class RepomdEvent(RepomdMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+    self.publish_module = 'publish'
+
     RepomdMixin.setup(self)
 
     self.io.add_fpath(self.cvars['rpmsdir'], self.OUTPUT_DIR)
 
-    if self.cvars['groupfile']:
-      self.DATA['input'].add(self.cvars['groupfile'])
+    self.groupfile = ( 
+      self.cvars['%s-setup-options' % self.publish_module]['groupfile'])
+
+    self.DATA['input'].add(self.groupfile)
 
     self.DATA['variables'].add('repomdfile') # provided by repomd mixin
 
@@ -63,13 +68,9 @@ class RepomdEvent(RepomdMixin, Event):
 
     # run createrepo
     self.createrepo(self.OUTPUT_DIR,
-                    groupfile=self.cvars['groupfile'],
+                    groupfile=self.groupfile,
                     checksum=self.locals.L_CHECKSUM['type'])
 
   def apply(self):
-    self.cvars['repomd-file'] = self.repomdfile
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
     cvar.add((self.OUTPUT_DIR, self.repomdfile.relpathfrom(self.OUTPUT_DIR)))
-
-  def verify_repodata_directory(self):
-    self.verifier.failUnlessExists(self.cvars['repomd-file'])

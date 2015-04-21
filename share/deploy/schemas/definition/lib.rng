@@ -46,6 +46,7 @@
     </element>
     </optional>
 
+    <ref name="element-group"/>
     <ref name="element-requires"/>
     <ref name="element-provides"/>
     <ref name="element-obsoletes"/>
@@ -169,6 +170,15 @@
 
       </interleave>
     </element>
+  </define>
+
+  <define name="element-group">
+    <zeroOrMore>
+      <element name="group">
+        <ref name="xml-base"/>
+        <text/>
+      </element>
+    </zeroOrMore>
   </define>
 
   <define name="element-obsoletes">
@@ -315,6 +325,7 @@
     <element name="package">
       <ref name='xml-base'/>
       <optional><attribute name="dir"/></optional>
+      <optional><attribute name="group"/></optional>
       <text/>
     </element>
     </zeroOrMore>
@@ -419,6 +430,8 @@
         </optional>
       </element>
       </optional>
+
+      <ref name="element-group"/>
 
     </element>
     </zeroOrMore>

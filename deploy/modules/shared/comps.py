@@ -18,6 +18,11 @@ import hashlib
 import re
 import sys
 
+from deploy.constants import KERNELS
+from deploy.errors    import DeployEventError
+
+from deploy.util import magic
+
 from deploy.dlogging import L1
 
 from yum.constants import *
@@ -30,44 +35,225 @@ from yum.Errors import CompsException
 #FIXME - compsexception isn't caught ANYWHERE so it's pointless to raise it
 # switch all compsexceptions to grouperrors after api break
 
-class CompsEventMixin:
-  comps_mixin_version = "1.01"
+
+class CompsSetupEventMixin:
+  comps_setup_mixin_version = "1.00"
 
   def __init__(self):
-    self.conditionally_requires.add('excluded-packages')
+    self.provides.update('user-required-packages', 'excluded-packages',
+                         'user-required-groups')
+
+    if not hasattr(self, 'DATA'): self.DATA = {'variables': set(),}
+
+    self.DATA['variables'].update(['comps_setup_mixin_version'])
+
+  def setup(self):
+    if not self.diff.handlers: self.diff.setup(self.DATA)
+
+    c = self.cvars
+    self.user_required_packages = c.setdefault('user-required-packages', {})
+    self.user_required_groups =   c.setdefault('user-required-groups', set())
+    self.excluded_packages =      c.setdefault('excluded-packages', set())
+
+    self.default_groupid = self.name
+
+    self.DATA['variables'].update(['default_groupid'])
+
+
+class CompsComposeEventMixin(CompsSetupEventMixin):
+  comps_compose_mixin_version = "1.01"
+
+  def __init__(self):
+    CompsSetupEventMixin.__init__(self)
+    self.conditionally_requires.update(['user-required-packages',
+                                        'user-required-groups',
+                                        'excluded-packages', 
+                                        'rpmbuild-data',
+                                        'repos'])
+    self.provides.update(['%-setup-options' % self.publish_module,
+                          'groupfile'])
+
     if not hasattr(self, 'DATA'): self.DATA = {'variables': set(),
                                                'output': set()}
 
-    self.DATA['variables'].add('comps_mixin_version')
+    self.DATA['variables'].update(['comps_compose_mixin_version'])
 
   def setup(self):
+    CompsSetupEventMixin.setup(self)
+
+    self.rpmbuild_data = self.cvars.get('rpmbuild-data', {})
+
     self.compsfile = self.mddir/'comps.xml'
+    # set this early for use by superclasses (e.g. test-publish)
+    self.cvars.setdefault('%s-setup-options' % self.publish_module, 
+                          {})['groupfile'] = self.compsfile
 
-    # create comps-object if it does not exist
-    if not 'comps-object' in self.cvars:
-      self.cvars['comps-object'] = comps.Comps()
-      self.cvars['comps-object'].add_core_group()
+    self.repos = self.cvars.get('repos', {})
+    self.groupfiles = self._get_groupfiles()
+    self._generate_comps()
 
-    # track changes to comps file content
-    self.comps_hash = hashlib.sha224(
-                      self.cvars['comps-object'].xml()).hexdigest()
-    self.DATA['variables'].add('comps_hash')
+    # validate
+    if not self.comps.all_packages:
+      raise NoPackagesOrGroupsSpecifiedError(message=message)
 
-    # track changes to excluded packages
-    if 'excluded-packages' in self.cvars:
-      self.DATA['variables'].add('cvars[\'excluded-packages\']')
+    # hash comps file content for use in change tracking
+    self.comps_hash = hashlib.sha224(self.comps.xml()).hexdigest()
+
+    # track variable changes
+    self.DATA['variables'].update(['type', 'comps_hash'])
 
   def run(self):
-    # remove excluded packages
-    for pkg in self.cvars.get('excluded-packages', set()):
-      self.cvars['comps-object'].remove_package(pkg)
-
     # write comps.xml
     self.log(1, L1("writing comps.xml"))
-    self.compsfile.write_text(self.cvars['comps-object'].xml())
+    self.compsfile.write_text(self.comps.xml())
     self.compsfile.chmod(0644)
     self.DATA['output'].add(self.compsfile)
 
+
+  #------ COMPS FILE GENERATION METHODS ------#
+  def _get_groupfiles(self):
+    "Get a list of repoid, groupfile tuples for all repositories"
+    groupfiles = []
+
+    for repo in self.repos.values():
+      if repo.has_gz:
+        key = 'group_gz'
+      else:
+        key = 'group'
+      for gf in repo.datafiles.get(key, []):
+        groupfiles.append((repo.id, repo.localurl/gf.href))
+
+    return groupfiles
+
+  def _generate_comps(self):
+    "Generate a comps.xml from config and cvar data"
+    self._validate_repoids()
+
+    groupfiles = {}
+    for id, path in self.groupfiles:
+      try:
+        fp = None
+        if magic.match(path) == magic.FILE_TYPE_GZIP:
+          import gzip
+          fp = gzip.open(path)
+        elif magic.match(path) == magic.FILE_TYPE_XZ:
+          import lzma 
+          fp = lzma.LZMAFile(path)
+        else:
+          fp = open(path)
+        groupfiles.setdefault(id, Comps()).add(fp)
+      finally:
+        fp and fp.close()
+
+    self.rpm_required = set()
+    self.rpm_obsoletes = set()
+
+    for v in self.rpmbuild_data.values():
+      self.user_required_packages[v['rpm-name']] = v['rpm-group']
+      self.rpm_required.update(v.get('rpm-requires', []))
+      self.rpm_obsoletes.update(v.get('rpm-obsoletes', []))
+
+    self.comps = Comps()
+
+    for group in self.user_required_groups:
+      added = False
+      for repoid, gf in groupfiles.items():
+        if ( group.getxpath('@repoid', None) is None or
+             group.getxpath('@repoid', None) == repoid ):
+          if gf.has_group(group.text):
+            self.comps.add_group(gf.return_group(group.text))
+            # clear all optional packages out
+            self.comps.return_group(group.text).optional_packages = {}
+            added = True
+      if not added:
+        raise GroupNotFoundError(group.text)
+
+    core_group = self.comps.add_core_group()
+
+    # add user-required packages
+    self.comps.add_packages(self.user_required_packages)
+
+    # make sure a kernel package or equivalent exists for system repos
+    if self.type == 'system':
+      kfound = False
+      for group in self.comps.groups:
+        if set(group.packages).intersection(KERNELS):
+          kfound = True
+          kgroup = group
+          break
+      if not kfound:
+        core_group.mandatory_packages['kernel'] = 1
+        kgroup = core_group
+
+      # conditionally add kernel-devel package
+      kgroup.conditional_packages['kernel-devel'] = 'gcc'
+
+      self.comps.add_group(core_group)
+
+    # remove excluded packages
+    for pkg in self.excluded_packages.union(self.rpm_obsoletes):
+      self.comps.remove_package(pkg)
+
+    # create a category
+    category = Category()
+    category.categoryid  = 'Groups'
+    category.name        = self.fullname
+    category.description = 'Groups in %s' % self.fullname
+
+    # add groups
+    for group in self.comps.groups:
+      category._groups[group.groupid] = 1
+
+    # add category to comps
+    self.comps.add_category(category)
+
+    # create an environment
+    environment = Environment()
+    environment.environmentid  = 'minimal'
+    environment.displayorder   = '5'
+    environment.name           = 'Minimal Install'
+    environment.description    = 'Basic functionality.'
+
+    # add groups
+    for group in self.comps.groups:
+      environment._groups[group.groupid] = 1
+
+    # add environment to comps
+    self.comps.add_environment(environment)
+
+  def _validate_repoids(self):
+    "Ensure that the repoids listed actually are defined"
+    for group in [ x for x in self.user_required_groups 
+                  if x.get('repoid', None) ]:
+      rid = group.get('repoid')
+      gid = group.text
+      try:
+        self.repos[rid]
+      except KeyError:
+        raise RepoidNotFoundError(gid, rid)
+
+      if rid not in [ x for x,_ in self.groupfiles ]:
+        raise RepoHasNoGroupfileError(gid, rid)
+
+
+#------ ERRORS ------#
+class NoPackagesOrGroupsSpecifiedError(DeployEventError):
+  message = "No packages or groups specified"
+
+class CompsError(DeployEventError): pass
+
+class GroupNotFoundError(CompsError):
+  message = "Group '%(group)s' not found in any groupfile"
+
+class PackageNotFoundError(CompsError):
+  message = "Package '%(package)s' not found in any repository"
+
+class RepoidNotFoundError(CompsError):
+  message = "Group '%(group)s' specifies nonexistant repoid '%(repoid)s'"
+
+class RepoHasNoGroupfileError(CompsError):
+  message = ( "Group '%(group)s' specifies repoid '%(repoid)s', which "
+              "doesn't have a groupfile" )
 
 #------ COMPS HELPER METHODS ------#
 
@@ -108,7 +294,6 @@ class Group(object):
         self.display_order = 5
         self.installed = False
         self.toremove = False
-
 
         if elem:
             self.parse(elem)
@@ -277,6 +462,11 @@ class Group(object):
       elif genre == 'conditional':
         self.conditional_packages[package] = requires
 
+    def remove_package(self, package):
+      for d in [ self.mandatory_packages, self.optional_packages,
+                 self.default_packages, self.conditional_packages ]:
+        d.pop(package, None) # remove package if found
+
     def xml(self):
         """write out an xml stanza for the group object"""
         msg ="""
@@ -392,7 +582,7 @@ class Category(object):
                 self.translated_description[lang] = obj.translated_description[lang]
 
     def xml(self):
-        """write out an xml stanza for the group object"""
+        """write out an xml stanza for the category object"""
         msg ="""
   <category>
    <id>%s</id>
@@ -479,7 +669,7 @@ class Environment(Category):
                 self.translated_description[lang] = obj.translated_description[lang]
 
     def xml(self):
-        """write out an xml stanza for the group object"""
+        """write out an xml stanza for the environment object"""
         msg ="""
   <environment>
    <id>%s</id>
@@ -503,12 +693,11 @@ class Environment(Category):
 
 
 class Comps(object):
-    def __init__(self, overwrite_groups=False):
+    def __init__(self):
         self._groups = {}
         self._categories = {}
         self._environments = {}
         self.compscount = 0
-        self.overwrite_groups = overwrite_groups
         self.compiled = False # have groups been compiled into avail/installed
                               # lists, yet.
 
@@ -520,34 +709,24 @@ class Comps(object):
 
       return packages
 
-    def __sort_order(self, item1, item2):
-        if item1.display_order > item2.display_order:
-            return 1
-        elif item1.display_order == item2.display_order:
-            return 0
-        else:
-            return -1
-
     def get_groups(self):
         grps = self._groups.values()
-        grps.sort(self.__sort_order)
+        grps.sort(key = lambda x: (x.display_order, x.groupid))
         return grps
 
     def get_categories(self):
         cats = self._categories.values()
-        cats.sort(self.__sort_order)
+        cats.sort(key = lambda x: (x.display_order, x.categoryid))
         return cats
 
     def get_environments(self):
         envs = self._environments.values()
-        envs.sort(self.__sort_order)
+        envs.sort(key = lambda x: (x.display_order, x.environmentid))
         return envs
 
     groups = property(get_groups)
     categories = property(get_categories)
     environments = property(get_environments)
-
-
 
     def has_group(self, grpid):
         exists = self.return_groups(grpid)
@@ -602,12 +781,26 @@ class Comps(object):
             self._groups[groupid] = group
 
     def add_core_group(self):
-      core_group             = Group()
-      core_group.name        = 'Core'
-      core_group.groupid     = 'core'
-      core_group.description = 'Core Packages'
-      core_group.default     = True
-      self.add_group(core_group)
+      if not self.return_group('core'):
+        core_group             = Group()
+        core_group.name        = 'Core'
+        core_group.groupid     = 'core'
+        core_group.description = 'Core Packages'
+        core_group.default     = True
+        self.add_group(core_group)
+
+      return self.return_group('core')
+
+    def add_user_required_group(self, group_id):
+      if not self.return_group(group_id):
+        user_required_group             = Group()
+        user_required_group.name        = group_id
+        user_required_group.groupid     = group_id
+        user_required_group.description = "%s packages" % group_id
+        user_required_group.default     = True
+        self.add_group(user_required_group)
+
+      return self.return_group(group_id)
 
     def add_category(self, category):
         if self._categories.has_key(category.categoryid):
@@ -654,6 +847,15 @@ class Comps(object):
             raise CompsException, "comps file is empty/damaged"
         finally:
           del parser
+
+    def add_packages(self, pkgdict):
+      for p,g in pkgdict.items():
+        self.add_package(p, g)
+
+    def add_package(self, package, groupid):
+      group = (self.return_group(groupid) or
+               self.add_user_required_group(groupid))
+      group.mandatory_packages[package] = 1
 
     def remove_package(self, package):
       for group in self.groups:

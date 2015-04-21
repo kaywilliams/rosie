@@ -30,6 +30,8 @@ from deploy.callback import PkglistCallback, TimerCallback
 from deploy.dlogging  import L1
 from deploy.main     import ARCH_MAP
 
+from deploy.modules.shared import CompsComposeEventMixin
+
 YUMCONF_HEADER = [
   '[main]',
   'cachedir=',
@@ -43,35 +45,30 @@ YUMCONF_HEADER = [
   '\n',
 ]
 
-class DepsolverMixin(object):
+class DepsolverMixin(CompsComposeEventMixin):
   depsolver_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
-    self.requires.update(['comps-object'])
-    self.conditionally_requires.update(['user-required-packages', 
-                                        'excluded-packages', 'rpmbuild-data'])
-    self.depsolve_repo = self.mddir / 'depsolve.repo'
+    CompsComposeEventMixin.__init__(self)
 
   def setup(self):
-    self.all_packages = self.cvars['comps-object'].all_packages
-    self.user_required = self.cvars.get('user-required-packages', set())
-    self.excluded_packages = self.cvars.get('excluded-packages', set())
+    CompsComposeEventMixin.setup(self)
 
-    self.rpm_required = [] 
-    for v in self.cvars.get('rpmbuild-data', {}).values():
-      self.rpm_required.extend(v.get('rpm-requires', []))
-
-    self.DATA['variables'].update(['all_packages', 'user_required',
-                                   'excluded_packages', 'rpm_required',
-                                   'depsolver_mixin_version'])
-
-  def resolve(self):
+    self.depsolve_repo = self.mddir / 'depsolve.repo'
     self._create_repoconfig()
 
+    self.DATA['variables'].update(['depsolver_mixin_version'])
+
+  def run(self):
+    CompsComposeEventMixin.run(self)
+
+
+  def resolve(self):
+    self._write_repoconfig()
     solver = DeployDepsolver(
-      user_required = self.user_required,
+      user_required = self.user_required_packages,
       rpm_required = self.rpm_required,
-      comps = self.cvars['comps-object'],
+      comps = self.comps,
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
       arch = ARCH_MAP[self.arch],
@@ -96,31 +93,45 @@ class DepsolverMixin(object):
     return pkgdict
 
   def _create_repoconfig(self):
-    if self.depsolve_repo.exists():
-      self.depsolve_repo.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
     conf.append('installroot=%s' % self.dsdir) 
     conf.append('persistdir=%s/var/lib/yum' % self.dsdir) 
     conf.append('releasever=%s' % self.version) 
     if self.excluded_packages:
-      line = 'exclude=' + ' '.join(self.excluded_packages)
+      line = 'exclude=' + ' '.join(sorted(self.excluded_packages))
       conf.append(line)
-    for repo in self.cvars['repos'].values():
-      conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
+
+    repos = self.cvars['repos']
+    for i in sorted(repos.keys()):
+      conf.extend(repos[i].lines(pretty=True,
+                                 baseurl=repos[i].localurl,
+                                 mirrorlist=None))
+
       # ensure our packages are not overridden by packages from other repos
       # TODO - add a test case
-      if not repo.id == self.build_id:
-        line = 'exclude=' + ' '.join(self.cvars['rpmbuild-data'].keys())
+      if not i == self.build_id:
+        line = 'exclude=' + ' '.join(sorted(self.rpmbuild_data.keys()))
         conf.append(line)
       conf.append('\n')
-    self.depsolve_repo.write_lines(conf)
+
+    self.repoconfig = '\n'.join(conf).rstrip() # difftest gets confused by
+                                               # trailing newlines
+    self.DATA.setdefault('variables', set()).add('repoconfig')
+
+  def _write_repoconfig(self):
+    if self.depsolve_repo.exists(): self.depsolve_repo.remove()
+
+    self.depsolve_repo.write_text("%s\n" % self.repoconfig)
+
+    self.DATA.setdefault('output', set()).add(self.depsolve_repo)
 
 
 class DeployDepsolver(Depsolver):
-  def __init__(self, comps=None, user_required=[], rpm_required=[],
-               config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
-               logger=None):
+  def __init__(self, comps=None, user_required=[], 
+               user_required_group_id='user-required-packages',
+               rpm_required=[], config='/etc/yum.conf', root='/tmp/depsolver',
+               arch='i686', logger=None):
     Depsolver.__init__(self,
       config = str(config),
       root = str(root),
@@ -128,6 +139,7 @@ class DeployDepsolver(Depsolver):
       callback = PkglistCallback(logger)
     )
     self._comps = comps
+    self.user_required_group_id = user_required_group_id
 
     self.user_required = copy.copy(user_required)
     self.rpm_required = rpm_required
@@ -135,9 +147,6 @@ class DeployDepsolver(Depsolver):
 
   def setup(self):
     Depsolver.setup(self)
-
-  def _getGroups(self):
-    return self._comps
 
   def getPackageObjects(self):
     if self.logger: inscb = TimerCallback(self.logger)
@@ -157,7 +166,7 @@ class DeployDepsolver(Depsolver):
     # consider options as needed/available in the future.
     self.locked = {}
 
-    patterns = copy.copy(self.user_required)
+    patterns = set(self.user_required.keys())
     patterns.update(self.rpm_required)
 
     for pattern in patterns:
@@ -182,9 +191,12 @@ class DeployDepsolver(Depsolver):
 
     # install user-required packages
     toinstall = copy.copy(self.user_required)
-    for pattern in toinstall:
+
+    # get a map of patterns to packages
+    map = {}
+    for pattern, groupid in toinstall.items():
       try:
-        txmbr = self.install(pattern=pattern)
+        pkgs = self.install(pattern=pattern)
       except yum.Errors.InstallError, e:
         lock_msg = self._get_lock_msg(pattern)
         if lock_msg:
@@ -192,20 +204,30 @@ class DeployDepsolver(Depsolver):
         else:
           msg = e
         raise yum.Errors.InstallError(msg)
-      if txmbr:
-        self.user_required.remove(pattern)
-        self._comps.remove_package(pattern)
+      map[pattern] = (groupid, pkgs)
+    
+    # replace patterns with packages
+    for pattern, data in map.items():
+      groupid, pkgs = data
+      if pkgs:
+        group = self._comps.return_group(groupid)
 
-        for p in txmbr:
-          self.user_required.add(p.name)
-          self._comps.return_group('core').mandatory_packages[p.name] = 1
+        del self.user_required[pattern]
+        group.remove_package(pattern)
 
-    # install core group
+        for p in pkgs:
+          self.user_required[p.name] = groupid
+          group.mandatory_packages[p.name] = 1
+
+    # install all groups
     self.install_errors = []
-    self.selectGroup('core', enable_group_conditionals=True)
+    for g in self._comps.groups:
+      if g.packages:
+        self.selectGroup(g.groupid, enable_group_conditionals=True)
 
     # ignore install errors for non user-required packages since
     # some groups have arch specific packages, e.g. s390utils
+    # FUTURE: improve to remove missing non-user-required packages from comps
     missing = set(self.user_required) & set(self.install_errors)
     if missing:
       raise yum.Errors.InstallError("No packages provide '%s'" % 

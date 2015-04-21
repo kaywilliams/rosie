@@ -33,8 +33,7 @@ from deploy.event     import Event
 
 from deploy.util.rxml import config
 
-from deploy.modules.shared import comps 
-from deploy.modules.shared import ShelveMixin
+from deploy.modules.shared import ShelveMixin, CompsSetupEventMixin
 
 RPM_EXT = {'rpm' : '.rpm',
            'srpm': '.src.rpm'}
@@ -43,7 +42,7 @@ __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'RPM_EXT', 'Trigger',
            'TriggerContainer', 'RpmNotFoundError'] 
 
 
-class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
+class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
   Mixin for working with Deploy-created rpms including both from-srpm
   (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
@@ -52,10 +51,11 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
-    self.provides.update(['rpmbuild-data', 'comps-object'])
+    self.provides.update(['rpmbuild-data'])
     self.requires.update(['dist-tag'])
     self.rpms = [] # list of rpmbuild dicts (get_rpmbuild_data()) to be 
                    # managed by the mixin
+    CompsSetupEventMixin.__init__(self)
     ShelveMixin.__init__(self)
 
   @property
@@ -63,7 +63,12 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     return [ x['rpm-path'] for x in self.rpms ]
 
   def setup(self):
-    self.DATA.setdefault('variables', set()).add('rpmbuild_mixin_version')
+    CompsSetupEventMixin.setup(self)
+    self.group = self.config.getxpath('group/text()', self.default_groupid) 
+
+    self.DATA.setdefault('variables', set()).update(['rpmbuild_mixin_version',
+                                                     'group'])
+
     self._setup_signing_keys()
 
   def run(self):
@@ -77,28 +82,12 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
     for key in rpmbuild_data:
       self.cvars.setdefault('rpmbuild-data', {})[key] = rpmbuild_data[key]
 
-      #restore absolute path to rpm
+      # restore absolute path to rpm
       path = self.METADATA_DIR / rpmbuild_data[key]['rpm-path']
       self.cvars['rpmbuild-data'][key]['rpm-path'] = path
 
-    # update comps-object and user required packages
-    if not 'comps-object' in self.cvars:
-      self.cvars['comps-object'] = comps.Comps()
-      self.cvars['comps-object'].add_core_group()
-
-    core_group = self.cvars['comps-object'].return_group('core')
-    self.cvars.setdefault('user-required-packages', set())
-
-    for v in rpmbuild_data.values():
-      core_group.add_package( package=v['rpm-name'],
-                              genre=v['packagereq-type'],
-                              requires=v['packagereq-requires'],
-                              default=v['packagereq-default'])
-      for package in v['rpm-obsoletes']:
-        self.cvars['comps-object'].remove_package(package)
-
-      if v['rpm-name'] not in self.cvars['excluded-packages']:
-        self.cvars['user-required-packages'].add(v['rpm-name'])
+      # add comps group
+      self.cvars['rpmbuild-data'][key]['rpm-group'] = self.group
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
@@ -167,7 +156,7 @@ class RpmBuildMixin(ShelveMixin, mkrpm.rpmsign.GpgMixin):
       data = {}
       data['rpm-path']  = pps.path(rpmpath)
   
-      # set packagereq attrs used in comps file
+      # set attrs used in comps file
       data['packagereq-default']  = packagereq_default
       data['packagereq-requires'] = packagereq_requires
       data['packagereq-type']     = packagereq_type
@@ -263,9 +252,9 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
   def __init__(self, *args, **kwargs):
     RpmBuildMixin.__init__(self)
 
-  def setup(self, name=None, version=None, arch=None, desc=None, 
-            summary=None, license=None, author=None, email=None, 
-            requires=None, provides=None, obsoletes=None, force_release=None, 
+  def setup(self, name=None, version=None, arch=None, desc=None,
+            summary=None, license=None, author=None, email=None,
+            requires=None, provides=None, obsoletes=None, force_release=None,
             rpmconf=None):
 
     self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)

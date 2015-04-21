@@ -75,7 +75,7 @@ def PackagesMixinTest_CheckResults(self):
     self.failUnless('NetworkManager' in self.event.cvars['excluded-packages'])
 
     # check user-required-packages
-    self.failUnless(set(['http', 'package1']) ==
+    self.failUnless({'http': self.tb.name, 'package1': self.tb.name} ==
                     self.event.cvars['user-required-packages'])
 
     # check downloaded packages                

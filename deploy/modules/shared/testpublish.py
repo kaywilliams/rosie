@@ -18,13 +18,13 @@ from deploy.event     import Event
 from deploy.dlogging import L1, L2
 from deploy.util      import pps
 
-from deploy.modules.shared import CompsEventMixin
+from deploy.modules.shared import CompsComposeEventMixin
 from deploy.modules.shared import RepomdMixin
 from deploy.modules.shared import PublishSetupEventMixin
 from deploy.modules.shared import ReleaseRpmEventMixin
 from deploy.modules.shared import KickstartEventMixin
 
-class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin, 
+class TestPublishEventMixin(ReleaseRpmEventMixin, CompsComposeEventMixin, 
                             RepomdMixin, KickstartEventMixin, 
                             PublishSetupEventMixin):
 
@@ -39,8 +39,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
       'variables': set(),
     }
 
+    self.publish_module = self.moduleid
+
     ReleaseRpmEventMixin.__init__(self)
-    CompsEventMixin.__init__(self)
+    CompsComposeEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
     PublishSetupEventMixin.__init__(self)
@@ -55,7 +57,7 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
   def setup(self):
     self.diff.setup(self.DATA)
     PublishSetupEventMixin.setup(self)
-    CompsEventMixin.setup(self)
+    CompsComposeEventMixin.setup(self)
     RepomdMixin.setup(self)
 
     # get release-rpm filename
@@ -97,6 +99,10 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
       default = ''
     KickstartEventMixin.setup(self, default)
 
+    # comps
+    self.groupfile = (
+      self.cvars['%s-setup-options' % self.publish_module]['groupfile'])
+
   def run(self): 
     # sync files from compose (os-dir) folder
     self.OUTPUT_DIR.rm(force=True)
@@ -110,17 +116,15 @@ class TestPublishEventMixin(ReleaseRpmEventMixin, CompsEventMixin,
     self.rpm.rpm_path.cp(self.OUTPUT_DIR/'Packages', force=True, preserve=True)
     self.DATA['output'].add(self.OUTPUT_DIR/'Packages'/
                                self.rpm.rpm_path.basename)
-    if not "%s-release" % self.name in  self.cvars['comps-object'].all_packages:
-      raise RuntimeError("release pkg not found")
 
     # update comps
-    CompsEventMixin.run(self)
+    CompsComposeEventMixin.run(self)
 
     # update repodata
     self.copy(self.repodata_files, self.OUTPUT_DIR, 
               callback=self.link_callback) # start with existing repodata
     self.createrepo(self.OUTPUT_DIR, 
-                    groupfile=self.compsfile,
+                    groupfile=self.groupfile,
                     checksum=self.locals.L_CHECKSUM['type'])
 
     # update kickstart

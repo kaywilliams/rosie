@@ -25,7 +25,7 @@ from deploy.errors    import assert_file_has_content, DeployEventError
 from deploy.event     import Event
 from deploy.dlogging import L1
 
-from deploy.modules.shared import DepsolverMixin, ShelveMixin, CompsEventMixin
+from deploy.modules.shared import DepsolverMixin, ShelveMixin
 
 from deploy.util.depsolver.depsolver import DepsolveError
 
@@ -38,18 +38,19 @@ def get_module_info(ptr, *args, **kwargs):
   )
 
 
-class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
+class DepsolveEvent(DepsolverMixin, ShelveMixin):
   def __init__(self, ptr, *args, **kwargs):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
       ptr = ptr,
-      provides = ['pkglist', 'groupfile', 'comps-object'],
+      provides = ['pkglist'],
       requires = ['repos'], #extended in Depsolver mixin
       conditionally_requires = [], # set in Depsolver Mixin
       version = '1.10'
     )
 
+    self.publish_module = 'publish'
     DepsolverMixin.__init__(self)
 
     self.dsdir = self.mddir / 'depsolve'
@@ -65,8 +66,8 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
+
     DepsolverMixin.setup(self)
-    CompsEventMixin.setup(self)
 
     self.pkglistfile = self.mddir / 'pkglist'
 
@@ -101,20 +102,14 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
     self.log(1, L1("writing pkglist"))
     self.shelve('pkglist', pkgs_by_repo)
 
-    self.DATA['output'].update([self.dsdir, self.depsolve_repo])
+    self.DATA['output'].update([self.dsdir])
 
     # generate comps.xml
-    if self.type == 'system':
-      CompsEventMixin.run(self)
+    DepsolverMixin.run(self)
 
   def apply(self):
     # set pkglist cvars
     self.cvars['pkglist'] = self.unshelve('pkglist', {})
-    
-    # set groupfile cvars
-    if self.type == 'system':
-      self.cvars['groupfile'] = self.compsfile
-      assert_file_has_content(self.cvars['groupfile'])
 
   def verify_pkglistfile_has_content(self):
     "pkglist file has content"
@@ -123,12 +118,6 @@ class DepsolveEvent(DepsolverMixin, ShelveMixin, CompsEventMixin):
                                "pkglist is empty")
     else:
       self.verifier.fail("pkglist is empty")
-
-  def verify_cvar_comps_file(self):
-    "cvars['groupfile'] exists"
-    if self.type == 'system':
-      self.verifier.failUnless(self.cvars['groupfile'].exists(),
-        "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"

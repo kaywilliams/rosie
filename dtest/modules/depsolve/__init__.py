@@ -224,14 +224,12 @@ class CompsEventTestCase(DummyDepsolveEventTestCase):
     return rxml.tree.parse(self.event.compsfile).getroot()
 
   def check_all(self, groupfile):
-    self.check_core(groupfile)
-    self.check_category(groupfile)
+    # self.check_category(groupfile) # fixme
+    self.check_packages(groupfile)
     self.check_excluded(groupfile)
 
-  def check_core(self, groupfile):
-    #still need to check if packages from included_groups in core
-
-    packages = groupfile.xpath('/comps/group[\'core\']/packagelist/packagereq/text()')
+  def check_packages(self, groupfile):
+    packages = groupfile.xpath('/comps/group/packagelist/packagereq/text()')
     for pkg in self.included_pkgs:
       self.failUnless(pkg in packages, '%s not in %s' % (pkg, packages))
 
@@ -334,6 +332,31 @@ class Test_ExcludePackages(CompsEventTestCase):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(DeployError, self.event)
 
+class Test_Obsoletes(CompsEventTestCase):
+  "rpm obsoletes removed from comps object"
+
+  def setUp(self):
+    # add an obsolete to the config rpm
+    self._add_config("""<config-rpms>
+  <config-rpm id='config'>
+  <obsoletes>test-package</obsoletes>
+  </config-rpm>
+  </config-rpms>
+  """)
+
+    CompsEventTestCase.setUp(self)
+
+  def runTest(self):
+    # execute predecessors
+    self.execute_predecessors(self.event)
+    self.event.setup()
+
+    # execute the event
+    self.event.execute()
+
+    # the test package should be removed from comps
+    self.failIf('test-package' in self.event.comps.all_packages)
+
 class Test_GroupsByRepo(CompsEventTestCase):
   "groupfile generated, group included from specific repo"
   def __init__(self, os, version, arch, conf=None):
@@ -421,6 +444,7 @@ def make_suite(os, version, arch, *args, **kwargs):
   suite.addTest(Test_IncludePackages(os, version, arch))
   suite.addTest(Test_IncludeGroupsAndPackages(os, version, arch))
   suite.addTest(Test_ExcludePackages(os, version, arch))
+  suite.addTest(Test_Obsoletes(os, version, arch))
   suite.addTest(Test_GroupsByRepo(os, version, arch))
   ##suite.addTest(Test_MultipleGroupfiles(os, version, arch))
   return suite

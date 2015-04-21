@@ -45,7 +45,8 @@ class PublishSetupEventMixin(Event):
   publish_mixin_version = "1.01"
 
   def __init__(self, *args, **kwargs):
-    self.provides.add('%s-setup-options' % self.moduleid)
+    self.publish_module = self.moduleid
+    self.provides.add('%s-setup-options' % self.publish_module)
     self.conditionally_requires.add('remove-dir')
     self.conditionally_requires.add('publish-setup-options')
 
@@ -101,7 +102,7 @@ class PublishSetupEventMixin(Event):
     self.resolve_macros(map=self.map)
 
     # set cvars
-    cvars_root = '%s-setup-options' % self.moduleid
+    cvars_root = '%s-setup-options' % self.publish_module
     self.cvars[cvars_root] = {}
     for attribute in ['hostname', 'domain', 'fqdn', 'password', 'localpath',
                       'webpath', 'build_host', 'boot_options']:
@@ -130,10 +131,10 @@ fi""" % (self.localpath, self.localpath))
 
 
   def get_local(self):
-    if self.moduleid in ['publish', 'build']:
+    if self.publish_module in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_LOCALROOT, self.type)
     else:
-      default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.type, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_LOCALROOT, self.type, self.publish_module)
 
     local = self.config.getpath('local-dir/text()', default)
     return local / self.build_id
@@ -205,10 +206,10 @@ fi""" % (self.localpath, self.localpath))
     return fqdn
 
   def get_webpath(self, build_host):
-    if self.moduleid in ['publish', 'build']:
+    if self.publish_module in ['publish', 'build']:
       default = '%s/%ss' % (DEFAULT_WEBROOT, self.type)
     else:
-      default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.moduleid)
+      default = '%s/%ss/%s' % (DEFAULT_WEBROOT, self.type, self.publish_module)
 
     default = default.replace('%{build-host}', build_host)
     if self.config.getbool('remote-url/@https', False):
@@ -223,8 +224,8 @@ fi""" % (self.localpath, self.localpath))
     default = self.webpath.split('/')[-1]
 
     # append moduleid to default hostname for test modules
-    if self.moduleid.startswith('test'):
-      default = '%s-%s' % (default, self.moduleid)
+    if self.publish_module.startswith('test'):
+      default = '%s-%s' % (default, self.publish_module)
 
     hostname = self.config.getxpath('hostname/text()', default)
     # dns doesn't allow '_' in hostnames; use lowercase to avoid case
@@ -261,7 +262,7 @@ fi""" % (self.localpath, self.localpath))
     else:
       self.pwtype='generated'
       return (self.datfile.getxpath('/*/%s/generated-password/text()' 
-              % self.moduleid, '') or self.gen_password())
+              % self.publish_module, '') or self.gen_password())
 
   def gen_password(self):
     size = random.randint(8,14)
@@ -279,9 +280,9 @@ fi""" % (self.localpath, self.localpath))
 
   def get_cryptpw(self, password):
     if password == self.datfile.getxpath('/*/%s/%s-password/text()'
-                                         % (self.moduleid, self.pwtype), ''):
+                                         % (self.publish_module, self.pwtype), ''):
       return self.datfile.getxpath('/*/%s/crypt-password/text()'
-                                         % self.moduleid)
+                                         % self.publish_module)
     else:
       return self.encrypt_password(password)
 
@@ -298,7 +299,7 @@ fi""" % (self.localpath, self.localpath))
     root = self.parse_datfile()
     uElement = config.uElement
 
-    parent   = uElement(self.moduleid, parent=root)
+    parent   = uElement(self.publish_module, parent=root)
 
     # set password
     if self.pwtype == 'user':

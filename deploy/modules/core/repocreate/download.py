@@ -43,7 +43,6 @@ class DownloadEvent(ShelveMixin, Event):
       ptr = ptr,
       provides = ['rpmsdir', 'rpms'],
       requires = ['pkglist', 'repos'],
-      conditionally_requires = ['groupfile'],
     )
 
     self.DATA = {

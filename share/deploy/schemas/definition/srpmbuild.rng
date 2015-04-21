@@ -40,6 +40,8 @@
           </element>
           </choice>
 
+          <ref name='element-group'/>
+
           <zeroOrMore>
           <element name="exclude">
             <ref name="xml-base"/>

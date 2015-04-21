@@ -56,7 +56,7 @@ class PkgorderEvent(Event):
       parentid = 'publish-events',
       ptr = ptr,
       provides = ['pkgorder-file'],
-      requires = ['repomd-file', 'os-dir'],
+      requires = ['publish-setup-options', 'os-dir'],
     )
 
     self.DATA =  {
@@ -67,7 +67,7 @@ class PkgorderEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.DATA['input'].add(self.cvars['repomd-file'])
+    self.DATA['input'].add(self.cvars['publish-setup-options']['repomdfile'])
 
     self.pkgorderfile = self.mddir/'pkgorder'
     self.DATA['output'].add(self.pkgorderfile)
