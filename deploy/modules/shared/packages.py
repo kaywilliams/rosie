@@ -57,8 +57,6 @@ class PackagesEventMixin(RpmBuildMixin):
       if x.get('dir', None):
         self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text,
                                   dest=self.rpmsdir, type='rpm')
-        self.user_required_packages[x.text] = x.get('group',
-                                                    self.default_groupid)
       else:
         if x.text.startswith('-'):
           self.excluded_packages.add(x.text[1:])
@@ -70,6 +68,6 @@ class PackagesEventMixin(RpmBuildMixin):
     self.io.process_files(cache=True, callback=self.link_callback, text=None,
                           what='rpm')
 
-    RpmBuildMixin.run(self)
     self.rpms = [ self._get_rpmbuild_data(f)
                   for f in self.io.list_output(what='rpm') ]
+    RpmBuildMixin.run(self) # sign downloaded packages, cache package data
