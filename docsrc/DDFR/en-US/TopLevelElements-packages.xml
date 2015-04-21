@@ -30,7 +30,7 @@
       <programlisting>
 &lt;packages&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
-  [&lt;package [dir=PATH]&gt;PATTERN&lt;/package&gt;]*
+  [&lt;package [dir=PATH] [group=GROUP]&gt;PATTERN&lt;/package&gt;]*
   [&lt;exclude&gt;PATTERN&lt;/exclude&gt;]*
 &lt;/packages&gt;</programlisting>
   </section>
@@ -108,8 +108,8 @@
       </para>
 
       <para>
-      The package element accepts one attribute:
-      <emphasis>@dir</emphasis>.
+      The package element accepts two attributes:
+      <emphasis>@dir</emphasis> and <emphasis>@group</emphasis>.
       </para>
 
       <para>
@@ -130,6 +130,17 @@
       automatically signed with the <link linkend='gpgsign'>gpgsign</link> key.
       </para>
       </note>
+
+      <para>
+      <emphasis>@group</emphasis>: The TEXT id of a <link
+      linkend='content-group'>GROUP</link> into which this package will be
+      added. The group will be created if it does not exist.
+      </para>
+
+      <para>
+      This <emphasis>@group</emphasis> attribute is optional. The default value
+      is <xref linkend='main-name'/>.
+      </para>
       </listitem>
     </varlistentry>
 

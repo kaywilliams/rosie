@@ -206,6 +206,55 @@ rpm -qp --provides samba-3.0.33-3.29.el5_7.4.i386.rpm</programlisting>
     </section>
   </section>
 
+  <section id="content-group">
+    <title>
+    Content: <varname>GROUP</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      The TEXT id of a GROUP containing PACKAGES.
+      </para>
+
+      <para>
+      Groups allow organizing sets of packages. They are particularly useful
+      for identifying packages that should be installed during system build
+      (which runs in a limited environment) versus those that should be
+      installed after initial system boot. 
+      </para>
+
+      <para>
+      To ensure that packages are installed during system build, they should be
+      assigned to the 'core' group. Alternatively, they may be assigned to
+      another group which must then be specified in the packages section of the
+      <xref linkend='kickstart'/> file.
+      </para>
+
+      <note>
+      <para>
+      Packages assigned to non-install groups may still be installed during
+      initial system build if they are required by packages in 'core' or other
+      kickstart-specified groups.
+      </para>
+      </note>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <xref linkend="content-basename" />,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
   <section id="content-mode"  
           >
     <title>

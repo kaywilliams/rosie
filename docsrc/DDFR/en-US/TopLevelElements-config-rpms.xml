@@ -93,6 +93,8 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
     [&lt;description&gt;TEXT&lt;/description&gt;]
     [&lt;license&gt;TEXT&lt;/license&gt;]
 
+    [&lt;group>GROUP&lt;/group>]
+
     [&lt;repo&gt;...&lt;/repo&gt;]*
 
     [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
@@ -252,6 +254,24 @@ FULLNAME repository.
         is "GPLv2".
         </para>
 
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>group</term>
+        <listitem>
+
+        <para>
+        The TEXT id of a <link
+        linkend='content-group'>GROUP</link> into which this package will be
+        added. The group will be created if it does not exist.
+        </para>
+
+        <para>
+        The <emphasis>group</emphasis> element is optional. If multiple
+        elements are provided, the first will be selected. The default value is
+        <xref linkend='main-name'/>.
+        </para>
         </listitem>
       </varlistentry>
 

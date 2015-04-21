@@ -65,6 +65,7 @@
   [&lt;exclude.../>]*
 
   [&lt;release-rpm>
+    [&lt;group>GROUP&lt;/group>]
     [&lt;updates [sync=BOOLEAN] [gpgcheck=BOOLEAN] [sslverify=BOOLEAN] /&gt;]
   &lt;/release-rpm&gt;]
 
@@ -964,15 +965,14 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    <emphasis role='bold'>%packages section -</emphasis> To install all
-    packages from the repository, use an asterisk in the packages section, as
-    shown below:
+    <emphasis role='bold'>%packages section -</emphasis> Install the core 
+    group from the repository as shown below:
     </para>
 
     <informalexample>
     <programlisting>
 %packages --nobase
-*
+@core
 %end
     </programlisting>
     </informalexample>
@@ -1208,6 +1208,32 @@ $remote-url/%{id}</programlisting>
     </itemizedlist>
 
     <variablelist>
+    <varlistentry>
+      <term>group</term>
+      <listitem>
+
+      <para>
+      The TEXT id of a <link
+      linkend='content-group'>GROUP</link> into which the release-rpm will be
+      added. The group will be created if it does not exist.
+      </para>
+
+      <para>
+      The <emphasis>group</emphasis> element is optional. If multiple
+      elements are provided, the first will be selected. The default value is
+      <xref linkend='main-name'/>.
+      </para>
+
+      <note>
+      <para>
+      Because the release-rpm is required by a number of packages in the 'core'
+      group, it will typically be installed during initial system build, even
+      if it is assigned to a group other than 'core'.
+      </para>
+      </note>
+      </listitem>
+    </varlistentry>
+
     <varlistentry id="release-rpm-updates">
       <term>
       updates

@@ -78,6 +78,7 @@
     (&lt;path>URL&lt;/path> | 
      &lt;repo>PATH&lt;/repo> | 
      &lt;script>TEXT&lt;/script>)
+    [&lt;group>GROUP&lt;/group>]
     [&lt;exclude>PACKAGE&lt;/exclude>*]
     [&lt;template>PATH&lt;/template>]
   &lt;/srpm>
@@ -287,6 +288,24 @@ fetch.py %{srpm-id} https://www.deployproject.org/hg/public/%{srpm-id} %{srpm-di
      </informalexample>
 
      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>group</term>
+      <listitem>
+
+      <para>
+      The TEXT id of a <link linkend='content-group'>GROUP</link> into which
+      packages built by this SRPM will be added. The group will be created if
+      it does not exist.
+      </para>
+
+      <para>
+      The <emphasis>group</emphasis> element is optional. If multiple
+      elements are provided, the first will be selected. The default value is
+      <xref linkend='main-name'/>.
+      </para>
+      </listitem>
     </varlistentry>
 
     <varlistentry>
