@@ -17,7 +17,7 @@
 #
 from deploy.event    import Event, CLASS_META
 
-from deploy.modules.shared import config, MkrpmRpmBuildMixin
+from deploy.modules.shared import config
 
 
 # -------- provide module information to dispatcher -------- #
