@@ -35,6 +35,5 @@ class RpmBuildEvent(Event):
       ptr = ptr,
       properties = CLASS_META,
       version = '1.00',
-      provides = ['rpmbuild-data',],
       suppress_run_message = True 
     )
