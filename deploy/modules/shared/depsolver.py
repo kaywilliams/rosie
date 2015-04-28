@@ -129,7 +129,6 @@ class DepsolverMixin(CompsComposeEventMixin):
 
 class DeployDepsolver(Depsolver):
   def __init__(self, comps=None, user_required=[], 
-               user_required_group_id='user-required-packages',
                rpm_required=[], config='/etc/yum.conf', root='/tmp/depsolver',
                arch='i686', logger=None):
     Depsolver.__init__(self,
@@ -139,7 +138,6 @@ class DeployDepsolver(Depsolver):
       callback = PkglistCallback(logger)
     )
     self._comps = comps
-    self.user_required_group_id = user_required_group_id
 
     self.user_required = copy.copy(user_required)
     self.rpm_required = rpm_required
