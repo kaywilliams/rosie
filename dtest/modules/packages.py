@@ -26,11 +26,6 @@ class PackagesEventTestCase(PackagesMixinTestCase, EventTestCase):
   moduleid = 'packages'
   eventid  = 'packages'
 
-  # note: comps testing done in depsolve module, would be cleaner to 
-  # do it here and test against the comps object rather than the generated
-  # file
-
-
 def make_suite(os, version, arch, *args, **kwargs):
   suite = ModuleTestSuite('packages')
 
