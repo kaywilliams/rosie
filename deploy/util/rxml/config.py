@@ -224,7 +224,10 @@ class ConfigElement(tree.XmlTreeElement):
       elif 'text()' in p:
         result = tree.XmlTreeElement.xpath(self, p, [], namespaces)
         if len(result) > 0:
-          result = [ ' '.join(result) ]
+          try:
+            result = [ ' '.join(result) ]
+          except TypeError:
+            pass # results are not all strings, return the list
         if result: break
       else:
         result = tree.XmlTreeElement.xpath(self, p, [], namespaces)
