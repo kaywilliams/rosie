@@ -83,9 +83,8 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     self.DATA = {
       'input':     set(),
-      'config':    set(), # handle config using variables since 
-                       # srpmlast macro causes script content
-                       # to change across runs
+      'config':    set(), # handle config using variables since we 
+                          # don't want to rebuild rpms if the group changes.
       'variables': set(),
       'output':    set(),
     }
@@ -137,15 +136,18 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
     self.resolve_macros(map=macros)
   
     # get srpm
-    path = pps.path(self.config.getxpath('path/text()', ''))
-    repo = pps.path(self.config.getxpath('repo/text()', ''))
-    script = self.config.getxpath('script/text()', '')
-    if path: self._get_srpm_from_path(path)
-    elif repo: self._get_srpm_from_repo(repo)
-    elif script: self._get_srpm_from_script(script)
+    self.path = pps.path(self.config.getxpath('path/text()', ''))
+    self.repo = pps.path(self.config.getxpath('repo/text()', ''))
+    self.script = self.config.getxpath('script/text()', '')
+    if self.path: self._get_srpm_from_path(self.path)
+    elif self.repo: self._get_srpm_from_repo(self.repo)
+    elif self.script: self._get_srpm_from_script(self.script)
 
     # get rpms to exclude
     self.exclude_rpms = ' '.join(self.config.xpath('exclude/text()', []))
+
+    # set difftest variables
+    self.DATA['variables'].update(['path', 'repo', 'script', 'exclude_rpms'])
 
     # get default build machine definition template
     search_dirs = self.TEMPLATE_DIRS
@@ -213,9 +215,18 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
         message = ("The file at '%s' does not appear to be an rpm." % file)
         raise SrpmBuildEventError(message=message)
 
-    # use RpmBuildMixin to sign rpms, cache rpmdata, and add rpms as output
+    # get data for copied rpms
     self.rpms = [ self._get_rpmbuild_data(f) for f in rpmfiles ]
+
     RpmBuildMixin.run(self)
+
+  def apply(self):
+    RpmBuildMixin.apply(self)
+
+    # update user_required_packages
+    group = self.config.getxpath('group/text()', self.default_groupid)
+    for r in self.cvars['rpmbuild-data']:
+      self.user_required_packages[r] = group
 
   def _get_srpm_from_path(self, path):
     if not path.endswith(RPM_EXT['srpm']):
