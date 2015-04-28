@@ -94,7 +94,7 @@ class CompsComposeEventMixin(CompsSetupEventMixin):
 
     # validate
     if not self.comps.all_packages:
-      raise NoPackagesOrGroupsSpecifiedError(message=message)
+      raise NoPackagesOrGroupsSpecifiedError()
 
     # hash comps file content for use in change tracking
     self.comps_hash = hashlib.sha224(self.comps.xml()).hexdigest()
@@ -149,7 +149,6 @@ class CompsComposeEventMixin(CompsSetupEventMixin):
     self.rpm_obsoletes = set()
 
     for v in self.rpmbuild_data.values():
-      self.user_required_packages[v['rpm-name']] = v['rpm-group']
       self.rpm_required.update(v.get('rpm-requires', []))
       self.rpm_obsoletes.update(v.get('rpm-obsoletes', []))
 
