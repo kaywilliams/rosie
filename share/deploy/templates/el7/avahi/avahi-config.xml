@@ -3,6 +3,9 @@
 <summary>avahi configuration</summary>
 <license>GPLv2</license>
 
+<!-- ensure avahi-config installed during system setup -->
+<group>core</group>
+
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
 
