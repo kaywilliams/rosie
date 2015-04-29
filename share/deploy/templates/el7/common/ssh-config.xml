@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpm id='deploy-ssh-config'>
+
+<!-- include in core group -->
+<group>core</group>
+
 <requires>openssh</requires>
 <requires>openssh-clients</requires>
 <requires>/usr/sbin/sshd</requires>
