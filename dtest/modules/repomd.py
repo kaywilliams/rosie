@@ -26,6 +26,7 @@ class RepomdEventTestCase(EventTestCase):
   moduleid = 'repomd'
   eventid  = 'repomd'
   _type = 'package'
+  _conf = "<publish enabled='true'/>" # include release-rpm in repository
 
 
 def make_suite(os, version, arch, *args, **kwargs):
