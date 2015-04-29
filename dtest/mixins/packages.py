@@ -43,26 +43,14 @@ class PackagesMixinTestCase(EventTestCase):
     rxml.config.Element(name='exclude', parent=conf, text='NetworkManager')
     rxml.config.Element(name='package', parent=conf, text='http')
 
-
-def Test_IncludeFile(self):
-  _conf = """<packages>
-    <package dir='%s/repo1/RPMS/'>package1</package>
-  </packages>""" % REPODIR
-
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failUnless('package1-1.0-2.noarch.rpm'
-                    in [ x.basename for x in self.event.rpmsdir.listdir() ])
-
-
 def PackagesMixinTest_CheckResults(self):
   self._testMethodDoc = "cvars populated and package downloaded"
 
   def pre_setUp():
     conf = self.conf.getxpath(self.moduleid)
     rxml.config.Element(name='package', parent=conf, text='package1',
-                        attrib={'dir': '%s/repo1/RPMS' % REPODIR})
+                        attrib={'dir': '%s/repo1/RPMS' % REPODIR,
+                                'group': 'test'})
 
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
@@ -74,9 +62,13 @@ def PackagesMixinTest_CheckResults(self):
     # check excluded-packages
     self.failUnless('NetworkManager' in self.event.cvars['excluded-packages'])
 
+    # check downloaded-packages
+    self.failUnless(self.event.rpms[0]['rpm-name'] == 'package1' )
+
     # check user-required-packages
-    self.failUnless({'http': self.tb.name, 'package1': self.tb.name} ==
-                    self.event.cvars['user-required-packages'])
+    self.failUnless(
+      self.event.cvars['user-required-packages']['http'] == self.tb.name and
+      self.event.cvars['user-required-packages']['package1'] == 'test')
 
     # check downloaded packages                
     self.failUnless('package1-1.0-2.noarch.rpm'
