@@ -31,8 +31,7 @@ class PackagesEventMixin(RpmBuildMixin):
     if not hasattr(self, 'DATA'): self.DATA = {}
 
     self.DATA.setdefault('variables', set()).add('packages_mixin_version')
-    self.DATA.setdefault('config', set()).update(['exclude', 'group',
-                                                  'package'])
+    self.DATA.setdefault('config', set()).update(['package'])
     self.DATA.setdefault('input', set())
     self.DATA.setdefault('output', set())
 
@@ -54,20 +53,25 @@ class PackagesEventMixin(RpmBuildMixin):
 
     # setup user-required packages
     for x in self.config.xpath("package", []):
+      group = x.get('group', self.default_groupid)
       if x.get('dir', None):
-        self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text,
-                                  dest=self.rpmsdir, type='rpm')
+        self._setup_rpm_from_path(path=pps.path(x.get('dir')) / x.text, 
+                                  dest=self.rpmsdir, 
+                                  type='rpm')
+        self.user_required_packages[x.text] = group
       else:
         if x.text.startswith('-'):
           self.excluded_packages.add(x.text[1:])
         else:
-          self.user_required_packages[x.text] = x.get('group', 
-                                                      self.default_groupid)
+          self.user_required_packages[x.text] = group
 
   def run(self):
     self.io.process_files(cache=True, callback=self.link_callback, text=None,
                           what='rpm')
 
+    # get data for downloaded rpms
     self.rpms = [ self._get_rpmbuild_data(f)
                   for f in self.io.list_output(what='rpm') ]
-    RpmBuildMixin.run(self) # sign downloaded packages, cache package data
+
+    # sign downloaded packages, cache package data
+    RpmBuildMixin.run(self)
