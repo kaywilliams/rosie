@@ -44,8 +44,10 @@ __all__ = ['RpmBuildMixin', 'MkrpmRpmBuildMixin', 'RPM_EXT', 'Trigger',
 
 class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
   """
-  Mixin for working with Deploy-created rpms including both from-srpm
-  (srpmbuild) and mkrpm (config-rpm and release-rpm) rpms
+  Base mixin for working with Deploy rpms. Handles signing rpms and caching
+  rpm data. Currently used by rpm-downloading events including srpmbuild and 
+  packages events. Also serves as a baseclass for deploy-created rpm (see
+  MkrpmRpmBuildMixin).
   """
   rpmbuild_mixin_version = "1.03"
 
@@ -64,10 +66,8 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def setup(self):
     CompsSetupEventMixin.setup(self)
-    self.group = self.config.getxpath('group/text()', self.default_groupid) 
 
-    self.DATA.setdefault('variables', set()).update(['rpmbuild_mixin_version',
-                                                     'group'])
+    self.DATA.setdefault('variables', set()).update(['rpmbuild_mixin_version'])
 
     self._setup_signing_keys()
 
@@ -79,21 +79,20 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
   def apply(self):
     rpmbuild_data = self.unshelve('rpmbuild_data', {})
-    for key in rpmbuild_data:
-      self.cvars.setdefault('rpmbuild-data', {})[key] = rpmbuild_data[key]
 
-      # restore absolute path to rpm
-      path = self.METADATA_DIR / rpmbuild_data[key]['rpm-path']
-      self.cvars['rpmbuild-data'][key]['rpm-path'] = path
+    for k,v in rpmbuild_data.items():
 
-      # add comps group
-      self.cvars['rpmbuild-data'][key]['rpm-group'] = self.group
+      # restore absolute path to rpms
+      path = self.METADATA_DIR / v['rpm-path']
+      v['rpm-path'] = path
+
+    self.cvars.setdefault('rpmbuild-data', {}).update(rpmbuild_data)
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
       self.verifier.failUnlessExists(rpm_path)
 
-  def  _setup_rpm_from_path(self, path, dest, type):
+  def _setup_rpm_from_path(self, path, dest, type):
     assert type in ['rpm', 'srpm']
 
     # get validarchs
@@ -148,7 +147,7 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
     self.io.add_fpath(paths[0][0], dest, id=type)
 
-  def _get_rpmbuild_data(self, rpmpath, 
+  def _get_rpmbuild_data(self, rpmpath,
                          packagereq_type='mandatory', 
                          packagereq_default=None, 
                          packagereq_requires=None):
@@ -245,7 +244,8 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
 
 class MkrpmRpmBuildMixin(RpmBuildMixin):
   """
-  Mixin for creating rpms from scratch using util.mkrpm
+  Mixin for creating rpms from scratch using util.mkrpm, e.g. for use by
+  config-rpm and release-rpm
   """
   mkrpmbuild_mixin_version = "1.01"
 
@@ -256,6 +256,8 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
             summary=None, license=None, author=None, email=None,
             requires=None, provides=None, obsoletes=None, force_release=None,
             rpmconf=None):
+
+    RpmBuildMixin.setup(self) # deals with gpg signing
 
     self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
 
@@ -280,6 +282,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     self.rpminfo['provides'].extend([ x for x in self.rpminfo['obsoletes']])
     self.rpminfo['provides'].extend(rpmconf.xpath('provides/text()', []))
     self.rpminfo['requires'].extend(rpmconf.xpath('requires/text()', []))
+    self.DATA.setdefault('variables', set()).update(['mkrpmbuild_mixin_version'])
 
     self.force_release = force_release
     self.build_folder  = self.mddir / 'build'
@@ -289,8 +292,6 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     self.DATA.setdefault('variables', set()).update(
                          ['mkrpmbuild_mixin_version', 
                           'rpminfo', 'force_release'])
-
-    RpmBuildMixin.setup(self) # deals with gpg signing
 
   def run(self):
     release = self._get_release()
@@ -326,6 +327,12 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def apply(self):
     RpmBuildMixin.apply(self)
+
+    # update user_required_packages
+    group = self.config.getxpath('group/text()', self.default_groupid) 
+    for r in self.cvars['rpmbuild-data']:
+      self.user_required_packages[r] = group
+
 
   def _get_release(self):
     if self.force_release: # use provided release
