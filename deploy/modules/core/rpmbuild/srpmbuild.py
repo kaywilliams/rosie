@@ -225,7 +225,7 @@ class SrpmBuildMixinEvent(RpmBuildMixin, ExecuteEventMixin, ShelveMixin, Event):
 
     # update user_required_packages
     group = self.config.getxpath('group/text()', self.default_groupid)
-    for r in self.cvars['rpmbuild-data']:
+    for r in self.local_rpmbuild_data:
       self.user_required_packages[r] = group
 
   def _get_srpm_from_path(self, path):

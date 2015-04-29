@@ -78,15 +78,15 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
     self.DATA['output'].update(self.rpm_paths)
 
   def apply(self):
-    rpmbuild_data = self.unshelve('rpmbuild_data', {})
+    self.local_rpmbuild_data = self.unshelve('rpmbuild_data', {})
 
-    for k,v in rpmbuild_data.items():
+    for k,v in self.local_rpmbuild_data.items():
 
       # restore absolute path to rpms
       path = self.METADATA_DIR / v['rpm-path']
       v['rpm-path'] = path
 
-    self.cvars.setdefault('rpmbuild-data', {}).update(rpmbuild_data)
+    self.cvars.setdefault('rpmbuild-data', {}).update(self.local_rpmbuild_data)
 
   def verify_rpms_exist(self):
     for rpm_path in self.rpm_paths:
@@ -330,7 +330,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
     # update user_required_packages
     group = self.config.getxpath('group/text()', self.default_groupid) 
-    for r in self.cvars['rpmbuild-data']:
+    for r in self.local_rpmbuild_data:
       self.user_required_packages[r] = group
 
 
