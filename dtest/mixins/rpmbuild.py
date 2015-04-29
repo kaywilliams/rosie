@@ -210,6 +210,9 @@ class RpmCvarsTestCase(object):
   def check_cvars(self):
     for r in self.event.rpms:
       self.failUnless(r['rpm-name'] in self.event.cvars['rpmbuild-data'])
+      self.failUnless(self.event.user_required_packages[r['rpm-name']] == 
+                      self.event.config.getxpath('group/text()',
+                                                  self.event.default_groupid))
       if self.moduleid not in [ 'config-rpm', 'release-rpm' ] : continue
       self.failUnless(self.event.rpm.name == r['rpm-name'])
       self.failUnless(self.event.rpm.version == r['rpm-version'])
