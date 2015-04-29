@@ -283,10 +283,19 @@ class Test_InvalidRpm(TestSrpmTestCase):
 
 class Test_Apply(TestSrpmTestCase):
   "rpmbuild-data added for generated rpm(s)"
+  _conf = """
+    <srpmbuild>
+    <srpm id='package1'>
+      <path>%s/repo1/SRPMS</path>
+      <group>test</group>
+    </srpm>
+    </srpmbuild>
+    """ % REPODIR 
 
   def runTest(self):
     self.tb.dispatch.execute(until=self.event)
     self.failUnless('package1' in self.event.cvars['rpmbuild-data'])
+    self.failUnless(self.event.user_required_packages['package1'] == 'test')
 
 class Test_Shutdown(TestSrpmTestCase):
   "dummy test to delete srpm virtual machine"
