@@ -3,14 +3,13 @@
 
 <packages id='core'>
 <group repoid='%{os}-%{edition}-base'>core</group>
-<group repoid='%{os}-%{edition}-base'>anaconda-tools</group>
-<!-- these packages are in anaconda-tools
+<!--<group repoid='%{os}-%{edition}-base'>anaconda-tools</group>-->
+<!-- common packages needed from anaconda-tools group -->
 <package>authconfig</package>
 <package>chrony</package>
 <package>firewalld</package>
 <package>grub2</package>
 <package>lvm2</package>
--->
 </packages>
 
 <packages id='gui'>
