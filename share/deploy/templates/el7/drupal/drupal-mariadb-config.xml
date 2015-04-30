@@ -1,11 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-mariadb-config'>
-<include href="%{templates-dir}/%{norm-os}/mariadb/mariadb-server-config.xml"
+
+<requires>php-mysql</requires>
+
+<!-- database config -->
+<include href="%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml"
          xpath="./*"/>
-<requires>php-mariadb</requires>
-<!--
-mariadb -u root -e "create database if not exists drupal;"
-mariadb -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES, CREATE TEMPORARY TABLES ON drupal.* TO 'root'@'localhost';"
+
+<!-- drupal config -->
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"
+         xpath="./*"/>
+
+<!-- drush install -->
+<macro id='drupal-db-su'>root</macro>
+<macro id='drupal-site-install-cmd'>
+  drush -y -q si standard \
+    --account-pass=%{drupal-admin-password} \
+    --account-mail=%{drupal-admin-mail} \
+    --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-sitename} \
+    --db-su=%{drupal-db-su} \
+    --site-mail=%{drupal-site-mail} \
+    --site-name=%{drupal-site-name}
+</macro>
+
+<script type='post'>
+# create drupal database
+<!-- To populate the database with existing data, include this config-rpm
+     within another, and have the outer config-rpm first copy a mariadb backup
+     file to the folder and filename specified by %{drupal-db-restore-dir} and
+     %{drupal-db-restore-file}.
+     
+     The restore file is typically created using a script element, e.g. <script
+     type='post'>your script here</script>, which copies data from a backup
+     server or device to the installed machine. The script should be specified
+     prior to including this config-rpm.
 -->
+mysql -u %{drupal-db-su} -p%{mariadb-password} \
+      -e "create database if not exists %{drupal-sitename}"
+mysql -u %{drupal-db-su} -p%{mariadb-password} \
+      -e "grant all on %{drupal-sitename}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
 </script>
+
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml"/>
+
 </config-rpm>

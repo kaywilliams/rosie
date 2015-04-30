@@ -3,41 +3,7 @@
 <requires>postgresql</requires>
 <requires>postgresql-server</requires>
 
-<!--
-Execute config logic in a runonce service since postgresql-setup initdb can't
-run in a chroot (i.e. under anaconda).
--->
-<requires>systemd-units</requires>
-
 <script type='post'>
-# enable the postgresql-server-config run-once service if running under
-# anaconda, else run it directly
-if pgrep anaconda; then
-  systemctl -q enable postgresql-server-config.service
-else
-  systemctl -q start postgresql-server-config.service
-fi
-</script>
-
-<files destdir="/etc/systemd/system" 
-       destname="postgresql-server-config.service" 
-       mode="755" content="text">
-[Unit]
-Description=first boot service to configure postgresql-server
-
-[Service]
-Type=oneshot
-ExecStart=%{install-dir}/files/postgresql-server-config.sh
-ExecStartPost=/bin/systemctl disable postgresql-server-config.service
-
-[Install]
-WantedBy=multi-user.target
-</files>
-
-<files destname='postgresql-server-config.sh' mode='755' content='text'>
-#!/bin/sh -
-set -e
-
 # start pgsql service
 hbafile="/var/lib/pgsql/data/pg_hba.conf"
 if ! [ -e $hbafile ]; then
@@ -48,7 +14,5 @@ if ! [ -e $hbafile ]; then
 fi
 systemctl -q enable postgresql.service
 pidof postmaster > /dev/null || systemctl -q start postgresql.service
-
-/bin/systemctl disable postgresql-server-config.service > /dev/null
-</files>
+</script>
 </config-rpm>

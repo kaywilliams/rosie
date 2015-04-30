@@ -1,48 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-pgsql-config'>
-<macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
-<macro id='drupal-db-restore-file'>%{drupal-sitename}</macro>
 
-<requires>pgsql-server-config</requires>
 <requires>php-pgsql</requires>
 
-<!--
-Execute config logic in a runonce service since postgresql-setup initdb can't
-run in a chroot (i.e. under anaconda).
--->
-<requires>systemd-units</requires>
+<!-- database config -->
+<include href="%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml"
+         xpath="./*"/>
+
+<!-- drupal config -->
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"
+         xpath="./*"/>
+
+<!-- drush install -->
+<macro id='drupal-db-su'>postgres</macro>
+<macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
+<macro id='drupal-db-restore-file'>%{drupal-sitename}</macro>
+<macro id='drupal-site-install-cmd'>
+  drush -y -q si standard \
+    --account-pass=%{drupal-admin-password} \
+    --account-mail=%{drupal-admin-mail} \
+    --db-url=pgsql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-sitename} \
+    --db-su=%{drupal-db-su} \
+    --site-mail=%{drupal-site-mail} \
+    --site-name=%{drupal-site-name}
+</macro>
 
 <script type='post'>
-# enable the drupal-pgsql-config run-once service if running under anaconda,
-# else run it directly
-if pgrep anaconda; then
-  systemctl -q enable drupal-pgsql-config.service
-else
-  systemctl -q start drupal-pgsql-config.service
-fi
-</script>
-
-<files destdir="/etc/systemd/system"
-       destname="drupal-pgsql-config.service"
-       mode="755" content="text">
-[Unit]
-Description=first boot service to configure drupal-pgsql
-Requires=postgresql-server-config.service
-After=postgresql-server-config.service
-
-[Service]
-Type=oneshot
-ExecStart=%{install-dir}/files/drupal-pgsql-config.sh
-ExecStartPost=/bin/systemctl disable drupal-pgsql-config.service
-
-[Install]
-WantedBy=multi-user.target
-</files>
-
-<files destname='drupal-pgsql-config.sh' mode='755' content='text'>
-#!/bin/sh -
-set -e
-
 # create drupal database
 <!-- To populate the database with existing data, include this config-rpm
      within another, and have the outer config-rpm first copy a pgsql backup
@@ -62,5 +45,7 @@ if ! su - postgres -c "psql -l" | grep '^ %{drupal-sitename}\b' >/dev/null; then
     su - postgres -c "psql %{drupal-sitename} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
   fi
 fi
-</files>
+</script>
+
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml"/>
 </config-rpm>

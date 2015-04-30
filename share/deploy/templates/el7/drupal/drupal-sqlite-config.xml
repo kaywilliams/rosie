@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='drupal-sqlite-config'>
+
+<requires>sqlite</requires>
+
+<!-- drupal-config -->
+<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"
+         xpath="./*"/>
+
+<!-- drush install -->
+<macro id='drupal-db-dir'>%{drupal-web-dir}</macro>
+<macro id='drupal-db-filename'>.ht.sqlite</macro>
+<macro id='drupal-site-install-cmd'>
+  drush -y -q si standard \
+    --account-pass=%{drupal-admin-password} \
+    --account-mail=%{drupal-admin-mail} \
+    --db-url=sqlite:%{drupal-db-dir}/%{drupal-db-filename} \
+    --site-mail=%{drupal-site-mail} \
+    --site-name=%{drupal-site-name} 
+</macro>
+
+<include href='%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml'/>
+
+<script type='post'>
+chown -R apache:apache %{drupal-db-dir}/%{drupal-db-filename}
+</script>
+</config-rpm>

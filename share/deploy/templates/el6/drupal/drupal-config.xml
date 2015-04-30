@@ -2,7 +2,12 @@
 <config-rpm id='drupal-config'>
 
 <macro id='drupal-admin-password'>Test1!</macro>
-<macro id='drupal-sitename'>drupal</macro>
+<macro id='drupal-admin-mail'>admin@example.com</macro>
+<macro id='drupal-site-mail'>admin@example.com</macro>
+<macro id='drupal-site-name'>drupal</macro>
+<macro id='drupal-sites-dir'>/usr/share/drupal7/sites</macro>
+<macro id='drupal-settings-dir'>/etc/drupal7</macro>
+<macro id='drupal-web-dir'>/var/lib/drupal7/files/default</macro>
 <macro id='drupal-db-type'>pgsql</macro><!-- 'pgsql' or 'mysql' -->
 <macro id='drupal-db-user'>drupal</macro>
 <macro id='drupal-db-password'>%{drupal-admin-password}</macro>
@@ -12,48 +17,7 @@
 
 <requires>httpd</requires>
 <requires>drupal7</requires>
-<requires>drupal-%{drupal-db-type}-config</requires>
 <requires>drush-config</requires>
+<requires>/usr/sbin/sendmail</requires>
 
-<script type='post'>
-# allow public access
-sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/drupal7.conf
-sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
-
-# configure web server
-sed -i "s|^DocumentRoot.*|DocumentRoot \"/usr/share/drupal7\"|" /etc/httpd/conf/httpd.conf
-
-# if running under anaconda, wait a few seconds for apache to start
-set +e
-service httpd status >/dev/null
-r=$?
-if [ $r -eq 2 ]; then
-  pgrep anaconda &amp;&amp; sleep 2 || exit 1
-fi
-set -e
-
-# load drupal configuration in apache
-if pidof httpd; then
-  info=`service httpd reload 2>&amp;1` || (status=$?; echo $info; exit $status)
-else
-  info=`service httpd start 2>&amp;1` || (status=$?; echo $info; exit $status)
-fi
-
-# create drupal site if one does not exist
-cd /usr/share/drupal7/sites
-
-# test drush core-status in a separate step so that that the script exits
-# with an error if the command fails
-info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
-
-# create new site
-if ! drush core-status | grep -q "Database name" ; then
-  drush -y -q si standard \
-    --account-pass=%{drupal-admin-password} \
-    --db-url=%{drupal-db-type}://%{drupal-db-user}@localhost/%{drupal-sitename} \
-    --db-su=postgres \
-    --site-name=%{drupal-sitename}
-  service httpd reload > /dev/null
-fi
-</script>
 </config-rpm>

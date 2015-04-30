@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpms>
-<!--drupal-->
+<!-- drupal -->
 <include href='%{templates-dir}/%{norm-os}/iptables/iptables-update.xml'/>
 <include href='%{templates-dir}/%{norm-os}/httpd/httpd-config.xml'/>
-<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"/> 
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-selinux-config.xml"/> 
-<include href='%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml'/>
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-%{drupal-db-type}-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/drupal/drush-config.xml"/>
 <include href="%{templates-dir}/%{norm-os}/php/php-composer-config.xml"/>

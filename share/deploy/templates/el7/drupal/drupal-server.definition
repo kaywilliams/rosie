@@ -2,18 +2,18 @@
 <definition>
 
 <macro id='name'>drupal-server</macro>
-<macro id='os'>rhel</macro>
+<macro id='os'>centos</macro>
 <macro id='edition'>server</macro>
 <macro id='version'>7</macro>
 <macro id='arch'>x86_64</macro>
-<macro id='id'>%{name}</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
 
 <!-- deployment macros -->
 <macro id='test-install-enabled'>false</macro>
 
 <!-- drupal macros -->
 <macro id='drupal-admin-password'>Test1!</macro>
-<macro id='drupal-db-type'>pgsql</macro>
+<macro id='drupal-db-type'>mariadb</macro>
 <macro id='drupal-db-user'>drupal</macro>
 <macro id='drupal-db-password'>%{drupal-admin-password}</macro>
 <macro id='drupal-sitename'>drupal</macro>

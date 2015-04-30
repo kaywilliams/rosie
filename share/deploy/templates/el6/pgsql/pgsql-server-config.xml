@@ -2,10 +2,10 @@
 <config-rpm id='pgsql-server-config'>
 <requires>postgresql</requires>
 <requires>postgresql-server</requires>
+
 <script type='post'>
 # start pgsql service
 hbafile="/var/lib/pgsql/data/pg_hba.conf"
-chkconfig postgresql on
 if ! [ -e $hbafile ]; then
   # Note: the following command emits two "No such file or directory" messages
   # during initial system install. Can't see anything we can do to prevent.
@@ -14,7 +14,7 @@ if ! [ -e $hbafile ]; then
   sed -r -i  "/host.*all.*all.*127.0.0.1\/32[[:space:]]+/s/ident/trust/" $hbafile
   sed -r -i  "/host.*all.*all.*::1\/128[[:space:]]+/s/ident/trust/" $hbafile
 fi
-pgrep anaconda || exit 0
+chkconfig postgresql on
 pidof postmaster > /dev/null || service postgresql start > /dev/null
 </script>
 </config-rpm>

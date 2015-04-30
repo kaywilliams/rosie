@@ -2,7 +2,6 @@
 <config-rpm id='mariadb-server-config'>
 <requires>mariadb</requires>
 <requires>mariadb-server</requires>
-<requires>systemd-units</requires>
 
 <macro id='mariadb-password' type='script'>
 #!/usr/bin/python
@@ -11,17 +10,18 @@ print uuid.uuid4().hex[:16]
 </macro>
 
 <script type='post'>
-/bin/systemctl -q enable mariadb
-ps aux | grep -q "[/]sbin/anaconda" || /bin/systemctl start mariadb
+# start mariadb service
+systemctl -q enable mariadb.service
+systemctl -q start mariadb.service
 
 # set password - the logic below is to attempt to access the database
 # *without* a password. If we can, then we know we need to reset the password
 # and we do so. Otherwise, we assume the password has been correctly set
 # previously and we do nothing.
-if mariadb -u root -e "SHOW DATABASES;" &amp;>/dev/null; then
-  mariadb \
+if mysql -u root -e "SHOW DATABASES;" &amp;>/dev/null; then
+  mysql \
     -u root \
-    -e "UPDATE mariadb.user SET Password=PASSWORD('%{mariadb-password}') WHERE User='root'; FLUSH PRIVILEGES;"
+    -e "UPDATE mysql.user SET Password=PASSWORD('%{mariadb-password}') WHERE User='root'; FLUSH PRIVILEGES;"
 fi
 </script>
 </config-rpm>

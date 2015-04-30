@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script type='post'>
+#!/bin/bash
+set -e
+
+# allow public access
+sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/drupal7.conf
+sed -i "s/Deny from all/Allow from all/" /etc/httpd/conf.d/drupal7.conf
+
+# configure web server
+sed -i "s|^DocumentRoot.*|DocumentRoot \"/usr/share/drupal7\"|" /etc/httpd/conf/httpd.conf
+
+# load drupal configuration in apache
+if pidof httpd >/dev/null; then
+  info=`systemctl reload httpd 2>&amp;1` || (status=$?; echo $info; exit $status)
+else
+  info=`systemctl start httpd 2>&amp;1` || (status=$?; echo $info; exit $status)
+fi
+
+# create drupal site if one does not exist
+cd %{drupal-sites-dir}
+
+# test drush core-status in a separate step so that that the script exits
+# with an error if the command fails
+info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
+
+# create new site
+if ! drush core-status | grep -q "Database name" ; then
+  %{drupal-site-install-cmd}
+  systemctl reload httpd
+fi
+</script>
