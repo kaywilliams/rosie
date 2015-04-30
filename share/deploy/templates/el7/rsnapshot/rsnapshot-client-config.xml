@@ -1,0 +1,53 @@
+<config-rpm id='rsnapshot-client-config'>
+<!--
+To use this template, first create the rsnapshot server (see
+rsnapshot-server.definition). Then create a config-rpm macro in your client
+definition that looks something like the following. 
+
+The rsnapshot-client-config template configures the authorized_keys file on the
+client to accept ssh connections from the rsnapshot user (typically root). You
+may also need to configure the client firewall to allow inbound ssh connections
+from the server.
+
+<config-rpm id='rsnapshot-client-config'>
+<macro id='rsnapshot-user-pubkey-text'><include href="rsnapshot-server-%{os}-%{version}-%{arch}/id_rsa.pub" parse="text"/></macro>
+
+<include
+    href="%{templates-dir}/%{norm-os}/rsnapshot/rsnapshot-client-config.xml"
+    xpath="./*"/>
+
+<script type='post'>
+# script that configures the firewall to accept ssh connections from the server
+...
+</script>
+</config-rpm>
+-->
+
+<!-- everything here and below is part of the template -->
+<requires>rsync</requires>
+
+<!-- create ssh keys for restoring from rsnapshot server -->
+<include href="%{templates-dir}/%{norm-os}/common/ssh-create-root-keys.xml"
+         xpath="./*"/>
+
+<!-- config ssh to/from backup server -->
+<script type='post'>
+sshdir=/root/.ssh
+[[ -d $sshdir ]] || mkdir $sshdir
+chmod 700 $sshdir
+
+# add server user to authorized_keys
+file=$sshdir/authorized_keys
+key="%{rsnapshot-user-pubkey-text}"
+[[ -f $file ]] || touch $file
+grep -q "$key" $file || echo $key >> $file
+chmod 600 $file
+
+# add server client to known_hosts
+file=$sshdir/known_hosts
+key="%{rsnapshot-server-host-key-text}"
+[[ -f $file ]] || touch $file
+grep -q "$key" $file || echo $key >> $file
+chmod 644 $file
+</script>
+</config-rpm>
