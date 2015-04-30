@@ -4,7 +4,7 @@
 <macro id='kickstart-text'>text</macro>
 install
 %{kickstart-text}
-network --device=link --bootproto=dhcp --hostname %{fqdn} --activate
+network --device=link --bootproto=dhcp --hostname %{hostname} --activate
 rootpw --iscrypted "%{crypt-password}"
 lang en_US
 keyboard us
@@ -20,6 +20,6 @@ selinux --enforcing
 reboot
 
 %packages --nobase
-*
+@core
 %end
 </kickstart>
