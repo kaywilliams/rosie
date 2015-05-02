@@ -1,18 +1,1 @@
-<script id='ssh-delete-host-key' type='delete' comes-after='delete'>
-#!/usr/bin/python
-
-from deploy.util import pps
-
-fqdn = '%{fqdn}'
-ssh_host_key_file = pps.path('%{ssh-host-key-file}')
-
-# delete file from disk
-ssh_host_key_file.rm(force=True)
-
-# delete key from user known_hosts file
-known_hosts_file = pps.path('/root/.ssh/known_hosts') 
-if known_hosts_file.exists(): 
-  currlines = known_hosts_file.read_lines() 
-  newlines = [ l for l in currlines if not fqdn in l ]
-  known_hosts_file.write_lines(newlines)
-</script>
+../../el7/common/ssh-delete-host-key.xml

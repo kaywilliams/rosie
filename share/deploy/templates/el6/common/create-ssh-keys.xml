@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<script id='create-ssh-keys' type='pre-install'>
-#!/usr/bin/python
-
-import sys
-from deploy.util import pps
-
-lib = pps.path('%{templates-dir}/%{norm-os}/common/ssh_lib.py')
-sys.path.insert(0, lib.dirname)
-
-from ssh_lib import *
-
-create_keys('%{data-dir}', 'root')
-</script>
+../../el7/common/create-ssh-keys.xml

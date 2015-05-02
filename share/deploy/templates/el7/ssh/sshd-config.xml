@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='sshd-config'>
+
+<group>core</group>
+
 <macro id="sshd_config">
 #	$OpenBSD: sshd_config,v 1.93 2014/01/10 05:59:19 djm Exp $
 

@@ -1,4 +1,7 @@
 <config-rpm id='ssh-create-root-keys'>
+
+<group>core</group>
+
 <requires>openssh</requires>
 <requires>openssl</requires>
 

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpm id='ssh-install-pubkeys'>
+
+<group>core</group>
+
 <requires>openssh</requires>
 <requires>openssh-clients</requires>
 <requires>/usr/sbin/sshd</requires>
