@@ -580,6 +580,13 @@ print uuid.uuid1()
     <filename>document3.xml</filename>.
     </para>
 
+    <note>
+    <para>
+    When including nested documents, all macros from each document will be
+    resolved prior to performing the include.
+    </para>
+    </note>
+
     <section>
     <title>
     Syntax
