@@ -80,7 +80,6 @@ API_VERSION = 5.0
 
 DEFAULT_CACHE_DIR = pps.path('/var/cache/deploy')
 DEFAULT_LOCAL_ROOT = pps.path('/var/lib/deploy')
-DEFAULT_CLIENT_LOCAL_ROOT = pps.path('/var/lib/deploy-client')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/deploy')
 DEFAULT_TEMPLATE_DIRS = [ pps.path('/usr/share/deploy/templates') ]
 DEFAULT_LOG_FILE = pps.path('/var/log/deploy.log')
@@ -606,8 +605,6 @@ The definition file is located at %s.
 
     # set up root paths for local data
     self.LOCAL_ROOT = pps.path(options.local_root or DEFAULT_LOCAL_ROOT)
-    self.CLIENT_LOCAL_ROOT = pps.path(options.client_local_root or 
-                                      DEFAULT_CLIENT_LOCAL_ROOT)
 
     # Expose options object for events (e.g. srpmbuild) that run parallel
     # instances of the Build object
@@ -654,7 +651,6 @@ The definition file is located at %s.
     # set up other directories
     ptr.CACHE_DIR    = self.CACHE_DIR
     ptr.LOCAL_ROOT     = self.LOCAL_ROOT
-    ptr.CLIENT_LOCAL_ROOT = self.CLIENT_LOCAL_ROOT
     ptr.METADATA_DIR = self.METADATA_DIR 
     ptr.SHARE_DIRS   = self.sharedirs
     ptr.TEMPLATE_DIRS  = self.template_dirs # needed by srpmbuild

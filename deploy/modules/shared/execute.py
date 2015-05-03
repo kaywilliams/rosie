@@ -36,8 +36,7 @@ class ExecuteEventMixin:
     # this method need to be safe for calling by the main event and 
     # multiple mixins (e.g. DeployEventMixin, InputEventMixin)
 
-    self.DATA['variables'].update(['execute_mixin_version', 'LOCAL_ROOT',
-                                   'CLIENT_LOCAL_ROOT'])
+    self.DATA['variables'].update(['execute_mixin_version', 'LOCAL_ROOT'])
 
     # for optimizing per-build directory cleaning/creation
     self.cvars.setdefault('visited-script-hosts', [])
@@ -126,7 +125,7 @@ class LocalExecute(Execute):
 
 class RemoteExecute(Execute):
   def __init__(self, ptr):
-    Execute.__init__(self, ptr, local_root=ptr.CLIENT_LOCAL_ROOT)
+    Execute.__init__(self, ptr, local_root=ptr.LOCAL_ROOT)
 
   def execute(self, script, script_id, params, verbose=False):
     # convenience variable

@@ -198,9 +198,9 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
                              requires = ['coreutils', 'diffutils', 'findutils',
                                          'grep', 'sed'])
 
-    self.clientdir   = getattr(self, 'test_client_dir', self.CLIENT_LOCAL_ROOT)
+    self.localdir    = getattr(self, 'test_local_dir', self.LOCAL_ROOT)
     self.scriptdir   = self.build_folder/'scripts'
-    self.configdir   = self.clientdir/'config' 
+    self.configdir   = self.localdir/'config' 
     self.installdir  = self.configdir/self.rpmid
     self.filerelpath = self.installdir/'files'
     self.srcfiledir  = self.source_folder // self.filerelpath
@@ -208,7 +208,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
 
     self.cvars.setdefault('config-dir', self.configdir)
 
-    self.DATA['variables'].add('clientdir')
+    self.DATA['variables'].add('localdir')
 
     # resolve module macros
     self.local_execute_obj = LocalExecute(self) 
@@ -362,7 +362,7 @@ class ConfigRpmEventMixin(ExecuteEventMixin, MkrpmRpmBuildMixin):
       '  cp $file $file.prev',
       'else',
       '  if [ ! -e $file.prev ]; then',
-      '  for d in %s %s %s; do' % (self.clientdir, self.configdir,
+      '  for d in %s %s %s; do' % (self.localdir, self.configdir,
                                    self.installdir),
       '    [[ -d $d ]] || mkdir $d',
       '    chmod 700 $d',
@@ -529,8 +529,18 @@ fi
   def _mk_posttrans(self):
     # TODO - remove in the future once legacy clients are likely updated
     script = """
-legacydir=/var/lib/deploy/config/%s
-[[ -d $legacydir ]] && rm -rf $legacydir || true
+legacy_dir=/var/lib/deploy-client
+legacy_conf_dir=$legacy_dir/config/%s
+
+if [[ -d $legacy_conf_dir ]]; then
+  # remove config-specific legacy dir
+  rm -rf $legacy_conf_dir
+
+  # remove parent legacy dir, if it contains only subfolders
+  if ! find $legacy_dir -type f -print -quit | grep -q . ; then
+    rm -rf $legacy_dir
+  fi
+fi
 """ % self.installdir.basename
 
     return script

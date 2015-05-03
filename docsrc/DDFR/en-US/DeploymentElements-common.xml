@@ -345,7 +345,7 @@
     <entry>
     Folder location where <xref linkend='config-rpm'/> data and scripts are
     stored on client systems, specifically
-    <filename>/var/lib/deploy-client/config</filename>.  Used by update scripts
+    <filename>/var/lib/deploy/config</filename>.  Used by update scripts
     for providing informative messages for config-rpm scriptlet failed errors.
     </entry>
     </row>
