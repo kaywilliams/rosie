@@ -2,7 +2,7 @@
 <script id='test-triggers' type='test-triggers'>
 #!/bin/bash
 TRIGGER_INFO=%{trigger-file}
-LEGACY_FILE=/var/lib/deploy/deploy-client/%{id}/trigger_info
+LEGACY_FILE=/var/lib/deploy-client/scripts/%{id}/data/trigger_info
 
 FAIL=0
 
