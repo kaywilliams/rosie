@@ -8,7 +8,7 @@ import sys
 
 from deploy.util import pps
 file = pps.path('%{libvirt-guestname-file}')
-legacy_file=pps.path('/var/lib/deploy/deploy/%{id}/libvirt-%{module}')
+legacy_file=pps.path('/var/lib/deploy/deploy-client/%{id}/libvirt-%{module}')
 
 if file.exists():
   guestname = file.read_text().strip().replace('guestname=', '')
