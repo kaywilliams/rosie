@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config-rpm id='acpid-config'>
+
+<group>core</group>
+
 <description>acpi enables graceful shutdown on virtual machines</description>
+
 <requires>acpid</requires>
+
 </config-rpm>
