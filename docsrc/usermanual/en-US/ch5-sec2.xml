@@ -7,15 +7,14 @@
   <para>
   Deploy enables <emphasis>update</emphasis> testing using the
   <emphasis>test-update</emphasis> element. As with
-  <emphasis>test-install</emphasis>, update testing is most easily accomplished
-  using a template, <filename>deploy.xml</filename>, as shown below:
+  <emphasis>test-install</emphasis>, testing is most easily accomplished
+  using a template.
   </para>
 
   <informalexample>
   <programlisting>&lt;test-update>
   &lt;macro id='test-update-poweroff'>false&lt;/macro>
-  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
-           xpath="./*"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpath="./*"/>
 &lt;/test-update></programlisting>
   </informalexample>
 
@@ -64,10 +63,11 @@
   </itemizedlist>
 
   <para>
-  As with test-install, Deploy will reinstall the test-update machine if
-  necessary. This happens much less frequently, however. By default Deploy only
-  reinstalls the test-update machine if it is unable to activate the machine or
-  establish an SSH connection to it.
+  To maintain a consistent testing environment, Deploy does not automatically
+  delete and reinstall test-update machines. Instead, if an error occurs,
+  Deploy will indicate that a machine already exists. Users will have to
+  correct the error, or delete the test-update system manually before Deploy
+  can continue. 
   </para>
 
   <para>

@@ -7,16 +7,15 @@
   
   <para>
   Deploy enables <emphasis>installation</emphasis> testing using the
-  <emphasis>test-install</emphasis> element. As usual, the easiest way 
-  to complete this element is using a template, in this case the
-  <filename>deploy.xml</filename> template, as shown below:
+  <emphasis>test-install</emphasis> element. As usual, the easiest way to
+  complete this element is using a template. The example below shows testing
+  installation using the libvirt/deploy.xml template.
   </para>
 
   <informalexample>
-  <programlisting>&lt;test-install>
+  <programlisting>&lt;test-install enabled='true'>
   &lt;macro id='test-install-post-delete>false&lt;/macro>
-  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml"
-           xpath="./*"/>
+  &lt;include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" xpath="./*"/>
 &lt;/test-install></programlisting>
   </informalexample>
 
