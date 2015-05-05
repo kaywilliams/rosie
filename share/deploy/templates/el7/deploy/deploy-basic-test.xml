@@ -8,6 +8,7 @@
 <script id='test-deploy-basic' type='update' comes-after='update'>
 #!/bin/sh
 deploy /usr/share/deploy/templates/%{norm-os}/httpd/web-server.definition \
+  --debug \
   --disable test-install \
   --disable test-update \
   --macro "os:%{os}" \

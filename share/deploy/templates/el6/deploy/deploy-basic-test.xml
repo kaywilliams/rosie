@@ -1,16 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xml>
-
-<include href="%{templates-dir}/%{norm-os}/deploy/deploy-basic-config.xml"/> 
-
-<macro id='args'/>
-
-<script id='test-deploy-basic' type='update' comes-after='update'>
-#!/bin/sh
-deploy /usr/share/deploy/templates/%{norm-os}/httpd/web-server.definition \
-  --disable test-install \
-  --disable test-update \
-  --macro "os:%{os}" \
-  %{args}
-</script>
-</xml>
+../../el7/deploy/deploy-basic-test.xml
