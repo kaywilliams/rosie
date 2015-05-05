@@ -74,14 +74,6 @@ class DeployOptionParser(OptionParser):
       dest='data_root',
       default=None,
       help="specify root directory to create definition data folders")
-    config_group.add_option('--local-root', metavar='PATH',
-      dest='local_root',
-      default=None,
-      help="specify root directory to store local data")
-    config_group.add_option('--client-local-root', metavar='PATH',
-      dest='client_local_root',
-      default=None,
-      help="specify root directory to store local data on client machines")
     self.add_option_group(config_group)
 
     log_group = OptionGroup(self, "logging options")

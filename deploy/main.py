@@ -604,7 +604,7 @@ The definition file is located at %s.
     self.cvars['selinux-enabled'] = selinux_enabled
 
     # set up root paths for local data
-    self.LOCAL_ROOT = pps.path(options.local_root or DEFAULT_LOCAL_ROOT)
+    self.LOCAL_ROOT = pps.path(DEFAULT_LOCAL_ROOT)
 
     # Expose options object for events (e.g. srpmbuild) that run parallel
     # instances of the Build object

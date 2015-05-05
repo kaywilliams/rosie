@@ -345,23 +345,20 @@
     <entry>
     Folder location where <xref linkend='config-rpm'/> data and scripts are
     stored on client systems, specifically
-    <filename>/var/lib/deploy/config</filename>.  Used by update scripts
-    for providing informative messages for config-rpm scriptlet failed errors.
+    <filename>/var/lib/deploy/config</filename>.  Used by update scripts for
+    providing informative messages for config-rpm scriptlet failed errors.
     </entry>
     </row>
 
     <row>
-    <entry id='deployment-script-dir-macro'>
-    %{deployment-script-dir}
+    <entry id='script-data-dir-macro'>
+    %{script-data-dir}
     </entry>
 
     <entry>
-    Folder location where deployment scripts are copied prior to execution,
-    specifically <filename>/var/lib/deploy/deploy/%{id}</filename>. The
-    %{deployment-script-dir} remains constant across target hosts. Can be used
-    by deployment scripts as a convenient location for storing and sharing
-    runtime data. See the <xref linkend='deployment-script'/> element for more
-    information.
+    Folder location for use by deployment scripts to store and share local
+    runtime data, specifically
+    <filename>/var/lib/deploy/scripts/%{id}/data</filename>.
     </entry>
     </row>
     </tbody>
@@ -1445,13 +1442,11 @@ $remote-url/%{id}</programlisting>
 
       <para>
       Deploy reads the script from the script element and resolves macros and
-      include elements. It then writes the script to a file named <xref
-      linkend='script-id'/> in the %{deployment-script-dir} of the target
-      host.  Finally, it executes the script on the target host with root
-      privileges.  See the <link
-      linkend="deployment-macros">%{deployment-script-dir}</link> module macro
-      and the <xref linkend='script-hostname'/> attribute for additional
-      information on target hosts and script execution.
+      include elements. It then writes the script to the file
+      <filename>/var/lib/deploy/scripts/%{id}/%{script-id} </filename> on the
+      target host.  Finally, it executes the script on the target host with
+      root privileges.  See the <xref linkend='script-hostname'/> attribute for
+      additional information on target hosts and script execution.
       </para>
 
       <para>

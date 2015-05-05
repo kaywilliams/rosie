@@ -95,8 +95,7 @@ class Execute:
   def replace_macros(self, infile, outfile):
     text = infile.read_text()
 
-    for macro, value in {'%{script-dir}': self.scriptdir,
-                         '%{script-data-dir}': self.datadir}.items():
+    for macro, value in {'%{script-data-dir}': self.datadir}.items():
       text = text.replace(macro, value)
 
     outfile.write_text(text)
