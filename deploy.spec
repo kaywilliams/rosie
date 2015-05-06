@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    deploy
-Version: 2.3
-Release: 2%{?dist}
+Version: 3.0
+Release: 1%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -76,6 +76,19 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Wed May 6 2015 Kay Williams <kay@deployproject.org> - 3.0-1
+- support for multiple comps groups - simplifies config script logic
+- use avahi in libvirt deployment templates - avoids dnsmasq version issues
+- allow specifying packages/groups/excludes in deploy elements
+- allow downloading individual rpms from a file path, i.e. no repo required
+- terminate subprocesses on keyboard interrupt
+- simplify include element syntax (xml namespace no longer required)
+- reorganize local script dir to allow cleanup between runs
+- data dir now ends with ".dat" to avoid conflict with user-created folders
+- many template updates/additions, incl, rackspace, rsnapshot, drupal, firewall
+- allow batch conversion of existing templates (migrate.py)
+- many bug fixes and error message, test cases and documentation improvements
+
 * Sun Aug 17 2014 Kay Williams <kay@deployproject.org> - 2.3-2
 - fix gpgkey publishing for package repos
 
