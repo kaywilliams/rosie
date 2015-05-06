@@ -34,6 +34,7 @@ def migrate(command, paths, backup):
     for l in oldlines:
       l = remove_namespace(l)
       l = remove_tag_prefix(l)
+      l = convert_deploy_host(l)
       l = convert_xpointer_attr(l)
       l = convert_single_line_xpointer_content(l)
       newlines.append(l)
@@ -61,6 +62,9 @@ def remove_namespace(l):
 
 def remove_tag_prefix(l):
   return re.sub(r'<xi:include', '<include', l)
+
+def convert_deploy_host(l):
+  return re.sub(r'%{deploy-host}', 'localhost', l)
 
 def convert_xpointer_attr(l):
   return re.sub(r'xpointer=', 'xpath=', l)
