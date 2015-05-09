@@ -26,5 +26,6 @@
 <requires>drupal7</requires>
 <requires>drush-config</requires>
 <requires>/usr/sbin/sendmail</requires>
+<requires>/usr/sbin/postdrop</requires>
 
 </config-rpm>

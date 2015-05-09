@@ -14,6 +14,7 @@
 <!-- drush install -->
 <macro id='drupal-db-su'>root</macro>
 <macro id='drupal-site-install-cmd'>
+  /usr/bin/env PHP_OPTIONS="-d sendmail_path=`which true`" \
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
     --account-mail=%{drupal-admin-mail} \

@@ -16,6 +16,7 @@
 <macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
 <macro id='drupal-db-restore-file'>%{drupal-sitename}</macro>
 <macro id='drupal-site-install-cmd'>
+  /usr/bin/env PHP_OPTIONS="-d sendmail_path=`which true`" \
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
     --account-mail=%{drupal-admin-mail} \
