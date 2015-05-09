@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 3.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -76,6 +76,9 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sat May 09 2015 Kay Williams <kay@deployproject.org> - 3.0-2
+- update doc versions and makefiles
+
 * Wed May 6 2015 Kay Williams <kay@deployproject.org> - 3.0-1
 - support for multiple comps groups - simplifies config script logic
 - use avahi in libvirt deployment templates - avoids dnsmasq version issues
