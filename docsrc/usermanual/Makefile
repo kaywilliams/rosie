@@ -2,7 +2,7 @@ PUBLICAN = /usr/bin/publican
 DRUSH = /usr/bin/drush
 PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/usermanual
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject
-
+DRUPALDIR = /usr/share/drupal7/modules
 
 .PHONY: all html pdf publish checkpkg clean
 
@@ -48,17 +48,14 @@ publish:
 	# import html-single into drupal
 	# user manual feed node in Drupal is 5359
 	# future - create a feed node dynanically and use it 
-	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5359)->import());"
+	(cd $(DRUPALDIR) && $(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5359)->import());")
 
 	# copy Common_Content to themesdir
 	# $(THEMESDIR)/deployproject.info makes reference to these files
 	rm -rf $(THEMESDIR)/Common_Content
 	cp -a ./tmp/en-US/html-single/Common_Content $(THEMESDIR)
 	restorecon -R $(THEMESDIR)/Common_Content
-	$(DRUSH) cache-clear css-js
-
-	# copy templates to tmpldir
-	../common.sh --copy-templates
+	(cd $(DRUPALDIR) && $(DRUSH) cache-clear css-js)
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

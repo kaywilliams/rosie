@@ -1,13 +1,5 @@
 #! /bin/bash
 
-if [[ $1 = "--copy-templates" ]]; then
-  TMPLDIR=/var/www/html/templates
-  rm -rf $TMPLDIR
-  cp -aL ../../share/deploy/templates/el7 $TMPLDIR
-  chown -R apache:apache $TMPLDIR
-  restorecon -R $TMPLDIR
-fi
-
 if [[ $1 = "--clean-tmpdir" ]]; then
   tmpdir=./tmp/en-US
   if [ -d $tmpdir ]; then

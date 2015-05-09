@@ -5,6 +5,7 @@ GZIP = /bin/gzip
 
 DRUSH = /usr/bin/drush
 PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/man
+DRUPALDIR = /usr/share/drupal7/modules
 
 .PHONY: all checkpkg clean install deploy.1.gz deploy.conf.5.gz html publish 
 
@@ -46,9 +47,10 @@ publish:
 	# import man pages into drupal
 	# deploy feed node in Drupal is 5378
 	# deploy.conf feed node in Drupal is 5379
-	# future - create a feed node dynanically and use it 
-	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5378)->import());"
-	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5379)->import());"
+	# future - create a feed node dynanically and use it
+	cd /usr/share/drupal7
+	(cd $(DRUPALDIR) && $(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5378)->import());")
+	(cd $(DRUPALDIR) && $(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5379)->import());")
 	
 install:
 	mkdir -p $(DESTDIR)/usr/share/man/man5

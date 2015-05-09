@@ -2,6 +2,7 @@ PUBLICAN = /usr/bin/publican
 DRUSH = /usr/bin/drush
 PUBDIR = /var/www/html/drupal/deployproject.org/files/docs/DDFR
 THEMESDIR = /var/www/html/drupal/deployproject.org/themes/deployproject/css
+DRUPALDIR = /usr/share/drupal7/modules
 
 .PHONY: all html pdf publish checkpkg clean
 
@@ -46,11 +47,8 @@ publish:
 
 	# import html-single into drupal
 	# user manual feed node in Drupal is 5359
-	# future - create a feed node dynanically and use it 
-	$(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5376)->import());"
-	
-	# copy templates to tmpldir
-	../common.sh --copy-templates
+	# future - create a feed node dynanically and use it
+	(cd $(DRUPALDIR) && $(DRUSH) php-eval "while (FEEDS_BATCH_COMPLETE != feeds_source('htmldocumentation', 5376)->import());")
 	
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

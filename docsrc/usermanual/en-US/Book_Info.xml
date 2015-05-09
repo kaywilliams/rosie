@@ -5,10 +5,10 @@
 ]>
 <bookinfo id="book-usermanual-usermanual">
 	<productname>Deploy</productname>
-	<productnumber>2.3</productnumber>
+	<productnumber>3.0</productnumber>
 	<title>Deploy User Manual</title>
         <subtitle>Managing System Deployment with Deploy</subtitle>
-	<edition>2.3</edition>
+	<edition>3.0</edition>
 	<pubsnumber>0</pubsnumber>
         <pubdate>May 2015</pubdate>
 	<corpauthor>
