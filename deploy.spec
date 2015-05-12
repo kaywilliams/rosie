@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 3.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -18,6 +18,7 @@ BuildRequires: libxml2
 BuildRequires: libxslt
 BuildRequires: python
 
+Requires: bzip2
 Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
@@ -76,6 +77,9 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Tue May 12 2015 Kay Williams <kay@deployproject.org> - 3.0-3
+- add support for reading bz2 compressed comps files
+
 * Sat May 09 2015 Kay Williams <kay@deployproject.org> - 3.0-2
 - update doc versions and makefiles
 

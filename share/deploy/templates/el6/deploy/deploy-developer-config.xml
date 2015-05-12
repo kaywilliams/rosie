@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='deploy-developer-config'>
+<requires>bzip2</requires>
 <requires>createrepo</requires>
 <requires>deploy-httpd-config</requires>
 <requires>deploy-libvirt-config</requires>
