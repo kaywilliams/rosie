@@ -47,8 +47,7 @@ for additional information.
 
 <script type='post'>
 # install rackspace-novaclient
-info=`python-pip install rackspace-novaclient` || \
-{ echo $info >&amp;2; exit 1; }
+info=`pip install rackspace-novaclient` || { echo $info >&amp;2; exit 1; }
 </script>
 
 <files destdir="/root/rackspace" destname='rackspace_admin' content='text'
