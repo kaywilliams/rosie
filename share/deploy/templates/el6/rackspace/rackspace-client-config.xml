@@ -21,9 +21,9 @@ for additional information.
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
 
-<repo id='rdo-icehouse'>
-<baseurl>https://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/</baseurl>
-<gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-RDO-Icehouse</gpgkey>
+<repo id='rdo-juno'>
+<baseurl>http://buildlogs.centos.org/centos/6/cloud/x86_64/openstack-juno</baseurl>
+<gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-CentOS-SIG-Cloud</gpgkey>
 </repo>
 
 <!-- required for rackspace-novaclient -->
@@ -33,7 +33,7 @@ for additional information.
 <requires>python-prettytable</requires>
 <requires>python-requests</requires>
 <requires>python-six</requires>
-<requires>python-keystone</requires>
+<requires>python-keystoneclient</requires>
 <requires>python-novaclient</requires>
 
 <!-- required for building rackspace-novaclient dependency 
