@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 3.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -77,6 +77,9 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Sat Aug 15 2015 Kay Williams <kay@deployproject.org> - 3.0-5
+- update rackspace client template from openstack icehouse to juno
+
 * Mon Jul 20 2015 Kay Williams <kay@deployproject.org> - 3.0-4
 - change command line from 'python-pip' to 'pip'
 
