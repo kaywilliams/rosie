@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='rackspace-client-config'>
+
+<description>
+Configures a deploy build system to automate deployment and maintenance of
+Rackspace-hosted cloud systems. See
+http://www.rackspace.com/knowledge_center/article/installing-python-novaclient-on-linux-and-mac-os
+for additional information.
+</description>
+
+<!-- Include the following macros in your system definition. Username,
+     account-number, and api-key are available from the rackspace control panel
+     -->
+<macro id="rackspace-username">username</macro>
+<macro id="rackspace-account-number">account_number</macro>
+<macro id="rackspace-api-key">api_key</macro>
+<macro id="rackspace-auth-url">https://identity.api.rackspacecloud.com/v2.0/</macro>
+<macro id="rackspace-region-name">DFW</macro>
+
+<!-- epel repo required for python-pip package -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<repo id='rdo-mikita'>
+<baseurl>http://mirror.centos.org/centos/7/cloud/x86_64/openstack-mitaka/</baseurl>
+<gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-CentOS-SIG-Cloud</gpgkey>
+</repo>
+
+<!-- required for rackspace-novaclient -->
+<requires>git</requires>
+<requires>python-pip</requires>
+<requires>python-argparse</requires>
+<requires>python-prettytable</requires>
+<requires>python-requests</requires>
+<requires>python-six</requires>
+<requires>python-keystone</requires>
+<requires>python-novaclient</requires>
+
+<!-- required for building rackspace-novaclient dependency 
+     (lxml.etree extension)-->
+<requires>gcc</requires>
+<requires>python-devel</requires>
+<requires>libxslt-devel</requires>
+
+<!-- required for secure repository access -->
+<requires>mod_ssl</requires>
+
+<script type='post'>
+# install rackspace-novaclient
+info=`python-pip install rackspace-novaclient` || \
+{ echo $info >&amp;2; exit 1; }
+</script>
+
+<files destdir="/root/rackspace" destname='rackspace_admin' content='text'
+       mode='600'>
+export OS_USERNAME=%{rackspace-username}
+export OS_TENANT_NAME=%{rackspace-account-number}
+export OS_AUTH_SYSTEM=rackspace
+export OS_PASSWORD=%{rackspace-api-key}
+export OS_AUTH_URL=%{rackspace-auth-url}
+export OS_REGION_NAME=%{rackspace-region-name}
+export OS_NO_CACHE=1
+</files>
+
+</config-rpm>

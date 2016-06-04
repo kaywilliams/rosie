@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition>
+
+<macro id='name'>rackspace-client</macro>
+<macro id='os'>centos</macro>
+<macro id='edition'>server</macro>
+<macro id='version'>6</macro>
+<macro id='arch'>x86_64</macro>
+<macro id='id'>%{name}-%{os}-%{version}-%{arch}</macro>
+<macro id='test-install-enabled'>false</macro>
+
+<main>
+<name>%{name}</name>
+<os>%{os}</os>
+<version>%{version}</version>
+<arch>%{arch}</arch>
+<id>%{id}</id>
+</main>
+
+<repos>
+<include href='%{templates-dir}/%{norm-os}/common/repos.xml' 
+         xpath="./repo[@id='%{os}-%{edition}-base' or
+                       @id='%{os}-%{edition}-updates']"/>
+</repos>
+
+<packages>
+<include href="%{templates-dir}/%{norm-os}/common/packages.xml"
+         xpath="./packages[@id='core']/*"/>
+</packages>
+
+<config-rpms>
+<include href="%{templates-dir}/%{norm-os}/rackspace/rackspace-client-config.xml"/>
+</config-rpms>
+
+<test-update>
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
+         xpath="./*"/>
+<script id='test' type='post' comes-before='conditional-poweroff'>
+source /root/rackspace/rackspace_admin
+nova image-list
+</script>
+</test-update>
+
+<test-install enabled="%{test-install-enabled}">
+<include href="%{templates-dir}/%{norm-os}/libvirt/deploy.xml" 
+         xpath="./*"/>
+<script id='test' type='update' comes-after='update'>
+source /root/rackspace/rackspace_admin
+nova image-list
+</script>
+</test-install>
+
+</definition>

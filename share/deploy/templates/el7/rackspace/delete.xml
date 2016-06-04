@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='delete' type='delete' modules="test-install" verbose='true'>
+#!/usr/bin/python
+
+import sys
+
+sys.path.insert(0, "%{templates-dir}/%{norm-os}/rackspace")
+
+from rackspace_lib import *
+
+DELETE_VOLUME = '%{module}' == 'test-install'
+SSH_HOST_KEY_FILE = '%{ssh-host-key-file}'
+SSH_HOST = '%{ssh-host}'
+
+# check if server exists
+try:
+  server =  nova.servers.find(name='%{fqdn}')
+except novaclient.exceptions.NotFound:
+  sys.exit(0) # nothing to delete
+
+# delete server
+delete_server(server, delete_volumes=DELETE_VOLUME, 
+              ssh_host_key_file = SSH_HOST_KEY_FILE,
+              ssh_host = SSH_HOST)
+</script>

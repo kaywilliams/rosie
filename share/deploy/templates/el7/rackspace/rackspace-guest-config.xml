@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+<macro id='xe-guest-download-dir'>http://downloads.vmd.citrix.com/OpenStack/xe-guest-utilities</macro>
+<package dir="%{xe-guest-download-dir}">xe-guest-utilities</package>
+<package dir="%{xe-guest-download-dir}">xe-guest-utilities-xenstore</package>
+<!-- TODO add support for package path -->
+<package dir="%{templates-dir}/el7/rackspace">nova-agent</package>
+
+<!-- needed for ssh support -->
+<package>krb5-libs</package>
+<package>libverto</package>
+</xml>
