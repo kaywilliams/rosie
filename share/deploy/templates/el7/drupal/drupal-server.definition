@@ -16,7 +16,7 @@
 <macro id='drupal-db-type'>mariadb</macro>
 <macro id='drupal-db-user'>drupal</macro>
 <macro id='drupal-db-password'>%{drupal-admin-password}</macro>
-<macro id='drupal-sitename'>drupal</macro>
+<macro id='drupal-site-name'>drupal</macro>
 
 <main>
 <name>%{name}</name>

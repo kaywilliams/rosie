@@ -2,6 +2,8 @@
 <config-rpm id='drupal-mariadb-config'>
 
 <requires>php-mysql</requires>
+<requires>php-mysqli</requires>
+<requires>php-pdo</requires>
 
 <!-- database config -->
 <include href="%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml"
@@ -18,7 +20,7 @@
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
     --account-mail=%{drupal-admin-mail} \
-    --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-sitename} \
+    --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-site-name} \
     --db-su=%{drupal-db-su} \
     --site-mail=%{drupal-site-mail} \
     --site-name=%{drupal-site-name}
@@ -37,9 +39,9 @@
      prior to including this config-rpm.
 -->
 mysql -u %{drupal-db-su} -p%{mariadb-password} \
-      -e "create database if not exists %{drupal-sitename}"
+      -e "create database if not exists %{drupal-site-name}"
 mysql -u %{drupal-db-su} -p%{mariadb-password} \
-      -e "grant all on %{drupal-sitename}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
+      -e "grant all on %{drupal-site-name}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
 </script>
 
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml"/>
