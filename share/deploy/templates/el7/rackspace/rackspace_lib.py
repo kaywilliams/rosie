@@ -8,7 +8,7 @@ import time
 
 import novaclient
 import novaclient.auth_plugin
-import novaclient.v1_1.client as nova_client
+import novaclient.client as nova_client
 
 # read authfile
 d={}
@@ -19,7 +19,7 @@ with open("/root/rackspace/rackspace_admin", 'r') as authfile:
 auth_plugin = novaclient.auth_plugin.load_plugin('rackspace')
 
 # create nova client
-nova = nova_client.Client(auth_url=d['OS_AUTH_URL'],
+nova = nova_client.Client('2', auth_url=d['OS_AUTH_URL'],
                        username=d['OS_USERNAME'],
                        api_key=d['OS_PASSWORD'],
                        project_id=d['OS_TENANT_NAME'],
@@ -28,7 +28,7 @@ nova = nova_client.Client(auth_url=d['OS_AUTH_URL'],
                        auth_plugin=auth_plugin)
 
 # create nova_volume client
-nova_volume = nova_client.Client(auth_url=d['OS_AUTH_URL'],
+nova_volume = nova_client.Client('2', auth_url=d['OS_AUTH_URL'],
                        username=d['OS_USERNAME'],
                        api_key=d['OS_PASSWORD'],
                        project_id=d['OS_TENANT_NAME'],

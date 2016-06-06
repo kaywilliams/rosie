@@ -21,7 +21,7 @@ for additional information.
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml"
          xpath="./repo[@id='epel']"/>
 
-<repo id='rdo-mikita'>
+<repo id='openstack-mitaka'>
 <baseurl>http://mirror.centos.org/centos/7/cloud/x86_64/openstack-mitaka/</baseurl>
 <gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-CentOS-SIG-Cloud</gpgkey>
 </repo>
@@ -47,7 +47,7 @@ for additional information.
 
 <script type='post'>
 # install rackspace-novaclient
-info=`python-pip install rackspace-novaclient` || \
+info=`pip install rackspace-novaclient` || \
 { echo $info >&amp;2; exit 1; }
 </script>
 
