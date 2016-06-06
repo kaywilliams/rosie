@@ -10,7 +10,8 @@ Deny from all
 Allow from 127.0.0.1 ::1 %{ssh-host}"
 else
   TEXT="SSLRequireSSL
-Require local %{ssh-host}"
+Require local
+Require ip %{ssh-host}"
 fi
 
 # allow client access to the repository
