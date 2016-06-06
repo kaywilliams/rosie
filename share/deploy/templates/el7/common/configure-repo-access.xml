@@ -5,9 +5,7 @@
 # allow client access to the repository
 echo "&lt;directorymatch \"^%{localroot}/\">
 SSLRequireSSL
-Order Deny,Allow
-Deny from all
-Allow from 127.0.0.1 ::1 %{ssh-host} 
+Require local %{ssh-host} 
 &lt;/directorymatch>" > /etc/httpd/conf.d/%{id}-%{module}.conf
 if [ -f /usr/bin/systemctl ]; then
   systemctl reload httpd
