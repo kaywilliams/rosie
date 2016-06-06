@@ -32,7 +32,7 @@ echo Cloning deploy '('tag=%{tag}')'
 [ -e $rootdir ] || mkdir $rootdir
 
 rm -rf $rootdir/%{tag}
-hg clone --quiet --rev "%{tag}" https://www.deployproject.org/hg/public/deploy $rootdir/%{tag}
+hg clone --quiet --rev "%{tag}" https://www.rosie.io/hg/public/deploy $rootdir/%{tag}
 
 # testing
 pwd=$(pwd)

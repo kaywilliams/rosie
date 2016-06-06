@@ -86,7 +86,7 @@ if [[ ! %{tag} = deploy ]]; then
   args="-r %{tag}"
 fi
  
-repo="https://www.deployproject.org/hg/public/deploy $args"
+repo="https://www.rosie.io/hg/public/deploy $args"
 definition_dir=%{mercurial-workspace}/%{tag}
 
 if [ ! -d $definition_dir ]; then
