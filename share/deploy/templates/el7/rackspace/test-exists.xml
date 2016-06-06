@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='test-exists' type='test-exists'>
+#!/usr/bin/python
+
+import sys
+
+sys.path.insert(0, "%{templates-dir}/%{norm-os}/rackspace")
+
+from rackspace_lib import *
+
+DELETE_VOLUME = True 
+SSH_HOST_KEY_FILE = '%{ssh-host-key-file}'
+SSH_HOST = '%{ssh-host}'
+
+# error if server not found 
+try:
+  server =  nova.servers.find(name='%{fqdn}')
+except novaclient.exceptions.NotFound:
+  sys.exit(3) 
+
+# error if server found, but in deleted state
+if server.status == "DELETED":
+  delete_server(server, delete_volumes=DELETE_VOLUME, 
+                ssh_host_key_file = SSH_HOST_KEY_FILE,
+                ssh_host = SSH_HOST)
+  sys.exit(3)
+</script>

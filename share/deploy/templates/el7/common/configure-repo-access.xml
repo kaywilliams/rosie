@@ -2,12 +2,25 @@
 <script id='configure-repo-access' type='update' 
         comes-before='update-yum-conf'
         hostname='localhost'>
-# allow client access to the repository
-echo "&lt;directorymatch \"^%{localroot}/\">
-SSLRequireSSL
+# setup to handle access control syntax change after httpd 2.2
+if rpm -q httpd | grep -q httpd-2.2; then
+  TEXT="SSLRequireSSL
 Order Deny,Allow
 Deny from all
-Allow from 127.0.0.1 ::1 %{ssh-host} 
+Allow from 127.0.0.1 ::1 %{ssh-host}"
+else
+  TEXT="SSLRequireSSL
+Require local
+Require ip %{ssh-host}"
+fi
+
+# allow client access to the repository
+echo "&lt;directorymatch \"^%{localroot}/\">
+$TEXT
 &lt;/directorymatch>" > /etc/httpd/conf.d/%{id}-%{module}.conf
-service httpd reload > /dev/null
+if [ -f /usr/bin/systemctl ]; then
+  systemctl reload httpd
+else
+  service httpd restart >/dev/null
+fi
 </script>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='install' type='install' verbose='true'>
+<macro id='rackspace-instance-flavor'>performance1-1</macro>
+<macro id='rackspace-centos-image'>c22f593a-4064-4a12-8229-e70a4b0ccc09</macro>
+<macro id='rackspace-rhel-image'>61d460ae-3e29-4257-a300-007075456634</macro>
+
+source /root/rackspace/rackspace_admin
+
+# ensure hostname doesn't already exist
+nova list | grep -q "[[:space:]]%{fqdn}[[:space:]]" &amp;&amp; \
+{ echo "Error: %{fqdn} already exists"; exit 1; }
+
+# add build-host-pubkey to rackspace profile
+keyname=`echo "%{build-host}" | sed "s/\./-/g"`
+info=`nova keypair-show $keyname 2> /dev/null`
+if [[ $? == 0 ]]; then
+  # validate
+  if [[ $info != *`echo "%{build-host-pubkey}" | tr -d '\r'`* ]] ; then
+    echo -e "ERROR: The rackspace stored key for '$keyname' does not match the key for this machine. If the stored key is obsolete, delete it using 'nova keypair-delete $keyname' and run deploy again."
+    exit 1
+  fi
+else
+  # add
+  file="/tmp/`echo $RANDOM`"
+  echo "%{build-host-pubkey}" > $file
+  nova keypair-add --pub-key $file $keyname
+  rm -f $file
+fi
+
+# install server
+#
+# NOTE: Use %{fqdn) as the rackspace server name to ensure that /etc/hosts and
+# /etc/sysconfig/network are configured, which in turn makes life easier for
+# network services, e.g. httpd, sendmail
+#
+nova boot \
+--flavor %{rackspace-instance-flavor} \
+--image %{rackspace-%{os}-image} \
+--key-name $keyname \
+%{fqdn} > /dev/null || exit 1
+
+# activate server
+%{wait}
+
+# get public ipaddress
+ipaddress=`nova show %{fqdn} | grep -o "accessIPv4[^|]*|[^|]*" | python -c "import sys; x=sys.stdin.readline().split()[2]; print x"`
+
+# store ipaddress for future use
+echo $ipaddress > %{ssh-host-file}
+</script>

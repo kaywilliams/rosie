@@ -13,21 +13,17 @@
 
 <!-- drush install -->
 <macro id='drupal-db-su'>postgres</macro>
-<macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
-<macro id='drupal-db-restore-file'>%{drupal-sitename}</macro>
 <macro id='drupal-site-install-cmd'>
   /usr/bin/env PHP_OPTIONS="-d sendmail_path=`which true`" \
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
     --account-mail=%{drupal-admin-mail} \
-    --db-url=pgsql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-sitename} \
+    --db-url=pgsql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-site-name} \
     --db-su=%{drupal-db-su} \
     --site-mail=%{drupal-site-mail} \
     --site-name=%{drupal-site-name}
 </macro>
 
-<script type='post'>
-# create drupal database
 <!-- To populate the database with existing data, include this config-rpm
      within another, and have the outer config-rpm first copy a pgsql backup
      file to the folder and filename specified by %{drupal-db-restore-dir} and
@@ -39,13 +35,49 @@
      server or device to the installed machine. The script should be specified
      prior to including this config-rpm.
 -->
-if ! su - postgres -c "psql -l" | grep '^ %{drupal-sitename}\b' >/dev/null; then
+<macro id='drupal-db-restore-dir'>/var/lib/pgsql/backups</macro>
+<macro id='drupal-db-restore-file'>%{drupal-site-name}</macro>
+<macro id='drupal-db-restore-script'>
+# custom restore script
+</macro>
+
+<!-- using a service to ensure postgresql running before we attempt restore -->
+<files destdir="/etc/systemd/system" 
+       destname="restore-pgsql-database.service" 
+       mode="755" content="text">
+[Unit]
+Description=restore a pgsql database
+Requires = postgresql.service
+After = postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=%{install-dir}/files/restore-pgsql-database.sh
+
+[Install]
+WantedBy=multi-user.target
+</files>
+
+<files destname='restore-pgsql-database.sh' mode='755' content='text'>
+#!/bin/sh -
+set -e
+
+# restore database
+%{drupal-db-restore-script}
+
+# import database
+if ! su - postgres -c "psql -l" | grep '^ %{drupal-site-name}\b' >/dev/null; then
   su - postgres -c "psql -q -c \"create user %{drupal-db-user} with password '%{drupal-db-password}' createdb nocreaterole nosuperuser;\""
-  su - postgres -c "createdb -E UTF8 -T template0 -O %{drupal-db-user} %{drupal-sitename}"
+  su - postgres -c "createdb -E UTF8 -T template0 -O %{drupal-db-user} %{drupal-site-name}"
   if [[ -f "%{drupal-db-restore-dir}/%{drupal-db-restore-file}" ]]; then 
-    su - postgres -c "psql %{drupal-sitename} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
+    su - postgres -c "psql %{drupal-site-name} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
   fi
 fi
+</files>
+
+<script type='post'>
+systemctl -q enable restore-pgsql-database.service
+systemctl start restore-pgsql-database.service
 </script>
 
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml"/>
