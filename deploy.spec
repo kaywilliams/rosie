@@ -2,7 +2,7 @@
 
 Name:    deploy
 Version: 3.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 Summary: Automates deployment for Red Hat-based Linux systems.
 
 License:   GPL
@@ -77,6 +77,9 @@ http://www.deployproject.org for more information.
 %{_mandir}/man1/deploy.1.gz
 
 %changelog
+* Wed Aug 19 2015 Deploy Automated Package Builder - 3.0-6
+- rebuilt
+
 * Sat Aug 15 2015 Kay Williams <kay@deployproject.org> - 3.0-5
 - update rackspace client template from openstack icehouse to juno
 
