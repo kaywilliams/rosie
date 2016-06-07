@@ -254,7 +254,7 @@ selinux --enforcing
 reboot
 
 %packages --nobase
-@core
+*
 %end
 
 &lt;include href="%{templates-dir}/%{norm-os}/libvirt/ks-post-ssh.xml" xpath="./node()"/>

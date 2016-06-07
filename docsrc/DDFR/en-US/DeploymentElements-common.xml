@@ -962,14 +962,14 @@ $remote-url/%{id}</programlisting>
     </para>
 
     <para>
-    <emphasis role='bold'>%packages section -</emphasis> Install the core 
-    group from the repository as shown below:
+    <emphasis role='bold'>%packages section -</emphasis> Install all 
+    packages from the repository as shown below:
     </para>
 
     <informalexample>
     <programlisting>
 %packages --nobase
-@core
+*
 %end
     </programlisting>
     </informalexample>
