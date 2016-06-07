@@ -47,6 +47,7 @@ for additional information.
 
 <script type='post'>
 # install rackspace-novaclient
+pip -q install --upgrade pip
 info=`pip install rackspace-novaclient` || \
 { echo $info >&amp;2; exit 1; }
 </script>
