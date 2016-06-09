@@ -33,7 +33,8 @@ from deploy.event     import Event
 
 from deploy.util.rxml import config
 
-from deploy.modules.shared import ShelveMixin, CompsSetupEventMixin
+from deploy.modules.shared import (ShelveMixin, CompsSetupEventMixin,
+                                   ExecuteEventMixin, LocalExecute)
 
 RPM_EXT = {'rpm' : '.rpm',
            'srpm': '.src.rpm'}
@@ -242,7 +243,7 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
     self.shelve('rpmbuild_data', rpmbuild_data)
 
 
-class MkrpmRpmBuildMixin(RpmBuildMixin):
+class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
   """
   Mixin for creating rpms from scratch using util.mkrpm, e.g. for use by
   config-rpm and release-rpm
@@ -251,6 +252,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
 
   def __init__(self, *args, **kwargs):
     RpmBuildMixin.__init__(self)
+    ExecuteEventMixin.__init__(self)
 
   def setup(self, name=None, version=None, arch=None, desc=None,
             summary=None, license=None, author=None, email=None,
@@ -258,6 +260,7 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
             rpmconf=None):
 
     RpmBuildMixin.setup(self) # deals with gpg signing
+    ExecuteEventMixin.setup(self)
 
     self.dist = '.%s%s' % (self.cvars['dist-tag'], self.version)
 
@@ -292,6 +295,41 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     self.DATA.setdefault('variables', set()).update(
                          ['mkrpmbuild_mixin_version', 
                           'rpminfo', 'force_release'])
+
+    # common variables for user file inclusion
+    self.localdir    = getattr(self, 'test_local_dir', self.LOCAL_ROOT)
+    self.scriptdir   = self.build_folder/'scripts'
+    self.configdir   = self.localdir/'config' 
+    self.installdir  = self.configdir/self.rpminfo['name']
+    self.filerelpath = self.installdir/'files'
+    self.srcfiledir  = self.source_folder // self.filerelpath
+    self.md5file     = self.installdir/'md5sums'
+
+    self.cvars.setdefault('config-dir', self.configdir)
+
+    self.DATA['variables'].add('localdir')
+
+    # resolve module macros
+    self.local_execute_obj = LocalExecute(self) 
+    self.resolve_macros(
+         map={'%{rpm-id}': self.rpminfo['name'],
+              '%{install-dir}': self.installdir,
+              '%{script-dir}': self.local_execute_obj.scriptdir,
+              '%{script-data-dir}': self.local_execute_obj.datadir
+              })
+
+    # execute prep-scripts in setup (i.e. on every run), allowing output to
+    # be used reliably in file and script elems by this and other config-rpms
+    for script in self.config.xpath('prep-script', []):
+      file=self.mddir / 'prep-script' 
+      file.write_text(script.text)
+      file.chmod(0750)
+      # print the run message early if scripts are set to verbose
+      if script.getbool('@verbose', False):
+        self.logger.log(1, L0(self.id))
+        self.suppress_run_message = True
+      self._local_execute(file, script_id='prep-script', 
+                          verbose=script.getbool('@verbose', False))
 
   def run(self):
     release = self._get_release()
@@ -333,7 +371,6 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     for r in self.local_rpmbuild_data:
       self.user_required_packages[r] = group
 
-
   def _get_release(self):
     if self.force_release: # use provided release
       return str(self.force_release).replace(self.dist, '')
@@ -351,10 +388,339 @@ class MkrpmRpmBuildMixin(RpmBuildMixin):
     child    = uElement('release', parent=parent, text=release)
     self.write_datfile(root)
 
-  #----------- OPTIONAL METHODS --------#
   def generate(self):
-    pass
+    for what in ['files', 'triggers']:
+      self.io.process_files(cache=True, callback=self.link_callback,
+                            text=None, what=what)
 
+    self._generate_files_checksums()
+    self.files =  [ x[len(self.srcfiledir):]
+                    for x in self.srcfiledir.findpaths(
+                    type=pps.constants.TYPE_NOT_DIR, mindepth=1 )]
+
+  def _generate_files_checksums(self):
+    """Creates a file containing checksums of all <files>. For use in 
+    determining whether to backup existing files at install time."""
+    md5file =  self.rpm.source_folder // self.md5file
+
+    lines = []
+
+    # compute checksums
+    strip = len(self.srcfiledir)
+
+    for file in self.srcfiledir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      md5sum = file.checksum(type='md5')
+      lines.append('%s %s' % (md5sum, file[strip:]))
+
+    md5file.dirname.mkdirs()
+    md5file.write_lines(lines)
+    md5file.chmod(0600)
+
+    self.DATA['output'].add(md5file)
+
+  def get_pretrans(self):
+    return self._make_script(self._process_script('pretrans'), 'pretrans')
+  def get_pre(self):
+    scripts = [self._mk_pre()]
+    scripts.extend(self._process_script('pre'))
+    return self._make_script(scripts, 'pre')
+  def get_post(self):
+    scripts = [self._mk_post()]
+    scripts.extend(self._process_script('post'))
+    scripts.append('chmod 700 %s' % self.installdir)
+    scripts.append('trap - INT TERM EXIT')
+    return self._make_script(scripts, 'post')
+  def get_preun(self):
+    return self._make_script(self._process_script('preun'), 'preun')
+  def get_postun(self):
+    scripts = [self._mk_postun()]
+    scripts.extend(self._process_script('postun'))
+    return self._make_script(scripts, 'postun')
+  def get_posttrans(self):
+    scripts = [self._mk_posttrans()]
+    scripts.extend(self._process_script('posttrans'))
+    return self._make_script(scripts, 'posttrans')
+
+  def get_triggers(self):
+    triggers = TriggerContainer()
+
+    for elem in self.config.xpath('trigger', []):
+      key   = elem.getxpath('@trigger')
+      id    = elem.getxpath('@type')
+      inter = elem.getxpath('@interpreter', None)
+      file  = self.scriptdir/'%s-%s' % (elem.getxpath('@type'), elem.getxpath('@trigger'))
+
+      flags = []
+      if inter:
+        flags.extend(['-p', inter])
+
+      # create trigger objects
+      assert id in ['triggerin', 'triggerun', 'triggerpostun']
+      t = Trigger(key)
+      t[id+'_scripts'] = [file]
+      if flags: t[id+'_flags'] = ' '.join(flags)
+      triggers.append(t)
+
+      # add 'set -e' to bash trigger scripts for consistent behavior with
+      # regular scripts
+      if inter is None or inter in ['/bin/bash', 'bin/sh']:
+        text = 'set -e\n'
+        file.write_text(text + file.read_text())
+
+      # ensure an interpreter line in non-shell scripts so rpmbuild doesn't
+      # get confused when auto-adding requires and think things like import 
+      # statements are shell commands
+      if inter is not None:
+        if not file.read_lines()[0].startswith('#!'):
+          file.write_text('#!%s\n' % inter + file.read_text())
+
+      # make the file executable
+      file.chmod(0750)
+
+      # link file to debug folder for installation by the rpm for 
+      # easier user debugging
+      self.link(file, self.debugdir/'%s' % file.basename)
+
+    return triggers
+
+  def _mk_pre(self):
+    """Makes a pre scriptlet that copies an existing md5sums file later use
+    by the post scriptlet"""
+    script = ''
+
+    script += 'file=%s\n' % self.md5file
+    script += '\n'.join([
+      '',
+      'if [ -e $file ]; then',
+      '  cp $file $file.prev',
+      'else',
+      '  if [ ! -e $file.prev ]; then',
+      '  for d in %s %s %s; do' % (self.localdir, self.configdir,
+                                   self.installdir),
+      '    [[ -d $d ]] || mkdir $d',
+      '    chmod 700 $d',
+      '    chown root:root $d',
+      '  done',
+      '  touch $file.prev',
+      '  chmod 600 $file.prev',
+      '  chown root:root $file.prev',
+      '  fi',
+      'fi',
+      '', ])
+
+    return script
+
+  def _mk_post(self):
+    """Makes a post scriptlet that installs each <file> to the given
+    destination, backing up any existing files to .rpmsave"""
+    script = ''
+    # move support files as needed
+    script += 'files="%s"' % '\n      '.join(self.files)
+    script += '\nmd5file=%s\n' % self.md5file
+    script += 'mkdirs=%s/mkdirs\n' % self.installdir
+    script += 's=%s\n' % self.filerelpath
+    script += 'changed=""\n'
+
+    script += '\n'.join([
+      '',
+      'for f in $files; do',
+      '  # create .rpmsave and add file to changed variable, if needed',
+      '  if [ -e $f ]; then',
+      '    curr=`md5sum $f | sed -e "s/ .*//"`',
+      '    new=`grep " $f$" $md5file | sed -e "s/ .*//"`',
+      '    prev=`grep " $f$" $md5file.prev | sed -e "s/ .*//"`',
+      '    if [[ $curr != $new ]]; then',
+      '      if [[ $curr != $prev ]]; then',
+      '        # file changed by user',
+      '        mv $f $f.rpmsave',
+      '        changed="$changed $f"',
+      '      fi',
+      '    fi',
+      '  fi',
+      '  # mkdirs one level at a time, if needed, and track for later removal',
+      '  if [ ! -d `dirname $f` ]; then',
+      '    levels="${f//[^\/]/}"',
+      '    for i in `seq 2 ${#levels}`; do',
+      '      dir=`echo $f | cut -f 1-$i -d/`',
+      '      if [ ! -d $dir ]; then',
+      '        mkdir $dir',
+      '        echo $dir >> $mkdirs',
+      '      fi',
+      '    done',
+      '  fi',
+      '  # copy file to final location',
+      '  cp --preserve=mode,ownership,timestamps $s/$f $f',
+      'done',
+      '', ])
+
+    # add differences between current and previous md5sum files to changed
+    # variable; yuck lots of massaging to get a space separated list 
+    script += '\n'
+    script += ('changed=\"$changed `diff $md5file $md5file.prev | '
+               'grep -o \'\/.*\' | '
+               'sed -e \"s|^$s||g\" | tr \'\\n\' \' \'`\"\n')
+    script += '\n'
+
+    file = self.debug_postfile[len(self.rpm.source_folder):]
+
+    script += '# add changed variable to user debugging script\n'
+    script += 'if [[ -e %s ]]; then sed -i "/set -e/ a\\\n' % file
+    script += 'changed=\'$changed\'" %s\n' % file
+    script += 'fi\n'
+    script += '\n'
+    script += '\n#------ Start of User Scripts ------#\n'
+    return script
+
+  def _mk_postun(self):
+    """Makes a postun scriptlet that uninstalls obsolete <files> and
+    restores backups from .rpmsave, if present."""
+
+    sources = []
+    for support_file in self.srcfiledir.findpaths(
+                        type=pps.constants.TYPE_NOT_DIR):
+      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
+      dst = '/' / src.relpathfrom('/' / self.filerelpath)
+
+      sources.append(dst)
+
+    script = """
+files="%(files)s"
+s=%(relpath)s
+mkdirs=%(installdir)s/mkdirs
+for f in $files; do
+  if [ ! -e $s/$f ]; then # file missing from source folder
+    if [ -e $f ]; then    #file exists on disk
+
+      # find md5file for the current version of this rpm
+      new=''
+      if rpm -q %(name)s --quiet; then
+        for file in `rpm -ql %(name)s`; do
+          if [[ `basename $file` == md5sums ]] && [ -e $file ] ; then
+            new=$file
+          fi
+        done
+      fi
+
+      # find md5files for other deploy managed rpms
+      other=`find %(configdir)s -name md5sums | grep -v %(md5file)s` || true
+
+      # process files
+      md5files="$new $other"
+      remove="true"
+      for md5file in $md5files 
+      do
+        while read line; do
+          row=($line)
+          if [[ ${row[1]} == $f ]]; then #file in new or other rpm
+            remove="false"
+          fi
+        done < $md5file
+      done
+      if [[ $remove == true ]]; then
+        if [ -e $f.rpmsave ]; then
+          mv -f $f.rpmsave $f
+        else
+          rm -f $f
+        fi
+      fi
+    fi
+  fi
+done
+[[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;
+if [ -e $mkdirs ]; then
+  #first pass to remove empty dirs
+  for f in `cat $mkdirs`; do
+    if [ -e $f ] ; then
+      rmdir --ignore-fail-on-non-empty -p $f
+    fi
+  done
+  #second pass to remove dirs from mkdirs file
+  for f in `cat $mkdirs`; do
+    if [ ! -e $f ] ; then
+      sed -i "\|^$f$|d" $mkdirs
+    fi
+  done
+fi
+
+# remove md5sums.prev file   
+rm -f %(installdir)s/md5sums.prev
+
+# remove per-system folder uninstall
+if [ $1 -eq 0 ]; then
+  rm -rf %(installdir)s
+fi
+""" % { 'files':        '\n      '.join(sources),
+        'relpath':      '/' / self.filerelpath,
+        'installdir':   self.installdir,
+        'name':         self.rpm.name,
+        'configdir':    self.configdir,
+        'md5file':      self.md5file,
+      }
+
+    return script
+
+  def _mk_posttrans(self):
+    # TODO - remove in the future once legacy clients are likely updated
+    script = """
+legacy_dir=/var/lib/deploy-client
+legacy_conf_dir=$legacy_dir/config/%s
+
+if [[ -d $legacy_conf_dir ]]; then
+  # remove config-specific legacy dir
+  rm -rf $legacy_conf_dir
+
+  # remove parent legacy dir, if it contains only subfolders
+  if ! find $legacy_dir -type f -print -quit | grep -q . ; then
+    rm -rf $legacy_dir
+  fi
+fi
+""" % self.installdir.basename
+
+    return script
+
+  def _process_script(self, script_type):
+    """Processes and returns user-provided scripts for a given script type. 
+    Also, saves these to a file which is included in the rpm and installed
+    to client machines for debugging purposes."""
+    scripts = []
+    for elem in self.config.xpath('script[@type="%s"]'
+                                   % script_type, []):
+      scripts.append(elem.text)
+    if scripts:
+      #write file for inclusion in rpm for end user debugging
+      s = scripts[:]
+      s.insert(0, 'set -e\n')
+      s.insert(0, '#!/bin/bash\n')
+      file =  self.debugdir/'%s' % script_type
+      file.dirname.mkdirs()
+      s = [ x.encode('utf8') for x in s ]
+      file.write_lines(s)
+      file.chmod(0700)
+      self.DATA['output'].add(file)
+
+    return scripts
+
+  def _make_script(self, iterable, id):
+    """For each item in the iterable concat it onto the script. Write the
+    completed script to a file for inclusion in the rpm spec file."""
+    script = ''
+
+    for item in iterable:
+      assert isinstance(item, basestring)
+      script += item + '\n'
+
+    if script:
+      set = 'set -e \n' # force the script to fail at runtime if 
+                        # any item within it fails
+      script = set + script 
+      self.scriptdir.mkdirs()
+      (self.scriptdir/id).write_text(script.encode('utf8'))
+      return self.scriptdir/id
+    else:
+      return None
+
+
+  # ----------- OPTIONAL METHODS --------#
   # determine what files are ghost
   def get_ghost_files(self): return None
 

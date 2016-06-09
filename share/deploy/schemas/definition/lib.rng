@@ -18,15 +18,7 @@
     <attribute name="id"/>
 
     <interleave>
-    <zeroOrMore>
-    <element name="prep-script">
-      <ref name="xml-base"/>
-      <optional>
-        <attribute name='verbose'><ref name="value-boolean"/></attribute>
-      </optional>
-      <text/>
-    </element>
-    </zeroOrMore>
+    <ref name='element-prep-script'/>
     <optional>
     <element name="summary">
       <ref name="xml-base"/>
@@ -129,26 +121,9 @@
       </element>
       </optional>
 
-      <optional>
-      <element name="sslcacert">
-        <ref name="xml-base"/>
-        <text/>
-      </element>
-      </optional>
-
-      <optional>
-      <element name="sslclientkey">
-        <ref name="xml-base"/>
-        <text/>
-      </element>
-      </optional>
-
-      <optional>
-      <element name="sslclientcert">
-        <ref name="xml-base"/>
-        <text/>
-      </element>
-      </optional>
+      <ref name="element-sslcacert"/>
+      <ref name="element-sslclientkey"/>
+      <ref name="element-sslclientcert"/>
 
       <zeroOrMore>
       <element name="include">
@@ -197,6 +172,45 @@
         <text/>
       </element>
     </zeroOrMore>
+  </define>
+
+  <define name='element-prep-script'>
+    <zeroOrMore>
+    <element name="prep-script">
+      <ref name="xml-base"/>
+      <optional>
+        <attribute name='verbose'><ref name="value-boolean"/></attribute>
+      </optional>
+      <text/>
+    </element>
+    </zeroOrMore>
+  </define>
+
+  <define name='element-sslcacert'>
+    <optional>
+    <element name="sslcacert">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
+    </optional>
+  </define>
+
+  <define name='element-sslclientkey'>
+    <optional>
+    <element name="sslclientkey">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
+    </optional>
+  </define>
+
+  <define name='element-sslclientcert'>
+    <optional>
+    <element name="sslclientcert">
+      <ref name="xml-base"/>
+      <text/>
+    </element>
+    </optional>
   </define>
 
   <define name="element-requires">
@@ -416,6 +430,7 @@
       <attribute name="enabled"><ref name="value-boolean"/></attribute>
       </optional>
 
+      <interleave>
       <optional>
       <element name="updates">
         <ref name="xml-base"/>
@@ -425,13 +440,20 @@
         <optional>
         <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
         </optional>
-        <optional>
-        <attribute name="sslverify"><ref name="value-boolean"/></attribute>
-        </optional>
       </element>
       </optional>
 
+      <ref name="element-prep-script"/>
+
+      <optional>
+      <element name="sslverify"><ref name="value-boolean"/></element>
+      </optional>
+      <ref name="element-sslcacert"/>
+      <ref name="element-sslclientcert"/>
+      <ref name="element-sslclientkey"/>
+
       <ref name="element-group"/>
+      </interleave>
 
     </element>
     </zeroOrMore>

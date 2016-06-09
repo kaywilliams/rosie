@@ -102,6 +102,10 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     GPGKeysEventMixin.setup(self) # set self.repos before calling
 
+    # setup SSL files
+    for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
+      self.io.add_xpath(p, self.srcfiledir, destname=p, id='sslfiles') 
+
   def run(self):
     self.local_keydir.rm(recursive=True, force=True)
     MkrpmRpmBuildMixin.run(self)
@@ -148,9 +152,11 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
       lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
-      if self.rpmconf.getxpath('updates/@sslverify', None):
-        lines.append('sslverify = %s' % 
-                     self.rpmconf.getbool('updates/@sslverify'))
+      if self.rpmconf.getxpath('sslverify', None):
+        lines.append('sslverify = %s' % self.rpmconf.getbool('sslverify'))
+      for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey' ]:
+        if self.rpmconf.getxpath(p, None):
+          lines.append('%s = %s/%s' % (p, self.filerelpath, p))
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()
