@@ -67,7 +67,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
     requires = ['coreutils']
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary,
-                             requires=requires, force_release=force_release)
+                             requires=requires, force_release=force_release,
+                             rpmconf=self.rpmconf)
 
     self.DATA['variables'].update(['masterrepo', 'webpath', 'local_keydir', 
                                    'remote_keydir', 'keylist'])
@@ -104,13 +105,16 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     # setup SSL files
     for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
-      self.io.add_xpath(p, self.srcfiledir, destname=p, id='sslfiles') 
+      self.io.add_xpath('release-rpm/%s' % p, self.srcfiledir, 
+                        destname=p, id='files') 
 
   def run(self):
     self.local_keydir.rm(recursive=True, force=True)
     MkrpmRpmBuildMixin.run(self)
 
   def generate(self):
+    MkrpmRpmBuildMixin.generate(self)
+
     if self.cvars['gpgcheck-enabled']:
       # download gpgkeys - we're doing this manually rather than using 
       # process_files because we don't want to track keys as input. Doing so 
@@ -152,10 +156,10 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
       lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
-      if self.rpmconf.getxpath('sslverify', None):
+      if self.rpmconf.getxpath('sslverify', None) is not None:
         lines.append('sslverify = %s' % self.rpmconf.getbool('sslverify'))
       for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey' ]:
-        if self.rpmconf.getxpath(p, None):
+        if self.rpmconf.getxpath(p, None) is not None:
           lines.append('%s = %s/%s' % (p, self.filerelpath, p))
 
     if len(lines) > 0:

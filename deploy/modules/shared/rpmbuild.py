@@ -36,6 +36,8 @@ from deploy.util.rxml import config
 from deploy.modules.shared import (ShelveMixin, CompsSetupEventMixin,
                                    ExecuteEventMixin, LocalExecute)
 
+from deploy.util.difftest.filesdiff import ChecksumDiffTuple
+
 RPM_EXT = {'rpm' : '.rpm',
            'srpm': '.src.rpm'}
 
@@ -280,11 +282,14 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
       obsoletes = obsoletes or [],
       )
 
-    rpmconf = rpmconf or self.config
-    self.rpminfo['obsoletes'].extend(rpmconf.xpath('obsoletes/text()', []))
+    if rpmconf is not None:
+      self.rpmconf = rpmconf
+    else:
+      self.rpmconf = self.config
+    self.rpminfo['obsoletes'].extend(self.rpmconf.xpath('obsoletes/text()', []))
     self.rpminfo['provides'].extend([ x for x in self.rpminfo['obsoletes']])
-    self.rpminfo['provides'].extend(rpmconf.xpath('provides/text()', []))
-    self.rpminfo['requires'].extend(rpmconf.xpath('requires/text()', []))
+    self.rpminfo['provides'].extend(self.rpmconf.xpath('provides/text()', []))
+    self.rpminfo['requires'].extend(self.rpmconf.xpath('requires/text()', []))
     self.DATA.setdefault('variables', set()).update(['mkrpmbuild_mixin_version'])
 
     self.force_release = force_release
@@ -292,6 +297,10 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
     self.source_folder = self.build_folder / 'source'
 
     self.diff.setup(self.DATA)
+    # use checksums to better handle runtime-generated files (e.g. by 
+    # prep-scripts)
+    self.diff.input.tupcls = ChecksumDiffTuple
+
     self.DATA.setdefault('variables', set()).update(
                          ['mkrpmbuild_mixin_version', 
                           'rpminfo', 'force_release'])
@@ -320,7 +329,8 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
 
     # execute prep-scripts in setup (i.e. on every run), allowing output to
     # be used reliably in file and script elems by this and other config-rpms
-    for script in self.config.xpath('prep-script', []):
+
+    for script in self.rpmconf.xpath('prep-script', []):
       file=self.mddir / 'prep-script' 
       file.write_text(script.text)
       file.chmod(0750)
@@ -330,6 +340,11 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
         self.suppress_run_message = True
       self._local_execute(file, script_id='prep-script', 
                           verbose=script.getbool('@verbose', False))
+
+    # copies of user-provided scripts and triggers go here for easier 
+    # user debugging
+    self.debugdir    = self.source_folder // self.installdir
+    self.debug_postfile = self.debugdir/'post'
 
   def run(self):
     release = self._get_release()
@@ -367,7 +382,7 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
     RpmBuildMixin.apply(self)
 
     # update user_required_packages
-    group = self.config.getxpath('group/text()', self.default_groupid) 
+    group = self.rpmconf.getxpath('group/text()', self.default_groupid) 
     for r in self.local_rpmbuild_data:
       self.user_required_packages[r] = group
 
@@ -444,7 +459,7 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
   def get_triggers(self):
     triggers = TriggerContainer()
 
-    for elem in self.config.xpath('trigger', []):
+    for elem in self.rpmconf.xpath('trigger', []):
       key   = elem.getxpath('@trigger')
       id    = elem.getxpath('@type')
       inter = elem.getxpath('@interpreter', None)
@@ -683,7 +698,7 @@ fi
     Also, saves these to a file which is included in the rpm and installed
     to client machines for debugging purposes."""
     scripts = []
-    for elem in self.config.xpath('script[@type="%s"]'
+    for elem in self.rpmconf.xpath('script[@type="%s"]'
                                    % script_type, []):
       scripts.append(elem.text)
     if scripts:
@@ -728,13 +743,7 @@ fi
   def get_build(self):        return None
   def get_clean(self):        return None
   def get_install(self):      return None
-  def get_post(self):         return None
-  def get_posttrans(self):    return None
-  def get_postun(self):       return None
-  def get_pre(self):          return None
-  def get_pretrans(self):     return None
   def get_prep(self):         return None
-  def get_preun(self):        return None
   def get_verifyscript(self): return None
 
   # trigger scripts
