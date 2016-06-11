@@ -52,7 +52,7 @@ class RpmBuildMixin(CompsSetupEventMixin, ShelveMixin, mkrpm.rpmsign.GpgMixin):
   packages events. Also serves as a baseclass for deploy-created rpm (see
   MkrpmRpmBuildMixin).
   """
-  rpmbuild_mixin_version = "1.03"
+  rpmbuild_mixin_version = "1.04"
 
   def __init__(self):
     self.conditionally_requires.add('gpg-signing-keys')
@@ -259,7 +259,7 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
   def setup(self, name=None, version=None, arch=None, desc=None,
             summary=None, license=None, author=None, email=None,
             requires=None, provides=None, obsoletes=None, force_release=None,
-            rpmconf=None):
+            rpmconf=None, config_base=None):
 
     RpmBuildMixin.setup(self) # deals with gpg signing
     ExecuteEventMixin.setup(self)
@@ -325,11 +325,10 @@ class MkrpmRpmBuildMixin(ExecuteEventMixin, RpmBuildMixin):
               '%{install-dir}': self.installdir,
               '%{script-dir}': self.local_execute_obj.scriptdir,
               '%{script-data-dir}': self.local_execute_obj.datadir
-              })
+              }, config_base = config_base)
 
     # execute prep-scripts in setup (i.e. on every run), allowing output to
     # be used reliably in file and script elems by this and other config-rpms
-
     for script in self.rpmconf.xpath('prep-script', []):
       file=self.mddir / 'prep-script' 
       file.write_text(script.text)

@@ -30,7 +30,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   release_mixin_version = "1.29"
 
   def __init__(self): # call after creating self.DATA
-    self.rpmconf = self.config.getxpath('release-rpm', 
+    self._config_base = 'release-rpm'
+    self.rpmconf = self.config.getxpath(self._config_base, 
                                         DummyConfig(self._config))
 
     self.conditionally_requires.add('packages')
@@ -41,7 +42,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             force_release=None):
     self.DATA['variables'].add('release_mixin_version')
-    self.DATA['config'].add('release-rpm')
+    self.DATA['config'].add(self._config_base)
 
     # use webpath property if already set (i.e. in test-install and test-update
     # modules) otherwise use passed in value
@@ -68,7 +69,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     MkrpmRpmBuildMixin.setup(self, name=name, desc=desc, summary=summary,
                              requires=requires, force_release=force_release,
-                             rpmconf=self.rpmconf)
+                             rpmconf=self.rpmconf,
+                             config_base=self._config_base)
 
     self.DATA['variables'].update(['masterrepo', 'webpath', 'local_keydir', 
                                    'remote_keydir', 'keylist'])
@@ -105,7 +107,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     # setup SSL files
     for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
-      self.io.add_xpath('release-rpm/%s' % p, self.srcfiledir, 
+      self.io.add_xpath('%s/%s' % (self._config_base, p), self.srcfiledir, 
                         destname=p, id='files') 
 
   def run(self):
