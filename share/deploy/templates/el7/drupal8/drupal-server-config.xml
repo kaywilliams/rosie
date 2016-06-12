@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config-rpms>
+<!-- drupal -->
+<include href='%{templates-dir}/%{norm-os}/httpd/httpd-config.xml'/>
+<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-selinux-config.xml"/> 
+<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-%{drupal-db-type}-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/drupal8/drush-config.xml"/>
+<include href="%{templates-dir}/%{norm-os}/php/php-composer-config.xml"/>
+</config-rpms>

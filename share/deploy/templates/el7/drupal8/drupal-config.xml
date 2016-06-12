@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='drupal-config'>
+
+<macro id='drupal-admin-password'>Test1!</macro>
+<macro id='drupal-admin-mail'>admin@example.com</macro>
+<macro id='drupal-site-mail'>admin@example.com</macro>
+<macro id='drupal-site-name'>drupal</macro>
+<macro id='drupal-dir'>/var/www/html/drupal</macro>
+<macro id='drupal-sites-dir'>%{drupal-dir}/sites</macro>
+<macro id='drupal-settings-dir'>%{drupal-sites-dir}</macro>
+<macro id='drupal-web-dir'>%{drupal-dir}/files/default</macro>
+<macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
+<macro id='drupal-db-user'>drupal</macro>
+<macro id='drupal-db-password'>%{drupal-admin-password}</macro>
+
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+%{%{os}-repos}
+<macro id="centos-repos"/>
+<macro id="rhel-repos">
+<!-- needed for php-mbstring  -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml" 
+         xpath="./repo[@id='rhel-optional']"/>
+</macro>
+<repo id='webtatic'>
+<baseurl>https://repo.webtatic.com/yum/%{norm-os}/%{arch}/</baseurl>
+<gpgkey>https://mirror.webtatic.com/yum/RPM-GPG-KEY-webtatic-%{norm-os}</gpgkey>
+</repo>
+
+<requires>wget</requires>
+<requires>gzip</requires>
+<requires>httpd</requires>
+<requires>php55w</requires>
+<requires>php55w-opcache</requires>
+<requires>php55w-mbstring</requires>
+<requires>php55w-gd</requires>
+<requires>php55w-xml</requires>
+<requires>php55w-pear</requires>
+<requires>php55w-fpm</requires>
+<requires>drush-config</requires>
+<requires>/usr/sbin/sendmail</requires>
+<requires>/usr/sbin/postdrop</requires>
+
+</config-rpm>
