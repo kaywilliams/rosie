@@ -24,7 +24,7 @@ from deploy.event          import Event, DummyConfig
 from deploy.event.fileio   import InputFileError
 from deploy.modules.shared import (MkrpmRpmBuildMixin, GPGKeysEventMixin,
                                    Trigger, TriggerContainer, DeployRepo)
-from deploy.util           import rxml
+from deploy.util           import rxml, pps
 
 class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
   release_mixin_version = "1.29"
@@ -57,6 +57,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     self.local_keydir = self.OUTPUT_DIR / self.keydir
     self.remote_keydir = self.webpath / self.keydir
+
+    self.pkidir = pps.path('/etc/pki/deploy')
 
     self.files_cb = files_cb
     self.files_text = files_text
@@ -107,7 +109,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
 
     # setup SSL files
     for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
-      self.io.add_xpath('%s/%s' % (self._config_base, p), self.srcfiledir, 
+      self.io.add_xpath('%s/%s' % (self._config_base, p),
+                        self.srcfiledir // self.pkidir,
                         destname=p, id='files') 
 
   def run(self):
@@ -162,7 +165,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
         lines.append('sslverify = %s' % self.rpmconf.getbool('sslverify'))
       for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey' ]:
         if self.rpmconf.getxpath(p, None) is not None:
-          lines.append('%s = %s/%s' % (p, self.filerelpath, p))
+          lines.append('%s = %s/%s' % (p, self.pkidir, p))
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()
