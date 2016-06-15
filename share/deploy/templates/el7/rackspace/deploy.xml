@@ -2,7 +2,7 @@
 <xml>
 <!-- require ssl access to repositories -->
 <remote-url https='True'/>
-<release-rpm><updates sslverify='False'/></release-rpm>
+<release-rpm><sslverify>False</sslverify></release-rpm>
 
 <!-- install and update a rackspace cloud server -->
 <include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
