@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <script type='post'>
-<macro id='drupal-version'>8.1.2</macro>
+<macro id='drupal-version'>8.1.3</macro>
 #!/bin/bash
 set -e
 
