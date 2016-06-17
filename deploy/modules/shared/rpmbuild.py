@@ -27,7 +27,7 @@ import rpmUtils
 from deploy.util import mkrpm
 from deploy.util import pps
 
-from deploy.dlogging  import L1
+from deploy.dlogging  import L0, L1
 from deploy.errors    import DeployEventError
 from deploy.event     import Event
 

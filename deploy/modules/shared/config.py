@@ -21,7 +21,6 @@ import re
 from deploy.errors   import (DeployEventError, MissingIdError,
                              DuplicateIdsError, ConfigError)
 from deploy.event    import Event, CLASS_META
-from deploy.dlogging import L0
 from deploy.util     import pps
 
 from deploy.modules.shared import (MkrpmRpmBuildMixin,
