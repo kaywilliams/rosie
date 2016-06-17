@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml>
 <!-- require ssl access to repositories -->
-<remote-url https='True'/>
-<release-rpm><sslverify>False</sslverify></release-rpm>
+<include href='%{templates-dir}/%{norm-os}/deploy/deploy-secure-repo.xml'
+         xpath='./*'/>
 
 <!-- install and update a rackspace cloud server -->
 <include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
@@ -19,7 +19,6 @@
 <include href='%{templates-dir}/%{norm-os}/rackspace/install.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-etc-hosts.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
-<include href='%{templates-dir}/%{norm-os}/common/configure-repo-access.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
 <include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
 <include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/>
