@@ -371,10 +371,10 @@ print uuid.uuid1()
     <title>Global Run-Time Macros</title>
     <para>
     Global run-time macros are defined by Deploy during the build process and
-    applied across all Deploy modules. Deploy provides five global run-time
+    applied across all Deploy modules. Deploy provides four global run-time
     macros: <varname>%{templates-dir}</varname>,
     <varname>%{norm-os}</varname>, <varname>%{definition-dir}</varname>, 
-    <varname>%{data-dir}</varname> and <varname>%{temp-dir}</varname>.
+    and <varname>%{data-dir}</varname>.
     </para>
 
     <variablelist>
@@ -473,22 +473,6 @@ print uuid.uuid1()
     The <emphasis>%{data-dir}</emphasis> macro is not supported within the
     <emphasis>href</emphasis> and <emphasis>xpointer</emphasis> attributes of
     <link linkend="include">include</link> elements.
-    </para>
-    </listitem>
-    </varlistentry>
-
-    <varlistentry>
-    <term>
-    %{temp-dir}
-    </term>
-    <listitem>
-    <para>
-    A per-build temporary folder located at
-    <filename>/tmp/deploy.%{id}</filename>. Useful for <link
-    linkend='config-rpms-prep-script'>prep-scripts</link> across multiple
-    config-rpms to build up files for inclusion in a final <link
-    linkend='config-rpm'>config-rpm</link>. Deploy creates an empty %{temp-dir}
-    at the beginning of each build, and removes it at the end.
     </para>
     </listitem>
     </varlistentry>
