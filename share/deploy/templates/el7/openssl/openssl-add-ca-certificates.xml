@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='openssl-add-ca-certificates'>
+
+<macro id='ca-certificates'>/etc/pki/CA/certs/root.crt</macro>
+
+<requires>ca-certificates</requires>
+
+<script type='post'>
+# Copy certificate(s) to ca-trust folder
+for c in %{ca-certificates}; do
+  cp -f $c /etc/pki/ca-trust/source/anchors/`basename $c`
+  chmod 644 /etc/pki/ca-trust/source/anchors/`basename $c`
+done
+
+# update ca trust
+update-ca-trust extract
+</script>
+
+<script type='postun'>
+# remove certificates from ca-trust folder
+for c in %{ca-certificates}; do
+  rm -f /etc/pki/ca-trust/source/anchors/`basename $c`
+done
+
+# update ca trust
+update-ca-trust extract
+</script>
+</config-rpm>

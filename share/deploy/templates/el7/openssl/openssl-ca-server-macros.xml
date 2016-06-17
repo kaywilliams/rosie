@@ -1,0 +1,8 @@
+<xml>
+<macro id='ca-dir'>/etc/pki/CA</macro>
+<macro id='ca-config'>%{ca-dir}/ca.cnf</macro>
+<macro id='ca-certs-dir'>%{ca-dir}/certs</macro>
+<macro id='ca-private-dir'>%{ca-dir}/private</macro>
+<macro id='ca-root-key'>%{ca-private-dir}/ca.key</macro>
+<macro id='ca-root-cert'>%{ca-certs-dir}/ca.crt</macro>
+</xml>
