@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+<!-- configure deploy build host and client for secure repo access -->
+
+<remote-url https='True'/>
+
+<release-rpm>
+<macro id='deploy-client-pki-dir'>%{data-dir}/pki</macro>
+<macro id='deploy-client-crt'>%{deploy-client-pki-dir}/client.crt</macro>
+<macro id='deploy-client-key'>%{deploy-client-pki-dir}/client.key</macro>
+
+<prep-script>
+#! /bin/sh
+set -e
+
+# create client keypair 
+if [[ ! -f %{deploy-client-crt} ]]; then 
+  mkdir -p %{deploy-client-pki-dir} 
+
+  openssl req -x509 -nodes -days 7300 -newkey rsa:2048 \
+    -keyout %{deploy-client-key} \
+    -out %{deploy-client-crt} \
+    -subj "/C--/ST=SomeState/L=SomeLocation/O=Deploy/OU=Security/CN=%{fqdn}"
+
+  chmod 400 %{deploy-client-key}
+  chmod 444 %{deploy-client-crt}
+fi
+
+# configure apache
+echo "\
+&lt;directorymatch \"^%{localroot}/\">
+SSLRequireSSL
+Require expr %{SSL_CLIENT_CERT} eq \"`awk 1 ORS='\\\\n' %{deploy-client-crt}`\"
+&lt;/directorymatch>\
+" > /etc/httpd/conf.d/%{id}-%{module}.conf
+if [ -f /usr/bin/systemctl ]; then
+  systemctl reload httpd
+else
+  service httpd restart >/dev/null
+fi
+</prep-script>
+
+<sslverify>false</sslverify>
+<sslclientcert>%{deploy-client-crt}</sslclientcert>
+<sslclientkey>%{deploy-client-key}</sslclientkey>
+</release-rpm>
+</xml>
