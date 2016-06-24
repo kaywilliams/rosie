@@ -183,7 +183,8 @@ samba-server-config-6-1.el6.noarch.rpm</programlisting>
       <listitem>
       <para>
       TEXT value providing an identifier for the config-rpm. Also serves as the
-      name for the config-rpm. For clarity, often specified by appending the
+      name for the config-rpm. Valid characters are a-z, A-Z, 0-9, _ and -.
+      Spaces are not allowed. For clarity, often specified by appending the
       term "config", as shown in the following example.
       </para>
       </listitem>

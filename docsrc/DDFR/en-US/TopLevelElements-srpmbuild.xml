@@ -117,7 +117,8 @@
 
       <listitem>
       <para>
-      TEXT value providing an identifier for the SRPM. 
+      TEXT value providing an identifier for the SRPM. Valid characters are
+      a-z, A-Z, 0-9, _ and -. Spaces are not allowed.
       </para>
 
       <para>
