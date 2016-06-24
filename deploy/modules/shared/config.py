@@ -19,7 +19,8 @@ import copy
 import re
 
 from deploy.errors   import (DeployEventError, MissingIdError,
-                             DuplicateIdsError, ConfigError)
+                             DuplicateIdsError, ConfigError,
+                             REGEX_ID, InvalidIdError)
 from deploy.event    import Event, CLASS_META
 from deploy.util     import pps
 
@@ -39,10 +40,14 @@ def make_config_rpm_events(ptr, modname, element_name, globals):
   # create event classes based on user configuration
   for config in ptr.definition.xpath(xpath, []):
 
-    # convert user provided id to a valid class name
+    # validate id
     rpmid = config.getxpath('@id', None)
     if rpmid == None: 
       raise MissingIdError(config)
+    if not REGEX_ID.match(rpmid):
+      raise InvalidIdError(config)
+
+    # convert user provided id to a valid class name
     name = re.sub('[^0-9a-zA-Z_]', '', rpmid).capitalize()
     setup_name = '%sConfigRpmSetupEvent' % name
     base_name = '%sConfigRpmEvent' % name

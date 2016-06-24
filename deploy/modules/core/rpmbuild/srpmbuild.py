@@ -24,7 +24,8 @@ import yum
 
 from deploy.dlogging     import MSG_MAXWIDTH, L0, L1, L2
 from deploy.errors       import (DeployError, DeployEventError, 
-                                 DuplicateIdsError, MissingIdError)
+                                 DuplicateIdsError, MissingIdError,
+                                 REGEX_ID, InvalidIdError)
 from deploy.event        import Event, CLASS_META
 from deploy.main         import Build
 from deploy.options      import DeployOptionParser
@@ -445,10 +446,14 @@ def get_module_info(ptr, *args, **kwargs):
   # create event classes based on user configuration
   for config in ptr.definition.xpath('/*/srpmbuild/srpm', []):
 
-    # convert user provided id to a valid class name
+    # validate id
     id = config.getxpath('@id', None)
     if id == None:
       raise MissingIdError(config)
+    if not REGEX_ID.match(id):
+      raise InvalidIdError(config)
+
+    # convert user provided id to a valid class name
     name = re.sub('[^0-9a-zA-Z_]', '', id)
     name = '%sSrpmBuildEvent' % name.capitalize()
 
