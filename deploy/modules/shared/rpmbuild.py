@@ -745,9 +745,6 @@ fi
   def get_prep(self):         return None
   def get_verifyscript(self): return None
 
-  # trigger scripts
-  def get_triggers(self):     return None
-
 
 class RpmBuildObject:
   def __init__(self, ptr, release, rpminfo):
