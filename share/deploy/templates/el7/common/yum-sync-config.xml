@@ -9,8 +9,11 @@ system kernel version has changed
 
 <files destdir="/etc/cron.daily" destname="yum-sync" content="text" mode="755">
 #!/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 SHELL=/bin/bash
+
 set -e
+
 /usr/bin/yum -q -y sync
 /usr/sbin/check-kernel
 </files>
