@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-mariadb-config'>
 
-<requires>php55w-mysql</requires>
-
-<!-- database config -->
-<include href="%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml"
-         xpath="./*"/>
-
-<!-- drupal config -->
-<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-config.xml"
-         xpath="./*"/>
-
-<!-- drush install -->
 <macro id='drupal-db-su'>root</macro>
-<macro id='drupal-site-install-cmd'>
+<macro id='create-drupal-database-script'>
+  # create drupal database
+  mysql -u %{drupal-db-su} -p%{mariadb-password} \
+        -e "create database if not exists %{drupal-site-name}"
+  mysql -u %{drupal-db-su} -p%{mariadb-password} \
+        -e "grant all on %{drupal-site-name}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
+  
+  # restart mariadb service
+  systemctl restart mariadb
+</macro>
+<macro id='drupal-site-install-script'>
+  %{create-drupal-database-script}
+
+  # use drush to complete site install
   /usr/bin/env PHP_OPTIONS="-d sendmail_path=`which true`" \
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
@@ -24,26 +26,12 @@
     --site-name=%{drupal-site-name}
 </macro>
 
-<script type='post'>
-# create drupal database
-<!-- To populate the database with existing data, include this config-rpm
-     within another, and have the outer config-rpm first copy a mariadb backup
-     file to the folder and filename specified by %{drupal-db-restore-dir} and
-     %{drupal-db-restore-file}.
-     
-     The restore file is typically created using a script element, e.g. <script
-     type='post'>your script here</script>, which copies data from a backup
-     server or device to the installed machine. The script should be specified
-     prior to including this config-rpm.
--->
-mysql -u %{drupal-db-su} -p%{mariadb-password} \
-      -e "create database if not exists %{drupal-site-name}"
-mysql -u %{drupal-db-su} -p%{mariadb-password} \
-      -e "grant all on %{drupal-site-name}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
+<requires>php55w-mysql</requires>
+<requires>%{drupal-db-type}-server-config</requires>
 
-# restart mariadb service
-systemctl restart mariadb
-</script>
+<!-- drupal config -->
+<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-config.xml"
+         xpath="./*"/>
 
 <include href="%{templates-dir}/%{norm-os}/drupal8/drupal-config-script.xml"/>
 

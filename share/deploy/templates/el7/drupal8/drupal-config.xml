@@ -5,10 +5,9 @@
 <macro id='drupal-admin-mail'>admin@example.com</macro>
 <macro id='drupal-site-mail'>admin@example.com</macro>
 <macro id='drupal-site-name'>drupal</macro>
-<macro id='drupal-dir'>/var/www/html/drupal</macro>
-<macro id='drupal-sites-dir'>%{drupal-dir}/sites</macro>
+<macro id='drupal-sites-dir'>%{drupal-web-dir}/sites</macro>
 <macro id='drupal-settings-dir'>%{drupal-sites-dir}</macro>
-<macro id='drupal-web-dir'>%{drupal-dir}/files/default</macro>
+<macro id='drupal-web-dir'>%{drupal-web-dir}/files/default</macro>
 <macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
 <macro id='drupal-db-user'>drupal</macro>
 <macro id='drupal-db-password'>%{drupal-admin-password}</macro>
@@ -27,9 +26,7 @@
 <gpgkey>https://mirror.webtatic.com/yum/RPM-GPG-KEY-webtatic-%{norm-os}</gpgkey>
 </repo>
 
-<requires>wget</requires>
-<requires>gzip</requires>
-<requires>httpd</requires>
+<requires>drupal8</requires>
 <requires>php55w</requires>
 <requires>php55w-opcache</requires>
 <requires>php55w-mbstring</requires>

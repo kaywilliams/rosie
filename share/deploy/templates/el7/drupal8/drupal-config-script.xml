@@ -1,25 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <script type='post'>
-<macro id='drupal-version'>8.1.3</macro>
-#!/bin/bash
-set -e
-
-# see http://www.linuxtechi.com/how-to-install-drupal-8-on-centos-7
-
-# download drupal
-if [ ! -d %{drupal-dir} ]; then
-  cd /tmp
-  wget -q https://ftp.drupal.org/files/projects/drupal-%{drupal-version}.tar.gz
-  tar -zxpf drupal-%{drupal-version}.tar.gz
-  mv drupal-%{drupal-version} %{drupal-dir}
-  cd %{drupal-sites-dir}/default
-  cp -p default.settings.php settings.php
-fi
-chown -R apache:apache %{drupal-dir} 
-chcon -R -t httpd_sys_content_rw_t %{drupal-dir}
-
 # configure web server
-sed -i "s|^DocumentRoot.*|DocumentRoot \"%{drupal-dir}\"|" /etc/httpd/conf/httpd.conf
+sed -i "s|^DocumentRoot.*|DocumentRoot \"%{drupal-web-dir}\"|" /etc/httpd/conf/httpd.conf
 
 # load drupal configuration in apache
 if pidof httpd >/dev/null; then
@@ -29,18 +11,19 @@ else
 fi
 
 # create drupal site if one does not exist
-cd %{drupal-sites-dir}
+cd %{drupal-web-dir}
 
 # test drush core-status in a separate step so that that the script exits
 # with an error if the command fails
 info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
 
 # create new site
-if ! drush core-status | grep -q "Database name" ; then
-  %{drupal-site-install-cmd}
+if ! drush core-status | grep -q "%{drupal-site-name}"; then
+  %{drupal-site-install-script}
   systemctl reload httpd
 fi
 
-# hack(?) to ensure correct permissions on sites/default/files dir
-chown -R apache:apache %{drupal-dir} 
+# ensure correct permissions on sites/default/files dir
+chown -R apache:apache %{drupal-web-dir}/sites/default/files 
+chcon -R -t httpd_sys_content_rw_t %{drupal-web-dir}/sites/default/files
 </script>
