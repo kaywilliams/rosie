@@ -26,7 +26,6 @@
 <gpgkey>https://mirror.webtatic.com/yum/RPM-GPG-KEY-webtatic-%{norm-os}</gpgkey>
 </repo>
 
-<requires>drupal8</requires>
 <requires>php55w</requires>
 <requires>php55w-opcache</requires>
 <requires>php55w-mbstring</requires>
