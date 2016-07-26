@@ -18,7 +18,7 @@ cd %{drupal-web-dir}
 info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
 
 # create new site
-if ! drush core-status | grep -q "%{drupal-site-name}"; then
+if ! drush core-status | grep -q "%{drupal-db-name}"; then
   %{drupal-site-install-script}
   systemctl reload httpd
 fi

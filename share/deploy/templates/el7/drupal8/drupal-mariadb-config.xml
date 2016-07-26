@@ -5,9 +5,9 @@
 <macro id='create-drupal-database-script'>
   # create drupal database
   mysql -u %{drupal-db-su} -p%{mariadb-password} \
-        -e "create database if not exists %{drupal-site-name}"
+        -e "create database if not exists %{drupal-db-name}"
   mysql -u %{drupal-db-su} -p%{mariadb-password} \
-        -e "grant all on %{drupal-site-name}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
+        -e "grant all on %{drupal-db-name}.* TO '%{drupal-db-user}'@'localhost' identified by '%{drupal-db-password}'"
   
   # restart mariadb service
   systemctl restart mariadb
@@ -20,7 +20,7 @@
   drush -y -q si standard \
     --account-pass=%{drupal-admin-password} \
     --account-mail=%{drupal-admin-mail} \
-    --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-site-name} \
+    --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-db-name} \
     --db-su=%{drupal-db-su} \
     --site-mail=%{drupal-site-mail} \
     --site-name=%{drupal-site-name}

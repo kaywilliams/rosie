@@ -8,6 +8,7 @@
 <macro id='drupal-sites-dir'>%{drupal-web-dir}/sites</macro>
 <macro id='drupal-settings-dir'>%{drupal-sites-dir}</macro>
 <macro id='drupal-web-dir'>%{drupal-web-dir}/files/default</macro>
+<macro id='drupal-db-name'>%{drupal-site-name}</macro>
 <macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
 <macro id='drupal-db-user'>drupal</macro>
 <macro id='drupal-db-password'>%{drupal-admin-password}</macro>
