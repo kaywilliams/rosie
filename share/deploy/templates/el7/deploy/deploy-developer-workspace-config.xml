@@ -6,16 +6,7 @@
 
 <macro id="mercurial-workspace">/root/workspace</macro>
 <macro id="tag">deploy</macro>
-
-<files destdir="/etc/profile.d" destname='deploy.sh' content='text'>
-# set environment variables
-if ! echo ${PATH} | /bin/grep -q %{mercurial-workspace}/%{tag}/bin ; then
-        export PATH=%{mercurial-workspace}/%{tag}/bin:${PATH}
-fi
-if ! echo ${PYTHONPATH} | /bin/grep -q %{mercurial-workspace}/%{tag} ; then
-        export PYTHONPATH=%{mercurial-workspace}/%{tag}:${PYTHONPATH}
-fi
-</files>
+<macro id="python-site-packages-path">/usr/lib/python2.7/site-packages</macro>
 
 <script type='post'>
 file='/etc/deploy/deploy.conf'
@@ -39,6 +30,20 @@ for elem in $lib $share $tmpl; do
     echo "&lt;/deploy>" >> $file
   fi
 done
+
+# create symlink to binary
+ln -sf %{mercurial-workspace}/%{tag}/bin/deploy /usr/bin/deploy
+
+# create symlink to python libraries
+rm -f %{python-site-packages-path}/deploy
+ln -s %{mercurial-workspace}/%{tag}/deploy %{python-site-packages-path}/deploy 
+</script>
+
+<script type="postun">
+if [ $1 == 0 ]; then
+  rm -f /usr/bin/deploy
+  rm -f %{python-site-packages-path}/deploy
+fi
 </script>
 
 <!-- 
@@ -127,10 +132,6 @@ if [ ! -d $definition_dir ]; then
            -s "ERROR: network not up in timeout period [$output]"
     exit 1
   fi
-fi
-
-if [[ $changed = *\ /etc/profile.d/deploy.sh\ * ]]; then
-  source /etc/profile.d/deploy.sh
 fi
 
 /bin/systemctl disable clone-deploy-repo.service > /dev/null
