@@ -73,7 +73,10 @@ def transform(e, file=None):
       print e #!
       print file #!
       raise e #!
-    file = e.exception.geturl()
+    try:
+      file = e.exception.geturl() # not all exceptions objects have this method
+    except:
+      file=None
   else:
     print "DEBUG: HttpFileObjectError.errno = %d" % e.errno #!
     print e #!
