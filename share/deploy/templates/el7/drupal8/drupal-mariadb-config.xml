@@ -28,11 +28,4 @@
 
 <requires>php55w-mysql</requires>
 <requires>%{drupal-db-type}-server-config</requires>
-
-<!-- drupal config -->
-<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-config.xml"
-         xpath="./*"/>
-
-<include href="%{templates-dir}/%{norm-os}/drupal8/drupal-config-script.xml"/>
-
 </config-rpm>
