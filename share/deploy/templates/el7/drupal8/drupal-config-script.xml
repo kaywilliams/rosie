@@ -21,6 +21,7 @@ info=`drush core-status 2>&amp;1` || (status=$?; echo $info; exit $status)
 if ! drush config-get system.site name &amp;2>/dev/null | \
      grep -q "%{drupal-site-name}"; then
   %{drupal-site-install-script}
+  drush -q -y config-set update.settings notification.emails.0 %{drupal-admin-mail}
   systemctl reload httpd
 fi
 
