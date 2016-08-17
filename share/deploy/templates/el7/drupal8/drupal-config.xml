@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-config'>
 
+<macro id='drupal-version'>8.1.8</macro>
+
+<macro id='download-dir'>/root/Downloads</macro>
+<macro id='drupal-download-dir'>%{download-dir}/drupal8</macro>
+<macro id='drupal-web-dir'>/var/www/html/drupal</macro>
+
 <macro id='drupal-admin-password'>Test1!</macro>
 <macro id='drupal-admin-mail'>admin@example.com</macro>
 <macro id='drupal-site-mail'>admin@example.com</macro>
 <macro id='drupal-site-name'>drupal</macro>
-<macro id='drupal-sites-dir'>%{drupal-web-dir}/sites</macro>
-<macro id='drupal-settings-dir'>%{drupal-sites-dir}</macro>
-<macro id='drupal-web-dir'>%{drupal-web-dir}/files/default</macro>
+<macro id='drupal-default-sites-dir'>%{drupal-web-dir}/sites/default</macro>
+<macro id='drupal-settings-file'>%{drupal-default-sites-dir}/settings.php</macro>
 <macro id='drupal-db-name'>%{drupal-site-name}</macro>
 <macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
 <macro id='drupal-db-user'>drupal</macro>
@@ -22,6 +27,7 @@
 <include href="%{templates-dir}/%{norm-os}/common/repos.xml" 
          xpath="./repo[@id='rhel-optional']"/>
 </macro>
+
 <repo id='webtatic'>
 <baseurl>https://repo.webtatic.com/yum/%{norm-os}/%{arch}/</baseurl>
 <gpgkey>https://mirror.webtatic.com/yum/RPM-GPG-KEY-webtatic-%{norm-os}</gpgkey>
@@ -38,4 +44,124 @@
 <requires>/usr/sbin/sendmail</requires>
 <requires>/usr/sbin/postdrop</requires>
 
+<files destdir="/usr/sbin" destname="drupal-update-trusted-host-patterns"
+       mode="750" content="text">
+#!/bin/sh
+
+file=${1:-%{drupal-settings-file}} 
+
+# remove existing trusted_host_patterns
+sed -i '/^#-----TRUSTED HOST PATTERNS-----#$/,$d' $file
+
+# add trusted_host_patterns
+h=$(echo "`hostname` `hostname -I`" | sed "s/\./\\\./g")
+cat &lt;&lt;EOT >> $file
+#-----TRUSTED HOST PATTERNS-----#
+\$settings['trusted_host_patterns'] = array(
+  '^`echo $h | sed "s/ /$',\n  '^/g"`$',
+);
+EOT
+</files>
+
+<script type='post'>
+# download latest version
+mkdir -p %{download-dir}
+cd %{download-dir}
+wget -q https://ftp.drupal.org/files/projects/drupal-%{drupal-version}.tar.gz
+tar -zxpf drupal-%{drupal-version}.tar.gz
+rm -rf %{drupal-download-dir}
+mv -f drupal-%{drupal-version} %{drupal-download-dir}
+
+# check for changes in default.settings.php
+if [ -f %{drupal-default-sites-dir}/settings.php ] &amp;&amp; \
+   ! diff %{drupal-default-sites-dir}/default.settings.php \
+          %{drupal-download-dir}/sites/default/default.settings.php ; then
+  echo "\
+Error: The default.settings.php file has changed. You will need to complete \
+the following steps manually:
+
+1. Review changes to default.settings.php and manually update settings.php.
+
+`/usr/bin/diff %{drupal-default-sites-dir}/default.settings.php %{drupal-download-dir}/sites/default/default.settings.php`
+
+2. Copy %{drupal-download-dir}/sites/default/default.settings.php to \
+%{drupal-default-sites-dir}/default.settings.php.
+
+3. Run the script at %{install-dir}/post to complete the Drupal update.
+" >&amp;2
+  exit 1
+fi
+
+# make drupal webroot
+mkdir -p %{drupal-web-dir}
+
+# put site into maintenance mode, clear the cache in preparation for update
+cd %{drupal-web-dir}
+if drush config-get system.site name 2>/dev/null | \
+   grep -q "%{drupal-site-name}"; then
+  drush state-set system.maintenance_mode 1
+  drush rebuild
+fi
+
+# copy core and vendor folders to webroot
+for d in core vendor; do
+  rm -rf %{drupal-web-dir}/$d
+  cp -ar %{drupal-download-dir}/$d %{drupal-web-dir}/$d
+done
+
+# copy top-level files to webroot
+find %{drupal-web-dir} -maxdepth 1 -type f -delete
+for f in `find %{drupal-download-dir} -maxdepth 1 -type f`; do
+  cp -a $f %{drupal-web-dir}
+done
+
+# configure drupal-web-dir
+dirs='modules profiles sites themes'
+for d in $dirs; do
+  if ! [ -d %{drupal-web-dir}/$d ]; then
+    cp -a %{drupal-download-dir}/$d %{drupal-web-dir}
+  fi
+done
+
+# create default settings.php
+if [ ! -f %{drupal-default-sites-dir}/settings.php ]; then
+  cd %{drupal-default-sites-dir}
+  cp -p default.settings.php settings.php
+fi
+
+# set trusted_host_patterns
+drupal-update-trusted-host-patterns %{drupal-settings-file}
+
+# set permissions on sites dir
+chown -R apache:apache %{drupal-web-dir}/sites
+chcon -R -t httpd_sys_content_rw_t %{drupal-web-dir}/sites
+
+# create files dir and set permissions
+filesdir=%{drupal-default-sites-dir}/files
+mkdir -p $filesdir
+chown -R %{drupal-user}:%{drupal-user} $filesdir
+chcon -R -t httpd_sys_content_rw_t $filesdir
+
+# if site exists, update db, verify, and reset maintenance mode
+if drush config-get system.site name 2>/dev/null | \
+   grep -q "%{drupal-site-name}"; then
+  if ! drush updatedb -q -y ; then
+    echo "Drush updatedb failed." >&amp;2
+    exit 1
+  fi
+  if ! drush core-cron -q -y ; then
+    echo "Drush core-cron failed." >&amp;2
+    exit 1
+  fi
+  if drush core-requirements | grep -q "Error" ; then
+    echo "Error in core requirements" >&amp;2
+    drush core-requirements >&amp;2
+    exit 1
+  fi
+  if ! drush state-set system.maintenance_mode 0 ; then
+    echo "Unable to reset maintenance mode" >&amp;2
+    exit 1
+  fi
+fi
+</script>
 </config-rpm>
