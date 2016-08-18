@@ -63,6 +63,26 @@ cat &lt;&lt;EOT >> $file
 EOT
 </files>
 
+<files destdir="/usr/sbin" destname="drush-error-wrapper"
+       mode="750" content="text">
+#!/usr/bin/sh
+
+if [ -z "$1" ]
+  then
+    echo "No command supplied, e.g. 'drush core-requirements'"
+fi
+
+cmd="$1"
+
+cd %{drupal-web-dir}
+
+if $cmd -y 2>&amp;1 | grep -qi error; then
+  echo "Error running '$cmd'" >&amp;2
+  $cmd -y >&amp;2
+  exit 1
+fi
+</files>
+
 <script type='post'>
 # download latest version
 mkdir -p %{download-dir}
@@ -143,25 +163,13 @@ chown -R %{drupal-user}:%{drupal-user} $filesdir
 chcon -R -t httpd_sys_content_rw_t $filesdir
 
 # if site exists, update db, verify, and reset maintenance mode
+cd %{drupal-web-dir}
 if drush config-get system.site name 2>/dev/null | \
    grep -q "%{drupal-site-name}"; then
-  if ! drush updatedb -q -y ; then
-    echo "Drush updatedb failed." >&amp;2
-    exit 1
-  fi
-  if ! drush core-cron -q -y ; then
-    echo "Drush core-cron failed." >&amp;2
-    exit 1
-  fi
-  if drush core-requirements | grep -q "Error" ; then
-    echo "Error in core requirements" >&amp;2
-    drush core-requirements >&amp;2
-    exit 1
-  fi
-  if ! drush state-set system.maintenance_mode 0 ; then
-    echo "Unable to reset maintenance mode" >&amp;2
-    exit 1
-  fi
+  drush-error-wrapper "drush updatedb -q -y"
+  drush-error-wrapper "drush core-cron --uri=`hostname -f`"
+  drush-error-wrapper "drush core-requirements"
+  drush-error-wrapper "drush state-set system.maintenance_mode 0"
 fi
 </script>
 </config-rpm>
