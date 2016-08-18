@@ -4,6 +4,23 @@
 <requires>php-composer-config</requires>
 <requires>tar</requires>
 
+<files destdir="/usr/sbin" destname="drush-error-wrapper"
+       mode="750" content="text">
+#!/usr/bin/sh
+
+# wraps drush to exit with error if output contains the string "error"
+
+params="$@"
+
+cd %{drupal-web-dir}
+
+if drush $params 2>&amp;1 | grep -qi error; then
+  echo "Error running 'drush $params'" >&amp;2
+  drush $params >&amp;2
+  exit 1
+fi
+</files>
+
 <script type='post'>
 %{composer-dir}/composer.phar -q global require drush/drush:8.* \
   --working-dir %{composer-dir}
