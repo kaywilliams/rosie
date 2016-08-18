@@ -93,7 +93,7 @@ class RepoEventMixin(Event):
     # if mode == system, repos config must contain at least one repo or repofile
     if self.type == "system" and (not self.config.xpath('repo', []) and 
                                   not self.config.xpath('repofile', [])):
-      raise InvalidConfigError(self._config.file,
+      raise InvalidConfigError(self._config.base,
         "The <%s> element must contain at least one <repo> or <repofile> " 
         "element when building a system repo." % self.id)
 
