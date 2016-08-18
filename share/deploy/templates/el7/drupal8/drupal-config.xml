@@ -13,6 +13,7 @@
 <macro id='drupal-site-name'>drupal</macro>
 <macro id='drupal-default-sites-dir'>%{drupal-web-dir}/sites/default</macro>
 <macro id='drupal-settings-file'>%{drupal-default-sites-dir}/settings.php</macro>
+<macro id='drupal-mods-dir'>%{drupal-web-dir}/modules</macro>
 <macro id='drupal-db-name'>%{drupal-site-name}</macro>
 <macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
 <macro id='drupal-db-user'>drupal</macro>
