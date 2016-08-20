@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+<!-- configure deploy repository for public accesss -->
+
+<script id='configure-repo-access' type='pre-install'>
+# configure apache
+echo "\
+&lt;directorymatch \"^%{localroot}\">
+
+# Apache 2.4
+&lt;IfModule mod_authz_core.c>
+Require all granted 
+&lt;/IfModule>
+
+# Apache 2.2
+&lt;IfModule !mod_authz_core.c>
+Order Deny,Allow
+Allow from all
+&lt;/IfModule>
+&lt;/directorymatch>\
+" > /etc/httpd/conf.d/%{id}-%{module}.conf
+if [ -f /usr/bin/systemctl ]; then
+  systemctl reload httpd
+else
+  service httpd reload 
+fi
+</script>
+</xml>

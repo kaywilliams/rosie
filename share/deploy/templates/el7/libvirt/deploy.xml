@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xml>
+<!-- public access to repositories -->
+<include href='%{templates-dir}/%{norm-os}/deploy/deploy-public-repo.xml'
+         xpath='./*'/>
+
 <!-- install and update a libvirt vm on the local machine -->
 <domain>local</domain>
 <kickstart>
