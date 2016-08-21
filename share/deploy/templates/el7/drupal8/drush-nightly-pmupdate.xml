@@ -1,0 +1,10 @@
+<config-rpm id='drush-nightly-pmupdate'>
+
+<requires>drush</requires>
+
+<files destdir="/etc/cron.daily" destname="drush-nightly-pmupdate" content="text" mode="755">
+#!/bin/bash
+cd %{drupal-web-dir}
+/usr/sbin/drush-error-wrapper pm-update -q -y
+</files>
+</config-rpm>
