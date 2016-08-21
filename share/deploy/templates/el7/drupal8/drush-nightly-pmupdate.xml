@@ -1,6 +1,6 @@
 <config-rpm id='drush-nightly-pmupdate'>
 
-<requires>drush</requires>
+<requires>drush-config</requires>
 
 <files destdir="/etc/cron.daily" destname="drush-nightly-pmupdate" content="text" mode="755">
 #!/bin/bash
