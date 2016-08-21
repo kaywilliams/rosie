@@ -45,6 +45,11 @@
 <requires>/usr/sbin/sendmail</requires>
 <requires>/usr/sbin/postdrop</requires>
 
+<!-- include httpd.conf so that macros are resolved -->
+<files destdir='/etc/httpd/conf' destname='httpd.conf' content='text'>
+<include href='etc/httpd/conf/httpd.conf' parse='text'/>
+</files>
+
 <files destdir="/usr/sbin" destname="drupal-update-trusted-host-patterns"
        mode="750" content="text">
 #!/bin/sh
