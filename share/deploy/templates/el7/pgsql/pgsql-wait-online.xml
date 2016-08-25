@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='pgsql-wait-online'>
+
+<!-- Template for use by processes that need to be performed after the 
+     postgresql service is up and running
+
+     Instructions:
+
+     1. Import this template into an existing config-rpm.
+     2. Enable the service using the %{%{rpm-id}-pgsql-wait-online-enable}
+        macro in the config-rpm post script.
+     3. Disable the service, e.g. for a process that should only run one time, 
+        using the %{%{rpm-id}-pgsql-wait-online-disable} macro.
+     -->
+
+<macro id="%{rpm-id}-pgsql-wait-online-enable">
+systemctl -q enable %{rpm-id}-pgsql-wait-online.service
+systemctl start %{rpm-id}-pgsql-wait-online.service
+</script>
+<macro id="%{rpm-id}-pgsql-wait-online-disable">
+/usr/bin/systemctl -q disable %{rpm-id}-pgsql-wait-online.service
+</macro>
+
+<files destdir="/etc/systemd/system" 
+       destname="%{rpm-id}-pgsql-wait-online.service" 
+       mode="755" content="text">
+[Unit]
+Description=PostgreSQL wait online service for %{rpm-id}
+Requisite=postgresql.service
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/true
+
+[Install]
+WantedBy=multi-user.target
+</files>
+</config-rpm>

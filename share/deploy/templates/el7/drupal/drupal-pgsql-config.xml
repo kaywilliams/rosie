@@ -3,11 +3,10 @@
 
 <requires>php-pgsql</requires>
 
-<!-- database config -->
+<include href="%{templates-dir}/%{norm-os}/pgsql/pgsql-wait-online.xml"
+         xpath="./*"/>
 <include href="%{templates-dir}/%{norm-os}/%{drupal-db-type}/%{drupal-db-type}-server-config.xml"
          xpath="./*"/>
-
-<!-- drupal config -->
 <include href="%{templates-dir}/%{norm-os}/drupal/drupal-config.xml"
          xpath="./*"/>
 
@@ -40,32 +39,8 @@
 <macro id='drupal-db-restore-script'>
 # custom restore script
 </macro>
-
-<!-- using a service to ensure postgresql running before we attempt restore -->
-<files destdir="/etc/systemd/system" 
-       destname="restore-pgsql-database.service" 
-       mode="755" content="text">
-[Unit]
-Description=restore a pgsql database
-Requires = postgresql.service
-After = postgresql.service
-
-[Service]
-Type=oneshot
-ExecStart=%{install-dir}/files/restore-pgsql-database.sh
-
-[Install]
-WantedBy=multi-user.target
-</files>
-
-<files destname='restore-pgsql-database.sh' mode='755' content='text'>
-#!/bin/sh -
-set -e
-
-# restore database
-%{drupal-db-restore-script}
-
-# import database
+<macro id='drupal-db-import-script'>
+%{%{rpm-id}-pgsql-wait-online-enable}
 if ! su - postgres -c "psql -l" | grep '^ %{drupal-site-name}\b' >/dev/null; then
   su - postgres -c "psql -q -c \"create user %{drupal-db-user} with password '%{drupal-db-password}' createdb nocreaterole nosuperuser;\""
   su - postgres -c "createdb -E UTF8 -T template0 -O %{drupal-db-user} %{drupal-site-name}"
@@ -73,12 +48,6 @@ if ! su - postgres -c "psql -l" | grep '^ %{drupal-site-name}\b' >/dev/null; the
     su - postgres -c "psql %{drupal-site-name} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
   fi
 fi
-</files>
-
-<script type='post'>
-systemctl -q enable restore-pgsql-database.service
-systemctl start restore-pgsql-database.service
-</script>
-
-<include href="%{templates-dir}/%{norm-os}/drupal/drupal-config-script.xml"/>
+%{%{rpm-id}-pgsql-wait-online-disable}
+</macro>
 </config-rpm>
