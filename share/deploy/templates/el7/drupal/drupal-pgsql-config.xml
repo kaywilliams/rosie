@@ -40,7 +40,7 @@
 # custom restore script
 </macro>
 <macro id='drupal-db-import-script'>
-%{%{rpm-id}-pgsql-wait-online-enable}
+%{pgsql-wait-online}
 if ! su - postgres -c "psql -l" | grep '^ %{drupal-site-name}\b' >/dev/null; then
   su - postgres -c "psql -q -c \"create user %{drupal-db-user} with password '%{drupal-db-password}' createdb nocreaterole nosuperuser;\""
   su - postgres -c "createdb -E UTF8 -T template0 -O %{drupal-db-user} %{drupal-site-name}"
@@ -48,6 +48,5 @@ if ! su - postgres -c "psql -l" | grep '^ %{drupal-site-name}\b' >/dev/null; the
     su - postgres -c "psql %{drupal-site-name} &lt; %{drupal-db-restore-dir}/%{drupal-db-restore-file} >/dev/null" || exit 1
   fi
 fi
-%{%{rpm-id}-pgsql-wait-online-disable}
 </macro>
 </config-rpm>

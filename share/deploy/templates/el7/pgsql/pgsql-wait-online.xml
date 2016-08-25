@@ -7,31 +7,28 @@
      Instructions:
 
      1. Import this template into an existing config-rpm.
-     2. Enable the service using the %{%{rpm-id}-pgsql-wait-online-enable}
-        macro in the config-rpm post script.
-     3. Disable the service, e.g. for a process that should only run one time, 
-        using the %{%{rpm-id}-pgsql-wait-online-disable} macro.
+     2. Enable the service using the %{pgsql-wait-online} macro.
+     3. See drupal/drupal-pgsql-config.xml for an example.
      -->
 
-<macro id="%{rpm-id}-pgsql-wait-online-enable">
-systemctl -q enable %{rpm-id}-pgsql-wait-online.service
-systemctl start %{rpm-id}-pgsql-wait-online.service
-</script>
-<macro id="%{rpm-id}-pgsql-wait-online-disable">
-/usr/bin/systemctl -q disable %{rpm-id}-pgsql-wait-online.service
+<macro id="pgsql-wait-online">
+systemctl -q enable pgsql-wait-online.service
+systemctl start pgsql-wait-online.service
 </macro>
 
+<requires>pgsql-server-config</requires>
+
 <files destdir="/etc/systemd/system" 
-       destname="%{rpm-id}-pgsql-wait-online.service" 
-       mode="755" content="text">
+       destname="pgsql-wait-online.service" 
+       content="text">
 [Unit]
-Description=PostgreSQL wait online service for %{rpm-id}
-Requisite=postgresql.service
+Description=PostgreSQL wait online service
+Requires=postgresql.service
 After=postgresql.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/true
+ExecStart=/usr/bin/systemctl -q disable pgsql-wait-online.service
 
 [Install]
 WantedBy=multi-user.target
