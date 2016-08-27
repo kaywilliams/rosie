@@ -35,6 +35,7 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                                         DummyConfig(self._config))
 
     self.conditionally_requires.add('packages')
+    self.conditionally_requires.add('gpgcheck-enabled')
     self.conditionally_requires.add('gpg-signing-keys')
 
     MkrpmRpmBuildMixin.__init__(self)
@@ -91,10 +92,13 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                               self.plugin_conf_lines)).hexdigest()
       self.DATA['variables'].update(['plugin_hash', 'plugin_conf_hash'])
 
-    # setup gpgkeys
-    self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
-                                     'updates/@gpgcheck', True)
+    # setup SSL files
+    for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
+      self.io.add_xpath('%s/%s' % (self._config_base, p),
+                        self.srcfiledir // self.pkidir,
+                        destname=p, id='files') 
 
+    # setup gpgkeys
     if not self.cvars['gpgcheck-enabled']:
       return
 
@@ -106,12 +110,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                         download='true'))
 
     GPGKeysEventMixin.setup(self) # set self.repos before calling
-
-    # setup SSL files
-    for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey']:
-      self.io.add_xpath('%s/%s' % (self._config_base, p),
-                        self.srcfiledir // self.pkidir,
-                        destname=p, id='files') 
 
   def run(self):
     self.local_keydir.rm(recursive=True, force=True)
@@ -160,7 +158,8 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                      'baseurl   = %s' % baseurl,
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
-      lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
+      if self._gpgkeys():
+        lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
       if self.rpmconf.getxpath('sslverify', None) is not None:
         lines.append('sslverify = %s' % self.rpmconf.getbool('sslverify'))
       for p in [ 'sslcacert', 'sslclientcert', 'sslclientkey' ]:

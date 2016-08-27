@@ -1,0 +1,11 @@
+<config-rpm id='git-lfs-config'>
+
+<requires>git</requires>
+<requires>git-lfs</requires>
+
+<repo id='github_git-lfs'>
+<baseurl>https://packagecloud.io/github/git-lfs/el/%{version}/%{arch}</baseurl>
+<sslcacert>/etc/pki/tls/certs/ca-bundle.crt</sslcacert>
+</repo>
+
+</config-rpm>

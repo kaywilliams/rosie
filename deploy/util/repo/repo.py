@@ -152,16 +152,12 @@ class BaseRepo(dict):
             'sslclientcert': self.get('sslclientcert', None),
             'sslclientkey' : self.get('sslclientkey', None) }
 
-    if opts['sslcacert'] or opts['sslclientkey'] or opts['sslclientcert']:
-      for opt, file in opts.items():
-        file = pps.path(file)
-        if not file:
-          raise RepoInvalidSSLOptionError("Missing option '%s' for repo '%s'" % 
-                                         (opt, self.id))
-        if not file.isfile():
-          raise RepoInvalidSSLOptionError("Invalid option '%s' for repo '%s': "
-                                          "File not found '%s'" % 
-                                         (opt, self.id, file))
+    for opt, file in opts.items():
+      file = pps.path(file)
+      if file and not file.isfile():
+        raise RepoInvalidSSLOptionError("Invalid option '%s' for repo '%s': "
+                                        "File not found '%s'" % 
+                                       (opt, self.id, file))
 
 
 NSMAP = dict(repo   = 'http://linux.duke.edu/metadata/repo',

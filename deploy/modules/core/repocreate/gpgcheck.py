@@ -27,10 +27,30 @@ from deploy.modules.shared import GPGKeysEventMixin
 def get_module_info(ptr, *args, **kwargs):
   return dict(
     api         = 5.0,
-    events      = ['GpgcheckEvent'],
+    events      = ['GpgCheckSetupEvent', 'GpgcheckEvent'],
     description = 'downloads package list RPMs',
     group       = 'repocreate',
   )
+
+class GpgCheckSetupEvent(Event):
+  def __init__(self, ptr, *args, **kwargs):
+    Event.__init__(self,
+      id = 'gpgcheck-setup',
+      parentid = 'setup-events',
+      ptr = ptr,
+      version = '1.00',
+      provides = ['gpgcheck-enabled',],
+      suppress_run_message = False 
+    )
+
+    self.DATA = {
+      'config':    set(['.']),
+    }
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+    self.cvars['gpgcheck-enabled'] = self.config.getbool('.', True)
+
 
 class GpgcheckEvent(Event, GPGKeysEventMixin):
   def __init__(self, ptr, *args, **kwargs):
@@ -40,12 +60,12 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
       parentid = 'repocreate',
       ptr = ptr,
       provides = ['checked-rpms'],
-      requires = ['rpmsdir', 'rpms'],
-      conditionally_requires = ['gpgcheck-enabled'],
+      requires = ['gpgcheck-enabled', 'rpmsdir', 'rpms'],
     )
 
     self.DATA = {
-      'variables': set(["cvars['rpmsdir']", "cvars['rpms']"]),
+      'variables': set(["cvars['gpgcheck-enabled']", "cvars['rpmsdir']",
+                        "cvars['rpms']"]),
       'input':     set(),
       'output':    set(),
     }
@@ -54,8 +74,7 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
     self.diff.setup(self.DATA)
 
     self.rpmdb_dir = self.mddir / 'rpmdb'
-    if getattr(self, 'cvars[\'gpgcheck-enabled\']', True):
-      self.DATA['variables'].add('cvars[\'gpgcheck-enabled\']')
+    if self.cvars['gpgcheck-enabled']:
       GPGKeysEventMixin.setup(self)
 
   def run(self):
@@ -98,11 +117,13 @@ class GpgcheckEvent(Event, GPGKeysEventMixin):
 
     try:
       for pkg in self.tochecks:
-        r = rpmUtils.miscutils.checkSig(self.ts, pkg)
-        if r != 0: # check failed
-          raise RpmSignatureInvalidError(pkg=pkg.basename, 
-                                         repo=self.cvars['rpms'][pkg],
-                                         error=error_text[r])
+        repo = self.cvars['rpms'][pkg]
+        if self.cvars['repos'][repo].gpgcheck:
+          r = rpmUtils.miscutils.checkSig(self.ts, pkg)
+          if r != 0: # check failed
+            raise RpmSignatureInvalidError(pkg=pkg.basename, 
+                                           repo=repo,
+                                           error=error_text[r])
     finally:
       if self.ts: 
         self.ts.close()

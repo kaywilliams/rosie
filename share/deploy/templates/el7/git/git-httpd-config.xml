@@ -1,0 +1,23 @@
+<config-rpm id='git-httpd-config'>
+
+<macro id='git-dir'>/var/lib/git</macro>
+<macro id='git-user'>apache</macro>
+<macro id='git-httpd-conf'>%{definition-dir}/git/git.conf</macro>
+
+<requires>git</requires>
+<requires>httpd-config</requires>
+
+<files destdir='/etc/httpd/conf.d/'>%{git-httpd-conf}</files>
+
+<script type='post'>
+# create dir
+if ! [ -d %{git-dir} ]; then
+  mkdir %{git-dir}
+  chown %{git-user}:%{git-user} %{git-dir}
+fi
+
+# restart httpd server
+/usr/bin/systemctl reload httpd
+</script>
+
+</config-rpm>
