@@ -13,6 +13,7 @@
 <macro id='drupal-site-name'>drupal</macro>
 <macro id='drupal-default-sites-dir'>%{drupal-web-dir}/sites/default</macro>
 <macro id='drupal-settings-file'>%{drupal-default-sites-dir}/settings.php</macro>
+<macro id='drupal-files-dir'>%{drupal-default-sites-dir}/files</macro>
 <macro id='drupal-mods-dir'>%{drupal-web-dir}/modules</macro>
 <macro id='drupal-db-name'>%{drupal-site-name}</macro>
 <macro id='drupal-db-type'>mariadb</macro><!-- pgsql, mariadb or sqlite -->
@@ -70,6 +71,8 @@ EOT
 </files>
 
 <script type='post'>
+set -x
+
 # download latest version
 mkdir -p %{download-dir}
 cd %{download-dir}
@@ -106,7 +109,7 @@ cd %{drupal-web-dir}
 if drush config-get system.site name 2>/dev/null | \
    grep -q "%{drupal-site-name}"; then
   drush state-set system.maintenance_mode 1
-  drush rebuild
+  drush rebuild -q
 fi
 
 # copy core and vendor folders to webroot
@@ -143,10 +146,9 @@ chown -R apache:apache %{drupal-web-dir}/sites
 chcon -R -t httpd_sys_content_rw_t %{drupal-web-dir}/sites
 
 # create files dir and set permissions
-filesdir=%{drupal-default-sites-dir}/files
-mkdir -p $filesdir
-chown -R %{drupal-user}:%{drupal-user} $filesdir
-chcon -R -t httpd_sys_content_rw_t $filesdir
+mkdir -p %{drupal-files-dir}
+chown -R %{drupal-user}:%{drupal-user} %{drupal-files-dir} 
+chcon -R -t httpd_sys_content_rw_t %{drupal-files-dir}
 
 # if site exists, update db, verify, and reset maintenance mode
 cd %{drupal-web-dir}

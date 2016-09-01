@@ -26,6 +26,6 @@ if ! drush config-get system.site name 2>/dev/null | \
 fi
 
 # ensure correct permissions on sites/default/files dir
-chown -R apache:apache %{drupal-web-dir}/sites/default/files 
-chcon -R -t httpd_sys_content_rw_t %{drupal-web-dir}/sites/default/files
+chown -R apache:apache %{drupal-files-dir} 
+chcon -R -t httpd_sys_content_rw_t %{drupal-files-dir}
 </script>
