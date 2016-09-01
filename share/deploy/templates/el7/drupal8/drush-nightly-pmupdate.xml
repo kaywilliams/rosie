@@ -6,5 +6,8 @@
 #!/bin/bash
 cd %{drupal-web-dir}
 /usr/sbin/drush-error-wrapper pm-update -q -y
+/usr/sbin/drush-error-wrapper updatedb -q -y
+/usr/sbin/drush-error-wrapper core-cron --uri=`hostname -f`
+/usr/sbin/drush-error-wrapper core-requirements
 </files>
 </config-rpm>
