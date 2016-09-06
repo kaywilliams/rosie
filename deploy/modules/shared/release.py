@@ -35,7 +35,6 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                                         DummyConfig(self._config))
 
     self.conditionally_requires.add('packages')
-    self.conditionally_requires.add('gpgcheck-enabled')
     self.conditionally_requires.add('gpg-signing-keys')
 
     MkrpmRpmBuildMixin.__init__(self)
@@ -99,6 +98,10 @@ class ReleaseRpmEventMixin(MkrpmRpmBuildMixin, GPGKeysEventMixin):
                         destname=p, id='files') 
 
     # setup gpgkeys
+    # consider disabling gpgcheck on a per repo basis in the future
+    self.cvars['gpgcheck-enabled'] = self.rpmconf.getbool(
+                                     'updates/@gpgcheck', True)
+
     if not self.cvars['gpgcheck-enabled']:
       return
 

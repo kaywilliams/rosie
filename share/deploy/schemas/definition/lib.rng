@@ -136,13 +136,6 @@
       <ref name="element-exclude"/>
       </zeroOrMore>
 
-      <optional>
-      <element name="gpgcheck">
-        <ref name="xml-base"/>
-        <ref name="value-boolean"/>
-      </element>
-      </optional>
-
       <zeroOrMore>
       <element name="gpgkey">
         <ref name="xml-base"/>
