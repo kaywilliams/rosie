@@ -23,7 +23,7 @@
     --db-url=mysql://%{drupal-db-user}:%{drupal-db-password}@localhost/%{drupal-db-name} \
     --db-su=%{drupal-db-su} \
     --site-mail=%{drupal-site-mail} \
-    --site-name=%{drupal-site-name}
+    --site-name="%{drupal-site-name}"
 </macro>
 
 <requires>php55w-mysql</requires>
