@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-config'>
 
-<macro id='drupal-version'>8.1.8</macro>
+<macro id='drupal-version'>8.1.9</macro>
 
 <macro id='download-dir'>/root/Downloads</macro>
 <macro id='drupal-download-dir'>%{download-dir}/drupal8</macro>
@@ -137,9 +137,6 @@ if [ ! -f %{drupal-default-sites-dir}/settings.php ]; then
   cd %{drupal-default-sites-dir}
   cp -p default.settings.php settings.php
 fi
-
-# set trusted_host_patterns
-drupal-update-trusted-host-patterns %{drupal-settings-file}
 
 # set permissions on sites dir
 chown -R apache:apache %{drupal-web-dir}/sites
