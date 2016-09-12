@@ -13,8 +13,6 @@
   systemctl restart mariadb
 </macro>
 <macro id='drupal-site-install-script'>
-  %{create-drupal-database-script}
-
   # use drush to complete site install
   /usr/bin/env PHP_OPTIONS="-d sendmail_path=`which true`" \
   drush -y -q si standard \
