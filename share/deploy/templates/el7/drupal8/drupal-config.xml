@@ -6,6 +6,7 @@
 <macro id='download-dir'>/root/Downloads</macro>
 <macro id='drupal-download-dir'>%{download-dir}/drupal8</macro>
 <macro id='drupal-web-dir'>/var/www/html/drupal</macro>
+<macro id='drupal-user'>apache</macro>
 
 <macro id='drupal-admin-password'>Test1!</macro>
 <macro id='drupal-admin-mail'>admin@example.com</macro>
