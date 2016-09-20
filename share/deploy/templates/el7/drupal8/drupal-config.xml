@@ -71,6 +71,23 @@ cat &lt;&lt;EOT >> $file
 EOT
 </files>
 
+<files destdir="/usr/sbin" destname="drupal-enable-local-settings"
+       mode="750" content="text">
+#!/bin/sh
+
+file=${1:-%{drupal-settings-file}} 
+
+match="^if (file_exists(__DIR__ . '/settings.local.php'))"
+string="
+if (file_exists(__DIR__ . '/settings.local.php')) {
+  include __DIR__ . '/settings.local.php';
+}"
+
+if ! grep -q "$match" $file; then
+  echo "$string" >> $file
+fi
+</files>
+
 <script type='post'>
 set -x
 
