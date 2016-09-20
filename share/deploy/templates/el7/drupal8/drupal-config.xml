@@ -12,7 +12,8 @@
 <macro id='drupal-admin-mail'>admin@example.com</macro>
 <macro id='drupal-site-mail'>admin@example.com</macro>
 <macro id='drupal-site-name'>drupal</macro>
-<macro id='drupal-default-sites-dir'>%{drupal-web-dir}/sites/default</macro>
+<macro id='drupal-sites-dir'>%{drupal-web-dir}/sites</macro>
+<macro id='drupal-default-sites-dir'>%{drupal-sites-dir}/default</macro>
 <macro id='drupal-settings-file'>%{drupal-default-sites-dir}/settings.php</macro>
 <macro id='drupal-files-dir'>%{drupal-default-sites-dir}/files</macro>
 <macro id='drupal-mods-dir'>%{drupal-web-dir}/modules</macro>
