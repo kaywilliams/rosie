@@ -18,7 +18,7 @@ if ! drush config-get system.site name 2>/dev/null | \
 fi
 
 # check for changes in default.settings.php
-if [ -f %{drupal-default-sites-dir}/settings.php ] &amp;&amp; \
+if [ -f %{drupal-settings-file} ] &amp;&amp; \
    ! diff %{drupal-default-sites-dir}/default.settings.php \
           %{drupal-download-dir}/sites/default/default.settings.php ; then
   echo "\
