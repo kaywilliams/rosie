@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='drupal-update'>
+<description>updates an existing drupal installation to the latest core version</description>
+
+<requires>drush-config</requires>
+<requires>drupal-site-install</requires>
+
+<script type='post'>
+set -x
+
+# track drupal version so that script runs on updates
+# %{drupal-version}
+
+# exit if site not installed
+if ! drush config-get system.site name 2>/dev/null | \
+     grep -q "%{drupal-site-name}"; then
+  exit
+fi
+
+# check for changes in default.settings.php
+if [ -f %{drupal-default-sites-dir}/settings.php ] &amp;&amp; \
+   ! diff %{drupal-default-sites-dir}/default.settings.php \
+          %{drupal-download-dir}/sites/default/default.settings.php ; then
+  echo "\
+Error: The default.settings.php file has changed. You will need to complete \
+the following steps manually:
+
+1. Review changes to default.settings.php and manually update settings.php.
+
+`/usr/bin/diff %{drupal-default-sites-dir}/default.settings.php %{drupal-download-dir}/sites/default/default.settings.php`
+
+2. Copy %{drupal-download-dir}/sites/default/default.settings.php to \
+%{drupal-default-sites-dir}/default.settings.php.
+
+3. Run the script at %{install-dir}/post to complete the Drupal update.
+" >&amp;2
+  exit 1
+fi
+
+# put site into maintenance mode, clear the cache in preparation for update
+drush state-set system.maintenance_mode 1
+drush rebuild -q
+
+# copy core and vendor folders to webroot
+for d in core vendor; do
+  rm -rf %{drupal-web-dir}/$d
+  cp -ar %{drupal-download-dir}/$d %{drupal-web-dir}/$d
+done
+
+# copy top-level files to webroot
+find %{drupal-web-dir} -maxdepth 1 -type f -delete
+for f in `find %{drupal-download-dir} -maxdepth 1 -type f`; do
+  cp -a $f %{drupal-web-dir}
+done
+
+# update db, reset maintenance mode, verify
+drush-error-wrapper updatedb -q -y
+drush-error-wrapper state-set system.maintenance_mode 0
+drush-error-wrapper core-cron --uri=`hostname -f`
+drush-error-wrapper core-requirements --severity=2
+</script>
+</config-rpm>

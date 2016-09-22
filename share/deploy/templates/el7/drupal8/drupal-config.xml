@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='drupal-config'>
+<description>downloads core drupal files</description>
 
-<macro id='drupal-version'>8.1.9</macro>
+<macro id='drupal-version'>8.1.10</macro>
 
 <macro id='download-dir'>/root/Downloads</macro>
 <macro id='drupal-download-dir'>%{download-dir}/drupal8</macro>
 <macro id='drupal-web-dir'>/var/www/html/drupal</macro>
 <macro id='drupal-user'>apache</macro>
+<macro id='drupal-sbin-dir'>/usr/sbin</macro>
 
 <macro id='drupal-admin-password'>Test1!</macro>
 <macro id='drupal-admin-mail'>admin@example.com</macro>
@@ -44,7 +46,6 @@
 <requires>php55w-xml</requires>
 <requires>php55w-pear</requires>
 <requires>php55w-fpm</requires>
-<requires>drush-config</requires>
 <requires>/usr/sbin/sendmail</requires>
 <requires>/usr/sbin/postdrop</requires>
 
@@ -92,88 +93,37 @@ fi
 <script type='post'>
 set -x
 
+# variables
+download_file=drupal-%{drupal-version}.tar.gz
+
 # download latest version
 mkdir -p %{download-dir}
 cd %{download-dir}
-wget -q https://ftp.drupal.org/files/projects/drupal-%{drupal-version}.tar.gz
-tar -zxpf drupal-%{drupal-version}.tar.gz
-rm -rf %{drupal-download-dir}
-mv -f drupal-%{drupal-version} %{drupal-download-dir}
-
-# check for changes in default.settings.php
-if [ -f %{drupal-default-sites-dir}/settings.php ] &amp;&amp; \
-   ! diff %{drupal-default-sites-dir}/default.settings.php \
-          %{drupal-download-dir}/sites/default/default.settings.php ; then
-  echo "\
-Error: The default.settings.php file has changed. You will need to complete \
-the following steps manually:
-
-1. Review changes to default.settings.php and manually update settings.php.
-
-`/usr/bin/diff %{drupal-default-sites-dir}/default.settings.php %{drupal-download-dir}/sites/default/default.settings.php`
-
-2. Copy %{drupal-download-dir}/sites/default/default.settings.php to \
-%{drupal-default-sites-dir}/default.settings.php.
-
-3. Run the script at %{install-dir}/post to complete the Drupal update.
-" >&amp;2
-  exit 1
+if ! [ -f $download_file ]; then
+  wget -q https://ftp.drupal.org/files/projects/$download_file
+  tar -zxpf $download_file
+  rm -rf %{drupal-download-dir}
+  mv -f drupal-%{drupal-version} %{drupal-download-dir}
 fi
+
+# cleanup old download files
+find %{download-dir} -maxdepth 1 -name "drupal-*.tar.gz*" ! -name "$download_file" -delete
 
 # make drupal webroot
-mkdir -p %{drupal-web-dir}
+if ! [ -d %{drupal-web-dir} ]; then
 
-# put site into maintenance mode, clear the cache in preparation for update
-cd %{drupal-web-dir}
-if drush config-get system.site name 2>/dev/null | \
-   grep -q "%{drupal-site-name}"; then
-  drush state-set system.maintenance_mode 1
-  drush rebuild -q
-fi
+  # copy files
+  cp -a %{drupal-download-dir} %{drupal-web-dir}
+  restorecon -R %{drupal-web-dir}
 
-# copy core and vendor folders to webroot
-for d in core vendor; do
-  rm -rf %{drupal-web-dir}/$d
-  cp -ar %{drupal-download-dir}/$d %{drupal-web-dir}/$d
-done
+  # create settings file
+  cp -p %{drupal-default-sites-dir}/default.settings.php %{drupal-settings-file}
 
-# copy top-level files to webroot
-find %{drupal-web-dir} -maxdepth 1 -type f -delete
-for f in `find %{drupal-download-dir} -maxdepth 1 -type f`; do
-  cp -a $f %{drupal-web-dir}
-done
-
-# configure drupal-web-dir
-dirs='modules profiles sites themes'
-for d in $dirs; do
-  if ! [ -d %{drupal-web-dir}/$d ]; then
-    cp -a %{drupal-download-dir}/$d %{drupal-web-dir}
-  fi
-done
-
-# create default settings.php
-if [ ! -f %{drupal-default-sites-dir}/settings.php ]; then
-  cd %{drupal-default-sites-dir}
-  cp -p default.settings.php settings.php
-fi
-
-# set permissions on sites dir
-chown -R apache:apache %{drupal-web-dir}/sites
-chcon -R -t httpd_sys_content_rw_t %{drupal-web-dir}/sites
-
-# create files dir and set permissions
-mkdir -p %{drupal-files-dir}
-chown -R %{drupal-user}:%{drupal-user} %{drupal-files-dir} 
-chcon -R -t httpd_sys_content_rw_t %{drupal-files-dir}
-
-# if site exists, update db, verify, and reset maintenance mode
-cd %{drupal-web-dir}
-if drush config-get system.site name 2>/dev/null | \
-   grep -q "%{drupal-site-name}"; then
-  drush-error-wrapper updatedb -q -y
-  drush-error-wrapper core-cron --uri=`hostname -f`
-  drush-error-wrapper core-requirements
-  drush-error-wrapper state-set system.maintenance_mode 0
+  # create files dir and set permissions
+  mkdir -p %{drupal-files-dir}
+  chown -R %{drupal-user}:%{drupal-user} %{drupal-files-dir} 
+  chcon -R -t httpd_sys_content_rw_t %{drupal-files-dir}
+  chmod -R 750 %{drupal-files-dir}
 fi
 </script>
 </config-rpm>
