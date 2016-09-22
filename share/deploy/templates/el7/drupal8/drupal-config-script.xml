@@ -25,8 +25,4 @@ if ! drush config-get system.site name 2>/dev/null | \
   drush -q -y config-set update.settings notification.emails.0 %{drupal-admin-mail}
   systemctl reload httpd
 fi
-
-# ensure correct permissions on sites/default/files dir
-chown -R apache:apache %{drupal-files-dir} 
-chcon -R -t httpd_sys_content_rw_t %{drupal-files-dir}
 </script>
