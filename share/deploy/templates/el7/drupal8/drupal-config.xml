@@ -56,15 +56,30 @@
 
 <files destdir="/usr/sbin" destname="drupal-update-trusted-host-patterns"
        mode="750" content="text">
-#!/bin/sh
+#!/bin/bash
 
-file=${1:-%{drupal-settings-file}} 
+usage() { echo "Usage: $0 [-a &lt;quoted, space-separated list of additional hosts>] [-f &lt;path to drupal settings.php file>]" 1>&amp;2; exit 1; }
+
+while getopts ":a:f:" o; do
+    case "${o}" in
+        a)
+            additional=${OPTARG}
+            ;;
+        f)
+            file=${OPTARG:-%{drupal-settings-file}} 
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
 
 # remove existing trusted_host_patterns
 sed -i '/^#-----TRUSTED HOST PATTERNS-----#$/,$d' $file
 
 # add trusted_host_patterns
-h=$(echo "`hostname` `hostname -I`" | sed "s/\./\\\./g")
+h=$(echo "`hostname` `hostname -I` $additional" | sed "s/\./\\\./g")
 cat &lt;&lt;EOT >> $file
 #-----TRUSTED HOST PATTERNS-----#
 \$settings['trusted_host_patterns'] = array(
