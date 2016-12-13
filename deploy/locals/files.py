@@ -114,4 +114,9 @@ L_FILES = LocalsDict({
       'upgrade.img':  dict(path='images/pxeboot/upgrade.img'),
     },
   },
+  "anaconda-21.48.22.93": {
+    'pxeboot': { # remove upgrade image
+      'upgrade.img': REMOVE, 
+    },
+  },
 })

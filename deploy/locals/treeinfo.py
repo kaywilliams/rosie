@@ -79,6 +79,13 @@ L_TREEINFO_FORMAT = LocalsDict({
         'upgrade':      dict(index=3, value='images/pxeboot/upgrade.img'),
       },
     },
-  }
+  },
+  "anaconda-21.48.22.93": {
+    'images-%(arch)s': {
+      'content': {
+        'upgrade': REMOVE,
+      },
+    },
+  },
 })
 
