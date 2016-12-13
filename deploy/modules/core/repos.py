@@ -35,6 +35,7 @@ from deploy.modules.shared import RepoEventMixin, DeployRepoGroup, DeployRepoFil
 
 # map treeinfo family to deploy os
 OS = {
+  'CentOS Linux':             'centos',
   'CentOS':                   'centos',
   'Red Hat Enterprise Linux': 'rhel',
   'Fedora':                   'fedora',
