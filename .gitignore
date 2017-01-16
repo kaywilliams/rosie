@@ -1,0 +1,14 @@
+*~
+*.pyc
+*.dat
+*.gz
+**/md5sum
+**/#*#
+docsrc/*/tmp
+docsrc/brand/publish/
+docsrc/man/*.html
+docsrc/man/*.gz
+dtest/modules/**/repo
+dtest/modules/**-test-repos.repo
+dtest/modules/shared/test-repos.repo
+dtest/*.log
