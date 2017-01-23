@@ -10,8 +10,8 @@ success=false
 
 set +e
 while [[ $count -ne 0 ]] ; do
-  cd %{mercurial-workspace}/deploy
-  output=$(hg -q pull -u 2>&amp;1)
+  cd %{git-workspace}/deploy
+  output=$(git -q pull 2>&amp;1)
   status=$?
 
   # success

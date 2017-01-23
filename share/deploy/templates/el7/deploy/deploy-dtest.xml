@@ -6,7 +6,7 @@
 
 <script id='test-deploy-developer' verbose='true' type='post' comes-after='install-config' comes-before='poweroff'>
 
-<macro id='mercurial-workspace'>/root/workspace</macro>
+<macro id='git-workspace'>/root/git</macro>
 <macro id='oss'>centos rhel</macro>
 <macro id='versions'>7</macro>
 <macro id='archs'>i386 x86_64</macro>
@@ -16,7 +16,7 @@
 # test script for deploy test machines
 
 # environment
-rootdir=%{mercurial-workspace}
+rootdir=%{git-workspace}
 export PYTHONPATH=$rootdir/%{tag}:$PYTHONPATH
 
 echo Running tests on host `hostname`
@@ -32,7 +32,7 @@ echo Cloning deploy '('tag=%{tag}')'
 [ -e $rootdir ] || mkdir $rootdir
 
 rm -rf $rootdir/%{tag}
-hg clone --quiet --rev "%{tag}" https://www.rosie.io/hg/public/deploy $rootdir/%{tag}
+git clone -q --branch "%{tag}" https://www.rosie.io/git/public/deploy $rootdir/%{tag}
 
 # testing
 pwd=$(pwd)

@@ -283,7 +283,7 @@ http://ftp.redhat.com/pub/redhat/linux/enterprise/6Server/en/os/SRPMS
 &lt;srpm id="my-package">
 &lt;script>
 #!/bin/bash
-fetch.py %{srpm-id} https://www.deployproject.org/hg/public/%{srpm-id} %{srpm-dir} %{srpm-last}
+fetch.py %{srpm-id} https://www.deployproject.org/git/public/%{srpm-id} %{srpm-dir} %{srpm-last}
 &lt;/script>
 &lt;srpm></programlisting>
      </informalexample>

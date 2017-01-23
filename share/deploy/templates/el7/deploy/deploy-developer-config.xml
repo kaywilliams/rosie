@@ -8,7 +8,7 @@
 <requires>gnupg</requires>
 <requires>gzip</requires>
 <requires>isomd5sum</requires>
-<requires>mercurial</requires>
+<requires>git</requires>
 <requires>mkisofs</requires>
 <requires>pexpect</requires>
 <!--<requires>publican</requires>-->

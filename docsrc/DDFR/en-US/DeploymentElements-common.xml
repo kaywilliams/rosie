@@ -2360,11 +2360,11 @@ echo $ipaddress > %{ssh-host-file}
 # time the repository changes
 
 set -e
-file=%{input-dir}/hgtip
-hgtip_curr=`hg identify ://example.com/path/to/hg/source/code/repo`
-hgtip_last=`[ -f $file ] &amp;&amp; cat $file || echo ''`
-if [[ $hgtip_curr != $hgtip_last ]]; then
-  echo $hgtip_curr > $file
+file=%{input-dir}/gitrev
+gitrev_curr=`git rev-parse HEAD identify https://example.com/path/to/git/source/code/repo.git`
+gitrev_last=`[ -f $file ] &amp;&amp; cat $file || echo ''`
+if [[ $gitrev_curr != $gitrev_last ]]; then
+  echo $gitrev_curr > $file
 fi
 &lt;/input-script></programlisting>
     </informalexample>

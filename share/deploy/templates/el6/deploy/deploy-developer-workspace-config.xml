@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='deploy-developer-workspace-config'>
-<requires>mercurial</requires>
+<requires>git</requires>
 
-<macro id="mercurial-workspace">/root/workspace</macro>
+<macro id="git-workspace">/root/git</macro>
 <macro id="tag">deploy</macro>
 <macro id="python-site-packages-path">/usr/lib/python2.6/site-packages</macro>
 
@@ -17,9 +17,9 @@ echo "&lt;deploy>
 fi
 
 # add elements as needed
-lib="&lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>"
-share="&lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>"
-tmpl="&lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>"
+lib="&lt;lib-path>%{git-workspace}/%{tag}&lt;/lib-path>"
+share="&lt;share-path>%{git-workspace}/%{tag}/share/deploy&lt;/share-path>"
+tmpl="&lt;templates-path>%{git-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>"
 
 for elem in $lib $share $tmpl; do 
   if ! grep -q $elem $file; then
@@ -30,11 +30,11 @@ for elem in $lib $share $tmpl; do
 done
 
 # create symlink to binary
-ln -sf %{mercurial-workspace}/%{tag}/bin/deploy /usr/bin/deploy
+ln -sf %{git-workspace}/%{tag}/bin/deploy /usr/bin/deploy
 
 # create symlink to python libraries
 rm -f %{python-site-packages-path}/deploy
-ln -s %{mercurial-workspace}/%{tag}/deploy %{python-site-packages-path}/deploy 
+ln -s %{git-workspace}/%{tag}/deploy %{python-site-packages-path}/deploy 
 </script>
 
 <script type="postun">
@@ -46,17 +46,17 @@ fi
 
 <script type='post'>
 # clone deploy repository
-if [ ! -e %{mercurial-workspace} ];
-  then /bin/mkdir %{mercurial-workspace};
+if [ ! -e %{git-workspace} ];
+  then /bin/mkdir %{git-workspace};
 fi
 
 if [[ ! %{tag} = deploy ]]; then 
   args="-r %{tag}"
 fi
  
-if [ ! -d %{mercurial-workspace}/%{tag} ]; then
-  cd %{mercurial-workspace}
-  hg clone https://www.deployproject.org/hg/public/deploy $args
+if [ ! -d %{git-workspace}/%{tag} ]; then
+  cd %{git-workspace}
+  git clone https://www.deployproject.org/git/public/deploy $args
   cd -
 fi
 </script>

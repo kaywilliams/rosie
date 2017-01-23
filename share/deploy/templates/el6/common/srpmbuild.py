@@ -198,18 +198,18 @@ class ScmFetcher(LocalFetcher):
                               **kwargs)
 
 
-class MercurialFetcher(ScmFetcher):
-    type = 'mercurial'
-    arguments = ['makefile', 'revision']
+class GitFetcher(ScmFetcher):
+    type = 'git'
+    arguments = ['makefile', 'branch']
 
     def __init__(self, id, input, patches=None, username=None, 
-                 password=None, revision=None,
+                 password=None, branch=None,
                  *args, **kwargs):
         ScmFetcher.__init__(self, id, input, patches=patches,
                             username=username, password=password,
                             *args, **kwargs)
 
-        self.revision = revision or 'tip'
+        self.branch = branch or 'HEAD'
 
 
     @property
@@ -225,23 +225,23 @@ class MercurialFetcher(ScmFetcher):
       if local_sources.exists():
         local_sources.rm(recursive=True, force=True)
       if self.QUIET_MODE:
-        shlib.execute('hg clone --quiet --rev %s %s' % (self.revision, 
+        shlib.execute('git clone -q --branch %s %s' % (self.branch, 
                                                         self.input))
       else:
-        shlib.execute('hg clone --rev %s %s' % (self.revision, self.input))
+        shlib.execute('git clone --branch %s %s' % (self.branch, self.input))
       os.chdir(cwd)
       self._local_sources = local_sources
       return self._local_sources
 
 CLASS_MAP = { 'folder': FolderFetcher,
-              'mercurial': MercurialFetcher }
+              'git': GitFetcher }
 
 def main(id, input, output, last, username, password, type,
          *args, **kwargs):
   cls = CLASS_MAP[type]
 
   fetcher = cls(id, input=input, last=last,  username=username,
-                    password=password, revision=None, *args, **kwargs)
+                    password=password, branch=None, *args, **kwargs)
   fetcher.set_defaults(quiet_mode=False)
 
   try:
@@ -270,7 +270,7 @@ if __name__ == '__main__':
   input = pps.path(sys.argv[2]) # e.g. url to source content 
   output = pps.path(sys.argv[3]) # location to copy final srpm
   last = pps.path(sys.argv[4]) # path to last srpm
-  type = sys.argv[5] # 'folder' or 'mercurial'
+  type = sys.argv[5] # 'folder' or 'git'
 
   # TODO - add input validation and useful errors
 

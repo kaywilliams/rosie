@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='deploy-developer-workspace-config'>
-<requires>mercurial</requires>
+<requires>git</requires>
 <requires>NetworkManager</requires>
 <requires>systemd-units</requires>
 
-<macro id="mercurial-workspace">/root/workspace</macro>
+<macro id="git-workspace">/root/git</macro>
 <macro id="tag">deploy</macro>
 <macro id="python-site-packages-path">/usr/lib/python2.7/site-packages</macro>
 
@@ -19,9 +19,9 @@ echo "&lt;deploy>
 fi
 
 # add elements as needed
-lib="&lt;lib-path>%{mercurial-workspace}/%{tag}&lt;/lib-path>"
-share="&lt;share-path>%{mercurial-workspace}/%{tag}/share/deploy&lt;/share-path>"
-tmpl="&lt;templates-path>%{mercurial-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>"
+lib="&lt;lib-path>%{git-workspace}/%{tag}&lt;/lib-path>"
+share="&lt;share-path>%{git-workspace}/%{tag}/share/deploy&lt;/share-path>"
+tmpl="&lt;templates-path>%{git-workspace}/%{tag}/share/deploy/templates&lt;/templates-path>"
 
 for elem in $lib $share $tmpl; do 
   if ! grep -q $elem $file; then
@@ -32,11 +32,11 @@ for elem in $lib $share $tmpl; do
 done
 
 # create symlink to binary
-ln -sf %{mercurial-workspace}/%{tag}/bin/deploy /usr/bin/deploy
+ln -sf %{git-workspace}/%{tag}/bin/deploy /usr/bin/deploy
 
 # create symlink to python libraries
 rm -f %{python-site-packages-path}/deploy
-ln -s %{mercurial-workspace}/%{tag}/deploy %{python-site-packages-path}/deploy 
+ln -s %{git-workspace}/%{tag}/deploy %{python-site-packages-path}/deploy 
 </script>
 
 <script type="postun">
@@ -85,17 +85,17 @@ WantedBy=multi-user.target
 set -e
 
 # clone definition repository
-/bin/mkdir -p %{mercurial-workspace}
+/bin/mkdir -p %{git-workspace}
 
 if [[ ! %{tag} = deploy ]]; then 
   args="-r %{tag}"
 fi
  
-repo="https://www.rosie.io/hg/public/deploy $args"
-definition_dir=%{mercurial-workspace}/%{tag}
+repo="https://www.rosie.io/git/public/deploy $args"
+definition_dir=%{git-workspace}/%{tag}
 
 if [ ! -d $definition_dir ]; then
-  cd %{mercurial-workspace}
+  cd %{git-workspace}
 
   # clone the repository inside a retry loop in case network not yet up
   # see https://bugzilla.redhat.com/show_bug.cgi?id=1062704
@@ -104,7 +104,7 @@ if [ ! -d $definition_dir ]; then
 
   set +e
   while [[ $count -ne 0 ]] ; do
-    output=$(hg -q clone $repo 2>&amp;1)
+    output=$(git -q clone $repo 2>&amp;1)
     status=$?
 
     # success

@@ -4,8 +4,8 @@
 set -e
 
 # update deploy sources
-cd %{mercurial-workspace}/deploy
-hg pull -u
+cd %{git-workspace}/deploy
+git pull
 
 # test deploy operation
 deploy share/deploy/templates/%{norm-os}/httpd/web-server.definition \
