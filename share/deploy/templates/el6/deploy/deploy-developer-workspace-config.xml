@@ -3,6 +3,7 @@
 <requires>git</requires>
 
 <macro id="git-workspace">/root/git</macro>
+<macro id="deploy-git-url">https://www.rosie.io/git/public/deploy.git</macro>
 <macro id="tag">deploy</macro>
 <macro id="python-site-packages-path">/usr/lib/python2.6/site-packages</macro>
 
@@ -56,7 +57,7 @@ fi
  
 if [ ! -d %{git-workspace}/%{tag} ]; then
   cd %{git-workspace}
-  git clone https://www.rosie.io/git/public/deploy.git $args
+  git clone %{deploy-git-url} $args
   cd -
 fi
 </script>
