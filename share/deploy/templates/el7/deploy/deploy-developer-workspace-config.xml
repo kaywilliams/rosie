@@ -1,14 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-rpm id='deploy-developer-workspace-config'>
 <requires>git</requires>
-<requires>NetworkManager</requires>
-<requires>systemd-units</requires>
 
 <macro id="git-workspace">/root/git</macro>
 <macro id="tag">deploy</macro>
 <macro id="python-site-packages-path">/usr/lib/python2.7/site-packages</macro>
 
 <script type='post'>
+# clone definition repository
+/bin/mkdir -p %{git-workspace}
+
+if [[ ! %{tag} = deploy ]]; then 
+  args="-r %{tag}"
+fi
+ 
+repo="https://www.rosie.io/git/public/deploy $args"
+definition_dir=%{git-workspace}/%{tag}
+
+if [ ! -d $definition_dir ]; then
+  cd %{git-workspace}
+
+  # clone the repository inside a retry loop in case network not yet up
+  # see https://bugzilla.redhat.com/show_bug.cgi?id=1062704
+  success=false
+  ((count = 6))
+
+  set +e
+  while [[ $count -ne 0 ]] ; do
+    output=$(git clone $repo 2>&amp;1)
+    status=$?
+
+    # success
+    if [[ $status -eq 0 ]] ; then
+      success=true
+      break
+    fi
+
+    # error
+    if [[ $status -eq 255 ]] ; then 
+      # network error - keep trying
+      sleep 5
+      ((count = count -1))
+    else 
+      # other error - exit
+      logger -t "clone-deploy-repo" \
+             -s "ERROR: unable to clone deploy repo [$output]"
+      exit 1
+    fi
+  done
+  set -e
+
+  if [[ $success == false ]]; then
+    logger -t "clone-deploy-repo" \
+           -s "ERROR: network not up in timeout period [$output]"
+    exit 1
+  fi
+fi
+
+# create/update deploy.conf
 file='/etc/deploy/deploy.conf'
 
 # create the base file if needed
@@ -46,94 +95,4 @@ if [ $1 == 0 ]; then
 fi
 </script>
 
-<!-- 
-Ideally we would clone the repository directly in the post script (as we do
-under el6) but this is broken currently under el7 - see
-https://bugzilla.redhat.com/show_bug.cgi?id=1048520. So instead we are using
-a run-once systemd service.
--->
-<script type='post'>
-# start the clone-deploy-repo service if running under anaconda, else
-# run the clone-deploy-repo.sh script directly
-
-if ps aux | grep "[/]sbin/anaconda"; then
-  systemctl -q enable clone-deploy-repo.service
-else
-  %{install-dir}/files/clone-deploy-repo.sh
-fi
-</script>
-
-<files destdir="/etc/systemd/system" 
-       destname="clone-deploy-repo.service" 
-       mode="755" content="text">
-[Unit]
-Description=first boot service to clone the deploy repository
-Requires=network-online.target
-After=network-online.target
-
-[Service]
-Type=oneshot
-ExecStart=%{install-dir}/files/clone-deploy-repo.sh
-ExecStartPost=/bin/systemctl disable clone-deploy-repo.service
-
-[Install]
-WantedBy=multi-user.target
-</files>
-
-<files destname='clone-deploy-repo.sh' mode='755' content='text'>
-#!/bin/sh -
-set -e
-
-# clone definition repository
-/bin/mkdir -p %{git-workspace}
-
-if [[ ! %{tag} = deploy ]]; then 
-  args="-r %{tag}"
-fi
- 
-repo="https://www.rosie.io/git/public/deploy $args"
-definition_dir=%{git-workspace}/%{tag}
-
-if [ ! -d $definition_dir ]; then
-  cd %{git-workspace}
-
-  # clone the repository inside a retry loop in case network not yet up
-  # see https://bugzilla.redhat.com/show_bug.cgi?id=1062704
-  success=false
-  ((count = 6))
-
-  set +e
-  while [[ $count -ne 0 ]] ; do
-    output=$(git -q clone $repo 2>&amp;1)
-    status=$?
-
-    # success
-    if [[ $status -eq 0 ]] ; then
-      success=true
-      break
-    fi
-
-    # error
-    if [[ $status -eq 255 ]] ; then 
-      # network error - keep trying
-      sleep 5
-      ((count = count -1))
-    else 
-      # other error - exit
-      logger -t "clone-deploy-repo" \
-             -s "ERROR: unable to clone deploy repo [$output]"
-      exit 1
-    fi
-  done
-  set -e
-
-  if [[ $success == false ]]; then
-    logger -t "clone-deploy-repo" \
-           -s "ERROR: network not up in timeout period [$output]"
-    exit 1
-  fi
-fi
-
-/bin/systemctl disable clone-deploy-repo.service > /dev/null
-</files>
 </config-rpm>
