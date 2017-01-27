@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='git-multimail-config'>
+
+<!-- epel repo required for python-pip package -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<requires>git</requires>
+<requires>python-pip</requires>
+
+<script type='post'>
+pip -q install --upgrade pip
+pip install git-multimail || { echo $info >&amp;2; exit 1; }
+</script>
+</config-rpm>
