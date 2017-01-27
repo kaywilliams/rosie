@@ -225,8 +225,8 @@ class GitFetcher(ScmFetcher):
       if local_sources.exists():
         local_sources.rm(recursive=True, force=True)
       if self.QUIET_MODE:
-        shlib.execute('git clone -q --branch %s %s' % (self.branch, 
-                                                        self.input))
+        shlib.execute('git clone --branch %s %s >/dev/null' % (self.branch, 
+                                                                self.input))
       else:
         shlib.execute('git clone --branch %s %s' % (self.branch, self.input))
       os.chdir(cwd)
