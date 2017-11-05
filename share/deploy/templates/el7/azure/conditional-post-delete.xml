@@ -1,0 +1,16 @@
+<script id='conditional-post-delete' type='post' hostname='localhost'
+        comes-after='test-remove-custom-pkgs check-kernel'
+        modules='test-install' verbose='true'>
+<macro id='test-install-post-delete'>false</macro>
+<macro id='test-update-post-delete'>false</macro>
+<macro id='publish-post-delete'>false</macro>
+#!/usr/bin/python
+
+import sys
+
+if '%{%{module}-post-delete}' != 'true':
+  sys.exit(0)
+
+<include href="%{templates-dir}/%{norm-os}/azure/delete.xml"
+         xpath="./node()"/>
+</script>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='install' type='install'>
+#!/usr/bin/python
+
+import sys
+
+sys.path.insert(0, "%{templates-dir}/%{norm-os}/azure")
+
+from azure_lib import *
+from azure.mgmt.resource import ResourceManagementClient
+
+resource_client = ResourceManagementClient(credentials, subscription_id)
+
+vm_name = '%{hostname}'
+vnet_name = '%{azure-vnet-name}'
+subnet_name = '%{azure-subnet-name}'
+nic_name = '%{azure-nic-name}'
+ip_config_name = '%{azure-ip-config-name}'
+
+create_resource_group()
+
+nic = create_nic(network_client, resource_group_name, vnet_name, location, 
+  subnet_name, nic_name, ip_config_name, vm_name)
+
+vm_parameters = { 
+  'location': location,
+  'os_profile': {
+      'computer_name': vm_name,
+      'admin_username': '%{azure-admin-user}',
+      'admin_password': '%{password}',
+      "linux_configuration": {
+         "disable_password_authentication": True,
+         "ssh": {
+             "public_keys": [{
+                  "path": '/home/%{azure-admin-user}/.ssh/authorized_keys',
+                  "key_data": """%{build-host-pubkey}"""
+             }]
+        }
+     }
+  },
+  'hardware_profile': {
+      'vm_size': '%{azure-vm-size}'
+  },
+  'storage_profile': {
+      'image_reference': {
+          'publisher': '%{azure-image-publisher}',
+          'offer': '%{azure-image-offer}',
+          'sku': '%{azure-image-sku}',
+          'version': '%{azure-image-version}'
+      },
+  },
+  'network_profile': {
+    'network_interfaces': [{
+      'id': nic.id,
+    }]
+  },
+}
+
+try:
+  poller = compute_client.virtual_machines.create_or_update(
+    resource_group_name, vm_name, vm_parameters)
+  
+  while True:
+    result = poller.result(timeout=10)
+    if poller.done():
+      break
+    # TODO - add progress indication
+except CloudError as e:
+  sys.stderr.write("Unable to create '%s' VM\n" % vm_name)
+  sys.stderr.write(str(e.error))
+  sys.exit(1)
+
+# get public ipaddress
+ip_reference = nic.ip_configurations[0].public_ip_address.id.split('/')
+print ip_reference
+ip_group = ip_reference[4]
+ip_name = ip_reference[8]
+
+public_ip = network_client.public_ip_addresses.get(ip_group, ip_name)
+public_ip = public_ip.ip_address
+
+with open('%{ssh-host-file}', 'w+') as f:
+  f.write(str(public_ip))
+</script>

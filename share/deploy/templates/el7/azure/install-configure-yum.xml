@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='install-configure-yum' type='install'
+        comes-after='install-configure-ssh'>
+#!/bin/sh
+
+set -e
+echo "downloading release package"
+scp -o StrictHostKeyChecking=no %{localroot}/repo.conf root@%{ssh-host}:/etc/yum.repos.d/%{name}.repo        
+ssh -o StrictHostKeyChecking=no root@%{ssh-host} yum -q -y install %{name}-release
+
+echo "allowing kernel updates"
+ssh -o StrictHostKeyChecking=no root@%{ssh-host} "sed -i 's/^exclude=kernel\*/# exclude=kernel*/g' /etc/yum.conf"
+</script>

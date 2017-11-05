@@ -2,7 +2,7 @@
 <config-rpm id='drupal-config'>
 <description>downloads core drupal files</description>
 
-<macro id='drupal-version'>8.1.10</macro>
+<macro id='drupal-version'>8.2.6</macro>
 
 <macro id='download-dir'>/root/Downloads</macro>
 <macro id='drupal-download-dir'>%{download-dir}/drupal8</macro>

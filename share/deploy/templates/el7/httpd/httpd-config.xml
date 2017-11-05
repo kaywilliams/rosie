@@ -41,8 +41,9 @@ done
 
 # start http and reload firewall rules
 if ! pgrep anaconda; then
-  systemctl start httpd
+  systemctl start firewalld
   firewall-cmd -q --reload
+  systemctl start httpd
 fi
 </script>
 

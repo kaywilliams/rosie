@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+<!-- require ssl access to repositories -->
+<include href='%{templates-dir}/%{norm-os}/deploy/deploy-secure-repo.xml'
+         xpath='./*'/>
+
+<!-- install and update an Azure vm -->
+<include href='%{templates-dir}/%{norm-os}/common/acpid-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-config.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/azure-guest-config.xml'
+         xpath="./*"/>
+<include href='%{templates-dir}/%{norm-os}/azure/test-exists.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/activate.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/connect.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-write-host-key.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/test-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/delete.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/ssh-delete-host-key.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/install.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/install-configure-ssh.xml'/>
+<include href='%{templates-dir}/%{norm-os}/azure/install-configure-yum.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-etc-hosts.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/save-triggers.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update-yum-conf.xml'/>
+<include href='%{templates-dir}/%{norm-os}/common/update.xml'/>
+<include href="%{templates-dir}/%{norm-os}/common/check-kernel.xml"/>
+<include href="%{templates-dir}/%{norm-os}/azure/conditional-poweroff.xml"/>
+<include href="%{templates-dir}/%{norm-os}/common/conditional-test-remove-custom-pkgs.xml"/>
+<include href="%{templates-dir}/%{norm-os}/azure/conditional-post-delete.xml"/>
+</xml>

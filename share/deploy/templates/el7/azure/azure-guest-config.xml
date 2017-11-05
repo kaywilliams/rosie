@@ -7,12 +7,17 @@
 </macro>
 %{release-rpm}
 
-<config-rpm id='windows-azure-guest-config'>
+<config-rpm id='azure-guest-config'>
 <repo id='openlogic'>
 <baseurl>
 http://olcentgbl.trafficmanager.net/openlogic/%{version}/openlogic/%{arch}
 </baseurl>
+<gpgkey>
+http://olcentgbl.trafficmanager.net/openlogic/%{version}/openlogic/%{arch}/OpenLogic-GPG-KEY
+</gpgkey>
 </repo>
 <requires>WALinuxAgent</requires>
+<requires>hypervkvpd</requires>
+<requires>hyperv-daemons-license</requires>
 </config-rpm>
 </xml>

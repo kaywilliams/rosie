@@ -22,7 +22,7 @@ for additional information.
          xpath="./repo[@id='epel']"/>
 
 <repo id='rdo-juno'>
-<baseurl>http://buildlogs.centos.org/centos/6/cloud/x86_64/openstack-juno</baseurl>
+<baseurl>http://mirror.centos.org/centos/6/cloud/x86_64/openstack-juno</baseurl>
 <gpgkey>%{templates-dir}/%{norm-os}/rackspace/RPM-GPG-KEY-CentOS-SIG-Cloud</gpgkey>
 </repo>
 
@@ -30,8 +30,8 @@ for additional information.
 <requires>git</requires>
 <requires>python-pip</requires>
 <requires>python-argparse</requires>
-<requires>python-prettytable</requires>
 <requires>python-requests</requires>
+<requires>python-prettytable</requires>
 <requires>python-six</requires>
 <requires>python-keystoneclient</requires>
 <requires>python-novaclient</requires>

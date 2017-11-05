@@ -217,9 +217,12 @@ class DuplicateIdsError(IdError):
             % (self.id, self.tagname, self.errstr))
 
 def kill_proc_tree():
-  parent = psutil.Process(os.getpid())
-  for child in parent.get_children(recursive=True):
-    child.kill()
+  procs = psutil.Process(os.getpid()).children()
+  for p in procs:
+    p.terminate()
+  gone, still_alive = psutil.wait_procs(procs, timeout=3)
+  for p in still_alive:
+    p.kill()
 
 class DeployCliErrorHandler:
   def __init__(self, error, callback):

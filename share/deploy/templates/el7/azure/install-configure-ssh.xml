@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='install-configure-ssh' type='install' comes-after='install'>
+#!/bin/sh
+
+set -e
+
+echo "installing ssh key"
+ssh -o StrictHostKeyChecking=no %{azure-admin-user}@%{ssh-host} -tt "echo %{password} | sudo -S /bin/bash -c 'mkdir /root/.ssh; chmod 700 /root/.ssh; echo \"%{build-host-pubkey}\" > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; restorecon -R /root/.ssh'"
+</script>

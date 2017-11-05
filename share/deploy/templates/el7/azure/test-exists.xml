@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<script id='test-exists' type='test-exists'>
+#!/usr/bin/python
+
+import sys
+
+sys.path.insert(0, "%{templates-dir}/%{norm-os}/azure")
+
+from azure_lib import *
+
+DELETE_VOLUME = True 
+SSH_HOST_KEY_FILE = '%{ssh-host-key-file}'
+SSH_HOST = '%{ssh-host}'
+
+# error if server not found 
+try:
+  vm = compute_client.virtual_machines.get(resource_group_name, '%{fqdn}')
+except CloudError as e:
+  if any(x in str(e.error) for x in 
+        ('ResourceNotFound', 'ResourceGroupNotFound')):
+    sys.exit(3)
+  else:
+    raise e
+</script>

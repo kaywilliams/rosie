@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-rpm id='azure-cli-config'>
+
+<description>
+Configures a deploy build system to automate deployment and maintenance of
+Azure-hosted cloud systems. Installs both the Azure CLI and Azure Python bindings.
+</description>
+
+<!-- Include the following macros in your system definition. See
+     https://github.com/Azure-Samples/virtual-machines-python-manage
+     for background -->
+<macro id='azure-tenant-id'>my-tenant-id</macro>
+<macro id='azure-client-id'>my-client-id</macro>
+<macro id='azure-client-secret'>my-client-secret</macro>
+<macro id='azure-subscription-id'>my-subscription-id</macro>
+<macro id='azure-resource-group-name'>my-resource-group-name</macro>
+<macro id='azure-storage-account-name'>my-storage-account-name</macro>
+<macro id='azure-vnet-name'>my-vnet-name</macro>
+<macro id='azure-subnet-name'>my-subnet-name</macro>
+<macro id='azure-nic-name'>my-nic-name</macro>
+<macro id='azure-ip-config-name'>my-ipconfig-name</macro>
+<macro id="azure-location">my-location</macro>
+<macro id='azure-vm-size'>vm-size</macro>
+<macro id='azure-image-publisher'>image-publisher</macro>
+<macro id='azure-image-offer'>image-offer</macro>
+<macro id='azure-image-sku'>image-sku</macro>
+<macro id='azure-image-version'>latest</macro>
+
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<!-- epel repo required for python-pip package -->
+<include href="%{templates-dir}/%{norm-os}/common/repos.xml"
+         xpath="./repo[@id='epel']"/>
+
+<!--  azure-cli repo -->
+<repo id='azure-cli'>
+<macro id='microsoft-mirror'>https://packages.microsoft.com</macro>
+<baseurl>%{microsoft-mirror}/yumrepos/azure-cli</baseurl>
+<gpgkey>%{microsoft-mirror}/keys/microsoft.asc</gpgkey>
+</repo>
+
+<requires>python-pip</requires>
+<requires>azure-cli</requires>
+<requires>gcc</requires>
+
+<script type='post'>
+# install azure-mgmt-comput 
+pip -q install --upgrade pip
+info=`pip install azure-mgmt-compute ` || { echo $info >&amp;2; exit 1; }
+info=`pip install azure-mgmt-network ` || { echo $info >&amp;2; exit 1; }
+info=`pip install azure-mgmt-resource ` || { echo $info >&amp;2; exit 1; }
+info=`pip install azure-mgmt-storage ` || { echo $info >&amp;2; exit 1; }
+pip -q uninstall -y adal
+info=`pip install adal ` || { echo $info >&amp;2; exit 1; }
+pip -q uninstall -y python-dateutil
+info=`pip install python-dateutil` || { echo $info >&amp;2; exit 1; }
+</script>
+
+<files destdir="/root/.deploy" destname='azure_admin' content='text'
+       mode='600'>
+export AZURE_TENANT_ID=%{azure-tenant-id}
+export AZURE_CLIENT_ID=%{azure-client-id}
+export AZURE_CLIENT_SECRET=%{azure-client-secret}
+export AZURE_SUBSCRIPTION_ID=%{azure-subscription-id}
+export AZURE_RESOURCE_GROUP_NAME=%{azure-resource-group-name}
+export AZURE_STORAGE_ACCOUNT_NAME=%{azure-storage-account-name}
+export AZURE_LOCATION=%{azure-location}
+</files>
+
+</config-rpm>
