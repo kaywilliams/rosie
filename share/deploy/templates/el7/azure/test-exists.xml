@@ -3,6 +3,7 @@
 #!/usr/bin/python
 
 import sys
+from azure.mgmt.compute import ComputeManagementClient
 
 sys.path.insert(0, "%{templates-dir}/%{norm-os}/azure")
 
@@ -11,6 +12,15 @@ from azure_lib import *
 DELETE_VOLUME = True 
 SSH_HOST_KEY_FILE = '%{ssh-host-key-file}'
 SSH_HOST = '%{ssh-host}'
+
+client_id = '%{azure-client-id}'
+secret = '%{azure-client-secret}'
+tenant = '%{azure-tenant-id}'
+subscription_id = '%{azure-subscription-id}'
+resource_group_name = '%{azure-resource-group-name}'
+
+credentials = get_credentials(client_id, secret, tenant)
+compute_client = ComputeManagementClient(credentials, subscription_id)
 
 # error if server not found 
 try:

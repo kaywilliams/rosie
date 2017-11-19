@@ -57,15 +57,4 @@ pip -q uninstall -y python-dateutil
 info=`pip install python-dateutil` || { echo $info >&amp;2; exit 1; }
 </script>
 
-<files destdir="/root/.deploy" destname='azure_admin' content='text'
-       mode='600'>
-export AZURE_TENANT_ID=%{azure-tenant-id}
-export AZURE_CLIENT_ID=%{azure-client-id}
-export AZURE_CLIENT_SECRET=%{azure-client-secret}
-export AZURE_SUBSCRIPTION_ID=%{azure-subscription-id}
-export AZURE_RESOURCE_GROUP_NAME=%{azure-resource-group-name}
-export AZURE_STORAGE_ACCOUNT_NAME=%{azure-storage-account-name}
-export AZURE_LOCATION=%{azure-location}
-</files>
-
 </config-rpm>

@@ -5,39 +5,20 @@ import sys
 import time
 
 from azure.common.credentials import ServicePrincipalCredentials
-from azure.mgmt.resource import ResourceManagementClient
-from azure.mgmt.network import NetworkManagementClient
-from azure.mgmt.compute import ComputeManagementClient
-from azure.mgmt.storage import StorageManagementClient
 
 from msrestazure.azure_exceptions import CloudError
-
-# read admin file
-DATA={}
-with open("/root/.deploy/azure_admin", 'r') as adminfile:
-  for line in adminfile.readlines():
-     k,v = line.strip().replace('export ', '').split('=', 1)
-     DATA[k] = v
-
-credentials = ServicePrincipalCredentials(
-  client_id=DATA['AZURE_CLIENT_ID'],
-  secret=DATA['AZURE_CLIENT_SECRET'],
-  tenant=DATA['AZURE_TENANT_ID']
-  )
-subscription_id = DATA['AZURE_SUBSCRIPTION_ID']
-resource_group_name = DATA['AZURE_RESOURCE_GROUP_NAME']
-storage_account_name = DATA['AZURE_STORAGE_ACCOUNT_NAME']
-location = DATA['AZURE_LOCATION']
-
-resource_client = ResourceManagementClient(credentials, subscription_id)
-storage_client = StorageManagementClient(credentials, subscription_id)
-compute_client = ComputeManagementClient(credentials, subscription_id)
-network_client = NetworkManagementClient(credentials, subscription_id)
 
 
 ##### helper functions #####
 def clean_name(name):
   return re.sub(r'-publish$', '', name)
+
+def get_credentials(client_id, secret, tenant):
+  return ServicePrincipalCredentials(
+    client_id = client_id,
+    secret = secret,
+    tenant = tenant
+    )
 
 def get_server_id(fqdn):
   return nova.servers.find(name=fqdn).id
@@ -62,7 +43,7 @@ def validate_device(device):
                      "'p', e.g. '/dev/xvdb'.\n" % device)
     sys.exit(1)
 
-def create_resource_group():
+def create_resource_group(resource_group_name, location):
   try:
     resource_client.resource_groups.create_or_update(
       resource_group_name,
@@ -139,19 +120,6 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
         }
     )
     return async_nic_creation.result()
-
-def create_storage_account(resource_group_name, storage_account_name, location):
-  storage_client.storage_accounts.create(
-    resource_group_name,
-    storage_account_name,
-    {
-      'location': location,
-      'kind':'storage',
-      'sku': {
-        'name':'standard_ragrs'
-      }
-    }
-  )
 
 def create_volume(name, size, type):
   name = clean_name(name) 

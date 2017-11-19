@@ -1,54 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <script id='activate' type='activate' verbose='true'>
-<macro id='activate-timeout'>600</macro>
-<macro id='wait'>
-timeout=%{activate-timeout}
-sleep=10
-wait=0
-time=0
-while true; do
-  info=`nova show %{fqdn}` 
-
-  # get state
-  state=`echo $info | grep -o "OS-EXT-STS:vm_state[^|]*|[^|]*" | python -c "import sys; x=sys.stdin.readline().split()[2]; print x"`
-  if [[ $state == error ]] ; then
-    echo "Error: `echo $info | grep -o \"fault[^|]*|[^|]*\" | python -c \"import sys; x=sys.stdin.readline(); print x\"`" >&amp;2
-    exit 1
-  fi
-
-  # get progress
-  progress=`echo $info | grep -o "progress[^|]*|[^|]*" | python -c "import sys; x=sys.stdin.readline().split()[2]; print x"`
-
-  # process results
-  if [[ $state == active ]] ; then
-    break
-  elif [[ $state == building ]] ; then
-    # don't timeout if the system is building
-    echo "$state... ${progress}% complete after $time seconds"
-    time=`expr $time + $sleep`
-    sleep $sleep
-  else
-    if [ "$wait" -lt "$timeout" ] ; then
-      remaining=`expr $timeout - $wait`
-      echo "$state... ${progress}% complete, will retry for $remaining seconds"
-      wait=`expr $wait + $sleep`
-      sleep $sleep
-    else 
-      echo "Activation timeout expired"
-      exit 3 
-    fi
-  fi
-done
-</macro>
 #!/usr/bin/python
 
 import sys
+from azure.mgmt.compute import ComputeManagementClient
 
 sys.path.insert(0, "%{templates-dir}/%{norm-os}/azure")
 
 from azure_lib import *
 
-fqdn="%{fqdn}"
+client_id = '%{azure-client-id}'
+secret = '%{azure-client-secret}'
+tenant = '%{azure-tenant-id}'
+subscription_id = '%{azure-subscription-id}'
+resource_group_name = '%{azure-resource-group-name}'
+fqdn = '%{fqdn}'
+
+credentials = get_credentials(client_id, secret, tenant)
+compute_client = ComputeManagementClient(credentials, subscription_id)
 
 # vm exists?
 try:

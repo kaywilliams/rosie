@@ -7,18 +7,46 @@ import sys
 sys.path.insert(0, "%{templates-dir}/%{norm-os}/azure")
 
 from azure_lib import *
+
 from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.compute import ComputeManagementClient
+from azure.mgmt.network import NetworkManagementClient
 
-resource_client = ResourceManagementClient(credentials, subscription_id)
+from msrestazure.azure_exceptions import CloudError
 
+client_id = '%{azure-client-id}'
+secret = '%{azure-client-secret}'
+tenant = '%{azure-tenant-id}'
+subscription_id = '%{azure-subscription-id}'
+resource_group_name = '%{azure-resource-group-name}'
+storage_account_name = '%{azure-storage-account-name}'
+location = '%{azure-location}'
 vm_name = '%{hostname}'
 vnet_name = '%{azure-vnet-name}'
 subnet_name = '%{azure-subnet-name}'
 nic_name = '%{azure-nic-name}'
 ip_config_name = '%{azure-ip-config-name}'
 
-create_resource_group()
+credentials = get_credentials(client_id, secret, tenant)
 
+resource_client = ResourceManagementClient(credentials, subscription_id)
+compute_client = ComputeManagementClient(credentials, subscription_id)
+network_client = NetworkManagementClient(credentials, subscription_id)
+
+## create resource group
+try:
+  resource_client.resource_groups.create_or_update(
+    resource_group_name,
+    {
+      'location': location
+    }
+  )
+except CloudError as e:
+  sys.stderr.write("Unable to create '%s'resource group" % resource_group_name)
+  sys.stderr.write(str(e.error))
+  sys.exit(1)
+
+## create nic
 nic = create_nic(network_client, resource_group_name, vnet_name, location, 
   subnet_name, nic_name, ip_config_name, vm_name)
 
