@@ -14,7 +14,7 @@ if [[ ! %{tag} = deploy ]]; then
   args="-r %{tag}"
 fi
  
-repo="https://www.rosie.io/git/public/deploy $args"
+repo="https://www.rosie.io/git/public/deploy.git $args"
 definition_dir=%{git-workspace}/%{tag}
 
 if [ ! -d $definition_dir ]; then
