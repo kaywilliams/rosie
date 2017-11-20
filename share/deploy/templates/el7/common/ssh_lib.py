@@ -14,7 +14,7 @@ def create_keys(dir, user=None):
     seckey.dirname.mkdirs(mode=0700)
     seckey.rm(force=True)
     pubkey.rm(force=True)
-    r = subprocess.call('ssh-keygen -q -t ecdsa -b 256 -N "" -f %s' % seckey,
+    r = subprocess.call('ssh-keygen -q -t rsa -b 2048 -N "" -f %s' % seckey,
                         shell=True)
     if r != 0:
       sys.exit(r)
