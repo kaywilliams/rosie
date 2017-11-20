@@ -42,6 +42,7 @@ Azure-hosted cloud systems. Installs both the Azure CLI and Azure Python binding
 
 <requires>python-pip</requires>
 <requires>python-requests</requires>
+<requires>python-urllib3</requires>
 <requires>azure-cli</requires>
 <requires>gcc</requires>
 
