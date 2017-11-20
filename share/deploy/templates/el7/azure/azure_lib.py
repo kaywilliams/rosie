@@ -102,7 +102,7 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
 
     # Create Subnet
     try:
-      network_client.subnets.get(
+      subnet_info = network_client.subnets.get(
         resource_group_name,
         vnet_name,
         subnet_name
