@@ -83,7 +83,7 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
 
     # Create vnet 
     try:
-      return network_client.virtual_networks.get(resource_group_name, vnet_name)
+      network_client.virtual_networks.get(resource_group_name, vnet_name)
     except CloudError as e:
       if not 'ResourceNotFound' in str(e.error):
         raise e
@@ -102,13 +102,13 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
 
     # Create Subnet
     try:
-      return network_client.subnets.get(
+      network_client.subnets.get(
         resource_group_name,
         vnet_name,
         subnet_name
         )
     except CloudError as e:
-      if not 'ResourceNotFound' in str(e.error):
+      if not 'NotFound' in str(e.error):
         raise e
 
       async_subnet_creation = network_client.subnets.create_or_update(
