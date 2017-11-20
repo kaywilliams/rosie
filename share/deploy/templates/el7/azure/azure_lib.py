@@ -66,7 +66,7 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
   except CloudError as e:
     if not 'ResourceNotFound' in str(e.error):
       raise e
-    
+   
     # Create Public IP address
     public_ip_addess_params = {
         'location': location,
@@ -82,27 +82,43 @@ def create_nic(network_client, resource_group_name, vnet_name, location,
     public_ip_address = async_public_address_creation.result()
 
     # Create vnet 
-    async_vnet_creation = network_client.virtual_networks.create_or_update(
-        resource_group_name,
-        vnet_name,
-        {
-            'location': location,
-            'address_space': {
-                'address_prefixes': ['10.0.0.0/16']
-            }
-        }
-    )
-    async_vnet_creation.wait()
+    try:
+      return network_client.virtual_networks.get(resource_group_name, vnet_name)
+    except CloudError as e:
+      if not 'ResourceNotFound' in str(e.error):
+        raise e
+
+      async_vnet_creation = network_client.virtual_networks.create_or_update(
+          resource_group_name,
+          vnet_name,
+          {
+              'location': location,
+              'address_space': {
+                  'address_prefixes': ['10.0.0.0/16']
+              }
+          }
+      )
+      async_vnet_creation.wait()
 
     # Create Subnet
-    async_subnet_creation = network_client.subnets.create_or_update(
+    try:
+      return network_client.subnets.get(
         resource_group_name,
         vnet_name,
-        subnet_name,
-        {'address_prefix': '10.0.0.0/24'}
+        subnet_name
         )
-    
-    subnet_info = async_subnet_creation.result()
+    except CloudError as e:
+      if not 'ResourceNotFound' in str(e.error):
+        raise e
+
+      async_subnet_creation = network_client.subnets.create_or_update(
+          resource_group_name,
+          vnet_name,
+          subnet_name,
+          {'address_prefix': '10.0.0.0/24'}
+          )
+      
+      subnet_info = async_subnet_creation.result()
 
     # Create NIC
     async_nic_creation = network_client.network_interfaces.create_or_update(
