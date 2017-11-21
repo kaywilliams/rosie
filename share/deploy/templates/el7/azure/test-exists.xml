@@ -24,7 +24,7 @@ compute_client = ComputeManagementClient(credentials, subscription_id)
 
 # error if server not found 
 try:
-  vm = compute_client.virtual_machines.get(resource_group_name, '%{fqdn}')
+  compute_client.virtual_machines.get(resource_group_name, '%{hostname}')
 except CloudError as e:
   if any(x in str(e.error) for x in 
         ('ResourceNotFound', 'ResourceGroupNotFound')):
