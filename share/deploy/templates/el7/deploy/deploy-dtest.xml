@@ -32,7 +32,7 @@ echo Cloning deploy '('tag=%{tag}')'
 [ -e $rootdir ] || mkdir $rootdir
 
 rm -rf $rootdir/%{tag}
-git clone --branch "%{tag}" https://www.rosie.io/git/public/deploy $rootdir/%{tag} >/dev/null
+git clone --branch "%{tag}" https://github.com/kaywilliams/rosie.git $rootdir/%{tag} >/dev/null
 
 # testing
 pwd=$(pwd)
